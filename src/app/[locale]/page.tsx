@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import RankingBoard from '@/components/RankingBoard';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,22 +12,6 @@ export default function HomePage() {
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-      {/* Header */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 md:px-10 lg:px-20">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="PUZZL THINK Logo" className="h-10 w-auto object-contain rounded-lg" />
-          <h2 className="text-xl font-bold leading-tight tracking-tight">{t('title')}</h2>
-        </div>
-        <div className="hidden md:flex flex-1 justify-end gap-8 items-center">
-          <nav className="flex items-center gap-8">
-            <Link className="text-sm font-medium hover:text-blue-500 transition-colors" href="/">Home</Link>
-          </nav>
-          <button className="flex items-center justify-center overflow-hidden rounded-lg h-10 px-6 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/30 active:scale-95">
-            Sign In
-          </button>
-        </div>
-      </header>
-
       <main className="flex-grow flex flex-col items-center">
         {/* Hero Section */}
         <section className="relative w-full max-w-5xl px-4 py-16 md:py-24 lg:px-20 flex flex-col items-center text-center">

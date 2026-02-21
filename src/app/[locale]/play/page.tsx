@@ -1,13 +1,16 @@
 "use client";
 
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import clsx from 'clsx';
 import { useSearchParams } from 'next/navigation';
 import { useSudoku } from '@/hooks/useSudoku';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import TutorialOverlay from '@/components/TutorialOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
+import { createClient } from '@/utils/supabase/client';
+import type { User } from '@supabase/supabase-js';
+import UserMenu from '@/components/UserMenu';
 
 export default function PlayPage() {
     const t = useTranslations('Sudoku');
@@ -15,6 +18,56 @@ export default function PlayPage() {
     const searchParams = useSearchParams();
     const [showTutorial, setShowTutorial] = useState(false);
     const [showTips, setShowTips] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+    const [supabase] = useState(() => createClient());
+    const hasSavedRecord = useRef(false);
+
+    // Fetch user session
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null);
+        });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+        return () => subscription.unsubscribe();
+    }, [supabase]);
+
+    // Save record to localStorage when game is won
+    useEffect(() => {
+        if (game.status === 'playing' || game.status === 'idle') {
+            hasSavedRecord.current = false;
+        }
+        if (game.status === 'won' && !hasSavedRecord.current && game.initialBoard && game.solution) {
+            hasSavedRecord.current = true;
+            const record = {
+                id: `${Date.now()}`,
+                difficulty: game.difficulty,
+                time: game.timer,
+                date: new Date().toISOString(),
+                initialBoard: JSON.parse(JSON.stringify(game.initialBoard)),
+                solvedBoard: JSON.parse(JSON.stringify(game.solution)),
+            };
+            try {
+                const existing = JSON.parse(localStorage.getItem('logicphos_records') || '[]');
+                existing.unshift(record);
+                localStorage.setItem('logicphos_records', JSON.stringify(existing.slice(0, 50)));
+            } catch { /* ignore */ }
+        }
+    }, [game.status, game.initialBoard, game.solution, game.difficulty, game.timer]);
+
+    // Show login prompt when game is won and user is not logged in
+    useEffect(() => {
+        if (game.status === 'won' && !user) {
+            const timer = setTimeout(() => setShowLoginPrompt(true), 1200);
+            return () => clearTimeout(timer);
+        }
+    }, [game.status, user]);
+
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+    };
 
     useEffect(() => {
         const hasSeen = localStorage.getItem('logicphos_tutorial_seen');
@@ -94,10 +147,17 @@ export default function PlayPage() {
                     <img src="/logo.png" alt="PUZZL THINK Logo" className="h-8 w-auto object-contain rounded-lg" />
                     <span className="text-xl font-bold tracking-tight text-slate-800 dark:text-white">PUZZL THINK</span>
                 </Link>
-                <div className="flex items-center gap-4">
-                    <button onClick={() => setShowTutorial(true)} className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors" title="Tutorial">
-                        <span className="material-symbols-outlined text-xl">help</span>
-                    </button>
+                <div className="flex items-center gap-3">
+                    {user ? (
+                        <UserMenu user={user} onSignOut={handleSignOut} />
+                    ) : (
+                        <Link
+                            href="/login"
+                            className="flex items-center justify-center rounded-lg h-9 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold shadow-md transition-all active:scale-95"
+                        >
+                            Sign In
+                        </Link>
+                    )}
                     <button className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
                         <span className="material-symbols-outlined text-xl">settings</span>
                     </button>
@@ -116,7 +176,13 @@ export default function PlayPage() {
                             <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-xl">
                                 <span className="material-symbols-outlined text-6xl text-emerald-500 mb-4 animate-bounce">emoji_events</span>
                                 <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">You Won!</h2>
-                                <p className="text-slate-600 dark:text-slate-300 mb-6 font-medium">Time: {formatTime(game.timer)}</p>
+                                <p className="text-slate-600 dark:text-slate-300 mb-4 font-medium">Time: {formatTime(game.timer)}</p>
+                                {user && (
+                                    <p className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold mb-4 flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-base">check_circle</span>
+                                        Record saved, {user.user_metadata?.full_name ?? user.email?.split('@')[0]}!
+                                    </p>
+                                )}
                                 <button onClick={() => game.startGame(game.difficulty)} className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold shadow-lg shadow-blue-500/30 transition-transform active:scale-95">Play Again</button>
                             </div>
                         )}
@@ -306,7 +372,53 @@ export default function PlayPage() {
                                     </div>
                                 </button>
                             </div>
+                            {/* Tutorial Button at bottom of Tools */}
+                            <button
+                                onClick={() => setShowTutorial(true)}
+                                className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-semibold transition-all border border-slate-100 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-500/30 active:scale-95"
+                            >
+                                <span className="material-symbols-outlined text-base">help</span>
+                                How to Play
+                            </button>
                         </div>
+
+                        {/* Login Prompt Modal */}
+                        <AnimatePresence>
+                            {showLoginPrompt && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                                    className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 rounded-xl p-6 shadow-lg border border-blue-100 dark:border-blue-900 relative"
+                                >
+                                    <button
+                                        onClick={() => setShowLoginPrompt(false)}
+                                        className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">close</span>
+                                    </button>
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                            <span className="material-symbols-outlined text-blue-500 text-xl">emoji_events</span>
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-800 dark:text-white text-sm mb-1">기록을 남기시겠어요?</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                                                로그인하면 클리어 기록이 저장되고<br />랭킹에 닉네임이 올라갑니다!
+                                            </p>
+                                            <Link
+                                                href="/login"
+                                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow-md shadow-blue-500/30 transition-all active:scale-95"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">login</span>
+                                                로그인하기
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
 
                     {/* Tips Panel */}
