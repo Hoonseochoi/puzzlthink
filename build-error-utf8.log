@@ -1,0 +1,56 @@
+﻿
+> logicphos@0.1.0 build
+> next build
+
+node.exe : 殊?Failed to 
+load next.config.ts, se
+e more info here https:
+//nextjs.org/docs/messa
+ges/next-config-error
+위치 줄:1 문자:1
++ & "C:\Program Files\n
+odejs/node.exe" "C:\Pro
+gram Files\nodejs/node_
+mo ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (殊?Failed to l   
+ oa...xt-config-err    
+or:String) [], Rem    o
+teException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+
+> Build error occurred
+Error: 
+[next-intl] Could not l
+ocate request configura
+tion module.
+
+This path is supported 
+by default: ./(src/)i18
+n/request.{js,jsx,ts,ts
+x}
+
+Alternatively, you can 
+specify a custom locati
+on in your Next.js conf
+ig:
+
+const withNextIntl = cr
+eateNextIntlPlugin(
+  './path/to/i18n/reque
+st.tsx'
+);
+
+    at Object.<anonymou
+s> (C:\Users\chlgn\OneD
+rive\Desktop\logicH\log
+icphos\next.config.comp
+iled.js:19:18)

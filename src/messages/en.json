@@ -1,0 +1,52 @@
+{
+  "Landing": {
+    "title": "PUZZL THINK",
+    "subtitle": "Challenge the World Sudoku Ranking!",
+    "description": "Compete against players worldwide. Test your logic in a minimal, seamless environment.",
+    "playNow": "Play Now",
+    "rankingLive": "Live World Ranking",
+    "rank": "Rank",
+    "country": "Nation",
+    "nickname": "Player",
+    "difficulty": "Difficulty",
+    "clearTime": "Time"
+  },
+  "Sudoku": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "timer": "Time",
+    "mistakes": "Mistakes",
+    "pause": "Pause",
+    "resume": "Resume",
+    "replay": "Replay",
+    "newGame": "New Game",
+    "victory": "You Win!",
+    "gameOver": "Game Over.",
+    "tips": "Game Tips",
+    "tip1Title": "1. Cross-hatching",
+    "tip1Desc": "Scan rows and columns to eliminate possibilities in a 3x3 box.",
+    "tip2Title": "2. Blank scanning",
+    "tip2Desc": "If a row, col, or box has only 1 or 2 empty cells, fill those in first.",
+    "tip3Title": "3. Pencil Marks",
+    "tip3Desc": "Press the Spacebar to note candidates. Patterns will reveal themselves.",
+    "tip4Title": "4. Only One Solution",
+    "tip4Desc": "Sudoku can always be solved with strict logic. Don't guess!",
+    "closeTips": "Close Tips"
+  },
+  "Tutorial": {
+    "skip": "Skip",
+    "next": "Next",
+    "finish": "Start Game",
+    "step0Title": "Welcome to PUZZL THINK",
+    "step0Desc": "Let's quickly go over the sleek controls designed to keep you in the zone.",
+    "step1Title": "Navigate with Ease",
+    "step1Desc": "Tap cells or use the Arrow keys on your keyboard to zip around the board seamlessly.",
+    "step2Title": "Master the Numpad",
+    "step2Desc": "Click the number pad below or use your keyboard's number keys to fill in answers instantly.",
+    "step3Title": "Spacebar Magic",
+    "step3Desc": "Press the Spacebar to instantly toggle Notes mode, perfect for marking down possibilities.",
+    "step4Title": "You're All Set!",
+    "step4Desc": "Stay focused, minimize mistakes, and challenge your personal best. Good luck!"
+  }
+}

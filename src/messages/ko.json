@@ -1,0 +1,52 @@
+{
+    "Landing": {
+        "title": "PUZZL THINK",
+        "subtitle": "스도쿠 세계 랭킹에 도전해보세요!",
+        "description": "전 세계의 플레이어들과 기록을 경쟁하세요. 미니멀하고 매끄러운 환경에서 당신의 논리력을 시험할 수 있습니다.",
+        "playNow": "지금 플레이하기",
+        "rankingLive": "실시간 월드 랭킹",
+        "rank": "순위",
+        "country": "국가",
+        "nickname": "닉네임",
+        "difficulty": "난이도",
+        "clearTime": "기록"
+    },
+    "Sudoku": {
+        "easy": "쉬움",
+        "medium": "보통",
+        "hard": "어려움",
+        "timer": "진행 시간",
+        "mistakes": "실수",
+        "pause": "일시정지",
+        "resume": "재개",
+        "replay": "리플레이 시청",
+        "newGame": "새 게임",
+        "victory": "축하합니다! 클리어 성공",
+        "gameOver": "게임 오버가 되었습니다.",
+        "tips": "게임 팁",
+        "tip1Title": "1. 십자 교차 (Cross-hatching)",
+        "tip1Desc": "특정 숫자가 위치한 행과 열을 통해 3x3 박스에 들어갈 빈칸을 유추하세요.",
+        "tip2Title": "2. 빈칸 스캐닝 (Blank scanning)",
+        "tip2Desc": "하나의 행, 열 또는 박스에 빈칸이 1~2개뿐이라면 가장 먼저 채워보세요.",
+        "tip3Title": "3. 후보 메모 (Pencil Marks)",
+        "tip3Desc": "스페이스바를 눌러 가능한 숫자를 작게 적어두면 감춰진 패턴이 보입니다.",
+        "tip4Title": "4. 하나뿐인 정답",
+        "tip4Desc": "스도쿠는 오직 논리적 추론으로만 해결 가능합니다. 운에 맡기고 찍지 마세요!",
+        "closeTips": "팁 닫기"
+    },
+    "Tutorial": {
+        "skip": "건너뛰기",
+        "next": "다음",
+        "finish": "시작하기",
+        "step0Title": "PUZZL THINK에 오신 것을 환영합니다",
+        "step0Desc": "게임을 쾌적하게 만들어 줄 핵심 조작법을 빠르게 살펴보겠습니다.",
+        "step1Title": "자유로운 이동",
+        "step1Desc": "원하는 칸을 터치하거나 키보드 방향키를 사용하여 보드 위를 자유롭게 이동하세요.",
+        "step2Title": "숫자 패드 마스터",
+        "step2Desc": "하단의 숫자 패드를 클릭하거나 키보드의 숫자 키를 눌러 정답을 즉시 입력할 수 있습니다.",
+        "step3Title": "스페이스바의 마법",
+        "step3Desc": "스페이스바를 누르면 즉시 노트 모드가 켜집니다. 가능한 숫자들을 기록할 때 활용하세요.",
+        "step4Title": "준비 완료!",
+        "step4Desc": "완벽합니다! 실수를 최소화하고 당신의 최고 기록에 도전하세요. 행운을 빕니다!"
+    }
+}
