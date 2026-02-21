@@ -1,8 +1,6 @@
 "use client";
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Link } from '@/i18n/routing'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
@@ -24,8 +22,8 @@ export default function LoginPage() {
 
     return (
         <section className="bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex min-h-screen items-center justify-center px-4 py-12 md:py-20">
-            <div className="w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden">
-                <div className="p-8">
+            <div className="w-full max-w-sm rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden">
+                <div className="p-8 md:p-10">
                     {/* Logo / Home Link */}
                     <div className="flex flex-col items-center">
                         <Link
@@ -43,24 +41,27 @@ export default function LoginPage() {
                         </Link>
                         <div className="mt-8 text-center">
                             <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-                                <span className="block text-blue-500 text-base font-bold mb-1">Welcome back to PUZZL THINK!</span>
+                                <span className="block text-blue-500 text-base font-bold mb-1">Welcome to PUZZL THINK!</span>
                                 Sign in to continue
                             </h1>
+                            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                                Start playing and competing globally.
+                            </p>
                         </div>
                     </div>
 
                     {/* Social Buttons */}
-                    <div className="mt-8 space-y-3">
+                    <div className="mt-10">
                         <Button
                             type="button"
                             variant="outline"
                             size="lg"
                             onClick={handleGoogleLogin}
-                            className="w-full h-14 rounded-2xl border-slate-200 dark:border-slate-800 flex items-center justify-center gap-3 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-[0.98]"
+                            className="w-full h-16 rounded-2xl border-slate-200 dark:border-slate-800 flex items-center justify-center gap-4 font-bold text-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-blue-500/50 transition-all active:scale-[0.98] shadow-sm"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
+                                className="h-6 w-6"
                                 viewBox="0 0 256 262"
                             >
                                 <path
@@ -80,47 +81,14 @@ export default function LoginPage() {
                                     d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
                                 />
                             </svg>
-                            <span>Continue with Google</span>
+                            <span>Sign in with Google</span>
                         </Button>
                     </div>
 
-                    {/* Divider */}
-                    <div className="my-8 flex items-center">
-                        <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800" />
-                        <span className="px-4 text-xs font-bold uppercase tracking-widest text-slate-400">or</span>
-                        <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800" />
-                    </div>
-
-                    {/* Email Login */}
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email" className="ml-1">
-                                Email Address
-                            </Label>
-                            <Input
-                                type="email"
-                                required
-                                name="email"
-                                id="email"
-                                placeholder="name@example.com"
-                                className="shadow-sm focus:shadow-blue-500/10"
-                            />
-                        </div>
-
-                        <Button className="w-full h-14 rounded-2xl text-lg shadow-lg shadow-blue-500/30" size="lg">
-                            <span className="mr-2">Continue</span>
-                            <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Footer */}
-                <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-center">
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                        Don’t have an account?{' '}
-                        <Link href="#" className="text-blue-500 font-bold hover:underline transition-all">
-                            Create one
-                        </Link>
+                    <p className="mt-8 text-center text-xs text-slate-400 dark:text-slate-500 leading-relaxed px-4">
+                        By continuing, you agree to our{' '}
+                        <Link href="/terms" className="underline hover:text-blue-500">Terms of Service</Link> and{' '}
+                        <Link href="/privacy-policy" className="underline hover:text-blue-500">Privacy Policy</Link>.
                     </p>
                 </div>
             </div>
