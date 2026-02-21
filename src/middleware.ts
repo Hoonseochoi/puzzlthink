@@ -6,10 +6,15 @@ import { updateSession } from '@/utils/supabase/middleware';
 const intlMiddleware = createMiddleware(routing);
 
 export default async function middleware(request: NextRequest) {
-    // 1. Supabase 세션 업데이트 (쿠키 세션 유지)
-    // 2. i18n 미들웨어 적용
-    // Note: updateSession 내부에서 유저 정보를 체크할 수 있음
-    await updateSession(request);
+    // Supabase 세션 업데이트 (환경변수 확인 및 에러 방지)
+    try {
+        if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+            await updateSession(request);
+        }
+    } catch (e) {
+        console.error('Middleware session update error:', e);
+    }
+
     return intlMiddleware(request);
 }
 
