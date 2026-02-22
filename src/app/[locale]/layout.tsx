@@ -28,8 +28,8 @@ export const metadata: Metadata = {
   description:
     'Play free Sudoku online — Easy, Medium, and Hard difficulties. Compete on global leaderboards, track your records, and print A4 puzzle sheets. No download required.',
   keywords: [
-    'sudoku', 'free sudoku', 'sudoku online', 'sudoku game', 'sudoku puzzle',
-    'logic puzzle', 'brain game', 'sudoku leaderboard', 'puzzlthink',
+    '스도쿠', 'sudoku', 'free sudoku', 'sudoku online', 'sudoku game', 'sudoku puzzle',
+    'logic puzzle', 'brain game', 'sudoku leaderboard', 'puzzlthink', '스도쿠 게임', '무료 스도쿠',
   ],
   authors: [{ name: 'PUZZL THINK', url: BASE_URL }],
   openGraph: {
@@ -53,6 +53,18 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'PUZZL THINK',
+  url: BASE_URL,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${BASE_URL}/search?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+};
+
 
 export default async function RootLayout({
   children,
@@ -73,6 +85,10 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[#f6f7f8] text-slate-900 dark:bg-[#101922] dark:text-slate-100 font-sans transition-colors duration-200`} suppressHydrationWarning>
         <div suppressHydrationWarning>
