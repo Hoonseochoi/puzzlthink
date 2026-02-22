@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import GlobalHeader from '@/components/GlobalHeader';
 import GlobalFooter from '@/components/GlobalFooter';
+import { Analytics } from '@vercel/analytics/next';
 
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -82,6 +83,7 @@ export default async function RootLayout({
             <GlobalFooter />
           </NextIntlClientProvider>
         </div>
+        <Analytics />
       </body>
     </html>
   );
