@@ -383,7 +383,7 @@ export default function EscapeRoomClient({ story }: Props) {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ scale: 0.15, opacity: 0 }}
-              transition={{ exit: { duration: 0.35, ease: [0.4, 0, 0.2, 1] } }}
+              transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
               style={{ transformOrigin: '50% 100%' }}
               className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] w-full max-w-2xl max-h-[85vh] mx-4 flex flex-col bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
               onClick={(e) => e.stopPropagation()}

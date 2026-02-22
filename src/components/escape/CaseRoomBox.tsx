@@ -22,7 +22,7 @@ export default function CaseRoomBox({ story, foundClueIds, onHotspotClick, class
       <div className="relative z-10 p-4 flex flex-col justify-between min-h-full">
         <span className="text-slate-300/80 text-sm font-medium">{story.title} · {t('caseScene')}</span>
         <div className="flex-1 relative">
-          {story.hotspots.map((hotspot) => {
+          {(story.hotspots ?? []).map((hotspot) => {
             const found = foundClueIds.includes(hotspot.clueId);
             return (
               <button
