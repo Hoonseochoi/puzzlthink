@@ -15,6 +15,7 @@ import { useLoginModal } from '@/contexts/LoginModalContext';
 
 export default function PlayPage() {
     const t = useTranslations('Sudoku');
+    const { openLoginModal } = useLoginModal();
     const game = useSudoku();
     const searchParams = useSearchParams();
     const [showTutorial, setShowTutorial] = useState(false);

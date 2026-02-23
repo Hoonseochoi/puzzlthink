@@ -25,8 +25,33 @@ import LivingRoomPanel from './LivingRoomPanel';
 import { cn } from '@/lib/utils';
 
 const SAVE_KEY = 'puzzlthink_escape_progress';
+const BGM_STORAGE_KEY = 'puzzlthink_escape_bgm';
+const SFX_STORAGE_KEY = 'puzzlthink_escape_sfx';
 /** 평면도 화면 재생 테마 BGM */
 const FLOOR_PLAN_THEME_URL = '/story/theme.mp3';
+/** BGM 재생 볼륨 (0~1). 전체 볼륨이 너무 크지 않도록 */
+const BGM_VOLUME = 0.4;
+/** 페이드인 duration (ms) */
+const BGM_FADE_MS = 1200;
+/** 테마 BGM 끝 페이드아웃 구간 (초) */
+const THEME_FADEOUT_SEC = 2;
+
+function getStoredBgm(): boolean {
+  if (typeof window === 'undefined') return true;
+  try {
+    return localStorage.getItem(BGM_STORAGE_KEY) !== 'false';
+  } catch {
+    return true;
+  }
+}
+function getStoredSfx(): boolean {
+  if (typeof window === 'undefined') return true;
+  try {
+    return localStorage.getItem(SFX_STORAGE_KEY) !== 'false';
+  } catch {
+    return true;
+  }
+}
 
 function loadProgress(storyId: string): Partial<EscapeProgress> | null {
   if (typeof window === 'undefined') return null;
@@ -82,31 +107,176 @@ export default function EscapeRoomClient({ story }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const [supabase] = useState(() => createClient());
+  const [bgmOn, setBgmOnState] = useState(true);
+  const [sfxOn, setSfxOnState] = useState(true);
+  const [soundPrefsLoaded, setSoundPrefsLoaded] = useState(false);
+  const titleBgmRef = useRef<HTMLAudioElement | null>(null);
+  const floorBgmRef = useRef<HTMLAudioElement | null>(null);
+  const titleBgmFadeRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const floorBgmFadeRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // 타이틀 화면 BGM: 반복 재생, 사건 해결하기 진입 시 자동 정지
+  // localStorage에서 초기값 로드
   useEffect(() => {
-    if (!showStartScreen || !story.startScreenBgm) return;
+    setBgmOnState(getStoredBgm());
+    setSfxOnState(getStoredSfx());
+    setSoundPrefsLoaded(true);
+  }, []);
+
+  const setBgmOn = useCallback((value: boolean) => {
+    setBgmOnState(value);
+    try {
+      localStorage.setItem(BGM_STORAGE_KEY, value ? 'true' : 'false');
+    } catch {}
+  }, []);
+  const setSfxOn = useCallback((value: boolean) => {
+    setSfxOnState(value);
+    try {
+      localStorage.setItem(SFX_STORAGE_KEY, value ? 'true' : 'false');
+    } catch {}
+  }, []);
+
+  // 타이틀 화면 BGM: 화면 나오자마자 자동 재생 (페이드인)
+  useEffect(() => {
+    if (!soundPrefsLoaded || !showStartScreen || !story.startScreenBgm || !bgmOn) return;
     const audio = new Audio(story.startScreenBgm);
+    titleBgmRef.current = audio;
     audio.loop = true;
+    audio.volume = 0;
     audio.play().catch(() => {});
+    const start = Date.now();
+    const fade = setInterval(() => {
+      const elapsed = Date.now() - start;
+      if (elapsed >= BGM_FADE_MS) {
+        audio.volume = BGM_VOLUME;
+        if (titleBgmFadeRef.current) {
+          clearInterval(titleBgmFadeRef.current);
+          titleBgmFadeRef.current = null;
+        }
+        return;
+      }
+      audio.volume = (elapsed / BGM_FADE_MS) * BGM_VOLUME;
+    }, 50);
+    titleBgmFadeRef.current = fade;
     return () => {
+      if (titleBgmFadeRef.current) {
+        clearInterval(titleBgmFadeRef.current);
+        titleBgmFadeRef.current = null;
+      }
       audio.pause();
       audio.currentTime = 0;
+      titleBgmRef.current = null;
     };
-  }, [showStartScreen, story.startScreenBgm]);
+  }, [soundPrefsLoaded, showStartScreen, story.startScreenBgm, bgmOn]);
 
-  // 평면도 화면 테마 BGM: 평면도가 보일 때만 재생, 방 입장 시 정지
+  // 평면도 테마 BGM 시작 (끝에서 페이드아웃 후 자연스럽게 루프)
+  const startFloorPlanBgm = useCallback(() => {
+    if (!soundPrefsLoaded || !bgmOn || floorBgmRef.current) return;
+    const audio = new Audio(FLOOR_PLAN_THEME_URL);
+    floorBgmRef.current = audio;
+    audio.loop = false;
+
+    const runFadeIn = () => {
+      if (floorBgmFadeRef.current) {
+        clearInterval(floorBgmFadeRef.current);
+        floorBgmFadeRef.current = null;
+      }
+      audio.volume = 0;
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+      const start = Date.now();
+      const fade = setInterval(() => {
+        const elapsed = Date.now() - start;
+        if (elapsed >= BGM_FADE_MS) {
+          audio.volume = BGM_VOLUME;
+          if (floorBgmFadeRef.current) {
+            clearInterval(floorBgmFadeRef.current);
+            floorBgmFadeRef.current = null;
+          }
+          return;
+        }
+        audio.volume = (elapsed / BGM_FADE_MS) * BGM_VOLUME;
+      }, 50);
+      floorBgmFadeRef.current = fade;
+    };
+
+    const onEnded = () => {
+      if (!floorBgmRef.current || floorBgmRef.current !== audio) return;
+      runFadeIn();
+    };
+    const onTimeUpdate = () => {
+      if (!audio.duration || !(audio.duration > THEME_FADEOUT_SEC)) return;
+      const remain = audio.duration - audio.currentTime;
+      if (remain <= THEME_FADEOUT_SEC && remain > 0) {
+        audio.volume = Math.max(0, (remain / THEME_FADEOUT_SEC) * BGM_VOLUME);
+      }
+    };
+    const onLoadedMetadata = () => {
+      runFadeIn();
+    };
+
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
+    audio.load();
+
+    return () => {
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+    };
+  }, [soundPrefsLoaded, bgmOn]);
+
+  // 타이틀 화면 벗어날 때 타이틀 BGM 정지
+  useEffect(() => {
+    if (showStartScreen) return;
+    if (titleBgmFadeRef.current) {
+      clearInterval(titleBgmFadeRef.current);
+      titleBgmFadeRef.current = null;
+    }
+    if (titleBgmRef.current) {
+      titleBgmRef.current.pause();
+      titleBgmRef.current.currentTime = 0;
+      titleBgmRef.current = null;
+    }
+  }, [showStartScreen]);
+
+  // 평면도 → 방 입장 시 테마 BGM 정지
   const hasRooms = (story.rooms?.length ?? 0) > 0;
   useEffect(() => {
-    if (showStartScreen || !hasRooms || currentRoomId != null) return;
-    const audio = new Audio(FLOOR_PLAN_THEME_URL);
-    audio.loop = true;
-    audio.play().catch(() => {});
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-    };
+    if (showStartScreen || (hasRooms && currentRoomId == null)) return;
+    if (floorBgmFadeRef.current) {
+      clearInterval(floorBgmFadeRef.current);
+      floorBgmFadeRef.current = null;
+    }
+    if (floorBgmRef.current) {
+      floorBgmRef.current.pause();
+      floorBgmRef.current.currentTime = 0;
+      floorBgmRef.current = null;
+    }
   }, [showStartScreen, hasRooms, currentRoomId]);
+
+  // BGM 끄면 재생 중인 소리 즉시 정지
+  useEffect(() => {
+    if (bgmOn) return;
+    if (titleBgmFadeRef.current) {
+      clearInterval(titleBgmFadeRef.current);
+      titleBgmFadeRef.current = null;
+    }
+    if (titleBgmRef.current) {
+      titleBgmRef.current.pause();
+      titleBgmRef.current.currentTime = 0;
+      titleBgmRef.current = null;
+    }
+    if (floorBgmFadeRef.current) {
+      clearInterval(floorBgmFadeRef.current);
+      floorBgmFadeRef.current = null;
+    }
+    if (floorBgmRef.current) {
+      floorBgmRef.current.pause();
+      floorBgmRef.current.currentTime = 0;
+      floorBgmRef.current = null;
+    }
+  }, [bgmOn]);
 
   const isCleared = clearTime != null;
   const hasStarted = startTime != null;
@@ -287,6 +457,7 @@ export default function EscapeRoomClient({ story }: Props) {
                 resetState();
                 setShowStartScreen(false);
                 setShowChapter0Modal(true);
+                startFloorPlanBgm();
                 return;
               }
               const saved = loadProgress(story.id);
@@ -298,6 +469,7 @@ export default function EscapeRoomClient({ story }: Props) {
                 resetState();
                 setShowStartScreen(false);
                 setShowChapter0Modal(true);
+                startFloorPlanBgm();
               }
             }}
             className="px-8 py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-lg shadow-lg hover:scale-105 active:scale-100 transition-transform"
@@ -310,6 +482,17 @@ export default function EscapeRoomClient({ story }: Props) {
         <p className="relative z-10 text-center text-xs text-white/80 pb-6 px-4">
           {t('startDisclaimer')}
         </p>
+
+        {/* 우측 하단: 사운드 온/오프 */}
+        <div className="absolute right-4 bottom-4 z-10">
+          <AudioToggle
+            bgmOn={bgmOn}
+            sfxOn={sfxOn}
+            onBgmToggle={() => setBgmOn(!bgmOn)}
+            onSfxToggle={() => setSfxOn(!sfxOn)}
+            variant="dark"
+          />
+        </div>
 
         {/* 이어하기 모달 (로그인 시 저장된 진행 있으면) */}
         <AnimatePresence>
@@ -340,6 +523,7 @@ export default function EscapeRoomClient({ story }: Props) {
                       setShowContinueModal(false);
                       setShowStartScreen(false);
                       setShowChapter0Modal(true);
+                      startFloorPlanBgm();
                     }}
                     className="flex-1 py-2.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-bold"
                   >
@@ -353,6 +537,7 @@ export default function EscapeRoomClient({ story }: Props) {
                       setShowContinueModal(false);
                       setShowStartScreen(false);
                       setShowChapter0Modal(true);
+                      startFloorPlanBgm();
                     }}
                     className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold"
                   >
@@ -368,7 +553,13 @@ export default function EscapeRoomClient({ story }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <div
+      className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100"
+      onClick={() => {
+        if (!showStartScreen && hasRooms && currentRoomId == null) startFloorPlanBgm();
+      }}
+      role="presentation"
+    >
       {/* CHAPTER 0: 사건 진입 시 상황 설명 모달 (밝은 배경, 파란 버튼) */}
       <AnimatePresence>
         {showChapter0Modal && (
@@ -438,6 +629,7 @@ export default function EscapeRoomClient({ story }: Props) {
                     setShowChapter0Modal(false);
                     setEntrySummaryShown(true);
                     if (startTime == null) setStartTime(Date.now());
+                    startFloorPlanBgm();
                   }}
                   className="w-full py-3.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-base shadow-md transition-colors"
                 >
@@ -473,7 +665,12 @@ export default function EscapeRoomClient({ story }: Props) {
           />
           <ProgressBar current={foundClueIds.length} total={story.clues.length} className="hidden sm:block" />
           <ClearTimeDisplay startTime={startTime} clearTime={clearTime} isCleared={isCleared} />
-          <AudioToggle />
+          <AudioToggle
+            bgmOn={bgmOn}
+            sfxOn={sfxOn}
+            onBgmToggle={() => setBgmOn(!bgmOn)}
+            onSfxToggle={() => setSfxOn(!sfxOn)}
+          />
           <div className="relative flex items-center" ref={userMenuRef}>
             {user ? (
               <>
