@@ -1,11 +1,15 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import Script from 'next/script';
 import GlobalHeader from '@/components/GlobalHeader';
 import GlobalFooter from '@/components/GlobalFooter';
+import { LoginModalProvider } from '@/contexts/LoginModalContext';
 
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '../globals.css';
+
+const GA_MEASUREMENT_ID = 'G-2CTS08JVJQ';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -75,11 +79,25 @@ export default async function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[#f6f7f8] text-slate-900 dark:bg-[#101922] dark:text-slate-100 font-sans transition-colors duration-200`} suppressHydrationWarning>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         <div suppressHydrationWarning>
           <NextIntlClientProvider messages={messages}>
-            <GlobalHeader />
-            {children}
-            <GlobalFooter />
+            <LoginModalProvider>
+              <GlobalHeader />
+              {children}
+              <GlobalFooter />
+            </LoginModalProvider>
           </NextIntlClientProvider>
         </div>
       </body>

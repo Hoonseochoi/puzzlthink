@@ -7,12 +7,15 @@ import { createClient } from '@/utils/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import UserMenu from '@/components/UserMenu';
 import SudokuNavDropdown from '@/components/SudokuNavDropdown';
+import EscapeNavDropdown from '@/components/EscapeNavDropdown';
+import { useLoginModal } from '@/contexts/LoginModalContext';
 
 // Pages that have their own immersive header (hide global header)
 const HIDE_ON = ['/play', '/login'];
 
 export default function GlobalHeader() {
     const pathname = usePathname();
+    const { openLoginModal } = useLoginModal();
     const [user, setUser] = useState<User | null>(null);
     const [supabase] = useState(() => createClient());
 
@@ -33,7 +36,8 @@ export default function GlobalHeader() {
     if (hidden) return null;
 
     return (
-        <header className="w-full flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-6 py-3 md:px-10 lg:px-16 shrink-0">
+        <>
+            <header className="w-full flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 px-6 py-3 md:px-10 lg:px-16 shrink-0">
             {/* ——— LEFT: Logo + Category Nav ——— */}
             <div className="flex items-center gap-4">
                 <Link href="/" className="flex items-center gap-2.5 shrink-0">
@@ -42,9 +46,10 @@ export default function GlobalHeader() {
                 </Link>
                 {/* Divider */}
                 <span className="hidden md:block w-px h-5 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                {/* SUDOKU category dropdown — left of nav */}
-                <div className="hidden md:block">
+                {/* SUDOKU / Escape category dropdowns */}
+                <div className="hidden md:flex items-center gap-6">
                     <SudokuNavDropdown />
+                    <EscapeNavDropdown />
                 </div>
             </div>
 
@@ -53,14 +58,17 @@ export default function GlobalHeader() {
                 {user ? (
                     <UserMenu user={user} onSignOut={handleSignOut} />
                 ) : (
-                    <Link
-                        href="/login"
+                    <button
+                        type="button"
+                        onClick={openLoginModal}
                         className="flex items-center justify-center rounded-lg h-9 px-5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95"
                     >
                         Sign In
-                    </Link>
+                    </button>
                 )}
             </div>
         </header>
+            <div className="h-14 shrink-0" aria-hidden="true" />
+        </>
     );
 }

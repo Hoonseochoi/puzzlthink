@@ -392,30 +392,32 @@ export default function EscapeRoomClient({ story }: Props) {
                 <h2 className="text-lg font-bold text-slate-800">
                   {t('chapter0Title')}
                 </h2>
+                <p className="text-sm text-slate-500 mt-0.5">{t('chapter0Subtitle')}</p>
               </div>
               <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 text-sm text-slate-600 leading-relaxed">
                 <div>
-                  <h3 className="font-bold text-slate-800 mb-1">{t('chapter0OverviewTitle')}</h3>
+                  <h3 className="font-bold text-slate-800 mb-1">[{t('chapter0OverviewTitle')}]</h3>
                   <p>{t('chapter0Overview')}</p>
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 mb-1">{t('chapter0VictimTitle')}</h3>
                   <p>{t('chapter0Victim')}</p>
+                  <p className="mt-1">{t('chapter0Victim2')}</p>
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-800 mb-1">{t('chapter0SuspectsTitle')}</h3>
+                  <h3 className="font-bold text-slate-800 mb-1">[{t('chapter0SuspectsTitle')}]</h3>
                   <p className="mb-2">{t('chapter0SuspectsIntro')}</p>
-                  <ul className="space-y-2 list-disc list-inside">
-                    <li>{t('chapter0Suspect1')}</li>
-                    <li>{t('chapter0Suspect2')}</li>
-                    <li>{t('chapter0Suspect3')}</li>
-                    <li>{t('chapter0Suspect4')}</li>
-                    <li>{t('chapter0Suspect5')}</li>
+                  <ul className="space-y-2 list-none pl-0">
+                    <li className="pl-0">{t('chapter0Suspect1')}</li>
+                    <li className="pl-0">{t('chapter0Suspect2')}</li>
+                    <li className="pl-0">{t('chapter0Suspect3')}</li>
+                    <li className="pl-0">{t('chapter0Suspect4')}</li>
+                    <li className="pl-0">{t('chapter0Suspect5')}</li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-800 mb-1">{t('chapter0MissionTitle')}</h3>
-                  <p className="italic text-slate-700 mb-2">{t('chapter0MissionQuote')}</p>
+                  <h3 className="font-bold text-slate-800 mb-1">[{t('chapter0MissionTitle')}]</h3>
+                  <p className="italic text-slate-700 mb-2">&quot;{t('chapter0MissionQuote')}&quot;</p>
                   <p className="mb-2">{t('chapter0MissionIntro')}</p>
                   <ul className="space-y-1 list-disc list-inside">
                     <li>{t('chapter0Mission1')}</li>
@@ -424,6 +426,10 @@ export default function EscapeRoomClient({ story }: Props) {
                   </ul>
                 </div>
                 <p className="font-semibold text-slate-800 pt-2">{t('chapter0Closing')}</p>
+                <div className="pt-3 mt-3 border-t border-slate-200">
+                  <h3 className="font-bold text-slate-800 mb-1 text-xs uppercase tracking-wide">[{t('chapter0SystemTitle')}]</h3>
+                  <p className="text-slate-600">{t('chapter0SystemMessage')}</p>
+                </div>
               </div>
               <div className="flex-shrink-0 px-5 py-4 border-t border-slate-200 bg-slate-50/80">
                 <button
@@ -528,15 +534,7 @@ export default function EscapeRoomClient({ story }: Props) {
                   )}
                 </AnimatePresence>
               </>
-            ) : (
-              <Link
-                href="/login"
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold"
-              >
-                <span className="material-symbols-outlined text-[18px]">login</span>
-                {t('login')}
-              </Link>
-            )}
+            ) : null}
           </div>
         </div>
       </header>

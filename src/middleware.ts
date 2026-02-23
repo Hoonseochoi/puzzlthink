@@ -16,5 +16,5 @@ export default async function middleware(request: NextRequest) {
 export const config = {
     // Match only internationalized pathnames
     // Excluding auth/callback from internationalization
-    matcher: ['/', '/(ko|en)/:path*', '/((?!api|auth/callback|_next|_vercel|.*\\..*).*)']
+    matcher: ['/', '/(ko|en)/:path*', '/((?!api|auth|_next|_vercel|.*\\..*).*)']
 };

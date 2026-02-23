@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { createClient } from '@/utils/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import UserMenu from '@/components/UserMenu';
+import { useLoginModal } from '@/contexts/LoginModalContext';
 
 export default function PlayPage() {
     const t = useTranslations('Sudoku');
@@ -151,12 +152,13 @@ export default function PlayPage() {
                     {user ? (
                         <UserMenu user={user} onSignOut={handleSignOut} />
                     ) : (
-                        <Link
-                            href="/login"
+                        <button
+                            type="button"
+                            onClick={openLoginModal}
                             className="flex items-center justify-center rounded-lg h-9 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold shadow-md transition-all active:scale-95"
                         >
                             Sign In
-                        </Link>
+                        </button>
                     )}
                     <button className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
                         <span className="material-symbols-outlined text-xl">settings</span>
@@ -407,13 +409,14 @@ export default function PlayPage() {
                                             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
                                                 로그인하면 클리어 기록이 저장되고<br />랭킹에 닉네임이 올라갑니다!
                                             </p>
-                                            <Link
-                                                href="/login"
+                                            <button
+                                                type="button"
+                                                onClick={openLoginModal}
                                                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow-md shadow-blue-500/30 transition-all active:scale-95"
                                             >
                                                 <span className="material-symbols-outlined text-sm">login</span>
                                                 로그인하기
-                                            </Link>
+                                            </button>
                                         </div>
                                     </div>
                                 </motion.div>
