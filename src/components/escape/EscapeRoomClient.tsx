@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CaseRoomBox from './CaseRoomBox';
 import ClueBox from './ClueBox';
 import CharacterBox from './CharacterBox';
+import ToolsBox from './ToolsBox';
 import CriminalSelectButton from './CriminalSelectButton';
 import HintButton from './HintButton';
 import ClearTimeDisplay from './ClearTimeDisplay';
@@ -226,6 +227,19 @@ export default function EscapeRoomClient({ story }: Props) {
     };
   }, [soundPrefsLoaded, bgmOn]);
 
+  // 평면도 테마 BGM 즉시 정지 (방 입장 시 호출)
+  const stopFloorPlanBgm = useCallback(() => {
+    if (floorBgmFadeRef.current) {
+      clearInterval(floorBgmFadeRef.current);
+      floorBgmFadeRef.current = null;
+    }
+    if (floorBgmRef.current) {
+      floorBgmRef.current.pause();
+      floorBgmRef.current.currentTime = 0;
+      floorBgmRef.current = null;
+    }
+  }, []);
+
   // 타이틀 화면 벗어날 때 타이틀 BGM 정지
   useEffect(() => {
     if (showStartScreen) return;
@@ -427,6 +441,17 @@ export default function EscapeRoomClient({ story }: Props) {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${story.startScreenImage})` }}
         />
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          poster={story.startScreenImage}
+        >
+          <source src="/story/titlemain.mp4" type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-black/50" />
 
         {/* 상단: 뒤로가기 */}
@@ -474,22 +499,21 @@ export default function EscapeRoomClient({ story }: Props) {
             }}
             className="px-8 py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-lg shadow-lg hover:scale-105 active:scale-100 transition-transform"
           >
-            {t('startCase')}
+            {t('landingChapterPrologue')}
           </button>
         </div>
 
-        {/* 하단: 면책 문구 */}
+        {/* 하단: 허구 안내 문구 */}
         <p className="relative z-10 text-center text-xs text-white/80 pb-6 px-4">
-          {t('startDisclaimer')}
+          {t('landingFictionDisclaimer')}
         </p>
 
-        {/* 우측 하단: 사운드 온/오프 */}
+        {/* 우측 하단: 배경음악 온/오프만 (타이틀 화면) */}
         <div className="absolute right-4 bottom-4 z-10">
           <AudioToggle
             bgmOn={bgmOn}
-            sfxOn={sfxOn}
             onBgmToggle={() => setBgmOn(!bgmOn)}
-            onSfxToggle={() => setSfxOn(!sfxOn)}
+            showSfx={false}
             variant="dark"
           />
         </div>
@@ -555,7 +579,8 @@ export default function EscapeRoomClient({ story }: Props) {
   return (
     <div
       className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100"
-      onClick={() => {
+      onClick={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (!showStartScreen && hasRooms && currentRoomId == null) startFloorPlanBgm();
       }}
       role="presentation"
@@ -739,13 +764,14 @@ export default function EscapeRoomClient({ story }: Props) {
       <main className="max-w-6xl mx-auto p-4 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left: Floor plan or room interior */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 relative">
             {rooms.length > 0 ? (
               currentRoomId == null ? (
                 <FloorPlanView
                   rooms={rooms}
                   floorPlanImage={story.floorPlanImage}
                   onSelectRoom={(roomId) => {
+                    stopFloorPlanBgm();
                     if (roomId === 'living') setHasEnteredLivingRoom(true);
                     setCurrentRoomId(roomId);
                   }}
@@ -769,7 +795,9 @@ export default function EscapeRoomClient({ story }: Props) {
                   onBack={() => {
                     if (currentRoomId === 'chairman_bath') setHasReturnedFromBath(true);
                     setCurrentRoomId(null);
+                    startFloorPlanBgm();
                   }}
+                  selectedToolId={selectedClueId}
                   gatheringContent={
                     currentRoom.isGathering && story.livingRoomStatements?.length ? (
                       <LivingRoomPanel
@@ -799,6 +827,7 @@ export default function EscapeRoomClient({ story }: Props) {
                   rooms={rooms}
                   floorPlanImage={story.floorPlanImage}
                   onSelectRoom={(roomId) => {
+                    stopFloorPlanBgm();
                     if (roomId === 'living') setHasEnteredLivingRoom(true);
                     setCurrentRoomId(roomId);
                   }}
@@ -859,8 +888,16 @@ export default function EscapeRoomClient({ story }: Props) {
                 foundClueIds={foundClueIds}
                 selectedClueId={selectedClueId}
                 onSelectClue={setSelectedClueId}
+                currentRoomId={currentRoomId}
+                rooms={rooms}
               />
               <DialogueBox clue={selectedClue} characters={story.characters} />
+              <ToolsBox
+                clues={story.clues}
+                foundClueIds={foundClueIds}
+                selectedClueId={selectedClueId}
+                onSelectClue={setSelectedClueId}
+              />
               <CharacterBox
                 characters={story.characters}
                 revealedIds={revealedCharacterIds}
@@ -916,17 +953,27 @@ export default function EscapeRoomClient({ story }: Props) {
                     foundClueIds={foundClueIds}
                     selectedClueId={selectedClueId}
                     onSelectClue={setSelectedClueId}
+                    currentRoomId={currentRoomId}
+                    rooms={rooms}
                   />
                   <DialogueBox clue={selectedClue} characters={story.characters} />
                 </>
               )}
+              {mobileTab === 'tools' && (
+                <ToolsBox
+                  clues={story.clues}
+                  foundClueIds={foundClueIds}
+                  selectedClueId={selectedClueId}
+                  onSelectClue={setSelectedClueId}
+                />
+              )}
               {mobileTab === 'characters' && (
                 <CharacterBox
-                characters={story.characters}
-                revealedIds={revealedCharacterIds}
-                clues={story.clues}
-                foundClueIds={foundClueIds}
-              />
+                  characters={story.characters}
+                  revealedIds={revealedCharacterIds}
+                  clues={story.clues}
+                  foundClueIds={foundClueIds}
+                />
               )}
               {mobileTab === 'interaction' && (
                 <>

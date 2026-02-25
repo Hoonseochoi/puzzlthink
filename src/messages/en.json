@@ -55,6 +55,8 @@
     "firstStoryDesc": "A murder on a stormy night. Gather clues and find the culprit.",
     "landingDescription": "Explore rooms, collect clues, and uncover the culprit in this interactive story.",
     "landingPlayNow": "Solve the Case",
+    "landingChapterPrologue": "Chapter. 0 ; Prologue",
+    "landingFictionDisclaimer": "* This story is fictional; all characters are fictitious.",
     "backToList": "Back to List",
     "floorPlanTitle": "Floor Plan",
     "floorPlanHint": "Click a room to enter.",
@@ -108,6 +110,11 @@
     "hint": "Hint",
     "hintCount": "{available} / {total}",
     "characters": "Characters",
+    "tools": "Tools",
+    "toolsEmpty": "No tools acquired yet.",
+    "magnifier": "Magnifier",
+    "magnifierModeOn": "Magnifier mode (click to zoom)",
+    "magnifierModeOff": "Turn off magnifier mode",
     "relatedRecords": "Related Records",
     "noRelatedRecords": "No related records",
     "clues": "Clues",
@@ -131,6 +138,8 @@
     "otherStories": "Other Stories",
     "home": "Home",
     "wrong": "Wrong",
-    "story": "Story"
+    "story": "Story",
+    "enterPassword": "Enter 4-digit password",
+    "passwordWrong": "Incorrect password"
   }
 }

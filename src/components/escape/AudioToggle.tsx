@@ -7,15 +7,17 @@ type Props = {
   className?: string;
   /** BGM 켜짐 여부 (controlled) */
   bgmOn: boolean;
-  /** 효과음 켜짐 여부 (controlled) */
-  sfxOn: boolean;
+  /** 효과음 켜짐 여부 (controlled). showSfx가 false면 사용 안 함 */
+  sfxOn?: boolean;
   onBgmToggle: () => void;
-  onSfxToggle: () => void;
+  onSfxToggle?: () => void;
+  /** 효과음 버튼 표시 여부. false면 BGM 온/오프만 표시 (예: 타이틀 화면) */
+  showSfx?: boolean;
   /** 타이틀 등 어두운 배경용 스타일 */
   variant?: 'light' | 'dark';
 };
 
-export default function AudioToggle({ className, bgmOn, sfxOn, onBgmToggle, onSfxToggle, variant = 'light' }: Props) {
+export default function AudioToggle({ className, bgmOn, sfxOn = true, onBgmToggle, onSfxToggle, showSfx = true, variant = 'light' }: Props) {
   const t = useTranslations('Escape');
 
   const isDark = variant === 'dark';
@@ -37,15 +39,17 @@ export default function AudioToggle({ className, bgmOn, sfxOn, onBgmToggle, onSf
       >
         <span className="material-symbols-outlined text-[20px]">{bgmOn ? 'music_note' : 'music_off'}</span>
       </button>
-      <button
-        type="button"
-        onClick={onSfxToggle}
-        className={cn(btnBase, sfxOn && btnOn)}
-        title={sfxOn ? t('sfxOn') : t('sfxOff')}
-        aria-label={sfxOn ? t('sfxOff') : t('sfxOn')}
-      >
-        <span className="material-symbols-outlined text-[20px]">{sfxOn ? 'volume_up' : 'volume_off'}</span>
-      </button>
+      {showSfx && onSfxToggle != null && (
+        <button
+          type="button"
+          onClick={onSfxToggle}
+          className={cn(btnBase, sfxOn && btnOn)}
+          title={sfxOn ? t('sfxOn') : t('sfxOff')}
+          aria-label={sfxOn ? t('sfxOff') : t('sfxOn')}
+        >
+          <span className="material-symbols-outlined text-[20px]">{sfxOn ? 'volume_up' : 'volume_off'}</span>
+        </button>
+      )}
     </div>
   );
 }

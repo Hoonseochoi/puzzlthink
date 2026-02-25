@@ -37,26 +37,36 @@ export default function FloorPlanView({ rooms, floorPlanImage, onSelectRoom, ena
               if (pos == null) return [];
               const positions = Array.isArray(pos) ? pos : [pos];
               const enabled = isEnabled(room.id);
+              const size = room.floorPlanButtonSize;
               return positions.map((p, i) => (
                 <button
                   key={positions.length > 1 ? `${room.id}-${i}` : room.id}
                   type="button"
-                  onClick={() => enabled && onSelectRoom(room.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (enabled) onSelectRoom(room.id);
+                  }}
                   disabled={!enabled}
                   style={{
                     left: `${p.left}%`,
                     top: `${p.top}%`,
                     transform: 'translate(-50%, -50%)',
+                    ...(size && {
+                      minWidth: size.minW,
+                      maxWidth: size.maxW,
+                      minHeight: size.minH,
+                    }),
                   }}
                   className={cn(
-                    'absolute flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 transition-all min-h-[44px] min-w-[80px] max-w-[100px] px-1.5 py-1 pointer-events-auto',
+                    'absolute flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 transition-all px-1.5 py-1 pointer-events-auto',
+                    !size && 'min-h-[44px] min-w-[80px] max-w-[100px]',
                     enabled
                       ? 'border-stone-600 bg-amber-950/85 hover:border-amber-600/90 hover:bg-amber-900/80 hover:scale-[1.05] active:scale-[0.98] text-stone-200 hover:text-amber-50 shadow-md'
                       : 'border-stone-700 bg-stone-800/90 text-stone-500 cursor-not-allowed opacity-60 grayscale'
                   )}
                 >
-                  <span className={cn('material-symbols-outlined text-lg', enabled ? 'text-amber-400/90' : 'text-stone-500')}>
-                    {room.isGathering ? 'groups' : 'door_open'}
+                  <span className={cn('material-symbols-outlined text-lg shrink-0', enabled ? 'text-amber-400/90' : 'text-stone-500')}>
+                    {room.floorPlanIcon ?? (room.isGathering ? 'groups' : 'door_open')}
                   </span>
                   <span className="text-[9px] sm:text-[10px] font-semibold text-center leading-tight">
                     {room.name}
@@ -77,7 +87,10 @@ export default function FloorPlanView({ rooms, floorPlanImage, onSelectRoom, ena
                   <button
                     key={room.id}
                     type="button"
-                    onClick={() => enabled && onSelectRoom(room.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (enabled) onSelectRoom(room.id);
+                    }}
                     disabled={!enabled}
                     className={cn(
                       'flex flex-col items-center justify-center gap-0.5 rounded-lg border py-1.5 text-xs font-medium',

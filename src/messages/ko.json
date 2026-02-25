@@ -55,6 +55,8 @@
         "firstStoryDesc": "폭풍우의 밤, 저택에서 벌어진 살인. 단서를 모아 진범을 찾아라.",
         "landingDescription": "방을 탐험하고 단서를 수집해 범인을 밝히는 인터랙티브 스토리입니다.",
         "landingPlayNow": "사건 해결하기",
+        "landingChapterPrologue": "Chapter. 0 ; Prologue",
+        "landingFictionDisclaimer": "* 사건은 허구의 이야기이며, 나오는 등장인물들은 모두 가상의 인물입니다.",
         "backToList": "목록으로",
         "floorPlanTitle": "평면도",
         "floorPlanHint": "방을 클릭해 들어가세요.",
@@ -108,6 +110,11 @@
         "hint": "힌트",
         "hintCount": "{available} / {total}",
         "characters": "등장인물",
+        "tools": "도구",
+        "toolsEmpty": "획득한 도구가 없습니다.",
+        "magnifier": "돋보기",
+        "magnifierModeOn": "돋보기 모드 (클릭 시 확대)",
+        "magnifierModeOff": "돋보기 모드 끄기",
         "relatedRecords": "관련 기록",
         "noRelatedRecords": "관련 기록 없음",
         "clues": "단서",
@@ -131,6 +138,8 @@
         "otherStories": "다른 스토리",
         "home": "홈",
         "wrong": "오답입니다",
-        "story": "스토리"
+        "story": "스토리",
+        "enterPassword": "비밀번호 4자리 입력",
+        "passwordWrong": "비밀번호가 틀렸습니다"
     }
 }

@@ -30,12 +30,23 @@ export interface Clue {
   chapter?: 1 | 2;
   /** Dialogue unlocked when this clue is found (reasoning through character statements) */
   dialogue?: DialogueLine[];
+  /** 돋보기로 클릭 시 확대해서 볼 이미지 URL (예: /story/pic_1205.png) */
+  magnifierImage?: string;
+  /** 비밀번호 잠금. 설정 시 클릭 시 도어락 UI 표시, 정답 입력 시 단서 획득 */
+  passwordLock?: { correctPassword: string };
 }
 
 /** Position on floor plan image (percent 0–100). Button is centered on this point. */
 export interface FloorPlanPosition {
   left: number;
   top: number;
+}
+
+/** Custom button size on floor plan (e.g. for corridor - long and narrow) */
+export interface FloorPlanButtonSize {
+  minW?: string;
+  maxW?: string;
+  minH?: string;
 }
 
 /** A room in the mansion; click to enter and investigate */
@@ -50,6 +61,10 @@ export interface Room {
   isGathering?: boolean;
   /** Position(s) on floor plan (%). One room can have multiple positions (e.g. same room in two areas). */
   floorPlanPosition?: FloorPlanPosition | FloorPlanPosition[];
+  /** Custom button dimensions on floor plan (e.g. corridor: longer, half height) */
+  floorPlanButtonSize?: FloorPlanButtonSize;
+  /** Material icon name for floor plan button (default: door_open or groups for isGathering) */
+  floorPlanIcon?: string;
 }
 
 export interface Character {

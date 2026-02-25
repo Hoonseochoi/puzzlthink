@@ -8,21 +8,21 @@ export const blueMoonStory: EscapeStory = {
     '2026년 2월 22일, 폭풍우가 몰아치던 밤. 블루문 저택의 주인 최병철 회장이 반신욕 중 숨을 거둔다. 용의자는 다섯. 저택 평면도를 돌아다니며 단서를 모으고, 거실에서 용의자들의 말을 들어 진범을 찾아라.',
 
   roomBackground: 'linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)',
-  floorPlanImage: '/escape/blue-moon/floor-plan.png',
+  floorPlanImage: '/story/layout.png',
   startScreenImage: '/escape/blue-moon/home.png',
   startScreenBgm: '/escape/blue-moon/title-track.mp3',
 
   // 평면도: 버튼 위치 (거실·김비서·가정부·회장침실·회장화장실 +5 아래 / 회장서재 +10 우측 / 아들·게스트·김비서 = 김변호사 열과 동일)
   rooms: [
-    { id: 'living', name: '거실', isGathering: true, image: '/escape/blue-moon/room-living.png', background: 'linear-gradient(180deg, #2c1810 0%, #1a0f0a 100%)', floorPlanPosition: { left: 15, top: 30 } },
-    { id: 'secretary', name: '김비서방', image: '/escape/blue-moon/room-secretary.png', background: 'linear-gradient(180deg, #1a2520 0%, #0d1512 100%)', floorPlanPosition: { left: 37, top: 30 } },
-    { id: 'maid', name: '가정부 방', image: '/escape/blue-moon/room-maid.png', background: 'linear-gradient(180deg, #1e1a25 0%, #100d15 100%)', floorPlanPosition: { left: 62, top: 30 } },
-    { id: 'chairman_bedroom', name: '회장 침실', image: '/escape/blue-moon/room-chairman-bedroom.png', background: 'linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%)', floorPlanPosition: { left: 85, top: 24 } },
-    { id: 'chairman_bath', name: '회장실 욕실', image: '/escape/blue-moon/room-chairman-bath.png', background: 'linear-gradient(180deg, #1a2525 0%, #0d1515 100%)', floorPlanPosition: { left: 85, top: 33 } },
-    { id: 'study', name: '회장 서재', image: '/escape/blue-moon/room-study.png', background: 'linear-gradient(180deg, #1e2a1e 0%, #0f150f 100%)', floorPlanPosition: { left: 85, top: 50 } },
-    { id: 'son', name: '아들방', image: '/escape/blue-moon/room-son.png', background: 'linear-gradient(180deg, #2a1e1a 0%, #150f0d 100%)', floorPlanPosition: { left: 15, top: 69 } },
-    { id: 'guest', name: '게스트룸 (기자방)', image: '/escape/blue-moon/room-guest.png', background: 'linear-gradient(180deg, #25201a 0%, #15100d 100%)', floorPlanPosition: { left: 37, top: 69 } },
-    { id: 'lawyer_office', name: '김변호사 집무실', image: '/escape/blue-moon/room-lawyer-office.png', background: 'linear-gradient(180deg, #1a1e2e 0%, #0d101a 100%)', floorPlanPosition: { left: 85, top: 69 } },
+    { id: 'living', name: '거실', isGathering: true, image: '/escape/blue-moon/room-living.png', background: 'linear-gradient(180deg, #2c1810 0%, #1a0f0a 100%)', floorPlanPosition: { left: 51, top: 69 } },
+    { id: 'secretary', name: '김비서방', image: '/story/kimsecroom.png', background: 'linear-gradient(180deg, #1a2520 0%, #0d1512 100%)', floorPlanPosition: { left: 54, top: 30 } },
+    { id: 'maid', name: '주방/다용도실', image: '/story/steproom.png', background: 'linear-gradient(180deg, #1e1a25 0%, #100d15 100%)', floorPlanPosition: { left: 88, top: 50 } },
+    { id: 'chairman_bedroom', name: '회장 침실', image: '/story/chairmanroom.png', background: 'linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%)', floorPlanPosition: { left: 37, top: 30 } },
+    { id: 'chairman_bath', name: '회장실 욕실', image: '/escape/blue-moon/room-chairman-bath.png', background: 'linear-gradient(180deg, #1a2525 0%, #0d1515 100%)', floorPlanPosition: { left: 68, top: 30 } },
+    { id: 'son', name: '아들방', image: '/story/sonroom.png', background: 'linear-gradient(180deg, #2a1e1a 0%, #150f0d 100%)', floorPlanPosition: { left: 75, top: 64 } },
+    { id: 'guest', name: '게스트룸 (기자방)', image: '/story/leepoterroom.png', background: 'linear-gradient(180deg, #25201a 0%, #15100d 100%)', floorPlanPosition: { left: 15, top: 69 } },
+    { id: 'lawyer_office', name: '김변호사 집무실', image: '/story/kimlawerroom.png', background: 'linear-gradient(180deg, #1a1e2e 0%, #0d101a 100%)', floorPlanPosition: { left: 15, top: 47 } },
+    { id: 'corridor', name: '복도', image: '/story/lobby2f.png', background: 'linear-gradient(180deg, #1e1e28 0%, #12121a 100%)', floorPlanPosition: { left: 50, top: 47 }, floorPlanButtonSize: { minW: '120px', maxW: '140px', minH: '22px' }, floorPlanIcon: 'route' },
   ],
 
   characters: [
@@ -73,8 +73,12 @@ export const blueMoonStory: EscapeStory = {
     { id: 'law_book', name: '낡은 법전', description: '1200~1206p가 반복해서 펼쳐져 있다. 1205가 강조되어 있다. 노트북 암호 힌트.', roomId: 'lawyer_office', chapter: 2, hotspotPosition: { left: 12, top: 28, width: 20, height: 24 }, dialogue: [{ characterId: 'kim_secretary', text: '5년 전 블루문 호텔 1205호. 그 사건으로 김 변호사는 회장님의 신임을 얻었죠.' }, { characterId: 'kim_lawyer', text: '1205는 단순한 숫자가 아니오. 승리의 열쇠지.' }] },
     { id: 'laptop', name: '잠긴 노트북', description: '암호 1205 입력 시 열린다. 검색 기록에 진오펜·급성 심정지 검색이 있다.', roomId: 'lawyer_office', chapter: 2, hotspotPosition: { left: 52, top: 48, width: 30, height: 22 }, dialogue: [{ characterId: 'kim_lawyer', text: '고혈압 환자가 반신욕 중 진오펜을 주사받으면 급성 심정지. 법과 의학, 둘 다 제 전문이오.' }, { characterId: 'kim_secretary', text: '인슐린으로 위장한 진오펜. 가정부 손을 빌려 회장을 죽인 거군요.' }] },
     { id: 'paper_knife', name: '종이칼', description: '날이 제거된 흔적. 사체 훼손·라벨 제거에 사용된 도구. 영양제 병에 사용 가능.', roomId: 'son', chapter: 1, hotspotPosition: { left: 41, top: 54, width: 14, height: 12 }, dialogue: [{ characterId: 'junho', text: '그건… 제 방에 있던 거예요. 하지만 저는 그걸 쓰지 않았어요!' }, { characterId: 'kim_lawyer', text: '준호 씨, 당신이 그날 밤 서재에 들어갔다는 건 이미 편의점 CCTV로 확인됐소.' }, { characterId: 'junho', text: '…아버지가 이미 죽어 계셨어요. 저는 그냥… 시계만…' }] },
-    { id: 'vitamin_bottle', name: '영양제 병', description: '라벨 아래 이중 라벨. 종이칼로 제거 시 살해 도구 진오펜이 확인된다.', roomId: 'maid', chapter: 2, hotspotPosition: { left: 22, top: 42, width: 18, height: 18 }, dialogue: [{ characterId: 'maid', text: '그건 회장님 주사용이에요. 매일 12시에 인슐린 대신 맞는 거예요. 제가 그날도 그렇게 놓았어요.' }, { characterId: 'kim_lawyer', text: '회장님은 고혈압으로 반신욕 중이셨소. 그 상태에서 특정 약물이 주입되면 급성 심정지가 올 수 있지.' }] },
-    { id: 'blue_crystal', name: '푸른 결정 병', description: '실패한 독살 시도 증거. 하단 파란 결정을 조사할 수 있다.', roomId: 'maid', chapter: 2, hotspotPosition: { left: 68, top: 72, width: 18, height: 14 }, dialogue: [{ characterId: 'maid', text: '저는… 9시에 음료에 타서 드렸어요. 하지만 회장님이 마시지 않고 버리셨죠. 저는 실패했어요.' }, { characterId: 'journalist', text: '엄마… 그럼 회장님이 죽은 건 엄마 때문이 아니라고?' }] },
+    { id: 'blue_crystal', name: '푸른 결정 병', description: '실패한 독살 시도 증거. 하단 파란 결정을 조사할 수 있다.', roomId: 'maid', chapter: 2, hotspotPosition: { left: 17, top: 88, width: 4.5, height: 14 }, dialogue: [{ characterId: 'maid', text: '저는… 9시에 음료에 타서 드렸어요. 하지만 회장님이 마시지 않고 버리셨죠. 저는 실패했어요.' }, { characterId: 'journalist', text: '엄마… 그럼 회장님이 죽은 건 엄마 때문이 아니라고?' }] },
+    // 가정부 방
+    { id: 'maid_frame', name: '액자', description: '딸로 보이는 여자아이를 안고있는 젊은 안가정의 모습이 보인다. 사진의 날짜를 보니 1998년 6월 8일이다. 안 가정부의 아이는 지금 어디에 있는걸까?', roomId: 'maid', chapter: 1, hotspotPosition: { left: 15, top: 55, width: 9, height: 11 }, dialogue: [{ characterId: 'junho', text: '제가 알기론 가정부아주머니는 미혼으로 알고있는데요?' }, { characterId: 'kim_secretary', text: '음,, 저 아이는 누구의 아이 인걸까요 저는 한번도 본적이 없는 아이입니다.' }] },
+    { id: 'maid_calendar', name: '캘린더', description: '2월 22일에 동그라미가 쳐져있다. 이날은 무슨 중요한날인거지...', roomId: 'maid', chapter: 1, hotspotPosition: { left: 84, top: 15, width: 15, height: 20 }, dialogue: [{ characterId: 'journalist', text: '혹시,, 오늘만을 기다린 복수극일까요? 30년을 기다려온 복수!? 완전 특종감이잖아!' }, { characterId: 'kim_secretary', text: '의심스러운게 한두가지가 아니긴합니다.' }] },
+    { id: 'locked_drawer', name: '잠긴서랍', description: '잠겨있는 서랍이다. 풀려면 열쇠가 필요한듯 하다.', roomId: 'maid', chapter: 1, hotspotPosition: { left: 18, top: 70, width: 10, height: 9 }, dialogue: [] },
+    { id: 'hidden_diary', name: '숨겨진 일기', description: '2020년 5월 12일, 내 딸의 소식을 22년만에 우연히 알게되었다. 최회장과의 "계약"을 어길순 없지만,, 계약만 파기된다면,, 함께 살 수 있을거야,,', roomId: 'maid', chapter: 1, hotspotPosition: { left: 29, top: 84, width: 11, height: 6 }, dialogue: [{ characterId: 'junho', text: '우리 아버지와 어떤계약을 하신거죠? 혹시 저 아이가 아버지 딸인건가요?' }, { characterId: 'kim_secretary', text: '혼외자가 있다는 소문이 돌기는 했었습니다만.... 그게 안가정부의 딸일 줄은,,' }] },
     { id: 'wristwatch', name: '손목시계', description: '욕조 바닥에서 건진 회장의 시계. 12:05에서 멈춰 있어 조작된 사망 시각을 보여준다.', roomId: 'chairman_bath', chapter: 1, hotspotPosition: { left: 60, top: 72, width: 18, height: 14 }, dialogue: [{ characterId: 'kim_lawyer', text: '회장님은 저택 시계로 12시 05분에 숨을 거두셨습니다. 제가 증인이오. 자정이 지났으니 유언장이 효력 발생했소.' }, { characterId: 'journalist', text: '그 시계… 저택 시계가 30분 빠르다면, 실제로는 11시 35분이에요.' }] },
     { id: 'letter_knife', name: '편지칼', description: '살해도구로 쓰인 것 같은 편지칼이다. 누구의 것인지 찾아봐야겠다.', roomId: 'chairman_bath', chapter: 1, hotspotPosition: { left: 62, top: 11, width: 14, height: 18 }, dialogue: [] },
     { id: 'memory_card', name: '메모리카드', description: '이 기자 방 카메라. 사진 메타데이터에 실제 촬영 시각 23:35가 기록되어 있다.', roomId: 'guest', chapter: 2, hotspotPosition: { left: 42, top: 44, width: 24, height: 20 }, dialogue: [{ characterId: 'journalist', text: '이 사진… 제가 그날 밤 찍은 거예요. 메타데이터에 23:35라고 나와 있어요. 저택 시계는 12시 5분이었지만.' }, { characterId: 'kim_lawyer', text: '…그렇다면 회장님 사망 시각은 자정 25분 전. 유언장 효력 발생 전이군.' }] },
@@ -84,6 +88,15 @@ export const blueMoonStory: EscapeStory = {
     { id: 'son_loan_docs', name: '사채 서류', description: '채무액 18억 이자율 연 40%, 제3금융권 "사나머니"에서 대출받은 서류이다. 채무불이행시 최준호의 모든 신체는 "사나머니"의 소유가 된다.', roomId: 'son', chapter: 1, hotspotPosition: { left: 21, top: 48, width: 18, height: 18 }, dialogue: [] },
     { id: 'son_diary', name: '일기장', description: '2월 10일, 아버지가 도박 빚을 알게 된 거 같다. 갑자기 유언장을 수정하시겠다고 김변호사랑 대화하는 내용을 들었다. 유언이 바뀌어 내가 재산을 물려받지 못하면 나는 죽은 목숨이다. 유언이 바뀌기 전에 끝내야만 한다.', roomId: 'son', chapter: 1, hotspotPosition: { left: 60, top: 47, width: 24, height: 22 }, dialogue: [] },
     { id: 'son_laptop', name: '노트북', description: '인터넷 바카라 사이트가 열려 있다.', roomId: 'son', chapter: 1, hotspotPosition: { left: 8, top: 16, width: 18, height: 18 }, dialogue: [] },
+    // 김비서방
+    { id: 'slush_ledger', name: '비자금 장부', description: '비자금 장부가 담겨있다. 안가정부에게 매달 1천만원씩 이체가 되어있다. 이들은 무슨 관계인거지?', roomId: 'secretary', chapter: 1, hotspotPosition: { left: 17, top: 50, width: 6, height: 10 }, dialogue: [] },
+    { id: 'ansistop', name: '안시스탑', description: '치질: 항문 주변의 혈관 울혈을 개선하여 통증 및 부기 완화. 고혈압 환자는 복용시 혈관확장으로 인해 각별한 주의가 필요하다.', roomId: 'secretary', chapter: 1, hotspotPosition: { left: 34, top: 66, width: 9, height: 4.5 }, dialogue: [] },
+    { id: 'memo_books', name: '책 사이 메모', description: '[<strong>나무</strong>가 <strong>바람</strong>을 막아주고 <strong>초승달</strong>이 <strong>산</strong>을 밝히네] ,,, 이게 무슨내용인거지 ?', roomId: 'secretary', chapter: 1, hotspotPosition: { left: 83, top: 38, width: 5, height: 14 }, dialogue: [] },
+    { id: 'bug_device', name: '도청기', description: '버튼을 눌러보니, 준호의 목소리가 들려온다. "유언장이 분명히 여기 보관되있을텐데,, 비밀번호가 뭐지.. 띡띡띡띡 띠딕,, 철컥! 뭐야! 안열잖아! 유언장에 분명히 내 상속분이 얼마인지 적혀있을텐데,,"', roomId: 'secretary', chapter: 1, hotspotPosition: { left: 83, top: 88, width: 5.5, height: 12 }, dialogue: [] },
+    { id: 'locked_safe', name: '유언장B', description: '유언장 : 유사시, 최회장의 모든재산을 블루문재단에 전부 위탁하며, 모든 자산의 처분결정권 또한 블루문재단에게 귀속한다. 2026년 2월 17일 최회장', roomId: 'secretary', chapter: 1, hotspotPosition: { left: 48, top: 51, width: 14, height: 19 }, dialogue: [], passwordLock: { correctPassword: '1205' } },
+    { id: 'famous_painting', name: '명화', description: '유명한 작가가 그린것같은 고급스러운 그림이다. 그런데 내가 아는 그림과 뭔가좀 다른거같은데,,, 자세히보면 좋을거같다.', roomId: 'secretary', chapter: 1, hotspotPosition: { left: 44, top: 20, width: 21, height: 24 }, dialogue: [], magnifierImage: '/story/pic_1205.png' },
+    // 복도
+    { id: 'magnifier', name: '돋보기', description: '무언가 자세히 볼 때 사용한다. 돋보기를 누르고 대상을 클릭하면 확대해서 볼 수 있다.', roomId: 'corridor', chapter: 1, hotspotPosition: { left: 23, top: 67, width: 6, height: 7.5 }, dialogue: [] },
   ],
 
   questions: [

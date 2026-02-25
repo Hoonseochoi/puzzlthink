@@ -3,18 +3,34 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 
+/** 사건 해결하기 진입 시 나오는 저택 배경 이미지 (블루문) */
+const MANOR_IMAGE = '/escape/blue-moon/home.png';
+
 export default function EscapeLandingClient() {
   const t = useTranslations('Escape');
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
       <main className="flex-grow flex flex-col items-center">
-        <section className="relative w-full max-w-5xl px-4 py-16 md:py-24 lg:px-20 flex flex-col items-center text-center">
+        <section className="relative w-full max-w-5xl px-4 pt-8 pb-16 md:pt-10 md:pb-24 lg:px-20 flex flex-col items-center text-center">
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
             <div className="absolute top-0 left-1/4 w-72 h-72 bg-amber-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse" />
             <div className="absolute top-0 right-1/4 w-72 h-72 bg-slate-400/20 dark:bg-slate-700/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse" style={{ animationDelay: '2s' }} />
             <div className="absolute -bottom-8 left-1/3 w-72 h-72 bg-violet-300/15 dark:bg-violet-900/15 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse" style={{ animationDelay: '4s' }} />
           </div>
+
+          {/* 상단 중앙: 저택 이미지 둥근 네모 */}
+          <div className="w-full max-w-xl mx-auto mb-10 md:mb-14 flex justify-center">
+            <div className="relative w-full aspect-[4/3] max-h-[280px] md:max-h-[340px] rounded-3xl overflow-hidden border-2 border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 shadow-xl">
+              <img
+                src={MANOR_IMAGE}
+                alt=""
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
+          </div>
+
+          {/* 타이틀·설명·버튼 — 아래로 배치 */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 px-3 py-1 backdrop-blur-sm shadow-sm">
             <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
             <span className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-300 uppercase">
