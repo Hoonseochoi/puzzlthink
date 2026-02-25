@@ -32,6 +32,8 @@ export interface Clue {
   dialogue?: DialogueLine[];
   /** 돋보기로 클릭 시 확대해서 볼 이미지 URL (예: /story/pic_1205.png) */
   magnifierImage?: string;
+  /** 클릭 시 팝업으로 보여줄 이미지 URL (돋보기 없이 클릭만으로 표시) */
+  imageOnClick?: string;
   /** 비밀번호 잠금. 설정 시 클릭 시 도어락 UI 표시, 정답 입력 시 단서 획득 */
   passwordLock?: { correctPassword: string };
 }
@@ -153,6 +155,8 @@ export interface EscapeProgress {
   answeredQuestionIds: string[];
   hintIndex: number;
   startTime: number;
+  /** 돋보기로 한 번이라도 팝업 본 단서 id (사진탭에서 magnifierImage 클릭 시 이미지 표시 여부) */
+  viewedWithMagnifierClueIds?: string[];
   /** When cleared */
   clearTime?: number;
   /** Last saved at (for resume) */

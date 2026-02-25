@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
-export type TabId = 'clues' | 'tools' | 'characters' | 'interaction';
+export type TabId = 'clues' | 'tools' | 'photos' | 'characters' | 'interaction';
 
 type Props = {
   active: TabId;
@@ -16,6 +16,7 @@ export default function EscapePanelTabs({ active, onSelect, className }: Props) 
   const tabs: { id: TabId; label: string; icon: string }[] = [
     { id: 'clues', label: t('clues'), icon: 'fingerprint' },
     { id: 'tools', label: t('tools'), icon: 'inventory_2' },
+    { id: 'photos', label: t('photos'), icon: 'photo_library' },
     { id: 'characters', label: t('characters'), icon: 'person' },
     { id: 'interaction', label: t('interaction'), icon: 'quiz' },
   ];

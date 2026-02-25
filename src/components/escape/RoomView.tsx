@@ -14,6 +14,8 @@ type Props = {
   onBack: () => void;
   /** 도구 탭에서 선택된 도구 id. 'magnifier'이면 돋보기 모드 활성화 */
   selectedToolId?: string | null;
+  /** 돋보기로 이미지 팝업 봤을 때 호출 (사진탭에서 이미지 표시 허용용) */
+  onMagnifierView?: (clueId: string) => void;
   /** When room.isGathering, render this below the room (living room suspects) */
   gatheringContent?: React.ReactNode;
   className?: string;
@@ -26,6 +28,7 @@ export default function RoomView({
   onClueFound,
   onBack,
   selectedToolId,
+  onMagnifierView,
   gatheringContent,
   className,
 }: Props) {
@@ -43,7 +46,13 @@ export default function RoomView({
   const handleHotspotClick = (clue: Clue) => {
     if (magnifierMode && clue.magnifierImage) {
       if (!foundClueIds.includes(clue.id)) onClueFound(clue.id);
+      onMagnifierView?.(clue.id);
       setMagnifierPopupImage(clue.magnifierImage);
+      return;
+    }
+    if (clue.imageOnClick) {
+      if (!foundClueIds.includes(clue.id)) onClueFound(clue.id);
+      setMagnifierPopupImage(clue.imageOnClick);
       return;
     }
     if (clue.passwordLock && !foundClueIds.includes(clue.id)) {

@@ -4,13 +4,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { EscapeStory, EscapeProgress } from '@/types/escape';
 import type { User } from '@supabase/supabase-js';
-import { Link } from '@/i18n/routing';
+import { Link, useRouter } from '@/i18n/routing';
 import { createClient } from '@/utils/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import CaseRoomBox from './CaseRoomBox';
 import ClueBox from './ClueBox';
 import CharacterBox from './CharacterBox';
 import ToolsBox from './ToolsBox';
+import PhotoBox from './PhotoBox';
 import CriminalSelectButton from './CriminalSelectButton';
 import HintButton from './HintButton';
 import ClearTimeDisplay from './ClearTimeDisplay';
@@ -87,6 +88,7 @@ type Props = { story: EscapeStory };
 export default function EscapeRoomClient({ story }: Props) {
   const t = useTranslations('Escape');
   const [foundClueIds, setFoundClueIds] = useState<string[]>([]);
+  const [viewedWithMagnifierClueIds, setViewedWithMagnifierClueIds] = useState<string[]>([]);
   const [revealedCharacterIds, setRevealedCharacterIds] = useState<string[]>([]);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<string[]>([]);
   const [hintIndex, setHintIndex] = useState(0);
@@ -96,6 +98,8 @@ export default function EscapeRoomClient({ story }: Props) {
   const [entrySummaryShown, setEntrySummaryShown] = useState(false);
   const [wrongCriminal, setWrongCriminal] = useState(false);
   const [mobileTab, setMobileTab] = useState<TabId>('clues');
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
+  const router = useRouter();
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
   const [showStartScreen, setShowStartScreen] = useState(true);
   const [user, setUser] = useState<User | null>(null);
@@ -309,6 +313,10 @@ export default function EscapeRoomClient({ story }: Props) {
     [foundClueIds, startGame]
   );
 
+  const onMagnifierView = useCallback((clueId: string) => {
+    setViewedWithMagnifierClueIds((prev) => (prev.includes(clueId) ? prev : [...prev, clueId]));
+  }, []);
+
   const handleAnswerCorrect = useCallback((questionId: string, revealCharacterId?: string) => {
     setAnsweredQuestionIds((prev) => (prev.includes(questionId) ? prev : [...prev, questionId]));
     if (revealCharacterId) {
@@ -348,6 +356,7 @@ export default function EscapeRoomClient({ story }: Props) {
     const saved = loadProgress(story.id);
     if (!saved) return;
     if (saved.foundClueIds?.length) setFoundClueIds(saved.foundClueIds);
+    if (saved.viewedWithMagnifierClueIds?.length) setViewedWithMagnifierClueIds(saved.viewedWithMagnifierClueIds);
     if (saved.revealedCharacterIds?.length) setRevealedCharacterIds(saved.revealedCharacterIds);
     if (saved.answeredQuestionIds?.length) setAnsweredQuestionIds(saved.answeredQuestionIds);
     if (saved.hintIndex != null) setHintIndex(saved.hintIndex);
@@ -357,6 +366,7 @@ export default function EscapeRoomClient({ story }: Props) {
 
   const resetState = useCallback(() => {
     setFoundClueIds([]);
+    setViewedWithMagnifierClueIds([]);
     setRevealedCharacterIds([]);
     setAnsweredQuestionIds([]);
     setHintIndex(0);
@@ -369,6 +379,7 @@ export default function EscapeRoomClient({ story }: Props) {
 
   const applySaved = useCallback((saved: Partial<EscapeProgress>) => {
     if (saved.foundClueIds?.length) setFoundClueIds(saved.foundClueIds);
+    if (saved.viewedWithMagnifierClueIds?.length) setViewedWithMagnifierClueIds(saved.viewedWithMagnifierClueIds);
     if (saved.revealedCharacterIds?.length) setRevealedCharacterIds(saved.revealedCharacterIds);
     if (saved.answeredQuestionIds?.length) setAnsweredQuestionIds(saved.answeredQuestionIds);
     if (saved.hintIndex != null) setHintIndex(saved.hintIndex);
@@ -381,6 +392,7 @@ export default function EscapeRoomClient({ story }: Props) {
     const progress: EscapeProgress = {
       storyId: story.id,
       foundClueIds,
+      viewedWithMagnifierClueIds,
       revealedCharacterIds,
       answeredQuestionIds,
       hintIndex,
@@ -390,7 +402,7 @@ export default function EscapeRoomClient({ story }: Props) {
     };
     if (progress.startTime === 0 && progress.foundClueIds.length === 0) return;
     saveProgress(progress);
-  }, [story.id, foundClueIds, revealedCharacterIds, answeredQuestionIds, hintIndex, startTime, clearTime]);
+  }, [story.id, foundClueIds, viewedWithMagnifierClueIds, revealedCharacterIds, answeredQuestionIds, hintIndex, startTime, clearTime]);
 
   const retry = useCallback(() => {
     clearProgress(story.id);
@@ -456,14 +468,15 @@ export default function EscapeRoomClient({ story }: Props) {
 
         {/* 상단: 뒤로가기 */}
         <div className="relative z-10 flex justify-start p-4">
-          <Link
-            href="/escape"
+          <button
+            type="button"
+            onClick={() => setShowBackConfirm(true)}
             className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-medium transition-colors"
             aria-label={t('backToList')}
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>
             {t('backToList')}
-          </Link>
+          </button>
         </div>
 
         {/* 중앙: 타이틀 + 버튼 */}
@@ -572,6 +585,48 @@ export default function EscapeRoomClient({ story }: Props) {
             </>
           )}
         </AnimatePresence>
+
+        {/* 뒤로가기 확인 모달 (시작 화면) */}
+        <AnimatePresence>
+          {showBackConfirm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+              onClick={() => setShowBackConfirm(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-[360px] w-full shadow-xl border border-slate-200 dark:border-slate-700"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="text-slate-700 dark:text-slate-200 text-center">{t('backConfirmMessage')}</p>
+                <div className="mt-6 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowBackConfirm(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium"
+                  >
+                    {t('backConfirmNo')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowBackConfirm(false);
+                      router.push('/escape');
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium"
+                  >
+                    {t('backConfirmYes')}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -666,16 +721,59 @@ export default function EscapeRoomClient({ story }: Props) {
         )}
       </AnimatePresence>
 
+      {/* 뒤로가기 확인 모달 */}
+      <AnimatePresence>
+        {showBackConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setShowBackConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-[360px] w-full shadow-xl border border-slate-200 dark:border-slate-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="text-slate-700 dark:text-slate-200 text-center">{t('backConfirmMessage')}</p>
+              <div className="mt-6 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowBackConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium"
+                >
+                  {t('backConfirmNo')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowBackConfirm(false);
+                    router.push('/escape');
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium"
+                >
+                  {t('backConfirmYes')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Top bar: back, title, story summary, progress, timer, audio */}
       <header className="sticky top-0 z-30 flex items-center justify-between gap-2 px-4 py-3 bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 backdrop-blur-md">
         <div className="flex items-center gap-2 min-w-0">
-          <Link
-            href="/escape"
+          <button
+            type="button"
+            onClick={() => setShowBackConfirm(true)}
             className="flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0"
             aria-label={t('backToList')}
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-          </Link>
+          </button>
           <h1 className="text-sm font-bold truncate">{story.title}</h1>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -764,7 +862,8 @@ export default function EscapeRoomClient({ story }: Props) {
       <main className="max-w-6xl mx-auto p-4 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left: Floor plan or room interior */}
-          <div className="lg:col-span-2 relative">
+          <div className="lg:col-span-2 flex flex-col gap-3">
+            <div className="relative">
             {rooms.length > 0 ? (
               currentRoomId == null ? (
                 <FloorPlanView
@@ -798,6 +897,7 @@ export default function EscapeRoomClient({ story }: Props) {
                     startFloorPlanBgm();
                   }}
                   selectedToolId={selectedClueId}
+                  onMagnifierView={onMagnifierView}
                   gatheringContent={
                     currentRoom.isGathering && story.livingRoomStatements?.length ? (
                       <LivingRoomPanel
@@ -851,12 +951,9 @@ export default function EscapeRoomClient({ story }: Props) {
                 className="w-full"
               />
             )}
-          </div>
-
-          {/* Right: Panels - tabs on mobile, stacked on desktop */}
-          <div className="flex flex-col gap-3">
-            {/* 탐정 메시지: 단서/등장인물과 동일 섹션 UI */}
-            <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/90 overflow-hidden">
+            </div>
+            {/* 탐정 메시지: 일러스트(메인 화면) 아래 배치 */}
+            <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/90 overflow-hidden shrink-0">
               <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                 <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-[18px]">psychology</span>
@@ -879,6 +976,10 @@ export default function EscapeRoomClient({ story }: Props) {
                 </p>
               </div>
             </section>
+          </div>
+
+          {/* Right: Panels - tabs on mobile, stacked on desktop */}
+          <div className="flex flex-col gap-3">
             <div className="lg:hidden">
               <EscapePanelTabs active={mobileTab} onSelect={setMobileTab} />
             </div>
@@ -897,6 +998,11 @@ export default function EscapeRoomClient({ story }: Props) {
                 foundClueIds={foundClueIds}
                 selectedClueId={selectedClueId}
                 onSelectClue={setSelectedClueId}
+              />
+              <PhotoBox
+                clues={story.clues}
+                foundClueIds={foundClueIds}
+                viewedWithMagnifierClueIds={viewedWithMagnifierClueIds}
               />
               <CharacterBox
                 characters={story.characters}
@@ -965,6 +1071,13 @@ export default function EscapeRoomClient({ story }: Props) {
                   foundClueIds={foundClueIds}
                   selectedClueId={selectedClueId}
                   onSelectClue={setSelectedClueId}
+                />
+              )}
+              {mobileTab === 'photos' && (
+                <PhotoBox
+                  clues={story.clues}
+                  foundClueIds={foundClueIds}
+                  viewedWithMagnifierClueIds={viewedWithMagnifierClueIds}
                 />
               )}
               {mobileTab === 'characters' && (
