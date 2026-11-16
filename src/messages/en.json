@@ -14,7 +14,8 @@
     "tagline": "Small games for long thoughts.",
     "about": "About",
     "contact": "Contact",
-    "janggi": "12 Janggi"
+    "janggi": "12 Janggi",
+    "heavy13": "Heavy 13"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
@@ -61,7 +62,15 @@
     "modeAi": "vs AI",
     "modeAiDesc": "3 levels",
     "modeFriendJanggi": "1:1",
-    "modeFriendJanggiDesc": "friend via link"
+    "modeFriendJanggiDesc": "friend via link",
+    "visitToday": "Today",
+    "visitTotal": "Total",
+    "heavy13Description": "Push a stand to 13 and take the penalty. A 7-player mind game.",
+    "heavy13Meta": "vs AI · invite friends · AI fills seats",
+    "modeHeavyAi": "vs AI",
+    "modeHeavyAiDesc": "with 6 AI",
+    "modeHeavyFriend": "Invite",
+    "modeHeavyFriendDesc": "AI fills seats"
   },
   "WallGo": {
     "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
@@ -784,5 +793,180 @@
         "a": "Yes. Every puzzle has exactly one solution and can be solved by logic without guessing."
       }
     ]
+  },
+  "Heavy13": {
+    "metaTitle": "Heavy 13 Online — The Devil's Plan prison match with friends or AI",
+    "metaDescription": "Play Heavy 13, the prison match from The Devil's Plan: Death Room, free in your browser. A 7-player mind game: push a stand to 13 and you take the penalty. Play the AI or invite friends — AI fills empty seats.",
+    "keywords": [
+      "Heavy 13",
+      "Devil's Plan Heavy 13",
+      "Devil's Plan prison match",
+      "The Devil's Plan game",
+      "Heavy 13 rules",
+      "Heavy 13 online"
+    ],
+    "title": "Heavy 13",
+    "newGame": "New game",
+    "you": "You",
+    "finished": "Game over",
+    "waitingSubmit": "Waiting for submissions ({n}/7)",
+    "chooseSubmit": "Pick one rock card and one color chip",
+    "yourPlacement": "Your turn to place",
+    "placing": "{player} is placing",
+    "previewCollapse": "13+! {n} penalty",
+    "previewSafe": "Safe at {s}",
+    "logPlace": "{player}: {card} on {stand}",
+    "logCollapse": "{player}: {card} on {stand} → collapse! {n} penalty",
+    "logPass": "{player} passes",
+    "logRound": "Round {round} · start player {player}",
+    "logRefill": "Round 8: cards and chips are dealt again (stands stay)",
+    "stand_r": "Red",
+    "stand_g": "Green",
+    "stand_b": "Blue",
+    "cubes": "{n} cubes",
+    "startMark": "START",
+    "penalty": "penalty",
+    "passed": "passed",
+    "myCards": "Your rock cards",
+    "cardLabel": "Rock card {n}",
+    "myChips": "Your color chips",
+    "chip_r": "Red",
+    "chip_g": "Green",
+    "chip_b": "Blue",
+    "chip_w": "Rainbow",
+    "submit": "Submit face down",
+    "submittedWait": "Submitted! Chips and cards are revealed once everyone has played.",
+    "chooseStand": "Rainbow chip: choose a stand",
+    "placeOn": "Placing on the {stand} stand",
+    "placeHere": "Place on {stand}",
+    "pass": "Pass",
+    "passHint": "Once per round, go last",
+    "log": "Game log",
+    "yourRank": "You finished #{n}",
+    "winner": "1st",
+    "eliminated": "Out",
+    "playAgain": "Play again",
+    "friendTitle": "Play with friends",
+    "friendDesc": "Create a room and send the invite link. If fewer than 7 join, AI fills the empty seats so you can start right away.",
+    "createRoom": "Create invite room",
+    "aiLevel": "AI level",
+    "level_easy": "Easy",
+    "level_normal": "Normal",
+    "level_hard": "Hard",
+    "levelHint": "Changing it starts a new game.",
+    "quickRules": "Key rules",
+    "quick1": "Each round, everyone secretly plays one rock card (0–6) and one color chip.",
+    "quick2": "Rainbow first, then higher cards; ties go clockwise from the start player.",
+    "quick3": "If a stand reaches 13+, you take a penalty per cube already there; only your cube stays.",
+    "quick4": "Once per round you may pass to place last.",
+    "quick5": "After 14 rounds the fewest penalties wins; 6th and 7th are out."
+  },
+  "Heavy13Online": {
+    "metaTitle": "Play Heavy 13 with friends",
+    "metaDescription": "Play Heavy 13 with friends via invite link. AI fills empty seats.",
+    "guest": "Guest",
+    "unconfigured": "The live server is not set up yet.",
+    "connectionError": "Could not reach the live server. Please refresh.",
+    "roomNotFound": "Room not found. Make sure the host is still online.",
+    "hostOffline": "The host disconnected. The game continues when they return.",
+    "connecting": "Connecting to the room…",
+    "back": "Back to Heavy 13",
+    "lobbyTitle": "Waiting for players",
+    "inviteTitle": "Invite link",
+    "inviteDesc": "Invite up to 6 friends. Any empty seats are filled with AI when you start.",
+    "copied": "Copied",
+    "copy": "Copy",
+    "share": "Share",
+    "shareText": "Let's play Heavy 13 on PUZZLTHINK!",
+    "aiSeat": "AI will take this seat",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "startWithAi": "Fill {n} seats with AI and start",
+    "start": "Start game",
+    "roomFull": "All seats are taken. You joined as a spectator.",
+    "waitingHost": "Waiting for the host to start.",
+    "submitTime": "Submission time",
+    "minutes": "{n} min",
+    "seconds": "{n}s",
+    "hostSets": "The host sets these.",
+    "rematchWait": "The host can start a rematch."
+  },
+  "Heavy13Guide": {
+    "eyebrow": "HEAVY 13 GUIDE",
+    "title": "Heavy 13 — The Devil's Plan prison match, on the web",
+    "intro": "Heavy 13 is the 7-player game from the first prison match of The Devil's Plan: Death Room. Players stack rocks on red, green and blue stands; whoever pushes a stand to 13 or more takes all the rocks that were there. It is less about arithmetic and more about reading where everyone else will play. Play six AIs right away, or invite friends and let AI fill the empty seats.",
+    "kitLabel": "Each player gets",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Seven players each get rock cards 0–6, two chips each of red, green and blue, and one rainbow chip.",
+      "Each round, everyone secretly plays one rock card and one color chip at the same time. The chip picks the stand; the card is the rock's weight.",
+      "Once all have played, chips then cards are revealed and the placement order is set: rainbow first, then higher cards, ties clockwise from the start player.",
+      "Players place in order. A rainbow chip lets you choose the stand when you place.",
+      "On your turn you may pass once per round. Passers place after everyone else, and the first to pass places last.",
+      "If your rock brings a stand to 13 or more, the rocks already there are collected and you take one penalty per rock. Your rock stays on the stand.",
+      "The last player penalized in a round becomes the next start player.",
+      "After round 7 everyone gets a fresh set of cards and chips; the stands carry over. The game lasts 14 rounds.",
+      "Fewer penalties rank higher; on a tie, the more recent penalty ranks lower. 1st wins; 6th and 7th are eliminated."
+    ],
+    "orderTitle": "How placement order works",
+    "orderBody": "Round 1 from the show: with ④ as start player (★), the two 6s go first (⑤ is closer clockwise from ④, so it is #1), then the five 5s go clockwise from ④.",
+    "orderCaption": "Chip color · rock card · resulting order (#)",
+    "collapseTitle": "At 13 or more, it collapses",
+    "collapseBody": "Red holds 6 and 5 (11). Adding a 5 makes 16: the two rocks already there are collected for 2 penalty points, and the new 5 stays alone on the stand.",
+    "passTitle": "Passes resolve in reverse",
+    "passBody": "If A then B pass, C and D place first, then B, and A places last. The earlier you pass, the later you place — often after a stand has been cleared.",
+    "strategyTitle": "Strategy and tips",
+    "strategies": [
+      {
+        "tag": "ZERO",
+        "title": "0 is your best shield and weapon",
+        "body": "A 0 never adds to the total, so you cannot collapse a stand with it, yet it adds a cube that raises the next collapser's penalty. Save it for when all three stands are dangerous."
+      },
+      {
+        "tag": "RAINBOW",
+        "title": "One priority pass per hand",
+        "body": "The rainbow chip lets you place first, once per hand. Use it to claim a stand before big rocks land, or to dodge a crowded color. Paired with a low card and a pass, it can also pick the safest stand at the very end."
+      },
+      {
+        "tag": "PASS",
+        "title": "Play high, then pass",
+        "body": "A high card places early, but passing sends you to the back. The idea is to let someone collapse a stand first and then drop into the cleared stand. If you picked a dangerous stand alone, though, passing does not help."
+      },
+      {
+        "tag": "ROUND 8",
+        "title": "The fresh hand is the turning point",
+        "body": "Round 8 deals a new hand like round 1, but the stands are already loaded. You may need your rainbow or 0 immediately."
+      },
+      {
+        "tag": "TEMPO",
+        "title": "Leave a little room rather than filling to 12",
+        "body": "A stand filled to 12 scares everyone away and just intensifies the fight elsewhere. Leaving 1–2 points of room tempts several players to think \"a 1 alone is safe\" — and they collapse it on each other."
+      },
+      {
+        "tag": "INFO",
+        "title": "Count the remaining cards and chips",
+        "body": "Every revealed card and chip is public. Track who has used up which colors and who still holds big rocks to predict which stand will be crowded next."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Do I need 7 people?",
+        "a": "No. Play six AIs on your own, or start a friend room with whoever joins — AI fills the rest."
+      },
+      {
+        "q": "Can I see others' cards before the reveal?",
+        "a": "No. Chips and cards stay hidden until everyone has submitted."
+      },
+      {
+        "q": "What if I run out of time?",
+        "a": "When the submission timer ends, a random card and chip are submitted for you; on your placement turn, you place automatically after 20 seconds."
+      },
+      {
+        "q": "Is it free?",
+        "a": "Yes, every game is free."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan or its broadcaster. Show names are used only to describe the games."
   }
 }

@@ -19,6 +19,8 @@ export type RoomEngine<S extends BaseRoom, A> = {
   syncSeats: (state: S, peers: Peer[]) => S;
   running: (state: S) => boolean; // whether the turn clock applies
   timeoutAction: A;
+  autoAction?: (state: S) => A | null; // host-run steps, e.g. AI seats (one per tick)
+  redact?: (state: S) => S; // what guests may see (hide secret picks)
 };
 
 const CLIENT_KEY = 'puzzlthink_client_id';
@@ -60,7 +62,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     stateRef.current = next;
     setState(next);
     write(stateKeyFor(engine.storage, code), JSON.stringify(next));
-    channelRef.current?.send({ type: 'broadcast', event: 'state', payload: next });
+    channelRef.current?.send({ type: 'broadcast', event: 'state', payload: engine.redact ? engine.redact(next) : next });
   }, [engine, code]);
 
   const apply = useCallback((action: A, fromId: string) => {
@@ -117,7 +119,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       if (meRef.current?.isHost) apply(payload.action as A, payload.from as string);
     });
     channel.on('broadcast', { event: 'hello' }, () => {
-      if (meRef.current?.isHost && stateRef.current) channel.send({ type: 'broadcast', event: 'state', payload: stateRef.current });
+      if (meRef.current?.isHost && stateRef.current) channel.send({ type: 'broadcast', event: 'state', payload: engine.redact ? engine.redact(stateRef.current) : stateRef.current });
     });
 
     channel.subscribe(async (result) => {
@@ -136,8 +138,11 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     if (!me?.isHost) return;
     const timer = window.setInterval(() => {
       const current = stateRef.current;
-      if (current && engine.running(current) && Date.now() >= current.deadline) apply(engine.timeoutAction, me.id);
-    }, 1000);
+      if (!current) return;
+      const auto = engine.autoAction?.(current);
+      if (auto) { apply(auto, me.id); return; }
+      if (engine.running(current) && Date.now() >= current.deadline) apply(engine.timeoutAction, me.id);
+    }, 900);
     return () => window.clearInterval(timer);
   }, [engine, me, apply]);
 
@@ -160,4 +165,33 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
 
   const mySeat = state && me ? seatOf(state, me.id) : null;
   return { status, state, peers, hostOnline, me, mySeat, dispatch, rename };
+}
+
+/** Same engine, played entirely in this browser (solo vs AI). Seat 0 is the local player. */
+export function useLocalRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>, create: () => S) {
+  const [state, setState] = useState<S | null>(null);
+  const stateRef = useRef<S | null>(null);
+  const apply = useCallback((action: A, seat: number | null, isHost = true) => {
+    const current = stateRef.current;
+    if (!current) return;
+    const next = engine.reduce(current, action, seat, isHost);
+    if (next) { stateRef.current = next; setState(next); }
+  }, [engine]);
+  const reset = useCallback(() => { const s = create(); stateRef.current = s; setState(s); }, [create]);
+  useEffect(() => {
+    const timer = window.setTimeout(reset, 0);
+    return () => window.clearTimeout(timer);
+  }, [reset]);
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const current = stateRef.current;
+      if (!current) return;
+      const auto = engine.autoAction?.(current);
+      if (auto) apply(auto, null);
+      else if (engine.running(current) && Date.now() >= current.deadline) apply(engine.timeoutAction, null);
+    }, 750);
+    return () => window.clearInterval(timer);
+  }, [engine, apply]);
+  const dispatch = useCallback((action: A) => apply(action, 0), [apply]);
+  return { state, dispatch, reset, mySeat: 0 };
 }
