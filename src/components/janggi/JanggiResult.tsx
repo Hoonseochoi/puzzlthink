@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { History, X } from 'lucide-react';
 import type { JanggiState, Side } from '@/lib/janggi';
 import JanggiPiece from './JanggiPiece';
 import ResultActions from '../ResultActions';
+import JanggiTips from './JanggiTips';
+import { TipsButton } from '../ui/TipsModal';
 import { MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT, accentVars } from '../ui/gameUi';
 import { GOLD, hanjaFont } from './theme';
 
@@ -14,6 +17,9 @@ export default function JanggiResult({ game, viewer, names, onAgain, waitingLabe
 }) {
   const t = useTranslations('Janggi');
   const draw = game.winner === null;
+  const [tipsOpen, setTipsOpen] = useState(false);
+  // Only the player who lost gets the winning tips (spectators and winners do not).
+  const lost = viewer !== null && game.winner !== null && game.winner !== viewer && (game.moves?.length ?? 0) > 0;
   const title = draw ? t('resultDraw') : game.winner === viewer ? t('resultWin') : t('resultWinner', { player: names[game.winner!] });
   return (
     <div className={MODAL_BACKDROP} style={accentVars(GOLD, '#1a1408')}>
@@ -26,7 +32,9 @@ export default function JanggiResult({ game, viewer, names, onAgain, waitingLabe
         {onReplay && (game.moves?.length ?? 0) > 0 && (
           <button onClick={onReplay} className="mt-5 flex w-full items-center justify-center gap-2 rounded-md border border-(--accent)/40 bg-(--accent)/10 py-3 text-sm font-extrabold text-(--accent) hover:bg-(--accent)/20"><History size={15} />{t('replay')}</button>
         )}
+        {lost && <TipsButton label={t('tipsButton')} adName="janggi-tips" onOpen={() => setTipsOpen(true)} />}
         <ResultActions onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/janggi" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
+        {tipsOpen && lost && <JanggiTips game={game} viewer={viewer!} onClose={() => setTipsOpen(false)} />}
       </div>
     </div>
   );

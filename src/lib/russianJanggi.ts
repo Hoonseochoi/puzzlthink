@@ -240,6 +240,34 @@ function rootScores(state: RJState, budgetMs: number, maxDepth: number): { actio
   return moves.map((m, i) => ({ action: toAction(m), value: scores[i] }));
 }
 
+// ---------------------------------------------------------------- Loss analysis (winning tips)
+
+export type TurningPoint = { index: number; before: RJState; played: Action; better: Action; outcome: 'win' | 'save' };
+
+const sameRJAction = (a: Action, b: Action) => a.kind === b.kind
+  && (a.kind === 'pass' || (a.kind === 'place' && b.kind === 'place' && a.size === b.size && a.to === b.to)
+    || (a.kind === 'move' && b.kind === 'move' && a.from === b.from && a.to === b.to));
+
+/** Indices into `game.moves` where `side` played a real move (not a pass), latest first. */
+export function turnsOf(game: RJState, side: Side): number[] {
+  const states = replayStates(game);
+  return game.moves.map((_, i) => i).filter((i) => states[i].turn === side && game.moves[i].kind !== 'pass').reverse();
+}
+
+/**
+ * Was move `index` the turning point? It is when the move played there loses by force (score <= -900)
+ * while another move would have won or at least not lost by force.
+ */
+export function turningPointAt(game: RJState, index: number, budgetMs = 300): TurningPoint | null {
+  const before = replayStates({ ...game, moves: game.moves.slice(0, index) }).pop()!;
+  const scored = rootScores(before, budgetMs, 12);
+  const played = scored.find((s) => sameRJAction(s.action, game.moves[index]));
+  if (!played || played.value > -900) return null;
+  const best = scored.reduce((a, b) => (b.value > a.value ? b : a), scored[0]);
+  if (!best || best.value <= -900) return null;
+  return { index, before, played: game.moves[index], better: best.action, outcome: best.value >= 900 ? 'win' : 'save' };
+}
+
 export function chooseAiAction(state: RJState, difficulty: Difficulty): Action {
   const side = state.turn;
   const moves = legalActions(state, side);
