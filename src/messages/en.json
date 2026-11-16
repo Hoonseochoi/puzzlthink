@@ -261,53 +261,77 @@
   },
   "Legal": {
     "legal": "LEGAL",
-    "lastUpdated": "Last updated: November 16, 2026",
+    "lastUpdated": "Last updated: November 17, 2026",
     "privacyTitle": "Privacy Policy",
     "privacyDescription": "The PUZZLTHINK privacy policy.",
     "privacySections": [
       {
-        "title": "1. Information we store",
-        "body": "PUZZLTHINK can be used without an account. We receive the account details in section 3 only if you choose to sign in with Google; otherwise we do not collect personal information such as your name, email or phone number. Game records, tutorial status, your nickname and the last game mode you chose are stored only in your browser (local storage)."
+        "title": "1. Overview",
+        "body": "PUZZLTHINK (the 'Service') can be played without an account. We only handle the information below when you choose to sign in with Google, send a bug report, or email us. Otherwise we do not receive personal information such as your name, email or phone number."
       },
       {
-        "title": "2. Play with friends (live games)",
-        "body": "When you use Play with friends, the room code, the nickname you choose, a randomly generated device ID and your game moves are relayed to other players in the same room through a realtime service (Supabase Realtime). This data is used only for live relay and is not stored in a PUZZLTHINK database. The host’s browser may keep the game state so the match can resume."
+        "title": "2. When you sign in with Google",
+        "body": "• Account: your Google email address, name, profile photo and the unique ID Google issues — used to sign you in and run the Records page.\n• Profile: the nickname you set on the Records page, whether you appear in the Hall of Fame, when you joined and when you were last seen.\n• Game results: the game, mode (AI, friends or solo), win/loss or placing, per-game details such as difficulty, score or time, and when you played — used for your records and Hall of Fame ranking.\n• Play time: total and per-day time, counted in one-minute steps while a game tab is visible.\nIf a game ends while you are signed out, its result is kept briefly in the browser's session storage so that signing in on the result screen can save that one game. It is cleared when you close the tab or press Quit or Play again."
       },
       {
-        "title": "3. Google sign-in (optional)",
-        "body": "If you sign in with Google, Supabase Auth receives and stores your Google email address, name and profile picture to handle sign-in. While signed in, we also store your game results (game, mode, result, difficulty and similar) and play time to provide the Records page. If \"Show me in the Hall of Fame\" is on, your nickname and profile picture are visible to other players; your email is never shown. This data is not used for other purposes or shared with third parties. Every game works without signing in, and you can request deletion of your account and records using the contact below."
+        "title": "3. When you send a bug report",
+        "body": "A report sent with the in-game 'Report a bug' button includes the category, what you wrote, a reply email (only if you enter one), the game and page address, your browser details (User-Agent), screen size, language, and your account ID if you are signed in. It is used only to look into the problem and reply."
       },
       {
-        "title": "4. How information is used",
-        "body": "Stored information is used only to resume games, show records, run games with friends and improve the service. We do not sell or share it for other purposes."
+        "title": "4. When you email us",
+        "body": "Mail sent to contact@puzzlthink.com is forwarded to the operator's inbox with your email address and message. It is used only to reply and to review partnership proposals."
       },
       {
-        "title": "5. Deleting local data",
-        "body": "You can delete PUZZLTHINK’s local data from your browser settings at any time. Doing so resets records, settings and your nickname."
+        "title": "5. Statistics that cannot identify you",
+        "body": "For everyone, we count visitors per day and plays per game and mode as plain numbers. These counts contain no name, email, IP address or anything else that identifies you. To avoid counting the same visit twice in a day, the date of your visit is stored in your browser."
       },
       {
-        "title": "6. Advertising and cookies",
-        "body": "PUZZLTHINK may display ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it and its partners to serve ads based on your visits to this and other sites."
+        "title": "6. Playing with friends (real-time)",
+        "body": "When you play with friends, the room code, the nickname you choose, a randomly generated device ID and your moves are relayed to the other players in the room through a real-time service (Supabase Realtime). This is used only for live relay and is not stored in our database. The host's browser may keep the game state so the match can continue."
       },
       {
-        "title": "7. Opting out of personalized ads",
-        "body": "You may opt out of personalized advertising in Google Ads Settings (https://adssettings.google.com), and opt out of third-party vendors' cookies for personalized advertising at www.aboutads.info. Learn how Google uses data at https://policies.google.com/technologies/partner-sites. Users in the EEA, the UK, and Switzerland are asked for consent before cookies are used."
+        "title": "7. Information stored in your browser",
+        "body": "Local game records, tutorial status, nickname, last game settings, sign-in state and visit date are stored in your browser's local storage. You can delete them at any time by clearing site data in your browser settings; this resets local records and settings and signs you out."
       },
       {
-        "title": "8. Service providers",
-        "body": "Our hosting (Vercel), realtime (Supabase) and advertising (Google AdSense) providers may process technical data needed for security and performance, such as IP address and browser information."
+        "title": "8. Retention and deletion",
+        "body": "• Account information, profile, game results and play time: kept until you ask us to delete them, then deleted without delay.\n• Bug reports: kept as long as needed to investigate and reply, and deleted without delay on request.\n• Emails: kept as long as needed to reply or review a proposal, and deleted without delay on request.\nElectronic records are deleted so that they cannot be restored."
       },
       {
-        "title": "9. Children’s privacy",
-        "body": "PUZZLTHINK does not knowingly collect personal information from children under 14."
+        "title": "9. What is public, and sharing with third parties",
+        "body": "If you are signed in, have the Hall of Fame option on and make the top ranks, your nickname, profile photo, wins and games played are visible to anyone on the Records page. Your email is never shown, and turning the option off on the Records page removes you immediately. Otherwise we do not sell or share personal information with third parties, except when legally required through due process."
       },
       {
-        "title": "10. Changes",
-        "body": "If this policy changes, we will update the last-updated date on this page."
+        "title": "10. Service providers and international transfer",
+        "body": "We rely on the providers below, whose servers may be outside Korea (for example in the United States). Information is sent over the network when you use the Service, and each provider uses it only for the work we give them.\n• Supabase: sign-in, database (profiles, game results, bug reports, statistics) and real-time play\n• Vercel: website hosting and delivery (including access logs)\n• Google: Google sign-in, Google AdSense ads and the operator's inbox (Gmail)\n• Web3Forms: relays bug reports to the operator's email\n• Forward Email: forwards mail sent to contact@puzzlthink.com to the operator's inbox\nIf you do not want your information transferred abroad, you can play without signing in or sending reports, or ask us to delete it. All games remain available either way."
       },
       {
-        "title": "11. Contact",
-        "body": "For privacy questions, contact chlgnstj1@gmail.com."
+        "title": "11. Your rights",
+        "body": "You can ask at any time to see, correct, delete or stop the processing of your personal information. You can change your nickname and Hall of Fame visibility yourself on the Records page; for anything else, email contact@puzzlthink.com and we will act without delay once we confirm it is you. Legal guardians of children under 14 have the same rights."
+      },
+      {
+        "title": "12. Ads and cookies",
+        "body": "The Service may show ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it to serve ads based on your visits to this and other sites."
+      },
+      {
+        "title": "13. Opting out of personalized ads",
+        "body": "You can turn off personalized ads in Google Ads Settings (https://adssettings.google.com) and opt out of third-party vendors' cookies for personalized advertising at www.aboutads.info. To learn how Google uses data, see https://policies.google.com/technologies/partner-sites. Users in the EEA, the UK and Switzerland are asked for consent before cookies are used."
+      },
+      {
+        "title": "14. Security",
+        "body": "All traffic is encrypted with HTTPS. The database uses row-level access control so you can see only your own records; bug reports and statistics can only be written through fixed functions and cannot be read by other users. Only the operator can access the admin tools."
+      },
+      {
+        "title": "15. Children's privacy",
+        "body": "The Service does not knowingly collect personal information from children under 14. If we learn that a child under 14 has sent personal information through Google sign-in or a bug report, we delete it without delay."
+      },
+      {
+        "title": "16. Privacy officer and contact",
+        "body": "Privacy officer: the PUZZLTHINK operator\nContact: contact@puzzlthink.com\nFor help with a privacy complaint in Korea you can also contact the Personal Information Infringement Report Center (privacy.kisa.or.kr, 118) or the Personal Information Dispute Mediation Committee (www.kopico.go.kr, 1833-6972)."
+      },
+      {
+        "title": "17. Changes to this policy",
+        "body": "When this policy changes, we update the last updated date on this page."
       }
     ],
     "termsTitle": "Terms of Service",
@@ -339,7 +363,7 @@
       },
       {
         "title": "7. Contact",
-        "body": "For questions about these terms, contact chlgnstj1@gmail.com."
+        "body": "For questions about these terms, email contact@puzzlthink.com."
       }
     ]
   },
@@ -367,7 +391,7 @@
       },
       {
         "title": "Who runs it",
-        "body": "PUZZLTHINK is an independent project run by a solo developer. Send suggestions or bug reports to chlgnstj1@gmail.com."
+        "body": "PUZZLTHINK is an independent project run by a solo developer. Send suggestions or bug reports to contact@puzzlthink.com."
       },
       {
         "title": "Notice",
@@ -392,7 +416,7 @@
       },
       {
         "title": "Privacy requests",
-        "body": "PUZZLTHINK does not store personal information on its servers. For questions about advertising cookies, see the Privacy Policy or email us."
+        "body": "To see, correct or delete your personal information — sign-in, game records or bug reports — email contact@puzzlthink.com. The Privacy Policy explains what we handle and how."
       }
     ]
   },
