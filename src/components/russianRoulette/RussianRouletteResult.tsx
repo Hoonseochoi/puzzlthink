@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { ChevronDown, LockKeyhole } from 'lucide-react';
+import { RR_MANIPULATE_AT } from '@/lib/russianRoulette';
 import type { RussianRouletteRoom } from '@/lib/russianRouletteRoom';
 import ResultActions from '../ResultActions';
 import RouletteCharacter from './RouletteCharacter';
@@ -13,6 +15,9 @@ export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLa
   const t = useTranslations('RussianRoulette');
   const shots = room.game.shots;
   const [ready, setReady] = useState(shots.length === 0);
+  const [showManip, setShowManip] = useState(false);
+  const manipHistory = room.game.manipHistory ?? [];
+  const letter = (chamber: number) => String.fromCharCode(65 + (chamber % 6));
   const hit = mySeat !== null && room.game.hits.includes(mySeat);
   const name = (seat: number) => seat === mySeat ? t('you') : room.seats[seat]?.name ?? `P${seat + 1}`;
 
@@ -35,6 +40,20 @@ export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLa
         <div className="mt-4 rounded-[12px] bg-black/25 p-3">
           <p className="text-[9px] font-black tracking-widest text-white/30">FIRING LOG</p>
           <div className="mt-2 flex flex-wrap gap-1.5">{shots.map((shot, i) => <span key={i} className={`rounded-full px-2 py-1 font-mono text-[9px] font-black ${shot.fired ? 'bg-[#ff7268]/20 text-[#ff948d]' : 'bg-white/[0.05] text-white/30'}`}>{String.fromCharCode(65 + shot.chamber)} → {name(shot.target)} {shot.fired ? '●' : '○'}</span>)}</div>
+        </div>
+        <div className="mt-3 rounded-[12px] border border-[#a978ed]/25 bg-[#a978ed]/[0.06]">
+          <button type="button" onClick={() => setShowManip((value) => !value)} aria-expanded={showManip} className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-xs font-black text-[#d8baff]">
+            <span className="flex items-center gap-2"><LockKeyhole size={14} />{t('revealManipulation')}</span>
+            <ChevronDown size={15} className={`transition-transform ${showManip ? 'rotate-180' : ''}`} />
+          </button>
+          {showManip && <ol className="max-h-56 space-y-1.5 overflow-y-auto border-t border-[#a978ed]/20 px-3 py-2.5">
+            {manipHistory.length === 0 ? <li className="text-[11px] text-white/40">{t('manipNone')}</li> : manipHistory.map((entry, i) => <li key={i} className={`flex gap-2 text-[11px] leading-5 ${entry.k === 'swap' ? 'font-black text-[#ffcf58]' : 'text-white/60'}`}>
+              <span className="shrink-0 font-mono text-[9px] leading-5 text-white/30">R{entry.round}</span>
+              {entry.k === 'fund'
+                ? t('manipFund', { player: name(entry.seat), amount: entry.amount, pool: entry.pool, max: RR_MANIPULATE_AT })
+                : t('manipSwap', { player: name(entry.seat), a: letter(entry.pair), b: letter(entry.pair + 1) })}
+            </li>)}
+          </ol>}
         </div>
         <ResultActions onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-roulette" exitPath={exitPath} primaryClass="rounded-[12px] bg-[#65e5ff] text-[#071016] hover:bg-[#a7efff]" />
       </div>

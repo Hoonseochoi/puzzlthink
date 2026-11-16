@@ -5,6 +5,11 @@ export const RR_START_CREDITS = 16;
 export type RRKnowledge = boolean | null;
 export type RRActionKind = 'publicInspect' | 'privateInspect' | 'rotate1' | 'rotate2' | 'manipulate';
 export type RRShot = { chamber: number; target: number; fired: boolean };
+export const RR_MANIPULATE_AT = 6;
+/** Hidden from everyone until the shots are fired, then shown in the result's manipulation reveal. */
+export type RRManipEntry =
+  | { k: 'fund'; round: number; seat: number; amount: number; pool: number }
+  | { k: 'swap'; round: number; seat: number; pair: number };
 export type RRLog =
   | { k: 'round'; round: number; start: number }
   | { k: 'publicInspect'; seat: number; pair: number }
@@ -26,7 +31,9 @@ export type RussianRoulette = {
   baseMuzzle?: number; // initial public direction, retained to animate continuous clockwise turns
   rotations?: number[]; // public rotation steps by player
   credits: number[];
-  manipulation: number[];
+  manipulation: number[]; // each player's own total contribution (private to that player)
+  pool?: number; // shared manipulation pool, hidden from everyone
+  manipHistory?: RRManipEntry[]; // revealed after the shots
   publicIntel: RRKnowledge[];
   privateIntel: RRKnowledge[][];
   hits: number[];
@@ -39,7 +46,7 @@ export type RRAction =
   | { kind: 'privateInspect'; pair: number }
   | { kind: 'rotate1' }
   | { kind: 'rotate2' }
-  | { kind: 'manipulate'; amount: 1 | 2 | 3; pair?: number };
+  | { kind: 'manipulate'; amount: 1 | 2 | 3; pair: number }; // pair is swapped only if this contribution fills the pool
 
 export const RR_COST: Record<RRActionKind, number> = {
   publicInspect: 1,
@@ -71,7 +78,7 @@ export function newRussianRoulette(random: () => number = Math.random): RussianR
   return {
     phase: 'playing', round: 1, roundStart: start, turn: start, remaining: orderFrom(start),
     chambers: loadChambers(random), muzzle, baseMuzzle: muzzle, rotations: Array(RR_PLAYERS).fill(0),
-    credits: Array(RR_PLAYERS).fill(RR_START_CREDITS), manipulation: Array(RR_PLAYERS).fill(0),
+    credits: Array(RR_PLAYERS).fill(RR_START_CREDITS), manipulation: Array(RR_PLAYERS).fill(0), pool: 0, manipHistory: [],
     publicIntel: Array(RR_CHAMBERS).fill(null),
     privateIntel: Array.from({ length: RR_PLAYERS }, () => Array<RRKnowledge>(RR_CHAMBERS).fill(null)),
     hits: [], shots: [], log: [{ k: 'round', round: 1, start }],
@@ -91,11 +98,8 @@ export function canAct(game: RussianRoulette, seat: number, action: RRAction) {
   if (game.phase !== 'playing' || game.turn !== seat || seat < 0 || seat >= RR_PLAYERS) return false;
   const cost = actionCost(action);
   if (cost < 1 || game.credits[seat] < cost) return false;
-  if ((action.kind === 'publicInspect' || action.kind === 'privateInspect') && !validPair(action.pair)) return false;
-  if (action.kind === 'manipulate') {
-    if (![1, 2, 3].includes(action.amount)) return false;
-    if (game.manipulation[seat] + action.amount >= 6 && !validPair(action.pair)) return false;
-  }
+  if ((action.kind === 'publicInspect' || action.kind === 'privateInspect' || action.kind === 'manipulate') && !validPair(action.pair)) return false;
+  if (action.kind === 'manipulate' && ![1, 2, 3].includes(action.amount)) return false;
   return true;
 }
 
@@ -152,24 +156,22 @@ export function applyRRAction(game: RussianRoulette, seat: number, action: RRAct
     const rotations = (game.rotations ?? Array(RR_PLAYERS).fill(0)).map((value, i) => i === seat ? value + steps : value);
     next = { ...next, muzzle: (game.muzzle + steps) % RR_PLAYERS, rotations, log: pushLog(game.log, { k: 'rotate', seat, steps }) };
   } else {
-    const total = game.manipulation[seat] + action.amount;
-    if (total < 6) {
-      const manipulation = game.manipulation.map((value, i) => i === seat ? total : value);
-      next = { ...next, manipulation, log: pushLog(game.log, { k: 'manipulateFund', seat }) };
-    } else {
-      const pair = action.pair!;
-      const [a, b] = pairCells(pair);
+    // Everyone pays into one hidden pool. Whoever brings it to 6 swaps their chosen pair, the pool
+    // empties and any excess is lost. Nobody else learns about it, so their intel silently goes stale.
+    const pool = (game.pool ?? 0) + action.amount;
+    const manipulation = game.manipulation.map((value, i) => i === seat ? value + action.amount : value);
+    let history = [...(game.manipHistory ?? []), { k: 'fund' as const, round: game.round, seat, amount: action.amount, pool: Math.min(pool, RR_MANIPULATE_AT) }];
+    next = { ...next, manipulation, pool, log: pushLog(game.log, { k: 'manipulateFund', seat }) };
+    if (pool >= RR_MANIPULATE_AT) {
+      const [a, b] = pairCells(action.pair);
       const chambers = [...game.chambers];
       [chambers[a], chambers[b]] = [chambers[b], chambers[a]];
-      const publicIntel = [...game.publicIntel];
-      publicIntel[a] = null; publicIntel[b] = null;
-      const privateIntel = game.privateIntel.map((intel) => {
-        const copy = [...intel]; copy[a] = null; copy[b] = null; return copy;
-      });
+      const privateIntel = game.privateIntel.map((intel) => [...intel]);
       privateIntel[seat][a] = chambers[a]; privateIntel[seat][b] = chambers[b];
-      const manipulation = game.manipulation.map((value, i) => i === seat ? 0 : value);
-      next = { ...next, chambers, publicIntel, privateIntel, manipulation, log: pushLog(game.log, { k: 'manipulate', seat, pair }) };
+      history = [...history, { k: 'swap', round: game.round, seat, pair: action.pair }];
+      next = { ...next, chambers, privateIntel, pool: 0 };
     }
+    next = { ...next, manipHistory: history };
   }
   if (credits[seat] === 0) next = { ...next, log: pushLog(next.log, { k: 'pass', seat }) };
   return advance(next);
@@ -193,13 +195,15 @@ export function chooseRRAction(game: RussianRoulette, seat: number, level: 'easy
   const pair = unknownPairs[0].pair;
   const fund = game.manipulation[seat];
   const muzzle = knownMuzzle(game);
+  // The AI can't see the shared pool either. If its contribution happens to fill it, it swaps the
+  // chamber that would fire at itself first with the next one.
+  const swapPair = (seat - muzzle + RR_CHAMBERS) % RR_CHAMBERS;
 
-  if (fund > 0 && credit > 0 && (fund >= 3 || level === 'hard')) {
-    const amount = Math.min(3, credit) as 1 | 2 | 3;
-    return fund + amount >= 6 ? { kind: 'manipulate', amount, pair } : { kind: 'manipulate', amount };
+  if (fund > 0 && credit > 0 && Math.random() < (level === 'hard' ? 0.55 : 0.3)) {
+    return { kind: 'manipulate', amount: Math.min(3, credit) as 1 | 2 | 3, pair: swapPair };
   }
   if (credit >= 3 && level !== 'easy' && Math.random() < (level === 'hard' ? 0.28 : 0.14)) {
-    return { kind: 'manipulate', amount: Math.min(3, credit) as 1 | 2 | 3 };
+    return { kind: 'manipulate', amount: Math.min(3, credit) as 1 | 2 | 3, pair: swapPair };
   }
   if (credit >= 4 && muzzle === seat && Math.random() < 0.72) return { kind: 'rotate2' };
   if (credit >= 3 && muzzle === seat && Math.random() < 0.82) return { kind: 'rotate1' };

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, ChevronRight, Coins, Eye, EyeOff, LockKeyhole, RefreshCw, RotateCw, ShieldQuestion, Volume2, VolumeX, X } from 'lucide-react';
+import { ChevronRight, Coins, Eye, EyeOff, LockKeyhole, RefreshCw, RotateCw, ShieldQuestion, Volume2, VolumeX, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { type RRAction } from '@/lib/russianRoulette';
 import type { RussianRouletteRoom, RussianRouletteRoomAction } from '@/lib/russianRouletteRoom';
@@ -51,7 +51,6 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
   const myCredits = mySeat === null ? null : game.credits[mySeat];
   const previousMyCredits = useRef(myCredits);
   const myFund = mySeat === null ? 0 : game.manipulation[mySeat];
-  const needsPair = pending === 'manipulate' && myFund + amount >= 6;
   const privateIntel = mySeat === null ? Array(6).fill(null) : game.privateIntel[mySeat];
   const confirmedBullets = useMemo(() => game.publicIntel.map((value, i) => value ?? privateIntel[i]).map((value, i) => value ? LETTERS[i] : null).filter(Boolean), [game.publicIntel, privateIntel]);
   const visibleHits = game.phase === 'finished'
@@ -127,7 +126,8 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
     if (!myTurn) return;
     if (pending === 'publicInspect') act({ kind: 'publicInspect', pair });
     if (pending === 'privateInspect') act({ kind: 'privateInspect', pair });
-    if (pending === 'manipulate' && needsPair) act({ kind: 'manipulate', amount, pair });
+    // The shared pool is hidden, so every contribution names the pair it would swap if it fills the pool.
+    if (pending === 'manipulate') act({ kind: 'manipulate', amount, pair });
   };
   const toggleSuspected = (seat: number) => {
     setSuspected((current) => current.includes(seat) ? current.filter((value) => value !== seat) : current.length < 2 ? [...current, seat] : [current[1], seat]);
@@ -181,7 +181,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
             const privateValue = privateIntel[chamber];
             const value = game.phase === 'finished' ? game.chambers[chamber] : publicValue ?? privateValue;
             const source = game.phase === 'finished' ? 'final' : publicValue !== null ? 'public' : privateValue !== null ? 'private' : 'unknown';
-            const active = pending !== null && (pending !== 'manipulate' || needsPair);
+            const active = pending !== null;
             return (
               <button key={chamber} type="button" disabled={!active || !myTurn} onClick={() => choosePair(chamber)} style={{ left: `${left}%`, top: `${top}%` }} className={`absolute z-20 flex h-[62px] w-[62px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] transition sm:h-[78px] sm:w-[78px] ${active && myTurn ? 'cursor-pointer hover:scale-110 hover:border-[#65e5ff]' : ''} ${source === 'public' ? 'border-[#ffcf58]/70 bg-[#302818]' : source === 'private' ? 'border-[#a978ed]/70 bg-[#271d35]' : source === 'final' ? 'border-white/35 bg-[#171d26]' : 'border-[#323c48] bg-[#111720]'}`}>
                 <span className="absolute inset-0 flex items-center justify-center" style={{ transform: `rotate(${-cylinderAngle}deg)`, ...cylinderTransition }}>
@@ -211,8 +211,8 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
         </div>
 
         {pending && <div className="absolute bottom-3 left-1/2 z-40 flex w-[calc(100%-24px)] max-w-md -translate-x-1/2 items-center justify-between gap-3 rounded-[14px] border border-[#65e5ff]/25 bg-[#0b111b]/95 p-3 shadow-2xl backdrop-blur">
-          <div><p className="text-xs font-black text-[#a7efff]">{t(`pending_${pending}`)}</p><p className="mt-0.5 text-[10px] text-white/40">{pending === 'manipulate' && !needsPair ? t('submitReady') : t('chooseAdjacent')}</p></div>
-          <div className="flex items-center gap-2">{pending === 'manipulate' && !needsPair && <button onClick={() => act({ kind: 'manipulate', amount })} className="rounded-[10px] bg-[#65e5ff] px-3 py-2 text-xs font-black text-[#071016]"><Check size={14} /></button>}<button onClick={() => setPending(null)} className="rounded-[10px] border border-white/10 p-2 text-white/50"><X size={14} /></button></div>
+          <div><p className="text-xs font-black text-[#a7efff]">{t(`pending_${pending}`)}</p><p className="mt-0.5 text-[10px] text-white/40">{pending === 'manipulate' ? t('manipulatePairHint') : t('chooseAdjacent')}</p></div>
+          <div className="flex items-center gap-2"><button onClick={() => setPending(null)} className="rounded-[10px] border border-white/10 p-2 text-white/50"><X size={14} /></button></div>
         </div>}
       </section>
 
@@ -221,7 +221,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
           <div className="flex items-center justify-between"><p className={RR_TITLE}>{t('terminal')}</p><div className="flex items-center gap-2"><button onClick={toggleSound} aria-label={soundOn ? t('soundOn') : t('soundOff')} className="rounded-full border border-white/10 p-1.5 text-white/35 transition hover:text-white/70">{soundOn ? <Volume2 size={12} /> : <VolumeX size={12} />}</button><span className={`h-2 w-2 rounded-full ${myTurn ? 'animate-pulse bg-[#65e5ff]' : 'bg-white/15'}`} /></div></div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-[12px] bg-white/[0.04] p-3"><p className="text-[9px] font-black tracking-widest text-white/30">CREDIT</p><p className="mt-1 font-mono text-2xl font-black text-[#ffcf58]">{myCredits ?? '—'}</p></div>
-            <div className="rounded-[12px] bg-white/[0.04] p-3"><p className="text-[9px] font-black tracking-widest text-white/30">CONTROL</p><p className="mt-1 font-mono text-2xl font-black text-[#a978ed]">{myFund}<span className="text-xs text-white/25">/6</span></p></div>
+            <div className="rounded-[12px] bg-white/[0.04] p-3"><p className="text-[9px] font-black tracking-widest text-white/30">CONTROL</p><p className="mt-1 font-mono text-2xl font-black text-[#a978ed]" title={t('myContribution')}>{myFund}</p></div>
           </div>
           <p className="mt-3 min-h-9 text-xs leading-5 text-white/50">{game.phase === 'finished' ? t('finished') : myTurn ? t('yourTurn') : t('waiting', { player: playerName(game.turn) })}</p>
         </section>

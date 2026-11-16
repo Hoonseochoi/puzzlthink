@@ -102,6 +102,8 @@ export function redactRussianRoulette(state: RussianRouletteRoom): RussianRoulet
       chambers: Array(RR_PLAYERS).fill(false),
       credits: g.credits.map(() => 1), // exact balance and whether a player has passed stay private
       manipulation: Array(RR_PLAYERS).fill(0),
+      pool: 0, // the shared manipulation pool and who paid into it stay secret until the shots
+      manipHistory: [],
       privateIntel: g.privateIntel.map((row) => row.map(() => null)),
       log: g.log.map((e) => e.k === 'manipulate' || e.k === 'pass' ? { k: 'manipulateFund', seat: e.seat } : e),
     },

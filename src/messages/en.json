@@ -1112,7 +1112,13 @@
     "bubblePublic": "Public inspect {a}·{b}",
     "bubbleSecret": "Private action",
     "bubbleRotate": "Rotate muzzle {n}",
-    "bubblePass": "PASS"
+    "bubblePass": "PASS",
+    "manipulatePairHint": "Pick the adjacent pair to swap. If your credits bring the shared pool to 6, those two chambers swap",
+    "myContribution": "Manipulation credits you paid in",
+    "revealManipulation": "Reveal manipulation",
+    "manipNone": "Nobody paid into manipulation this game.",
+    "manipFund": "{player} paid +{amount} into manipulation (shared pool {pool}/{max})",
+    "manipSwap": "{player} triggered the swap · chambers {a}↔{b}"
   },
   "RussianRouletteOnline": {
     "metaTitle": "Russian Roulette Friend Room",
@@ -1161,8 +1167,8 @@
     "title2": "Check two chambers for your eyes only",
     "desc2": "Purple lock markers are shown only on your terminal. Tap characters to keep private virtual target notes, too.",
     "label3": "MANIPULATION",
-    "title3": "Secretly submit 1–3 credits until you reach 6",
-    "desc3": "You cannot pay 6 at once. At 6 or more, swap the contents of two adjacent chambers; excess credits disappear.",
+    "title3": "Everyone secretly fills one shared pool to 6",
+    "desc3": "Pay 1–3 credits in secret; every player's credits go into one pool. Whoever brings it to 6 swaps the adjacent pair they chose, the pool resets to 0 and any excess is lost. Who paid in is revealed after the shots.",
     "label4": "FINAL TRIGGER",
     "title4": "Firing begins when three players run dry",
     "desc4": "Starting at the muzzle, targets advance clockwise. The first two players hit are eliminated and the other three survive."
