@@ -50,7 +50,7 @@
   },
   "WallGo": {
     "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
-    "metaDescription": "Play Wallgo, the wall-building territory game from The Devil's Plan, free in your browser. Move, build walls, and claim the largest territory against two AI opponents — no sign-up.",
+    "metaDescription": "Play Wallgo, the wall-building territory game from The Devil's Plan, free in your browser. 3-player and 1:1 duel modes against AI — move, build walls, and claim the largest territory. No sign-up.",
     "roundSolo": "ROUND 01 · SOLO",
     "placement": "Choose an empty tile for your character",
     "thinking": "{player} is thinking",
@@ -63,7 +63,7 @@
     "players": "PLAYERS",
     "threePlayers": "3 players",
     "you": "You",
-    "areaPieces": "Claimed {area} · Pieces {pieces}/2",
+    "areaPieces": "Claimed {area} · Pieces {pieces}/{total}",
     "break": "BREAK",
     "ready": "READY",
     "used": "USED",
@@ -132,8 +132,23 @@
       "The Devil's Plan game",
       "The Genius game",
       "Wallgo rules",
-      "Wallgo AI"
-    ]
+      "Wallgo AI",
+      "Wallgo 2 player",
+      "Wallgo strategy"
+    ],
+    "roundDuel": "ROUND 02 · 1:1",
+    "twoPlayers": "2 players",
+    "mode": "Game mode",
+    "modeThree": "3 players",
+    "modeThreeDesc": "2 pieces · wall break",
+    "modeTwo": "1:1 duel",
+    "modeTwoDesc": "4 pieces · 2 fixed",
+    "duelTitle": "1:1 duel rules",
+    "duelHint": "4 pieces each (2 fixed) · no wall break",
+    "duelRule1": "Each player starts with 4 pieces, 2 of which are already placed on fixed tiles.",
+    "duelRule3": "There is no wall break. When both players are separated, the larger territory wins.",
+    "logDraw": "Draw result: {player} moves first. Place your remaining 2 pieces in turn.",
+    "logPlacementDoneBot": "Placement complete. Your opponent moves first."
   },
   "Sudoku": {
     "metaTitle": "Online Sudoku",
@@ -300,32 +315,13 @@
     "eyebrow": "WALLGO GUIDE",
     "title": "Wallgo Online — the Devil's Plan game, on the web",
     "intro": "Wallgo is a territory strategy game that became a fan favorite on Netflix's brain-survival show The Devil's Plan. If you enjoy shows like The Genius, it will feel right at home. PUZZLTHINK brings Wallgo to the web so anyone can play against two AI opponents right in the browser.",
-    "rulesTitle": "Wallgo rules",
+    "rulesTitle": "3-player rules (round 1)",
     "rules": [
-      "On a 7×7 board, players take turns placing two characters each.",
-      "On your turn, move one character one or two tiles in a straight line.",
-      "Then you must build a wall on one of the four sides of the character you moved.",
-      "Once per game, each player may break through a wall blocking their path.",
-      "When every player is sealed off from the others, the game ends and the most claimed tiles wins. Ties go to the largest single area."
-    ],
-    "tipsTitle": "Winning strategy",
-    "tips": [
-      {
-        "title": "Take the center early",
-        "body": "Characters placed near the center have more directions to move, making it easier to expand your territory."
-      },
-      {
-        "title": "Use both characters together",
-        "body": "If both of your characters share a space, the whole space is yours. Guarding one region together often beats spreading out."
-      },
-      {
-        "title": "Build walls toward opponents",
-        "body": "Place walls to block opponents’ entry rather than shrink your own space. A continuous line of walls can lock in a large area at once."
-      },
-      {
-        "title": "Save your wall break",
-        "body": "You only get one. Breaking in just as an opponent is about to seal their region can flip the game."
-      }
+      "On a 7×7 board, each player places 2 pieces in the order 1→2→3→3→2→1.",
+      "On your turn you have 90 seconds to move one piece 1 or 2 tiles in a straight line. You cannot pass through other pieces or walls, but you may move back the way you came.",
+      "After moving, you must build a wall on one open side of that piece. If time runs out, a wall is placed on a random side.",
+      "Once per game, each player may break through a wall on their movement path.",
+      "The game ends the moment every player is sealed off. The most tiles in the spaces containing your pieces wins; ties go to the largest single area."
     ],
     "faqTitle": "FAQ",
     "faq": [
@@ -342,10 +338,67 @@
         "a": "Yes, every game is free."
       },
       {
-        "q": "Can I play with friends?",
-        "a": "Currently it is a three-player match against two AI opponents, with Easy, Normal, and Hard difficulty."
+        "q": "Is there a 2-player (1:1) mode?",
+        "a": "Yes. You can play a 3-player game against two AI opponents, or a 1:1 duel with 4 pieces each, like round 2 on the show. AI difficulty can be Easy, Normal, or Hard."
       }
     ],
-    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius, or their broadcasters. Show names are used only to describe the games."
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius, or their broadcasters. Show names are used only to describe the games.",
+    "duelRulesTitle": "1:1 duel rules (round 2)",
+    "duelRules": [
+      "Each player starts with 4 pieces, 2 of which are already placed on fixed tiles.",
+      "A draw decides who goes first; the remaining 2 pieces are placed first→second→second→first.",
+      "Moving and wall building work as in the 3-player game, but there is no wall break.",
+      "The game ends when the two players are fully separated, and the larger territory wins."
+    ],
+    "strategyTitle": "Strategy by situation — with diagrams",
+    "strategyIntro": "In Wallgo, opening placement and the position of a single wall can decide the game. Here are common situations drawn on the board. Columns are A–G and rows are 1–7 from the top.",
+    "legend": [
+      "Built wall",
+      "Side an opponent can close",
+      "Side you could close but should leave",
+      "Piece move"
+    ],
+    "strategies": [
+      {
+        "tag": "OPENING",
+        "title": "Anchor near a corner",
+        "body": "Just as corners are easy to secure in Go, pieces near C3, E3, C5, or E5 can lock in territory with few walls. In a 3-player game, though, two opponents can close your two outer sides together and trap you in a few corner tiles, so keep an exit open."
+      },
+      {
+        "tag": "OPENING",
+        "title": "The center D4 is stronger than it looks",
+        "body": "Unlike a 19-line Go board, a 7×7 board brings fights to the center immediately. D4 can move two tiles in all four directions, giving the most mobility and a great spot to cut opponents’ expansion routes."
+      },
+      {
+        "tag": "DANGER",
+        "title": "Never sit inside three walls",
+        "body": "With walls on three sides, one more wall from an opponent leaves that piece unable to move. Unless you have a specific plan, never step into such a spot, and get out as soon as a third wall appears."
+      },
+      {
+        "tag": "3 PLAYERS",
+        "title": "Two walls is risky in a 3-player game",
+        "body": "With two opponents, a spot with two walls can be sealed in a single round, one wall each. Trapping one player helps the other two, so these team-ups happen naturally. If both opponents are nearby, avoid two-wall spots too."
+      },
+      {
+        "tag": "ATTACK",
+        "title": "Lock an opponent into a corner",
+        "body": "Walls are not only for growing your own area. Trap an opponent in a few corner tiles and the rest of the board is split among everyone else, effectively removing them from the race for first. Move toward the spot that closes their last exit."
+      },
+      {
+        "tag": "TEMPO",
+        "title": "Do not close awkward territory for them",
+        "body": "There is no need to seal an opponent’s narrow, hard-to-grow area. The game only ends when every space is split, so closing it just saves them turns. Left open, they must keep building walls inside the strip and shrink it themselves."
+      },
+      {
+        "tag": "ATTACK",
+        "title": "Block with your own pieces",
+        "body": "No piece can move through another piece. In the 3-player game a wall can be broken once, but a path blocked by a piece cannot. Parking a piece in the middle of an opponent’s corridor is a more reliable block than a wall."
+      },
+      {
+        "tag": "3 PLAYERS",
+        "title": "Wall break is all about timing",
+        "body": "You only get one. Save it to flip the game at the end, or use it mid-game to cross into open space first and build momentum. Too late and the board is already decided; too early and you have nothing left in a crisis. An opponent about to close their region is a strong signal."
+      }
+    ]
   }
 }

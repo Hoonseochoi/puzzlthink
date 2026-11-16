@@ -19,6 +19,42 @@ export type TerritoryResult = {
   cellOwners: Record<string, PlayerId | null>;
 };
 
+export type ModeId = 'three' | 'two';
+export type GameMode = {
+  id: ModeId;
+  players: PlayerId[];
+  totalPieces: number;
+  fixedPieces: Piece[];
+  wallBreak: boolean;
+};
+
+// Round 1 (3 players, 2 pieces each, one wall break) and round 2 (1:1, 4 pieces each with 2 fixed, no wall break).
+export const MODES: Record<ModeId, GameMode> = {
+  three: { id: 'three', players: [0, 1, 2], totalPieces: 6, fixedPieces: [], wallBreak: true },
+  two: {
+    id: 'two',
+    players: [0, 1],
+    totalPieces: 8,
+    fixedPieces: [
+      { id: '0-f0', player: 0, row: 1, col: 1 },
+      { id: '0-f1', player: 0, row: 5, col: 5 },
+      { id: '1-f0', player: 1, row: 1, col: 5 },
+      { id: '1-f1', player: 1, row: 5, col: 1 },
+    ],
+    wallBreak: false,
+  },
+};
+
+export function placementOrder(mode: GameMode, first: PlayerId): PlayerId[] {
+  if (mode.id === 'three') return [0, 1, 2, 2, 1, 0];
+  const second: PlayerId = first === 0 ? 1 : 0;
+  return [first, second, second, first];
+}
+
+export function nextPlayerOf(mode: GameMode, player: PlayerId): PlayerId {
+  return mode.players[(mode.players.indexOf(player) + 1) % mode.players.length];
+}
+
 export const DIRECTIONS: Record<Direction, Position> = {
   up: { row: -1, col: 0 },
   right: { row: 0, col: 1 },
@@ -102,12 +138,12 @@ export function getWallOptions(pieces: Piece[], walls: Set<string>, pieceId: str
     .filter((option) => isInside(option.neighbor) && !walls.has(option.key));
 }
 
-export function getTerritory(pieces: Piece[], walls: Set<string>): TerritoryResult {
+export function getTerritory(pieces: Piece[], walls: Set<string>, totalPieces = 6): TerritoryResult {
   const visited = new Set<string>();
   const scores: [number, number, number] = [0, 0, 0];
   const largest: [number, number, number] = [0, 0, 0];
   const cellOwners: Record<string, PlayerId | null> = {};
-  let separated = pieces.length === 6;
+  let separated = pieces.length === totalPieces;
 
   for (let row = 0; row < BOARD_SIZE; row += 1) {
     for (let col = 0; col < BOARD_SIZE; col += 1) {
@@ -146,8 +182,8 @@ export function getTerritory(pieces: Piece[], walls: Set<string>): TerritoryResu
   return { scores, largest, separated, cellOwners };
 }
 
-export function getWinner(territory: TerritoryResult): PlayerId {
-  return ([0, 1, 2] as PlayerId[]).sort((a, b) =>
+export function getWinner(territory: TerritoryResult, players: PlayerId[] = [0, 1, 2]): PlayerId {
+  return [...players].sort((a, b) =>
     territory.scores[b] - territory.scores[a] || territory.largest[b] - territory.largest[a],
   )[0];
 }
@@ -169,7 +205,7 @@ export function chooseBotPlacement(pieces: Piece[], player: PlayerId): Position 
   return candidates[0]?.position ?? { row: 3, col: 3 };
 }
 
-export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean, difficulty: AiDifficulty = 'normal') {
+export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean, difficulty: AiDifficulty = 'normal', mode: GameMode = MODES.three) {
   const candidates: {
     move: MoveOption; wall: string; direction: Direction; pieces: Piece[]; walls: Set<string>; value: number;
   }[] = [];
@@ -177,13 +213,13 @@ export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: Pla
     const moved = applyMove(pieces, walls, move);
     for (const wallOption of getWallOptions(moved.pieces, moved.walls, move.pieceId)) {
       const nextWalls = new Set(moved.walls).add(wallOption.key);
-      const territory = getTerritory(moved.pieces, nextWalls);
+      const territory = getTerritory(moved.pieces, nextWalls, mode.totalPieces);
       const opponentScore = Math.max(...territory.scores.filter((_, index) => index !== player));
       const mobility = getMoveOptions(moved.pieces, nextWalls, player, false).length;
-      const opponentMobility = ([0, 1, 2] as PlayerId[])
+      const opponentMobility = mode.players
         .filter((id) => id !== player)
         .reduce<number>((sum, id) => sum + getMoveOptions(moved.pieces, nextWalls, id, false).length, 0);
-      const winBonus = territory.separated ? (getWinner(territory) === player ? 10_000 : -10_000) : 0;
+      const winBonus = territory.separated ? (getWinner(territory, mode.players) === player ? 10_000 : -10_000) : 0;
       const value = winBonus + territory.scores[player] * 7 + territory.largest[player] * 2
         - opponentScore * 3 + mobility * 0.45 - opponentMobility * 0.15
         - (move.brokenWall ? 5 : 0) + Math.random() * 1.8;
