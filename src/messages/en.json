@@ -166,7 +166,7 @@
     "logPlacementDoneBot": "Placement complete. Your opponent moves first."
   },
   "Sudoku": {
-    "metaTitle": "Online Sudoku",
+    "metaTitle": "Online Sudoku — free puzzles and solving guide",
     "description": "Play free online Sudoku in easy, medium, and hard difficulties.",
     "easy": "Easy",
     "medium": "Medium",
@@ -225,30 +225,42 @@
     "privacySections": [
       {
         "title": "1. Information we store",
-        "body": "PUZZLTHINK does not require an account and does not directly collect personal information such as your name or contact details. Game records and tutorial preferences are stored only in your browser."
+        "body": "PUZZLTHINK does not require an account and does not directly collect personal information such as your name, email or phone number. Game records, tutorial status, your nickname and the last game mode you chose are stored only in your browser (local storage)."
       },
       {
-        "title": "2. How information is used",
-        "body": "Browser data is used to resume games, display match records, and improve your experience. It is not sent to our servers."
+        "title": "2. Play with friends (live games)",
+        "body": "When you use Play with friends, the room code, the nickname you choose, a randomly generated device ID and your game moves are relayed to other players in the same room through a realtime service (Supabase Realtime). This data is used only for live relay and is not stored in a PUZZLTHINK database. The host’s browser may keep the game state so the match can resume."
       },
       {
-        "title": "3. Local storage",
-        "body": "You can delete PUZZLTHINK local data from your browser settings at any time. Doing so resets records and preferences."
+        "title": "3. How information is used",
+        "body": "Stored information is used only to resume games, show records, run games with friends and improve the service. We do not sell or share it for other purposes."
       },
       {
-        "title": "4. Advertising and cookies",
+        "title": "4. Deleting local data",
+        "body": "You can delete PUZZLTHINK’s local data from your browser settings at any time. Doing so resets records, settings and your nickname."
+      },
+      {
+        "title": "5. Advertising and cookies",
         "body": "PUZZLTHINK may display ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it and its partners to serve ads based on your visits to this and other sites."
       },
       {
-        "title": "5. Opting out of personalized ads",
+        "title": "6. Opting out of personalized ads",
         "body": "You may opt out of personalized advertising in Google Ads Settings (https://adssettings.google.com), and opt out of third-party vendors' cookies for personalized advertising at www.aboutads.info. Learn how Google uses data at https://policies.google.com/technologies/partner-sites. Users in the EEA, the UK, and Switzerland are asked for consent before cookies are used."
       },
       {
-        "title": "6. Service providers",
-        "body": "Our hosting provider may process technical logs (such as IP address and browser information) needed for security and performance."
+        "title": "7. Service providers",
+        "body": "Our hosting (Vercel), realtime (Supabase) and advertising (Google AdSense) providers may process technical data needed for security and performance, such as IP address and browser information."
       },
       {
-        "title": "7. Contact",
+        "title": "8. Children’s privacy",
+        "body": "PUZZLTHINK does not knowingly collect personal information from children under 14."
+      },
+      {
+        "title": "9. Changes",
+        "body": "If this policy changes, we will update the last-updated date on this page."
+      },
+      {
+        "title": "10. Contact",
         "body": "For privacy questions, contact chlgnstj1@gmail.com."
       }
     ],
@@ -261,18 +273,26 @@
       },
       {
         "title": "2. Fair play",
-        "body": "You may not use automation to manipulate game records or results."
+        "body": "Do not use automation or external programs to manipulate records or match results."
       },
       {
-        "title": "3. Intellectual property",
-        "body": "The service design, code, graphics, and game implementations are protected by the rights of their respective owners."
+        "title": "3. Play with friends",
+        "body": "Do not use offensive language or personal information in nicknames. Share invite links only with people you want to play with. Live games may lag or disconnect depending on network conditions."
       },
       {
-        "title": "4. Disclaimer",
+        "title": "4. Intellectual property",
+        "body": "The service’s design, code, graphics and game implementations belong to PUZZLTHINK. TV show names used to describe the games belong to their owners; PUZZLTHINK is an unofficial project not affiliated with any broadcaster."
+      },
+      {
+        "title": "5. Advertising",
+        "body": "The service may show third-party ads such as Google AdSense; advertisers are responsible for their ads."
+      },
+      {
+        "title": "6. Disclaimer",
         "body": "The service is provided as is. We do not guarantee uninterrupted availability or protection from local data loss."
       },
       {
-        "title": "5. Contact",
+        "title": "7. Contact",
         "body": "For questions about these terms, contact chlgnstj1@gmail.com."
       }
     ]
@@ -696,5 +716,72 @@
     "resignConfirm": "Resign this game?",
     "rematch": "Play again",
     "rematchWait": "The host can start a rematch."
+  },
+  "SudokuGuide": {
+    "eyebrow": "SUDOKU GUIDE",
+    "title": "Online Sudoku — rules and solving techniques",
+    "intro": "Sudoku is a logic puzzle, not a math one. You fill the empty squares of a 9×9 grid following three simple rules, so it takes a minute to learn — but harder puzzles reward thinking several steps ahead. PUZZLTHINK Sudoku offers Easy, Medium and Hard, and every puzzle can be solved by logic alone, without guessing.",
+    "rulesTitle": "Sudoku rules",
+    "rules": [
+      "The 9×9 grid has 9 rows, 9 columns and nine 3×3 boxes outlined in bold.",
+      "Each row contains the digits 1 to 9 exactly once.",
+      "Each column contains the digits 1 to 9 exactly once.",
+      "Each 3×3 box contains the digits 1 to 9 exactly once.",
+      "Given digits cannot be changed; fill every empty square to finish. On PUZZLTHINK the game ends after 3 mistakes."
+    ],
+    "techniquesTitle": "Solving techniques — with diagrams",
+    "techniquesIntro": "The blue square is the one being solved; light blue lines are the rows, columns or box that prove it.",
+    "techniques": [
+      {
+        "title": "1. Cross-hatching",
+        "body": "To place a 5 in the top-left box, cross out the rows and columns that already contain a 5 in other boxes. With rows 2–3 and columns 1–2 blocked, only one square is left — that is the 5. This is the first technique to learn."
+      },
+      {
+        "title": "2. One square left in a line",
+        "body": "If a row already has eight digits, the missing digit goes in the last empty square. Start each puzzle by scanning rows, columns and boxes with only one or two blanks — every easy square adds clues elsewhere."
+      },
+      {
+        "title": "3. Only one candidate",
+        "body": "The center square’s row already has 1, 2 and 3, its column has 4, 5 and 6, and its box has 7 and 8. With 1–8 ruled out, the only possible digit is 9. This checks a row, column and box at once for a single square."
+      },
+      {
+        "title": "4. Notes and pairs",
+        "body": "If two squares in a row both have only 2 and 7 as candidates, those digits must go in those two squares. You can then remove 2 and 7 from every other square in that row. Turn on notes (space bar) to spot pairs like this."
+      }
+    ],
+    "levelsTitle": "Difficulty levels",
+    "levels": [
+      {
+        "title": "Easy",
+        "body": "Many givens; cross-hatching and scanning are enough. Great for learning the rules."
+      },
+      {
+        "title": "Medium",
+        "body": "You will need to find single-candidate squares. A few notes keep you moving."
+      },
+      {
+        "title": "Hard",
+        "body": "Few givens; notes and pair elimination are essential. Fill only the squares you are sure of."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Is Sudoku free?",
+        "a": "Yes. Play free in any desktop or mobile browser with no sign-up."
+      },
+      {
+        "q": "What does a hint do?",
+        "a": "Once per game, a hint fills in the correct digit for the easiest empty square right now. Use it to get unstuck; to improve, try the techniques above first."
+      },
+      {
+        "q": "How do notes work?",
+        "a": "Turn on notes with the button or the space bar to pencil in small candidate digits. Turn it off to return to normal input."
+      },
+      {
+        "q": "Does every puzzle have one solution?",
+        "a": "Yes. Every puzzle has exactly one solution and can be solved by logic without guessing."
+      }
+    ]
   }
 }
