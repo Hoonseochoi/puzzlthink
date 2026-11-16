@@ -16,6 +16,7 @@ import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
 export default function WallGoRoom({ code }: { code: string }) {
   const t = useTranslations('WallGoOnline');
   const tw = useTranslations('WallGo');
+  const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useWallGoRoom(code, defaultName);
@@ -84,9 +85,9 @@ export default function WallGoRoom({ code }: { code: string }) {
       <Shards />
       <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          <Link href="/wallgo" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">WALLGO</span></Link>
+          <Link href="/wallgo" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">{tc('wallgo')}</span></Link>
           <span className="h-5 w-px bg-white/15" />
-          <strong className={`${cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>WALLGO</strong>
+          <strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc('wallgo') : 'WALLGO'}</strong>
           <span className="hidden text-[9px] font-bold tracking-[0.16em] text-[#ff4d5e]/70 sm:inline">ONLINE · {mode ? `${mode.id === 'two' ? '1:1' : '1:1:1'} · ` : ''}{code.toUpperCase()}</span>
         </div>
         <LanguageSwitcher compact dark />

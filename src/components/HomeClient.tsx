@@ -43,9 +43,9 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const router = useRouter();
   const games = [
-    { title: 'WALLGO', display: 'Wallgo', description: t('wallgoDescription'), href: '/wallgo', status: t('new'), meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
+    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', status: t('new'), meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', status: t('new'), meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
-    { title: 'SUDOKU', display: 'Sudoku', description: t('sudokuDescription'), href: '/play', status: t('classic'), meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
+    { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', status: t('classic'), meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
   ] as const;
 
   return <main className="min-h-screen bg-[#f3f0e8] text-[#17201e]"><section className="relative overflow-hidden px-5 pb-16 pt-20 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
