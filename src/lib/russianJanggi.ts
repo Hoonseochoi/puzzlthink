@@ -22,6 +22,8 @@ export type RJState = {
   line: number[] | null;
   last: { from: number | null; to: number; size: Size; owner: Side; covered: Piece | null } | null;
   skipped: Side | null; // who was skipped (no legal move or timeout) right before this turn
+  first: Side; // who moved first, so the game can be replayed from `moves`
+  moves: Action[]; // every action played, passes included
 };
 
 export const SIZES: Size[] = [0, 1, 2];
@@ -39,7 +41,7 @@ export function initialState(first: Side = 0): RJState {
   return {
     board: Array.from({ length: 9 }, () => []),
     hands: [[PER_SIZE, PER_SIZE, PER_SIZE], [PER_SIZE, PER_SIZE, PER_SIZE]],
-    turn: first, ply: 0, winner: null, reason: null, line: null, last: null, skipped: null,
+    turn: first, ply: 0, winner: null, reason: null, line: null, last: null, skipped: null, first, moves: [],
   };
 }
 
@@ -94,7 +96,8 @@ function passTo(state: RJState, next: Side, skipped: Side | null): RJState {
 export function applyAction(state: RJState, action: Action): RJState {
   if (!isLegal(state, action)) return state;
   const side = state.turn;
-  if (action.kind === 'pass') return passTo({ ...state, ply: state.ply + 1, last: null }, other(side), side);
+  const moves = [...(state.moves ?? []), action];
+  if (action.kind === 'pass') return passTo({ ...state, moves, ply: state.ply + 1, last: null }, other(side), side);
   const from = action.kind === 'move' ? action.from : null;
   const cup: Piece = action.kind === 'move' ? top(state, action.from)! : { owner: side, size: action.size };
   const board = state.board.map((stack, i) => (i === from ? stack.slice(0, -1) : i === action.to ? [...stack, cup] : stack));
@@ -102,7 +105,7 @@ export function applyAction(state: RJState, action: Action): RJState {
     ? state.hands.map((h, s) => (s === side ? h.map((n, z) => (z === action.size ? n - 1 : n)) : h)) as [number[], number[]]
     : state.hands;
   const next: RJState = {
-    ...state, board, hands, ply: state.ply + 1,
+    ...state, board, hands, moves, ply: state.ply + 1,
     last: { from, to: action.to, size: cup.size, owner: side, covered: top(state, action.to) },
   };
   // Lifting a cup may reveal the opponent's line — that counts for them.
@@ -111,6 +114,13 @@ export function applyAction(state: RJState, action: Action): RJState {
   const mine = winningLine(next, side);
   if (mine) return { ...next, winner: side, reason: 'line', line: mine };
   return passTo(next, other(side), null);
+}
+
+/** Every position of a finished (or ongoing) game, from the opening to the last move. */
+export function replayStates(game: RJState): RJState[] {
+  const states = [initialState(game.first ?? 0)];
+  for (const action of game.moves ?? []) states.push(applyAction(states[states.length - 1], action));
+  return states;
 }
 
 // ---------------------------------------------------------------- AI

@@ -1286,7 +1286,16 @@
     "hintMove": "말을 들었어요. 빛나는 칸으로 옮기세요. 다시 누르면 내려놓기.",
     "logMove": "{player}: {size} {from} → {cell}",
     "logMoveCover": "{player}: {size}을 {from}에서 옮겨 {cell}의 {target}을 덮었습니다",
-    "reason_limit": "수가 너무 길어져 무승부로 끝났습니다."
+    "reason_limit": "수가 너무 길어져 무승부로 끝났습니다.",
+    "replay": "복기하기",
+    "replayTitle": "복기",
+    "replayStart": "대국 시작 — ▶를 눌러 한 수씩 다시 봐요",
+    "replayShowResult": "결과 다시 보기",
+    "replayExit": "복기 끝내기",
+    "closeResult": "닫고 판 보기",
+    "timeLimit": "시간 제한",
+    "timeLimit_on": "10초",
+    "timeLimit_off": "제한 없음"
   },
   "RussianJanggiOnline": {
     "metaTitle": "러시아장기 친구와 하기",

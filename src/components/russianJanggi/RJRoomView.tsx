@@ -14,7 +14,8 @@ import RJPiece from './RJPiece';
 import RJResult from './RJResult';
 import RJTable from './RJTable';
 import TurnClock from './TurnClock';
-import { RulesPanel } from './RJGame';
+import { RESULT_DELAY_MS, RulesPanel } from './RJGame';
+import RJReplay from './RJReplay';
 import { ACCENT_TEXT, RJ_FOG, RJ_PANEL, RJ_TITLE, SIDE_COLORS } from './theme';
 
 export default function RJRoomView({ code }: { code: string }) {
@@ -29,6 +30,8 @@ export default function RJRoomView({ code }: { code: string }) {
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [skipNote, setSkipNote] = useState<string | null>(null);
+  const [resultFor, setResultFor] = useState<string | null>(null); // game key whose result popup is open
+  const [replayFor, setReplayFor] = useState<string | null>(null); // game key being replayed
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
   // Report a finished game once, when the room moves into "finished".
@@ -64,6 +67,16 @@ export default function RJRoomView({ code }: { code: string }) {
     const hide = window.setTimeout(() => setSkipNote(null), 2200);
     return () => { window.clearTimeout(show); window.clearTimeout(hide); };
   });
+
+  // Each finished game gets a key, so a rematch starts with the popup closed again.
+  const finishedKey = state?.phase === 'finished' && state.game ? `${state.sid}-${state.first}-${state.game.moves?.length ?? 0}-${state.game.reason}` : null;
+  // Leave the final board up for a moment before the result pops up.
+  useEffect(() => {
+    if (!finishedKey) return;
+    const timer = window.setTimeout(() => setResultFor(finishedKey), RESULT_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [finishedKey]);
+  const showReplay = !!finishedKey && replayFor === finishedKey;
 
   const viewer: Side = mySeat ?? 0;
   const online = new Set(peers.map((peer) => peer.id));
@@ -148,7 +161,9 @@ export default function RJRoomView({ code }: { code: string }) {
               </div>
             ) : (
               <>
-                <RJTable game={game} viewer={viewer} canAct={myTurn} onAction={(action) => dispatch({ t: 'act', action })} names={[names[0], names[1]]} />
+                {showReplay
+                  ? <RJReplay game={game} viewer={viewer} names={[names[0], names[1]]} onShowResult={() => { setReplayFor(null); setResultFor(finishedKey); }} onClose={() => setReplayFor(null)} />
+                  : <RJTable game={game} viewer={viewer} canAct={myTurn} onAction={(action) => dispatch({ t: 'act', action })} names={[names[0], names[1]]} />}
                 {skipNote && <p className="mx-auto mt-3 max-w-[440px] rounded-[12px] border border-[#f2b84b]/30 bg-[#f2b84b]/10 px-3 py-2 text-center text-xs font-bold text-[#ffdc95]">{skipNote}</p>}
                 {mySeat === null && <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
               </>
@@ -186,9 +201,10 @@ export default function RJRoomView({ code }: { code: string }) {
         </main>
       )}
 
-      {state?.phase === 'finished' && game && (
+      {state?.phase === 'finished' && game && resultFor === finishedKey && !showReplay && (
         <RJResult game={game} viewer={mySeat} names={state.seats.map((seat) => seat?.name ?? '')}
-          onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} exitPath="/russian-janggi" />
+          onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} exitPath="/russian-janggi"
+          onReplay={() => { setResultFor(null); setReplayFor(finishedKey); }} onClose={() => setResultFor(null)} />
       )}
     </div>
   );

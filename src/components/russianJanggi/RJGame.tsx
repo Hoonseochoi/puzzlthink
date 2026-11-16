@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Check, Flag, Link2, RotateCcw, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, Clock3, Flag, Infinity, Link2, RotateCcw, Sparkles } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import { type Action, type Difficulty, type RJState, type Side, TURN_SECONDS, applyAction, chooseAiAction, finish, initialState, isOver } from '@/lib/russianJanggi';
 import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
@@ -10,12 +10,15 @@ import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import RJTable from './RJTable';
 import RJResult from './RJResult';
+import RJReplay from './RJReplay';
 import RJPiece from './RJPiece';
 import TurnClock from './TurnClock';
 import { describeAction } from './describe';
 import { ACCENT_TEXT, RJ_FOG, RJ_PANEL, RJ_TITLE, SIDE_COLORS } from './theme';
 
 const RECORD_KEY = 'puzzlthink_rjanggi_records';
+const TIMED_KEY = 'puzzlthink_rjanggi_timed';
+export const RESULT_DELAY_MS = 2000;
 const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
 type FirstChoice = 'me' | 'ai' | 'random';
 type MatchRecord = { won: boolean; draw: boolean; difficulty: Difficulty; date: string };
@@ -31,12 +34,16 @@ export default function RJGame() {
   const [log, setLog] = useState<string[]>([]);
   const [records, setRecords] = useState<MatchRecord[]>([]);
   const [saved, setSaved] = useState(false);
+  const [timed, setTimed] = useState(true); // AI games can turn the 10-second clock off
+  const [resultOpen, setResultOpen] = useState(false);
+  const [replaying, setReplaying] = useState(false);
   const names: [string, string] = [t('you'), 'AI'];
   const over = isOver(game);
 
   const newGame = (choice: FirstChoice = firstChoice, level: Difficulty = difficulty) => {
     const first: Side = choice === 'me' ? 0 : choice === 'ai' ? 1 : Math.random() < 0.5 ? 0 : 1;
     setFirstChoice(choice); setDifficulty(level); setGame(initialState(first)); setSaved(false);
+    setResultOpen(false); setReplaying(false);
     setDeadline(Date.now() + TURN_SECONDS * 1000);
     setLog([t(first === 0 ? 'logYouFirst' : 'logAiFirst')]);
   };
@@ -51,20 +58,33 @@ export default function RJGame() {
   };
 
   // Latest values for the clock tick.
-  const latest = useRef({ game, deadline, play });
-  useEffect(() => { latest.current = { game, deadline, play }; });
+  const latest = useRef({ game, deadline, play, timed });
+  useEffect(() => { latest.current = { game, deadline, play, timed }; });
+
+  const toggleTimed = (on: boolean) => {
+    setTimed(on); setDeadline(now + TURN_SECONDS * 1000); // `now` ticks every 200ms
+    try { localStorage.setItem(TIMED_KEY, on ? '1' : '0'); } catch { /* Optional. */ }
+  };
+
+  // Leave the final board up for a moment before the result pops up.
+  useEffect(() => {
+    if (!over) return;
+    const timer = window.setTimeout(() => setResultOpen(true), RESULT_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [over, game]);
 
   useEffect(() => {
     const boot = window.setTimeout(() => {
       try { setRecords(JSON.parse(localStorage.getItem(RECORD_KEY) || '[]')); } catch { /* Optional history. */ }
+      try { if (localStorage.getItem(TIMED_KEY) === '0') setTimed(false); } catch { /* Optional. */ }
       newGame('random');
     }, 0);
     // Clock: when my 10 seconds run out, the turn passes (rule ⑤).
     const tick = window.setInterval(() => {
       const current = Date.now();
       setNow(current);
-      const { game: g, deadline: d, play: p } = latest.current;
-      if (d && !isOver(g) && g.turn === 0 && current >= d) p({ kind: 'pass' });
+      const { game: g, deadline: d, play: p, timed: on } = latest.current;
+      if (on && d && !isOver(g) && g.turn === 0 && current >= d) p({ kind: 'pass' });
     }, 200);
     return () => { window.clearTimeout(boot); window.clearInterval(tick); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,9 +142,12 @@ export default function RJGame() {
                 {status}
               </h2>
             </div>
-            {!over && game.turn === 0 && deadline > 0 && now > 0 && <TurnClock remainingMs={deadline - now} urgent />}
+            {!over && timed && game.turn === 0 && deadline > 0 && now > 0 && <TurnClock remainingMs={deadline - now} urgent />}
+            {!over && !timed && <span className="flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[11px] font-bold text-white/55"><Infinity size={13} />{t('timeLimit_off')}</span>}
           </div>
-          <RJTable game={game} viewer={0} canAct={!over && game.turn === 0} onAction={play} names={names} />
+          {replaying
+            ? <RJReplay game={game} viewer={0} names={names} onShowResult={() => { setReplaying(false); setResultOpen(true); }} onClose={() => setReplaying(false)} />
+            : <RJTable game={game} viewer={0} canAct={!over && game.turn === 0} onAction={play} names={names} />}
         </section>
 
         <aside className="flex flex-col gap-4">
@@ -138,6 +161,8 @@ export default function RJGame() {
             <div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => newGame(firstChoice, level)} className={`rounded-[10px] p-2.5 text-xs font-extrabold transition ${difficulty === level ? 'bg-white text-[#0b0a0c]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}>{t(`difficulty_${level}`)}</button>)}</div>
             <h2 className={`${RJ_TITLE} mt-4`}>{t('firstPlayer')}</h2>
             <div className="mt-3 grid grid-cols-3 gap-2">{(['me', 'ai', 'random'] as FirstChoice[]).map((choice) => <button key={choice} onClick={() => newGame(choice)} className={`rounded-[10px] p-2.5 text-xs font-extrabold transition ${firstChoice === choice ? 'bg-white text-[#0b0a0c]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}>{t(`first_${choice}`)}</button>)}</div>
+            <h2 className={`${RJ_TITLE} mt-4`}>{t('timeLimit')}</h2>
+            <div className="mt-3 grid grid-cols-2 gap-2">{[true, false].map((on) => <button key={String(on)} onClick={() => toggleTimed(on)} className={`flex items-center justify-center gap-1.5 rounded-[10px] p-2.5 text-xs font-extrabold transition ${timed === on ? 'bg-white text-[#0b0a0c]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}>{on ? <Clock3 size={13} /> : <Infinity size={13} />}{t(on ? 'timeLimit_on' : 'timeLimit_off')}</button>)}</div>
           </section>
           <RulesPanel />
           <section className={`grid grid-cols-3 gap-2 ${RJ_PANEL}`}>
@@ -156,7 +181,10 @@ export default function RJGame() {
         </aside>
       </main>
 
-      {over && <RJResult game={game} viewer={0} names={names} onAgain={() => newGame()} exitPath="/" />}
+      {over && resultOpen && !replaying && (
+        <RJResult game={game} viewer={0} names={names} onAgain={() => newGame()} exitPath="/"
+          onReplay={() => { setResultOpen(false); setReplaying(true); }} onClose={() => setResultOpen(false)} />
+      )}
     </div>
   );
 }

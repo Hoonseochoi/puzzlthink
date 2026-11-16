@@ -1277,7 +1277,16 @@
     "hintMove": "Cup lifted. Move it to a glowing cell, or tap it again to put it back.",
     "logMove": "{player}: {size} {from} → {cell}",
     "logMoveCover": "{player}: moved {size} from {from} over the {target} on {cell}",
-    "reason_limit": "The game went on too long — a draw."
+    "reason_limit": "The game went on too long — a draw.",
+    "replay": "Replay",
+    "replayTitle": "REPLAY",
+    "replayStart": "Opening — press ▶ to step through the game",
+    "replayShowResult": "Show result",
+    "replayExit": "End replay",
+    "closeResult": "Close and view board",
+    "timeLimit": "Time limit",
+    "timeLimit_on": "10 sec",
+    "timeLimit_off": "No limit"
   },
   "RussianJanggiOnline": {
     "metaTitle": "Russian Janggi with a friend",
