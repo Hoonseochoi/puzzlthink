@@ -1,3 +1,5 @@
+/** Muzzle-spin action: the cylinder turns 60° per chamber over this long. */
+export const RR_SPIN_MS = 900;
 export const RR_FIRE_LEAD_MS = 500;
 export const RR_FIRE_ROTATE_MS = 900;
 export const RR_FIRE_STEP_MS = 1550;

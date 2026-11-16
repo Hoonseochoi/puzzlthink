@@ -8,7 +8,7 @@ import { type RRAction } from '@/lib/russianRoulette';
 import type { RussianRouletteRoom, RussianRouletteRoomAction } from '@/lib/russianRouletteRoom';
 import { playCylinderSpin, playDryFire, playRevolverShot, unlockGameAudio } from '@/lib/gameAudio';
 import RouletteCharacter from './RouletteCharacter';
-import { RR_FIRE_FLASH_MS, RR_FIRE_LEAD_MS, RR_FIRE_ROTATE_MS, RR_FIRE_STEP_MS } from './firing';
+import { RR_FIRE_FLASH_MS, RR_FIRE_LEAD_MS, RR_FIRE_ROTATE_MS, RR_FIRE_STEP_MS, RR_SPIN_MS } from './firing';
 import { RR_PANEL, RR_TITLE } from './theme';
 
 type Pending = 'publicInspect' | 'privateInspect' | 'manipulate' | null;
@@ -30,7 +30,9 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
   const viewMuzzle = game.muzzle;
   const previousMuzzle = useRef(viewMuzzle);
   const totalRotation = game.rotations?.reduce((sum, steps) => sum + steps, 0) ?? 0;
+  // Accumulated (never wrapped) so each spin keeps turning clockwise: 1 chamber = 60°, 2 = 120°.
   const pointerAngle = ((game.baseMuzzle ?? viewMuzzle) * 60) + totalRotation * 60;
+  const spinTransition = { transition: `transform ${RR_SPIN_MS}ms cubic-bezier(.2,.8,.2,1)` };
   const [soundOn, setSoundOn] = useState(true);
   const soundRef = useRef(soundOn);
   const [firingShot, setFiringShot] = useState(-1);
@@ -153,11 +155,15 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
 
         <div className="absolute left-1/2 top-1/2 h-[310px] w-[310px] -translate-x-1/2 -translate-y-1/2 sm:h-[390px] sm:w-[390px]">
           <div className="absolute inset-[4%] rounded-full border border-[#65e5ff]/25 bg-[radial-gradient(circle,#263341_0%,#121923_62%,#080b10_63%)] shadow-[0_0_70px_rgba(67,204,235,.16),inset_0_0_45px_rgba(0,0,0,.8)]" />
-          <div className={`pointer-events-none absolute left-1/2 top-1/2 z-30 h-[47%] w-4 origin-bottom transition-transform duration-[650ms] ease-[cubic-bezier(.2,.8,.2,1)] ${game.phase === 'finished' ? 'opacity-0' : ''}`} style={{ transform: `translate(-50%,-100%) rotate(${pointerAngle}deg)` }}>
+          <div className={`pointer-events-none absolute left-1/2 top-1/2 z-30 h-[47%] w-4 origin-bottom ${game.phase === 'finished' ? 'opacity-0' : ''}`} style={{ transform: `translate(-50%,-100%) rotate(${pointerAngle}deg)`, ...spinTransition }}>
             <span className="absolute left-1/2 top-[10px] h-[16%] w-1.5 -translate-x-1/2 rounded-full bg-gradient-to-t from-[#65e5ff]/0 to-[#65e5ff] shadow-[0_0_14px_#65e5ff]" />
             <span className="absolute left-1/2 top-0 h-0 w-0 -translate-x-1/2 border-x-[9px] border-b-[15px] border-x-transparent border-b-[#65e5ff] drop-shadow-[0_0_8px_#65e5ff]" />
           </div>
-          <div className="absolute inset-[20%] z-10 rounded-full border border-white/10 bg-[#0c1118] shadow-[inset_0_0_40px_#000]" />
+          {/* The cylinder turns with the muzzle: chamber A always faces the seat it will fire at first. */}
+          <div data-testid="rr-cylinder" className="absolute inset-0 z-20" style={{ transform: `rotate(${pointerAngle}deg)`, ...spinTransition }}>
+          <div className="absolute inset-[20%] z-10 rounded-full border border-white/10 bg-[#0c1118] shadow-[inset_0_0_40px_#000]">
+            {Array.from({ length: 6 }, (_, flute) => <i key={flute} className="absolute left-1/2 top-[6%] h-[16%] w-2 rounded-full bg-white/[0.06]" style={{ transformOrigin: '50% 275%', transform: `translateX(-50%) rotate(${flute * 60 + 30}deg)` }} />)}
+          </div>
           <div className={`absolute inset-0 z-20 transition-opacity duration-500 ${game.phase === 'finished' ? 'opacity-25' : ''}`}>
           {Array.from({ length: 6 }, (_, chamber) => {
             const angle = (chamber * 60 - 90) * Math.PI / 180;
@@ -170,12 +176,15 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
             const active = pending !== null && (pending !== 'manipulate' || needsPair);
             return (
               <button key={chamber} type="button" disabled={!active || !myTurn} onClick={() => choosePair(chamber)} style={{ left: `${left}%`, top: `${top}%` }} className={`absolute z-20 flex h-[62px] w-[62px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] transition sm:h-[78px] sm:w-[78px] ${active && myTurn ? 'cursor-pointer hover:scale-110 hover:border-[#65e5ff]' : ''} ${source === 'public' ? 'border-[#ffcf58]/70 bg-[#302818]' : source === 'private' ? 'border-[#a978ed]/70 bg-[#271d35]' : source === 'final' ? 'border-white/35 bg-[#171d26]' : 'border-[#323c48] bg-[#111720]'}`}>
+                <span className="absolute inset-0 flex items-center justify-center" style={{ transform: `rotate(${-pointerAngle}deg)`, ...spinTransition }}>
                 <span className="absolute -top-4 rounded-full bg-[#0b1017] px-1.5 font-mono text-[9px] font-black text-white/45">{LETTERS[chamber]}</span>
                 {value === true ? <span className="h-[52%] w-[52%] rounded-full border-4 border-[#8b5a2b] bg-[radial-gradient(circle_at_42%_35%,#fff3b0,#d99830_34%,#7b421a_70%)] shadow-[0_0_18px_rgba(255,207,88,.4)]" /> : value === false ? <span className="h-[44%] w-[44%] rounded-full border-2 border-white/15 bg-black/45" /> : <ShieldQuestion size={24} className="text-white/20" />}
                 {source === 'private' && <LockKeyhole size={11} className="absolute -bottom-3 rounded-full bg-[#a978ed] p-0.5 text-white" />}
+                </span>
               </button>
             );
           })}
+          </div>
           </div>
           <div className="absolute left-1/2 top-1/2 z-30 flex h-[82px] w-[82px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/10 bg-[#090d13] shadow-xl">
             <span className="font-mono text-[9px] font-black tracking-[0.15em] text-[#65e5ff]/60">ROUND</span>
