@@ -100,10 +100,10 @@ export function redactRussianRoulette(state: RussianRouletteRoom): RussianRoulet
     game: {
       ...g,
       chambers: Array(RR_PLAYERS).fill(false),
-      credits: g.credits.map((c) => (c === 0 ? 0 : 1)), // only "has credits left" is public
+      credits: g.credits.map(() => 1), // exact balance and whether a player has passed stay private
       manipulation: Array(RR_PLAYERS).fill(0),
       privateIntel: g.privateIntel.map((row) => row.map(() => null)),
-      log: g.log.map((e) => e.k === 'manipulate' ? { k: 'manipulateFund', seat: e.seat } : e),
+      log: g.log.map((e) => e.k === 'manipulate' || e.k === 'pass' ? { k: 'manipulateFund', seat: e.seat } : e),
     },
   };
 }

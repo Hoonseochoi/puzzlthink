@@ -1101,7 +1101,8 @@
     "quick4": "두 번째 피탄자가 나오면 두 명이 탈락하고 게임이 끝납니다.",
     "bubblePublic": "공개 조사 {a}·{b}",
     "bubbleSecret": "비공개 행동",
-    "bubbleRotate": "총구 {n}칸 회전"
+    "bubbleRotate": "총구 {n}칸 회전",
+    "bubblePass": "PASS"
   },
   "RussianRouletteOnline": {
     "metaTitle": "러시안 룰렛 친구 방",

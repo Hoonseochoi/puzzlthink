@@ -39,6 +39,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
   const [muzzleFlash, setMuzzleFlash] = useState(false);
   const myTurn = mySeat !== null && game.phase === 'playing' && game.turn === mySeat && !room.ai[mySeat];
   const myCredits = mySeat === null ? null : game.credits[mySeat];
+  const previousMyCredits = useRef(myCredits);
   const myFund = mySeat === null ? 0 : game.manipulation[mySeat];
   const needsPair = pending === 'manipulate' && myFund + amount >= 6;
   const privateIntel = mySeat === null ? Array(6).fill(null) : game.privateIntel[mySeat];
@@ -54,15 +55,26 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
   useEffect(() => {
     if (previousKey.current === actionKey) return;
     previousKey.current = actionKey;
-    const entry = game.log.find((e) => e.k !== 'round' && e.k !== 'pass' && e.k !== 'fire');
+    const entry = game.log.find((e) => e.k !== 'round' && e.k !== 'fire');
     if (!entry || !('seat' in entry)) return;
     const text = entry.k === 'publicInspect' ? t('bubblePublic', { a: LETTERS[entry.pair], b: LETTERS[(entry.pair + 1) % 6] })
-      : entry.k === 'rotate' ? t('bubbleRotate', { n: entry.steps }) : t('bubbleSecret');
+      : entry.k === 'rotate' ? t('bubbleRotate', { n: entry.steps })
+        : entry.k === 'pass' && entry.seat === mySeat ? t('bubblePass') : t('bubbleSecret');
     const id = Date.now();
     const show = window.setTimeout(() => setBubble({ seat: entry.seat, text, id }), 0);
     const hide = window.setTimeout(() => setBubble((current) => current?.id === id ? null : current), 2300);
     return () => { window.clearTimeout(show); window.clearTimeout(hide); };
-  }, [actionKey, game.log, t]);
+  }, [actionKey, game.log, mySeat, t]);
+
+  useEffect(() => {
+    const previous = previousMyCredits.current;
+    previousMyCredits.current = myCredits;
+    if (mySeat === null || previous === null || previous <= 0 || myCredits !== 0) return;
+    const id = Date.now();
+    const show = window.setTimeout(() => setBubble({ seat: mySeat, text: t('bubblePass'), id }), 0);
+    const hide = window.setTimeout(() => setBubble((current) => current?.id === id ? null : current), 2300);
+    return () => { window.clearTimeout(show); window.clearTimeout(hide); };
+  }, [myCredits, mySeat, t]);
 
   useEffect(() => {
     if (previousMuzzle.current !== viewMuzzle && soundRef.current) playCylinderSpin();
@@ -133,7 +145,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
                 <AnimatePresence>{bubble?.seat === seat && <motion.span key={bubble.id} initial={{ opacity: 0, y: seat === 0 ? -6 : 6, scale: .9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: .9 }} role="status" className={`pointer-events-none absolute left-1/2 z-40 -translate-x-1/2 whitespace-nowrap rounded-full border px-3 py-1.5 text-[11px] font-black shadow-[0_8px_24px_rgba(0,0,0,.55)] ${seat === 0 ? 'top-[calc(100%+4px)]' : 'bottom-[calc(100%+6px)]'} ${bubble.text === t('bubbleSecret') ? 'border-[#a978ed]/50 bg-[#1b1428] text-[#d7c2fb]' : 'border-[#ffcf58]/50 bg-[#262012] text-[#ffe29a]'}`}>{bubble.text}<i className={`absolute left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-[#ffffff00] ${seat === 0 ? '-top-1' : '-bottom-1'} ${bubble.text === t('bubbleSecret') ? 'bg-[#1b1428]' : 'bg-[#262012]'}`} /></motion.span>}</AnimatePresence>
                 <RouletteCharacter seat={seat} selected={current} hit={hit} suspected={suspected.includes(seat)} label={playerName(seat)} className="h-[76px] sm:h-[104px]" />
                 <span className={`mt-1.5 max-w-full truncate rounded-full border px-2.5 py-1 text-[10px] font-black backdrop-blur ${current ? 'border-[#65e5ff]/50 bg-[#65e5ff]/15 text-[#a7efff]' : 'border-white/10 bg-black/55 text-white/70'}`}><b className="mr-1 font-mono text-[#65e5ff]">{LETTERS[seat]}</b>{playerName(seat)}</span>
-                <span className="mt-1 flex items-center gap-1 text-[9px] font-bold text-white/35"><Coins size={9} />{seat === mySeat ? game.credits[seat] : game.credits[seat] === 0 ? t('empty') : '••'} {game.credits[seat] === 0 && <span className="text-[#ff7b71]">· PASS</span>}</span>
+                <span className="mt-1 flex items-center gap-1 text-[9px] font-bold text-white/35"><Coins size={9} />{seat === mySeat ? game.credits[seat] : '••'} {seat === mySeat && game.credits[seat] === 0 && <span className="text-[#ff7b71]">· PASS</span>}</span>
               </button>
             );
           })}
@@ -221,7 +233,8 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
             const text = entry.k === 'round' ? t('logRound', { round: entry.round, player: playerName(entry.start) })
               : entry.k === 'publicInspect' ? t('logPublic', { player: playerName(entry.seat), a: LETTERS[entry.pair], b: LETTERS[(entry.pair + 1) % 6] })
                 : entry.k === 'rotate' ? t('logRotate', { player: playerName(entry.seat), n: entry.steps })
-                  : entry.k === 'pass' ? t('logPass', { player: playerName(entry.seat) })
+                  : entry.k === 'pass' ? entry.seat === mySeat ? t('logPass', { player: playerName(entry.seat) }) : t('logSecret', { player: playerName(entry.seat) })
+                    : entry.k === 'manipulateFund' && index === 0 && entry.seat === mySeat && myCredits === 0 ? t('logPass', { player: playerName(entry.seat) })
                     : entry.k === 'fire' ? `${LETTERS[entry.chamber]} → ${playerName(entry.seat)} ${entry.fired ? '●' : '○'}`
                       : t('logSecret', { player: playerName(entry.seat) });
             return <p key={`${entry.k}-${index}`} className="flex gap-2 text-[10px] leading-4 text-white/40"><i className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${index === 0 ? 'bg-[#65e5ff]' : 'bg-white/15'}`} />{text}</p>;

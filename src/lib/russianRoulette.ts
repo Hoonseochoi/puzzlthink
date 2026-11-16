@@ -171,6 +171,7 @@ export function applyRRAction(game: RussianRoulette, seat: number, action: RRAct
       next = { ...next, chambers, publicIntel, privateIntel, manipulation, log: pushLog(game.log, { k: 'manipulate', seat, pair }) };
     }
   }
+  if (credits[seat] === 0) next = { ...next, log: pushLog(next.log, { k: 'pass', seat }) };
   return advance(next);
 }
 
