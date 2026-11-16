@@ -124,7 +124,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
         </main>
       )}
       {showTutorial && <Heavy13Tutorial onClose={() => setShowTutorial(false)} />}
-      {view?.phase === 'finished' && <Heavy13Result room={view} mySeat={mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={to('rematchWait')} />}
+      {view?.phase === 'finished' && <Heavy13Result room={view} mySeat={mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={to('rematchWait')} exitPath="/heavy13" />}
     </div>
   );
 }

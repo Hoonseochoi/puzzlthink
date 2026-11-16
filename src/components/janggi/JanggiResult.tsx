@@ -3,10 +3,11 @@
 import { useTranslations } from 'next-intl';
 import type { JanggiState, Side } from '@/lib/janggi';
 import JanggiPiece from './JanggiPiece';
+import ResultActions from '../ResultActions';
 import { GOLD_TEXT, hanjaFont } from './theme';
 
-export default function JanggiResult({ game, viewer, names, onAgain, againLabel, waitingLabel }: {
-  game: JanggiState; viewer: Side | null; names: string[]; onAgain?: () => void; againLabel?: string; waitingLabel?: string;
+export default function JanggiResult({ game, viewer, names, onAgain, waitingLabel, exitPath }: {
+  game: JanggiState; viewer: Side | null; names: string[]; onAgain?: () => void; againLabel?: string; waitingLabel?: string; exitPath: string;
 }) {
   const t = useTranslations('Janggi');
   const draw = game.winner === null;
@@ -18,9 +19,7 @@ export default function JanggiResult({ game, viewer, names, onAgain, againLabel,
         <p className={`${hanjaFont.className} mt-5 text-sm tracking-[0.4em] text-[#e8c170]`}>{draw ? '和' : '勝'}</p>
         <h2 className={`mt-1 text-3xl font-black tracking-tight ${GOLD_TEXT}`}>{title}</h2>
         <p className="mt-2 text-sm text-white/55">{t(`reason_${game.reason}`)}</p>
-        {onAgain
-          ? <button onClick={onAgain} className="mt-6 w-full rounded-[12px] bg-[#e8c170] py-3.5 text-sm font-black text-[#1a1408] hover:bg-[#f3d38d]">{againLabel ?? t('playAgain')}</button>
-          : <p className="mt-6 text-xs text-white/45">{waitingLabel}</p>}
+        <ResultActions onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/janggi" exitPath={exitPath} primaryClass="rounded-[12px] bg-[#e8c170] text-[#1a1408] hover:bg-[#f3d38d]" />
       </div>
     </div>
   );

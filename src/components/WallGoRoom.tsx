@@ -11,6 +11,7 @@ import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from './RoomAlerts';
 import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
+import ResultActions from './ResultActions';
 import WallGoScoreStrip from './WallGoScoreStrip';
 import WallGoCharacter from './WallGoCharacter';
 import Shards from './WallGoShards';
@@ -202,9 +203,7 @@ export default function WallGoRoom({ code }: { code: string }) {
             <p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{tw('gameOver')}</p>
             <h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{state.winner === mySeat ? tw('youWin') : t('winnerTitle', { player: plainName(state.winner) })}</h2>
             <p className="mt-2 text-sm text-white/50">{tw('finalScore', { score: territory.scores[state.winner], largest: territory.largest[state.winner] })}</p>
-            {me?.isHost
-              ? <button onClick={() => dispatch({ t: 'start' })} className="mt-6 w-full rounded-md bg-[#e0283a] py-3.5 text-sm font-extrabold text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]">{t('rematch')}</button>
-              : <p className="mt-6 text-xs text-white/45">{t('rematchWait')}</p>}
+            <ResultActions onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath="/wallgo" exitPath="/wallgo" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
           </div>
         </div>
       )}

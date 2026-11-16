@@ -15,7 +15,11 @@
     "about": "소개",
     "contact": "문의",
     "janggi": "십이장기",
-    "heavy13": "무거운 13"
+    "heavy13": "무거운 13",
+    "playAgainShort": "다시 하기",
+    "exit": "나가기",
+    "share": "공유하기",
+    "linkCopied": "링크 복사됨"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — 데블스플랜 데스매치를 친구들과 함께",

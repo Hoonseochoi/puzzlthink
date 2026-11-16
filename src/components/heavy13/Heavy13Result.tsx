@@ -4,8 +4,9 @@ import { useTranslations } from 'next-intl';
 import { Bot } from 'lucide-react';
 import { ranking } from '@/lib/heavy13';
 import type { H13Room } from '@/lib/heavy13Room';
+import ResultActions from '../ResultActions';
 
-export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel }: { room: H13Room; mySeat: number | null; onAgain?: () => void; waitingLabel?: string }) {
+export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel, exitPath }: { room: H13Room; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; exitPath: string }) {
   const t = useTranslations('Heavy13');
   const order = ranking(room.game);
   const players = room.game.players;
@@ -28,7 +29,7 @@ export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel }: {
             </li>
           ))}
         </ol>
-        {onAgain ? <button onClick={onAgain} className="mt-5 w-full rounded-[12px] bg-[#e6c48a] py-3 text-sm font-black text-[#2a2118]">{t('playAgain')}</button> : <p className="mt-5 text-center text-xs text-white/45">{waitingLabel}</p>}
+        <ResultActions onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/heavy13" exitPath={exitPath} primaryClass="rounded-[12px] bg-[#e6c48a] text-[#2a2118] hover:bg-[#f2d6a6]" />
       </div>
     </div>
   );

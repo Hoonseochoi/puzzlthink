@@ -26,6 +26,7 @@ import {
 } from '@/lib/wallgo';
 import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
+import ResultActions from './ResultActions';
 import WallGoScoreStrip from './WallGoScoreStrip';
 import WallGoCharacter from './WallGoCharacter';
 import WallGoTutorial from './WallGoTutorial';
@@ -265,6 +266,6 @@ export default function WallGoGame() {
       </aside>
     </main>
 
-    {phase === 'finished' && winner !== null && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]"><WallGoCharacter player={winner} className="mx-auto h-20" /><p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{t('gameOver')}</p><h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winner === 0 ? t('youWin') : t('playerWins', { player: playerNames[winner] })}</h2><p className="mt-2 text-sm text-white/50">{t('finalScore', { score: territory.scores[winner], largest: territory.largest[winner] })}</p><button onClick={() => resetGame()} className="mt-6 w-full rounded-md bg-[#e0283a] py-3.5 text-sm font-extrabold text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]">{t('playAgain')}</button></div></div>}
+    {phase === 'finished' && winner !== null && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]"><WallGoCharacter player={winner} className="mx-auto h-20" /><p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{t('gameOver')}</p><h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winner === 0 ? t('youWin') : t('playerWins', { player: playerNames[winner] })}</h2><p className="mt-2 text-sm text-white/50">{t('finalScore', { score: territory.scores[winner], largest: territory.largest[winner] })}</p><ResultActions onAgain={() => resetGame()} gamePath="/wallgo" exitPath="/" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" /></div></div>}
   </div>;
 }

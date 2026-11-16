@@ -177,7 +177,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
 
       {state?.phase === 'finished' && game && (
         <JanggiResult game={game} viewer={mySeat} names={state.seats.map((seat) => seat?.name ?? '')}
-          onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} againLabel={t('rematch')} waitingLabel={t('rematchWait')} />
+          onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} againLabel={t('rematch')} waitingLabel={t('rematchWait')} exitPath="/janggi" />
       )}
     </div>
   );

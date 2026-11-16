@@ -154,7 +154,7 @@ export default function JanggiGame() {
         </aside>
       </main>
 
-      {over && <JanggiResult game={game} viewer={0} names={names} onAgain={() => newGame()} />}
+      {over && <JanggiResult game={game} viewer={0} names={names} onAgain={() => newGame()} exitPath="/" />}
     </div>
   );
 }

@@ -15,7 +15,11 @@
     "about": "About",
     "contact": "Contact",
     "janggi": "12 Janggi",
-    "heavy13": "Heavy 13"
+    "heavy13": "Heavy 13",
+    "playAgainShort": "Play again",
+    "exit": "Leave",
+    "share": "Share",
+    "linkCopied": "Link copied"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
