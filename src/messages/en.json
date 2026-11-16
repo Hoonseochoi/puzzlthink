@@ -1026,7 +1026,12 @@
   "RussianRoulette": {
     "metaTitle": "Russian Roulette Online · AI and Friends",
     "metaDescription": "A six-player deduction game: track two rounds in six chambers, spend credits to inspect, rotate and manipulate, then survive the final trigger sequence.",
-    "keywords": ["Russian roulette strategy game", "online deduction game", "six player browser game", "party game with friends"],
+    "keywords": [
+      "Russian roulette strategy game",
+      "online deduction game",
+      "six player browser game",
+      "party game with friends"
+    ],
     "title": "Russian Roulette",
     "you": "You",
     "howToPlay": "How to play",
@@ -1085,7 +1090,9 @@
     "quick1": "Two rounds are hidden among six chambers.",
     "quick2": "Each player secretly spends 16 credits on intel, rotation and manipulation.",
     "quick3": "When three players reach zero credits, firing starts at the muzzle and moves clockwise.",
-    "quick4": "The sequence ends when two players are hit; the other three survive."
+    "quick4": "The sequence ends when two players are hit; the other three survive.",
+    "bubblePublic": "Public inspect {a}·{b}",
+    "bubbleSecret": "Private action"
   },
   "RussianRouletteOnline": {
     "metaTitle": "Russian Roulette Friend Room",

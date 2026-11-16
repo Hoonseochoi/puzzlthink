@@ -20,6 +20,7 @@ export type RoomEngine<S extends BaseRoom, A> = {
   running: (state: S) => boolean; // whether the turn clock applies
   timeoutAction: A;
   autoAction?: (state: S) => A | null; // host-run steps, e.g. AI seats (one per tick)
+  autoDelay?: number; // minimum ms between a state change and the next auto step (slows AI tempo)
   redact?: (state: S) => S; // what guests may see (hide secret picks)
 };
 
@@ -58,8 +59,10 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   const meRef = useRef(me);
   const joinedAt = useRef(0);
 
+  const lastChange = useRef(0);
   const commit = useCallback((next: S) => {
     stateRef.current = next;
+    lastChange.current = Date.now();
     setState(next);
     write(stateKeyFor(engine.storage, code), JSON.stringify(next));
     channelRef.current?.send({ type: 'broadcast', event: 'state', payload: engine.redact ? engine.redact(next) : next });
@@ -139,7 +142,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       const current = stateRef.current;
       if (!current) return;
       const auto = engine.autoAction?.(current);
-      if (auto) { apply(auto, me.id); return; }
+      if (auto) { if (Date.now() - lastChange.current >= (engine.autoDelay ?? 0)) apply(auto, me.id); return; }
       if (engine.running(current) && Date.now() >= current.deadline) apply(engine.timeoutAction, me.id);
     }, 900);
     return () => window.clearInterval(timer);
@@ -170,11 +173,12 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
 export function useLocalRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>, create: () => S) {
   const [state, setState] = useState<S | null>(null);
   const stateRef = useRef<S | null>(null);
+  const lastChange = useRef(0);
   const apply = useCallback((action: A, seat: number | null, isHost = true) => {
     const current = stateRef.current;
     if (!current) return;
     const next = engine.reduce(current, action, seat, isHost);
-    if (next) { stateRef.current = next; setState(next); }
+    if (next) { stateRef.current = next; lastChange.current = Date.now(); setState(next); }
   }, [engine]);
   const reset = useCallback(() => { const s = create(); stateRef.current = s; setState(s); }, [create]);
   useEffect(() => {
@@ -186,7 +190,7 @@ export function useLocalRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>, cr
       const current = stateRef.current;
       if (!current) return;
       const auto = engine.autoAction?.(current);
-      if (auto) apply(auto, null);
+      if (auto) { if (Date.now() - lastChange.current >= (engine.autoDelay ?? 0)) apply(auto, null); }
       else if (engine.running(current) && Date.now() >= current.deadline) apply(engine.timeoutAction, null);
     }, 750);
     return () => window.clearInterval(timer);

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, ChevronRight, Coins, Eye, EyeOff, LockKeyhole, RefreshCw, RotateCw, ShieldQuestion, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { RRAction } from '@/lib/russianRoulette';
 import type { RussianRouletteRoom, RussianRouletteRoomAction } from '@/lib/russianRouletteRoom';
 import { playCylinderSpin, unlockGameAudio } from '@/lib/gameAudio';
@@ -25,12 +26,31 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
   const [suspected, setSuspected] = useState<number[]>([]);
   const game = room.game;
   const previousMuzzle = useRef(game.muzzle);
+  // Muzzle pointer angle only ever grows (always turns clockwise); each turn also spins the cylinder once.
+  const [spinView, setSpinView] = useState({ muzzle: game.muzzle, angle: game.muzzle * 60, spins: 0 });
+  if (spinView.muzzle !== game.muzzle) setSpinView((v) => ({ muzzle: game.muzzle, angle: v.angle + ((game.muzzle - v.muzzle + 6) % 6) * 60, spins: v.spins + 1 }));
   const myTurn = mySeat !== null && game.phase === 'playing' && game.turn === mySeat && !room.ai[mySeat];
   const myCredits = mySeat === null ? null : game.credits[mySeat];
   const myFund = mySeat === null ? 0 : game.manipulation[mySeat];
   const needsPair = pending === 'manipulate' && myFund + amount >= 6;
   const privateIntel = mySeat === null ? Array(6).fill(null) : game.privateIntel[mySeat];
   const confirmedBullets = useMemo(() => game.publicIntel.map((value, i) => value ?? privateIntel[i]).map((value, i) => value ? LETTERS[i] : null).filter(Boolean), [game.publicIntel, privateIntel]);
+
+  // Speech bubble over whoever just acted: public inspections say which chambers, everything else stays secret.
+  const [bubble, setBubble] = useState<{ seat: number; text: string; id: number } | null>(null);
+  const creditTotal = game.credits.reduce((a, b) => a + b, 0);
+  const previousTotal = useRef(creditTotal);
+  useEffect(() => {
+    if (previousTotal.current === creditTotal) return;
+    previousTotal.current = creditTotal;
+    const entry = game.log.find((e) => e.k !== 'round' && e.k !== 'pass' && e.k !== 'fire');
+    if (!entry || !('seat' in entry)) return;
+    const text = entry.k === 'publicInspect' ? t('bubblePublic', { a: LETTERS[entry.pair], b: LETTERS[(entry.pair + 1) % 6] }) : t('bubbleSecret');
+    const id = Date.now();
+    const show = window.setTimeout(() => setBubble({ seat: entry.seat, text, id }), 0);
+    const hide = window.setTimeout(() => setBubble((current) => current?.id === id ? null : current), 2300);
+    return () => { window.clearTimeout(show); window.clearTimeout(hide); };
+  }, [creditTotal, game.log, t]);
 
   useEffect(() => {
     if (previousMuzzle.current !== game.muzzle) playCylinderSpin();
@@ -52,7 +72,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
       <section className="relative min-h-[560px] overflow-hidden rounded-[24px] border border-white/10 bg-[#080c12]/75 shadow-[inset_0_0_80px_rgba(46,189,224,.05)] sm:min-h-[650px]">
-        <div className="absolute left-3 top-3 z-30 w-[154px] rounded-[14px] border border-[#65e5ff]/20 bg-[#0b111b]/90 p-3 shadow-xl backdrop-blur sm:left-4 sm:top-4 sm:w-[188px]">
+        <div className="absolute left-2 top-2 z-30 w-[104px] rounded-[12px] border border-[#65e5ff]/20 bg-[#0b111b]/90 p-2 sm:p-3 shadow-xl backdrop-blur sm:left-4 sm:top-4 sm:w-[188px]">
           <p className={RR_TITLE}>{t('confirmedTitle')}</p>
           <div className="mt-2 flex min-h-8 flex-wrap gap-1.5">
             {confirmedBullets.length ? confirmedBullets.map((letter) => <span key={letter} className="flex items-center gap-1 rounded-full bg-[#ffcf58]/15 px-2 py-1 font-mono text-[11px] font-black text-[#ffcf58]"><i className="h-2 w-2 rounded-full bg-[#ffcf58]" />{letter}</span>) : <span className="text-[11px] leading-5 text-white/35">{t('confirmedNone')}</span>}
@@ -65,6 +85,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
             const hit = game.hits.includes(seat);
             return (
               <button key={seat} type="button" onClick={() => toggleSuspected(seat)} style={position} className="absolute z-20 flex w-[112px] -translate-x-1/2 -translate-y-1/2 flex-col items-center sm:w-[148px]" aria-label={t('markSuspect', { player: playerName(seat) })}>
+                <AnimatePresence>{bubble?.seat === seat && <motion.span key={bubble.id} initial={{ opacity: 0, y: seat === 0 ? -6 : 6, scale: .9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: .9 }} role="status" className={`pointer-events-none absolute left-1/2 z-40 -translate-x-1/2 whitespace-nowrap rounded-full border px-3 py-1.5 text-[11px] font-black shadow-[0_8px_24px_rgba(0,0,0,.55)] ${seat === 0 ? 'top-[calc(100%+4px)]' : 'bottom-[calc(100%+6px)]'} ${bubble.text === t('bubbleSecret') ? 'border-[#a978ed]/50 bg-[#1b1428] text-[#d7c2fb]' : 'border-[#ffcf58]/50 bg-[#262012] text-[#ffe29a]'}`}>{bubble.text}<i className={`absolute left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-[#ffffff00] ${seat === 0 ? '-top-1' : '-bottom-1'} ${bubble.text === t('bubbleSecret') ? 'bg-[#1b1428]' : 'bg-[#262012]'}`} /></motion.span>}</AnimatePresence>
                 <RouletteCharacter seat={seat} selected={current} hit={hit} suspected={suspected.includes(seat)} label={playerName(seat)} className="h-[76px] sm:h-[104px]" />
                 <span className={`mt-1.5 max-w-full truncate rounded-full border px-2.5 py-1 text-[10px] font-black backdrop-blur ${current ? 'border-[#65e5ff]/50 bg-[#65e5ff]/15 text-[#a7efff]' : 'border-white/10 bg-black/55 text-white/70'}`}><b className="mr-1 font-mono text-[#65e5ff]">{LETTERS[seat]}</b>{playerName(seat)}</span>
                 <span className="mt-1 flex items-center gap-1 text-[9px] font-bold text-white/35"><Coins size={9} />{seat === mySeat ? game.credits[seat] : game.credits[seat] === 0 ? t('empty') : '••'} {game.credits[seat] === 0 && <span className="text-[#ff7b71]">· PASS</span>}</span>
@@ -75,11 +96,12 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
 
         <div className="absolute left-1/2 top-1/2 h-[310px] w-[310px] -translate-x-1/2 -translate-y-1/2 sm:h-[390px] sm:w-[390px]">
           <div className="absolute inset-[4%] rounded-full border border-[#65e5ff]/25 bg-[radial-gradient(circle,#263341_0%,#121923_62%,#080b10_63%)] shadow-[0_0_70px_rgba(67,204,235,.16),inset_0_0_45px_rgba(0,0,0,.8)]" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[54%] w-3 -translate-x-1/2 -translate-y-full origin-bottom transition-transform duration-500" style={{ transform: `translate(-50%,-100%) rotate(${game.muzzle * 60}deg)` }}>
-            <span className="absolute left-1/2 top-0 h-[62%] w-1.5 -translate-x-1/2 rounded-full bg-gradient-to-t from-[#65e5ff]/10 to-[#65e5ff] shadow-[0_0_18px_#65e5ff]" />
-            <span className="absolute -top-1 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[8px] border-b-[14px] border-x-transparent border-b-[#65e5ff]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-30 h-[47%] w-4 origin-bottom transition-transform duration-[900ms] ease-[cubic-bezier(.2,.8,.2,1)]" style={{ transform: `translate(-50%,-100%) rotate(${spinView.angle}deg)` }}>
+            <span className="absolute left-1/2 top-[10px] h-[16%] w-1.5 -translate-x-1/2 rounded-full bg-gradient-to-t from-[#65e5ff]/0 to-[#65e5ff] shadow-[0_0_14px_#65e5ff]" />
+            <span className="absolute left-1/2 top-0 h-0 w-0 -translate-x-1/2 border-x-[9px] border-b-[15px] border-x-transparent border-b-[#65e5ff] drop-shadow-[0_0_8px_#65e5ff]" />
           </div>
           <div className="absolute inset-[20%] z-10 rounded-full border border-white/10 bg-[#0c1118] shadow-[inset_0_0_40px_#000]" />
+          <div className="absolute inset-0 z-20 transition-transform duration-[900ms] ease-[cubic-bezier(.2,.8,.2,1)]" style={{ transform: `rotate(${spinView.spins * 360}deg)` }}>
           {Array.from({ length: 6 }, (_, chamber) => {
             const angle = (chamber * 60 - 90) * Math.PI / 180;
             const left = 50 + Math.cos(angle) * 30;
@@ -97,6 +119,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
               </button>
             );
           })}
+          </div>
           <div className="absolute left-1/2 top-1/2 z-30 flex h-[82px] w-[82px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/10 bg-[#090d13] shadow-xl">
             <span className="font-mono text-[9px] font-black tracking-[0.15em] text-[#65e5ff]/60">ROUND</span>
             <strong className="font-mono text-2xl text-white">{String(game.round).padStart(2, '0')}</strong>
