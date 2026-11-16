@@ -124,16 +124,16 @@
     "ready": "READY",
     "used": "USED",
     "howToPlay": "HOW TO PLAY",
-    "rule1": "Move one character one or two tiles in a straight line.",
+    "rule1": "Move one character 0–2 tiles up, down, left or right. Two tiles may turn a corner, and staying put (0) is allowed.",
     "rule2": "You must build a wall beside the character you moved.",
     "rule3": "When all players are separated, the largest territory wins.",
     "matchLog": "MATCH LOG",
     "breakTitle": "Wall break",
-    "breakDescription": "Once per player, break a wall that blocks your movement path.",
-    "breakAvailableHint": "1 wall break available",
+    "breakDescription": "Once per player, knock down one wall next to your character; it can still move afterwards.",
+    "breakAvailableHint": "1 wall break — select a character and tap the hammer on a wall next to it",
     "breakUsedHint": "Wall break used",
     "normalMove": "Normal move",
-    "breakMove": "Break-through move",
+    "breakMove": "Move after a break",
     "breakUse": "Use break",
     "breakActive": "Break ON",
     "breakDone": "Used",
@@ -156,7 +156,7 @@
     "logSkipped": "{player} had no legal move and passed.",
     "logBotTurn": "{player} moved {breakText}to {cell} and built a wall on the {direction}.",
     "logBroke": "through a broken wall ",
-    "logBreakUsed": "Wall break used. Now build a wall.",
+    "logBreakUsed": "Wall knocked down.",
     "logMoved": "Move complete. Build a wall beside your character.",
     "logWall": "Built a wall on the {direction} side of {cell}.",
     "logTimeoutWall": "Time expired. A legal wall was built automatically.",
@@ -174,13 +174,13 @@
     "tutorial1Desc": "Move characters and build walls until each player's space is completely separated.",
     "tutorial2Label": "YOUR TURN",
     "tutorial2Title": "Move, then build a wall",
-    "tutorial2Desc": "Move one character one or two tiles in a straight line, then build a wall on one of its sides.",
+    "tutorial2Desc": "Move one character 0–2 tiles (turning is fine), then build a wall on one of its sides. A character that cannot step at all cannot stay and build either.",
     "tutorial3Label": "POWER MOVE",
     "tutorial3Title": "Everyone gets one wall break",
-    "tutorial3Desc": "Each player can break one wall in their movement path per game. Select a character and move to a red-marked tile.",
+    "tutorial3Desc": "Once per game, each player may knock down a wall next to one of their characters. Select a character, tap the hammer on a wall, then move.",
     "tutorial4Label": "WINNING",
     "tutorial4Title": "Territory is scored when everyone is separated",
-    "tutorial4Desc": "The game ends as soon as no space contains different players. Most claimed tiles wins; ties are decided by the largest single area.",
+    "tutorial4Desc": "The game ends when every character is sealed in its own space. Most tiles wins, and a tie is a shared win. If several players are locked in together with no one able to move, each scores only the tile it stands on.",
     "keywords": [
       "Wallgo",
       "wall go online",
@@ -205,7 +205,12 @@
     "duelRule3": "There is no wall break. When both players are separated, the larger territory wins.",
     "logDraw": "Draw result: {player} moves first. Place your remaining 2 pieces in turn.",
     "logPlacementDoneBot": "Placement complete. Your opponent moves first.",
-    "unitTiles": " tiles"
+    "unitTiles": " tiles",
+    "chooseMoveStay": "Move to a glowing tile, or tap the selected character again to stay",
+    "logStayed": "Stayed put. Build a wall beside your character.",
+    "logCoWinners": "{players} share the win!",
+    "coWin": "{players} share the win",
+    "breakWallLabel": "break wall"
   },
   "Sudoku": {
     "metaTitle": "Online Sudoku — free puzzles and solving guide",
@@ -427,10 +432,10 @@
     "rulesTitle": "3-player rules (round 1)",
     "rules": [
       "On a 7×7 board, each player places 2 pieces in the order 1→2→3→3→2→1.",
-      "On your turn you have 90 seconds to move one piece 1 or 2 tiles in a straight line. You cannot pass through other pieces or walls, but you may move back the way you came.",
+      "On your turn you have 90 seconds to move one piece 0–2 tiles up, down, left or right. Two tiles may be straight or turn a corner, and you may stay put. You cannot pass through other pieces or walls, and a piece that cannot step at all cannot stay and build either.",
       "After moving, you must build a wall on one open side of that piece. If time runs out, a wall is placed on a random side.",
-      "Once per game, each player may break through a wall on their movement path.",
-      "The game ends the moment every player is sealed off. The most tiles in the spaces containing your pieces wins; ties go to the largest single area."
+      "In 3-player games, once per game each player may knock down one wall next to their piece. The piece can still move afterwards.",
+      "The game ends when every piece is sealed in its own space. The most tiles in the spaces containing your pieces wins, and a tie is a shared win. If several players are locked in together with no one able to move, each piece scores only the tile it stands on."
     ],
     "faqTitle": "FAQ",
     "faq": [
@@ -1412,9 +1417,9 @@
         "friend": "1:1, invite by link",
         "rules": [
           "Each player places pieces on a 7×7 board: 2 each in the 3-player game, 4 each in 1:1.",
-          "On your turn, move one piece 1 or 2 squares in a straight line, then you must build a wall on one of its four sides.",
-          "In the 3-player game, each player may break through one wall on their path once per game.",
-          "When every player's space is sealed off, the game ends and the largest total area containing your pieces wins."
+          "On your turn, move one piece 0–2 squares up, down, left or right (two squares may turn a corner, and staying put is allowed), then you must build a wall on one of its four sides.",
+          "In the 3-player game, each player may once per game knock down one wall next to their piece and then move it.",
+          "When every player's space is sealed off, the game ends and the largest total area containing your pieces wins. A tie is a shared win."
         ],
         "origin": "A territory game from the Netflix brain-survival show The Devil's Plan. Both the round 1 three-player game and the round 2 one-on-one game are included."
       },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from 'next-intl';
+import { Hammer } from 'lucide-react';
 import {
   BOARD_SIZE,
   type Direction,
@@ -21,8 +22,16 @@ const WALL_BUTTON: Record<Direction, string> = {
   left: '-left-1 top-1/2 h-10 w-3 -translate-y-1/2',
 };
 
+const BREAK_BUTTON: Record<Direction, string> = {
+  up: '-top-2.5 left-1/2 h-5 w-5 -translate-x-1/2',
+  right: '-right-2.5 top-1/2 h-5 w-5 -translate-y-1/2',
+  down: '-bottom-2.5 left-1/2 h-5 w-5 -translate-x-1/2',
+  left: '-left-2.5 top-1/2 h-5 w-5 -translate-y-1/2',
+};
+
 export default function WallGoBoard({
   pieces, walls, cellOwners, selectedPieceId, moves, wallPieceId, playerNames, interactivePlayer, canPlace, onCellClick, onWall,
+  breakOptions = [], pendingBreak = null, onBreak,
 }: {
   pieces: Piece[];
   walls: Set<string>;
@@ -35,6 +44,9 @@ export default function WallGoBoard({
   canPlace: boolean;
   onCellClick: (row: number, col: number) => void;
   onWall: (direction: Direction) => void;
+  breakOptions?: { direction: Direction; key: string }[]; // walls next to the selected piece it may knock down (3-player)
+  pendingBreak?: string | null; // wall chosen to knock down before moving
+  onBreak?: (key: string) => void;
 }) {
   const t = useTranslations('WallGo');
   const wallOptions = wallPieceId ? getWallOptions(pieces, walls, wallPieceId) : [];
@@ -65,9 +77,17 @@ export default function WallGoBoard({
                 {owner !== null && owner !== undefined && <span aria-hidden className="pointer-events-none absolute inset-0" style={{ backgroundColor: TERRITORY_TINTS[owner] }} />}
                 {topWall && <span className="pointer-events-none absolute -top-[3px] left-[-2px] right-[-2px] z-20 h-[6px] rounded-[2px] bg-gradient-to-b from-[#f1f4fa] to-[#7d8597] shadow-[0_0_8px_rgba(200,210,230,.35)]" />}
                 {leftWall && <span className="pointer-events-none absolute -left-[3px] bottom-[-2px] top-[-2px] z-20 w-[6px] rounded-[2px] bg-gradient-to-r from-[#f1f4fa] to-[#7d8597] shadow-[0_0_8px_rgba(200,210,230,.35)]" />}
-                {move && <span className={`absolute z-0 h-4 w-4 rotate-45 border-2 sm:h-5 sm:w-5 ${move.brokenWall ? 'border-[#0b0b0e] bg-[#e0283a] shadow-[0_0_12px_rgba(224,40,58,.9)] before:absolute before:-inset-2 before:animate-ping before:border before:border-[#e0283a]' : 'border-[#0b0b0e] bg-[#c9cfdc] shadow-[0_0_10px_rgba(201,207,220,.5)]'}`} />}
+                {move && move.distance === 0 && <span aria-hidden className="pointer-events-none absolute inset-[8%] z-20 animate-pulse rounded-full border-2 border-dashed border-[#c9cfdc]/80" />}
+                {move && move.distance > 0 && <span className={`absolute z-0 h-4 w-4 rotate-45 border-2 sm:h-5 sm:w-5 ${move.brokenWall ? 'border-[#0b0b0e] bg-[#e0283a] shadow-[0_0_12px_rgba(224,40,58,.9)] before:absolute before:-inset-2 before:animate-ping before:border before:border-[#e0283a]' : 'border-[#0b0b0e] bg-[#c9cfdc] shadow-[0_0_10px_rgba(201,207,220,.5)]'}`} />}
                 {placeable && <span className="h-2 w-2 rotate-45 bg-white/15 transition group-hover:scale-150 group-hover:bg-[#e0283a]" />}
                 {piece && <WallGoCharacter player={piece.player} selected={selected} label={playerNames[piece.player]} className="z-10 h-[58%]" />}
+                {piece && selected && onBreak && breakOptions.map((option) => (
+                  <button
+                    key={`break-${option.direction}`} aria-label={`${t(option.direction)} ${t('breakWallLabel')}`} aria-pressed={pendingBreak === option.key}
+                    onClick={(event) => { event.stopPropagation(); onBreak(option.key); }}
+                    className={`absolute z-40 flex items-center justify-center rounded-full border-2 transition hover:scale-110 ${pendingBreak === option.key ? 'border-[#ffd166] bg-[#e0283a] text-white shadow-[0_0_16px_rgba(224,40,58,.9)]' : 'border-[#0b0b0e] bg-[#ffd166] text-[#1a1408] shadow-[0_0_10px_rgba(255,209,102,.6)]'} ${BREAK_BUTTON[option.direction]}`}
+                  ><Hammer size={11} /></button>
+                ))}
                 {piece && piece.id === wallPieceId && wallOptions.map((option) => (
                   <button
                     key={option.direction} aria-label={`${t(option.direction)} wall`}
