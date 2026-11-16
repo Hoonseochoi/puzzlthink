@@ -82,7 +82,6 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     const created = hostValue ? engine.create(hostValue, host) : null;
     const identity = { id, name: host.name, isHost: !!created };
     meRef.current = identity;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- identity comes from localStorage, only available on the client
     setMe(identity);
 
     const supabase = getSupabase();

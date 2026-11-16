@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowRight, Bot, Brain, Grid3X3, Sparkles, UsersRound } from 'lucide-react';
+import { ArrowRight, Bot, Brain, Crosshair, Grid3X3, Sparkles, UsersRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
 import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
 import { prepareHeavy13Room } from '@/hooks/useHeavy13Room';
+import { prepareRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import VisitCounter from './VisitCounter';
@@ -45,6 +46,10 @@ function Heavy13Preview() {
   </div>;
 }
 
+function RussianRoulettePreview() {
+  return <div className="relative flex aspect-square w-full items-center justify-center rounded-full border-[3px] border-[#17201e] bg-[#111722] shadow-xl sm:w-[62%] sm:border-4 sm:shadow-2xl"><span className="absolute left-1/2 top-[2%] h-[28%] w-1.5 -translate-x-1/2 rounded-full bg-[#65e5ff] shadow-[0_0_12px_#65e5ff]" /><div className="relative h-[64%] w-[64%] rounded-full border-4 border-[#34404d] bg-[#202a36] shadow-[inset_0_0_24px_#000]">{Array.from({ length: 6 }, (_, i) => { const angle = (i * 60 - 90) * Math.PI / 180; return <i key={i} className={`absolute h-[24%] w-[24%] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 ${i === 1 || i === 4 ? 'border-[#ffcf58] bg-[#c98b2e]' : 'border-white/10 bg-[#080c12]'}`} style={{ left: `${50 + Math.cos(angle) * 33}%`, top: `${50 + Math.sin(angle) * 33}%` }} />; })}<b className="absolute left-1/2 top-1/2 h-[22%] w-[22%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#080c12]" /></div></div>;
+}
+
 function SudokuPreview() {
   const nums = ['8', '', '4', '', '2', '', '1', '', '7', '', '6', '', '9', '', '3', '5'];
   return <div className="grid aspect-square w-full grid-cols-4 overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-white text-[10px] shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:text-base sm:shadow-2xl">{nums.map((num, index) => <span key={index} className={`flex items-center justify-center border-b border-r border-black/15 font-black text-[#293634] sm:text-lg ${index === 5 || index === 10 ? 'bg-[#edf2ff] text-[#4b7bff]' : ''}`}>{num}</span>)}</div>;
@@ -56,6 +61,7 @@ export default function HomeClient() {
   const router = useRouter();
   const games = [
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', status: t('new'), meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
+    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', status: t('new'), meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
     { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', status: t('new'), meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
     { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', status: t('new'), meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
     { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', status: t('classic'), meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
@@ -68,7 +74,7 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="rounded-full px-3 py-1 text-[10px] font-black tracking-[0.15em] text-white" style={{ background: game.color }}>{game.status}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>
@@ -81,6 +87,15 @@ export default function HomeClient() {
             <div className="grid grid-cols-2 gap-2">
               <Link href="/heavy13" className={MODE_BUTTON}><Bot size={15} className="text-[#c9a061]" /><span className="text-sm font-black">{t('modeHeavyAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHeavyAiDesc')}</span></Link>
               <button type="button" onClick={() => router.push(`/heavy13/room/${prepareHeavy13Room()}`)} className={`${MODE_BASE} border-[#c9a061]/50 bg-[#fbf3e4] hover:border-[#c9a061]`}><UsersRound size={15} className="text-[#c9a061]" /><span className="text-sm font-black">{t('modeHeavyFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHeavyFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
+        {game.illustration === 'roulette' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/russian-roulette" className={MODE_BUTTON}><Crosshair size={15} className="text-[#238ca8]" /><span className="text-sm font-black">{t('modeRouletteAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRouletteAiDesc')}</span></Link>
+              <button type="button" onClick={() => router.push(`/russian-roulette/room/${prepareRussianRouletteRoom()}`)} className={`${MODE_BASE} border-[#238ca8]/45 bg-[#e9f7fa] hover:border-[#238ca8]`}><UsersRound size={15} className="text-[#238ca8]" /><span className="text-sm font-black">{t('modeRouletteFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRouletteFriendDesc')}</span></button>
             </div>
           </div>
         )}

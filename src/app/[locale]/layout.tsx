@@ -9,6 +9,8 @@ import { routing } from '@/i18n/routing';
 import { ADSENSE_CLIENT } from '@/lib/adsense';
 import '../globals.css';
 
+export const metadata = { metadataBase: new URL('https://www.puzzlthink.com') };
+
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
