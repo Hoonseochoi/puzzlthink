@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, ChevronRight, Coins, Eye, EyeOff, LockKeyhole, RefreshCw, RotateCw, ShieldQuestion, X } from 'lucide-react';
+import { Check, ChevronRight, Coins, Eye, EyeOff, LockKeyhole, RefreshCw, RotateCw, ShieldQuestion, Volume2, VolumeX, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { type RRAction, knownMuzzle } from '@/lib/russianRoulette';
+import { type RRAction } from '@/lib/russianRoulette';
 import type { RussianRouletteRoom, RussianRouletteRoomAction } from '@/lib/russianRouletteRoom';
-import { playCylinderSpin, unlockGameAudio } from '@/lib/gameAudio';
+import { playCylinderSpin, playDryFire, playRevolverShot, unlockGameAudio } from '@/lib/gameAudio';
 import RouletteCharacter from './RouletteCharacter';
+import { RR_FIRE_FLASH_MS, RR_FIRE_LEAD_MS, RR_FIRE_ROTATE_MS, RR_FIRE_STEP_MS } from './firing';
 import { RR_PANEL, RR_TITLE } from './theme';
 
 type Pending = 'publicInspect' | 'privateInspect' | 'manipulate' | null;
@@ -25,18 +26,26 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
   const [amount, setAmount] = useState<1 | 2 | 3>(1);
   const [suspected, setSuspected] = useState<number[]>([]);
   const game = room.game;
-  // Each player only sees their own turns of the muzzle.
-  const viewMuzzle = knownMuzzle(game, mySeat);
+  // Muzzle turns are public; every player sees the same direction.
+  const viewMuzzle = game.muzzle;
   const previousMuzzle = useRef(viewMuzzle);
-  // Muzzle pointer angle only ever grows (always turns clockwise); each turn also spins the cylinder once.
-  const [spinView, setSpinView] = useState({ muzzle: viewMuzzle, angle: viewMuzzle * 60, spins: 0 });
-  if (spinView.muzzle !== viewMuzzle) setSpinView((v) => ({ muzzle: viewMuzzle, angle: v.angle + ((viewMuzzle - v.muzzle + 6) % 6) * 60, spins: v.spins + 1 }));
+  const totalRotation = game.rotations?.reduce((sum, steps) => sum + steps, 0) ?? 0;
+  const pointerAngle = ((game.baseMuzzle ?? viewMuzzle) * 60) + totalRotation * 60;
+  const [soundOn, setSoundOn] = useState(true);
+  const soundRef = useRef(soundOn);
+  const [firingShot, setFiringShot] = useState(-1);
+  const [revealedShots, setRevealedShots] = useState(0);
+  const [firingAngle, setFiringAngle] = useState(-90);
+  const [muzzleFlash, setMuzzleFlash] = useState(false);
   const myTurn = mySeat !== null && game.phase === 'playing' && game.turn === mySeat && !room.ai[mySeat];
   const myCredits = mySeat === null ? null : game.credits[mySeat];
   const myFund = mySeat === null ? 0 : game.manipulation[mySeat];
   const needsPair = pending === 'manipulate' && myFund + amount >= 6;
   const privateIntel = mySeat === null ? Array(6).fill(null) : game.privateIntel[mySeat];
   const confirmedBullets = useMemo(() => game.publicIntel.map((value, i) => value ?? privateIntel[i]).map((value, i) => value ? LETTERS[i] : null).filter(Boolean), [game.publicIntel, privateIntel]);
+  const visibleHits = game.phase === 'finished'
+    ? game.shots.slice(0, revealedShots).filter((shot) => shot.fired).map((shot) => shot.target)
+    : game.hits;
 
   // Speech bubble over whoever just acted: public inspections say which chambers, everything else stays secret.
   const [bubble, setBubble] = useState<{ seat: number; text: string; id: number } | null>(null);
@@ -47,7 +56,8 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
     previousKey.current = actionKey;
     const entry = game.log.find((e) => e.k !== 'round' && e.k !== 'pass' && e.k !== 'fire');
     if (!entry || !('seat' in entry)) return;
-    const text = entry.k === 'publicInspect' ? t('bubblePublic', { a: LETTERS[entry.pair], b: LETTERS[(entry.pair + 1) % 6] }) : t('bubbleSecret');
+    const text = entry.k === 'publicInspect' ? t('bubblePublic', { a: LETTERS[entry.pair], b: LETTERS[(entry.pair + 1) % 6] })
+      : entry.k === 'rotate' ? t('bubbleRotate', { n: entry.steps }) : t('bubbleSecret');
     const id = Date.now();
     const show = window.setTimeout(() => setBubble({ seat: entry.seat, text, id }), 0);
     const hide = window.setTimeout(() => setBubble((current) => current?.id === id ? null : current), 2300);
@@ -55,11 +65,42 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
   }, [actionKey, game.log, t]);
 
   useEffect(() => {
-    if (previousMuzzle.current !== viewMuzzle) playCylinderSpin();
+    if (previousMuzzle.current !== viewMuzzle && soundRef.current) playCylinderSpin();
     previousMuzzle.current = viewMuzzle;
   }, [viewMuzzle]);
 
+  useEffect(() => { soundRef.current = soundOn; }, [soundOn]);
+
+  useEffect(() => {
+    if (game.phase !== 'finished' || !game.shots.length) return;
+    const timers: number[] = [];
+    const firstTargetAngle = game.shots[0].target * 60 - 90;
+    game.shots.forEach((shot, index) => {
+      const aimAt = RR_FIRE_LEAD_MS + index * RR_FIRE_STEP_MS;
+      timers.push(window.setTimeout(() => {
+        setFiringShot(index);
+        setFiringAngle(firstTargetAngle + index * 60);
+        if (soundRef.current) playCylinderSpin();
+      }, aimAt));
+      timers.push(window.setTimeout(() => {
+        setRevealedShots(index + 1);
+        if (shot.fired) {
+          setMuzzleFlash(true);
+          if (soundRef.current) playRevolverShot();
+        } else if (soundRef.current) playDryFire();
+      }, aimAt + RR_FIRE_ROTATE_MS));
+      timers.push(window.setTimeout(() => setMuzzleFlash(false), aimAt + RR_FIRE_ROTATE_MS + RR_FIRE_FLASH_MS));
+    });
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [game.phase, game.shots]);
+
   const act = (action: RRAction) => { unlockGameAudio(); onAction({ t: 'act', action }); setPending(null); };
+  const toggleSound = () => {
+    const next = !soundOn;
+    soundRef.current = next;
+    setSoundOn(next);
+    if (next) unlockGameAudio();
+  };
   const choosePair = (pair: number) => {
     if (!myTurn) return;
     if (pending === 'publicInspect') act({ kind: 'publicInspect', pair });
@@ -70,6 +111,8 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
     setSuspected((current) => current.includes(seat) ? current.filter((value) => value !== seat) : current.length < 2 ? [...current, seat] : [current[1], seat]);
   };
   const playerName = (seat: number) => seat === mySeat ? t('you') : room.seats[seat]?.name ?? `P${seat + 1}`;
+  const currentShot = firingShot >= 0 ? game.shots[firingShot] : null;
+  const currentShotResolved = currentShot !== null && revealedShots > firingShot;
 
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
@@ -84,7 +127,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
         <div className="absolute inset-0">
           {POSITIONS.map((position, seat) => {
             const current = game.turn === seat && game.phase === 'playing';
-            const hit = game.hits.includes(seat);
+            const hit = visibleHits.includes(seat);
             return (
               <button key={seat} type="button" onClick={() => toggleSuspected(seat)} style={position} className="absolute z-20 flex w-[112px] -translate-x-1/2 -translate-y-1/2 flex-col items-center sm:w-[148px]" aria-label={t('markSuspect', { player: playerName(seat) })}>
                 <AnimatePresence>{bubble?.seat === seat && <motion.span key={bubble.id} initial={{ opacity: 0, y: seat === 0 ? -6 : 6, scale: .9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: .9 }} role="status" className={`pointer-events-none absolute left-1/2 z-40 -translate-x-1/2 whitespace-nowrap rounded-full border px-3 py-1.5 text-[11px] font-black shadow-[0_8px_24px_rgba(0,0,0,.55)] ${seat === 0 ? 'top-[calc(100%+4px)]' : 'bottom-[calc(100%+6px)]'} ${bubble.text === t('bubbleSecret') ? 'border-[#a978ed]/50 bg-[#1b1428] text-[#d7c2fb]' : 'border-[#ffcf58]/50 bg-[#262012] text-[#ffe29a]'}`}>{bubble.text}<i className={`absolute left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-[#ffffff00] ${seat === 0 ? '-top-1' : '-bottom-1'} ${bubble.text === t('bubbleSecret') ? 'bg-[#1b1428]' : 'bg-[#262012]'}`} /></motion.span>}</AnimatePresence>
@@ -98,12 +141,12 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
 
         <div className="absolute left-1/2 top-1/2 h-[310px] w-[310px] -translate-x-1/2 -translate-y-1/2 sm:h-[390px] sm:w-[390px]">
           <div className="absolute inset-[4%] rounded-full border border-[#65e5ff]/25 bg-[radial-gradient(circle,#263341_0%,#121923_62%,#080b10_63%)] shadow-[0_0_70px_rgba(67,204,235,.16),inset_0_0_45px_rgba(0,0,0,.8)]" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-30 h-[47%] w-4 origin-bottom transition-transform duration-[900ms] ease-[cubic-bezier(.2,.8,.2,1)]" style={{ transform: `translate(-50%,-100%) rotate(${spinView.angle}deg)` }}>
+          <div className={`pointer-events-none absolute left-1/2 top-1/2 z-30 h-[47%] w-4 origin-bottom transition-transform duration-[650ms] ease-[cubic-bezier(.2,.8,.2,1)] ${game.phase === 'finished' ? 'opacity-0' : ''}`} style={{ transform: `translate(-50%,-100%) rotate(${pointerAngle}deg)` }}>
             <span className="absolute left-1/2 top-[10px] h-[16%] w-1.5 -translate-x-1/2 rounded-full bg-gradient-to-t from-[#65e5ff]/0 to-[#65e5ff] shadow-[0_0_14px_#65e5ff]" />
             <span className="absolute left-1/2 top-0 h-0 w-0 -translate-x-1/2 border-x-[9px] border-b-[15px] border-x-transparent border-b-[#65e5ff] drop-shadow-[0_0_8px_#65e5ff]" />
           </div>
           <div className="absolute inset-[20%] z-10 rounded-full border border-white/10 bg-[#0c1118] shadow-[inset_0_0_40px_#000]" />
-          <div className="absolute inset-0 z-20 transition-transform duration-[900ms] ease-[cubic-bezier(.2,.8,.2,1)]" style={{ transform: `rotate(${spinView.spins * 360}deg)` }}>
+          <div className={`absolute inset-0 z-20 transition-opacity duration-500 ${game.phase === 'finished' ? 'opacity-25' : ''}`}>
           {Array.from({ length: 6 }, (_, chamber) => {
             const angle = (chamber * 60 - 90) * Math.PI / 180;
             const left = 50 + Math.cos(angle) * 30;
@@ -126,6 +169,16 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
             <span className="font-mono text-[9px] font-black tracking-[0.15em] text-[#65e5ff]/60">ROUND</span>
             <strong className="font-mono text-2xl text-white">{String(game.round).padStart(2, '0')}</strong>
           </div>
+          {game.phase === 'finished' && firingShot >= 0 && <div className="pointer-events-none absolute -inset-[4%] z-50">
+            <motion.div animate={{ rotate: firingAngle }} transition={{ duration: RR_FIRE_ROTATE_MS / 1000, ease: [.2, .75, .2, 1] }} className="absolute inset-[5%] flex items-center justify-center">
+              <motion.img src="/russian-roulette/revolver-v1.png" alt="" animate={muzzleFlash ? { x: [0, -13, 4, 0], scale: [1, 1.035, .99, 1] } : { x: 0, scale: 1 }} transition={{ duration: .28 }} className="w-[94%] drop-shadow-[0_18px_24px_rgba(0,0,0,.72)]" />
+              {muzzleFlash && <motion.span initial={{ scale: .15, opacity: 1 }} animate={{ scale: 1.3, opacity: 0 }} transition={{ duration: RR_FIRE_FLASH_MS / 1000 }} className="absolute right-[-2%] top-1/2 h-20 w-20 -translate-y-1/2 bg-[radial-gradient(circle,#fff_0%,#ffe58c_28%,#ff8a28_55%,transparent_72%)] [clip-path:polygon(50%_0%,61%_31%,98%_18%,72%_48%,100%_68%,65%_66%,61%_100%,43%_72%,15%_92%,27%_58%,0%_42%,38%_38%)] sm:h-28 sm:w-28" />}
+            </motion.div>
+            {currentShot && <div className="absolute bottom-[2%] left-1/2 min-w-40 -translate-x-1/2 rounded-full border border-white/10 bg-[#080c12]/90 px-4 py-2 text-center shadow-xl backdrop-blur">
+              <p className="font-mono text-[9px] font-black tracking-[.12em] text-[#65e5ff]">{LETTERS[currentShot.chamber]} → {playerName(currentShot.target)}</p>
+              <p className={`mt-0.5 text-[10px] font-black ${currentShotResolved && currentShot.fired ? 'text-[#ff7268]' : 'text-white/45'}`}>{currentShotResolved ? currentShot.fired ? t('loadedShot') : t('emptyShot') : t('cylinderTurning')}</p>
+            </div>}
+          </div>}
         </div>
 
         {pending && <div className="absolute bottom-3 left-1/2 z-40 flex w-[calc(100%-24px)] max-w-md -translate-x-1/2 items-center justify-between gap-3 rounded-[14px] border border-[#65e5ff]/25 bg-[#0b111b]/95 p-3 shadow-2xl backdrop-blur">
@@ -136,7 +189,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
 
       <aside className="flex flex-col gap-3">
         <section className={RR_PANEL}>
-          <div className="flex items-center justify-between"><p className={RR_TITLE}>{t('terminal')}</p><span className={`h-2 w-2 rounded-full ${myTurn ? 'animate-pulse bg-[#65e5ff]' : 'bg-white/15'}`} /></div>
+          <div className="flex items-center justify-between"><p className={RR_TITLE}>{t('terminal')}</p><div className="flex items-center gap-2"><button onClick={toggleSound} aria-label={soundOn ? t('soundOn') : t('soundOff')} className="rounded-full border border-white/10 p-1.5 text-white/35 transition hover:text-white/70">{soundOn ? <Volume2 size={12} /> : <VolumeX size={12} />}</button><span className={`h-2 w-2 rounded-full ${myTurn ? 'animate-pulse bg-[#65e5ff]' : 'bg-white/15'}`} /></div></div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-[12px] bg-white/[0.04] p-3"><p className="text-[9px] font-black tracking-widest text-white/30">CREDIT</p><p className="mt-1 font-mono text-2xl font-black text-[#ffcf58]">{myCredits ?? '—'}</p></div>
             <div className="rounded-[12px] bg-white/[0.04] p-3"><p className="text-[9px] font-black tracking-widest text-white/30">CONTROL</p><p className="mt-1 font-mono text-2xl font-black text-[#a978ed]">{myFund}<span className="text-xs text-white/25">/6</span></p></div>
@@ -167,7 +220,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
           <div className="mt-3 space-y-2">{game.log.slice(0, 5).map((entry, index) => {
             const text = entry.k === 'round' ? t('logRound', { round: entry.round, player: playerName(entry.start) })
               : entry.k === 'publicInspect' ? t('logPublic', { player: playerName(entry.seat), a: LETTERS[entry.pair], b: LETTERS[(entry.pair + 1) % 6] })
-                : entry.k === 'rotate' && entry.seat === mySeat ? t('logRotate', { player: playerName(entry.seat), n: entry.steps })
+                : entry.k === 'rotate' ? t('logRotate', { player: playerName(entry.seat), n: entry.steps })
                   : entry.k === 'pass' ? t('logPass', { player: playerName(entry.seat) })
                     : entry.k === 'fire' ? `${LETTERS[entry.chamber]} → ${playerName(entry.seat)} ${entry.fired ? '●' : '○'}`
                       : t('logSecret', { player: playerName(entry.seat) });

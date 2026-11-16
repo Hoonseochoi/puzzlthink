@@ -22,9 +22,9 @@ export type RussianRoulette = {
   turn: number;
   remaining: number[];
   chambers: boolean[];
-  muzzle: number; // true muzzle (host only)
-  baseMuzzle?: number; // where everyone saw the muzzle at the start
-  rotations?: number[]; // steps each player turned it; rotation is a private action
+  muzzle: number;
+  baseMuzzle?: number; // initial public direction, retained to animate continuous clockwise turns
+  rotations?: number[]; // public rotation steps by player
   credits: number[];
   manipulation: number[];
   publicIntel: RRKnowledge[];
@@ -78,10 +78,9 @@ export function newRussianRoulette(random: () => number = Math.random): RussianR
   };
 }
 
-/** Where `seat` believes the muzzle points: the starting position plus only their own turns. */
-export function knownMuzzle(game: RussianRoulette, seat: number | null) {
-  if (game.phase === 'finished' || seat === null || game.baseMuzzle === undefined || !game.rotations) return game.muzzle;
-  return (game.baseMuzzle + (game.rotations[seat] ?? 0)) % RR_PLAYERS;
+/** Muzzle rotation is a public action, so every player sees the true direction. */
+export function knownMuzzle(game: RussianRoulette) {
+  return game.muzzle;
 }
 
 export function actionCost(action: RRAction) {
@@ -192,7 +191,7 @@ export function chooseRRAction(game: RussianRoulette, seat: number, level: 'easy
   unknownPairs.sort((a, b) => b.unknown - a.unknown || Math.random() - 0.5);
   const pair = unknownPairs[0].pair;
   const fund = game.manipulation[seat];
-  const muzzle = knownMuzzle(game, seat); // AI only knows its own turns too
+  const muzzle = knownMuzzle(game);
 
   if (fund > 0 && credit > 0 && (fund >= 3 || level === 'hard')) {
     const amount = Math.min(3, credit) as 1 | 2 | 3;
