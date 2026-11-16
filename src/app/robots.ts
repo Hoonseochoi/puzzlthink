@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
             {
                 userAgent: '*',
                 allow: '/',
-                disallow: ['/api/', '/myrecord'],
+                disallow: ['/api/'],
             },
         ],
-        sitemap: 'https://puzzlthink.com/sitemap.xml',
+        sitemap: 'https://www.puzzlthink.com/sitemap.xml',
     };
 }

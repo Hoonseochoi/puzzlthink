@@ -1,11 +1,18 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import WallGoGame from '@/components/WallGoGame';
 
-export const metadata: Metadata = {
-  title: '벽바둑 — AI와 즐기는 영역 전략 게임',
-  description: '말을 이동하고 벽을 세워 가장 넓은 영역을 확보하세요. 7×7 보드에서 두 명의 AI와 겨루는 3인 전략 게임입니다.',
-};
+const BASE_URL = 'https://www.puzzlthink.com';
 
-export default function WallGoPage() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'WallGo' });
+  const canonical = `${BASE_URL}/${locale}/wallgo`;
+  return { title: t('metaTitle'), description: t('metaDescription'), alternates: { canonical, languages: { ko: `${BASE_URL}/ko/wallgo`, en: `${BASE_URL}/en/wallgo` } }, openGraph: { title: `${t('metaTitle')} | PUZZLTHINK`, description: t('metaDescription'), url: canonical, type: 'website' } };
+}
+
+export default async function WallGoPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <WallGoGame />;
 }

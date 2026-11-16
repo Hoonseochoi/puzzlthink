@@ -1,11 +1,22 @@
-import HomeClient from '@/components/HomeClient';
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import HomeClient from '@/components/HomeClient';
 
-export const metadata: Metadata = {
-  title: 'PUZZL THINK — 생각이 머무는 작은 게임들',
-  description: '벽바둑과 스도쿠를 바로 즐겨보세요. 기다림 없이 시작하는 깔끔한 온라인 보드게임 컬렉션입니다.',
-};
+const BASE_URL = 'https://www.puzzlthink.com';
 
-export default function HomePage() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Home' });
+  const canonical = `${BASE_URL}/${locale}`;
+  return {
+    title: t('metaTitle'), description: t('metaDescription'),
+    alternates: { canonical, languages: { ko: `${BASE_URL}/ko`, en: `${BASE_URL}/en`, 'x-default': `${BASE_URL}/ko` } },
+    openGraph: { title: t('metaTitle'), description: t('metaDescription'), url: canonical, siteName: 'PUZZLTHINK', type: 'website', images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630, alt: 'PUZZLTHINK online board games' }] },
+  };
+}
+
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <HomeClient />;
 }

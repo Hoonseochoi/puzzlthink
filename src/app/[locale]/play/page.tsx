@@ -1,83 +1,19 @@
-import { getTranslations } from 'next-intl/server';
-import PlayClient from '@/components/PlayClient';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import PlayClient from '@/components/PlayClient';
 
-type Props = {
-    params: Promise<{ locale: string }>;
-    searchParams: Promise<{ difficulty?: string }>;
-};
+const BASE_URL = 'https://www.puzzlthink.com';
 
-export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
-    const { locale } = await params;
-    const { difficulty } = await searchParams;
-    const t = await getTranslations({ locale, namespace: 'Sudoku' });
-
-    const diffLabel = difficulty ? t(difficulty as any) : t('medium');
-
-    return {
-        title: `${diffLabel} Sudoku`,
-        description: t('description') || 'Play Sudoku online with multiple difficulties and global leaderboards.',
-    };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Sudoku' });
+  const canonical = `${BASE_URL}/${locale}/play`;
+  return { title: t('metaTitle'), description: t('description'), alternates: { canonical, languages: { ko: `${BASE_URL}/ko/play`, en: `${BASE_URL}/en/play` } }, openGraph: { title: `${t('metaTitle')} | PUZZLTHINK`, description: t('description'), url: canonical, type: 'website' } };
 }
 
-export default async function PlayPage({ params, searchParams }: Props) {
-    const { locale } = await params;
-    const { difficulty } = await searchParams;
-    const t = await getTranslations({ locale, namespace: 'Sudoku' });
-
-    const diffLabel = difficulty ? t(difficulty as any) : t('medium');
-
-    const jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'Game',
-        name: `${diffLabel} Sudoku — PUZZL THINK`,
-        description: 'A logic-based, combinatorial number-placement puzzle game.',
-        genre: 'Puzzle Game',
-        author: {
-            '@type': 'Organization',
-            name: 'PUZZL THINK',
-        },
-        publisher: {
-            '@type': 'Organization',
-            name: 'PUZZL THINK',
-        },
-        url: 'https://puzzlthink.com/play',
-        screenshot: 'https://puzzlthink.com/og-image.png',
-        inLanguage: locale,
-        applicationCategory: 'Game',
-        operatingSystem: 'Any',
-    };
-
-    const breadcrumbLd = {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-            {
-                '@type': 'ListItem',
-                position: 1,
-                name: 'Home',
-                item: 'https://puzzlthink.com',
-            },
-            {
-                '@type': 'ListItem',
-                position: 2,
-                name: 'Play Sudoku',
-                item: `https://puzzlthink.com/play?difficulty=${difficulty || 'medium'}`,
-            },
-        ],
-    };
-
-    return (
-        <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
-            />
-            <PlayClient />
-        </>
-    );
+export default async function PlayPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  return <Suspense fallback={<div className="min-h-screen bg-[#f3f0e8]" />}><PlayClient /></Suspense>;
 }

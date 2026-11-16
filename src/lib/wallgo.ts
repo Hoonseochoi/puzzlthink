@@ -2,6 +2,7 @@ export const BOARD_SIZE = 7;
 
 export type PlayerId = 0 | 1 | 2;
 export type Direction = 'up' | 'right' | 'down' | 'left';
+export type AiDifficulty = 'easy' | 'normal' | 'hard';
 export type Position = { row: number; col: number };
 export type Piece = Position & { id: string; player: PlayerId };
 export type MoveOption = {
@@ -15,6 +16,7 @@ export type TerritoryResult = {
   scores: [number, number, number];
   largest: [number, number, number];
   separated: boolean;
+  cellOwners: Record<string, PlayerId | null>;
 };
 
 export const DIRECTIONS: Record<Direction, Position> = {
@@ -22,10 +24,6 @@ export const DIRECTIONS: Record<Direction, Position> = {
   right: { row: 0, col: 1 },
   down: { row: 1, col: 0 },
   left: { row: 0, col: -1 },
-};
-
-export const DIRECTION_LABELS: Record<Direction, string> = {
-  up: '위', right: '오른쪽', down: '아래', left: '왼쪽',
 };
 
 export function isInside(position: Position) {
@@ -108,6 +106,7 @@ export function getTerritory(pieces: Piece[], walls: Set<string>): TerritoryResu
   const visited = new Set<string>();
   const scores: [number, number, number] = [0, 0, 0];
   const largest: [number, number, number] = [0, 0, 0];
+  const cellOwners: Record<string, PlayerId | null> = {};
   let separated = pieces.length === 6;
 
   for (let row = 0; row < BOARD_SIZE; row += 1) {
@@ -133,15 +132,18 @@ export function getTerritory(pieces: Piece[], walls: Set<string>): TerritoryResu
       for (const piece of pieces) if (cellKeys.has(positionKey(piece))) owners.add(piece.player);
       if (owners.size > 1) {
         separated = false;
+        for (const cell of cells) cellOwners[positionKey(cell)] = null;
       } else {
         for (const owner of owners) {
           scores[owner] += cells.length;
           largest[owner] = Math.max(largest[owner], cells.length);
+          for (const cell of cells) cellOwners[positionKey(cell)] = owner;
         }
+        if (owners.size === 0) for (const cell of cells) cellOwners[positionKey(cell)] = null;
       }
     }
   }
-  return { scores, largest, separated };
+  return { scores, largest, separated, cellOwners };
 }
 
 export function getWinner(territory: TerritoryResult): PlayerId {
@@ -167,7 +169,7 @@ export function chooseBotPlacement(pieces: Piece[], player: PlayerId): Position 
   return candidates[0]?.position ?? { row: 3, col: 3 };
 }
 
-export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean) {
+export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean, difficulty: AiDifficulty = 'normal') {
   const candidates: {
     move: MoveOption; wall: string; direction: Direction; pieces: Piece[]; walls: Set<string>; value: number;
   }[] = [];
@@ -189,5 +191,8 @@ export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: Pla
     }
   }
   candidates.sort((a, b) => b.value - a.value);
-  return candidates[0] ?? null;
+  if (!candidates.length) return null;
+  if (difficulty === 'easy') return candidates[Math.floor(Math.random() * candidates.length)];
+  if (difficulty === 'normal') return candidates[Math.floor(Math.random() * Math.min(4, candidates.length))];
+  return candidates[0];
 }
