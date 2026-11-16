@@ -17,5 +17,5 @@ export const H13_ROOM: RoomEngine<H13Room, H13Action> = {
   redact: redactH13,
 };
 
-export const prepareHeavy13Room = () => prepareRoom(H13_ROOM.storage, 'heavy13');
+export const prepareHeavy13Room = () => prepareRoom(H13_ROOM.channel, H13_ROOM.storage, 'heavy13');
 export const useHeavy13Room = (code: string, defaultName: string) => useRealtimeRoom(H13_ROOM, code, defaultName);

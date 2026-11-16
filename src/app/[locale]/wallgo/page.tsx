@@ -38,7 +38,7 @@ export default async function WallGoPage({ params }: { params: Promise<{ locale:
           { '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) },
         ],
       }} />
-      <GameGate accent="#e0283a" tutorialKey="puzzlthink_wallgo_tutorial_seen" hero={<GameIntroHero locale={locale} id="wallgo" />} tutorial={<WallGoTutorialSteps />} guide={<WallGoGuide locale={locale} />}>
+      <GameGate game="wallgo" accent="#e0283a" tutorialKey="puzzlthink_wallgo_tutorial_seen" hero={<GameIntroHero locale={locale} id="wallgo" />} tutorial={<WallGoTutorialSteps />} guide={<WallGoGuide locale={locale} />}>
         <WallGoGame />
       </GameGate>
     </>

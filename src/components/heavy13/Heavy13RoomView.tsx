@@ -1,5 +1,7 @@
 "use client";
 
+import BugReport from '@/components/BugReport';
+import InviteCode from '@/components/ui/InviteCode';
 import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, Sparkles, UserRound, WifiOff } from 'lucide-react';
@@ -71,7 +73,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
       <RoomAlerts alerts={alerts} accent={SAND} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
       <GameHeader backHref="/heavy13" backLabel={t('title')} title={t('title')} subtitle={`ONLINE · ${code.toUpperCase()}`}>
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
-        <LanguageSwitcher compact dark />
+        <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <p className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3a8] lg:px-6"><WifiOff size={14} />{notice}</p>}
 
@@ -87,6 +89,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
             <div className="rounded-[12px] border border-(--accent)/30 bg-black/50 p-5">
               <p className={PANEL_TITLE}>{to('inviteTitle')}</p>
               <p className="mt-2 text-sm text-white/60">{to('inviteDesc')}</p>
+              <InviteCode code={code} />
               <div className="mt-4 flex items-center gap-2 rounded-md border border-white/10 bg-[#0b0b0e] p-2">
                 <span className="min-w-0 flex-1 truncate px-2 font-mono text-xs text-white/70">{shareUrl}</span>
                 <button onClick={copyLink} className={`shrink-0 ${BTN}`}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? to('copied') : to('copy')}</button>
