@@ -19,11 +19,11 @@
   "Home": {
     "metaTitle": "PUZZLTHINK — 데블스플랜·더 지니어스 두뇌게임을 웹에서",
     "metaDescription": "데블스플랜의 벽바둑, 더 지니어스의 십이장기 등 두뇌 서바이벌 예능 속 게임을 웹으로 구현했습니다. 가입 없이 AI와 대전하거나 링크로 친구와 실시간으로 플레이하세요.",
-    "eyebrow": "THINK · PLAY · REPEAT",
-    "title1": "생각이 머무는",
-    "title2": "작은 게임들",
-    "description1": "복잡한 가입도, 긴 설명도 없이 바로 시작하세요.",
-    "description2": "오늘은 벽을 세울까요, 숫자를 채울까요?",
+    "eyebrow": "DEATH MATCH · WITH FRIENDS",
+    "title1": "데블스플랜 데스매치,",
+    "title2": "친구들과 함께",
+    "description1": "요즘 핫한 데블스플랜의 데스매치를 친구들과 함께 해보세요!",
+    "description2": "가입 없이 링크 하나면 바로 시작돼요.",
     "new": "NEW",
     "classic": "CLASSIC",
     "wallgoDescription": "말을 옮기고 벽을 세워, 누구보다 넓은 나만의 영역을 만드세요.",
@@ -167,7 +167,8 @@
     "duelRule1": "각자 말 4개로 시작하며, 그중 2개는 정해진 위치에 미리 놓여 있습니다.",
     "duelRule3": "벽 부수기는 없습니다. 두 플레이어의 공간이 갈라지면 더 넓은 영역이 승리합니다.",
     "logDraw": "추첨 결과 {player}가 선공입니다. 남은 말 2개를 번갈아 배치하세요.",
-    "logPlacementDoneBot": "배치 완료. 상대가 먼저 움직입니다."
+    "logPlacementDoneBot": "배치 완료. 상대가 먼저 움직입니다.",
+    "unitTiles": "칸"
   },
   "Sudoku": {
     "metaTitle": "온라인 스도쿠 — 무료 스도쿠 게임과 푸는 법",

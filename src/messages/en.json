@@ -19,11 +19,11 @@
   "Home": {
     "metaTitle": "PUZZLTHINK — Games from The Devil's Plan & The Genius, online",
     "metaDescription": "Play games from brain-survival shows — Wallgo from The Devil's Plan and 12 Janggi from The Genius — in your browser. No sign-up: play the AI or a friend live via link.",
-    "eyebrow": "THINK · PLAY · REPEAT",
-    "title1": "Small games for",
-    "title2": "long thoughts",
-    "description1": "No complicated sign-up. No long setup.",
-    "description2": "Will you build walls or fill numbers today?",
+    "eyebrow": "DEATH MATCH · WITH FRIENDS",
+    "title1": "Devil's Plan death matches,",
+    "title2": "with your friends",
+    "description1": "Play the hottest death matches from The Devil's Plan with your friends!",
+    "description2": "No sign-up — one link and you're in.",
     "new": "NEW",
     "classic": "CLASSIC",
     "wallgoDescription": "Move your characters, build walls, and claim more territory than anyone else.",
@@ -163,7 +163,8 @@
     "duelRule1": "Each player starts with 4 pieces, 2 of which are already placed on fixed tiles.",
     "duelRule3": "There is no wall break. When both players are separated, the larger territory wins.",
     "logDraw": "Draw result: {player} moves first. Place your remaining 2 pieces in turn.",
-    "logPlacementDoneBot": "Placement complete. Your opponent moves first."
+    "logPlacementDoneBot": "Placement complete. Your opponent moves first.",
+    "unitTiles": " tiles"
   },
   "Sudoku": {
     "metaTitle": "Online Sudoku — free puzzles and solving guide",

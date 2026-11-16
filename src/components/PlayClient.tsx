@@ -80,8 +80,13 @@ export default function PlayClient() {
     {showTutorial && <TutorialOverlay onComplete={finishTutorial} />}
     <header className="flex h-16 items-center justify-between border-b border-black/10 bg-[#f8f6ef]/90 px-4 backdrop-blur md:px-8"><div className="flex items-center gap-4"><Link href="/" className="flex items-center gap-2 text-sm font-bold"><ArrowLeft size={17} /><span className="hidden sm:inline">PUZZLTHINK</span></Link><span className="h-5 w-px bg-black/10" /><strong className="text-lg tracking-[-0.04em]">{tc('sudoku')}</strong></div><div className="flex items-center gap-2"><button onClick={() => setShowTutorial(true)} className="hidden items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-2 text-xs font-bold sm:flex"><BookOpen size={14} /> {t('howToPlay')}</button><LanguageSwitcher compact /></div></header>
 
-    <main className="mx-auto grid max-w-[1120px] gap-6 px-4 py-6 lg:grid-cols-[minmax(0,650px)_320px] lg:px-6 lg:py-9">
+    <main className="mx-auto grid max-w-[1120px] gap-4 px-3 py-3 sm:gap-6 sm:px-4 sm:py-6 lg:grid-cols-[minmax(0,650px)_320px] lg:px-6 lg:py-9">
       <section className="rounded-[28px] border border-black/10 bg-[#e8e2d5] p-3 shadow-[0_24px_70px_rgba(33,42,39,0.1)] sm:p-5">
+        <div className="mb-3 flex items-center justify-between gap-2 px-1 lg:hidden">
+          <span className="rounded-full bg-[#17201e] px-3 py-1 text-[11px] font-extrabold text-white">{t(game.difficulty)}</span>
+          <span className="font-mono text-base font-bold">{formatTime(game.timer)}</span>
+          <span className="rounded-full bg-[#fff0eb] px-3 py-1 text-[11px] font-extrabold text-[#ff6b4a]">{t('mistakes')} {game.mistakes}/3</span>
+        </div>
         <div className="relative mx-auto aspect-square w-full max-w-[610px] overflow-hidden rounded-[20px] border-[8px] border-[#17201e] bg-white shadow-xl sm:border-[12px]">
           <div className="grid h-full w-full grid-cols-9 grid-rows-9">
             {game.board.length === 9 && Array.from({ length: 81 }).map((_, index) => {
@@ -105,7 +110,7 @@ export default function PlayClient() {
 
       <aside className="flex flex-col gap-4">
         <section className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4 shadow-sm"><p className="text-[10px] font-black uppercase tracking-[0.16em] text-black/35">{t('difficulty')}</p><div className="mt-3 grid grid-cols-3 gap-2">{difficulties.map((difficulty) => <button key={difficulty} onClick={() => game.startGame(difficulty)} className={`rounded-xl px-2 py-2.5 text-xs font-extrabold transition ${game.difficulty === difficulty ? 'bg-[#17201e] text-white' : 'bg-white text-black/50 hover:text-black'}`}>{t(difficulty)}</button>)}</div></section>
-        <section className="grid grid-cols-2 gap-3"><div className="rounded-[22px] bg-[#17201e] p-4 text-white"><p className="text-[10px] font-bold uppercase tracking-wider text-white/45">{t('timer')}</p><p className="mt-1 font-mono text-2xl font-bold">{formatTime(game.timer)}</p></div><div className="rounded-[22px] bg-[#fff0eb] p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-black/35">{t('mistakes')}</p><p className="mt-1 text-2xl font-black text-[#ff6b4a]">{game.mistakes}<span className="text-sm text-black/25"> / 3</span></p></div></section>
+        <section className="hidden grid-cols-2 gap-3 lg:grid"><div className="rounded-[22px] bg-[#17201e] p-4 text-white"><p className="text-[10px] font-bold uppercase tracking-wider text-white/45">{t('timer')}</p><p className="mt-1 font-mono text-2xl font-bold">{formatTime(game.timer)}</p></div><div className="rounded-[22px] bg-[#fff0eb] p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-black/35">{t('mistakes')}</p><p className="mt-1 text-2xl font-black text-[#ff6b4a]">{game.mistakes}<span className="text-sm text-black/25"> / 3</span></p></div></section>
         <section className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4"><p className="text-[10px] font-black uppercase tracking-[0.16em] text-black/35">{t('tools')}</p><div className="mt-3 grid grid-cols-2 gap-2">
           <button onClick={game.toggleNotesMode} className={`flex items-center gap-2 rounded-xl p-3 text-xs font-bold ${game.notesMode ? 'bg-[#edf2ff] text-[#315dcc] ring-1 ring-[#4b7bff]/30' : 'bg-white'}`}><Pencil size={16} /> {t('notes')} · {t(game.notesMode ? 'notesOn' : 'notesOff')}</button>
           <button onClick={game.erase} className="flex items-center gap-2 rounded-xl bg-white p-3 text-xs font-bold"><Eraser size={16} /> {t('erase')}</button>

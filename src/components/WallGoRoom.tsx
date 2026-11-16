@@ -9,6 +9,7 @@ import type { LogEntry } from '@/lib/wallgoRoom';
 import { useWallGoRoom } from '@/hooks/useWallGoRoom';
 import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
+import WallGoScoreStrip from './WallGoScoreStrip';
 import WallGoCharacter from './WallGoCharacter';
 import Shards from './WallGoShards';
 import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
@@ -101,7 +102,7 @@ export default function WallGoRoom({ code }: { code: string }) {
           {notice && <Link href="/wallgo" className="rounded-md bg-[#e0283a] px-4 py-2.5 text-sm font-bold text-white">{t('backToGame')}</Link>}
         </main>
       ) : (
-        <main className="relative z-10 mx-auto grid w-full max-w-[1180px] gap-6 px-4 py-5 lg:grid-cols-[minmax(0,760px)_320px] lg:px-6 lg:py-8">
+        <main className="relative z-10 mx-auto grid w-full max-w-[1180px] gap-4 px-3 py-3 sm:gap-6 sm:px-4 sm:py-5 lg:grid-cols-[minmax(0,760px)_320px] lg:px-6 lg:py-8">
           <section className="rounded-[14px] border border-white/10 bg-[#121217]/85 p-3 shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur sm:p-5">
             <div className="mb-4 flex items-center justify-between gap-3 px-1 sm:px-2">
               <div className="min-w-0">
@@ -140,6 +141,7 @@ export default function WallGoRoom({ code }: { code: string }) {
               </div>
             ) : (
               <>
+                <WallGoScoreStrip players={mode?.players ?? [0, 1, 2]} current={state.current} active={state.phase === 'placement' || state.phase === 'playing'} names={state.seats.map((seat, i) => seat?.name ?? t('emptySeat', { n: i + 1 }))} scores={territory.scores} pieces={(mode?.players ?? []).map((p) => state.pieces.filter((piece) => piece.player === p).length)} total={(mode?.totalPieces ?? 6) / (mode?.players.length ?? 3)} breaks={mode?.wallBreak ? state.breaks : null} unit={tw('unitTiles')} />
                 <WallGoBoard
                   pieces={state.pieces} walls={walls} cellOwners={territory.cellOwners} selectedPieceId={selectedPieceId} moves={selectedMoves}
                   wallPieceId={myTurn && state.step === 'wall' ? state.moved : null} playerNames={names} interactivePlayer={mySeat}
@@ -151,7 +153,7 @@ export default function WallGoRoom({ code }: { code: string }) {
           </section>
 
           <aside className="flex flex-col gap-4">
-            <section className={PANEL}>
+            <section className={`${state.phase === 'lobby' ? '' : 'hidden lg:block'} ${PANEL}`}>
               <div className="mb-3 flex items-center justify-between"><h2 className={PANEL_TITLE}>{tw('players')}</h2><span className="flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1 text-[10px] font-bold text-white/60"><Users size={12} />{state.seats.filter(Boolean).length}/{state.seats.length}</span></div>
               <div className="space-y-2">
                 {state.seats.map((seat, index) => {
