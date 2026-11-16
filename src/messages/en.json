@@ -303,7 +303,7 @@
       },
       {
         "title": "10. Service providers and international transfer",
-        "body": "We rely on the providers below, whose servers are outside Korea (Supabase in the Asia-Pacific region, the others mainly in the United States). Information is sent over the network when you use the Service, and each provider uses it only for the work we give them.\n• Supabase (Asia-Pacific region servers): sign-in, database (profiles, game results, bug reports, statistics) and real-time play\n• Vercel: website hosting and delivery (including access logs)\n• Google: Google sign-in, Google AdSense ads and the operator's inbox (Gmail)\n• Web3Forms: relays bug reports to the operator's email\n• Forward Email: forwards mail sent to contact@puzzlthink.com to the operator's inbox\nIf you do not want your information transferred abroad, you can play without signing in or sending reports, or ask us to delete it. All games remain available either way."
+        "body": "We rely on the providers below, whose servers are outside Korea (Supabase in the Asia-Pacific region, the others mainly in the United States). Information is sent over the network when you use the Service, and each provider uses it only for the work we give them.\n• Supabase (Asia-Pacific region servers): sign-in, database (profiles, game results, bug reports, statistics) and real-time play\n• Vercel: website hosting and delivery (including access logs)\n• Google: Google sign-in, Google AdSense ads, Google Analytics visit statistics and the operator's inbox (Gmail)\n• Web3Forms: relays bug reports to the operator's email\n• Forward Email: forwards mail sent to contact@puzzlthink.com to the operator's inbox\nIf you do not want your information transferred abroad, you can play without signing in or sending reports, or ask us to delete it. All games remain available either way."
       },
       {
         "title": "11. Your rights",
@@ -311,7 +311,7 @@
       },
       {
         "title": "12. Ads and cookies",
-        "body": "The Service may show ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it to serve ads based on your visits to this and other sites."
+        "body": "The Service may show ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it to serve ads based on your visits to this and other sites.\nWe also use Google Analytics to collect visit statistics (pages viewed, time on page, referring site, device and browser type, approximate location). It tells browsers apart with a cookie but is not linked to your name or email, and we use it only to improve the Service. To opt out, install the browser add-on at https://tools.google.com/dlpage/gaoptout or block cookies in your browser."
       },
       {
         "title": "13. Opting out of personalized ads",
