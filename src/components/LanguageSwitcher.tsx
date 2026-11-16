@@ -4,7 +4,7 @@ import { Languages } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/routing';
 
-export default function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
+export default function LanguageSwitcher({ compact = false, dark = false }: { compact?: boolean; dark?: boolean }) {
   const locale = useLocale();
   const t = useTranslations('Common');
   const pathname = usePathname();
@@ -16,7 +16,7 @@ export default function LanguageSwitcher({ compact = false }: { compact?: boolea
       type="button"
       aria-label={t('language')}
       onClick={() => router.replace(pathname, { locale: nextLocale })}
-      className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-2 text-xs font-extrabold uppercase shadow-sm transition hover:bg-white"
+      className={dark ? 'inline-flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-xs font-extrabold uppercase text-white/80 transition hover:bg-white/10' : 'inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-2 text-xs font-extrabold uppercase shadow-sm transition hover:bg-white'}
     >
       <Languages size={14} />
       {compact ? nextLocale : `${locale} · ${nextLocale}`}

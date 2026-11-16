@@ -10,23 +10,23 @@ export default async function WallGoGuide({ locale }: { locale: string }) {
   const faq = t.raw('faq') as Faq[];
 
   return (
-    <section className="border-t border-black/10 bg-[#f3f0e8] px-5 py-16">
+    <section className="relative z-10 border-t border-white/10 bg-[#0b0b0e] px-5 py-16 text-[#e6e9f0]">
       <article className="mx-auto max-w-3xl">
-        <span className="text-[10px] font-black tracking-[0.2em] text-[#ff6b4a]">{t('eyebrow')}</span>
+        <span className="text-[10px] font-black tracking-[0.2em] text-[#ff4d5e]">{t('eyebrow')}</span>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">{t('title')}</h1>
-        <p className="mt-5 text-sm leading-7 text-black/60">{t('intro')}</p>
+        <p className="mt-5 text-sm leading-7 text-white/55">{t('intro')}</p>
 
         <h2 className="mt-12 text-xl font-extrabold">{t('rulesTitle')}</h2>
-        <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-7 text-black/60">
+        <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-7 text-white/55">
           {rules.map((rule) => <li key={rule}>{rule}</li>)}
         </ol>
 
         <h2 className="mt-12 text-xl font-extrabold">{t('tipsTitle')}</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {tips.map((tip) => (
-            <div key={tip.title} className="rounded-2xl border border-black/10 bg-[#f9f7f1] p-5">
+            <div key={tip.title} className="rounded-[10px] border border-white/10 bg-[#121217] p-5">
               <h3 className="text-sm font-extrabold">{tip.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-black/60">{tip.body}</p>
+              <p className="mt-2 text-sm leading-6 text-white/55">{tip.body}</p>
             </div>
           ))}
         </div>
@@ -36,12 +36,12 @@ export default async function WallGoGuide({ locale }: { locale: string }) {
           {faq.map((item) => (
             <div key={item.q}>
               <dt className="text-sm font-extrabold">{item.q}</dt>
-              <dd className="mt-1 text-sm leading-7 text-black/60">{item.a}</dd>
+              <dd className="mt-1 text-sm leading-7 text-white/55">{item.a}</dd>
             </div>
           ))}
         </dl>
 
-        <p className="mt-12 text-[11px] leading-5 text-black/35">{t('disclaimer')}</p>
+        <p className="mt-12 text-[11px] leading-5 text-white/30">{t('disclaimer')}</p>
       </article>
     </section>
   );
