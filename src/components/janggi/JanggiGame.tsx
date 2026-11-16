@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { BookOpen, Check, Clock3, Flag, Infinity, Link2, RotateCcw, Sparkles } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
-import { type Action, type Difficulty, type JanggiState, type Side, HANJA, cellName, chooseAiAction, finish, initialState, legalActions, playAction } from '@/lib/janggi';
+import { type Action, type Difficulty, type JanggiState, type Side, HANJA, cellName, chooseAiAction, finish, initialState, playableActions, playAction } from '@/lib/janggi';
 import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -81,7 +81,7 @@ export default function JanggiGame() {
       const { game: g, deadline: d, turnSec: sec, paused, timeouts: misses, play: p, timeOut } = latest.current;
       if (!sec || paused || !d || g.winner !== null || g.reason !== null || g.turn !== 0 || current < d) return;
       if (misses >= 2) { timeOut(); return; }
-      const options = legalActions(g);
+      const options = playableActions(g);
       if (options.length) p(options[Math.floor(Math.random() * options.length)], true);
     }, 250);
     return () => { window.clearTimeout(timer); window.clearInterval(tick); };
@@ -192,7 +192,7 @@ export default function JanggiGame() {
           </section>
           <section className={NOTE}>
             <div className="mb-4 flex items-center gap-2"><Sparkles size={15} className="text-(--accent)" /><h2 className={PANEL_TITLE}>{t('quickRules')}</h2></div>
-            <ol className="space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{t(key)}</span></li>)}</ol>
+            <ol className="space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4', 'quick5'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{t(key)}</span></li>)}</ol>
           </section>
           <section className={`grid grid-cols-3 gap-2 ${PANEL}`}>
             <h2 className={`col-span-3 ${PANEL_TITLE}`}>{t('record')}</h2>

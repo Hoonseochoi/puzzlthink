@@ -1,5 +1,5 @@
 // Shared-room state for 12-janggi with a friend. Seat index = side (seat 0 is the host).
-import { type Action, type JanggiState, type Side, playAction, finish, initialState, isLegal, legalActions } from './janggi';
+import { type Action, type JanggiState, type Side, playAction, finish, initialState, isLegal, playableActions } from './janggi';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
 export const TURN_OPTIONS = [90, 60, 30] as const;
@@ -60,7 +60,7 @@ export function reduceJanggiRoom(state: JanggiRoom, action: JanggiRoomAction, se
       const loser = state.game.turn;
       // Three automatic moves in a row means the player has left: they lose on time.
       if (state.timeouts >= 2) { next = { ...state, phase: 'finished', game: finish(state.game, loser === 0 ? 1 : 0, 'timeout') }; break; }
-      const options = legalActions(state.game);
+      const options = playableActions(state.game);
       if (!options.length) { next = { ...state, phase: 'finished', game: finish(state.game, loser === 0 ? 1 : 0, 'timeout') }; break; }
       next = afterMove(state, playAction(state.game, options[Math.floor(Math.random() * options.length)]), state.timeouts + 1);
       break;

@@ -612,6 +612,7 @@
     "quick2": "Captured pieces join your hand; drop them on any empty square except the enemy camp.",
     "quick3": "A 子 that reaches the enemy camp promotes to 侯.",
     "quick4": "Capture the enemy 王, or keep your 王 alive in their camp for a turn, to win!",
+    "quick5": "You may not make a move that brings the same position back a third time (no endless repetition).",
     "record": "My record",
     "games": "Games",
     "wins": "Wins",
@@ -638,7 +639,8 @@
     "turnTime_off": "Off",
     "turnSeconds": "{n}s",
     "turnTimeHint": "When time runs out a random move is played; three in a row loses on time.",
-    "logTimeoutMove": "⏱ Time out ·"
+    "logTimeoutMove": "⏱ Time out ·",
+    "repetitionBlocked": "Moves that would repeat the same position a third time are not allowed, so they are hidden."
   },
   "JanggiTutorial": {
     "skip": "Skip",
