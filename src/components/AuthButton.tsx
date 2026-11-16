@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { LogOut, X } from 'lucide-react';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
+import GoogleSignInButton from './GoogleSignInButton';
 
 function GoogleMark({ size = 16 }: { size?: number }) {
   return (
@@ -19,7 +20,8 @@ function GoogleMark({ size = 16 }: { size?: number }) {
 /** Google sign-in button, or the signed-in avatar with a small menu. */
 export default function AuthButton({ full = false }: { full?: boolean }) {
   const t = useTranslations('Auth');
-  const { user, ready, configured, error, signIn, signOut, clearError } = useAuth();
+  const { user, ready, configured, error, signIn, signOut, clearError, setError } = useAuth();
+  const [useRedirect, setUseRedirect] = useState(false);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -38,6 +40,15 @@ export default function AuthButton({ full = false }: { full?: boolean }) {
       <button onClick={clearError} aria-label={t('close')} className="text-black/40 hover:text-black"><X size={14} /></button>
     </div>
   );
+
+  if (!user && !useRedirect) {
+    return (
+      <>
+        {errorBox}
+        <GoogleSignInButton width={full ? 280 : undefined} onError={setError} onFallback={() => setUseRedirect(true)} />
+      </>
+    );
+  }
 
   if (!user) {
     return (

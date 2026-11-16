@@ -12,11 +12,12 @@ type AuthState = {
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   clearError: () => void;
+  setError: (message: string) => void;
 };
 
 const AuthContext = createContext<AuthState>({
   user: null, ready: false, configured: false, error: null,
-  signIn: async () => {}, signOut: async () => {}, clearError: () => {},
+  signIn: async () => {}, signOut: async () => {}, clearError: () => {}, setError: () => {},
 });
 
 const NAME_KEY = 'puzzlthink_nickname';
@@ -85,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }, []);
 
-  const value = useMemo(() => ({ user, ready, configured, error, signIn, signOut, clearError: () => setError(null) }), [user, ready, configured, error, signIn, signOut]);
+  const value = useMemo(() => ({ user, ready, configured, error, signIn, signOut, clearError: () => setError(null), setError }), [user, ready, configured, error, signIn, signOut]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
