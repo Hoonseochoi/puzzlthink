@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { usePathname, Link } from '@/i18n/routing';
 
-const HIDE_ON = ['/play', '/wallgo', '/janggi', '/heavy13', '/russian-roulette'];
+const HIDE_ON = ['/play', '/wallgo', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
 
 export default function GlobalFooter() {
   const pathname = usePathname();
@@ -19,7 +19,9 @@ export default function GlobalFooter() {
           <Link href="/russian-roulette" className="hover:text-black">{t('russianRoulette')}</Link>
           <Link href="/heavy13" className="hover:text-black">{t('heavy13')}</Link>
           <Link href="/janggi" className="hover:text-black">{t('janggi')}</Link>
+          <Link href="/russian-janggi" className="hover:text-black">{t('russianJanggi')}</Link>
           <Link href="/play" className="hover:text-black">{t('sudoku')}</Link>
+          <Link href="/games" className="hover:text-black">{t('gamesIntro')}</Link>
           <Link href="/records" className="hover:text-black">{t('records')}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>

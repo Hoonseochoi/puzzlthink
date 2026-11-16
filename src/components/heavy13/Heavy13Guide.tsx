@@ -19,7 +19,7 @@ export default async function Heavy13Guide({ locale }: { locale: string }) {
   const stand = (c: 'r' | 'g' | 'b') => ts(`stand_${c}`);
 
   return (
-    <section className="border-t border-white/10 bg-[#0e1013] px-5 py-16 text-[#eef0f3]">
+    <section id="guide" className="border-t border-white/10 bg-[#0e1013] px-5 py-16 text-[#eef0f3]">
       <AdSlot placement="inline" tone="dark" className="mx-auto mb-12 max-w-3xl" />
       <article className="mx-auto max-w-4xl">
         <span className="text-[10px] font-black tracking-[0.2em] text-[#e6c48a]">{t('eyebrow')}</span>

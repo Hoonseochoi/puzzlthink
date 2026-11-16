@@ -33,7 +33,8 @@
     "hallCongratsRank": "#{rank} in {game}",
     "hallCongratsDesc": "Your name is now in the Hall of Fame on the Records page. Congratulations!",
     "hallCongratsView": "See the Hall of Fame",
-    "hallCongratsClose": "Close"
+    "hallCongratsClose": "Close",
+    "gamesIntro": "About games"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
@@ -1340,5 +1341,117 @@
     "iosStep1a": "1. Tap the ",
     "iosStep1b": " Share button below",
     "iosStep2": "2. Choose 'Add to Home Screen'"
+  },
+  "Games": {
+    "metaTitle": "Games — every PUZZLTHINK board game at a glance",
+    "metaDescription": "Wallgo, Russian Roulette, Heavy 13, 12 Janggi, Russian Janggi and Sudoku. Compare every PUZZLTHINK game by players, pace, modes, core rules and origin.",
+    "eyebrow": "GAME GUIDE",
+    "title": "About the games",
+    "intro": "Every PUZZLTHINK game on one page. See how many players it takes, how a game runs and what you need to know, then jump right in. All games are free with no sign-up.",
+    "jump": "Jump to",
+    "players": "Players",
+    "pace": "Pace",
+    "level": "Difficulty",
+    "modes": "Modes",
+    "rules": "Core rules",
+    "origin": "Origin",
+    "play": "Play",
+    "guide": "Full guide",
+    "modeAi": "vs AI",
+    "modeFriend": "Friend room",
+    "modeSolo": "Solo",
+    "unsupported": "Not available",
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
+    "games": {
+      "wallgo": {
+        "tagline": "Move your characters, build walls, and claim more territory than anyone else.",
+        "players": "2–3 (3-player · 1:1)",
+        "pace": "90 s per turn",
+        "level": "AI: easy · normal · hard",
+        "ai": "3-player (2 AI) · 1:1 (1 AI)",
+        "friend": "1:1, invite by link",
+        "rules": [
+          "Each player places pieces on a 7×7 board: 2 each in the 3-player game, 4 each in 1:1.",
+          "On your turn, move one piece 1 or 2 squares in a straight line, then you must build a wall on one of its four sides.",
+          "In the 3-player game, each player may break through one wall on their path once per game.",
+          "When every player's space is sealed off, the game ends and the largest total area containing your pieces wins."
+        ],
+        "origin": "A territory game from the Netflix brain-survival show The Devil's Plan. Both the round 1 three-player game and the round 2 one-on-one game are included."
+      },
+      "russianRoulette": {
+        "tagline": "Track the loaded chambers, turn the muzzle, and survive the final trigger sequence.",
+        "players": "6 (AI fills open seats)",
+        "pace": "60 s per turn in friend rooms · no limit vs AI",
+        "level": "AI: easy · normal · hard",
+        "ai": "6 players (5 AI)",
+        "friend": "Link or 6-character code, AI fills seats",
+        "rules": [
+          "Two rounds are hidden among six chambers, and each player gets 16 secret credits.",
+          "Inspect two adjacent chambers publicly (1 credit) or privately (2 credits), or turn the muzzle 1 step (3 credits) or 2 steps (4 credits).",
+          "Secretly pay 1–3 manipulation credits into a shared pool; whoever brings it to 6 swaps the two adjacent chambers they chose.",
+          "When three players run out of credits, firing starts at the muzzle and goes clockwise; the two players hit are eliminated."
+        ],
+        "origin": "Based on the Russian roulette game from The Devil's Plan, rebuilt as a six-player deduction game with hidden information."
+      },
+      "heavy13": {
+        "tagline": "Push a stand to 13 and take the penalty. A 7-player mind game.",
+        "players": "7 (AI fills open seats)",
+        "pace": "14 rounds · friend rooms: 90 s to submit, 20 s to place",
+        "level": "AI: easy · normal · hard",
+        "ai": "7 players (6 AI)",
+        "friend": "Invite by link, AI fills seats",
+        "rules": [
+          "Each player gets seven rock cards (0–6), two red, green and blue chips, and one rainbow chip.",
+          "Every round everyone secretly plays one card and one chip at once: the chip picks the stand, the card is the rock's weight.",
+          "The rainbow chip places first, then higher numbers. Once per round you may pass to place later.",
+          "Whoever pushes a stand to 13 or more takes a penalty for each rock already on it. After 14 rounds the fewest penalties wins."
+        ],
+        "origin": "The first prison match of The Devil's Plan: Death Room. Taking a penalty for crossing a threshold closely resembles the card game 6 nimmt!."
+      },
+      "janggi": {
+        "tagline": "Capture the king or march into the enemy camp. A sharp duel on 12 squares.",
+        "players": "2",
+        "pace": "Friend rooms: 90, 60 or 30 s per turn",
+        "level": "AI: easy · normal · hard",
+        "ai": "1:1",
+        "friend": "1:1, invite by link",
+        "rules": [
+          "On a 3×4 board, each player starts with four pieces: General, Minister, King and Pawn.",
+          "Take turns moving one piece one square in a direction it shows. Captured pieces become yours and can be dropped back from your next turn.",
+          "A Pawn that enters the enemy camp flips into a stronger Lord.",
+          "Win by capturing the enemy King, or by moving your King into the enemy camp and surviving a turn there."
+        ],
+        "origin": "The mini chess that became famous in the final of the brain-survival show The Genius."
+      },
+      "russianJanggi": {
+        "tagline": "Tic-tac-toe where big pieces swallow small ones. 10 seconds per move.",
+        "players": "2",
+        "pace": "10 s per turn · no-limit option vs AI",
+        "level": "AI: easy · normal · hard",
+        "ai": "1:1",
+        "friend": "1:1, invite by link",
+        "rules": [
+          "On a 3×3 board, each player has 2 large, 2 medium and 2 small pieces.",
+          "On your turn, place a new piece or move one of yours on the board. Large covers medium and small; medium covers small.",
+          "Own three in a row to win. If moving a piece reveals the opponent's row underneath, they win.",
+          "Out of time, or nowhere to play, and the turn passes."
+        ],
+        "origin": "A 3×3 strategy game that adds covering and moving pieces to tic-tac-toe."
+      },
+      "sudoku": {
+        "tagline": "A timeless number puzzle that starts light and keeps you thinking.",
+        "players": "1",
+        "pace": "No time limit · solve time recorded",
+        "level": "Easy · normal · hard",
+        "solo": "3 levels, one hint per game, notes",
+        "rules": [
+          "Fill the 9×9 grid so every row, column and 3×3 box holds 1 to 9 exactly once.",
+          "Given numbers can't be changed; the puzzle is done when every cell is filled.",
+          "Three mistakes and the game is over.",
+          "Every puzzle has exactly one solution and can be solved by logic alone."
+        ],
+        "origin": "A classic puzzle solved with logic, not arithmetic. The rules take a minute to learn, but harder puzzles need reasoning several steps ahead."
+      }
+    }
   }
 }

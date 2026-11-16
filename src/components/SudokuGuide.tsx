@@ -56,7 +56,7 @@ export default async function SudokuGuide({ locale }: { locale: string }) {
   const levels = t.raw('levels') as Item[];
   const faq = t.raw('faq') as Faq[];
   return (
-    <section className="border-t border-black/[0.07] bg-[#f3f0e8] px-5 py-16 text-[#17201e]">
+    <section id="guide" className="border-t border-black/[0.07] bg-[#f3f0e8] px-5 py-16 text-[#17201e]">
       <AdSlot placement="inline" tone="light" className="mx-auto mb-12 max-w-3xl" />
       <article className="mx-auto max-w-4xl">
         <span className="text-[10px] font-black tracking-[0.2em] text-[#4b7bff]">{t('eyebrow')}</span>

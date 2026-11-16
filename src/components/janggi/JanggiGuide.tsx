@@ -34,7 +34,7 @@ export default async function JanggiGuide({ locale }: { locale: string }) {
   const faq = t.raw('faq') as Faq[];
 
   return (
-    <section className="relative z-10 border-t border-white/10 bg-[#0a0c10] px-5 py-16 text-[#eceff4]">
+    <section id="guide" className="relative z-10 border-t border-white/10 bg-[#0a0c10] px-5 py-16 text-[#eceff4]">
       <AdSlot placement="inline" tone="dark" className="mx-auto mb-12 max-w-3xl" />
       <article className="mx-auto max-w-4xl">
         <span className="text-[10px] font-black tracking-[0.2em] text-[#e8c170]">{t('eyebrow')}</span>
