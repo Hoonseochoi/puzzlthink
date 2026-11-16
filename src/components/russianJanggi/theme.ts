@@ -11,4 +11,4 @@ export const DOME = [
   'radial-gradient(circle at 34% 28%, #ffd0d4 0%, #ff6b78 22%, #e2283c 58%, #8f1020 100%)',
   'radial-gradient(circle at 34% 28%, #d4ffe4 0%, #5ff09a 22%, #1fb560 58%, #0b6b35 100%)',
 ] as const;
-export const SIZE_SCALE = [0.46, 0.66, 0.88] as const;
+export const SIZE_SCALE = [0.5, 0.7, 0.9] as const; // cup width as a share of the cell

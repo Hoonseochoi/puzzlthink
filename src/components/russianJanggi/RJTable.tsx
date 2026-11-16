@@ -3,8 +3,8 @@
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { type Action, type RJState, type Side, type Size, PER_SIZE, SIZES, other, targetsFor, top } from '@/lib/russianJanggi';
-import RJPiece from './RJPiece';
-import { ACCENT, SIDE_COLORS, SIZE_SCALE } from './theme';
+import RJPiece, { CUP_RATIO } from './RJPiece';
+import { SIDE_COLORS, SIZE_SCALE } from './theme';
 
 /** Board plus both hands. `viewer` sits at the bottom; pick a size from your hand, then a cell. */
 export default function RJTable({ game, viewer, canAct, onAction, names }: {
@@ -46,20 +46,21 @@ export default function RJTable({ game, viewer, canAct, onAction, names }: {
                   style={{ background: 'repeating-linear-gradient(92deg, #6b4a2f 0px, #6b4a2f 7px, #5f4129 7px, #5f4129 11px, #73502f 11px, #73502f 19px)', boxShadow: 'inset 0 6px 14px rgba(0,0,0,.55)' }}
                 >
                   <span className="pointer-events-none absolute inset-0 bg-black/25" />
-                  {/* What lies underneath: faint rings. */}
-                  {stack.slice(0, -1).map((under, k) => (
-                    <span key={k} className="pointer-events-none absolute inset-0 m-auto rounded-full border-2" style={{ width: `${SIZE_SCALE[under.size] * 100 + 6}%`, height: `${SIZE_SCALE[under.size] * 100 + 6}%`, borderColor: `${SIDE_COLORS[under.owner]}88` }} />
-                  ))}
-                  {piece && (
+                  {/* The whole stack, standing on its rims: each bigger cup sits over the smaller ones. */}
+                  {stack.map((cup, k) => (
                     <RJPiece
-                      key={`${cell}-${stack.length}`} owner={piece.owner} size={piece.size}
-                      className="absolute inset-0 m-auto animate-[rjDrop_.28s_ease-out]"
-                      style={{ width: `${SIZE_SCALE[piece.size] * 100}%`, height: `${SIZE_SCALE[piece.size] * 100}%` }}
+                      key={`${cell}-${k}`} owner={cup.owner} size={cup.size}
+                      className={`pointer-events-none absolute inset-x-0 bottom-[9%] mx-auto ${k === stack.length - 1 ? 'animate-[rjDrop_.42s_cubic-bezier(.3,.7,.4,1)]' : ''}`}
+                      style={{ width: `${SIZE_SCALE[cup.size] * 100}%`, aspectRatio: `${CUP_RATIO}` }}
                     />
-                  )}
-                  {stack.length > 1 && <span className="absolute bottom-1 right-1.5 rounded-full bg-black/60 px-1.5 text-[9px] font-black text-white/70">×{stack.length}</span>}
+                  ))}
+                  {stack.length > 1 && <span className="absolute right-1.5 top-1.5 rounded-full bg-black/60 px-1.5 text-[9px] font-black text-white/70">×{stack.length}</span>}
                   {target && size !== null && (
-                    <span className="pointer-events-none absolute inset-0 m-auto rounded-full border-2 border-dashed opacity-80" style={{ width: `${SIZE_SCALE[size] * 100}%`, height: `${SIZE_SCALE[size] * 100}%`, borderColor: ACCENT, background: 'rgba(242,184,75,.12)', boxShadow: '0 0 16px rgba(242,184,75,.45)' }} />
+                    <RJPiece
+                      ghost owner={viewer} size={size}
+                      className={`pointer-events-none absolute inset-x-0 bottom-[9%] mx-auto ${piece ? 'opacity-95' : 'animate-pulse'}`}
+                      style={{ width: `${SIZE_SCALE[size] * 100}%`, aspectRatio: `${CUP_RATIO}` }}
+                    />
                   )}
                 </button>
               );
@@ -90,8 +91,8 @@ function Hand({ side, game, label, selectable, selected, onPick, active }: {
               className={`relative flex h-14 items-center justify-center gap-1 rounded-[12px] transition ${isSel ? 'bg-[#f2b84b]/15 shadow-[0_0_0_2px_#f2b84b,0_0_18px_rgba(242,184,75,.45)]' : 'bg-black/25'} ${selectable && left ? 'cursor-pointer hover:-translate-y-0.5 hover:bg-white/[0.06]' : 'cursor-default'}`}
             >
               {Array.from({ length: PER_SIZE }, (_, k) => (
-                <span key={k} className="flex h-11 w-[42%] items-center justify-center">
-                  <RJPiece owner={side} size={size} className={`transition ${k < left ? '' : 'opacity-[0.12] grayscale'}`} style={{ width: `${40 + size * 30}%`, aspectRatio: '1' }} />
+                <span key={k} className="flex h-11 w-[44%] items-end justify-center pb-0.5">
+                  <RJPiece owner={side} size={size} className={`transition ${k < left ? '' : 'opacity-[0.12] grayscale'}`} style={{ width: `${52 + size * 24}%`, aspectRatio: `${CUP_RATIO}` }} />
                 </span>
               ))}
             </button>

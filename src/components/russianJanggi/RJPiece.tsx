@@ -1,17 +1,60 @@
+import { useId } from 'react';
 import type { Side, Size } from '@/lib/russianJanggi';
-import { DOME, SIDE_COLORS } from './theme';
+import { SIDE_COLORS } from './theme';
 
-/** A dome piece. Size is shown by scale plus 1–3 pips so it reads at a glance. */
-export default function RJPiece({ owner, size, className = '', style }: { owner: Side; size: Size; className?: string; style?: React.CSSProperties }) {
+// Cup shading per side: [edge, body, light].
+const SHADES = [
+  ['#7a0d1a', '#e2283c', '#ff8a95'],
+  ['#0a5a2c', '#1fb560', '#7ff5b0'],
+] as const;
+
+/** Cup ratio (width : height) — pieces sit on their rim, so they are drawn bottom-aligned. */
+export const CUP_RATIO = 100 / 92;
+
+/**
+ * A hollow cup seen from the side, like the pieces on the show's board.
+ * Bigger cups go over smaller ones; the plus mark grows with the size.
+ */
+export default function RJPiece({ owner, size, className = '', style, ghost = false }: {
+  owner: Side; size: Size; className?: string; style?: React.CSSProperties; ghost?: boolean;
+}) {
+  const id = useId().replace(/:/g, '');
+  const [edge, body, light] = SHADES[owner];
+  const arm = 7 + size * 2; // plus-mark half length
   return (
-    <span
-      className={`relative flex items-center justify-center rounded-full ${className}`}
-      style={{ background: DOME[owner], boxShadow: `0 8px 18px rgba(0,0,0,.45), inset 0 -6px 12px rgba(0,0,0,.28), 0 0 22px ${SIDE_COLORS[owner]}33`, ...style }}
+    <svg
+      viewBox="0 0 100 92" preserveAspectRatio="xMidYMax meet" aria-hidden className={className}
+      style={{ filter: ghost ? undefined : `drop-shadow(0 0 10px ${SIDE_COLORS[owner]}40)`, ...style }}
     >
-      <span className="absolute left-[22%] top-[14%] h-[22%] w-[34%] rotate-[-24deg] rounded-full bg-white/45 blur-[1.5px]" />
-      <span className="relative flex gap-[10%]" style={{ width: '50%', justifyContent: 'center' }}>
-        {Array.from({ length: size + 1 }, (_, i) => <i key={i} className="block aspect-square w-[22%] rounded-full bg-white/80 shadow-[inset_0_-1px_0_rgba(0,0,0,.2)]" />)}
-      </span>
-    </span>
+      <defs>
+        <linearGradient id={`b${id}`} x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0" stopColor={edge} />
+          <stop offset="0.28" stopColor={light} />
+          <stop offset="0.55" stopColor={body} />
+          <stop offset="1" stopColor={edge} />
+        </linearGradient>
+        <linearGradient id={`v${id}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.28" />
+          <stop offset="0.45" stopColor="#fff" stopOpacity="0" />
+          <stop offset="1" stopColor="#000" stopOpacity="0.32" />
+        </linearGradient>
+      </defs>
+      {ghost ? (
+        <path d="M6 86 C6 52 14 10 50 8 C86 10 94 52 94 86 Z" fill={`${SIDE_COLORS[owner]}26`} stroke="#f2b84b" strokeWidth="3" strokeDasharray="7 5" />
+      ) : (
+        <>
+          <ellipse cx="50" cy="88" rx="47" ry="4" fill="#000" opacity="0.45" />
+          <path d="M6 86 C6 52 14 10 50 8 C86 10 94 52 94 86 Z" fill={`url(#b${id})`} />
+          <path d="M6 86 C6 52 14 10 50 8 C86 10 94 52 94 86 Z" fill={`url(#v${id})`} />
+          <ellipse cx="50" cy="86" rx="44" ry="4.5" fill={edge} />
+          <ellipse cx="50" cy="85" rx="42" ry="2.6" fill="#000" opacity="0.35" />
+          <ellipse cx="32" cy="34" rx="7" ry="17" fill="#fff" opacity="0.38" transform="rotate(18 32 34)" />
+          <g opacity="0.75" fill="#fff">
+            <rect x={50 - arm} y={52 - 2.6} width={arm * 2} height="5.2" rx="2.6" />
+            <rect x={50 - 2.6} y={52 - arm} width="5.2" height={arm * 2} rx="2.6" />
+          </g>
+        </>
+      )}
+    </svg>
   );
 }

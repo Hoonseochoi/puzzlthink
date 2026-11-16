@@ -10,6 +10,7 @@ import { prepareRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
 import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
+import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
 import VisitCounter from './VisitCounter';
 
 const MODE_BASE = 'flex flex-col items-center gap-0.5 rounded-2xl border px-2 py-2.5 text-center transition hover:-translate-y-0.5 sm:gap-1 sm:py-3';
@@ -52,10 +53,10 @@ function RussianRoulettePreview() {
 }
 
 function RussianJanggiPreview() {
-  const dome = (owner: 0 | 1) => (owner === 0 ? 'radial-gradient(circle at 34% 28%, #ffd0d4 0%, #ff6b78 22%, #e2283c 58%, #8f1020 100%)' : 'radial-gradient(circle at 34% 28%, #d4ffe4 0%, #5ff09a 22%, #1fb560 58%, #0b6b35 100%)');
-  const cells: ([0 | 1, number] | null)[] = [[1, 88], null, [0, 46], null, [0, 88], [1, 66], [0, 66], null, [1, 46]];
+  // [owner, sizes bottom → top]: one cell shows a big cup that has swallowed a small one.
+  const cells: ([0 | 1, (0 | 1 | 2)[]] | null)[] = [[1, [2]], null, [0, [0]], null, [0, [1, 2]], [1, [1]], [0, [1]], null, [1, [0]]];
   return <div className="grid aspect-square w-full grid-cols-3 gap-1 rounded-xl border-[3px] border-[#17201e] bg-[#2a1d14] p-1 shadow-xl sm:w-[58%] sm:gap-1.5 sm:rounded-2xl sm:border-4 sm:p-2 sm:shadow-2xl">
-    {cells.map((cell, i) => <span key={i} className="relative rounded-md bg-[#6b4a2f] shadow-[inset_0_4px_10px_rgba(0,0,0,.5)] sm:rounded-lg">{cell && <i className="absolute inset-0 m-auto rounded-full shadow-md" style={{ width: `${cell[1]}%`, height: `${cell[1]}%`, background: dome(cell[0]) }} />}</span>)}
+    {cells.map((cell, i) => <span key={i} className="relative rounded-md bg-[#6b4a2f] shadow-[inset_0_4px_10px_rgba(0,0,0,.5)] sm:rounded-lg">{cell && <RJPiece owner={cell[0]} size={cell[1][cell[1].length - 1]} className="absolute inset-x-0 bottom-[10%] mx-auto" style={{ width: `${[50, 70, 90][cell[1][cell[1].length - 1]]}%`, aspectRatio: `${CUP_RATIO}` }} />}</span>)}
   </div>;
 }
 
