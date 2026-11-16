@@ -1267,13 +1267,14 @@
   },
   "RussianJanggi": {
     "metaTitle": "Russian Janggi Online — 3×3 strategy where big covers small",
-    "metaDescription": "Play Russian Janggi free in your browser: 3×3 strategy where bigger cups cover smaller ones and cups on the board can move. Play the AI or invite a friend by link.",
+    "metaDescription": "Play Russian Janggi from The Society Game 2 free in your browser: 3×3 strategy where bigger cups cover smaller ones and cups on the board can move. Play the AI or invite a friend by link.",
     "keywords": [
       "russian janggi",
       "nesting tic tac toe",
       "big small tic tac toe",
       "3x3 strategy game",
-      "online board game"
+      "online board game",
+      "The Society Game 2 Russian Janggi"
     ],
     "title": "Russian Janggi",
     "newGame": "New game",
@@ -1441,7 +1442,7 @@
           "Secretly pay 1–3 manipulation credits into a shared pool; whoever brings it to 6 swaps the two adjacent chambers they chose.",
           "When three players run out of credits, firing starts at the muzzle and goes clockwise; the two players hit are eliminated."
         ],
-        "origin": "Based on the Russian roulette game from The Devil's Plan, rebuilt as a six-player deduction game with hidden information."
+        "origin": "The Russian roulette prison match from Netflix's The Devil's Plan: Dead Again, played with the same rules as the show."
       },
       "heavy13": {
         "tagline": "Push a stand to 13 and take the penalty. A 7-player mind game.",
@@ -1486,7 +1487,7 @@
           "Own three in a row to win. If moving a piece reveals the opponent's row underneath, they win.",
           "Out of time, or nowhere to play, and the turn passes."
         ],
-        "origin": "A 3×3 strategy game that adds covering and moving pieces to tic-tac-toe."
+        "origin": "The Russian Janggi game from The Society Game 2, playable on the web: a 3×3 strategy game that adds covering and moving pieces to tic-tac-toe."
       },
       "sudoku": {
         "tagline": "A timeless number puzzle that starts light and keeps you thinking.",
@@ -1534,7 +1535,7 @@
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
     "title": "Russian Roulette online — The Devil's Plan prison match on the web",
-    "intro": "Russian Roulette is a deduction game for six players around one revolver. Two of its six chambers are loaded, and each player spends 16 credits to inspect chambers, turn the muzzle or secretly swap chambers. When the shots are fired, the two players hit are out and four survive. It is inspired by the Russian roulette prison match in Netflix's \"The Devil's Plan: Dead Again\", and PUZZLTHINK lets you play it against AI or in a friend room. It is a brain game with nothing to do with real firearms.",
+    "intro": "Russian Roulette is a deduction game for six players around one revolver. Two of its six chambers are loaded, and each player spends 16 credits to inspect chambers, turn the muzzle or secretly swap chambers. When the shots are fired, the two players hit are out and four survive. It brings the Russian roulette prison match from Netflix's \"The Devil's Plan: Dead Again\" to the web with the same rules as the show, against AI or in a friend room. It is a brain game with nothing to do with real firearms.",
     "rulesTitle": "Basic rules",
     "rules": [
       "Six players sit in a circle. Two of the revolver's six chambers are loaded at random, and the muzzle starts pointing at a random player.",
@@ -1619,15 +1620,15 @@
       },
       {
         "q": "Is it exactly the show's rules?",
-        "a": "It is inspired by the show's Russian roulette and tuned by PUZZLTHINK for playing on the web, so details may differ from the broadcast."
+        "a": "Yes. It uses the same rules as the Russian roulette prison match in The Devil's Plan: Dead Again: six players, six chambers with two bullets, 16 credits, and the same costs for inspecting, turning and swapping, and the same firing order."
       }
     ],
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan or Netflix. Show titles are used only to describe the games. This game has nothing to do with real firearms."
   },
   "RussianJanggiGuide": {
     "eyebrow": "RUSSIAN JANGGI GUIDE",
-    "title": "Russian Janggi online — cover, move and line up three on 3×3",
-    "intro": "Russian Janggi is tic-tac-toe with pieces of different sizes. A bigger piece can cover a smaller one like a cup, and pieces already on the board can move to another square, so the board can flip until the very last move. The name comes from pieces nesting like matryoshka dolls, and the rules belong to the same family as the board game Gobblet Gobblers. Enjoy a fast battle of wits against AI or friends on PUZZLTHINK.",
+    "title": "Russian Janggi online — the game from The Society Game 2",
+    "intro": "Russian Janggi is a 3×3 strategy game from the Korean show The Society Game 2. It adds pieces of different sizes to tic-tac-toe: a bigger piece can cover a smaller one like a cup, and pieces on the board can move to another square, so the board can flip until the very last move. The rules are also close to the board game Gobblet Gobblers. Enjoy fast 10-second turns against AI or friends on PUZZLTHINK.",
     "rulesTitle": "Basic rules",
     "rules": [
       "Two players take turns on a 3×3 board.",
@@ -1698,8 +1699,12 @@
         "a": "On the PUZZLTHINK Russian Janggi page, right in a desktop or mobile browser, with no sign-up or install."
       },
       {
-        "q": "Is it the same as Gobblet Gobblers?",
-        "a": "It belongs to the same family: pieces of different sizes cover and move to make three in a row. PUZZLTHINK uses two pieces of each size per player and a 10-second turn."
+        "q": "Where does Russian Janggi come from?",
+        "a": "It appeared on tvN's The Society Game 2. PUZZLTHINK is an unofficial fan project that introduces the game and lets you play it on the web."
+      },
+      {
+        "q": "Is it like Gobblet Gobblers?",
+        "a": "It is in a similar family: pieces of different sizes cover and move to make three in a row. PUZZLTHINK's Russian Janggi follows the format from The Society Game 2, with two pieces of each size per player and a 10-second turn."
       },
       {
         "q": "Can it end in a draw?",
@@ -1710,7 +1715,7 @@
         "a": "A little, because the first player can take the center. In the AI game you can choose who goes first: you, the AI, or random."
       }
     ],
-    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with the makers of Gobblet Gobblers or any broadcaster. Game names are used only to describe the rules.",
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Society Game, tvN or the makers of Gobblet Gobblers. Show and game names are used only to describe the games.",
     "tutorial": [
       {
         "label": "GOAL",
