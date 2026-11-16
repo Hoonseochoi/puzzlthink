@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, UserRound, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
@@ -9,6 +9,8 @@ import { H13_TURN_OPTIONS, redactH13 } from '@/lib/heavy13Room';
 import { useHeavy13Room } from '@/hooks/useHeavy13Room';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
+import { reportGame } from '@/lib/stats';
+import { ranking } from '@/lib/heavy13';
 import LanguageSwitcher from '../LanguageSwitcher';
 import Heavy13Result from './Heavy13Result';
 import Heavy13Table from './Heavy13Table';
@@ -29,6 +31,17 @@ export default function Heavy13RoomView({ code }: { code: string }) {
   const [waitedLong, setWaitedLong] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
+
+  // Report a finished game once, when the room moves into "finished".
+  const prevPhase = useRef<string | null>(null);
+  useEffect(() => {
+    const phase = state?.phase ?? null;
+    if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
+      const rank = ranking(state.game).indexOf(mySeat) + 1;
+      reportGame(`heavy13-friend-${crypto.randomUUID()}`, 'heavy13', 'friend', rank === 1 ? 'win' : rank >= 6 ? 'loss' : 'draw', { rank, penalty: state.game.players[mySeat].penalty, humans: state.ai.filter((a) => !a).length });
+    }
+    prevPhase.current = phase;
+  });
 
   useEffect(() => {
     const slow = window.setTimeout(() => setWaitedLong(true), 6000);

@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { ArrowLeft, BookOpen, CircleX, Eraser, Lightbulb, Pause, Pencil, Play, RotateCcw, Trophy } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useSudoku } from '@/hooks/useSudoku';
+import { reportGame } from '@/lib/stats';
 import type { Difficulty } from '@/lib/sudoku';
 import TutorialOverlay from './TutorialOverlay';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -37,13 +38,16 @@ export default function PlayClient() {
 
   useEffect(() => {
     if (game.status === 'playing') savedResult.current = false;
-    if (game.status !== 'won' || savedResult.current) return;
+    if ((game.status !== 'won' && game.status !== 'lost') || savedResult.current) return;
     savedResult.current = true;
+    reportGame(`sudoku-${Date.now()}`, 'sudoku', 'solo', game.status === 'won' ? 'win' : 'loss', { difficulty: game.difficulty, seconds: game.timer, mistakes: game.mistakes });
+    if (game.status !== 'won') return;
     try {
       const records = JSON.parse(localStorage.getItem('puzzlthink_sudoku_records') || '[]');
       records.unshift({ id: Date.now(), difficulty: game.difficulty, seconds: game.timer, date: new Date().toISOString() });
       localStorage.setItem('puzzlthink_sudoku_records', JSON.stringify(records.slice(0, 30)));
     } catch { /* Local records are optional. */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.status, game.difficulty, game.timer]);
 
   useEffect(() => {

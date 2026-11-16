@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, BookOpen, Link2, RotateCcw } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import type { AiLevel } from '@/lib/heavy13';
 import { createH13Room } from '@/lib/heavy13Room';
+import { ranking } from '@/lib/heavy13';
+import { reportGame } from '@/lib/stats';
 import { H13_ROOM, prepareHeavy13Room } from '@/hooks/useHeavy13Room';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -24,6 +26,18 @@ export default function Heavy13Game() {
   const create = useCallback(() => createH13Room({ id: 'me', name: t('you'), at: 0 }, { solo: true, aiLevel: level }), [level, t]);
   const { state, dispatch, reset } = useLocalRoom(H13_ROOM, create);
   const [showTutorial, setShowTutorial] = useState(false);
+  const mySeat = 0;
+
+  // Report a finished game once, when the room moves into "finished".
+  const prevPhase = useRef<string | null>(null);
+  useEffect(() => {
+    const phase = state?.phase ?? null;
+    if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
+      const rank = ranking(state.game).indexOf(0) + 1;
+      reportGame(`heavy13-ai-${state.sid}`, 'heavy13', 'ai', rank === 1 ? 'win' : rank >= 6 ? 'loss' : 'draw', { rank, penalty: state.game.players[0].penalty, level: state.aiLevel });
+    }
+    prevPhase.current = phase;
+  });
   useEffect(() => {
     const timer = window.setTimeout(() => { try { if (!localStorage.getItem(TUTORIAL_KEY)) setShowTutorial(true); } catch { /* optional */ } }, 0);
     return () => window.clearTimeout(timer);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, Share2, Swords, Users, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
@@ -9,6 +9,7 @@ import { TURN_OPTIONS } from '@/lib/janggiRoom';
 import { useJanggiRoom } from '@/hooks/useJanggiRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
+import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiPiece from './JanggiPiece';
 import JanggiResult from './JanggiResult';
@@ -27,6 +28,16 @@ export default function JanggiRoomView({ code }: { code: string }) {
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
+
+  // Report a finished game once, when the room moves into "finished".
+  const prevPhase = useRef<string | null>(null);
+  useEffect(() => {
+    const phase = state?.phase ?? null;
+    if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
+      reportGame(`janggi-friend-${crypto.randomUUID()}`, 'janggi', 'friend', state.game.winner === null ? 'draw' : state.game.winner === mySeat ? 'win' : 'loss', { reason: state.game.reason, turnSec: state.turnSec });
+    }
+    prevPhase.current = phase;
+  });
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 500);

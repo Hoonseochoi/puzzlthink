@@ -63,6 +63,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => { alive = false; sub.subscription.unsubscribe(); };
   }, []);
 
+  // Keep the Supabase profile fresh and count online time while a tab is visible.
+  useEffect(() => {
+    if (!user) return;
+    const supabase = getSupabase();
+    if (!supabase) return;
+    supabase.rpc('touch_profile', { p_full_name: displayName(user) || null, p_avatar_url: avatarUrl(user) || null }).then(() => {});
+    const beat = () => { if (document.visibilityState === 'visible') supabase.rpc('track_activity', { p_seconds: 60 }).then(() => {}); };
+    const timer = window.setInterval(beat, 60_000);
+    return () => window.clearInterval(timer);
+  }, [user]);
+
   // Use the Google name as the room nickname unless the player picked their own.
   useEffect(() => {
     const name = displayName(user).trim().slice(0, 16);

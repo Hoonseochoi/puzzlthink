@@ -19,7 +19,8 @@
     "playAgainShort": "Play again",
     "exit": "Leave",
     "share": "Share",
-    "linkCopied": "Link copied"
+    "linkCopied": "Link copied",
+    "records": "Records"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
@@ -247,7 +248,7 @@
       },
       {
         "title": "3. Google sign-in (optional)",
-        "body": "If you sign in with Google, Supabase Auth receives and stores your Google email address, name and profile picture to handle sign-in. This is used only to keep you signed in and to show your nickname in friend games; it is not used for other purposes or shared with third parties. Every game works without signing in, and you can request deletion of your account data using the contact below."
+        "body": "If you sign in with Google, Supabase Auth receives and stores your Google email address, name and profile picture to handle sign-in. While signed in, we also store your game results (game, mode, result, difficulty and similar) and play time to provide the Records page. If \"Show me in the Hall of Fame\" is on, your nickname and profile picture are visible to other players; your email is never shown. This data is not used for other purposes or shared with third parties. Every game works without signing in, and you can request deletion of your account and records using the contact below."
       },
       {
         "title": "4. How information is used",
@@ -1021,5 +1022,37 @@
     "account": "My account",
     "error": "Couldn't finish Google sign-in.",
     "close": "Close"
+  },
+  "Records": {
+    "metaTitle": "Records · Hall of Fame",
+    "metaDescription": "See your PUZZLTHINK records against AI for every game and the top 3 in the Hall of Fame.",
+    "title": "Records",
+    "intro": "Sign in with Google and your game results and play time are recorded automatically. Check your record against AI for each game and the Hall of Fame.",
+    "setupNeeded": "The records server is not set up yet. Please check back shortly.",
+    "hallTitle": "Hall of Fame",
+    "hallDesc": "Top 3 by wins against AI (puzzles solved for Sudoku). Ties go to whoever needed fewer games.",
+    "emptySpot": "Open spot",
+    "winsCount": "{n} wins",
+    "solvedCount": "{n} solved",
+    "myTitle": "My records",
+    "loginPrompt": "Sign in with Google to record your results and play time — and to make the Hall of Fame.",
+    "joined": "Joined {date}",
+    "playTime": "Total play time",
+    "gamesPlayed": "Games played",
+    "hoursMinutes": "{h}h {m}m",
+    "minutes": "{m} min",
+    "aiLabel": "vs AI",
+    "friendLabel": "vs friends",
+    "soloLabel": "Solved / failed",
+    "wlLine": "{w}W {l}L",
+    "wldLine": "{w}W {l}L {d}D",
+    "heavyLine": "1st {first} · safe {mid} · out {out}",
+    "solvedLine": "{s} / {f}",
+    "winRate": "Win rate {r}",
+    "nickname": "Hall of Fame nickname",
+    "showInHall": "Show me in the Hall of Fame",
+    "save": "Save",
+    "saved": "Saved",
+    "privacyNote": "Only your nickname and profile photo appear in the Hall of Fame. Your email is never shown."
   }
 }

@@ -6,6 +6,7 @@ import { ArrowLeft, BookOpen, Check, Flag, Link2, RotateCcw, Sparkles } from 'lu
 import { Link, useRouter } from '@/i18n/routing';
 import { type Action, type Difficulty, type JanggiState, type Side, HANJA, applyAction, cellName, chooseAiAction, finish, initialState } from '@/lib/janggi';
 import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
+import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiTable from './JanggiTable';
 import JanggiTutorial from './JanggiTutorial';
@@ -78,6 +79,7 @@ export default function JanggiGame() {
     const record: MatchRecord = { won: game.winner === 0, draw: game.winner === null, difficulty, date: new Date().toISOString() };
     const timer = window.setTimeout(() => {
       setSaved(true);
+      reportGame(`janggi-ai-${record.date}`, 'janggi', 'ai', game.winner === null ? 'draw' : game.winner === 0 ? 'win' : 'loss', { difficulty, reason: game.reason, moves: game.ply });
       setRecords((current) => {
         const next = [record, ...current].slice(0, 50);
         try { localStorage.setItem(RECORD_KEY, JSON.stringify(next)); } catch { /* Optional. */ }
@@ -85,6 +87,7 @@ export default function JanggiGame() {
       });
     }, 0);
     return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [over, saved, game.winner, difficulty]);
 
   const closeTutorial = () => { try { localStorage.setItem(TUTORIAL_KEY, '1'); } catch { /* Optional. */ } setShowTutorial(false); };

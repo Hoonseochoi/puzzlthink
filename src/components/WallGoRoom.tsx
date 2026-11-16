@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Loader2, Lock, Play, Share2, Users, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
@@ -9,6 +9,7 @@ import type { LogEntry } from '@/lib/wallgoRoom';
 import { useWallGoRoom } from '@/hooks/useWallGoRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from './RoomAlerts';
+import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
 import ResultActions from './ResultActions';
@@ -31,6 +32,16 @@ export default function WallGoRoom({ code }: { code: string }) {
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
+
+  // Report a finished game once, when the room moves into "finished".
+  const prevPhase = useRef<string | null>(null);
+  useEffect(() => {
+    const phase = state?.phase ?? null;
+    if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
+      reportGame(`wallgo-friend-${crypto.randomUUID()}`, 'wallgo', 'friend', state.winner === mySeat ? 'win' : 'loss', { players: state.seats.length });
+    }
+    prevPhase.current = phase;
+  });
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 500);

@@ -19,6 +19,7 @@ export default function GlobalFooter() {
           <Link href="/heavy13" className="hover:text-black">{t('heavy13')}</Link>
           <Link href="/janggi" className="hover:text-black">{t('janggi')}</Link>
           <Link href="/play" className="hover:text-black">{t('sudoku')}</Link>
+          <Link href="/records" className="hover:text-black">{t('records')}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>
           <Link href="/privacy-policy" className="hover:text-black">{t('privacy')}</Link>

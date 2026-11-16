@@ -21,6 +21,7 @@ export default function GlobalHeader() {
     { href: '/heavy13', label: t('heavy13') },
     { href: '/janggi', label: t('janggi') },
     { href: '/play', label: t('sudoku') },
+    { href: '/records', label: t('records') },
   ] as const;
 
   return (

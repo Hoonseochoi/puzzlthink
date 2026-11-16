@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, BookOpen, Check, Clock3, Link2, RotateCcw, ShieldOff, Sparkles } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
+import { reportGame } from '@/lib/stats';
 import {
   type AiDifficulty,
   type Direction,
@@ -81,6 +82,7 @@ export default function WallGoGame() {
 
   const saveRecord = (result: PlayerId, resultTerritory: ReturnType<typeof getTerritory>) => {
     const record: MatchRecord = { id: Date.now(), won: result === 0, score: resultTerritory.scores[0], difficulty, date: new Date().toISOString(), mode: modeId };
+    reportGame(`wallgo-ai-${record.id}`, 'wallgo', 'ai', result === 0 ? 'win' : 'loss', { players: MODES[modeId].players.length, difficulty, score: resultTerritory.scores[0] });
     setRecords((current) => {
       const next = [record, ...current].slice(0, 30);
       localStorage.setItem(RECORD_KEY, JSON.stringify(next));
