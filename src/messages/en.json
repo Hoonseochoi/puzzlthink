@@ -155,7 +155,7 @@
     "logPlacementDone": "Placement complete. Your turn.",
     "logSkipped": "{player} had no legal move and passed.",
     "logBotTurn": "{player} moved {breakText}to {cell} and built a wall on the {direction}.",
-    "logBroke": "through a broken wall ",
+    "logBroke": "after knocking down a wall ",
     "logBreakUsed": "Wall knocked down.",
     "logMoved": "Move complete. Build a wall beside your character.",
     "logWall": "Built a wall on the {direction} side of {cell}.",
@@ -470,7 +470,9 @@
       "Built wall",
       "Side an opponent can close",
       "Side you could close but should leave",
-      "Piece move"
+      "Piece move",
+      "Wall knocked down (3-player)",
+      "Move after the break"
     ],
     "strategies": [
       {
@@ -511,7 +513,7 @@
       {
         "tag": "3 PLAYERS",
         "title": "Wall break is all about timing",
-        "body": "You only get one. Save it to flip the game at the end, or use it mid-game to cross into open space first and build momentum. Too late and the board is already decided; too early and you have nothing left in a crisis. An opponent about to close their region is a strong signal."
+        "body": "Breaking and moving are separate steps: first knock down one wall next to your piece, then move 0–2 squares as usual. You only get one. Save it to flip the game at the end, or use it mid-game to cross into open space first and build momentum. Too late and the board is already decided; too early and you have nothing left in a crisis. An opponent about to close their region is a strong signal."
       }
     ]
   },
@@ -555,7 +557,7 @@
     "onLogPlaced": "{player} placed a piece on {cell}.",
     "onLogPlacementDone": "Placement complete. {player} moves first.",
     "onLogMoved": "{player} moved to {cell}.",
-    "onLogBreak": "{player} broke a wall and moved to {cell}.",
+    "onLogBreak": "{player} knocked down a wall next to their piece and moved to {cell}.",
     "onLogWall": "{player} built a wall on the {direction} side of {cell}.",
     "onLogTimeout": "{player}'s time ran out; a move was played automatically.",
     "onLogSkipped": "{player} has no legal move and passes.",
