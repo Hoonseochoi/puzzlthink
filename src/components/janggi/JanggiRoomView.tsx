@@ -191,7 +191,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
             </section>
             <section className={NOTE}>
               <h2 className={PANEL_TITLE}>{tj('quickRules')}</h2>
-              <ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{tj(key)}</span></li>)}</ol>
+              <ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4', 'quick5'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{tj(key)}</span></li>)}</ol>
               <p className="mt-3 text-[11px] text-white/40">{t('timeoutRule')}</p>
             </section>
             {state.phase === 'playing' && mySeat !== null && (

@@ -86,9 +86,42 @@ export function legalActions(state: JanggiState): Action[] {
   return actions;
 }
 
+/** Board, both hands and side to move — two states with the same key are the same position. */
+export function positionKey(state: JanggiState): string {
+  const board = state.board.map((p) => (p ? `${p.owner}${p.type}` : '.')).join(',');
+  return `${board}|${[...state.hands[0]].sort().join('')}|${[...state.hands[1]].sort().join('')}|${state.turn}`;
+}
+
+/** How many times each position has appeared in this game so far (needs `moves`, i.e. a game built with playAction). */
+export function positionCounts(game: JanggiState): Map<string, number> {
+  const counts = new Map<string, number>();
+  if (!game.moves) return counts;
+  for (const state of replayStates(game)) counts.set(positionKey(state), (counts.get(positionKey(state)) ?? 0) + 1);
+  return counts;
+}
+
+/**
+ * Legal actions in a real game: same as legalActions, but a move that would bring the same position
+ * back for the third time is not allowed (no endless back-and-forth). If every move would do that,
+ * the repetition ban is lifted so the player is never left without a move.
+ */
+export function playableActions(game: JanggiState): Action[] {
+  const actions = legalActions(game);
+  const counts = positionCounts(game);
+  if (!counts.size) return actions;
+  const fresh = actions.filter((action) => {
+    const next = applyAction(game, action);
+    return next.winner !== null || (counts.get(positionKey(next)) ?? 0) < 2;
+  });
+  return fresh.length ? fresh : actions;
+}
+
+const sameAction = (a: Action, b: Action) => a.kind === b.kind && a.to === b.to
+  && (a.kind === 'move' ? b.kind === 'move' && a.from === b.from : b.kind === 'drop' && a.type === b.type);
+
+/** Whether `action` may be played now, including the repetition ban. */
 export function isLegal(state: JanggiState, action: Action) {
-  return legalActions(state).some((a) => a.kind === action.kind && a.to === action.to
-    && (a.kind === 'move' ? action.kind === 'move' && a.from === action.from : action.kind === 'drop' && a.type === action.type));
+  return playableActions(state).some((a) => sameAction(a, action));
 }
 
 /** Applies a legal action. Captures go to the hand (侯 returns as 子). */
@@ -184,7 +217,8 @@ function negamax(state: JanggiState, depth: number, alpha: number, beta: number,
 }
 
 export function chooseAiAction(state: JanggiState, difficulty: Difficulty = 'normal'): Action | null {
-  const actions = legalActions(state);
+  // The repetition ban is checked here at the root only; the search below looks at piece rules.
+  const actions = playableActions(state);
   if (!actions.length) return null;
   const maxDepth = difficulty === 'easy' ? 1 : difficulty === 'normal' ? 3 : 7;
   const noise = difficulty === 'easy' ? 2.5 : difficulty === 'normal' ? 0.6 : 0.05;
