@@ -8,12 +8,12 @@ import InlineSteps from '../ui/InlineSteps';
 type Cell = [Side, Size] | null;
 const SIZE_CLASS = ['h-5 w-5', 'h-7 w-7', 'h-9 w-9'] as const;
 
-/** A small 3×3 board for the tutorial cards. `glow` marks cells to highlight (a winning line, a target). */
-export function MiniBoard({ cells, glow = [] }: { cells: Cell[]; glow?: number[] }) {
+/** A small 3×3 board. `glow` marks cells in the accent (a winning line, a better move), `bad` in red (the move played). */
+export function MiniBoard({ cells, glow = [], bad = [] }: { cells: Cell[]; glow?: number[]; bad?: number[] }) {
   return (
     <div className="grid grid-cols-3 gap-1 rounded-md border border-white/10 bg-black/40 p-1.5">
       {cells.map((cell, i) => (
-        <div key={i} className={`flex h-11 w-11 items-end justify-center rounded-[6px] pb-1 ${glow.includes(i) ? 'bg-(--accent)/20 ring-1 ring-(--accent)/60' : 'bg-white/[0.04]'}`}>
+        <div key={i} className={`flex h-11 w-11 items-end justify-center rounded-[6px] pb-1 ${glow.includes(i) ? 'bg-(--accent)/20 ring-2 ring-(--accent)/70' : bad.includes(i) ? 'bg-[#ff5b3a]/15 ring-2 ring-[#ff5b3a]/70' : 'bg-white/[0.04]'}`}>
           {cell && <RJPiece owner={cell[0]} size={cell[1]} className={SIZE_CLASS[cell[1]]} />}
         </div>
       ))}

@@ -640,7 +640,41 @@
     "turnSeconds": "{n}s",
     "turnTimeHint": "When time runs out a random move is played; three in a row loses on time.",
     "logTimeoutMove": "⏱ Time out ·",
-    "repetitionBlocked": "Moves that would repeat the same position a third time are not allowed, so they are hidden."
+    "repetitionBlocked": "Moves that would repeat the same position a third time are not allowed, so they are hidden.",
+    "tipsButton": "See winning tips",
+    "tipsTitle": "The move that decided this game",
+    "tipsAnalyzing": "The AI is reading this game backwards…",
+    "tipsMoveNo": "Move {n} · your turn",
+    "tipsPlayed": "You played",
+    "tipsBetter": "Better",
+    "tipsOutcome_win": "This move would have given you a winning path.",
+    "tipsOutcome_save": "This move would have kept you from losing.",
+    "tipsPlayedLoses": "After the move you played, your opponent had a win whatever you did.",
+    "tipsNotFound": "Within what the AI can read, it found no single decisive mistake. The game may have ended on time or by resignation, or slipped away much earlier. Check the tips below.",
+    "tipsGeneral": "Winning tips",
+    "tipsClose": "Close",
+    "tipsLegend": "Red arrow: your move · gold arrow and outline: the better move",
+    "tipMove": "Move {piece}",
+    "tipCapture": "Capture {target} with {piece}",
+    "tipDrop": "Drop captured {piece}",
+    "tipsList": [
+      {
+        "title": "Check where your 王 can be reached",
+        "body": "Before moving, look at every square your opponent's pieces can reach next turn. If your 王 is captured, the game ends on the spot."
+      },
+      {
+        "title": "Look for pieces left hanging",
+        "body": "Moving a piece leaves the squares it guarded empty. Make sure the move does not give your opponent a free capture."
+      },
+      {
+        "title": "Save captured pieces for the finish",
+        "body": "You don't have to drop captured pieces right away. Kept until they can block the enemy 王 or attack it, they are far stronger."
+      },
+      {
+        "title": "Enter the enemy camp only when it is safe",
+        "body": "Your 王 has to survive a turn in the enemy camp. If an enemy piece can reach that square, it is captured as it enters and you lose."
+      }
+    ]
   },
   "JanggiTutorial": {
     "skip": "Skip",
@@ -1339,7 +1373,38 @@
     "closeResult": "Close and view board",
     "timeLimit": "Time limit",
     "timeLimit_on": "10 sec",
-    "timeLimit_off": "No limit"
+    "timeLimit_off": "No limit",
+    "tipsButton": "See winning tips",
+    "tipsTitle": "The move that decided this game",
+    "tipsAnalyzing": "The AI is reading this game backwards…",
+    "tipsMoveNo": "Move {n} · your turn",
+    "tipsPlayed": "You played",
+    "tipsBetter": "Better",
+    "tipsOutcome_win": "This move would have given you a winning path.",
+    "tipsOutcome_save": "This move would have kept you from losing.",
+    "tipsPlayedLoses": "After the move you played, your opponent had a win whatever you did.",
+    "tipsNotFound": "Within what the AI can read, it found no single decisive mistake. The game may have ended on time or by resignation, or slipped away much earlier. Check the tips below.",
+    "tipsGeneral": "Winning tips",
+    "tipsClose": "Close",
+    "tipsLegend": "Red square: where you played · gold square: a better square (board as it was just before your move)",
+    "tipsList": [
+      {
+        "title": "Block your opponent's next move first",
+        "body": "Before moving, check whether your opponent can complete three next turn. A line with two of theirs needs its empty square blocked or one of its pieces covered by a bigger one."
+      },
+      {
+        "title": "Look underneath before you lift",
+        "body": "Moving a piece reveals what was below it. If that completes your opponent's line, they win even if you make a line too."
+      },
+      {
+        "title": "Keep one large piece to the end",
+        "body": "Nothing can cover a large piece. Keeping one lets you cover and break your opponent's decisive line."
+      },
+      {
+        "title": "Center and double threats",
+        "body": "The center sits on four lines. Holding it with a corner lets you threaten two lines at once, and your opponent can block only one."
+      }
+    ]
   },
   "RussianJanggiOnline": {
     "metaTitle": "Russian Janggi with a friend",

@@ -216,6 +216,57 @@ function negamax(state: JanggiState, depth: number, alpha: number, beta: number,
   return best === -Infinity ? 0 : best;
 }
 
+// ---------- Loss analysis (winning tips) ----------
+
+export const WIN_SCORE = WIN;
+
+/**
+ * Scores every legal move for the side to move by iterative deepening within `budgetMs`.
+ * A value >= WIN_SCORE is a forced win, <= -WIN_SCORE a forced loss; anything else is a heuristic.
+ * A depth that runs past the deadline is thrown away, so the values come from the last full depth.
+ */
+export function scoreActions(state: JanggiState, budgetMs = 300, maxDepth = 12): { action: Action; value: number }[] {
+  const actions = legalActions(state);
+  const deadline = Date.now() + budgetMs;
+  let scored = actions.map((action) => ({ action, value: 0 }));
+  for (let depth = 1; depth <= maxDepth; depth += 1) {
+    const round: { action: Action; value: number }[] = [];
+    for (const action of actions) {
+      round.push({ action, value: -negamax(applyAction(state, action), depth - 1, -Infinity, Infinity, deadline) });
+      if (Date.now() > deadline) break;
+    }
+    if (Date.now() > deadline && depth > 1) break;
+    scored = round;
+    if (round.every((s) => Math.abs(s.value) >= WIN) || round.some((s) => s.value >= WIN)) break; // decided
+  }
+  return scored;
+}
+
+export type TurningPoint = { index: number; before: JanggiState; played: Action; better: Action; outcome: 'win' | 'save' };
+
+/** Indices into `game.moves` where `side` was to move, latest first: the order to look for the losing move. */
+export function turnsOf(game: JanggiState, side: Side): number[] {
+  const states = replayStates(game);
+  return (game.moves ?? []).map((_, i) => i).filter((i) => states[i].turn === side).reverse();
+}
+
+/**
+ * Was move `index` the turning point? It is when the move played there loses by force while another
+ * allowed move (repetition ban included) would have won or at least not lost by force.
+ */
+export function turningPointAt(game: JanggiState, index: number, budgetMs = 300): TurningPoint | null {
+  const moves = game.moves ?? [];
+  const before = replayStates({ ...game, moves: moves.slice(0, index) }).pop()!;
+  const prefix: JanggiState = { ...before, first: game.first, moves: moves.slice(0, index) };
+  const allowed = playableActions(prefix);
+  const scored = scoreActions(before, budgetMs).filter((s) => allowed.some((a) => sameAction(a, s.action)));
+  const played = scored.find((s) => sameAction(s.action, moves[index]));
+  if (!played || played.value > -WIN) return null;
+  const best = scored.reduce((a, b) => (b.value > a.value ? b : a), scored[0]);
+  if (!best || best.value <= -WIN) return null;
+  return { index, before, played: moves[index], better: best.action, outcome: best.value >= WIN ? 'win' : 'save' };
+}
+
 export function chooseAiAction(state: JanggiState, difficulty: Difficulty = 'normal'): Action | null {
   // The repetition ban is checked here at the root only; the search below looks at piece rules.
   const actions = playableActions(state);
