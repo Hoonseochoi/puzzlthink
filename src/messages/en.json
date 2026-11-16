@@ -911,6 +911,14 @@
     "stand_b": "Blue",
     "cubes": "{n} cubes",
     "startMark": "START",
+    "startTipTitle": "Why does the start player matter?",
+    "startTipClose": "Close",
+    "startTipPoints": [
+      "Within the same rank (rainbow chips, or equal numbers), placing goes clockwise from the start player, so they place first.",
+      "Placing earlier means emptier stands and less risk of a collapse. In thousands of simulated AI games, the start player took about 36% less penalty that round.",
+      "The start player role passes to whoever took penalty cubes that round, so whoever just lost out gets a small edge next round.",
+      "That is why who starts the game barely changes the final result (about 14% win rate for every seat)."
+    ],
     "penalty": "penalty",
     "passed": "passed",
     "myCards": "Your rock cards",
@@ -1517,5 +1525,10 @@
     "tooShort": "Please write at least 5 characters.",
     "close": "Close",
     "attached": "Sent along: the game, page address, browser and screen size"
+  },
+  "GameGate": {
+    "start": "Start game",
+    "howToPlay": "How to play",
+    "startHint": "Read the rules? Jump right in."
   }
 }

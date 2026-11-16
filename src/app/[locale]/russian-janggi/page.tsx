@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import GameGate from '@/components/GameGate';
+import GameIntroHero from '@/components/GameIntroHero';
+import { ACCENT } from '@/components/russianJanggi/theme';
 import RJGame from '@/components/russianJanggi/RJGame';
 
 const BASE_URL = 'https://www.puzzlthink.com';
@@ -20,5 +23,5 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function RussianJanggiPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <RJGame />;
+  return <GameGate accent={ACCENT} ink="#1a1204" hero={<GameIntroHero locale={locale} id="russianJanggi" />}><RJGame /></GameGate>;
 }
