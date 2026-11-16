@@ -18,7 +18,8 @@ import {
   getMoveOptions,
   getTerritory,
   getWallOptions,
-  getWinner,
+  getBreakOptions,
+  getWinners,
   isOccupied,
   MODES,
   nextPlayerOf,
@@ -56,6 +57,8 @@ export default function WallGoGame() {
   const [breakAvailable, setBreakAvailable] = useState<[boolean, boolean, boolean]>([true, true, true]);
   const [seconds, setSeconds] = useState(90);
   const [winner, setWinner] = useState<PlayerId | null>(null);
+  const [winners, setWinners] = useState<PlayerId[]>([]); // a tie for most squares is a shared win
+  const [pendingBreak, setPendingBreak] = useState<string | null>(null); // wall picked to knock down before moving
   const [history, setHistory] = useState<string[]>(() => [t('logFirst')]);
   const [turnNumber, setTurnNumber] = useState(1);
   const [difficulty, setDifficulty] = useState<AiDifficulty>('normal');
@@ -69,7 +72,11 @@ export default function WallGoGame() {
   // Territory only means something once every piece is on the board.
   const territory = useMemo(() => getTerritory(phase === 'placement' ? [] : pieces, walls, mode.totalPieces), [phase, pieces, walls, mode.totalPieces]);
   const allMoves = useMemo(() => phase === 'playing' && currentPlayer === 0 && turnStep === 'move' ? getMoveOptions(pieces, walls, 0, mode.wallBreak && breakAvailable[0]) : [], [phase, currentPlayer, turnStep, pieces, walls, breakAvailable, mode.wallBreak]);
-  const selectedMoves = selectedPieceId ? allMoves.filter((move) => move.pieceId === selectedPieceId) : [];
+  const selectedPiece = pieces.find((piece) => piece.id === selectedPieceId);
+  // Walls next to the selected piece that it may knock down (only those that still leave a move).
+  const breakOptions = selectedPiece && canBreak(0) ? getBreakOptions(walls, selectedPiece).filter((option) => allMoves.some((move) => move.pieceId === selectedPiece.id && move.brokenWall === option.key)) : [];
+  const activeBreak = breakOptions.some((option) => option.key === pendingBreak) ? pendingBreak : null;
+  const selectedMoves = selectedPieceId ? allMoves.filter((move) => move.pieceId === selectedPieceId && (move.brokenWall ?? null) === activeBreak) : [];
   const modeRecords = records.filter((record) => (record.mode ?? 'three') === modeId);
   const games = modeRecords.length;
   const wins = modeRecords.filter((record) => record.won).length;
@@ -78,9 +85,9 @@ export default function WallGoGame() {
   const directionLabel = (direction: Direction) => t(direction);
   const addLog = (message: string) => setHistory((items) => [message, ...items].slice(0, 8));
 
-  const saveRecord = (result: PlayerId, resultTerritory: ReturnType<typeof getTerritory>) => {
-    const record: MatchRecord = { id: Date.now(), won: result === 0, score: resultTerritory.scores[0], difficulty, date: new Date().toISOString(), mode: modeId };
-    reportGame(`wallgo-ai-${record.id}`, 'wallgo', 'ai', result === 0 ? 'win' : 'loss', { players: MODES[modeId].players.length, difficulty, score: resultTerritory.scores[0] });
+  const saveRecord = (result: PlayerId[], resultTerritory: ReturnType<typeof getTerritory>) => {
+    const record: MatchRecord = { id: Date.now(), won: result.includes(0), score: resultTerritory.scores[0], difficulty, date: new Date().toISOString(), mode: modeId };
+    reportGame(`wallgo-ai-${record.id}`, 'wallgo', 'ai', !result.includes(0) ? 'loss' : result.length > 1 ? 'draw' : 'win', { players: MODES[modeId].players.length, difficulty, score: resultTerritory.scores[0] });
     setRecords((current) => {
       const next = [record, ...current].slice(0, 30);
       localStorage.setItem(RECORD_KEY, JSON.stringify(next));
@@ -96,7 +103,7 @@ export default function WallGoGame() {
     setModeId(nextModeId); setOrder(nextOrder);
     setDifficulty(nextDifficulty); setPieces(nextMode.fixedPieces); setWalls(new Set()); setPlacementIndex(0); setPhase('placement');
     setCurrentPlayer(nextOrder[0]); setTurnStep('move'); setSelectedPieceId(null); setMovedPieceId(null);
-    setBreakAvailable([true, true, true]); setSeconds(90); setWinner(null);
+    setBreakAvailable([true, true, true]); setSeconds(90); setWinner(null); setWinners([]); setPendingBreak(null);
     setHistory(nextModeId === 'two' ? [t('logDraw', { player: playerNames[first] })] : [t('logFirst')]); setTurnNumber(1);
   };
 
@@ -119,11 +126,11 @@ export default function WallGoGame() {
   const finishOrAdvance = (nextPieces: Piece[], nextWalls: Set<string>, actingPlayer: PlayerId, log: string) => {
     const nextTerritory = getTerritory(nextPieces, nextWalls, mode.totalPieces);
     setPieces(nextPieces); setWalls(nextWalls); addLog(log);
-    setSelectedPieceId(null); setMovedPieceId(null); setTurnStep('move'); setSeconds(90);
+    setSelectedPieceId(null); setMovedPieceId(null); setTurnStep('move'); setSeconds(90); setPendingBreak(null);
     if (nextTerritory.separated || noOneCanMove(nextPieces, nextWalls, mode, breakAvailable)) {
-      const result = getWinner(nextTerritory, mode.players);
-      setWinner(result); setPhase('finished'); saveRecord(result, nextTerritory);
-      addLog(t('logWinner', { player: playerNames[result] }));
+      const result = getWinners(nextTerritory, mode.players);
+      setWinner(result[0]); setWinners(result); setPhase('finished'); saveRecord(result, nextTerritory);
+      addLog(result.length > 1 ? t('logCoWinners', { players: result.map((p) => playerNames[p]).join(', ') }) : t('logWinner', { player: playerNames[result[0]] }));
       return;
     }
     const nextPlayer = nextPlayerOf(mode, actingPlayer);
@@ -189,7 +196,9 @@ export default function WallGoGame() {
         if (wall) finishOrAdvance(pieces, new Set(walls).add(wall.key), 0, t('logTimeoutWall'));
         return;
       }
-      const options = getMoveOptions(pieces, walls, 0, canBreak(0));
+      // An automatic move only spends the one-time wall break when nothing else is possible.
+      const plain = getMoveOptions(pieces, walls, 0, false);
+      const options = plain.length ? plain : getMoveOptions(pieces, walls, 0, canBreak(0));
       const move = options[Math.floor(Math.random() * options.length)];
       if (!move) return;
       const moved = applyMove(pieces, walls, move);
@@ -212,13 +221,14 @@ export default function WallGoGame() {
     }
     if (phase !== 'playing' || currentPlayer !== 0 || turnStep !== 'move') return;
     const clickedPiece = pieces.find((piece) => piece.row === row && piece.col === col);
-    if (clickedPiece?.player === 0) { setSelectedPieceId(clickedPiece.id); return; }
     const move = selectedMoves.find((option) => option.to.row === row && option.to.col === col);
+    // Tapping another of my pieces selects it; tapping the selected piece again means "stay here".
+    if (clickedPiece?.player === 0 && !(move && clickedPiece.id === selectedPieceId)) { setSelectedPieceId(clickedPiece.id); setPendingBreak(null); return; }
     if (!move) return;
     const moved = applyMove(pieces, walls, move);
-    setPieces(moved.pieces); setWalls(moved.walls); setMovedPieceId(move.pieceId); setSelectedPieceId(null); setTurnStep('wall');
+    setPieces(moved.pieces); setWalls(moved.walls); setMovedPieceId(move.pieceId); setSelectedPieceId(null); setPendingBreak(null); setTurnStep('wall');
     if (move.brokenWall) { setBreakAvailable((available) => [false, available[1], available[2]]); addLog(t('logBreakUsed')); }
-    else addLog(t('logMoved'));
+    addLog(t(move.distance === 0 ? 'logStayed' : 'logMoved'));
   };
 
   const placeHumanWall = (direction: Direction) => {
@@ -232,7 +242,7 @@ export default function WallGoGame() {
   const instruction = phase === 'finished' ? (winner === 0 ? t('youWin') : t('playerWins', { player: playerNames[winner ?? 1] }))
     : phase === 'placement' ? (currentPlayer === 0 ? t('placement') : t('placing', { player: playerNames[currentPlayer] }))
       : currentPlayer !== 0 ? t('thinking', { player: playerNames[currentPlayer] })
-        : turnStep === 'move' ? (selectedPieceId ? t('chooseMove') : t('selectPiece')) : t('placeWall');
+        : turnStep === 'move' ? (selectedPieceId ? t(selectedMoves.some((move) => move.distance === 0) ? 'chooseMoveStay' : 'chooseMove') : t('selectPiece')) : t('placeWall');
 
 
   const closeTutorial = () => { localStorage.setItem('puzzlthink_wallgo_tutorial_seen', '1'); setShowTutorial(false); };
@@ -249,6 +259,8 @@ export default function WallGoGame() {
           pieces={pieces} walls={walls} cellOwners={territory.cellOwners} selectedPieceId={selectedPieceId} moves={selectedMoves}
           wallPieceId={turnStep === 'wall' ? movedPieceId : null} playerNames={playerNames} interactivePlayer={0}
           canPlace={phase === 'placement' && currentPlayer === 0} onCellClick={handleCellClick} onWall={placeHumanWall}
+          breakOptions={turnStep === 'move' ? breakOptions : []} pendingBreak={activeBreak}
+          onBreak={(key) => setPendingBreak((current) => (current === key ? null : key))}
         />
         {phase !== 'finished' && !mode.wallBreak && <div className="mx-auto mt-4 flex max-w-[680px] flex-wrap items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-black/40 p-3"><div className="min-w-0"><p className="text-xs font-extrabold">{t('duelTitle')}</p><p className="text-[11px] text-white/45">{t('duelHint')}</p></div><span className="flex items-center gap-1.5 text-[10px] font-bold text-white/45"><i className="h-2.5 w-2.5 rotate-45 bg-[#c9cfdc]" />{t('normalMove')}</span></div>}
         {phase !== 'finished' && mode.wallBreak && <div className="mx-auto mt-4 flex max-w-[680px] flex-wrap items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-black/40 p-3"><div className="flex min-w-0 items-center gap-3"><div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-[#0b0b0e]"><ShieldOff size={18} className={breakAvailable[0] ? 'text-[#ff4d5e]' : 'text-white/20'} /><span className={`absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-[#0b0b0e] ${breakAvailable[0] ? 'bg-[#e0283a] shadow-[0_0_8px_rgba(224,40,58,.9)]' : 'bg-white/20'}`} /></div><div className="min-w-0"><p className="text-xs font-extrabold">{t('breakTitle')}</p><p className="text-[11px] text-white/45">{t(breakAvailable[0] ? 'breakAvailableHint' : 'breakUsedHint')}</p></div></div><div className="flex items-center gap-3 text-[10px] font-bold text-white/45"><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rotate-45 bg-[#c9cfdc]" />{t('normalMove')}</span><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rotate-45 bg-[#e0283a]" />{t('breakMove')}</span></div></div>}
@@ -264,6 +276,6 @@ export default function WallGoGame() {
       </aside>
     </main>
 
-    {phase === 'finished' && winner !== null && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]"><WallGoCharacter player={winner} className="mx-auto h-20" /><p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{t('gameOver')}</p><h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winner === 0 ? t('youWin') : t('playerWins', { player: playerNames[winner] })}</h2><p className="mt-2 text-sm text-white/50">{t('finalScore', { score: territory.scores[winner], largest: territory.largest[winner] })}</p><ResultActions onAgain={() => resetGame()} gamePath="/wallgo" exitPath="/" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" /></div></div>}
+    {phase === 'finished' && winner !== null && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]"><div className="flex justify-center gap-2">{(winners.length ? winners : [winner]).map((p) => <WallGoCharacter key={p} player={p} className="h-20" />)}</div><p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{t('gameOver')}</p><h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winners.length > 1 ? t('coWin', { players: winners.map((p) => playerNames[p]).join(' · ') }) : winner === 0 ? t('youWin') : t('playerWins', { player: playerNames[winner] })}</h2><p className="mt-2 text-sm text-white/50">{t('finalScore', { score: territory.scores[winner], largest: territory.largest[winner] })}</p><ResultActions onAgain={() => resetGame()} gamePath="/wallgo" exitPath="/" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" /></div></div>}
   </div>;
 }

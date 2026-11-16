@@ -12,7 +12,8 @@ import {
   getMoveOptions,
   getTerritory,
   getWallOptions,
-  getWinner,
+  getWinners,
+  sameMove,
   isOccupied,
   nextPlayerOf,
 } from './wallgo';
@@ -40,7 +41,8 @@ export type RoomState = {
   moved: string | null;
   breaks: boolean[];
   deadline: number;
-  winner: PlayerId | null;
+  winner: PlayerId | null; // first winner (kept for older clients)
+  winners?: PlayerId[]; // everyone tied for the most squares
   turn: number;
   log: LogEntry[];
 };
@@ -48,7 +50,7 @@ export type RoomState = {
 export type RoomAction =
   | { t: 'start' }
   | { t: 'place'; row: number; col: number }
-  | { t: 'move'; pieceId: string; row: number; col: number }
+  | { t: 'move'; pieceId: string; row: number; col: number; breakWall?: string }
   | { t: 'wall'; direction: Direction }
   | { t: 'timeout' };
 
@@ -90,7 +92,7 @@ function startGame(state: RoomState): RoomState | null {
   }
   return withLog({
     ...state, phase: 'placement', order, placementIndex: 0, pieces: mode.fixedPieces, walls: [], current: order[0],
-    step: 'move', moved: null, breaks: mode.players.map(() => true), deadline: Date.now() + TURN_MS, winner: null, turn: 1, log: [],
+    step: 'move', moved: null, breaks: mode.players.map(() => true), deadline: Date.now() + TURN_MS, winner: null, winners: [], turn: 1, log: [],
   }, { k: 'onLogDraw', s: order[0] });
 }
 
@@ -113,8 +115,8 @@ function giveTurn(state: RoomState, candidate: PlayerId): RoomState {
   const canMove = (player: PlayerId) => getMoveOptions(state.pieces, walls, player, mode.wallBreak && state.breaks[player]).length > 0;
   if (!mode.players.some(canMove)) {
     // Nobody can move but spaces are not fully separated: score the board as it stands.
-    const winner = getWinner(getTerritory(state.pieces, walls, mode.totalPieces), mode.players);
-    return withLog({ ...state, phase: 'finished', winner }, { k: 'onLogStalemate' }, { k: 'onLogWinner', s: winner });
+    const winners = getWinners(getTerritory(state.pieces, walls, mode.totalPieces), mode.players);
+    return withLog({ ...state, phase: 'finished', winner: winners[0], winners }, { k: 'onLogStalemate' }, ...winners.map((s) => ({ k: 'onLogWinner', s })));
   }
   let next = candidate;
   let result = state;
@@ -130,18 +132,18 @@ function endTurn(state: RoomState, actor: PlayerId): RoomState {
   const territory = getTerritory(state.pieces, new Set(state.walls), mode.totalPieces);
   const base = { ...state, step: 'move' as const, moved: null, deadline: Date.now() + TURN_MS };
   if (territory.separated) {
-    const winner = getWinner(territory, mode.players);
-    return withLog({ ...base, phase: 'finished', winner }, { k: 'onLogWinner', s: winner });
+    const winners = getWinners(territory, mode.players);
+    return withLog({ ...base, phase: 'finished', winner: winners[0], winners }, ...winners.map((s) => ({ k: 'onLogWinner', s })));
   }
   const result = giveTurn(base, nextPlayerOf(mode, actor));
   return { ...result, turn: result.current === state.order[0] ? state.turn + 1 : state.turn };
 }
 
-function move(state: RoomState, player: PlayerId, pieceId: string, to: Position): RoomState | null {
+function move(state: RoomState, player: PlayerId, pieceId: string, to: Position, breakWall?: string): RoomState | null {
   const mode = MODES[state.mode];
   const walls = new Set(state.walls);
   const option = getMoveOptions(state.pieces, walls, player, mode.wallBreak && state.breaks[player])
-    .find((item) => item.pieceId === pieceId && item.to.row === to.row && item.to.col === to.col);
+    .find((item) => sameMove(item, pieceId, to, breakWall));
   if (!option) return null;
   const moved = applyMove(state.pieces, walls, option);
   const breaks = option.brokenWall ? state.breaks.map((value, i) => (i === player ? false : value)) : state.breaks;
@@ -163,7 +165,6 @@ function wall(state: RoomState, player: PlayerId, direction: Direction): RoomSta
 
 function timeout(state: RoomState): RoomState | null {
   const player = state.current;
-  const mode = MODES[state.mode];
   if (state.phase === 'placement') {
     const empty: Position[] = [];
     for (let row = 0; row < BOARD_SIZE; row += 1) for (let col = 0; col < BOARD_SIZE; col += 1) if (!isOccupied(state.pieces, { row, col })) empty.push({ row, col });
@@ -172,10 +173,12 @@ function timeout(state: RoomState): RoomState | null {
   if (state.phase !== 'playing') return null;
   let next = withLog(state, { k: 'onLogTimeout', s: player });
   if (next.step === 'move') {
-    const options = getMoveOptions(next.pieces, new Set(next.walls), player, mode.wallBreak && next.breaks[player]);
+    // An automatic move only spends the one-time wall break when nothing else is possible.
+    const plain = getMoveOptions(next.pieces, new Set(next.walls), player, false);
+    const options = plain.length ? plain : getMoveOptions(next.pieces, new Set(next.walls), player, MODES[next.mode].wallBreak && next.breaks[player]);
     if (!options.length) return endTurn(next, player);
     const option = pick(options);
-    next = move(next, player, option.pieceId, option.to)!;
+    next = move(next, player, option.pieceId, option.to, option.brokenWall)!;
   }
   const wallOptions = getWallOptions(next.pieces, new Set(next.walls), next.moved!);
   return wall(next, player, pick(wallOptions).direction);
@@ -193,7 +196,7 @@ export function reduceRoom(state: RoomState, action: RoomAction, player: PlayerI
   } else {
     if (player === null || player !== state.current) return null;
     if (action.t === 'place' && state.phase === 'placement') next = place(state, player, { row: action.row, col: action.col });
-    if (action.t === 'move' && state.phase === 'playing' && state.step === 'move') next = move(state, player, action.pieceId, { row: action.row, col: action.col });
+    if (action.t === 'move' && state.phase === 'playing' && state.step === 'move') next = move(state, player, action.pieceId, { row: action.row, col: action.col }, action.breakWall);
     if (action.t === 'wall' && state.phase === 'playing' && state.step === 'wall') next = wall(state, player, action.direction);
   }
   return next ? bump(next) : null;

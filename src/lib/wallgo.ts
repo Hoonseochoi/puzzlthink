@@ -9,8 +9,8 @@ export type MoveOption = {
   pieceId: string;
   from: Position;
   to: Position;
-  distance: 1 | 2;
-  brokenWall?: string;
+  distance: 0 | 1 | 2; // 0 = stay put and build a wall where the piece stands
+  brokenWall?: string; // 3-player only: a wall next to the piece, knocked down before it moves
 };
 export type TerritoryResult = {
   scores: [number, number, number];
@@ -89,36 +89,47 @@ export function isOccupied(pieces: Piece[], position: Position, ignorePieceId?: 
   return pieces.some((piece) => piece.id !== ignorePieceId && piece.row === position.row && piece.col === position.col);
 }
 
+/** Walls next to a piece that it could knock down (3-player wall break). The board edge is not a wall you can break. */
+export function getBreakOptions(walls: Set<string>, piece: Position) {
+  return (Object.keys(DIRECTIONS) as Direction[])
+    .map((direction) => { const next = neighbor(piece, direction); return { direction, key: edgeKey(piece, next), neighbor: next }; })
+    .filter((option) => isInside(option.neighbor) && walls.has(option.key));
+}
+
+/**
+ * Every legal move for `player`: one piece goes 0–2 squares up/down/left/right (two squares may turn),
+ * never through walls or other pieces, and must end where it can still build a wall.
+ * A piece that cannot step even one square cannot stay and build either.
+ * With `canBreakWall`, the piece may first knock down one wall next to it and then move as normal.
+ */
 export function getMoveOptions(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean): MoveOption[] {
   const options: MoveOption[] = [];
+  const directions = Object.keys(DIRECTIONS) as Direction[];
   for (const piece of pieces.filter((item) => item.player === player)) {
-    for (const direction of Object.keys(DIRECTIONS) as Direction[]) {
-      let cursor: Position = { row: piece.row, col: piece.col };
-      const crossedWalls: string[] = [];
-      for (let distance = 1; distance <= 2; distance += 1) {
-        const next = neighbor(cursor, direction);
-        if (!isInside(next) || isOccupied(pieces, next, piece.id)) break;
-        if (hasWall(walls, cursor, next)) crossedWalls.push(edgeKey(cursor, next));
-        if (crossedWalls.length > (canBreakWall ? 1 : 0)) break;
-
-        const movedPieces = pieces.map((item) => item.id === piece.id ? { ...item, ...next } : item);
-        const movedWalls = new Set(walls);
-        if (crossedWalls[0]) movedWalls.delete(crossedWalls[0]);
-        if (getWallOptions(movedPieces, movedWalls, piece.id).length > 0) {
-          options.push({
-            pieceId: piece.id,
-            from: { row: piece.row, col: piece.col },
-            to: next,
-            distance: distance as 1 | 2,
-            brokenWall: crossedWalls[0],
-          });
-        }
-        cursor = next;
+    const from = { row: piece.row, col: piece.col };
+    const breaks: (string | undefined)[] = [undefined, ...(canBreakWall ? getBreakOptions(walls, piece).map((option) => option.key) : [])];
+    for (const brokenWall of breaks) {
+      const open = brokenWall ? new Set([...walls].filter((key) => key !== brokenWall)) : walls;
+      const step = (at: Position) => directions
+        .map((direction) => neighbor(at, direction))
+        .filter((next) => isInside(next) && !hasWall(open, at, next) && !isOccupied(pieces, next, piece.id));
+      const first = step(from);
+      if (!first.length) continue; // cannot move at all: no stay either
+      const reach = new Map<string, { to: Position; distance: 0 | 1 | 2 }>([[positionKey(from), { to: from, distance: 0 }]]);
+      for (const one of first) reach.set(positionKey(one), { to: one, distance: 1 });
+      for (const one of first) for (const two of step(one)) if (!reach.has(positionKey(two))) reach.set(positionKey(two), { to: two, distance: 2 });
+      for (const { to, distance } of reach.values()) {
+        const movedPieces = pieces.map((item) => (item.id === piece.id ? { ...item, ...to } : item));
+        if (getWallOptions(movedPieces, open, piece.id).length > 0) options.push({ pieceId: piece.id, from, to, distance, brokenWall });
       }
     }
   }
   return options;
 }
+
+/** Whether two move options are the same choice (same piece, square and broken wall). */
+export const sameMove = (a: MoveOption, pieceId: string, to: Position, brokenWall?: string) =>
+  a.pieceId === pieceId && a.to.row === to.row && a.to.col === to.col && (a.brokenWall ?? null) === (brokenWall ?? null);
 
 export function applyMove(pieces: Piece[], walls: Set<string>, move: MoveOption) {
   const nextPieces = pieces.map((piece) => piece.id === move.pieceId ? { ...piece, ...move.to } : piece);
@@ -166,7 +177,20 @@ export function getTerritory(pieces: Piece[], walls: Set<string>, totalPieces = 
       const cellKeys = new Set(cells.map(positionKey));
       const owners = new Set<PlayerId>();
       for (const piece of pieces) if (cellKeys.has(positionKey(piece))) owners.add(piece.player);
-      if (owners.size > 1) {
+      const inside = pieces.filter((piece) => cellKeys.has(positionKey(piece)));
+      // Pieces of several players locked in together with no room to move: each scores its own square.
+      const frozen = owners.size > 1 && inside.every((piece) => (Object.keys(DIRECTIONS) as Direction[]).every((direction) => {
+        const next = neighbor(piece, direction);
+        return !isInside(next) || hasWall(walls, piece, next) || isOccupied(pieces, next);
+      }));
+      if (frozen) {
+        for (const cell of cells) cellOwners[positionKey(cell)] = null;
+        for (const piece of inside) {
+          scores[piece.player] += 1;
+          largest[piece.player] = Math.max(largest[piece.player], 1);
+          cellOwners[positionKey(piece)] = piece.player;
+        }
+      } else if (owners.size > 1) {
         separated = false;
         for (const cell of cells) cellOwners[positionKey(cell)] = null;
       } else {
@@ -187,10 +211,15 @@ export function noOneCanMove(pieces: Piece[], walls: Set<string>, mode: GameMode
   return mode.players.every((player) => getMoveOptions(pieces, walls, player, mode.wallBreak && breaks[player]).length === 0);
 }
 
+/** Everyone with the most squares — a tie is a shared win. */
+export function getWinners(territory: TerritoryResult, players: PlayerId[] = [0, 1, 2]): PlayerId[] {
+  const best = Math.max(...players.map((player) => territory.scores[player]));
+  return players.filter((player) => territory.scores[player] === best);
+}
+
+/** One of the winners (the first in seat order), for code that needs a single player. */
 export function getWinner(territory: TerritoryResult, players: PlayerId[] = [0, 1, 2]): PlayerId {
-  return [...players].sort((a, b) =>
-    territory.scores[b] - territory.scores[a] || territory.largest[b] - territory.largest[a],
-  )[0];
+  return getWinners(territory, players)[0];
 }
 
 // ---------- AI ----------
@@ -261,9 +290,9 @@ function trappedPenalty(pieces: Piece[], walls: Set<string>, player: PlayerId) {
 export function evaluatePosition(pieces: Piece[], walls: Set<string>, player: PlayerId, mode: GameMode): number {
   const territory = getTerritory(pieces, walls, mode.totalPieces);
   if (territory.separated) {
-    const winner = getWinner(territory, mode.players);
+    const winners = getWinners(territory, mode.players);
     const margin = territory.scores[player] - Math.max(...mode.players.filter((p) => p !== player).map((p) => territory.scores[p]));
-    return (winner === player ? 10_000 : -10_000) + margin;
+    return (!winners.includes(player) ? -10_000 : winners.length === 1 ? 10_000 : 5_000) + margin;
   }
   const est = estimateTerritory(pieces, walls, mode.players);
   const rivals = mode.players.filter((p) => p !== player).map((p) => est[p]);

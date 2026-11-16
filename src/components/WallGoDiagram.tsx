@@ -9,7 +9,8 @@ export type DiagramSpec = {
   danger?: [Cell, Side][]; // edge an opponent could close
   hint?: [Cell, Side][]; // edge you could close but should not
   moves?: [Cell, Cell][];
-  breakMoves?: [Cell, Cell][];
+  breakMoves?: [Cell, Cell][]; // a move made after knocking down a wall (3-player wall break)
+  broken?: [Cell, Side][]; // the wall that was knocked down
   blocked?: Cell[];
   zones?: { player: 0 | 1 | 2; cells: Cell[] }[];
 };
@@ -63,6 +64,12 @@ export default function WallGoDiagram({ spec, label }: { spec: DiagramSpec; labe
       {spec.hint?.map(([cell, side]) => { const [x1, y1, x2, y2] = edge(cell, side); return <line key={`h${cell}${side}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#8d95a8" strokeWidth="2" strokeDasharray="2 2" strokeLinecap="round" />; })}
       {spec.danger?.map(([cell, side]) => { const [x1, y1, x2, y2] = edge(cell, side); return <line key={`d${cell}${side}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#e0283a" strokeWidth="2.5" strokeDasharray="3 2" strokeLinecap="round" />; })}
       {spec.walls?.map(([cell, side]) => { const [x1, y1, x2, y2] = edge(cell, side); return <line key={`w${cell}${side}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#e6e9f0" strokeWidth="2.5" strokeLinecap="round" />; })}
+      {spec.broken?.map(([cell, side]) => { const [x1, y1, x2, y2] = edge(cell, side); const mx = (x1 + x2) / 2, my = (y1 + y2) / 2; return (
+        <g key={`k${cell}${side}`} stroke="#e0283a" strokeLinecap="round">
+          <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth="2.5" strokeDasharray="2 3" opacity="0.8" />
+          <line x1={mx - 3} y1={my - 3} x2={mx + 3} y2={my + 3} strokeWidth="1.6" /><line x1={mx + 3} y1={my - 3} x2={mx - 3} y2={my + 3} strokeWidth="1.6" />
+        </g>
+      ); })}
       {spec.moves?.map(([from, to]) => { const [x1, y1, x2, y2] = shorten(from, to); return <line key={`m${from}${to}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#c9cfdc" strokeWidth="1.4" markerEnd="url(#wg-arrow)" />; })}
       {spec.breakMoves?.map(([from, to]) => { const [x1, y1, x2, y2] = shorten(from, to); return <line key={`b${from}${to}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#e0283a" strokeWidth="1.4" strokeDasharray="3 2" markerEnd="url(#wg-arrow-red)" />; })}
       {spec.blocked?.map((cell) => { const { x, y } = center(cell); return <g key={`x${cell}`} stroke="#e0283a" strokeWidth="1.6" strokeLinecap="round"><line x1={x - 4} y1={y - 4} x2={x + 4} y2={y + 4} /><line x1={x + 4} y1={y - 4} x2={x - 4} y2={y + 4} /></g>; })}

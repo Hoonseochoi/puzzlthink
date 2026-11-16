@@ -50,8 +50,9 @@ const DIAGRAMS: DiagramSpec[] = [
   },
   { // wall break timing (3p)
     pieces: [[0, 'D3'], [1, 'B5'], [2, 'F5']],
-    walls: [['D3', 'down'], ['C4', 'right'], ['D4', 'right'], ['A4', 'down'], ['B4', 'down'], ['F4', 'down'], ['G4', 'down']],
-    breakMoves: [['D3', 'D5']],
+    walls: [['C4', 'right'], ['D4', 'right'], ['A4', 'down'], ['B4', 'down'], ['F4', 'down'], ['G4', 'down']],
+    broken: [['D3', 'down']], // knock down the wall next to the piece first…
+    breakMoves: [['D3', 'D5']], // …then move as usual
   },
 ];
 
@@ -93,6 +94,8 @@ export default async function WallGoGuide({ locale }: { locale: string }) {
           <li className="flex items-center gap-2"><i className="h-[3px] w-5 rounded border-t-[3px] border-dashed border-[#e0283a]" />{legend[1]}</li>
           <li className="flex items-center gap-2"><i className="h-[3px] w-5 rounded border-t-[3px] border-dashed border-[#8d95a8]" />{legend[2]}</li>
           <li className="flex items-center gap-2"><i className="h-[2px] w-5 bg-[#c9cfdc]" />{legend[3]}</li>
+          <li className="flex items-center gap-2"><i className="h-[3px] w-5 rounded border-t-[3px] border-dotted border-[#e0283a]" />{legend[4]}</li>
+          <li className="flex items-center gap-2"><i className="h-[2px] w-5 border-t-2 border-dashed border-[#e0283a]" />{legend[5]}</li>
         </ul>
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
           {strategies.map((item, index) => (

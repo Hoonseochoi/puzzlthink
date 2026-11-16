@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Loader2, Lock, Play, Share2, Users, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
-import { MODES, type Direction, type PlayerId, getMoveOptions, getTerritory } from '@/lib/wallgo';
+import { MODES, type Direction, type PlayerId, getBreakOptions, getMoveOptions, getTerritory } from '@/lib/wallgo';
 import type { LogEntry } from '@/lib/wallgoRoom';
 import { useWallGoRoom } from '@/hooks/useWallGoRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
@@ -28,6 +28,7 @@ export default function WallGoRoom({ code }: { code: string }) {
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useWallGoRoom(code, defaultName);
   const [selectedPieceId, setSelectedPieceId] = useState<string | null>(null);
+  const [pendingBreak, setPendingBreak] = useState<string | null>(null); // wall picked to knock down before moving
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -40,7 +41,7 @@ export default function WallGoRoom({ code }: { code: string }) {
   useEffect(() => {
     const phase = state?.phase ?? null;
     if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
-      reportGame(`wallgo-friend-${crypto.randomUUID()}`, 'wallgo', 'friend', state.winner === mySeat ? 'win' : 'loss', { players: state.seats.length });
+      reportGame(`wallgo-friend-${crypto.randomUUID()}`, 'wallgo', 'friend', (state.winners ?? [state.winner]).includes(mySeat) ? ((state.winners?.length ?? 1) > 1 ? 'draw' : 'win') : 'loss', { players: state.seats.length });
     }
     prevPhase.current = phase;
   });
@@ -63,7 +64,12 @@ export default function WallGoRoom({ code }: { code: string }) {
     state && mode && myTurn && state.phase === 'playing' && state.step === 'move'
       ? getMoveOptions(state.pieces, walls, mySeat!, mode.wallBreak && state.breaks[mySeat!]) : []
   ), [state, mode, myTurn, walls, mySeat]);
-  const selectedMoves = selectedPieceId ? myMoves.filter((move) => move.pieceId === selectedPieceId) : [];
+  const selectedPiece = state?.pieces.find((piece) => piece.id === selectedPieceId);
+  // Walls next to the selected piece that it may knock down (3-player, once per game).
+  const breakOptions = selectedPiece && mode?.wallBreak && state?.breaks[mySeat!] ? getBreakOptions(walls, selectedPiece).filter((option) => myMoves.some((move) => move.pieceId === selectedPiece.id && move.brokenWall === option.key)) : [];
+  const activeBreak = breakOptions.some((option) => option.key === pendingBreak) ? pendingBreak : null;
+  const selectedMoves = selectedPieceId ? myMoves.filter((move) => move.pieceId === selectedPieceId && (move.brokenWall ?? null) === activeBreak) : [];
+  const winners = state?.winners?.length ? state.winners : state?.winner !== null && state?.winner !== undefined ? [state.winner] : [];
   const online = new Set(peers.map((peer) => peer.id));
   const names = state ? state.seats.map((seat, i) => seat ? (seat.id === me?.id ? `${seat.name} (${t('me')})` : seat.name) : t('emptySeat', { n: i + 1 })) : [];
   const plainName = (seat?: PlayerId) => (seat === undefined || !state ? '' : state.seats[seat]?.name ?? t('emptySeat', { n: seat + 1 }));
@@ -74,9 +80,10 @@ export default function WallGoRoom({ code }: { code: string }) {
     if (state.phase === 'placement') { dispatch({ t: 'place', row, col }); return; }
     if (state.step !== 'move') return;
     const piece = state.pieces.find((item) => item.row === row && item.col === col);
-    if (piece?.player === mySeat) { setSelectedPieceId(piece.id); return; }
     const move = selectedMoves.find((option) => option.to.row === row && option.to.col === col);
-    if (move) { dispatch({ t: 'move', pieceId: move.pieceId, row, col }); setSelectedPieceId(null); }
+    // Tapping another of my pieces selects it; tapping the selected piece again means "stay here".
+    if (piece?.player === mySeat && !(move && piece.id === selectedPieceId)) { setSelectedPieceId(piece.id); setPendingBreak(null); return; }
+    if (move) { dispatch({ t: 'move', pieceId: move.pieceId, row, col, breakWall: move.brokenWall }); setSelectedPieceId(null); setPendingBreak(null); }
   };
   const placeWall = (direction: Direction) => dispatch({ t: 'wall', direction });
 
@@ -90,9 +97,9 @@ export default function WallGoRoom({ code }: { code: string }) {
 
   const logLine = (entry: LogEntry) => t(entry.k, { player: plainName(entry.s), cell: entry.cell ?? '', direction: entry.dir ? tw(entry.dir) : '' });
   const instruction = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle')
-    : state.phase === 'finished' ? t('winnerTitle', { player: plainName(state.winner ?? undefined) })
+    : state.phase === 'finished' ? (winners.length > 1 ? tw('coWin', { players: winners.map((p) => plainName(p)).join(' · ') }) : t('winnerTitle', { player: plainName(state.winner ?? undefined) }))
       : !myTurn ? t('waitingFor', { player: plainName(state.current) })
-        : state.phase === 'placement' ? tw('placement') : state.step === 'move' ? (selectedPieceId ? tw('chooseMove') : tw('selectPiece')) : tw('placeWall');
+        : state.phase === 'placement' ? tw('placement') : state.step === 'move' ? (selectedPieceId ? tw(selectedMoves.some((move) => move.distance === 0) ? 'chooseMoveStay' : 'chooseMove') : tw('selectPiece')) : tw('placeWall');
   const full = !!state && state.seats.every(Boolean);
 
   const notice = status === 'unconfigured' ? t('unconfigured') : status === 'error' ? t('connectionError')
@@ -168,6 +175,8 @@ export default function WallGoRoom({ code }: { code: string }) {
                   pieces={state.pieces} walls={walls} cellOwners={territory.cellOwners} selectedPieceId={selectedPieceId} moves={selectedMoves}
                   wallPieceId={myTurn && state.step === 'wall' ? state.moved : null} playerNames={names} interactivePlayer={mySeat}
                   canPlace={myTurn && state.phase === 'placement'} onCellClick={handleCellClick} onWall={placeWall}
+                  breakOptions={myTurn && state.step === 'move' ? breakOptions : []} pendingBreak={activeBreak}
+                  onBreak={(key) => setPendingBreak((current) => (current === key ? null : key))}
                 />
                 {mySeat === null && <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
               </>
@@ -213,9 +222,9 @@ export default function WallGoRoom({ code }: { code: string }) {
       {state?.phase === 'finished' && state.winner !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]">
-            <WallGoCharacter player={state.winner} className="mx-auto h-20" />
+            <div className="flex justify-center gap-2">{winners.map((p) => <WallGoCharacter key={p} player={p} className="h-20" />)}</div>
             <p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{tw('gameOver')}</p>
-            <h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{state.winner === mySeat ? tw('youWin') : t('winnerTitle', { player: plainName(state.winner) })}</h2>
+            <h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winners.length > 1 ? tw('coWin', { players: winners.map((p) => plainName(p)).join(' · ') }) : state.winner === mySeat ? tw('youWin') : t('winnerTitle', { player: plainName(state.winner) })}</h2>
             <p className="mt-2 text-sm text-white/50">{tw('finalScore', { score: territory.scores[state.winner], largest: territory.largest[state.winner] })}</p>
             <ResultActions onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath="/wallgo" exitPath="/wallgo" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
           </div>
