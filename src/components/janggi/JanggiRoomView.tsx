@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Share2, Users, WifiOff } from 'lucide-react';
+import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, Share2, Swords, Users, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import type { Side } from '@/lib/janggi';
 import { TURN_OPTIONS } from '@/lib/janggiRoom';
 import { useJanggiRoom } from '@/hooks/useJanggiRoom';
+import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
+import RoomAlerts from '../RoomAlerts';
 import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiPiece from './JanggiPiece';
 import JanggiResult from './JanggiResult';
@@ -24,6 +26,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 500);
@@ -54,6 +57,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0c10] text-[#eceff4]" style={{ backgroundImage: JANGGI_FOG }}>
+      <RoomAlerts alerts={alerts} accent="#e8c170" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/40 px-4 py-2 backdrop-blur md:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/janggi" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /></Link>
@@ -116,7 +120,12 @@ export default function JanggiRoomView({ code }: { code: string }) {
                   <button type="submit" className="shrink-0 rounded-[12px] border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-bold hover:bg-white/10">{t('rename')}</button>
                 </form>
                 {me?.isHost ? (
-                  <button onClick={() => dispatch({ t: 'start' })} disabled={!full} className="w-full rounded-[14px] bg-[#e8c170] py-3.5 text-sm font-black text-[#1a1408] transition enabled:hover:bg-[#f3d38d] disabled:bg-white/10 disabled:text-white/40">{full ? t('start') : t('waitingFriend')}</button>
+                  <div className="space-y-2">
+                    <button onClick={() => dispatch({ t: 'start' })} disabled={!full} style={{ ['--ready-glow' as string]: 'rgba(232,193,112,.6)' }} className={`flex w-full items-center justify-center gap-2 rounded-[14px] py-3.5 text-sm font-black transition ${full ? 'animate-[readyGlow_1.6s_ease-in-out_infinite] bg-[#e8c170] text-[#1a1408] hover:bg-[#f3d38d]' : 'cursor-not-allowed border border-dashed border-white/20 bg-white/[0.04] text-white/40'}`}>
+                      {full ? <Swords size={16} /> : <Lock size={15} />}{full ? t('start') : t('startLocked')}
+                    </button>
+                    <p className={`text-center text-[11px] ${full ? 'font-bold text-[#e8c170]' : 'text-white/40'}`}>{full ? t('startReady') : t('startLockedHint')}</p>
+                  </div>
                 ) : (
                   <p className="text-center text-sm text-white/50">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>
                 )}

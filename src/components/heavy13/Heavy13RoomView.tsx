@@ -7,6 +7,8 @@ import { Link } from '@/i18n/routing';
 import type { AiLevel } from '@/lib/heavy13';
 import { H13_TURN_OPTIONS, redactH13 } from '@/lib/heavy13Room';
 import { useHeavy13Room } from '@/hooks/useHeavy13Room';
+import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
+import RoomAlerts from '../RoomAlerts';
 import LanguageSwitcher from '../LanguageSwitcher';
 import Heavy13Result from './Heavy13Result';
 import Heavy13Table from './Heavy13Table';
@@ -26,6 +28,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
   useEffect(() => {
     const slow = window.setTimeout(() => setWaitedLong(true), 6000);
@@ -48,6 +51,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
 
   return (
     <div className="relative min-h-screen bg-[#0e1013] text-[#eef0f3]" style={{ backgroundImage: QUARRY_BG }}>
+      <RoomAlerts alerts={alerts} accent="#e6c48a" joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
       <header className="flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/40 px-4 py-2 backdrop-blur md:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/heavy13" className="text-white/70 hover:text-white"><ArrowLeft size={17} /></Link>

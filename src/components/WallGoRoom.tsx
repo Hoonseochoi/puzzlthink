@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Loader2, Share2, Users, WifiOff } from 'lucide-react';
+import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Loader2, Lock, Play, Share2, Users, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { MODES, type Direction, type PlayerId, getMoveOptions, getTerritory } from '@/lib/wallgo';
 import type { LogEntry } from '@/lib/wallgoRoom';
 import { useWallGoRoom } from '@/hooks/useWallGoRoom';
+import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
+import RoomAlerts from './RoomAlerts';
 import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
 import WallGoScoreStrip from './WallGoScoreStrip';
@@ -27,6 +29,7 @@ export default function WallGoRoom({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 500);
@@ -84,6 +87,7 @@ export default function WallGoRoom({ code }: { code: string }) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ backgroundImage: FOG }}>
       <Shards />
+      <RoomAlerts alerts={alerts} accent="#ff4d5e" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/wallgo" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">{tc('wallgo')}</span></Link>
@@ -132,9 +136,12 @@ export default function WallGoRoom({ code }: { code: string }) {
                   <button type="submit" className="shrink-0 rounded-md border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-bold hover:bg-white/10">{t('changeName')}</button>
                 </form>
                 {me?.isHost ? (
-                  <button onClick={() => dispatch({ t: 'start' })} disabled={!full} className="w-full rounded-md bg-[#e0283a] py-3.5 text-sm font-extrabold text-white shadow-[0_0_20px_rgba(224,40,58,.45)] transition enabled:hover:bg-[#f0354a] disabled:bg-white/10 disabled:text-white/40 disabled:shadow-none">
-                    {full ? t('start') : t('waitingPlayers', { count: state.seats.filter((seat) => !seat).length })}
-                  </button>
+                  <div className="space-y-2">
+                    <button onClick={() => dispatch({ t: 'start' })} disabled={!full} style={{ ['--ready-glow' as string]: 'rgba(224,40,58,.6)' }} className={`flex w-full items-center justify-center gap-2 rounded-md py-3.5 text-sm font-extrabold transition ${full ? 'animate-[readyGlow_1.6s_ease-in-out_infinite] bg-[#e0283a] text-white hover:bg-[#f0354a]' : 'cursor-not-allowed border border-dashed border-white/20 bg-white/[0.04] text-white/40'}`}>
+                      {full ? <Play size={15} /> : <Lock size={15} />}{full ? t('start') : t('waitingPlayers', { count: state.seats.filter((seat) => !seat).length })}
+                    </button>
+                    <p className={`text-center text-[11px] ${full ? 'font-bold text-[#ff4d5e]' : 'text-white/40'}`}>{full ? t('startReady') : t('startLockedHint')}</p>
+                  </div>
                 ) : (
                   <p className="text-center text-sm text-white/50">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>
                 )}

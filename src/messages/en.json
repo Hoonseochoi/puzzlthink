@@ -495,7 +495,11 @@
     "panelDesc": "Create a room and send the link to play live on the same board.",
     "createTwo": "Create 1:1 room",
     "createThree": "Create 1:1:1 room",
-    "onLogStalemate": "No one can move, so the game is scored as it stands."
+    "onLogStalemate": "No one can move, so the game is scored as it stands.",
+    "joined": "{name} joined",
+    "left": "{name} left",
+    "startLockedHint": "The start button unlocks when every seat is filled",
+    "startReady": "Everyone is here! Start the game"
   },
   "Janggi": {
     "metaTitle": "12 Janggi Online — the game from The Genius, vs AI or friends",
@@ -725,7 +729,12 @@
     "timeoutRule": "When time runs out a random move is played; three in a row loses on time.",
     "resignConfirm": "Resign this game?",
     "rematch": "Play again",
-    "rematchWait": "The host can start a rematch."
+    "rematchWait": "The host can start a rematch.",
+    "joined": "{name} joined",
+    "left": "{name} left",
+    "startLocked": "Waiting for a friend",
+    "startLockedHint": "The start button unlocks when your friend joins",
+    "startReady": "Your friend is here! Start the game"
   },
   "SudokuGuide": {
     "eyebrow": "SUDOKU GUIDE",
@@ -890,7 +899,9 @@
     "minutes": "{n} min",
     "seconds": "{n}s",
     "hostSets": "The host sets these.",
-    "rematchWait": "The host can start a rematch."
+    "rematchWait": "The host can start a rematch.",
+    "joined": "{name} joined",
+    "left": "{name} left"
   },
   "Heavy13Guide": {
     "eyebrow": "HEAVY 13 GUIDE",

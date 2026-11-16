@@ -499,7 +499,11 @@
     "panelDesc": "방을 만들고 링크를 보내면 같은 판에서 실시간으로 둘 수 있어요.",
     "createTwo": "1:1 방 만들기",
     "createThree": "1:1:1 방 만들기",
-    "onLogStalemate": "아무도 움직일 수 없어 현재 영역으로 승부를 가립니다."
+    "onLogStalemate": "아무도 움직일 수 없어 현재 영역으로 승부를 가립니다.",
+    "joined": "{name}님이 입장했어요",
+    "left": "{name}님이 나갔어요",
+    "startLockedHint": "자리가 모두 차면 시작 버튼이 활성화돼요",
+    "startReady": "모두 입장했어요! 게임을 시작하세요"
   },
   "Janggi": {
     "metaTitle": "십이장기 온라인 — 더 지니어스 그 게임을 AI·친구와",
@@ -730,7 +734,12 @@
     "timeoutRule": "시간이 끝나면 무작위로 한 수가 자동 진행되고, 세 번 연속이면 시간패입니다.",
     "resignConfirm": "정말 기권할까요?",
     "rematch": "한 판 더",
-    "rematchWait": "방장이 다시 시작할 수 있어요."
+    "rematchWait": "방장이 다시 시작할 수 있어요.",
+    "joined": "{name}님이 입장했어요",
+    "left": "{name}님이 나갔어요",
+    "startLocked": "친구를 기다리는 중",
+    "startLockedHint": "친구가 입장하면 대국하기 버튼이 활성화돼요",
+    "startReady": "친구가 입장했어요! 대국을 시작하세요"
   },
   "SudokuGuide": {
     "eyebrow": "SUDOKU GUIDE",
@@ -897,7 +906,9 @@
     "minutes": "{n}분",
     "seconds": "{n}초",
     "hostSets": "설정은 방장이 정해요.",
-    "rematchWait": "방장이 다시 시작할 수 있어요."
+    "rematchWait": "방장이 다시 시작할 수 있어요.",
+    "joined": "{name}님이 입장했어요",
+    "left": "{name}님이 나갔어요"
   },
   "Heavy13Guide": {
     "eyebrow": "HEAVY 13 GUIDE",
