@@ -950,7 +950,7 @@
     "levelHint": "Changing it starts a new game.",
     "quickRules": "Key rules",
     "quick1": "Each round, everyone secretly plays one rock card (0–6) and one color chip.",
-    "quick2": "Rainbow first, then higher cards; ties go clockwise from the start player.",
+    "quick2": "Rainbow first, then higher cards; ties go clockwise from the start player. Rainbow picks its own stand.",
     "quick3": "If a stand reaches 13+, you take a penalty per cube already there; only your cube stays.",
     "quick4": "Once per round you may pass to place last.",
     "quick5": "After 14 rounds the fewest penalties wins; 6th and 7th are out.",
@@ -1454,7 +1454,7 @@
         "rules": [
           "Each player gets seven rock cards (0–6), two red, green and blue chips, and one rainbow chip.",
           "Every round everyone secretly plays one card and one chip at once: the chip picks the stand, the card is the rock's weight.",
-          "The rainbow chip places first, then higher numbers. Once per round you may pass to place later.",
+          "The rainbow chip places first (and picks its stand), then higher numbers. Ties go clockwise from the start player, and once per round you may pass to place later.",
           "Whoever pushes a stand to 13 or more takes a penalty for each rock already on it. After 14 rounds the fewest penalties wins."
         ],
         "origin": "The first prison match of The Devil's Plan: Death Room. Taking a penalty for crossing a threshold closely resembles the card game 6 nimmt!."
