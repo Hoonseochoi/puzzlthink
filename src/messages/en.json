@@ -1209,7 +1209,7 @@
   },
   "RussianJanggi": {
     "metaTitle": "Russian Janggi Online — 3×3 strategy where big covers small",
-    "metaDescription": "Play Russian Janggi free in your browser: a 3×3 tic-tac-toe where larger pieces can cover smaller ones. Play the AI or invite a friend by link.",
+    "metaDescription": "Play Russian Janggi free in your browser: 3×3 strategy where bigger cups cover smaller ones and cups on the board can move. Play the AI or invite a friend by link.",
     "keywords": [
       "russian janggi",
       "nesting tic tac toe",
@@ -1223,7 +1223,7 @@
     "yourTurn": "Your turn",
     "aiThinking": "AI is thinking…",
     "you": "You",
-    "hintPick": "Pick a piece size, or tap a cell.",
+    "hintPick": "Pick a cup from your hand, or tap one of your cups on the board to move it.",
     "hintPlace": "Place on a glowing cell. Tap the same size again to cancel.",
     "size_0": "Small",
     "size_1": "Medium",
@@ -1249,8 +1249,8 @@
     "quickRules": "Rules",
     "rule1": "The board is 3 × 3.",
     "rule2": "Each player has 2 large, 2 medium and 2 small pieces.",
-    "rule3": "Own three cells in a row — across, down or diagonal — to win!",
-    "rule4": "Large covers medium and small; medium covers small (any colour).",
+    "rule3": "Own three in a row to win! If lifting a cup reveals the opponent's row underneath, they win.",
+    "rule4": "On your turn, place a new cup or move one of yours on the board. Large covers medium and small; medium covers small.",
     "rule5": "10 seconds per turn. Out of time, or nowhere to play, and the turn passes.",
     "record": "My record",
     "games": "Games",
@@ -1264,10 +1264,14 @@
     "resultWinner": "{player} wins",
     "resultDraw": "Draw",
     "reason_line": "Three in a row.",
-    "reason_draw": "No one can move — a draw.",
+    "reason_draw": "Neither side can move — a draw.",
     "reason_resign": "The game ended by resignation.",
     "reason_timeout": "The game ended on time.",
-    "reason_abandon": "Both players stopped moving, so the game ended."
+    "reason_abandon": "Both players stopped moving, so the game ended.",
+    "hintMove": "Cup lifted. Move it to a glowing cell, or tap it again to put it back.",
+    "logMove": "{player}: {size} {from} → {cell}",
+    "logMoveCover": "{player}: moved {size} from {from} over the {target} on {cell}",
+    "reason_limit": "The game went on too long — a draw."
   },
   "RussianJanggiOnline": {
     "metaTitle": "Russian Janggi with a friend",

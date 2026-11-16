@@ -31,7 +31,7 @@ export function reduceRJRoom(state: RJRoom, action: RJRoomAction, seat: number |
       break;
     }
     case 'act':
-      if (state.phase !== 'playing' || seat !== state.game.turn || action.action.kind !== 'place' || !isLegal(state.game, action.action)) break;
+      if (state.phase !== 'playing' || seat !== state.game.turn || action.action.kind === 'pass' || !isLegal(state.game, action.action)) break;
       next = afterMove(state, applyAction(state.game, action.action), 0);
       break;
     case 'resign':

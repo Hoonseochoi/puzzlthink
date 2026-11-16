@@ -44,7 +44,7 @@ export default function RJGame() {
   const play = (action: Action) => {
     const next = applyAction(game, action);
     const lines = [describeAction(t, game, action, names[game.turn])];
-    if (action.kind === 'place' && next.skipped !== null && !isOver(next)) lines.unshift(t('logNoMove', { player: names[next.skipped] }));
+    if (action.kind !== 'pass' && next.skipped !== null && !isOver(next)) lines.unshift(t('logNoMove', { player: names[next.skipped] }));
     setLog((items) => [...lines, ...items].slice(0, 12));
     setGame(next);
     setDeadline(Date.now() + TURN_SECONDS * 1000);

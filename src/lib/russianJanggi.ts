@@ -1,13 +1,15 @@
-// 러시아장기 (Russian janggi): 3×3 tic-tac-toe where bigger pieces cover smaller ones.
-// Each side has two small, two medium and two large pieces. Pieces are only placed from the hand;
-// a piece may go on an empty cell or on top of any smaller piece (either colour). Three of your
-// colour showing on top in a row wins. A side with no legal placement (or out of time) passes.
+// 러시아장기 (Russian janggi): 3×3 tic-tac-toe with cups that cover each other.
+// Each side has two small, two medium and two large cups. On your turn you either place a cup from
+// your hand, or move one of your own cups that is showing on the board to another cell. A cup may
+// go on an empty cell or over any smaller cup (either colour). Three of your colour showing on top
+// in a row wins — lifting a cup can reveal a line underneath, and if that line is the opponent's,
+// they win. Out of time (or with nothing legal to do) the turn passes.
 
 export type Side = 0 | 1;
 export type Size = 0 | 1 | 2; // small, medium, large
 export type Piece = { owner: Side; size: Size };
-export type Action = { kind: 'place'; size: Size; to: number } | { kind: 'pass' };
-export type Reason = 'line' | 'draw' | 'resign' | 'timeout' | 'abandon';
+export type Action = { kind: 'place'; size: Size; to: number } | { kind: 'move'; from: number; to: number } | { kind: 'pass' };
+export type Reason = 'line' | 'draw' | 'limit' | 'resign' | 'timeout' | 'abandon';
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
 export type RJState = {
@@ -18,14 +20,16 @@ export type RJState = {
   winner: Side | null;
   reason: Reason | null;
   line: number[] | null;
-  last: { to: number; size: Size; owner: Side; covered: Piece | null } | null;
+  last: { from: number | null; to: number; size: Size; owner: Side; covered: Piece | null } | null;
   skipped: Side | null; // who was skipped (no legal move or timeout) right before this turn
 };
 
 export const SIZES: Size[] = [0, 1, 2];
 export const PER_SIZE = 2;
 export const TURN_SECONDS = 10;
+export const MAX_PLY = 80; // moves can shuffle forever, so a long game ends in a draw
 export const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+const CELLS = Array.from({ length: 9 }, (_, i) => i);
 
 export const other = (side: Side): Side => (side === 0 ? 1 : 0);
 export const top = (state: RJState, cell: number): Piece | null => state.board[cell][state.board[cell].length - 1] ?? null;
@@ -44,22 +48,33 @@ export const canPlace = (state: RJState, size: Size, cell: number) => {
   return !t || t.size < size;
 };
 
+/** Cells a cup of `size` from `side`'s hand can go to. */
 export function targetsFor(state: RJState, side: Side, size: Size): number[] {
   if (state.hands[side][size] <= 0) return [];
-  return Array.from({ length: 9 }, (_, i) => i).filter((i) => canPlace(state, size, i));
+  return CELLS.filter((i) => canPlace(state, size, i));
 }
 
-export function legalPlacements(state: RJState, side: Side = state.turn): Action[] {
+/** Cells the cup on top of `from` can move to (it must be `side`'s). */
+export function moveTargets(state: RJState, side: Side, from: number): number[] {
+  const cup = top(state, from);
+  if (!cup || cup.owner !== side) return [];
+  return CELLS.filter((i) => i !== from && canPlace(state, cup.size, i));
+}
+
+export function legalActions(state: RJState, side: Side = state.turn): Action[] {
   const out: Action[] = [];
   for (const size of [2, 1, 0] as Size[]) for (const to of targetsFor(state, side, size)) out.push({ kind: 'place', size, to });
+  for (const from of CELLS) for (const to of moveTargets(state, side, from)) out.push({ kind: 'move', from, to });
   return out;
 }
 
 export function isLegal(state: RJState, action: Action): boolean {
   if (isOver(state)) return false;
   if (action.kind === 'pass') return true;
-  return SIZES.includes(action.size) && Number.isInteger(action.to) && action.to >= 0 && action.to < 9
-    && state.hands[state.turn][action.size] > 0 && canPlace(state, action.size, action.to);
+  const cell = (n: number) => Number.isInteger(n) && n >= 0 && n < 9;
+  if (!cell(action.to)) return false;
+  if (action.kind === 'move') return cell(action.from) && moveTargets(state, state.turn, action.from).includes(action.to);
+  return SIZES.includes(action.size) && state.hands[state.turn][action.size] > 0 && canPlace(state, action.size, action.to);
 }
 
 export function winningLine(state: RJState, side: Side): number[] | null {
@@ -68,10 +83,11 @@ export function winningLine(state: RJState, side: Side): number[] | null {
 
 export const finish = (state: RJState, winner: Side | null, reason: Reason): RJState => ({ ...state, winner, reason });
 
-/** Hands the turn on, skipping a side that cannot place; ends in a draw if nobody can. */
+/** Hands the turn on, skipping a side that cannot act; ends in a draw if nobody can. */
 function passTo(state: RJState, next: Side, skipped: Side | null): RJState {
-  if (legalPlacements(state, next).length) return { ...state, turn: next, skipped };
-  if (legalPlacements(state, other(next)).length) return { ...state, turn: other(next), skipped: next };
+  if (state.ply >= MAX_PLY) return { ...state, turn: next, skipped: null, reason: 'limit' };
+  if (legalActions(state, next).length) return { ...state, turn: next, skipped };
+  if (legalActions(state, other(next)).length) return { ...state, turn: other(next), skipped: next };
   return { ...state, turn: next, skipped: null, reason: 'draw' };
 }
 
@@ -79,37 +95,66 @@ export function applyAction(state: RJState, action: Action): RJState {
   if (!isLegal(state, action)) return state;
   const side = state.turn;
   if (action.kind === 'pass') return passTo({ ...state, ply: state.ply + 1, last: null }, other(side), side);
-  const board = state.board.map((stack, i) => (i === action.to ? [...stack, { owner: side, size: action.size }] : stack));
-  const hands = state.hands.map((h, s) => (s === side ? h.map((n, z) => (z === action.size ? n - 1 : n)) : h)) as [number[], number[]];
-  const placed: RJState = {
+  const from = action.kind === 'move' ? action.from : null;
+  const cup: Piece = action.kind === 'move' ? top(state, action.from)! : { owner: side, size: action.size };
+  const board = state.board.map((stack, i) => (i === from ? stack.slice(0, -1) : i === action.to ? [...stack, cup] : stack));
+  const hands = action.kind === 'place'
+    ? state.hands.map((h, s) => (s === side ? h.map((n, z) => (z === action.size ? n - 1 : n)) : h)) as [number[], number[]]
+    : state.hands;
+  const next: RJState = {
     ...state, board, hands, ply: state.ply + 1,
-    last: { to: action.to, size: action.size, owner: side, covered: top(state, action.to) },
+    last: { from, to: action.to, size: cup.size, owner: side, covered: top(state, action.to) },
   };
-  const line = winningLine(placed, side);
-  if (line) return { ...placed, winner: side, reason: 'line', line };
-  return passTo(placed, other(side), null);
+  // Lifting a cup may reveal the opponent's line — that counts for them.
+  const theirs = winningLine(next, other(side));
+  if (theirs) return { ...next, winner: other(side), reason: 'line', line: theirs };
+  const mine = winningLine(next, side);
+  if (mine) return { ...next, winner: side, reason: 'line', line: mine };
+  return passTo(next, other(side), null);
 }
 
 // ---------------------------------------------------------------- AI
 // Search works on a small mutable copy (do/undo) so it can look deep within a time budget.
 
 type Search = { stacks: number[][]; hands: number[]; deadline: number; table: Map<string, number> }; // code = owner*3+size
-const CELL_LINES = Array.from({ length: 9 }, (_, c) => LINES.filter((l) => l.includes(c)));
 const MOVE_ORDER = [4, 0, 2, 6, 8, 1, 3, 5, 7];
 class Timeout extends Error {}
 
 const sTop = (s: Search, c: number) => { const st = s.stacks[c]; return st.length ? st[st.length - 1] : -1; };
 const ownerOf = (code: number) => (code < 0 ? -1 : code >= 3 ? 1 : 0);
 
-function sWins(s: Search, side: number, cell: number) {
-  return CELL_LINES[cell].some((l) => l.every((c) => ownerOf(sTop(s, c)) === side));
+const sLine = (s: Search, side: number) => LINES.some((l) => l.every((c) => ownerOf(sTop(s, c)) === side));
+
+/** Plays move `m` for `side`; returns how to undo it. */
+function sDo(s: Search, side: number, m: number): () => void {
+  if (m < 27) {
+    const size = Math.floor(m / 9), cell = m % 9;
+    s.stacks[cell].push(side * 3 + size); s.hands[side * 3 + size]--;
+    return () => { s.stacks[cell].pop(); s.hands[side * 3 + size]++; };
+  }
+  const from = Math.floor((m - 27) / 9), to = (m - 27) % 9;
+  const cup = s.stacks[from].pop()!;
+  s.stacks[to].push(cup);
+  return () => { s.stacks[to].pop(); s.stacks[from].push(cup); };
 }
+
+/** +1 if `side` just won with that move, -1 if it revealed the opponent's line, 0 otherwise. */
+const sOutcome = (s: Search, side: number) => (sLine(s, 1 - side) ? -1 : sLine(s, side) ? 1 : 0);
+
+const toAction = (m: number): Action => (m < 27
+  ? { kind: 'place', size: Math.floor(m / 9) as Size, to: m % 9 }
+  : { kind: 'move', from: Math.floor((m - 27) / 9), to: (m - 27) % 9 });
 
 function sMoves(s: Search, side: number): number[] {
   const out: number[] = []; // move = size*9+cell
   for (let size = 2; size >= 0; size--) {
     if (!s.hands[side * 3 + size]) continue;
     for (const c of MOVE_ORDER) { const t = sTop(s, c); if (t < 0 || t % 3 < size) out.push(size * 9 + c); }
+  }
+  for (const from of MOVE_ORDER) {
+    const cup = sTop(s, from);
+    if (cup < 0 || ownerOf(cup) !== side) continue;
+    for (const to of MOVE_ORDER) { if (to === from) continue; const t = sTop(s, to); if (t < 0 || t % 3 < cup % 3) out.push(27 + from * 9 + to); }
   }
   return out;
 }
@@ -146,10 +191,10 @@ function sNegamax(s: Search, side: number, depth: number, alpha: number, beta: n
   const origAlpha = alpha;
   let best = -Infinity;
   for (const m of moves) {
-    const size = Math.floor(m / 9), cell = m % 9;
-    s.stacks[cell].push(side * 3 + size); s.hands[side * 3 + size]--;
-    const value = sWins(s, side, cell) ? 1000 - ply : -sNegamax(s, 1 - side, depth - 1, -beta, -alpha, ply + 1, false);
-    s.stacks[cell].pop(); s.hands[side * 3 + size]++;
+    const undo = sDo(s, side, m);
+    const outcome = sOutcome(s, side);
+    const value = outcome ? outcome * (1000 - ply) : -sNegamax(s, 1 - side, depth - 1, -beta, -alpha, ply + 1, false);
+    undo();
     if (value > best) best = value;
     if (best > alpha) alpha = best;
     if (alpha >= beta) break;
@@ -170,10 +215,9 @@ function rootScores(state: RJState, budgetMs: number, maxDepth: number): { actio
   for (let depth = 1; depth <= maxDepth; depth++) {
     try {
       const next = moves.map((m) => {
-        const size = Math.floor(m / 9), cell = m % 9;
-        s.stacks[cell].push(side * 3 + size); s.hands[side * 3 + size]--;
-        try { return sWins(s, side, cell) ? 1000 : -sNegamax(s, 1 - side, depth - 1, -Infinity, Infinity, state.ply + 1, false); }
-        finally { s.stacks[cell].pop(); s.hands[side * 3 + size]++; }
+        const undo = sDo(s, side, m);
+        try { const outcome = sOutcome(s, side); return outcome ? outcome * 1000 : -sNegamax(s, 1 - side, depth - 1, -Infinity, Infinity, state.ply + 1, false); }
+        finally { undo(); }
       });
       scores = next;
       s.table.clear();
@@ -183,12 +227,12 @@ function rootScores(state: RJState, budgetMs: number, maxDepth: number): { actio
       throw error;
     }
   }
-  return moves.map((m, i) => ({ action: { kind: 'place', size: Math.floor(m / 9) as Size, to: m % 9 }, value: scores[i] }));
+  return moves.map((m, i) => ({ action: toAction(m), value: scores[i] }));
 }
 
 export function chooseAiAction(state: RJState, difficulty: Difficulty): Action {
   const side = state.turn;
-  const moves = legalPlacements(state, side);
+  const moves = legalActions(state, side);
   if (!moves.length) return { kind: 'pass' };
   const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)];
 
