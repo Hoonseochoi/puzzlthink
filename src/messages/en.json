@@ -239,42 +239,46 @@
     "privacySections": [
       {
         "title": "1. Information we store",
-        "body": "PUZZLTHINK does not require an account and does not directly collect personal information such as your name, email or phone number. Game records, tutorial status, your nickname and the last game mode you chose are stored only in your browser (local storage)."
+        "body": "PUZZLTHINK can be used without an account. We receive the account details in section 3 only if you choose to sign in with Google; otherwise we do not collect personal information such as your name, email or phone number. Game records, tutorial status, your nickname and the last game mode you chose are stored only in your browser (local storage)."
       },
       {
         "title": "2. Play with friends (live games)",
         "body": "When you use Play with friends, the room code, the nickname you choose, a randomly generated device ID and your game moves are relayed to other players in the same room through a realtime service (Supabase Realtime). This data is used only for live relay and is not stored in a PUZZLTHINK database. The host’s browser may keep the game state so the match can resume."
       },
       {
-        "title": "3. How information is used",
+        "title": "3. Google sign-in (optional)",
+        "body": "If you sign in with Google, Supabase Auth receives and stores your Google email address, name and profile picture to handle sign-in. This is used only to keep you signed in and to show your nickname in friend games; it is not used for other purposes or shared with third parties. Every game works without signing in, and you can request deletion of your account data using the contact below."
+      },
+      {
+        "title": "4. How information is used",
         "body": "Stored information is used only to resume games, show records, run games with friends and improve the service. We do not sell or share it for other purposes."
       },
       {
-        "title": "4. Deleting local data",
+        "title": "5. Deleting local data",
         "body": "You can delete PUZZLTHINK’s local data from your browser settings at any time. Doing so resets records, settings and your nickname."
       },
       {
-        "title": "5. Advertising and cookies",
+        "title": "6. Advertising and cookies",
         "body": "PUZZLTHINK may display ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it and its partners to serve ads based on your visits to this and other sites."
       },
       {
-        "title": "6. Opting out of personalized ads",
+        "title": "7. Opting out of personalized ads",
         "body": "You may opt out of personalized advertising in Google Ads Settings (https://adssettings.google.com), and opt out of third-party vendors' cookies for personalized advertising at www.aboutads.info. Learn how Google uses data at https://policies.google.com/technologies/partner-sites. Users in the EEA, the UK, and Switzerland are asked for consent before cookies are used."
       },
       {
-        "title": "7. Service providers",
+        "title": "8. Service providers",
         "body": "Our hosting (Vercel), realtime (Supabase) and advertising (Google AdSense) providers may process technical data needed for security and performance, such as IP address and browser information."
       },
       {
-        "title": "8. Children’s privacy",
+        "title": "9. Children’s privacy",
         "body": "PUZZLTHINK does not knowingly collect personal information from children under 14."
       },
       {
-        "title": "9. Changes",
+        "title": "10. Changes",
         "body": "If this policy changes, we will update the last-updated date on this page."
       },
       {
-        "title": "10. Contact",
+        "title": "11. Contact",
         "body": "For privacy questions, contact chlgnstj1@gmail.com."
       }
     ],
@@ -1010,5 +1014,12 @@
     "label5": "RESULT",
     "title5": "Fresh hand at round 8, ranking after 14",
     "desc5": "After round 7 you get new cards and chips, but the stands keep their rocks. After 14 rounds, fewest penalties ranks first; 6th and 7th are out."
+  },
+  "Auth": {
+    "signIn": "Sign in with Google",
+    "signOut": "Sign out",
+    "account": "My account",
+    "error": "Couldn't finish Google sign-in.",
+    "close": "Close"
   }
 }

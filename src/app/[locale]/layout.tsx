@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Geist, Geist_Mono } from 'next/font/google';
 import GlobalHeader from '@/components/GlobalHeader';
+import { AuthProvider } from '@/components/AuthProvider';
 import GlobalFooter from '@/components/GlobalFooter';
 import { routing } from '@/i18n/routing';
 import { ADSENSE_CLIENT } from '@/lib/adsense';
@@ -35,9 +36,11 @@ export default async function LocaleLayout({
       )}
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#f3f0e8] font-sans text-[#17201e] antialiased`}>
         <NextIntlClientProvider messages={messages}>
+          <AuthProvider>
           <GlobalHeader />
           {children}
           <GlobalFooter />
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

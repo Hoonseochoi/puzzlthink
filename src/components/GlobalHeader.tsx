@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Grid2X2, Menu, X } from 'lucide-react';
 import { usePathname, Link } from '@/i18n/routing';
 import LanguageSwitcher from './LanguageSwitcher';
+import AuthButton from './AuthButton';
 
 const HIDE_ON = ['/play', '/wallgo', '/janggi', '/heavy13'];
 
@@ -36,6 +37,7 @@ export default function GlobalHeader() {
 
         <div className="hidden items-center gap-2 md:flex">
           <LanguageSwitcher compact />
+          <AuthButton />
           <Link href="/wallgo" className="flex items-center gap-2 rounded-full bg-[#17201e] px-4 py-2.5 text-xs font-extrabold text-white transition hover:-translate-y-0.5"><Grid2X2 size={14} /> {t('playNow')}</Link>
         </div>
 
@@ -46,7 +48,7 @@ export default function GlobalHeader() {
         <div className="border-t border-black/[0.07] bg-[#f8f6ef] px-5 py-4 md:hidden">
           <nav className="mx-auto flex max-w-6xl flex-col gap-1">
             {nav.map((item) => <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-sm font-extrabold hover:bg-white">{item.label}</Link>)}
-            <div className="mt-2 border-t border-black/[0.07] pt-3"><LanguageSwitcher /></div>
+            <div className="mt-2 flex flex-col gap-2 border-t border-black/[0.07] pt-3"><AuthButton full /><LanguageSwitcher /></div>
           </nav>
         </div>
       )}
