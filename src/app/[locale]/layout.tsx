@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Geist, Geist_Mono } from 'next/font/google';
 import GlobalHeader from '@/components/GlobalHeader';
 import { AuthProvider } from '@/components/AuthProvider';
+import HallCelebration from '@/components/HallCelebration';
 import GlobalFooter from '@/components/GlobalFooter';
 import { routing } from '@/i18n/routing';
 import { ADSENSE_CLIENT } from '@/lib/adsense';
@@ -42,6 +43,7 @@ export default async function LocaleLayout({
           <GlobalHeader />
           {children}
           <GlobalFooter />
+          <HallCelebration />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

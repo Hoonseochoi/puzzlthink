@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { getSupabase } from '@/lib/supabase';
+import { flushPendingGame } from '@/lib/stats';
 
 type AuthState = {
   user: User | null;
@@ -69,6 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = getSupabase();
     if (!supabase) return;
     supabase.rpc('touch_profile', { p_full_name: displayName(user) || null, p_avatar_url: avatarUrl(user) || null }).then(() => {});
+    // A game finished while signed out (sign-in prompt on the result screen) is saved now.
+    flushPendingGame().then((saved) => { if (saved) window.dispatchEvent(new Event('puzzlthink:game-saved')); });
     const beat = () => { if (document.visibilityState === 'visible') supabase.rpc('track_activity', { p_seconds: 60 }).then(() => {}); };
     const timer = window.setInterval(beat, 60_000);
     return () => window.clearInterval(timer);

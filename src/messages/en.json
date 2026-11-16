@@ -22,7 +22,18 @@
     "share": "Share",
     "linkCopied": "Link copied",
     "records": "Records",
-    "russianJanggi": "Russian Janggi"
+    "russianJanggi": "Russian Janggi",
+    "quit": "Quit",
+    "recordTitle": "Want to keep this on record?",
+    "recordDesc": "Put your name in the Hall of Fame!",
+    "recordSaved": "This game was saved to your records",
+    "recordSignedIn": "Saved to {name}'s records",
+    "hallCongratsEyebrow": "HALL OF FAME",
+    "hallCongratsTitle": "You made the Hall of Fame!",
+    "hallCongratsRank": "#{rank} in {game}",
+    "hallCongratsDesc": "Your name is now in the Hall of Fame on the Records page. Congratulations!",
+    "hallCongratsView": "See the Hall of Fame",
+    "hallCongratsClose": "Close"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
@@ -1170,7 +1181,7 @@
     "intro": "Sign in with Google and your game results and play time are recorded automatically. Check your record against AI for each game and the Hall of Fame.",
     "setupNeeded": "The records server is not set up yet. Please check back shortly.",
     "hallTitle": "Hall of Fame",
-    "hallDesc": "Top 3 by wins against AI (puzzles solved for Sudoku). Ties go to whoever needed fewer games.",
+    "hallDesc": "Top 3 by wins against AI (puzzles solved for Sudoku, rounds survived for Russian Roulette). You need at least 5 wins to be ranked; ties go to whoever needed fewer games.",
     "emptySpot": "Open spot",
     "winsCount": "{n} wins",
     "solvedCount": "{n} solved",
@@ -1193,7 +1204,8 @@
     "showInHall": "Show me in the Hall of Fame",
     "save": "Save",
     "saved": "Saved",
-    "privacyNote": "Only your nickname and profile photo appear in the Hall of Fame. Your email is never shown."
+    "privacyNote": "Only your nickname and profile photo appear in the Hall of Fame. Your email is never shown.",
+    "rouletteLine": "Survived {s} · Shot {h}"
   },
   "RussianJanggi": {
     "metaTitle": "Russian Janggi Online — 3×3 strategy where big covers small",

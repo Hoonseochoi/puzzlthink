@@ -13,8 +13,12 @@ const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'wallgo', href: '/wallgo', color: '#ff6b4a' },
   { id: 'heavy13', href: '/heavy13', color: '#c9a061' },
   { id: 'janggi', href: '/janggi', color: '#e8a33c' },
+  { id: 'russian_janggi', href: '/russian-janggi', color: '#f2b84b' },
+  { id: 'russian_roulette', href: '/russian-roulette', color: '#65e5ff' },
   { id: 'sudoku', href: '/play', color: '#4b7bff' },
 ];
+/** Common message key for each game's name. */
+const GAME_LABEL: Record<GameId, string> = { wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 function formatDuration(seconds: number, t: (k: string, v?: Record<string, number>) => string) {
@@ -66,6 +70,7 @@ export default function RecordsClient() {
   const needsSetup = loadError && /relation|function|does not exist|schema cache/i.test(loadError);
   const line = (rec: { win: number; loss: number; draw: number }, game: GameId) =>
     game === 'heavy13' ? t('heavyLine', { first: rec.win, mid: rec.draw, out: rec.loss })
+      : game === 'russian_roulette' ? t('rouletteLine', { s: rec.win, h: rec.loss })
       : rec.draw ? t('wldLine', { w: rec.win, l: rec.loss, d: rec.draw }) : t('wlLine', { w: rec.win, l: rec.loss });
   const rate = (rec: { win: number; loss: number; draw: number }) => {
     const n = rec.win + rec.loss + rec.draw;
@@ -84,12 +89,12 @@ export default function RecordsClient() {
         <section className="mt-10">
           <h2 className="flex items-center gap-2 text-xl font-black"><Trophy size={20} className="text-[#e8a33c]" />{t('hallTitle')}</h2>
           <p className="mt-1 text-xs text-black/45">{t('hallDesc')}</p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {GAMES.map((g) => {
               const top = hall.filter((h) => h.game === g.id).sort((a, b) => a.rank - b.rank);
               return (
                 <section key={g.id} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4">
-                  <div className="flex items-center justify-between"><h3 className="text-sm font-black">{tc(g.id)}</h3><span className="h-2.5 w-2.5 rounded-full" style={{ background: g.color }} /></div>
+                  <div className="flex items-center justify-between"><h3 className="text-sm font-black">{tc(GAME_LABEL[g.id])}</h3><span className="h-2.5 w-2.5 rounded-full" style={{ background: g.color }} /></div>
                   <ol className="mt-3 space-y-2">
                     {[0, 1, 2].map((i) => {
                       const e = top[i];
@@ -136,13 +141,13 @@ export default function RecordsClient() {
                 </div>
               </div>
 
-              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {GAMES.map((g) => {
                   const rec = byGame[g.id];
                   const main = g.id === 'sudoku' ? rec.solo : rec.ai;
                   return (
                     <Link key={g.id} href={g.href} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4 transition hover:-translate-y-0.5 hover:bg-white">
-                      <div className="flex items-center justify-between"><h3 className="text-sm font-black">{tc(g.id)}</h3><span className="h-2.5 w-2.5 rounded-full" style={{ background: g.color }} /></div>
+                      <div className="flex items-center justify-between"><h3 className="text-sm font-black">{tc(GAME_LABEL[g.id])}</h3><span className="h-2.5 w-2.5 rounded-full" style={{ background: g.color }} /></div>
                       <p className="mt-3 text-[10px] font-bold uppercase tracking-wider text-black/40">{g.id === 'sudoku' ? t('soloLabel') : t('aiLabel')}</p>
                       <p className="mt-0.5 text-xl font-black">{g.id === 'sudoku' ? t('solvedLine', { s: main.win, f: main.loss }) : line(main, g.id)}</p>
                       <p className="text-[11px] text-black/45">{t('winRate', { r: rate(main) })}</p>

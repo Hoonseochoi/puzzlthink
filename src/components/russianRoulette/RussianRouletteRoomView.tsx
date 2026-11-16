@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, UserRound, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { useRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
+import { reportGame } from '@/lib/stats';
 import { RR_TURN_OPTIONS, type RRLevel } from '@/lib/russianRouletteRoom';
 import LanguageSwitcher from '../LanguageSwitcher';
 import RoomAlerts from '../RoomAlerts';
@@ -28,6 +29,16 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
   const [waitedLong, setWaitedLong] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
+
+  // Report a finished game once, when the room moves into "finished".
+  const prevPhase = useRef<string | null>(null);
+  useEffect(() => {
+    const phase = state?.phase ?? null;
+    if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
+      reportGame(`russian_roulette-friend-${crypto.randomUUID()}`, 'russian_roulette', 'friend', state.game.hits.includes(mySeat) ? 'loss' : 'win', { humans: state.ai.filter((a) => !a).length });
+    }
+    prevPhase.current = phase;
+  });
 
   useEffect(() => {
     const timer = window.setTimeout(() => { setWaitedLong(true); setShareUrl(`${window.location.origin}/${locale}/russian-roulette/room/${code}`); }, 0);

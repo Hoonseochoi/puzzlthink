@@ -22,7 +22,18 @@
     "share": "공유하기",
     "linkCopied": "링크 복사됨",
     "records": "기록실",
-    "russianJanggi": "러시아장기"
+    "russianJanggi": "러시아장기",
+    "quit": "끝내기",
+    "recordTitle": "이걸로 기록을 남기시겠어요?",
+    "recordDesc": "명예의 전당에 이름을 올려보세요!",
+    "recordSaved": "방금 게임이 기록됐어요",
+    "recordSignedIn": "{name} 님의 기록으로 저장돼요",
+    "hallCongratsEyebrow": "HALL OF FAME",
+    "hallCongratsTitle": "명예의 전당에 올랐어요!",
+    "hallCongratsRank": "{game} {rank}위",
+    "hallCongratsDesc": "기록실 명예의 전당에 이름이 올라갔어요. 축하해요!",
+    "hallCongratsView": "명예의 전당 보기",
+    "hallCongratsClose": "닫기"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — 데블스플랜 데스매치를 친구들과 함께",
@@ -1178,7 +1189,7 @@
     "intro": "Google로 로그인하면 게임 결과와 접속 시간이 자동으로 기록돼요. 게임별 AI 대전 전적과 명예의 전당을 확인해보세요.",
     "setupNeeded": "기록 서버 설정이 아직 끝나지 않았어요. 잠시 후 다시 확인해주세요.",
     "hallTitle": "명예의 전당",
-    "hallDesc": "AI 대전 승리 수(스도쿠는 완성한 퍼즐 수) 기준 1·2·3위예요. 같으면 더 적은 판수로 이긴 사람이 위예요.",
+    "hallDesc": "AI 대전 승리 수(스도쿠는 완성한 퍼즐 수, 러시안 룰렛은 생존 수) 기준 1·2·3위예요. 최소 5승부터 오를 수 있고, 같으면 더 적은 판수로 이긴 사람이 위예요.",
     "emptySpot": "아직 비어 있어요",
     "winsCount": "{n}승",
     "solvedCount": "{n}개",
@@ -1201,7 +1212,8 @@
     "showInHall": "명예의 전당에 표시",
     "save": "저장",
     "saved": "저장됨",
-    "privacyNote": "명예의 전당에는 닉네임과 프로필 사진만 공개돼요. 이메일은 공개되지 않아요."
+    "privacyNote": "명예의 전당에는 닉네임과 프로필 사진만 공개돼요. 이메일은 공개되지 않아요.",
+    "rouletteLine": "생존 {s} · 피격 {h}"
   },
   "RussianJanggi": {
     "metaTitle": "러시아장기 온라인 — 덮어서 이기는 3×3 두뇌 게임",

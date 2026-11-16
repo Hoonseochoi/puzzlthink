@@ -7,8 +7,10 @@ import { Link, useRouter } from '@/i18n/routing';
 import { prepareRussianRouletteRoom, RUSSIAN_ROULETTE_ROOM } from '@/hooks/useRussianRouletteRoom';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { createRussianRouletteRoom, type RRLevel } from '@/lib/russianRouletteRoom';
+import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import RussianRouletteResult from './RussianRouletteResult';
+import { russianRouletteFiringDuration } from './firing';
 import RussianRouletteTable from './RussianRouletteTable';
 import RussianRouletteTutorial from './RussianRouletteTutorial';
 import { RR_BG, RR_PANEL, RR_TITLE } from './theme';
@@ -30,6 +32,12 @@ export default function RussianRouletteGame() {
     const timer = window.setTimeout(() => { try { if (!localStorage.getItem(TUTORIAL_KEY)) setShowTutorial(true); } catch { /* optional */ } }, 0);
     return () => window.clearTimeout(timer);
   }, []);
+  // Survivors win, the two players who are shot lose. Reported once per game (room sid).
+  const finished = state?.phase === 'finished';
+  useEffect(() => {
+    if (!finished || !state) return;
+    reportGame(`russian_roulette-ai-${state.sid}`, 'russian_roulette', 'ai', state.game.hits.includes(0) ? 'loss' : 'win', { level: state.aiLevel, round: state.game.round }, { revealDelayMs: russianRouletteFiringDuration(state.game.shots.length) + 600 });
+  }, [finished, state]);
   const closeTutorial = () => { try { localStorage.setItem(TUTORIAL_KEY, '1'); } catch { /* optional */ } setShowTutorial(false); };
   const join = () => { const code = roomCode.trim().toLowerCase(); if (/^[a-z0-9]{6}$/.test(code)) router.push(`/russian-roulette/room/${code}`); };
 

@@ -6,6 +6,7 @@ import { ArrowLeft, Check, Copy, Crown, Eye, Flag, Loader2, Lock, Share2, Swords
 import { Link } from '@/i18n/routing';
 import type { Side } from '@/lib/russianJanggi';
 import { useRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
+import { reportGame } from '@/lib/stats';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -29,6 +30,16 @@ export default function RJRoomView({ code }: { code: string }) {
   const [shareUrl, setShareUrl] = useState('');
   const [skipNote, setSkipNote] = useState<string | null>(null);
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
+
+  // Report a finished game once, when the room moves into "finished".
+  const prevPhase = useRef<string | null>(null);
+  useEffect(() => {
+    const phase = state?.phase ?? null;
+    if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
+      reportGame(`russian_janggi-friend-${crypto.randomUUID()}`, 'russian_janggi', 'friend', state.game.winner === null ? 'draw' : state.game.winner === mySeat ? 'win' : 'loss', { reason: state.game.reason, moves: state.game.ply });
+    }
+    prevPhase.current = phase;
+  });
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 200);
