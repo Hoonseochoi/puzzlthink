@@ -22,14 +22,17 @@ const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || '';
 
 type Status = 'idle' | 'sending' | 'sent' | 'failed';
 
-/** Floating "report a bug" button on game pages. Reports are stored in Supabase and emailed to the site owner. */
-export default function BugReport() {
+/**
+ * "오류 제보" button for a game's top bar (solo games and friend rooms). Reports are stored in
+ * Supabase and emailed to the site owner. The game is worked out from the current path.
+ */
+export default function BugReport({ dark = true }: { dark?: boolean }) {
   const pathname = usePathname();
   const game = GAMES.find((g) => pathname === g.path || pathname.startsWith(`${g.path}/`));
-  return game ? <BugReportButton game={game} key={game.id} /> : null;
+  return game ? <BugReportButton game={game} dark={dark} key={game.id} /> : null;
 }
 
-function BugReportButton({ game }: { game: (typeof GAMES)[number] }) {
+function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: boolean }) {
   const t = useTranslations('BugReport');
   const tc = useTranslations('Common');
   const locale = useLocale();
@@ -88,9 +91,11 @@ function BugReportButton({ game }: { game: (typeof GAMES)[number] }) {
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-40 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/55 px-3 py-2 text-[11px] font-bold text-white/75 shadow-lg backdrop-blur-md transition hover:bg-black/75 hover:text-white">
-        <Bug size={13} />{t('button')}
+      <button type="button" onClick={() => setOpen(true)} aria-label={t('button')} title={t('button')}
+        className={dark
+          ? 'inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-xs font-extrabold text-white/80 transition hover:bg-white/10'
+          : 'inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white/70 px-3 py-2 text-xs font-extrabold text-black/70 transition hover:bg-white'}>
+        <Bug size={14} /><span className="hidden sm:inline">{t('button')}</span>
       </button>
       {open && (
         <div className="fixed inset-0 z-[95] flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center" role="dialog" aria-modal="true" aria-labelledby="bug-report-title" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>

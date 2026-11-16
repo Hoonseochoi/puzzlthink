@@ -19,7 +19,7 @@ const WALLGO_ROOM: RoomEngine<RoomState, RoomAction> = {
 };
 
 /** Creates a WallGo room code and marks this browser as its host. */
-export const prepareHostedRoom = (mode: ModeId) => prepareRoom(WALLGO_ROOM.storage, mode);
+export const prepareHostedRoom = (mode: ModeId) => prepareRoom(WALLGO_ROOM.channel, WALLGO_ROOM.storage, mode);
 
 export function useWallGoRoom(code: string, defaultName: string) {
   const room = useRealtimeRoom(WALLGO_ROOM, code, defaultName);

@@ -76,13 +76,13 @@
     "modeTwoAi": "1:1",
     "modeTwoAiDesc": "vs 1 AI",
     "modeFriend": "1:1",
-    "modeFriendDesc": "friend via link",
+    "modeFriendDesc": "Link or code",
     "janggiDescription": "Capture the king or march into the enemy camp. A sharp duel on 12 squares.",
     "janggiMeta": "vs AI · live with friends",
     "modeAi": "vs AI",
     "modeAiDesc": "3 levels",
     "modeFriendJanggi": "1:1",
-    "modeFriendJanggiDesc": "friend via link",
+    "modeFriendJanggiDesc": "Link or code",
     "visitToday": "Today",
     "visitTotal": "Total",
     "heavy13Description": "Push a stand to 13 and take the penalty. A 7-player mind game.",
@@ -96,13 +96,13 @@
     "modeRouletteAi": "6-player AI",
     "modeRouletteAiDesc": "Deduce vs 5 AI",
     "modeRouletteFriend": "Invite friends",
-    "modeRouletteFriendDesc": "Link or room code",
+    "modeRouletteFriendDesc": "Link or code",
     "rjanggiDescription": "Tic-tac-toe where big pieces swallow small ones. 10 seconds per move.",
     "rjanggiMeta": "vs AI · 1:1 with a friend",
     "modeRjAi": "AI 1:1",
     "modeRjAiDesc": "3 difficulty levels",
     "modeRjFriend": "With a friend",
-    "modeRjFriendDesc": "Invite by link"
+    "modeRjFriendDesc": "Link or code"
   },
   "WallGo": {
     "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
@@ -1485,7 +1485,7 @@
         "pace": "90 s per turn",
         "level": "AI: easy · normal · hard",
         "ai": "3-player (2 AI) · 1:1 (1 AI)",
-        "friend": "1:1, invite by link",
+        "friend": "1:1 · 1:1:1, link or 4-digit code",
         "rules": [
           "Each player places pieces on a 7×7 board: 2 each in the 3-player game, 4 each in 1:1.",
           "On your turn, move one piece 1 or 2 squares in a straight line, then you must build a wall on one of its four sides.",
@@ -1500,7 +1500,7 @@
         "pace": "60 s per turn in friend rooms · no limit vs AI",
         "level": "AI: easy · normal · hard",
         "ai": "6 players (5 AI)",
-        "friend": "Link or 6-character code, AI fills seats",
+        "friend": "Link or 4-digit invite code, AI fills seats",
         "rules": [
           "Two rounds are hidden among six chambers, and each player gets 16 secret credits.",
           "Inspect two adjacent chambers publicly (1 credit) or privately (2 credits), or turn the muzzle 1 step (3 credits) or 2 steps (4 credits).",
@@ -1515,7 +1515,7 @@
         "pace": "14 rounds · friend rooms: 90 s to submit, 20 s to place",
         "level": "AI: easy · normal · hard",
         "ai": "7 players (6 AI)",
-        "friend": "Invite by link, AI fills seats",
+        "friend": "Link or 4-digit code, AI fills seats",
         "rules": [
           "Each player gets seven rock cards (0–6), two red, green and blue chips, and one rainbow chip.",
           "Every round everyone secretly plays one card and one chip at once: the chip picks the stand, the card is the rock's weight.",
@@ -1530,7 +1530,7 @@
         "pace": "Friend rooms: 90, 60 or 30 s per turn",
         "level": "AI: easy · normal · hard",
         "ai": "1:1",
-        "friend": "1:1, invite by link",
+        "friend": "1:1, link or 4-digit code",
         "rules": [
           "On a 3×4 board, each player starts with four pieces: General, Minister, King and Pawn.",
           "Take turns moving one piece one square in a direction it shows. Captured pieces become yours and can be dropped back from your next turn.",
@@ -1545,7 +1545,7 @@
         "pace": "10 s per turn · no-limit option vs AI",
         "level": "AI: easy · normal · hard",
         "ai": "1:1",
-        "friend": "1:1, invite by link",
+        "friend": "1:1, link or 4-digit code",
         "rules": [
           "On a 3×3 board, each player has 2 large, 2 medium and 2 small pieces.",
           "On your turn, place a new piece or move one of yours on the board. Large covers medium and small; medium covers small.",
@@ -1594,8 +1594,29 @@
   },
   "GameGate": {
     "start": "Start game",
-    "howToPlay": "How to play",
-    "startHint": "Read the rules? Jump right in."
+    "howToPlay": "See how to play",
+    "startHint": "Read the rules? Jump right in.",
+    "aiTitle": "Play the AI",
+    "aiDesc": "Start a game against the AI right away. You can change the difficulty in the game.",
+    "soloTitle": "Play solo",
+    "soloDesc": "Start a puzzle right away. Pick the difficulty in the game.",
+    "aiPlay": "Play the AI",
+    "soloPlay": "Start game",
+    "aiThree": "3 players · vs 2 AI",
+    "aiTwo": "1:1 · vs 1 AI",
+    "friendTitle": "Play with friends",
+    "friendDesc": "Creating a room gives you an invite link and a 4-digit invite code. Friends open the link, or enter the code on this screen.",
+    "roomCreate": "Create a friend room",
+    "roomTwo": "Create a 1:1 room",
+    "roomThree": "Create a 1:1:1 room",
+    "creating": "Creating room…",
+    "joinTitle": "Join with an invite code",
+    "codePlaceholder": "0000",
+    "join": "Join",
+    "codeInvalid": "Enter the 4-digit invite code.",
+    "inviteCode": "INVITE CODE",
+    "inviteCodeHint": "Friends can enter this number under \"Join with an invite code\" on the game's start screen.",
+    "howToPlayTitle": "How to play"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -1677,7 +1698,7 @@
       },
       {
         "q": "How do I play with friends?",
-        "a": "Create a friend room and send the link or the 6-digit invite code. AI fills empty seats, and each turn in a friend room lasts 60 seconds."
+        "a": "Create a friend room and send the link or the 4-digit invite code. AI fills empty seats, and each turn in a friend room lasts 60 seconds."
       },
       {
         "q": "Are the bullet positions really random?",

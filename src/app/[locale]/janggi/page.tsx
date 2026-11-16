@@ -38,7 +38,7 @@ export default async function JanggiPage({ params }: { params: Promise<{ locale:
           { '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) },
         ],
       }} />
-      <GameGate accent={GOLD} ink="#1a1408" tutorialKey="puzzlthink_janggi_tutorial_seen" hero={<GameIntroHero locale={locale} id="janggi" />} tutorial={<JanggiTutorialSteps />} guide={<JanggiGuide locale={locale} />}>
+      <GameGate game="janggi" accent={GOLD} ink="#1a1408" tutorialKey="puzzlthink_janggi_tutorial_seen" hero={<GameIntroHero locale={locale} id="janggi" />} tutorial={<JanggiTutorialSteps />} guide={<JanggiGuide locale={locale} />}>
         <JanggiGame />
       </GameGate>
     </>

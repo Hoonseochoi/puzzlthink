@@ -1,19 +1,19 @@
 "use client";
 
+import BugReport from '@/components/BugReport';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { BookOpen, Link2, RotateCcw, Sparkles } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { BookOpen, RotateCcw, Sparkles } from 'lucide-react';
 import type { AiLevel } from '@/lib/heavy13';
 import { createH13Room } from '@/lib/heavy13Room';
 import { ranking } from '@/lib/heavy13';
 import { reportGame } from '@/lib/stats';
-import { H13_ROOM, prepareHeavy13Room } from '@/hooks/useHeavy13Room';
+import { H13_ROOM} from '@/hooks/useHeavy13Room';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
-import { BTN, BTN_ACCENT, CALLOUT, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, seg } from '../ui/gameUi';
+import { BTN, BTN_ACCENT, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, seg } from '../ui/gameUi';
 import Heavy13Result from './Heavy13Result';
 import Heavy13Table from './Heavy13Table';
 import Heavy13Tutorial from './Heavy13Tutorial';
@@ -24,7 +24,6 @@ const TUTORIAL_KEY = 'puzzlthink_heavy13_tutorial_seen';
 
 export default function Heavy13Game() {
   const t = useTranslations('Heavy13');
-  const router = useRouter();
   const [level, setLevel] = useState<AiLevel>('normal');
   const create = useCallback(() => createH13Room({ id: 'me', name: t('you'), at: 0 }, { solo: true, aiLevel: level }), [level, t]);
   const { state, dispatch, reset } = useLocalRoom(H13_ROOM, create);
@@ -52,7 +51,7 @@ export default function Heavy13Game() {
       <WallGoShards tint={SHARD_TINT} />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="HEAVY 13">
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
-        <LanguageSwitcher compact dark />
+        <BugReport /><LanguageSwitcher compact dark />
         <button onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
       <main className={MAIN}>
@@ -60,11 +59,6 @@ export default function Heavy13Game() {
           {state && <Heavy13Table room={state} mySeat={0} onAction={dispatch} online={false} />}
         </section>
         <aside className="flex flex-col gap-4">
-          <section className={CALLOUT}>
-            <div className="flex items-center gap-2"><Link2 size={14} className="text-(--accent)" /><h2 className={PANEL_TITLE}>{t('friendTitle')}</h2></div>
-            <p className="mt-2 text-[11px] leading-5 text-white/50">{t('friendDesc')}</p>
-            <button onClick={() => router.push(`/heavy13/room/${prepareHeavy13Room()}`)} className={`mt-3 w-full py-2.5 ${BTN_ACCENT}`}>{t('createRoom')}</button>
-          </section>
           <section className={PANEL}>
             <h2 className={PANEL_TITLE}>{t('aiLevel')}</h2>
             <div className="mt-3 grid grid-cols-3 gap-2">{LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} className={`p-2.5 ${seg(level === l)}`}>{t(`level_${l}`)}</button>)}</div>

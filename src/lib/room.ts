@@ -3,6 +3,9 @@ export type Seat = { id: string; name: string } | null;
 export type Peer = { id: string; name: string; at: number };
 export type BaseRoom = { sid: string; v: number; seats: Seat[]; phase: string; deadline: number };
 
+/** Whether `text` is a room code: the 4-digit invite codes, or the older 6-character ones (old links keep working). */
+export const isRoomCode = (text: string) => /^\d{4}$/.test(text) || /^[a-z0-9]{6}$/.test(text);
+
 export const newSid = () => Math.random().toString(36).slice(2, 10);
 
 export function bump<S extends BaseRoom>(state: S): S {

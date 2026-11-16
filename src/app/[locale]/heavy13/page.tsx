@@ -33,7 +33,7 @@ export default async function Heavy13Page({ params }: { params: Promise<{ locale
         { '@type': 'VideoGame', name: t('metaTitle'), alternateName: ['무거운 13', 'Heavy 13'], description: t('metaDescription'), url: `${BASE_URL}/${locale}/heavy13`, inLanguage: locale, genre: ['Strategy', 'Party game'], gamePlatform: 'Web browser', playMode: ['SinglePlayer', 'MultiPlayer'], numberOfPlayers: 7, offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' }, publisher: { '@type': 'Organization', name: 'PUZZLTHINK', url: BASE_URL } },
         { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
       ] }} />
-      <GameGate accent={SAND} ink={SAND_INK} tutorialKey="puzzlthink_heavy13_tutorial_seen" hero={<GameIntroHero locale={locale} id="heavy13" />} tutorial={<Heavy13TutorialSteps />} guide={<Heavy13Guide locale={locale} />}>
+      <GameGate game="heavy13" accent={SAND} ink={SAND_INK} tutorialKey="puzzlthink_heavy13_tutorial_seen" hero={<GameIntroHero locale={locale} id="heavy13" />} tutorial={<Heavy13TutorialSteps />} guide={<Heavy13Guide locale={locale} />}>
         <Heavy13Game />
       </GameGate>
     </>

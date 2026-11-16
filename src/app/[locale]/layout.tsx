@@ -7,7 +7,6 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import GlobalHeader from '@/components/GlobalHeader';
 import { AuthProvider } from '@/components/AuthProvider';
 import HallCelebration from '@/components/HallCelebration';
-import BugReport from '@/components/BugReport';
 import GlobalFooter from '@/components/GlobalFooter';
 import InstallBanner from '@/components/InstallBanner';
 import { routing } from '@/i18n/routing';
@@ -56,7 +55,6 @@ export default async function LocaleLayout({
           {children}
           <GlobalFooter />
           <HallCelebration />
-          <BugReport />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

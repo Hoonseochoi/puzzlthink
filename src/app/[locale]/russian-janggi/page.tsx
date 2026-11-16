@@ -35,7 +35,7 @@ export default async function RussianJanggiPage({ params }: { params: Promise<{ 
         { '@type': 'VideoGame', name: t('metaTitle'), description: t('metaDescription'), url: `${BASE_URL}/${locale}/russian-janggi`, inLanguage: locale, genre: ['Strategy', 'Board game'], gamePlatform: 'Web browser', playMode: ['SinglePlayer', 'MultiPlayer'], numberOfPlayers: 2, offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' }, publisher: { '@type': 'Organization', name: 'PUZZLTHINK', url: BASE_URL } },
         { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
       ] }} />
-      <GameGate accent={ACCENT} ink="#1a1204" hero={<GameIntroHero locale={locale} id="russianJanggi" />} tutorial={<RJTutorialSteps />} guide={<TextGuide locale={locale} namespace="RussianJanggiGuide" />}>
+      <GameGate game="russianJanggi" accent={ACCENT} ink="#1a1204" hero={<GameIntroHero locale={locale} id="russianJanggi" />} tutorial={<RJTutorialSteps />} guide={<TextGuide locale={locale} namespace="RussianJanggiGuide" />}>
         <RJGame />
       </GameGate>
     </>

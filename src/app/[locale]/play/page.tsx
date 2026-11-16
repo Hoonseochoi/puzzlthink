@@ -25,7 +25,7 @@ export default async function PlayPage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) }} />
-      <GameGate accent="#4b7bff" tone="light" tutorialKey="puzzlthink_sudoku_tutorial_seen" hero={<GameIntroHero locale={locale} id="sudoku" tone="light" />} tutorial={<SudokuTutorialSteps />} guide={<SudokuGuide locale={locale} />}>
+      <GameGate game="sudoku" accent="#4b7bff" tone="light" tutorialKey="puzzlthink_sudoku_tutorial_seen" hero={<GameIntroHero locale={locale} id="sudoku" tone="light" />} tutorial={<SudokuTutorialSteps />} guide={<SudokuGuide locale={locale} />}>
         <Suspense fallback={<div className="min-h-screen bg-[#f3f0e8]" />}><PlayClient /></Suspense>
       </GameGate>
     </>

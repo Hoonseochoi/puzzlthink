@@ -1,5 +1,7 @@
 "use client";
 
+import BugReport from '@/components/BugReport';
+import InviteCode from '@/components/ui/InviteCode';
 import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, Share2, Swords, Users, WifiOff } from 'lucide-react';
@@ -89,7 +91,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
       <WallGoShards tint="#4a3812" />
       <RoomAlerts alerts={alerts} accent={GOLD} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader backHref="/janggi" backLabel={tc('janggi')} title="十二將棋" titleClass={hanjaFont.className} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
-        <LanguageSwitcher compact dark />
+        <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}
@@ -124,6 +126,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
                 <div className="rounded-[12px] border border-(--accent)/30 bg-black/50 p-5">
                   <p className={PANEL_TITLE}>{t('inviteTitle')}</p>
                   <p className="mt-2 text-sm text-white/60">{t('inviteDesc')}</p>
+                  <InviteCode code={code} />
                   <div className="mt-4 flex items-center gap-2 rounded-md border border-white/10 bg-[#0b0b0e] p-2">
                     <span className="min-w-0 flex-1 truncate px-2 font-mono text-xs text-white/70">{shareUrl}</span>
                     <button onClick={copyLink} className={`shrink-0 ${BTN}`}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t('copied') : t('copy')}</button>

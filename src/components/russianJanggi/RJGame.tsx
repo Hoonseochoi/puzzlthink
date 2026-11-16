@@ -1,16 +1,15 @@
 "use client";
 
+import BugReport from '@/components/BugReport';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, Clock3, Flag, Infinity, Link2, RotateCcw, Sparkles } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { Check, Clock3, Flag, Infinity, RotateCcw, Sparkles } from 'lucide-react';
 import { type Action, type Difficulty, type RJState, type Side, TURN_SECONDS, applyAction, chooseAiAction, finish, initialState, isOver } from '@/lib/russianJanggi';
-import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
-import { BTN, BTN_ACCENT, CALLOUT, CHIP, DIAMOND, HEADING, KICKER, MAIN, NOTE, SHELL, STAGE, WELL, seg } from '../ui/gameUi';
+import { BTN, BTN_ACCENT, CHIP, DIAMOND, HEADING, KICKER, MAIN, NOTE, SHELL, STAGE, WELL, seg } from '../ui/gameUi';
 import RJTable from './RJTable';
 import RJResult from './RJResult';
 import RJReplay from './RJReplay';
@@ -28,7 +27,6 @@ type MatchRecord = { won: boolean; draw: boolean; difficulty: Difficulty; date: 
 
 export default function RJGame() {
   const t = useTranslations('RussianJanggi');
-  const router = useRouter();
   const [firstChoice, setFirstChoice] = useState<FirstChoice>('random');
   const [difficulty, setDifficulty] = useState<Difficulty>('normal');
   const [game, setGame] = useState<RJState>(() => initialState(0));
@@ -124,7 +122,7 @@ export default function RJGame() {
     <div className={SHELL} style={RJ_ROOT}>
       <WallGoShards tint={RJ_SHARD} />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="NESTING 3×3">
-        <LanguageSwitcher compact dark />
+        <BugReport /><LanguageSwitcher compact dark />
         <button onClick={() => newGame()} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 
@@ -147,11 +145,6 @@ export default function RJGame() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <section className={CALLOUT}>
-            <div className="flex items-center gap-2"><Link2 size={14} className="text-(--accent)" /><h2 className={RJ_TITLE}>{t('friendTitle')}</h2></div>
-            <p className="mt-2 text-[11px] leading-5 text-white/55">{t('friendDesc')}</p>
-            <button onClick={() => router.push(`/russian-janggi/room/${prepareRussianJanggiRoom()}`)} className={`mt-3 w-full !py-2.5 ${BTN_ACCENT}`}>{t('createRoom')}</button>
-          </section>
           <section className={RJ_PANEL}>
             <h2 className={RJ_TITLE}>{t('difficulty')}</h2>
             <div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => newGame(firstChoice, level)} className={`p-2.5 ${seg(difficulty === level)}`}>{t(`difficulty_${level}`)}</button>)}</div>

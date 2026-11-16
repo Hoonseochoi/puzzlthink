@@ -1,10 +1,10 @@
 "use client";
 
+import BugReport from '@/components/BugReport';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowLeft, BookOpen, Check, Clock3, Link2, RotateCcw, ShieldOff, Sparkles } from 'lucide-react';
-import { Link, useRouter } from '@/i18n/routing';
-import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
+import { ArrowLeft, BookOpen, Check, Clock3, RotateCcw, ShieldOff, Sparkles } from 'lucide-react';
+import { Link } from '@/i18n/routing';
 import { reportGame } from '@/lib/stats';
 import {
   type AiDifficulty,
@@ -41,10 +41,8 @@ type MatchRecord = { id: number; won: boolean; score: number; difficulty: AiDiff
 
 export default function WallGoGame() {
   const t = useTranslations('WallGo');
-  const to = useTranslations('WallGoOnline');
   const tc = useTranslations('Common');
   const locale = useLocale();
-  const router = useRouter();
   const [modeId, setModeId] = useState<ModeId>('three');
   const [order, setOrder] = useState<PlayerId[]>(() => placementOrder(MODES.three, 0));
   const [pieces, setPieces] = useState<Piece[]>([]);
@@ -110,7 +108,7 @@ export default function WallGoGame() {
       const requested = params.get('mode');
       const wanted = requested === 'two' || requested === 'three' ? requested : localStorage.getItem(MODE_KEY);
       if (wanted === 'two') resetGame(difficulty, 'two');
-      if (requested) { params.delete('mode'); window.history.replaceState(null, '', `${window.location.pathname}${params.size ? `?${params}` : ''}`); }
+      if (requested) { params.delete('mode'); window.history.replaceState(null, '', `${window.location.pathname}${params.size ? `?${params}` : ''}${window.location.hash}`); }
       if (requested === 'three') try { localStorage.setItem(MODE_KEY, 'three'); } catch { /* Optional preference. */ }
       if (!localStorage.getItem('puzzlthink_wallgo_tutorial_seen')) setShowTutorial(true);
     }, 0);
@@ -236,14 +234,13 @@ export default function WallGoGame() {
       : currentPlayer !== 0 ? t('thinking', { player: playerNames[currentPlayer] })
         : turnStep === 'move' ? (selectedPieceId ? t('chooseMove') : t('selectPiece')) : t('placeWall');
 
-  const createRoom = (roomMode: ModeId) => router.push(`/wallgo/room/${prepareHostedRoom(roomMode)}`);
 
   const closeTutorial = () => { localStorage.setItem('puzzlthink_wallgo_tutorial_seen', '1'); setShowTutorial(false); };
 
   return <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ backgroundImage: FOG }}>
     <Shards />
     {showTutorial && <WallGoTutorial onClose={closeTutorial} />}
-    <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8"><div className="flex min-w-0 items-center gap-3"><Link href="/" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">PUZZLTHINK</span></Link><span className="h-5 w-px bg-white/15" /><div className="min-w-0"><strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc('wallgo') : 'WALLGO'}</strong><span className="ml-2 hidden text-[9px] font-bold tracking-[0.16em] text-[#ff4d5e]/70 sm:inline">{t(modeId === 'two' ? 'roundDuel' : 'roundSolo')}</span></div></div><div className="flex items-center gap-1.5"><button onClick={() => setShowTutorial(true)} className="flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white/80 hover:bg-white/10"><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button><LanguageSwitcher compact dark /><button onClick={() => resetGame()} className="flex items-center gap-2 rounded-md bg-[#e0283a] px-3 py-2 text-xs font-bold text-white shadow-[0_0_18px_rgba(224,40,58,.35)] hover:bg-[#f0354a]"><RotateCcw size={14} /><span className="hidden sm:inline">{t('playAgain')}</span></button></div></header>
+    <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8"><div className="flex min-w-0 items-center gap-3"><Link href="/" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">PUZZLTHINK</span></Link><span className="h-5 w-px bg-white/15" /><div className="min-w-0"><strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc('wallgo') : 'WALLGO'}</strong><span className="ml-2 hidden text-[9px] font-bold tracking-[0.16em] text-[#ff4d5e]/70 sm:inline">{t(modeId === 'two' ? 'roundDuel' : 'roundSolo')}</span></div></div><div className="flex items-center gap-1.5"><button onClick={() => setShowTutorial(true)} className="flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white/80 hover:bg-white/10"><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button><BugReport /><LanguageSwitcher compact dark /><button onClick={() => resetGame()} className="flex items-center gap-2 rounded-md bg-[#e0283a] px-3 py-2 text-xs font-bold text-white shadow-[0_0_18px_rgba(224,40,58,.35)] hover:bg-[#f0354a]"><RotateCcw size={14} /><span className="hidden sm:inline">{t('playAgain')}</span></button></div></header>
 
     <main className="relative z-10 mx-auto grid w-full max-w-[1180px] gap-4 px-3 py-3 sm:gap-6 sm:px-4 sm:py-5 lg:grid-cols-[minmax(0,760px)_320px] lg:px-6 lg:py-8">
       <section className="rounded-[14px] border border-white/10 bg-[#121217]/85 p-2.5 shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur sm:p-5"><div className="mb-3 flex items-center justify-between px-1 sm:mb-4 sm:px-2"><div><p className="mb-1 font-mono text-[10px] font-bold tracking-[0.25em] text-[#ff4d5e]">TURN {String(turnNumber).padStart(2, '0')}</p><h2 className="text-base font-extrabold tracking-tight text-[#eef1f7] sm:text-xl">{instruction}</h2></div><div className={`flex min-w-[82px] items-center justify-center gap-2 rounded-md px-3 py-2.5 font-mono text-base font-bold ${seconds <= 15 && currentPlayer === 0 && phase === 'playing' ? 'animate-pulse bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.6)]' : 'border border-white/15 bg-black/60 text-[#c9cfdc]'}`}><Clock3 size={16} />{currentPlayer === 0 && phase === 'playing' ? `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}` : '--:--'}</div></div>
@@ -260,7 +257,6 @@ export default function WallGoGame() {
       <aside className="flex flex-col gap-4">
         <section className={`hidden lg:block ${PANEL}`}><div className="mb-3 flex items-center justify-between"><h2 className={PANEL_TITLE}>{t('players')}</h2><span className="rounded-md border border-white/10 px-2.5 py-1 text-[10px] font-bold text-white/60">{t(modeId === 'two' ? 'twoPlayers' : 'threePlayers')}</span></div><div className="space-y-2">{mode.players.map((player) => <div key={player} className={`flex items-center gap-3 rounded-[10px] border p-3 ${currentPlayer === player && phase !== 'finished' ? 'border-[#e0283a]/50 bg-white/[0.04] shadow-[inset_0_0_20px_rgba(224,40,58,.08)]' : 'border-transparent'}`}><WallGoCharacter player={player} className="h-10 shrink-0" /><div className="min-w-0 flex-1"><div className="flex items-center gap-1.5"><p className="text-sm font-extrabold">{playerNames[player]}</p>{player !== 0 && <span className="text-[9px] font-black text-white/30">AI</span>}</div><p className="text-[11px] text-white/45">{t('areaPieces', { area: territory.scores[player], pieces: pieces.filter((piece) => piece.player === player).length, total: piecesPerPlayer })}</p></div>{mode.wallBreak && <div className="text-right"><p className="text-[9px] font-bold text-white/35">{t('break')}</p><p className={`text-xs font-black ${breakAvailable[player] ? 'text-[#ff4d5e]' : 'text-white/25'}`}>{t(breakAvailable[player] ? 'ready' : 'used')}</p></div>}</div>)}</div></section>
         <section className={PANEL}><h2 className={PANEL_TITLE}>{t('mode')}</h2><div className="mt-3 grid grid-cols-2 gap-2">{(['three', 'two'] as ModeId[]).map((id) => <button key={id} onClick={() => resetGame(difficulty, id)} className={`rounded-md p-2.5 text-left transition ${modeId === id ? 'bg-[#e0283a] text-white shadow-[0_0_14px_rgba(224,40,58,.4)]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}><span className="block text-xs font-extrabold">{t(id === 'two' ? 'modeTwo' : 'modeThree')}</span><span className="mt-0.5 block text-[10px] opacity-70">{t(id === 'two' ? 'modeTwoDesc' : 'modeThreeDesc')}</span></button>)}</div></section>
-        <section className="rounded-[14px] border border-[#e0283a]/40 bg-[#1a0d10]/80 p-4"><div className="flex items-center gap-2"><Link2 size={14} className="text-[#ff4d5e]" /><h2 className={PANEL_TITLE}>{to('panelTitle')}</h2></div><p className="mt-2 text-[11px] leading-5 text-white/50">{to('panelDesc')}</p><div className="mt-3 grid grid-cols-2 gap-2">{(['two', 'three'] as ModeId[]).map((id) => <button key={id} onClick={() => createRoom(id)} className="rounded-md border border-white/15 bg-white/5 p-2.5 text-xs font-extrabold text-white/85 transition hover:border-[#e0283a]/60 hover:bg-[#e0283a]/15">{to(id === 'two' ? 'createTwo' : 'createThree')}</button>)}</div></section>
         <section className={PANEL}><h2 className={PANEL_TITLE}>{t('difficulty')}</h2><div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => resetGame(level)} className={`rounded-md p-2.5 text-xs font-extrabold transition ${difficulty === level ? 'bg-[#e0283a] text-white shadow-[0_0_14px_rgba(224,40,58,.4)]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}>{t(`difficulty${level[0].toUpperCase()}${level.slice(1)}`)}</button>)}</div></section>
         <section className="rounded-[14px] border border-[#e0283a]/30 bg-black/60 p-5"><div className="mb-4 flex items-center gap-2"><Sparkles size={15} className="text-[#ff4d5e]" /><h2 className={PANEL_TITLE}>{t('howToPlay')}</h2></div><ol className="space-y-3 text-xs leading-relaxed text-white/65">{(modeId === 'two' ? ['duelRule1', 'rule1', 'rule2', 'duelRule3'] : ['rule1', 'rule2', 'rule3']).map((key, index) => <li key={key} className="flex gap-3"><span className="font-mono text-[#ff4d5e]">0{index + 1}</span><span>{t(key)}</span></li>)}</ol></section>
         <section className={`grid grid-cols-3 gap-2 ${PANEL}`}><h2 className={`col-span-3 ${PANEL_TITLE}`}>{t('record')}</h2>{games ? <><div><p className="text-[10px] text-white/35">{t('recordGames')}</p><p className="text-xl font-black">{games}</p></div><div><p className="text-[10px] text-white/35">{t('recordWins')}</p><p className="text-xl font-black text-[#ff4d5e]">{wins}</p></div><div><p className="text-[10px] text-white/35">{t('recordRate')}</p><p className="text-xl font-black">{Math.round(wins / games * 100)}%</p></div></> : <p className="col-span-3 text-xs text-white/40">{t('recordEmpty')}</p>}</section>
