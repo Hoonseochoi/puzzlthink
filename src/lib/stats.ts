@@ -1,4 +1,4 @@
-// Player records stored in Supabase (only for signed-in players). All calls fail quietly.
+// Player records stored in Supabase (only for signed-in players) plus an anonymous play counter. All calls fail quietly.
 import { getSupabase } from './supabase';
 
 export type GameId = 'wallgo' | 'janggi' | 'heavy13' | 'sudoku' | 'russian_roulette' | 'russian_janggi';
@@ -47,6 +47,8 @@ export async function reportGame(key: string, game: GameId, mode: GameMode, resu
   reported.add(key);
   const supabase = getSupabase();
   if (!supabase) return;
+  // Play counter for every finished game, signed in or not (no personal data).
+  supabase.rpc('count_play', { p_game: game, p_mode: mode }).then(() => {});
   const { data } = await supabase.auth.getSession();
   const user = data.session?.user;
   if (!user) {
