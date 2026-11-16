@@ -146,7 +146,7 @@ export default function WallGoGame() {
     const player = order[placementIndex];
     if (player === 0) return;
     const timer = window.setTimeout(() => {
-      const position = chooseBotPlacement(pieces, player);
+      const position = chooseBotPlacement(pieces, player, difficulty, mode);
       const count = pieces.filter((piece) => piece.player === player).length;
       const nextPieces = [...pieces, { id: `${player}-${count}`, player, ...position }];
       addLog(t('logPlaced', { player: playerNames[player], cell: `${String.fromCharCode(65 + position.col)}${position.row + 1}` }));

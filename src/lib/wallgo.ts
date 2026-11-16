@@ -193,47 +193,139 @@ export function getWinner(territory: TerritoryResult, players: PlayerId[] = [0, 
   )[0];
 }
 
-export function chooseBotPlacement(pieces: Piece[], player: PlayerId): Position {
-  const candidates: { position: Position; value: number }[] = [];
-  for (let row = 0; row < BOARD_SIZE; row += 1) {
-    for (let col = 0; col < BOARD_SIZE; col += 1) {
-      const position = { row, col };
-      if (isOccupied(pieces, position)) continue;
-      const centerDistance = Math.abs(row - 3) + Math.abs(col - 3);
-      const ownPieces = pieces.filter((piece) => piece.player === player);
-      const ownDistance = ownPieces.length ? Math.min(...ownPieces.map((piece) => Math.abs(piece.row - row) + Math.abs(piece.col - col))) : 3;
-      const nearest = pieces.length ? Math.min(...pieces.map((piece) => Math.abs(piece.row - row) + Math.abs(piece.col - col))) : 3;
-      candidates.push({ position, value: ownDistance * 2.2 + nearest * 0.4 - centerDistance * 0.35 + Math.random() });
+// ---------- AI ----------
+//
+// The AI estimates territory before it is closed: every empty square goes to the player whose
+// pieces can reach it in the fewest steps (walls and pieces block the way); ties belong to nobody.
+// Closed regions are scored exactly. "Hard" also reads the next player's best reply.
+
+type Candidate = { move: MoveOption; wall: string; direction: Direction; pieces: Piece[]; walls: Set<string>; value: number };
+const CELLS = BOARD_SIZE * BOARD_SIZE;
+const cellIndex = (p: Position) => p.row * BOARD_SIZE + p.col;
+
+/** Steps from each player's pieces to every square (multi-source BFS). */
+function reachDistances(pieces: Piece[], walls: Set<string>, players: PlayerId[]): Int16Array[] {
+  const blocked = new Uint8Array(CELLS);
+  for (const piece of pieces) blocked[cellIndex(piece)] = 1;
+  return players.map((player) => {
+    const dist = new Int16Array(CELLS).fill(999);
+    const queue: Position[] = [];
+    for (const piece of pieces) if (piece.player === player) { dist[cellIndex(piece)] = 0; queue.push(piece); }
+    for (let head = 0; head < queue.length; head += 1) {
+      const current = queue[head];
+      const d = dist[cellIndex(current)] + 1;
+      for (const direction of Object.keys(DIRECTIONS) as Direction[]) {
+        const next = neighbor(current, direction);
+        if (!isInside(next) || hasWall(walls, current, next)) continue;
+        const i = cellIndex(next);
+        if (blocked[i] || dist[i] <= d) continue;
+        dist[i] = d;
+        queue.push(next);
+      }
+    }
+    return dist;
+  });
+}
+
+/** Expected territory per player: squares a player reaches strictly first (own pieces' squares count too). */
+export function estimateTerritory(pieces: Piece[], walls: Set<string>, players: PlayerId[]): number[] {
+  const dist = reachDistances(pieces, walls, players);
+  const counts = [0, 0, 0];
+  for (let i = 0; i < CELLS; i += 1) {
+    let best = 999, owner = -1;
+    for (let k = 0; k < players.length; k += 1) {
+      const d = dist[k][i];
+      if (d < best) { best = d; owner = k; } else if (d === best) owner = -1;
+    }
+    if (owner >= 0 && best < 999) counts[players[owner]] += 1;
+  }
+  return counts;
+}
+
+/** Open sides around a player's pieces; a piece with 0–1 open sides is close to being trapped. */
+function trappedPenalty(pieces: Piece[], walls: Set<string>, player: PlayerId) {
+  let penalty = 0;
+  for (const piece of pieces) {
+    if (piece.player !== player) continue;
+    let open = 0;
+    for (const direction of Object.keys(DIRECTIONS) as Direction[]) {
+      const next = neighbor(piece, direction);
+      if (isInside(next) && !hasWall(walls, piece, next) && !isOccupied(pieces, next)) open += 1;
+    }
+    if (open === 0) penalty += 4; else if (open === 1) penalty += 1.5;
+  }
+  return penalty;
+}
+
+/** Position value for `player`: exact when separated, otherwise expected territory against the strongest rival. */
+export function evaluatePosition(pieces: Piece[], walls: Set<string>, player: PlayerId, mode: GameMode): number {
+  const territory = getTerritory(pieces, walls, mode.totalPieces);
+  if (territory.separated) {
+    const winner = getWinner(territory, mode.players);
+    const margin = territory.scores[player] - Math.max(...mode.players.filter((p) => p !== player).map((p) => territory.scores[p]));
+    return (winner === player ? 10_000 : -10_000) + margin;
+  }
+  const est = estimateTerritory(pieces, walls, mode.players);
+  const rivals = mode.players.filter((p) => p !== player).map((p) => est[p]);
+  const strongest = Math.max(...rivals);
+  const others = rivals.reduce((a, b) => a + b, 0) - strongest;
+  return est[player] * 3 - strongest * 2 - others * 0.6 + territory.scores[player] * 0.5
+    - trappedPenalty(pieces, walls, player) * 2 + trappedPenalty(pieces, walls, mode.players.find((p) => p !== player && est[p] === strongest) ?? player) * 0.5;
+}
+
+function candidates(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean, mode: GameMode): Candidate[] {
+  const result: Candidate[] = [];
+  for (const move of getMoveOptions(pieces, walls, player, canBreakWall)) {
+    const moved = applyMove(pieces, walls, move);
+    for (const option of getWallOptions(moved.pieces, moved.walls, move.pieceId)) {
+      const nextWalls = new Set(moved.walls).add(option.key);
+      // Breaking a wall is a one-time resource: only worth it for a clear gain.
+      const value = evaluatePosition(moved.pieces, nextWalls, player, mode) - (move.brokenWall ? 6 : 0);
+      result.push({ move, wall: option.key, direction: option.direction, pieces: moved.pieces, walls: nextWalls, value });
     }
   }
-  candidates.sort((a, b) => b.value - a.value);
-  return candidates[0]?.position ?? { row: 3, col: 3 };
+  return result.sort((a, b) => b.value - a.value);
+}
+
+export function chooseBotPlacement(pieces: Piece[], player: PlayerId, difficulty: AiDifficulty = 'normal', mode: GameMode = MODES.three): Position {
+  const empty: Position[] = [];
+  for (let row = 0; row < BOARD_SIZE; row += 1) for (let col = 0; col < BOARD_SIZE; col += 1) if (!isOccupied(pieces, { row, col })) empty.push({ row, col });
+  if (difficulty === 'easy') return empty[Math.floor(Math.random() * empty.length)] ?? { row: 3, col: 3 };
+  const walls = new Set<string>();
+  const scored = empty.map((position) => {
+    const next = [...pieces, { id: 'probe', player, ...position }];
+    const est = estimateTerritory(next, walls, mode.players);
+    const rivals = Math.max(0, ...mode.players.filter((p) => p !== player).map((p) => est[p]));
+    const center = Math.abs(position.row - 3) + Math.abs(position.col - 3);
+    return { position, value: est[player] * 2 - rivals - center * 0.3 + Math.random() * (difficulty === 'hard' ? 0.3 : 1.5) };
+  });
+  scored.sort((a, b) => b.value - a.value);
+  return scored[0]?.position ?? { row: 3, col: 3 };
 }
 
 export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean, difficulty: AiDifficulty = 'normal', mode: GameMode = MODES.three) {
-  const candidates: {
-    move: MoveOption; wall: string; direction: Direction; pieces: Piece[]; walls: Set<string>; value: number;
-  }[] = [];
-  for (const move of getMoveOptions(pieces, walls, player, canBreakWall)) {
-    const moved = applyMove(pieces, walls, move);
-    for (const wallOption of getWallOptions(moved.pieces, moved.walls, move.pieceId)) {
-      const nextWalls = new Set(moved.walls).add(wallOption.key);
-      const territory = getTerritory(moved.pieces, nextWalls, mode.totalPieces);
-      const opponentScore = Math.max(...territory.scores.filter((_, index) => index !== player));
-      const mobility = getMoveOptions(moved.pieces, nextWalls, player, false).length;
-      const opponentMobility = mode.players
-        .filter((id) => id !== player)
-        .reduce<number>((sum, id) => sum + getMoveOptions(moved.pieces, nextWalls, id, false).length, 0);
-      const winBonus = territory.separated ? (getWinner(territory, mode.players) === player ? 10_000 : -10_000) : 0;
-      const value = winBonus + territory.scores[player] * 7 + territory.largest[player] * 2
-        - opponentScore * 3 + mobility * 0.45 - opponentMobility * 0.15
-        - (move.brokenWall ? 5 : 0) + Math.random() * 1.8;
-      candidates.push({ move, wall: wallOption.key, direction: wallOption.direction, pieces: moved.pieces, walls: nextWalls, value });
-    }
+  const list = candidates(pieces, walls, player, canBreakWall, mode);
+  if (!list.length) return null;
+  if (difficulty === 'easy') {
+    // Mostly sensible, often sloppy: pick among the better half with plenty of noise.
+    const pool = list.slice(0, Math.max(1, Math.ceil(list.length / 2)));
+    return pool[Math.floor(Math.random() * pool.length)];
   }
-  candidates.sort((a, b) => b.value - a.value);
-  if (!candidates.length) return null;
-  if (difficulty === 'easy') return candidates[Math.floor(Math.random() * candidates.length)];
-  if (difficulty === 'normal') return candidates[Math.floor(Math.random() * Math.min(4, candidates.length))];
-  return candidates[0];
+  const immediateWin = list.find((c) => c.value >= 9_000);
+  if (immediateWin) return immediateWin;
+  if (difficulty === 'normal') {
+    const top = list.slice(0, Math.min(3, list.length));
+    return top[Math.floor(Math.random() * top.length)];
+  }
+  // Hard: for the most promising moves, assume the next player answers with their best move.
+  const next = nextPlayerOf(mode, player);
+  let best = list[0], bestValue = -Infinity;
+  for (const candidate of list.slice(0, 14)) {
+    const replies = candidates(candidate.pieces, candidate.walls, next, false, mode);
+    const reply = replies[0];
+    const value = reply ? evaluatePosition(reply.pieces, reply.walls, player, mode) : candidate.value + 2;
+    const blended = value * 0.75 + candidate.value * 0.25;
+    if (blended > bestValue) { bestValue = blended; best = candidate; }
+  }
+  return best;
 }
