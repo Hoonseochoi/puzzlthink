@@ -34,7 +34,8 @@
     "hallCongratsDesc": "Your name is now in the Hall of Fame on the Records page. Congratulations!",
     "hallCongratsView": "See the Hall of Fame",
     "hallCongratsClose": "Close",
-    "gamesIntro": "About games"
+    "gamesIntro": "About games",
+    "contactPartnership": "Contact & partnerships"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
@@ -343,7 +344,7 @@
     ]
   },
   "Info": {
-    "email": "chlgnstj1@gmail.com",
+    "email": "contact@puzzlthink.com",
     "aboutEyebrow": "ABOUT",
     "aboutTitle": "About PUZZLTHINK",
     "aboutDescription": "A puzzle site bringing games from The Devil's Plan and The Genius to the web.",
@@ -375,15 +376,19 @@
     ],
     "contactEyebrow": "CONTACT",
     "contactTitle": "Contact",
-    "contactDescription": "Questions about games, bugs, partnerships, or privacy are welcome.",
+    "contactDescription": "Questions, partnership proposals and bug reports are welcome.",
     "contactSections": [
       {
-        "title": "Email",
-        "body": "Send all inquiries to chlgnstj1@gmail.com. We usually reply within three business days."
+        "title": "General questions",
+        "body": "For questions about the games, your account or records, email contact@puzzlthink.com. We usually reply within three business days."
+      },
+      {
+        "title": "Partnerships & collaboration",
+        "body": "Game partnerships, content or streaming collaborations, advertising and sponsorship, and event proposals are all welcome at contact@puzzlthink.com. Put [Partnership] in the subject and include your company or channel, the proposal, timing and how to reach you."
       },
       {
         "title": "Reporting bugs",
-        "body": "Including your device, browser, the game, and what happened helps us look into it faster."
+        "body": "Use the 'Report a bug' button at the bottom right of any game. It sends which game you were playing and your browser details along with your note, so we can look into it faster. Email works too."
       },
       {
         "title": "Privacy requests",
@@ -1453,5 +1458,27 @@
         "origin": "A classic puzzle solved with logic, not arithmetic. The rules take a minute to learn, but harder puzzles need reasoning several steps ahead."
       }
     }
+  },
+  "BugReport": {
+    "button": "Report a bug",
+    "title": "Report a bug",
+    "desc": "Tell us what went wrong in {game}. It goes straight to our inbox.",
+    "category": "What kind of problem?",
+    "cat_bug": "The game froze or won't continue",
+    "cat_rule": "A rule or result looks wrong",
+    "cat_display": "Something looks broken on screen",
+    "cat_online": "Friend room / connection problem",
+    "cat_other": "Other / suggestion",
+    "message": "Details",
+    "messagePlaceholder": "What were you doing, and what happened?",
+    "email": "Your email for a reply (optional)",
+    "emailHint": "Only used to reply to you, nothing else.",
+    "send": "Send",
+    "sending": "Sending…",
+    "sent": "Thanks! Your report was received.",
+    "failed": "Couldn't send it. Please try again shortly or email contact@puzzlthink.com.",
+    "tooShort": "Please write at least 5 characters.",
+    "close": "Close",
+    "attached": "Sent along: the game, page address, browser and screen size"
   }
 }
