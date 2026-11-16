@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import GameGate from '@/components/GameGate';
+import GameIntroHero from '@/components/GameIntroHero';
+import { WallGoTutorialSteps } from '@/components/WallGoTutorial';
 import WallGoGame from '@/components/WallGoGame';
 import WallGoGuide from '@/components/WallGoGuide';
 import JsonLd from '@/components/JsonLd';
@@ -35,8 +38,9 @@ export default async function WallGoPage({ params }: { params: Promise<{ locale:
           { '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) },
         ],
       }} />
-      <WallGoGame />
-      <WallGoGuide locale={locale} />
+      <GameGate accent="#e0283a" tutorialKey="puzzlthink_wallgo_tutorial_seen" hero={<GameIntroHero locale={locale} id="wallgo" />} tutorial={<WallGoTutorialSteps />} guide={<WallGoGuide locale={locale} />}>
+        <WallGoGame />
+      </GameGate>
     </>
   );
 }

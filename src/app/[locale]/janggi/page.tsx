@@ -1,5 +1,9 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import GameGate from '@/components/GameGate';
+import GameIntroHero from '@/components/GameIntroHero';
+import { JanggiTutorialSteps } from '@/components/janggi/JanggiTutorial';
+import { GOLD } from '@/components/janggi/theme';
 import JsonLd from '@/components/JsonLd';
 import JanggiGame from '@/components/janggi/JanggiGame';
 import JanggiGuide from '@/components/janggi/JanggiGuide';
@@ -34,8 +38,9 @@ export default async function JanggiPage({ params }: { params: Promise<{ locale:
           { '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) },
         ],
       }} />
-      <JanggiGame />
-      <JanggiGuide locale={locale} />
+      <GameGate accent={GOLD} ink="#1a1408" tutorialKey="puzzlthink_janggi_tutorial_seen" hero={<GameIntroHero locale={locale} id="janggi" />} tutorial={<JanggiTutorialSteps />} guide={<JanggiGuide locale={locale} />}>
+        <JanggiGame />
+      </GameGate>
     </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Bot, Check, Clock3, Crown, Hand } from 'lucide-react';
+import { Bot, Check, Clock3, Crown, Hand, Info, X } from 'lucide-react';
 import { type Chip, type Color, type LogEntry, CHIPS, COLORS, LIMIT, PLAYERS, ROUNDS, canPass, sum } from '@/lib/heavy13';
 import type { H13Action, H13Room } from '@/lib/heavy13Room';
 import { ChipToken, CubeStack, RockCard } from './Bits';
@@ -17,6 +17,7 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
   const g = room.game;
   const [card, setCard] = useState<number | null>(null);
   const [chip, setChip] = useState<Chip | null>(null);
+  const [startTip, setStartTip] = useState(false); // "what does the start player do?" panel
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 500); return () => window.clearInterval(timer); }, []);
 
@@ -89,7 +90,7 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
           const active = g.phase === 'place' && g.current === s;
           return (
             <div key={s} className={`relative flex w-[92px] shrink-0 flex-col items-center rounded-[10px] border px-2 py-2.5 text-center sm:w-auto ${active ? 'border-(--accent)/60 bg-white/[0.04] shadow-[inset_0_0_20px_var(--accent-glow)]' : s === mySeat ? 'border-white/25 bg-white/[0.06]' : 'border-white/10 bg-black/30'}`}>
-              {g.start === s && <span className="absolute -top-2 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-sm bg-(--accent) px-1.5 py-0.5 text-[8px] font-black text-(--accent-ink)"><Crown size={8} />{t('startMark')}</span>}
+              {g.start === s && <button type="button" onClick={() => setStartTip((open) => !open)} title={t('startTipTitle')} aria-expanded={startTip} aria-controls="h13-start-tip" className="absolute -top-2 left-1/2 z-10 flex -translate-x-1/2 items-center gap-0.5 rounded-sm bg-(--accent) px-1.5 py-0.5 text-[8px] font-black text-(--accent-ink) hover:brightness-110"><Crown size={8} />{t('startMark')}<Info size={8} className="opacity-70" /></button>}
               <span className="flex items-center gap-1 truncate text-[11px] font-extrabold">{room.ai[s] && <Bot size={11} className="shrink-0 text-white/40" />}<span className="truncate">{name(s)}</span></span>
               <span className="mt-1 font-mono text-xl font-black" style={{ color: p.penalty ? '#ff8a7a' : '#ffffff' }}>{p.penalty}</span>
               <span className="text-[9px] font-bold text-white/35">{t('penalty')}</span>
@@ -102,6 +103,13 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
           );
         })}
       </div>
+      {startTip && (
+        <div id="h13-start-tip" role="note" className="relative rounded-[10px] border border-(--accent)/30 bg-black/50 p-3 pr-9 text-[11px] leading-5 text-white/70">
+          <button type="button" onClick={() => setStartTip(false)} aria-label={t('startTipClose')} className="absolute right-2 top-2 rounded p-1 text-white/40 hover:text-white"><X size={13} /></button>
+          <p className="flex items-center gap-1 text-xs font-extrabold text-(--accent)"><Crown size={12} />{t('startTipTitle')}</p>
+          <ul className="mt-1.5 list-disc space-y-1 pl-4">{(t.raw('startTipPoints') as string[]).map((line) => <li key={line}>{line}</li>)}</ul>
+        </div>
+      )}
 
       {/* My controls */}
       {me && g.phase === 'submit' && !iSubmitted && (
