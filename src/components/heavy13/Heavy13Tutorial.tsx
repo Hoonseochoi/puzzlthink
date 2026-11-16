@@ -7,6 +7,7 @@ import { Lock } from 'lucide-react';
 import type { Chip } from '@/lib/heavy13';
 import { ChipToken, RockCard, StandMini } from './Bits';
 import { BTN, BTN_ACCENT, STEEL_TEXT } from '../ui/gameUi';
+import InlineSteps from '../ui/InlineSteps';
 
 const ORDER: [string, Chip, number, number][] = [['A', 'b', 2, 1], ['B', 'r', 6, 2], ['C', 'g', 6, 3], ['D', 'r', 4, 4]];
 const STEPS = 6;
@@ -79,4 +80,10 @@ export default function Heavy13Tutorial({ onClose }: { onClose: () => void }) {
       </motion.div>
     </AnimatePresence>
   );
+}
+
+/** The same tutorial laid out on the page (entry screen). */
+export function Heavy13TutorialSteps() {
+  const t = useTranslations('Heavy13Tutorial');
+  return <InlineSteps steps={Array.from({ length: STEPS }, (_, step) => ({ label: t(`label${step}`), title: t(`title${step}`), desc: t(`desc${step}`), visual: <Visual step={step} /> }))} />;
 }

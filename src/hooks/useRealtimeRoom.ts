@@ -41,14 +41,50 @@ function clientId() {
   return id;
 }
 
-/** Creates a room code and marks this browser as its host. Returns the code to navigate to. */
-export function prepareRoom(storage: string, hostValue: string): string {
-  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
-  const bytes = crypto.getRandomValues(new Uint8Array(6));
-  const code = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+/** A 4-digit invite code (1000–9999), easy to read out and type. */
+const randomCode = () => String(1000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 9000));
+
+/**
+ * Whether nobody is in the room channel right now. Listens without joining presence (so it is
+ * invisible to others) and gives up after a short wait, treating an unreachable server as free.
+ */
+function roomIsFree(channelPrefix: string, code: string): Promise<boolean> {
+  const supabase = getSupabase();
+  if (!supabase) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const channel = supabase.channel(`${channelPrefix}-${code}`, { config: { presence: { key: `probe-${crypto.randomUUID()}` } } });
+    let settled = false;
+    const finish = (free: boolean) => {
+      if (settled) return;
+      settled = true;
+      supabase.removeChannel(channel);
+      resolve(free);
+    };
+    channel.on('presence', { event: 'sync' }, () => { if (Object.keys(channel.presenceState()).length) finish(false); });
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') window.setTimeout(() => finish(Object.keys(channel.presenceState()).length === 0), 700);
+      else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') finish(true);
+    });
+    window.setTimeout(() => finish(true), 2500);
+  });
+}
+
+/**
+ * Picks a free 4-digit room code and marks this browser as its host. Returns the code to navigate to.
+ * Codes are short, so a code someone is still playing in is skipped; any old saved game this browser
+ * kept under the same code is cleared so the new room starts fresh.
+ */
+export async function prepareRoom(channelPrefix: string, storage: string, hostValue: string): Promise<string> {
+  let code = randomCode();
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    if (await roomIsFree(channelPrefix, code)) break;
+    code = randomCode();
+  }
+  try { localStorage.removeItem(stateKeyFor(storage, code)); } catch { /* Storage is optional. */ }
   write(hostKeyFor(storage, code), hostValue);
   return code;
 }
+
 
 export type RoomStatus = 'connecting' | 'online' | 'unconfigured' | 'error';
 

@@ -13,9 +13,9 @@ export interface CatalogGame {
 
 export const GAMES: readonly CatalogGame[] = [
   { id: 'wallgo', href: '/wallgo', color: '#ff6b4a', hasGuide: true },
-  { id: 'russianRoulette', href: '/russian-roulette', color: '#238ca8', hasGuide: false },
+  { id: 'russianRoulette', href: '/russian-roulette', color: '#238ca8', hasGuide: true },
   { id: 'heavy13', href: '/heavy13', color: '#c9a061', hasGuide: true },
   { id: 'janggi', href: '/janggi', color: '#e8a33c', hasGuide: true },
-  { id: 'russianJanggi', href: '/russian-janggi', color: '#e2283c', hasGuide: false },
+  { id: 'russianJanggi', href: '/russian-janggi', color: '#e2283c', hasGuide: true },
   { id: 'sudoku', href: '/play', color: '#4b7bff', hasGuide: true },
 ];

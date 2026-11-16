@@ -97,7 +97,7 @@ export default function HomeClient() {
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
             <div className="grid grid-cols-2 gap-2">
               <Link href="/heavy13" className={MODE_BUTTON}><Bot size={15} className="text-[#c9a061]" /><span className="text-sm font-black">{t('modeHeavyAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHeavyAiDesc')}</span></Link>
-              <button type="button" onClick={() => router.push(`/heavy13/room/${prepareHeavy13Room()}`)} className={`${MODE_BASE} border-[#c9a061]/50 bg-[#fbf3e4] hover:border-[#c9a061]`}><UsersRound size={15} className="text-[#c9a061]" /><span className="text-sm font-black">{t('modeHeavyFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHeavyFriendDesc')}</span></button>
+              <button type="button" onClick={async () => router.push(`/heavy13/room/${await prepareHeavy13Room()}`)} className={`${MODE_BASE} border-[#c9a061]/50 bg-[#fbf3e4] hover:border-[#c9a061]`}><UsersRound size={15} className="text-[#c9a061]" /><span className="text-sm font-black">{t('modeHeavyFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHeavyFriendDesc')}</span></button>
             </div>
           </div>
         )}
@@ -106,7 +106,7 @@ export default function HomeClient() {
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
             <div className="grid grid-cols-2 gap-2">
               <Link href="/russian-roulette" className={MODE_BUTTON}><Crosshair size={15} className="text-[#238ca8]" /><span className="text-sm font-black">{t('modeRouletteAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRouletteAiDesc')}</span></Link>
-              <button type="button" onClick={() => router.push(`/russian-roulette/room/${prepareRussianRouletteRoom()}`)} className={`${MODE_BASE} border-[#238ca8]/45 bg-[#e9f7fa] hover:border-[#238ca8]`}><UsersRound size={15} className="text-[#238ca8]" /><span className="text-sm font-black">{t('modeRouletteFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRouletteFriendDesc')}</span></button>
+              <button type="button" onClick={async () => router.push(`/russian-roulette/room/${await prepareRussianRouletteRoom()}`)} className={`${MODE_BASE} border-[#238ca8]/45 bg-[#e9f7fa] hover:border-[#238ca8]`}><UsersRound size={15} className="text-[#238ca8]" /><span className="text-sm font-black">{t('modeRouletteFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRouletteFriendDesc')}</span></button>
             </div>
           </div>
         )}
@@ -115,7 +115,7 @@ export default function HomeClient() {
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
             <div className="grid grid-cols-2 gap-2">
               <Link href="/russian-janggi" className={MODE_BUTTON}><Bot size={15} className="text-[#e2283c]" /><span className="text-sm font-black">{t('modeRjAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRjAiDesc')}</span></Link>
-              <button type="button" onClick={() => router.push(`/russian-janggi/room/${prepareRussianJanggiRoom()}`)} className={`${MODE_BASE} border-[#e2283c]/35 bg-[#fdecee] hover:border-[#e2283c]`}><UsersRound size={15} className="text-[#e2283c]" /><span className="text-sm font-black">{t('modeRjFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRjFriendDesc')}</span></button>
+              <button type="button" onClick={async () => router.push(`/russian-janggi/room/${await prepareRussianJanggiRoom()}`)} className={`${MODE_BASE} border-[#e2283c]/35 bg-[#fdecee] hover:border-[#e2283c]`}><UsersRound size={15} className="text-[#e2283c]" /><span className="text-sm font-black">{t('modeRjFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRjFriendDesc')}</span></button>
             </div>
           </div>
         )}
@@ -124,7 +124,7 @@ export default function HomeClient() {
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
             <div className="grid grid-cols-2 gap-2">
               <Link href="/janggi" className={MODE_BUTTON}><Bot size={15} className="text-[#e8a33c]" /><span className="text-sm font-black">{t('modeAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeAiDesc')}</span></Link>
-              <button type="button" onClick={() => router.push(`/janggi/room/${prepareJanggiRoom()}`)} className={`${MODE_BASE} border-[#e8a33c]/40 bg-[#fff6e5] hover:border-[#e8a33c]`}><UsersRound size={15} className="text-[#e8a33c]" /><span className="text-sm font-black">{t('modeFriendJanggi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeFriendJanggiDesc')}</span></button>
+              <button type="button" onClick={async () => router.push(`/janggi/room/${await prepareJanggiRoom()}`)} className={`${MODE_BASE} border-[#e8a33c]/40 bg-[#fff6e5] hover:border-[#e8a33c]`}><UsersRound size={15} className="text-[#e8a33c]" /><span className="text-sm font-black">{t('modeFriendJanggi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeFriendJanggiDesc')}</span></button>
             </div>
           </div>
         )}
@@ -134,7 +134,7 @@ export default function HomeClient() {
             <div className="grid grid-cols-3 gap-2">
               <Link href={{ pathname: '/wallgo', query: { mode: 'three' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeThreeAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeThreeAiDesc')}</span></Link>
               <Link href={{ pathname: '/wallgo', query: { mode: 'two' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#4b7bff]" /><span className="text-sm font-black">{t('modeTwoAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeTwoAiDesc')}</span></Link>
-              <button type="button" onClick={() => router.push(`/wallgo/room/${prepareHostedRoom('two')}`)} className={`${MODE_BASE} border-[#ff6b4a]/40 bg-[#fff0eb] hover:border-[#ff6b4a]`}><UsersRound size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeFriendDesc')}</span></button>
+              <button type="button" onClick={async () => router.push(`/wallgo/room/${await prepareHostedRoom('two')}`)} className={`${MODE_BASE} border-[#ff6b4a]/40 bg-[#fff0eb] hover:border-[#ff6b4a]`}><UsersRound size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeFriendDesc')}</span></button>
             </div>
           </div>
         )}

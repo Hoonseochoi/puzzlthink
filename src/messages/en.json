@@ -76,13 +76,13 @@
     "modeTwoAi": "1:1",
     "modeTwoAiDesc": "vs 1 AI",
     "modeFriend": "1:1",
-    "modeFriendDesc": "friend via link",
+    "modeFriendDesc": "Link or code",
     "janggiDescription": "Capture the king or march into the enemy camp. A sharp duel on 12 squares.",
     "janggiMeta": "vs AI · live with friends",
     "modeAi": "vs AI",
     "modeAiDesc": "3 levels",
     "modeFriendJanggi": "1:1",
-    "modeFriendJanggiDesc": "friend via link",
+    "modeFriendJanggiDesc": "Link or code",
     "visitToday": "Today",
     "visitTotal": "Total",
     "heavy13Description": "Push a stand to 13 and take the penalty. A 7-player mind game.",
@@ -96,13 +96,13 @@
     "modeRouletteAi": "6-player AI",
     "modeRouletteAiDesc": "Deduce vs 5 AI",
     "modeRouletteFriend": "Invite friends",
-    "modeRouletteFriendDesc": "Link or room code",
+    "modeRouletteFriendDesc": "Link or code",
     "rjanggiDescription": "Tic-tac-toe where big pieces swallow small ones. 10 seconds per move.",
     "rjanggiMeta": "vs AI · 1:1 with a friend",
     "modeRjAi": "AI 1:1",
     "modeRjAiDesc": "3 difficulty levels",
     "modeRjFriend": "With a friend",
-    "modeRjFriendDesc": "Invite by link"
+    "modeRjFriendDesc": "Link or code"
   },
   "WallGo": {
     "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
@@ -308,7 +308,7 @@
       },
       {
         "title": "10. Service providers and international transfer",
-        "body": "We rely on the providers below, whose servers are outside Korea (Supabase in the Asia-Pacific region, the others mainly in the United States). Information is sent over the network when you use the Service, and each provider uses it only for the work we give them.\n• Supabase (Asia-Pacific region servers): sign-in, database (profiles, game results, bug reports, statistics) and real-time play\n• Vercel: website hosting and delivery (including access logs)\n• Google: Google sign-in, Google AdSense ads and the operator's inbox (Gmail)\n• Web3Forms: relays bug reports to the operator's email\n• Forward Email: forwards mail sent to contact@puzzlthink.com to the operator's inbox\nIf you do not want your information transferred abroad, you can play without signing in or sending reports, or ask us to delete it. All games remain available either way."
+        "body": "We rely on the providers below, whose servers are outside Korea (Supabase in the Asia-Pacific region, the others mainly in the United States). Information is sent over the network when you use the Service, and each provider uses it only for the work we give them.\n• Supabase (Asia-Pacific region servers): sign-in, database (profiles, game results, bug reports, statistics) and real-time play\n• Vercel: website hosting and delivery (including access logs)\n• Google: Google sign-in, Google AdSense ads, Google Analytics visit statistics and the operator's inbox (Gmail)\n• Web3Forms: relays bug reports to the operator's email\n• Forward Email: forwards mail sent to contact@puzzlthink.com to the operator's inbox\nIf you do not want your information transferred abroad, you can play without signing in or sending reports, or ask us to delete it. All games remain available either way."
       },
       {
         "title": "11. Your rights",
@@ -316,7 +316,7 @@
       },
       {
         "title": "12. Ads and cookies",
-        "body": "The Service may show ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it to serve ads based on your visits to this and other sites."
+        "body": "The Service may show ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it to serve ads based on your visits to this and other sites.\nWe also use Google Analytics to collect visit statistics (pages viewed, time on page, referring site, device and browser type, approximate location). It tells browsers apart with a cookie but is not linked to your name or email, and we use it only to improve the Service. To opt out, install the browser add-on at https://tools.google.com/dlpage/gaoptout or block cookies in your browser."
       },
       {
         "title": "13. Opting out of personalized ads",
@@ -617,6 +617,7 @@
     "quick2": "Captured pieces join your hand; drop them on any empty square except the enemy camp.",
     "quick3": "A 子 that reaches the enemy camp promotes to 侯.",
     "quick4": "Capture the enemy 王, or keep your 王 alive in their camp for a turn, to win!",
+    "quick5": "You may not make a move that brings the same position back a third time (no endless repetition).",
     "record": "My record",
     "games": "Games",
     "wins": "Wins",
@@ -643,7 +644,42 @@
     "turnTime_off": "Off",
     "turnSeconds": "{n}s",
     "turnTimeHint": "When time runs out a random move is played; three in a row loses on time.",
-    "logTimeoutMove": "⏱ Time out ·"
+    "logTimeoutMove": "⏱ Time out ·",
+    "repetitionBlocked": "Moves that would repeat the same position a third time are not allowed, so they are hidden.",
+    "tipsButton": "See winning tips",
+    "tipsTitle": "The move that decided this game",
+    "tipsAnalyzing": "The AI is reading this game backwards…",
+    "tipsMoveNo": "Move {n} · your turn",
+    "tipsPlayed": "You played",
+    "tipsBetter": "Better",
+    "tipsOutcome_win": "This move would have given you a winning path.",
+    "tipsOutcome_save": "This move would have kept you from losing.",
+    "tipsPlayedLoses": "After the move you played, your opponent had a win whatever you did.",
+    "tipsNotFound": "Within what the AI can read, it found no single decisive mistake. The game may have ended on time or by resignation, or slipped away much earlier. Check the tips below.",
+    "tipsGeneral": "Winning tips",
+    "tipsClose": "Close",
+    "tipsLegend": "Red arrow: your move · gold arrow and outline: the better move",
+    "tipMove": "Move {piece}",
+    "tipCapture": "Capture {target} with {piece}",
+    "tipDrop": "Drop captured {piece}",
+    "tipsList": [
+      {
+        "title": "Check where your 王 can be reached",
+        "body": "Before moving, look at every square your opponent's pieces can reach next turn. If your 王 is captured, the game ends on the spot."
+      },
+      {
+        "title": "Look for pieces left hanging",
+        "body": "Moving a piece leaves the squares it guarded empty. Make sure the move does not give your opponent a free capture."
+      },
+      {
+        "title": "Save captured pieces for the finish",
+        "body": "You don't have to drop captured pieces right away. Kept until they can block the enemy 王 or attack it, they are far stronger."
+      },
+      {
+        "title": "Enter the enemy camp only when it is safe",
+        "body": "Your 王 has to survive a turn in the enemy camp. If an enemy piece can reach that square, it is captured as it enters and you lose."
+      }
+    ]
   },
   "JanggiTutorial": {
     "skip": "Skip",
@@ -914,6 +950,14 @@
     "stand_b": "Blue",
     "cubes": "{n} cubes",
     "startMark": "START",
+    "startTipTitle": "Why does the start player matter?",
+    "startTipClose": "Close",
+    "startTipPoints": [
+      "Within the same rank (rainbow chips, or equal numbers), placing goes clockwise from the start player, so they place first.",
+      "Placing earlier means emptier stands and less risk of a collapse. In thousands of simulated AI games, the start player took about 36% less penalty that round.",
+      "The start player role passes to whoever took penalty cubes that round, so whoever just lost out gets a small edge next round.",
+      "That is why who starts the game barely changes the final result (about 14% win rate for every seat)."
+    ],
     "penalty": "penalty",
     "passed": "passed",
     "myCards": "Your rock cards",
@@ -945,7 +989,7 @@
     "levelHint": "Changing it starts a new game.",
     "quickRules": "Key rules",
     "quick1": "Each round, everyone secretly plays one rock card (0–6) and one color chip.",
-    "quick2": "Rainbow first, then higher cards; ties go clockwise from the start player.",
+    "quick2": "Rainbow first, then higher cards; ties go clockwise from the start player. Rainbow picks its own stand.",
     "quick3": "If a stand reaches 13+, you take a penalty per cube already there; only your cube stays.",
     "quick4": "Once per round you may pass to place last.",
     "quick5": "After 14 rounds the fewest penalties wins; 6th and 7th are out.",
@@ -1262,13 +1306,14 @@
   },
   "RussianJanggi": {
     "metaTitle": "Russian Janggi Online — 3×3 strategy where big covers small",
-    "metaDescription": "Play Russian Janggi free in your browser: 3×3 strategy where bigger cups cover smaller ones and cups on the board can move. Play the AI or invite a friend by link.",
+    "metaDescription": "Play Russian Janggi from The Society Game 2 free in your browser: 3×3 strategy where bigger cups cover smaller ones and cups on the board can move. Play the AI or invite a friend by link.",
     "keywords": [
       "russian janggi",
       "nesting tic tac toe",
       "big small tic tac toe",
       "3x3 strategy game",
-      "online board game"
+      "online board game",
+      "The Society Game 2 Russian Janggi"
     ],
     "title": "Russian Janggi",
     "newGame": "New game",
@@ -1333,7 +1378,38 @@
     "closeResult": "Close and view board",
     "timeLimit": "Time limit",
     "timeLimit_on": "10 sec",
-    "timeLimit_off": "No limit"
+    "timeLimit_off": "No limit",
+    "tipsButton": "See winning tips",
+    "tipsTitle": "The move that decided this game",
+    "tipsAnalyzing": "The AI is reading this game backwards…",
+    "tipsMoveNo": "Move {n} · your turn",
+    "tipsPlayed": "You played",
+    "tipsBetter": "Better",
+    "tipsOutcome_win": "This move would have given you a winning path.",
+    "tipsOutcome_save": "This move would have kept you from losing.",
+    "tipsPlayedLoses": "After the move you played, your opponent had a win whatever you did.",
+    "tipsNotFound": "Within what the AI can read, it found no single decisive mistake. The game may have ended on time or by resignation, or slipped away much earlier. Check the tips below.",
+    "tipsGeneral": "Winning tips",
+    "tipsClose": "Close",
+    "tipsLegend": "Red square: where you played · gold square: a better square (board as it was just before your move)",
+    "tipsList": [
+      {
+        "title": "Block your opponent's next move first",
+        "body": "Before moving, check whether your opponent can complete three next turn. A line with two of theirs needs its empty square blocked or one of its pieces covered by a bigger one."
+      },
+      {
+        "title": "Look underneath before you lift",
+        "body": "Moving a piece reveals what was below it. If that completes your opponent's line, they win even if you make a line too."
+      },
+      {
+        "title": "Keep one large piece to the end",
+        "body": "Nothing can cover a large piece. Keeping one lets you cover and break your opponent's decisive line."
+      },
+      {
+        "title": "Center and double threats",
+        "body": "The center sits on four lines. Holding it with a corner lets you threaten two lines at once, and your opponent can block only one."
+      }
+    ]
   },
   "RussianJanggiOnline": {
     "metaTitle": "Russian Janggi with a friend",
@@ -1414,7 +1490,7 @@
         "pace": "90 s per turn",
         "level": "AI: easy · normal · hard",
         "ai": "3-player (2 AI) · 1:1 (1 AI)",
-        "friend": "1:1, invite by link",
+        "friend": "1:1 · 1:1:1, link or 4-digit code",
         "rules": [
           "Each player places pieces on a 7×7 board: 2 each in the 3-player game, 4 each in 1:1.",
           "On your turn, move one piece 0–2 squares up, down, left or right (two squares may turn a corner, and staying put is allowed), then you must build a wall on one of its four sides.",
@@ -1429,14 +1505,14 @@
         "pace": "60 s per turn in friend rooms · no limit vs AI",
         "level": "AI: easy · normal · hard",
         "ai": "6 players (5 AI)",
-        "friend": "Link or 6-character code, AI fills seats",
+        "friend": "Link or 4-digit invite code, AI fills seats",
         "rules": [
           "Two rounds are hidden among six chambers, and each player gets 16 secret credits.",
           "Inspect two adjacent chambers publicly (1 credit) or privately (2 credits), or turn the muzzle 1 step (3 credits) or 2 steps (4 credits).",
           "Secretly pay 1–3 manipulation credits into a shared pool; whoever brings it to 6 swaps the two adjacent chambers they chose.",
           "When three players run out of credits, firing starts at the muzzle and goes clockwise; the two players hit are eliminated."
         ],
-        "origin": "Based on the Russian roulette game from The Devil's Plan, rebuilt as a six-player deduction game with hidden information."
+        "origin": "The Russian roulette prison match from Netflix's The Devil's Plan: Dead Again, played with the same rules as the show."
       },
       "heavy13": {
         "tagline": "Push a stand to 13 and take the penalty. A 7-player mind game.",
@@ -1444,11 +1520,11 @@
         "pace": "14 rounds · friend rooms: 90 s to submit, 20 s to place",
         "level": "AI: easy · normal · hard",
         "ai": "7 players (6 AI)",
-        "friend": "Invite by link, AI fills seats",
+        "friend": "Link or 4-digit code, AI fills seats",
         "rules": [
           "Each player gets seven rock cards (0–6), two red, green and blue chips, and one rainbow chip.",
           "Every round everyone secretly plays one card and one chip at once: the chip picks the stand, the card is the rock's weight.",
-          "The rainbow chip places first, then higher numbers. Once per round you may pass to place later.",
+          "The rainbow chip places first (and picks its stand), then higher numbers. Ties go clockwise from the start player, and once per round you may pass to place later.",
           "Whoever pushes a stand to 13 or more takes a penalty for each rock already on it. After 14 rounds the fewest penalties wins."
         ],
         "origin": "The first prison match of The Devil's Plan: Death Room. Taking a penalty for crossing a threshold closely resembles the card game 6 nimmt!."
@@ -1459,7 +1535,7 @@
         "pace": "Friend rooms: 90, 60 or 30 s per turn",
         "level": "AI: easy · normal · hard",
         "ai": "1:1",
-        "friend": "1:1, invite by link",
+        "friend": "1:1, link or 4-digit code",
         "rules": [
           "On a 3×4 board, each player starts with four pieces: General, Minister, King and Pawn.",
           "Take turns moving one piece one square in a direction it shows. Captured pieces become yours and can be dropped back from your next turn.",
@@ -1474,14 +1550,14 @@
         "pace": "10 s per turn · no-limit option vs AI",
         "level": "AI: easy · normal · hard",
         "ai": "1:1",
-        "friend": "1:1, invite by link",
+        "friend": "1:1, link or 4-digit code",
         "rules": [
           "On a 3×3 board, each player has 2 large, 2 medium and 2 small pieces.",
           "On your turn, place a new piece or move one of yours on the board. Large covers medium and small; medium covers small.",
           "Own three in a row to win. If moving a piece reveals the opponent's row underneath, they win.",
           "Out of time, or nowhere to play, and the turn passes."
         ],
-        "origin": "A 3×3 strategy game that adds covering and moving pieces to tic-tac-toe."
+        "origin": "The Russian Janggi game from The Society Game 2, playable on the web: a 3×3 strategy game that adds covering and moving pieces to tic-tac-toe."
       },
       "sudoku": {
         "tagline": "A timeless number puzzle that starts light and keeps you thinking.",
@@ -1520,5 +1596,248 @@
     "tooShort": "Please write at least 5 characters.",
     "close": "Close",
     "attached": "Sent along: the game, page address, browser and screen size"
+  },
+  "GameGate": {
+    "start": "Start game",
+    "howToPlay": "See how to play",
+    "startHint": "Read the rules? Jump right in.",
+    "aiTitle": "Play the AI",
+    "aiDesc": "Start a game against the AI right away. You can change the difficulty in the game.",
+    "soloTitle": "Play solo",
+    "soloDesc": "Start a puzzle right away. Pick the difficulty in the game.",
+    "aiPlay": "Play the AI",
+    "soloPlay": "Start game",
+    "aiThree": "3 players · vs 2 AI",
+    "aiTwo": "1:1 · vs 1 AI",
+    "friendTitle": "Play with friends",
+    "friendDesc": "Creating a room gives you an invite link and a 4-digit invite code. Friends open the link, or enter the code on this screen.",
+    "roomCreate": "Create a friend room",
+    "roomTwo": "Create a 1:1 room",
+    "roomThree": "Create a 1:1:1 room",
+    "creating": "Creating room…",
+    "joinTitle": "Join with an invite code",
+    "codePlaceholder": "0000",
+    "join": "Join",
+    "codeInvalid": "Enter the 4-digit invite code.",
+    "inviteCode": "INVITE CODE",
+    "inviteCodeHint": "Friends can enter this number under \"Join with an invite code\" on the game's start screen.",
+    "howToPlayTitle": "How to play"
+  },
+  "RussianRouletteGuide": {
+    "eyebrow": "RUSSIAN ROULETTE GUIDE",
+    "title": "Russian Roulette online — The Devil's Plan prison match on the web",
+    "intro": "Russian Roulette is a deduction game for six players around one revolver. Two of its six chambers are loaded, and each player spends 16 credits to inspect chambers, turn the muzzle or secretly swap chambers. When the shots are fired, the two players hit are out and four survive. It brings the Russian roulette prison match from Netflix's \"The Devil's Plan: Dead Again\" to the web with the same rules as the show, against AI or in a friend room. It is a brain game with nothing to do with real firearms.",
+    "rulesTitle": "Basic rules",
+    "rules": [
+      "Six players sit in a circle. Two of the revolver's six chambers are loaded at random, and the muzzle starts pointing at a random player.",
+      "Everyone gets 16 private credits. Starting with the start player and going clockwise, each player takes one action at a time; the start player moves one seat each round.",
+      "Public inspection (1 credit): open two adjacent chambers and show the result to everyone.",
+      "Private inspection (2 credits): look at two adjacent chambers yourself. Others only see that you inspected.",
+      "Turn the muzzle 1 seat (3 credits) or 2 seats (4 credits) clockwise. Everyone sees the turn.",
+      "Manipulation (1–3 credits): everyone secretly pays into one shared pool. Whoever brings it to 6 swaps the contents of two adjacent chambers they choose, and the pool resets to 0; anything over 6 is lost. Who paid what is revealed after the shots.",
+      "A player with no credits left skips their turns. The moment three players have spent all their credits, the shots are fired.",
+      "Firing starts with the player the muzzle points at and goes clockwise, one chamber per player. The two players hit are out; the other four survive."
+    ],
+    "specialTitle": "Rules that are easy to miss",
+    "special": [
+      {
+        "title": "Who gets hit depends on the muzzle and the chambers",
+        "body": "When firing, the first chamber goes to the player the muzzle points at, the second to the next player clockwise, and so on. If you know where both bullets are and where the muzzle points, you can work out the two players who will be hit."
+      },
+      {
+        "title": "Public and private intel are tracked separately",
+        "body": "Public results appear for everyone under confirmed bullet positions; private results stay on your screen with a lock icon. Tap a character to mark who you think will be hit."
+      },
+      {
+        "title": "Manipulation happens silently",
+        "body": "When chambers are swapped there is no notice, so intel you gathered earlier can quietly become wrong. Only the player who made the swap knows the new contents of those two chambers."
+      },
+      {
+        "title": "Running out of credits ends the game",
+        "body": "As soon as three players have no credits left, the shots are fired, no matter how many credits the others still hold. Keep count of who has spent what."
+      }
+    ],
+    "strategyTitle": "Strategy — how survivors think",
+    "strategyIntro": "It looks like luck, but how you spend information and credits changes your odds a lot.",
+    "strategies": [
+      {
+        "tag": "COUNT",
+        "title": "Count seats from the muzzle",
+        "body": "Number the player the muzzle points at as 1, then 2, 3… clockwise: player k takes chamber k. Match the bullets you know against these numbers to see at once whether you are in danger."
+      },
+      {
+        "tag": "INTEL",
+        "title": "Public inspection is cheap but helps everyone",
+        "body": "A 1-credit public inspection gives your rivals the same information. If it shows that you are the one in danger, nobody else has a reason to turn the muzzle for you. For chambers tied to your own seat, paying 2 credits to look privately is safer."
+      },
+      {
+        "tag": "TURN",
+        "title": "Turning the muzzle shifts every target by one",
+        "body": "One turn moves every chamber one player along. If you are in line to be hit, turn to escape; if you are already safe, spending your credits quickly can bring the shots forward before anyone turns it back."
+      },
+      {
+        "tag": "SWAP",
+        "title": "Be the one who fills the pool to 6",
+        "body": "Only the player who brings the pool to 6 chooses the swap. Paying 1–2 credits early may just set up someone else's swap. If it looks like others have been paying in, aim to be the one who completes it."
+      },
+      {
+        "tag": "DOUBT",
+        "title": "The older the intel, the less you should trust it",
+        "body": "A secret swap may have changed chambers you already saw, so at key moments it can be worth checking again. If you made the swap yourself, letting others rely on stale intel is your weapon."
+      },
+      {
+        "tag": "TIMING",
+        "title": "Spending credits decides when the shots come",
+        "body": "If you are sure you are safe, spend fast to bring the third player to zero sooner; if you are in danger, save credits to buy time for turns and swaps."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Russian Roulette?",
+        "a": "On the PUZZLTHINK Russian Roulette page, right in a desktop or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "Can I play alone?",
+        "a": "Yes. The AI game has you and five AI players, and you can choose easy, normal or hard AI."
+      },
+      {
+        "q": "How do I play with friends?",
+        "a": "Create a friend room and send the link or the 4-digit invite code. AI fills empty seats, and each turn in a friend room lasts 60 seconds."
+      },
+      {
+        "q": "Are the bullet positions really random?",
+        "a": "Yes. Each game loads two of the six chambers at random and starts the muzzle at a random player. After that, only players' turns and swaps change them."
+      },
+      {
+        "q": "Is it exactly the show's rules?",
+        "a": "Yes. It uses the same rules as the Russian roulette prison match in The Devil's Plan: Dead Again: six players, six chambers with two bullets, 16 credits, and the same costs for inspecting, turning and swapping, and the same firing order."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan or Netflix. Show titles are used only to describe the games. This game has nothing to do with real firearms."
+  },
+  "RussianJanggiGuide": {
+    "eyebrow": "RUSSIAN JANGGI GUIDE",
+    "title": "Russian Janggi online — the game from The Society Game 2",
+    "intro": "Russian Janggi is a 3×3 strategy game from the Korean show The Society Game 2. It adds pieces of different sizes to tic-tac-toe: a bigger piece can cover a smaller one like a cup, and pieces on the board can move to another square, so the board can flip until the very last move. The rules are also close to the board game Gobblet Gobblers. Enjoy fast 10-second turns against AI or friends on PUZZLTHINK.",
+    "rulesTitle": "Basic rules",
+    "rules": [
+      "Two players take turns on a 3×3 board.",
+      "Each player starts with two large, two medium and two small pieces in hand.",
+      "On your turn, either place a piece from your hand, or move one of your pieces that is showing on top to another square.",
+      "A piece can go on an empty square or over any smaller piece, yours or your opponent's. Pieces of the same size cannot cover each other.",
+      "Three of your pieces showing on top in a row, column or diagonal wins. Covered pieces do not count.",
+      "Moving a piece reveals whatever was under it. If that reveals your opponent's line, they win — even if you complete a line of your own at the same moment.",
+      "Each turn lasts 10 seconds (the AI game can turn the timer off). If you run out of time or cannot move, the turn passes; after 80 moves the game is a draw."
+    ],
+    "specialTitle": "Moments that are easy to misread",
+    "special": [
+      {
+        "title": "A covered piece has not gone anywhere",
+        "body": "A covered piece is hidden but still on the board. When the piece above it leaves, it shows again and can form a line again. Remembering whose piece sits under each square is half the skill."
+      },
+      {
+        "title": "Moving can open your opponent's line",
+        "body": "If your large piece is sitting on an opponent's small piece to block their line, moving it brings that line back and you lose on the spot. Always check what is underneath before you lift a piece."
+      },
+      {
+        "title": "A large piece is an unbreakable lid",
+        "body": "Nothing can cover a large piece. Once placed, it holds that square until its owner moves it."
+      },
+      {
+        "title": "Pieces left in hand are information too",
+        "body": "If your opponent still holds a large piece, your medium piece can be covered. Keep an eye on both players' hands on screen."
+      }
+    ],
+    "strategyTitle": "Strategy — a small board with deep play",
+    "strategyIntro": "There are only nine squares, but covering and moving create plenty of options. Here are common ideas.",
+    "strategies": [
+      {
+        "tag": "FIRST",
+        "title": "The center and the value of large pieces",
+        "body": "The center square sits on four lines (row, column and both diagonals). Opening with a large piece in the center claims a spot nobody can cover. In simulated AI games the first player won about 58% to 42%."
+      },
+      {
+        "tag": "SAVE",
+        "title": "Keep a large piece for the finish",
+        "body": "If you spend both large pieces early, you have nothing to cover back when your opponent covers your small piece with a medium one. Keep one large piece to block a line or to cover your way to a win."
+      },
+      {
+        "tag": "FORK",
+        "title": "Threaten two lines at once",
+        "body": "If one move gives you two pieces on two different lines, your opponent can block only one. Holding a corner and the center makes these forks easier."
+      },
+      {
+        "tag": "MEMORY",
+        "title": "Remember who covered whom",
+        "body": "Knowing what is covered tells you which pieces your opponent cannot safely move. Their own piece that is blocking their line becomes a chain they cannot lift."
+      },
+      {
+        "tag": "COVER",
+        "title": "Cover rather than block",
+        "body": "When your opponent nearly has a line, covering one of its pieces with a bigger piece is often stronger than filling the empty square, because you break their line and build your own at once."
+      },
+      {
+        "tag": "TIME",
+        "title": "What to check in 10 seconds",
+        "body": "1) Can your opponent win next move? 2) Can you win now? 3) What is under the piece you want to move? Checking just these three cuts most mistakes."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Russian Janggi?",
+        "a": "On the PUZZLTHINK Russian Janggi page, right in a desktop or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "Where does Russian Janggi come from?",
+        "a": "It appeared on tvN's The Society Game 2. PUZZLTHINK is an unofficial fan project that introduces the game and lets you play it on the web."
+      },
+      {
+        "q": "Is it like Gobblet Gobblers?",
+        "a": "It is in a similar family: pieces of different sizes cover and move to make three in a row. PUZZLTHINK's Russian Janggi follows the format from The Society Game 2, with two pieces of each size per player and a 10-second turn."
+      },
+      {
+        "q": "Can it end in a draw?",
+        "a": "Pieces can keep moving back and forth, so the game is a draw after 80 moves. It is also a draw when neither player can move."
+      },
+      {
+        "q": "Does going first help?",
+        "a": "A little, because the first player can take the center. In the AI game you can choose who goes first: you, the AI, or random."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Society Game, tvN or the makers of Gobblet Gobblers. Show and game names are used only to describe the games.",
+    "tutorial": [
+      {
+        "label": "GOAL",
+        "title": "Three of yours in a row",
+        "desc": "Win with three of your pieces showing on top in a row, column or diagonal."
+      },
+      {
+        "label": "PIECES",
+        "title": "Six pieces of three sizes",
+        "desc": "You start with two large, two medium and two small pieces. Size is power."
+      },
+      {
+        "label": "COVER",
+        "title": "Bigger covers smaller",
+        "desc": "You can cover any smaller piece, yours or your opponent's. Equal sizes cannot cover each other."
+      },
+      {
+        "label": "MOVE",
+        "title": "Place, or move",
+        "desc": "On your turn, place a piece from your hand or move one of your top pieces to another square."
+      },
+      {
+        "label": "CAREFUL",
+        "title": "Lifting reveals what is below",
+        "desc": "Moving a piece uncovers what was under it. If that completes your opponent's line, they win."
+      },
+      {
+        "label": "TIME",
+        "title": "10 seconds a turn",
+        "desc": "If you do not move in time, the turn passes. The AI game can turn the timer off."
+      }
+    ]
   }
 }

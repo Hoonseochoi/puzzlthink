@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { type Action, type JanggiState, type Side, dropTargets, inCamp, targets } from '@/lib/janggi';
+import { type Action, type JanggiState, type Side, dropTargets, inCamp, playableActions, targets } from '@/lib/janggi';
 import JanggiBoard, { JanggiHand, type Selection } from './JanggiBoard';
 
 /** Board plus both hands, with click-to-select / click-to-move. `viewer` is shown at the bottom. */
@@ -16,11 +16,16 @@ export default function JanggiTable({ game, viewer, canAct, onAction }: {
   // Selection belongs to one position; it clears itself when the game moves on.
   const active = canAct && selectedAt === game.ply ? selection : null;
 
-  const legalTargets = useMemo(() => {
-    if (!active) return [];
-    if (active.kind === 'hand') return dropTargets(game, viewer);
-    return targets(game, active.index);
-  }, [active, game, viewer]);
+  // Moves allowed right now (piece rules + no third repetition of a position).
+  const playable = useMemo(() => (canAct ? playableActions(game) : []), [canAct, game]);
+  const { legalTargets, blockedByRepetition } = useMemo(() => {
+    if (!active) return { legalTargets: [] as number[], blockedByRepetition: false };
+    const rule = active.kind === 'hand' ? dropTargets(game, viewer) : targets(game, active.index);
+    const allowed = playable.flatMap((a) => (active.kind === 'hand'
+      ? (a.kind === 'drop' && a.type === active.type ? [a.to] : [])
+      : (a.kind === 'move' && a.from === active.index ? [a.to] : [])));
+    return { legalTargets: allowed, blockedByRepetition: rule.some((to) => !allowed.includes(to)) };
+  }, [active, game, viewer, playable]);
 
   const select = (next: Selection) => { setSelection(next); setSelectedAt(game.ply); };
 
@@ -46,6 +51,9 @@ export default function JanggiTable({ game, viewer, canAct, onAction }: {
         selectedType={active?.kind === 'hand' ? active.type : null}
         onSelect={(type) => select(active?.kind === 'hand' && active.type === type ? null : { kind: 'hand', type })}
       />
+      {blockedByRepetition && (
+        <p className="mx-auto max-w-[440px] rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-center text-xs font-bold text-white/60">{t('repetitionBlocked')}</p>
+      )}
       {game.winner === null && !game.reason && (kingIn(viewer) || kingIn(opponent)) && (
         <p className="mx-auto max-w-[440px] rounded-md border border-(--accent)/30 bg-(--accent)/10 px-3 py-2 text-center text-xs font-bold text-(--accent)">
           {kingIn(viewer) ? t('kingEntryMine') : t('kingEntryTheirs')}

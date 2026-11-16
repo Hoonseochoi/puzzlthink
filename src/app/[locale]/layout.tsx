@@ -3,14 +3,15 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import GlobalHeader from '@/components/GlobalHeader';
 import { AuthProvider } from '@/components/AuthProvider';
 import HallCelebration from '@/components/HallCelebration';
-import BugReport from '@/components/BugReport';
 import GlobalFooter from '@/components/GlobalFooter';
 import InstallBanner from '@/components/InstallBanner';
 import { routing } from '@/i18n/routing';
 import { ADSENSE_CLIENT } from '@/lib/adsense';
+import { GA_ID } from '@/lib/analytics';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -54,10 +55,10 @@ export default async function LocaleLayout({
           {children}
           <GlobalFooter />
           <HallCelebration />
-          <BugReport />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>
+      {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
     </html>
   );
 }

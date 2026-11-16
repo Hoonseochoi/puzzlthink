@@ -86,9 +86,42 @@ export function legalActions(state: JanggiState): Action[] {
   return actions;
 }
 
+/** Board, both hands and side to move — two states with the same key are the same position. */
+export function positionKey(state: JanggiState): string {
+  const board = state.board.map((p) => (p ? `${p.owner}${p.type}` : '.')).join(',');
+  return `${board}|${[...state.hands[0]].sort().join('')}|${[...state.hands[1]].sort().join('')}|${state.turn}`;
+}
+
+/** How many times each position has appeared in this game so far (needs `moves`, i.e. a game built with playAction). */
+export function positionCounts(game: JanggiState): Map<string, number> {
+  const counts = new Map<string, number>();
+  if (!game.moves) return counts;
+  for (const state of replayStates(game)) counts.set(positionKey(state), (counts.get(positionKey(state)) ?? 0) + 1);
+  return counts;
+}
+
+/**
+ * Legal actions in a real game: same as legalActions, but a move that would bring the same position
+ * back for the third time is not allowed (no endless back-and-forth). If every move would do that,
+ * the repetition ban is lifted so the player is never left without a move.
+ */
+export function playableActions(game: JanggiState): Action[] {
+  const actions = legalActions(game);
+  const counts = positionCounts(game);
+  if (!counts.size) return actions;
+  const fresh = actions.filter((action) => {
+    const next = applyAction(game, action);
+    return next.winner !== null || (counts.get(positionKey(next)) ?? 0) < 2;
+  });
+  return fresh.length ? fresh : actions;
+}
+
+const sameAction = (a: Action, b: Action) => a.kind === b.kind && a.to === b.to
+  && (a.kind === 'move' ? b.kind === 'move' && a.from === b.from : b.kind === 'drop' && a.type === b.type);
+
+/** Whether `action` may be played now, including the repetition ban. */
 export function isLegal(state: JanggiState, action: Action) {
-  return legalActions(state).some((a) => a.kind === action.kind && a.to === action.to
-    && (a.kind === 'move' ? action.kind === 'move' && a.from === action.from : action.kind === 'drop' && a.type === action.type));
+  return playableActions(state).some((a) => sameAction(a, action));
 }
 
 /** Applies a legal action. Captures go to the hand (侯 returns as 子). */
@@ -183,8 +216,60 @@ function negamax(state: JanggiState, depth: number, alpha: number, beta: number,
   return best === -Infinity ? 0 : best;
 }
 
-export function chooseAiAction(state: JanggiState, difficulty: Difficulty = 'normal'): Action | null {
+// ---------- Loss analysis (winning tips) ----------
+
+export const WIN_SCORE = WIN;
+
+/**
+ * Scores every legal move for the side to move by iterative deepening within `budgetMs`.
+ * A value >= WIN_SCORE is a forced win, <= -WIN_SCORE a forced loss; anything else is a heuristic.
+ * A depth that runs past the deadline is thrown away, so the values come from the last full depth.
+ */
+export function scoreActions(state: JanggiState, budgetMs = 300, maxDepth = 12): { action: Action; value: number }[] {
   const actions = legalActions(state);
+  const deadline = Date.now() + budgetMs;
+  let scored = actions.map((action) => ({ action, value: 0 }));
+  for (let depth = 1; depth <= maxDepth; depth += 1) {
+    const round: { action: Action; value: number }[] = [];
+    for (const action of actions) {
+      round.push({ action, value: -negamax(applyAction(state, action), depth - 1, -Infinity, Infinity, deadline) });
+      if (Date.now() > deadline) break;
+    }
+    if (Date.now() > deadline && depth > 1) break;
+    scored = round;
+    if (round.every((s) => Math.abs(s.value) >= WIN) || round.some((s) => s.value >= WIN)) break; // decided
+  }
+  return scored;
+}
+
+export type TurningPoint = { index: number; before: JanggiState; played: Action; better: Action; outcome: 'win' | 'save' };
+
+/** Indices into `game.moves` where `side` was to move, latest first: the order to look for the losing move. */
+export function turnsOf(game: JanggiState, side: Side): number[] {
+  const states = replayStates(game);
+  return (game.moves ?? []).map((_, i) => i).filter((i) => states[i].turn === side).reverse();
+}
+
+/**
+ * Was move `index` the turning point? It is when the move played there loses by force while another
+ * allowed move (repetition ban included) would have won or at least not lost by force.
+ */
+export function turningPointAt(game: JanggiState, index: number, budgetMs = 300): TurningPoint | null {
+  const moves = game.moves ?? [];
+  const before = replayStates({ ...game, moves: moves.slice(0, index) }).pop()!;
+  const prefix: JanggiState = { ...before, first: game.first, moves: moves.slice(0, index) };
+  const allowed = playableActions(prefix);
+  const scored = scoreActions(before, budgetMs).filter((s) => allowed.some((a) => sameAction(a, s.action)));
+  const played = scored.find((s) => sameAction(s.action, moves[index]));
+  if (!played || played.value > -WIN) return null;
+  const best = scored.reduce((a, b) => (b.value > a.value ? b : a), scored[0]);
+  if (!best || best.value <= -WIN) return null;
+  return { index, before, played: moves[index], better: best.action, outcome: best.value >= WIN ? 'win' : 'save' };
+}
+
+export function chooseAiAction(state: JanggiState, difficulty: Difficulty = 'normal'): Action | null {
+  // The repetition ban is checked here at the root only; the search below looks at piece rules.
+  const actions = playableActions(state);
   if (!actions.length) return null;
   const maxDepth = difficulty === 'easy' ? 1 : difficulty === 'normal' ? 3 : 7;
   const noise = difficulty === 'easy' ? 2.5 : difficulty === 'normal' ? 0.6 : 0.05;

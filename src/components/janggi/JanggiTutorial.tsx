@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import type { PieceType } from '@/lib/janggi';
 import JanggiDiagram, { JanggiMoveChart, type JanggiDiagramSpec } from './JanggiDiagram';
+import InlineSteps from '../ui/InlineSteps';
 
 const STEPS: (JanggiDiagramSpec | 'moves')[] = [
   { pieces: [['jang', 0, 1, 1], ['wang', 1, 0, 1], ['sang', 1, 0, 2], ['wang', 0, 3, 1]], arrows: [[1, 1, 0, 1, 'capture']] },
@@ -54,4 +55,16 @@ export default function JanggiTutorial({ onClose }: { onClose: () => void }) {
       </motion.div>
     </AnimatePresence>
   );
+}
+
+/** The same tutorial laid out on the page (entry screen). */
+export function JanggiTutorialSteps() {
+  const t = useTranslations('JanggiTutorial');
+  const tp = useTranslations('JanggiGuide');
+  return <InlineSteps steps={STEPS.map((spec, step) => ({
+    label: t(`label${step}`), title: t(`title${step}`), desc: t(`desc${step}`),
+    visual: spec === 'moves'
+      ? <div className="grid w-full grid-cols-5 gap-1.5">{MOVE_TYPES.map((type) => <div key={type} className="text-center"><JanggiMoveChart type={type} label={tp(`piece_${type}`)} /><p className="mt-1 text-[9px] font-bold text-white/55">{tp(`piece_${type}`)}</p></div>)}</div>
+      : <div className="w-40"><JanggiDiagram spec={spec} label={t(`title${step}`)} /></div>,
+  }))} />;
 }

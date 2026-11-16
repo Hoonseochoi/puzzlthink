@@ -16,7 +16,7 @@ const RJ_ROOM: RoomEngine<RJRoom, RJRoomAction> = {
 };
 
 /** Creates a 러시아장기 room code and marks this browser as its host. */
-export const prepareRussianJanggiRoom = () => prepareRoom(RJ_ROOM.storage, 'rjanggi');
+export const prepareRussianJanggiRoom = () => prepareRoom(RJ_ROOM.channel, RJ_ROOM.storage, 'rjanggi');
 
 export function useRussianJanggiRoom(code: string, defaultName: string) {
   const room = useRealtimeRoom(RJ_ROOM, code, defaultName);

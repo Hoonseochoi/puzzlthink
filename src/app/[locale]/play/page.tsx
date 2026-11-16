@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import GameGate from '@/components/GameGate';
+import GameIntroHero from '@/components/GameIntroHero';
+import { SudokuTutorialSteps } from '@/components/TutorialOverlay';
 import PlayClient from '@/components/PlayClient';
 import SudokuGuide from '@/components/SudokuGuide';
 import JsonLd from '@/components/JsonLd';
@@ -22,8 +25,9 @@ export default async function PlayPage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) }} />
-      <Suspense fallback={<div className="min-h-screen bg-[#f3f0e8]" />}><PlayClient /></Suspense>
-      <SudokuGuide locale={locale} />
+      <GameGate game="sudoku" accent="#4b7bff" tone="light" tutorialKey="puzzlthink_sudoku_tutorial_seen" hero={<GameIntroHero locale={locale} id="sudoku" tone="light" />} tutorial={<SudokuTutorialSteps />} guide={<SudokuGuide locale={locale} />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#f3f0e8]" />}><PlayClient /></Suspense>
+      </GameGate>
     </>
   );
 }

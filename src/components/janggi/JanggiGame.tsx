@@ -1,11 +1,10 @@
 "use client";
 
+import BugReport from '@/components/BugReport';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { BookOpen, Check, Clock3, Flag, Infinity, Link2, RotateCcw, Sparkles } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
-import { type Action, type Difficulty, type JanggiState, type Side, HANJA, cellName, chooseAiAction, finish, initialState, legalActions, playAction } from '@/lib/janggi';
-import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
+import { BookOpen, Check, Clock3, Flag, Infinity, RotateCcw, Sparkles } from 'lucide-react';
+import { type Action, type Difficulty, type JanggiState, type Side, HANJA, cellName, chooseAiAction, finish, initialState, playableActions, playAction } from '@/lib/janggi';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiTable from './JanggiTable';
@@ -14,7 +13,7 @@ import JanggiResult from './JanggiResult';
 import JanggiReplay from './JanggiReplay';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
-import { BTN, BTN_ACCENT, CALLOUT, CHIP, DIAMOND, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, seg, timer } from '../ui/gameUi';
+import { BTN, BTN_ACCENT, CHIP, DIAMOND, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, seg, timer } from '../ui/gameUi';
 import { GOLD, JANGGI_FOG, SIDE_COLORS, hanjaFont } from './theme';
 
 const RECORD_KEY = 'puzzlthink_janggi_records';
@@ -39,7 +38,6 @@ export function describeAction(t: (key: string, values?: Record<string, string |
 
 export default function JanggiGame() {
   const t = useTranslations('Janggi');
-  const router = useRouter();
   const [firstChoice, setFirstChoice] = useState<FirstChoice>('random');
   const [difficulty, setDifficulty] = useState<Difficulty>('normal');
   const [game, setGame] = useState<JanggiState>(() => initialState(0));
@@ -81,7 +79,7 @@ export default function JanggiGame() {
       const { game: g, deadline: d, turnSec: sec, paused, timeouts: misses, play: p, timeOut } = latest.current;
       if (!sec || paused || !d || g.winner !== null || g.reason !== null || g.turn !== 0 || current < d) return;
       if (misses >= 2) { timeOut(); return; }
-      const options = legalActions(g);
+      const options = playableActions(g);
       if (options.length) p(options[Math.floor(Math.random() * options.length)], true);
     }, 250);
     return () => { window.clearTimeout(timer); window.clearInterval(tick); };
@@ -149,7 +147,7 @@ export default function JanggiGame() {
       {showTutorial && <JanggiTutorial onClose={closeTutorial} />}
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title="十二將棋" titleClass={hanjaFont.className} subtitle={t('subtitle')}>
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
-        <LanguageSwitcher compact dark />
+        <BugReport /><LanguageSwitcher compact dark />
         <button onClick={() => newGame()} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 
@@ -176,11 +174,6 @@ export default function JanggiGame() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <section className={CALLOUT}>
-            <div className="flex items-center gap-2"><Link2 size={14} className="text-(--accent)" /><h2 className={PANEL_TITLE}>{t('friendTitle')}</h2></div>
-            <p className="mt-2 text-[11px] leading-5 text-white/50">{t('friendDesc')}</p>
-            <button onClick={() => router.push(`/janggi/room/${prepareJanggiRoom()}`)} className={`mt-3 w-full py-2.5 ${BTN_ACCENT}`}>{t('createRoom')}</button>
-          </section>
           <section className={PANEL}>
             <h2 className={PANEL_TITLE}>{t('difficulty')}</h2>
             <div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => newGame(firstChoice, level)} className={`p-2.5 ${seg(difficulty === level)}`}>{t(`difficulty_${level}`)}</button>)}</div>
@@ -192,7 +185,7 @@ export default function JanggiGame() {
           </section>
           <section className={NOTE}>
             <div className="mb-4 flex items-center gap-2"><Sparkles size={15} className="text-(--accent)" /><h2 className={PANEL_TITLE}>{t('quickRules')}</h2></div>
-            <ol className="space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{t(key)}</span></li>)}</ol>
+            <ol className="space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4', 'quick5'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{t(key)}</span></li>)}</ol>
           </section>
           <section className={`grid grid-cols-3 gap-2 ${PANEL}`}>
             <h2 className={`col-span-3 ${PANEL_TITLE}`}>{t('record')}</h2>

@@ -1,5 +1,7 @@
 "use client";
 
+import BugReport from '@/components/BugReport';
+import InviteCode from '@/components/ui/InviteCode';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Loader2, Lock, Play, Share2, Users, WifiOff } from 'lucide-react';
@@ -114,7 +116,7 @@ export default function WallGoRoom({ code }: { code: string }) {
           <strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc('wallgo') : 'WALLGO'}</strong>
           <span className="hidden text-[9px] font-bold tracking-[0.16em] text-[#ff4d5e]/70 sm:inline">ONLINE · {mode ? `${mode.id === 'two' ? '1:1' : '1:1:1'} · ` : ''}{code.toUpperCase()}</span>
         </div>
-        <LanguageSwitcher compact dark />
+        <BugReport /><LanguageSwitcher compact dark />
       </header>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3ba] lg:px-6"><WifiOff size={14} />{notice}</div>}
@@ -144,6 +146,7 @@ export default function WallGoRoom({ code }: { code: string }) {
                 <div className="rounded-[12px] border border-[#e0283a]/30 bg-black/50 p-5">
                   <p className={PANEL_TITLE}>{t('inviteTitle')}</p>
                   <p className="mt-2 text-sm text-white/60">{t('inviteDesc', { count: (mode?.players.length ?? 2) - 1 })}</p>
+                  <InviteCode code={code} />
                   <div className="mt-4 flex items-center gap-2 rounded-md border border-white/10 bg-[#0b0b0e] p-2">
                     <span className="min-w-0 flex-1 truncate px-2 font-mono text-xs text-white/70">{shareUrl}</span>
                     <button onClick={copyLink} className="flex shrink-0 items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold hover:bg-white/10">{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t('copied') : t('copy')}</button>

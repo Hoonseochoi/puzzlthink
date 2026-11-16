@@ -16,7 +16,7 @@ const JANGGI_ROOM: RoomEngine<JanggiRoom, JanggiRoomAction> = {
 };
 
 /** Creates a 12-janggi room code and marks this browser as its host. */
-export const prepareJanggiRoom = () => prepareRoom(JANGGI_ROOM.storage, 'janggi');
+export const prepareJanggiRoom = () => prepareRoom(JANGGI_ROOM.channel, JANGGI_ROOM.storage, 'janggi');
 
 export function useJanggiRoom(code: string, defaultName: string) {
   const room = useRealtimeRoom(JANGGI_ROOM, code, defaultName);

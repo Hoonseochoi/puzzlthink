@@ -1,5 +1,6 @@
 "use client";
 
+import BugReport from '@/components/BugReport';
 import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, UserRound, WifiOff } from 'lucide-react';
@@ -59,7 +60,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
     <RoomAlerts alerts={alerts} accent={RR_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
     <GameHeader backHref="/russian-roulette" backLabel={t('title')} title={t('title')} subtitle={<span className="font-mono">ONLINE · {code.toUpperCase()}</span>}>
       <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
-      <LanguageSwitcher compact dark />
+      <BugReport /><LanguageSwitcher compact dark />
     </GameHeader>
     {notice && <p className="relative z-10 mx-auto mt-4 flex max-w-[1240px] items-center gap-2 px-4 text-xs text-[#ff948d]"><WifiOff size={14} />{notice}</p>}
     {!state ? <main className="relative z-10 flex min-h-[65vh] items-center justify-center px-4">{!notice ? <p className="flex items-center gap-2 text-sm text-white/45"><Loader2 size={16} className="animate-spin" />{to('connecting')}</p> : <Link href="/russian-roulette" className={`px-4 py-2.5 text-sm ${BTN_ACCENT}`}>{to('back')}</Link>}</main>

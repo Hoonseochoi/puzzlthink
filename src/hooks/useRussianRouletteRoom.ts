@@ -15,5 +15,5 @@ export const RUSSIAN_ROULETTE_ROOM: RoomEngine<RussianRouletteRoom, RussianRoule
   redact: redactRussianRoulette, privateFor: russianRouletteSecret, withPrivate: withRussianRouletteSecret,
 };
 
-export const prepareRussianRouletteRoom = () => prepareRoom(RUSSIAN_ROULETTE_ROOM.storage, 'russian-roulette');
+export const prepareRussianRouletteRoom = () => prepareRoom(RUSSIAN_ROULETTE_ROOM.channel, RUSSIAN_ROULETTE_ROOM.storage, 'russian-roulette');
 export const useRussianRouletteRoom = (code: string, defaultName: string) => useRealtimeRoom(RUSSIAN_ROULETTE_ROOM, code, defaultName);
