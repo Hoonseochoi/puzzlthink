@@ -22,28 +22,26 @@ const BASE_URL = 'https://puzzlthink.com';
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: 'PUZZL THINK — Free Sudoku Puzzle Game',
+    default: 'PUZZL THINK — Online Board Games',
     template: '%s | PUZZL THINK',
   },
-  description:
-    'Play free Sudoku online — Easy, Medium, and Hard difficulties. Compete on global leaderboards, track your records, and print A4 puzzle sheets. No download required.',
+  description: 'Play Wallgo and Sudoku online. Clean, thoughtful board games you can start instantly.',
   keywords: [
-    '스도쿠', 'sudoku', 'free sudoku', 'sudoku online', 'sudoku game', 'sudoku puzzle',
-    'logic puzzle', 'brain game', 'sudoku leaderboard', 'puzzlthink', '스도쿠 게임', '무료 스도쿠',
+    '벽바둑', 'wallgo', '스도쿠', 'sudoku', 'online board game', 'logic game', 'puzzlthink',
   ],
   authors: [{ name: 'PUZZL THINK', url: BASE_URL }],
   openGraph: {
     type: 'website',
     siteName: 'PUZZL THINK',
-    title: 'PUZZL THINK — Free Sudoku Puzzle Game',
-    description: 'Play free Sudoku online with global rankings. Easy, Medium, Hard — no download needed.',
+    title: 'PUZZL THINK — Online Board Games',
+    description: 'Play Wallgo and Sudoku online — no download needed.',
     url: BASE_URL,
     images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630, alt: 'PUZZL THINK — Free Sudoku Game' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PUZZL THINK — Free Sudoku Puzzle Game',
-    description: 'Play free Sudoku online with global rankings.',
+    title: 'PUZZL THINK — Online Board Games',
+    description: 'Play Wallgo and Sudoku online.',
     images: [`${BASE_URL}/og-image.png`],
   },
   alternates: { canonical: BASE_URL },
@@ -90,7 +88,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[#f6f7f8] text-slate-900 dark:bg-[#101922] dark:text-slate-100 font-sans transition-colors duration-200`} suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[#f3f0e8] text-[#17201e] font-sans`} suppressHydrationWarning>
         <div suppressHydrationWarning>
           <NextIntlClientProvider messages={messages}>
             <GlobalHeader />

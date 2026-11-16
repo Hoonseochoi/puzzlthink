@@ -1,0 +1,193 @@
+export const BOARD_SIZE = 7;
+
+export type PlayerId = 0 | 1 | 2;
+export type Direction = 'up' | 'right' | 'down' | 'left';
+export type Position = { row: number; col: number };
+export type Piece = Position & { id: string; player: PlayerId };
+export type MoveOption = {
+  pieceId: string;
+  from: Position;
+  to: Position;
+  distance: 1 | 2;
+  brokenWall?: string;
+};
+export type TerritoryResult = {
+  scores: [number, number, number];
+  largest: [number, number, number];
+  separated: boolean;
+};
+
+export const DIRECTIONS: Record<Direction, Position> = {
+  up: { row: -1, col: 0 },
+  right: { row: 0, col: 1 },
+  down: { row: 1, col: 0 },
+  left: { row: 0, col: -1 },
+};
+
+export const DIRECTION_LABELS: Record<Direction, string> = {
+  up: '위', right: '오른쪽', down: '아래', left: '왼쪽',
+};
+
+export function isInside(position: Position) {
+  return position.row >= 0 && position.row < BOARD_SIZE && position.col >= 0 && position.col < BOARD_SIZE;
+}
+
+export function positionKey(position: Position) {
+  return `${position.row},${position.col}`;
+}
+
+export function edgeKey(a: Position, b: Position) {
+  const first = positionKey(a);
+  const second = positionKey(b);
+  return first < second ? `${first}|${second}` : `${second}|${first}`;
+}
+
+export function neighbor(position: Position, direction: Direction): Position {
+  const delta = DIRECTIONS[direction];
+  return { row: position.row + delta.row, col: position.col + delta.col };
+}
+
+export function hasWall(walls: Set<string>, a: Position, b: Position) {
+  return !isInside(b) || walls.has(edgeKey(a, b));
+}
+
+export function isOccupied(pieces: Piece[], position: Position, ignorePieceId?: string) {
+  return pieces.some((piece) => piece.id !== ignorePieceId && piece.row === position.row && piece.col === position.col);
+}
+
+export function getMoveOptions(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean): MoveOption[] {
+  const options: MoveOption[] = [];
+  for (const piece of pieces.filter((item) => item.player === player)) {
+    for (const direction of Object.keys(DIRECTIONS) as Direction[]) {
+      let cursor: Position = { row: piece.row, col: piece.col };
+      const crossedWalls: string[] = [];
+      for (let distance = 1; distance <= 2; distance += 1) {
+        const next = neighbor(cursor, direction);
+        if (!isInside(next) || isOccupied(pieces, next, piece.id)) break;
+        if (hasWall(walls, cursor, next)) crossedWalls.push(edgeKey(cursor, next));
+        if (crossedWalls.length > (canBreakWall ? 1 : 0)) break;
+
+        const movedPieces = pieces.map((item) => item.id === piece.id ? { ...item, ...next } : item);
+        const movedWalls = new Set(walls);
+        if (crossedWalls[0]) movedWalls.delete(crossedWalls[0]);
+        if (getWallOptions(movedPieces, movedWalls, piece.id).length > 0) {
+          options.push({
+            pieceId: piece.id,
+            from: { row: piece.row, col: piece.col },
+            to: next,
+            distance: distance as 1 | 2,
+            brokenWall: crossedWalls[0],
+          });
+        }
+        cursor = next;
+      }
+    }
+  }
+  return options;
+}
+
+export function applyMove(pieces: Piece[], walls: Set<string>, move: MoveOption) {
+  const nextPieces = pieces.map((piece) => piece.id === move.pieceId ? { ...piece, ...move.to } : piece);
+  const nextWalls = new Set(walls);
+  if (move.brokenWall) nextWalls.delete(move.brokenWall);
+  return { pieces: nextPieces, walls: nextWalls };
+}
+
+export function getWallOptions(pieces: Piece[], walls: Set<string>, pieceId: string) {
+  const piece = pieces.find((item) => item.id === pieceId);
+  if (!piece) return [] as { direction: Direction; key: string; neighbor: Position }[];
+  return (Object.keys(DIRECTIONS) as Direction[])
+    .map((direction) => {
+      const next = neighbor(piece, direction);
+      return { direction, key: edgeKey(piece, next), neighbor: next };
+    })
+    .filter((option) => isInside(option.neighbor) && !walls.has(option.key));
+}
+
+export function getTerritory(pieces: Piece[], walls: Set<string>): TerritoryResult {
+  const visited = new Set<string>();
+  const scores: [number, number, number] = [0, 0, 0];
+  const largest: [number, number, number] = [0, 0, 0];
+  let separated = pieces.length === 6;
+
+  for (let row = 0; row < BOARD_SIZE; row += 1) {
+    for (let col = 0; col < BOARD_SIZE; col += 1) {
+      const start = { row, col };
+      if (visited.has(positionKey(start))) continue;
+      const queue = [start];
+      const cells: Position[] = [];
+      visited.add(positionKey(start));
+      while (queue.length) {
+        const current = queue.shift()!;
+        cells.push(current);
+        for (const direction of Object.keys(DIRECTIONS) as Direction[]) {
+          const next = neighbor(current, direction);
+          if (!isInside(next) || hasWall(walls, current, next) || visited.has(positionKey(next))) continue;
+          visited.add(positionKey(next));
+          queue.push(next);
+        }
+      }
+
+      const cellKeys = new Set(cells.map(positionKey));
+      const owners = new Set<PlayerId>();
+      for (const piece of pieces) if (cellKeys.has(positionKey(piece))) owners.add(piece.player);
+      if (owners.size > 1) {
+        separated = false;
+      } else {
+        for (const owner of owners) {
+          scores[owner] += cells.length;
+          largest[owner] = Math.max(largest[owner], cells.length);
+        }
+      }
+    }
+  }
+  return { scores, largest, separated };
+}
+
+export function getWinner(territory: TerritoryResult): PlayerId {
+  return ([0, 1, 2] as PlayerId[]).sort((a, b) =>
+    territory.scores[b] - territory.scores[a] || territory.largest[b] - territory.largest[a],
+  )[0];
+}
+
+export function chooseBotPlacement(pieces: Piece[], player: PlayerId): Position {
+  const candidates: { position: Position; value: number }[] = [];
+  for (let row = 0; row < BOARD_SIZE; row += 1) {
+    for (let col = 0; col < BOARD_SIZE; col += 1) {
+      const position = { row, col };
+      if (isOccupied(pieces, position)) continue;
+      const centerDistance = Math.abs(row - 3) + Math.abs(col - 3);
+      const ownPieces = pieces.filter((piece) => piece.player === player);
+      const ownDistance = ownPieces.length ? Math.min(...ownPieces.map((piece) => Math.abs(piece.row - row) + Math.abs(piece.col - col))) : 3;
+      const nearest = pieces.length ? Math.min(...pieces.map((piece) => Math.abs(piece.row - row) + Math.abs(piece.col - col))) : 3;
+      candidates.push({ position, value: ownDistance * 2.2 + nearest * 0.4 - centerDistance * 0.35 + Math.random() });
+    }
+  }
+  candidates.sort((a, b) => b.value - a.value);
+  return candidates[0]?.position ?? { row: 3, col: 3 };
+}
+
+export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean) {
+  const candidates: {
+    move: MoveOption; wall: string; direction: Direction; pieces: Piece[]; walls: Set<string>; value: number;
+  }[] = [];
+  for (const move of getMoveOptions(pieces, walls, player, canBreakWall)) {
+    const moved = applyMove(pieces, walls, move);
+    for (const wallOption of getWallOptions(moved.pieces, moved.walls, move.pieceId)) {
+      const nextWalls = new Set(moved.walls).add(wallOption.key);
+      const territory = getTerritory(moved.pieces, nextWalls);
+      const opponentScore = Math.max(...territory.scores.filter((_, index) => index !== player));
+      const mobility = getMoveOptions(moved.pieces, nextWalls, player, false).length;
+      const opponentMobility = ([0, 1, 2] as PlayerId[])
+        .filter((id) => id !== player)
+        .reduce<number>((sum, id) => sum + getMoveOptions(moved.pieces, nextWalls, id, false).length, 0);
+      const winBonus = territory.separated ? (getWinner(territory) === player ? 10_000 : -10_000) : 0;
+      const value = winBonus + territory.scores[player] * 7 + territory.largest[player] * 2
+        - opponentScore * 3 + mobility * 0.45 - opponentMobility * 0.15
+        - (move.brokenWall ? 5 : 0) + Math.random() * 1.8;
+      candidates.push({ move, wall: wallOption.key, direction: wallOption.direction, pieces: moved.pieces, walls: nextWalls, value });
+    }
+  }
+  candidates.sort((a, b) => b.value - a.value);
+  return candidates[0] ?? null;
+}

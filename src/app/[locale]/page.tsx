@@ -1,39 +1,11 @@
-import { getTranslations } from 'next-intl/server';
 import HomeClient from '@/components/HomeClient';
 import type { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'Landing' });
+export const metadata: Metadata = {
+  title: 'PUZZL THINK — 생각이 머무는 작은 게임들',
+  description: '벽바둑과 스도쿠를 바로 즐겨보세요. 기다림 없이 시작하는 깔끔한 온라인 보드게임 컬렉션입니다.',
+};
 
-  return {
-    title: t('subtitle'),
-    description: t('description'),
-  };
-}
-
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'Landing' });
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'PUZZL THINK',
-    url: 'https://puzzlthink.com',
-    logo: 'https://puzzlthink.com/logo.png',
-    sameAs: [
-      'https://twitter.com/puzzlthink',
-    ],
-  };
-
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <HomeClient />
-    </>
-  );
+export default function HomePage() {
+  return <HomeClient />;
 }

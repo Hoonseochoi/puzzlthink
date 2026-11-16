@@ -1,66 +1,17 @@
 "use client";
 
-import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/routing';
-import { createClient } from '@/utils/supabase/client';
-import type { User } from '@supabase/supabase-js';
-import UserMenu from '@/components/UserMenu';
-import SudokuNavDropdown from '@/components/SudokuNavDropdown';
+import { Grid2X2, Menu } from 'lucide-react';
 
-// Pages that have their own immersive header (hide global header)
-const HIDE_ON = ['/play', '/login'];
+const HIDE_ON = ['/play', '/wallgo', '/login'];
 
 export default function GlobalHeader() {
-    const pathname = usePathname();
-    const [user, setUser] = useState<User | null>(null);
-    const [supabase] = useState(() => createClient());
-
-    const hidden = HIDE_ON.some(seg => pathname?.includes(seg));
-
-    useEffect(() => {
-        supabase.auth.getSession().then(({ data }) =>
-            setUser(data.session?.user ?? null)
-        );
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) =>
-            setUser(session?.user ?? null)
-        );
-        return () => subscription.unsubscribe();
-    }, [supabase]);
-
-    const handleSignOut = async () => await supabase.auth.signOut();
-
-    if (hidden) return null;
-
-    return (
-        <header className="w-full flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-6 py-3 md:px-10 lg:px-16 shrink-0">
-            {/* ——— LEFT: Logo + Category Nav ——— */}
-            <div className="flex items-center gap-4">
-                <Link href="/" className="flex items-center gap-2.5 shrink-0">
-                    <img src="/logo.png" alt="PUZZL THINK" className="h-9 w-auto object-contain rounded-lg" />
-                    <span className="text-lg font-black tracking-tight text-slate-800 dark:text-white hidden sm:block">PUZZL THINK</span>
-                </Link>
-                {/* Divider */}
-                <span className="hidden md:block w-px h-5 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                {/* SUDOKU category dropdown — left of nav */}
-                <div className="hidden md:block">
-                    <SudokuNavDropdown />
-                </div>
-            </div>
-
-            {/* ——— RIGHT: User / Sign In ——— */}
-            <div className="flex items-center gap-3">
-                {user ? (
-                    <UserMenu user={user} onSignOut={handleSignOut} />
-                ) : (
-                    <Link
-                        href="/login"
-                        className="flex items-center justify-center rounded-lg h-9 px-5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95"
-                    >
-                        Sign In
-                    </Link>
-                )}
-            </div>
-        </header>
-    );
+  const pathname = usePathname();
+  if (HIDE_ON.some((segment) => pathname?.includes(segment))) return null;
+  return <header className="sticky top-0 z-50 border-b border-black/[0.07] bg-[#f3f0e8]/85 backdrop-blur-xl"><div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+    <Link href="/" className="flex items-center gap-2.5"><span className="grid h-8 w-8 grid-cols-2 gap-0.5 rounded-[10px] bg-[#17201e] p-2"><i className="rounded-sm bg-[#ff6b4a]" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-[#f2c14e]" /></span><span className="text-sm font-black tracking-[-0.03em]">PUZZL THINK</span></Link>
+    <nav className="hidden items-center gap-1 sm:flex"><Link href="/" className="rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black">게임</Link><Link href="/wallgo" className="rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black">벽바둑</Link><Link href="/play" className="rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black">스도쿠</Link></nav>
+    <Link href="/wallgo" className="hidden items-center gap-2 rounded-full bg-[#17201e] px-4 py-2.5 text-xs font-extrabold text-white transition hover:-translate-y-0.5 sm:flex"><Grid2X2 size={14} /> 바로 플레이</Link><Menu className="sm:hidden" size={20} />
+  </div></header>;
 }
