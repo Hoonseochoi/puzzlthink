@@ -7,7 +7,7 @@ import { usePathname, Link } from '@/i18n/routing';
 import LanguageSwitcher from './LanguageSwitcher';
 import AuthButton from './AuthButton';
 
-const HIDE_ON = ['/play', '/wallgo', '/janggi', '/heavy13', '/russian-roulette'];
+const HIDE_ON = ['/play', '/wallgo', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
 
 export default function GlobalHeader() {
   const pathname = usePathname();
@@ -21,6 +21,7 @@ export default function GlobalHeader() {
     { href: '/russian-roulette', label: t('russianRoulette') },
     { href: '/heavy13', label: t('heavy13') },
     { href: '/janggi', label: t('janggi') },
+    { href: '/russian-janggi', label: t('russianJanggi') },
     { href: '/play', label: t('sudoku') },
     { href: '/records', label: t('records') },
   ] as const;

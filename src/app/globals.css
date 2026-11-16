@@ -24,3 +24,4 @@ button:disabled { cursor: default; }
 .text-balance { text-wrap: balance; }
 @keyframes roomAlertIn { from { opacity: 0; transform: translateY(-8px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes readyGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,.0), 0 0 18px var(--ready-glow, rgba(232,193,112,.45)); } 50% { box-shadow: 0 0 0 4px rgba(255,255,255,.12), 0 0 34px var(--ready-glow, rgba(232,193,112,.7)); } }
+@keyframes rjDrop { 0% { opacity: 0; transform: translateY(-18%) scale(1.18); } 70% { opacity: 1; transform: translateY(0) scale(.96); } 100% { transform: none; } }
