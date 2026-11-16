@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Link2, RotateCcw } from 'lucide-react';
+import { ArrowLeft, BookOpen, Link2, RotateCcw } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import type { AiLevel } from '@/lib/heavy13';
 import { createH13Room } from '@/lib/heavy13Room';
@@ -11,9 +11,11 @@ import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import LanguageSwitcher from '../LanguageSwitcher';
 import Heavy13Result from './Heavy13Result';
 import Heavy13Table from './Heavy13Table';
+import Heavy13Tutorial from './Heavy13Tutorial';
 import { H_PANEL, H_TITLE, QUARRY_BG } from './theme';
 
 const LEVELS: AiLevel[] = ['easy', 'normal', 'hard'];
+const TUTORIAL_KEY = 'puzzlthink_heavy13_tutorial_seen';
 
 export default function Heavy13Game() {
   const t = useTranslations('Heavy13');
@@ -21,6 +23,12 @@ export default function Heavy13Game() {
   const [level, setLevel] = useState<AiLevel>('normal');
   const create = useCallback(() => createH13Room({ id: 'me', name: t('you'), at: 0 }, { solo: true, aiLevel: level }), [level, t]);
   const { state, dispatch, reset } = useLocalRoom(H13_ROOM, create);
+  const [showTutorial, setShowTutorial] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => { try { if (!localStorage.getItem(TUTORIAL_KEY)) setShowTutorial(true); } catch { /* optional */ } }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const closeTutorial = () => { try { localStorage.setItem(TUTORIAL_KEY, '1'); } catch { /* optional */ } setShowTutorial(false); };
 
   return (
     <div className="relative min-h-screen bg-[#0e1013] text-[#eef0f3]" style={{ backgroundImage: QUARRY_BG }}>
@@ -32,6 +40,7 @@ export default function Heavy13Game() {
           <span className="hidden text-[10px] font-bold tracking-[0.2em] text-[#e6c48a]/70 sm:inline">HEAVY 13</span>
         </div>
         <div className="flex items-center gap-1.5">
+          <button onClick={() => setShowTutorial(true)} className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white/80 hover:bg-white/10"><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
           <LanguageSwitcher compact dark />
           <button onClick={reset} className="flex items-center gap-2 rounded-full bg-[#e6c48a] px-3 py-2 text-xs font-black text-[#2a2118]"><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
         </div>
@@ -58,6 +67,7 @@ export default function Heavy13Game() {
         </aside>
       </main>
       {state?.phase === 'finished' && <Heavy13Result room={state} mySeat={0} onAgain={reset} />}
+      {showTutorial && <Heavy13Tutorial onClose={closeTutorial} />}
     </div>
   );
 }

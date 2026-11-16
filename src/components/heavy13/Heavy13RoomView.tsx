@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowLeft, Bot, Check, Copy, Crown, Loader2, Share2, UserRound, WifiOff } from 'lucide-react';
+import { ArrowLeft, BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, UserRound, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import type { AiLevel } from '@/lib/heavy13';
 import { H13_TURN_OPTIONS, redactH13 } from '@/lib/heavy13Room';
@@ -10,6 +10,7 @@ import { useHeavy13Room } from '@/hooks/useHeavy13Room';
 import LanguageSwitcher from '../LanguageSwitcher';
 import Heavy13Result from './Heavy13Result';
 import Heavy13Table from './Heavy13Table';
+import Heavy13Tutorial from './Heavy13Tutorial';
 import { H_PANEL, H_TITLE, QUARRY_BG } from './theme';
 
 const LEVELS: AiLevel[] = ['easy', 'normal', 'hard'];
@@ -24,6 +25,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     const slow = window.setTimeout(() => setWaitedLong(true), 6000);
@@ -53,7 +55,10 @@ export default function Heavy13RoomView({ code }: { code: string }) {
           <strong className="text-xl font-black tracking-tight">{t('title')}</strong>
           <span className="hidden text-[9px] font-bold tracking-[0.18em] text-[#e6c48a]/70 sm:inline">ONLINE · {code.toUpperCase()}</span>
         </div>
-        <LanguageSwitcher compact dark />
+        <div className="flex items-center gap-1.5">
+          <button onClick={() => setShowTutorial(true)} className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white/80 hover:bg-white/10"><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
+          <LanguageSwitcher compact dark />
+        </div>
       </header>
       {notice && <p className="mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3a8]"><WifiOff size={14} />{notice}</p>}
 
@@ -114,6 +119,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
           </section>
         </main>
       )}
+      {showTutorial && <Heavy13Tutorial onClose={() => setShowTutorial(false)} />}
       {view?.phase === 'finished' && <Heavy13Result room={view} mySeat={mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={to('rematchWait')} />}
     </div>
   );

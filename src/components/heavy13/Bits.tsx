@@ -23,12 +23,37 @@ export function RockCard({ value, size = 'md', dim = false, selected = false }: 
   );
 }
 
-/** A small stone cube placed on a stand. */
+/** A stone cube on a stand: a square block with its weight. */
 export function Cube({ value, color, fresh = false }: { value: number; color: string; fresh?: boolean }) {
   return (
-    <span className={`flex h-6 w-full items-center justify-center rounded-[6px] text-xs font-black sm:h-8 sm:rounded-[7px] sm:text-sm text-[#2a2118] shadow-[inset_0_-3px_0_rgba(0,0,0,.18),0_3px_8px_rgba(0,0,0,.35)] ${fresh ? 'ring-2 ring-white/80' : ''}`}
-      style={{ background: `linear-gradient(180deg, #e9dcc3, #bfa883)`, borderLeft: `4px solid ${color}` }}>
+    <span className={`relative flex aspect-square items-center justify-center rounded-[22%] text-sm font-black text-[#2a2118] sm:text-lg shadow-[inset_0_-4px_0_rgba(0,0,0,.2),inset_0_2px_0_rgba(255,255,255,.55),0_4px_10px_rgba(0,0,0,.4)] ${fresh ? 'ring-2 ring-white/90' : ''}`}
+      style={{ background: 'linear-gradient(160deg, #f1e6cf 0%, #cdb791 60%, #ad9671 100%)' }}>
+      <span className="absolute left-[12%] top-[12%] h-[14%] w-[14%] rounded-full" style={{ background: color }} />
       {value}
     </span>
+  );
+}
+
+/** Cubes stack two per row from the bottom, like the porter stands on the show. */
+export function CubeStack({ cubes, color, freshLast = false, className = '' }: { cubes: number[]; color: string; freshLast?: boolean; className?: string }) {
+  return (
+    <div className={`grid grid-cols-[repeat(2,minmax(0,3.25rem))] content-end justify-center gap-1 ${className}`}>
+      {/* Bottom-up order: reverse rows so the first cube sits bottom-left. */}
+      {Array.from({ length: Math.ceil(cubes.length / 2) }, (_, r) => Math.ceil(cubes.length / 2) - 1 - r).flatMap((row) => [row * 2, row * 2 + 1].map((i) => (
+        i < cubes.length ? <Cube key={i} value={cubes[i]} color={color} fresh={freshLast && i === cubes.length - 1} /> : <span key={i} />
+      )))}
+    </div>
+  );
+}
+
+/** A small porter stand for diagrams. */
+export function StandMini({ color, cubes, label, glow }: { color: 'r' | 'g' | 'b'; cubes: number[]; label: string; glow?: boolean }) {
+  const total = cubes.reduce((a, b) => a + b, 0);
+  return (
+    <div className={`flex w-24 flex-col rounded-[12px] border p-2 ${glow ? 'shadow-[0_0_18px_rgba(240,82,79,.45)]' : ''}`} style={{ borderColor: `${STAND[color].main}66`, background: STAND[color].soft }}>
+      <span className="text-[10px] font-black" style={{ color: STAND[color].main }}>{label}</span>
+      <span className="font-mono text-xl font-black text-white">{total}<span className="text-[10px] text-white/40">/13</span></span>
+      <CubeStack cubes={cubes} color={STAND[color].main} className="mt-1 min-h-[80px]" />
+    </div>
   );
 }

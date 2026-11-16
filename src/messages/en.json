@@ -859,7 +859,8 @@
     "quick2": "Rainbow first, then higher cards; ties go clockwise from the start player.",
     "quick3": "If a stand reaches 13+, you take a penalty per cube already there; only your cube stays.",
     "quick4": "Once per round you may pass to place last.",
-    "quick5": "After 14 rounds the fewest penalties wins; 6th and 7th are out."
+    "quick5": "After 14 rounds the fewest penalties wins; 6th and 7th are out.",
+    "howToPlay": "How to play"
   },
   "Heavy13Online": {
     "metaTitle": "Play Heavy 13 with friends",
@@ -940,7 +941,7 @@
       {
         "tag": "TEMPO",
         "title": "Leave a little room rather than filling to 12",
-        "body": "A stand filled to 12 scares everyone away and just intensifies the fight elsewhere. Leaving 1–2 points of room tempts several players to think \"a 1 alone is safe\" — and they collapse it on each other."
+        "body": "A stand filled to 12 scares everyone away and just intensifies the fight elsewhere. Leaving 1–2 points of room tempts several players to think \"a 1 alone is safe\" — and they collapse it on each other. On the other hand, if you have used up that color and will not go there again, blocking it on purpose fuels everyone else's guessing game."
       },
       {
         "tag": "INFO",
@@ -967,6 +968,32 @@
         "a": "Yes, every game is free."
       }
     ],
-    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan or its broadcaster. Show names are used only to describe the games."
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan or its broadcaster. Show names are used only to describe the games.",
+    "motifTitle": "Inspiration",
+    "motifBody": "It closely resembles the card game 6 nimmt!: you add numbers to a chosen row and whoever crosses the threshold takes the penalty. The differences: a start player, the rainbow chip and pass rule that reduce pure luck, and a threshold based on the total (13) rather than the number of cards."
+  },
+  "Heavy13Tutorial": {
+    "skip": "Skip",
+    "prev": "Back",
+    "next": "Next",
+    "start": "Start",
+    "label0": "GOAL",
+    "title0": "Don't push a stand to 13",
+    "desc0": "Stack rocks on the red, green and blue stands. If your rock makes a stand total 13 or more, you take the penalty. Fewest penalties after 14 rounds wins.",
+    "label1": "SECRET PICK",
+    "title1": "One card + one chip, face down",
+    "desc1": "The rock card (0–6) is the weight; the chip is the stand color. All seven play at once in secret, then everything is revealed. Used cards and chips are gone for the rest of the hand.",
+    "label2": "ORDER",
+    "title2": "Rainbow → higher card → clockwise",
+    "desc2": "Rainbow chips place first (and choose their stand), then higher cards. Equal cards go clockwise from the start player.",
+    "label3": "COLLAPSE",
+    "title3": "13 or more: the pile is your penalty",
+    "desc3": "Adding 5 to a stand at 11 makes 16. The two rocks already there are collected for 2 penalty points, and your 5 stays alone. Cubes stack two per row.",
+    "label4": "PASS",
+    "title4": "Pass first, place last",
+    "desc4": "Once per round you may pass on your turn. Passers place after everyone else, and the first to pass places last: if A then B pass, the order is C → D → B → A.",
+    "label5": "RESULT",
+    "title5": "Fresh hand at round 8, ranking after 14",
+    "desc5": "After round 7 you get new cards and chips, but the stands keep their rocks. After 14 rounds, fewest penalties ranks first; 6th and 7th are out."
   }
 }

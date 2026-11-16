@@ -34,8 +34,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
             return (
               <div key={color} style={{ display: 'flex', flexDirection: 'column', width: 130, padding: 14, borderRadius: 18, border: `2px solid ${color}`, background: 'rgba(255,255,255,0.04)' }}>
                 <div style={{ display: 'flex', fontSize: 44, fontWeight: 900, color: total >= 10 ? '#ff8a7a' : '#ffffff' }}>{total}<span style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)', marginTop: 20 }}>/13</span></div>
-                <div style={{ display: 'flex', flexDirection: 'column-reverse', gap: 6, marginTop: 10, height: 190 }}>
-                  {cubes.map((v, i) => <div key={i} style={{ display: 'flex', height: 52, borderRadius: 10, justifyContent: 'center', alignItems: 'center', fontSize: 26, fontWeight: 900, color: '#2a2118', background: 'linear-gradient(#e9dcc3, #bfa883)', borderLeft: `8px solid ${color}` }}>{v}</div>)}
+                <div style={{ display: 'flex', flexWrap: 'wrap-reverse', alignContent: 'flex-start', gap: 6, marginTop: 10, height: 190, width: 102 }}>
+                  {cubes.map((v, i) => <div key={i} style={{ display: 'flex', width: 48, height: 48, borderRadius: 11, justifyContent: 'center', alignItems: 'center', fontSize: 24, fontWeight: 900, color: '#2a2118', background: 'linear-gradient(160deg, #f1e6cf, #ad9671)' }}>{v}</div>)}
                 </div>
               </div>
             );

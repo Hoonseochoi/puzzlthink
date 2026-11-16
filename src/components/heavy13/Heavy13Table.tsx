@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Bot, Check, Clock3, Crown, Hand } from 'lucide-react';
 import { type Chip, type Color, type LogEntry, CHIPS, COLORS, LIMIT, PLAYERS, ROUNDS, canPass, sum } from '@/lib/heavy13';
 import type { H13Action, H13Room } from '@/lib/heavy13Room';
-import { ChipToken, Cube, RockCard } from './Bits';
+import { ChipToken, CubeStack, RockCard } from './Bits';
 import { H_PANEL, H_TITLE, SAND, STAND } from './theme';
 
 /** Everything on the table. `room` should already be the redacted view for this player. */
@@ -73,9 +73,7 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
               <div className="mt-1.5 flex h-1.5 gap-[2px]">
                 {Array.from({ length: LIMIT - 1 }).map((_, i) => <span key={i} className="flex-1 rounded-full" style={{ background: i < total ? (i >= 9 ? '#ff6b5a' : STAND[c].main) : 'rgba(255,255,255,0.08)' }} />)}
               </div>
-              <div className="mt-2 flex min-h-[96px] flex-col-reverse gap-1 sm:mt-3 sm:min-h-[132px]">
-                {cubes.map((v, i) => <Cube key={i} value={v} color={STAND[c].main} fresh={!!fresh(c) && i === cubes.length - 1} />)}
-              </div>
+              <CubeStack cubes={cubes} color={STAND[c].main} freshLast={!!fresh(c)} className="mt-2 min-h-[110px] sm:mt-3 sm:min-h-[150px]" />
             </section>
           );
         })}
