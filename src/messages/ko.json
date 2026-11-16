@@ -608,7 +608,18 @@
     "reason_entry": "王이 적진에 들어가 한 턴을 버텼습니다.",
     "reason_draw": "200수가 지나 무승부로 끝났습니다.",
     "reason_resign": "기권으로 대국이 끝났습니다.",
-    "reason_timeout": "시간 초과가 반복되어 대국이 끝났습니다."
+    "reason_timeout": "시간 초과가 반복되어 대국이 끝났습니다.",
+    "replay": "복기하기",
+    "replayTitle": "복기",
+    "replayStart": "대국 시작 — ▶를 눌러 한 수씩 다시 봐요",
+    "replayShowResult": "결과 다시 보기",
+    "replayExit": "복기 끝내기",
+    "closeResult": "닫고 판 보기",
+    "turnTime": "턴 시간",
+    "turnTime_off": "없음",
+    "turnSeconds": "{n}초",
+    "turnTimeHint": "시간이 지나면 무작위로 한 수가 자동 진행되고, 세 번 연속이면 시간패입니다.",
+    "logTimeoutMove": "⏱ 시간 초과 ·"
   },
   "JanggiTutorial": {
     "skip": "건너뛰기",

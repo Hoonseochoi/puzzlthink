@@ -50,7 +50,7 @@ export function CubeStack({ cubes, color, freshLast = false, className = '' }: {
 export function StandMini({ color, cubes, label, glow }: { color: 'r' | 'g' | 'b'; cubes: number[]; label: string; glow?: boolean }) {
   const total = cubes.reduce((a, b) => a + b, 0);
   return (
-    <div className={`flex w-24 flex-col rounded-[12px] border p-2 ${glow ? 'shadow-[0_0_18px_rgba(240,82,79,.45)]' : ''}`} style={{ borderColor: `${STAND[color].main}66`, background: STAND[color].soft }}>
+    <div className={`flex w-24 flex-col rounded-[10px] border p-2 ${glow ? 'shadow-[0_0_18px_rgba(240,82,79,.45)]' : ''}`} style={{ borderColor: `${STAND[color].main}66`, background: STAND[color].soft }}>
       <span className="text-[10px] font-black" style={{ color: STAND[color].main }}>{label}</span>
       <span className="font-mono text-xl font-black text-white">{total}<span className="text-[10px] text-white/40">/13</span></span>
       <CubeStack cubes={cubes} color={STAND[color].main} className="mt-1 min-h-[80px]" />

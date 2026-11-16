@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, Share2, Swords, Users, WifiOff } from 'lucide-react';
+import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, Share2, Swords, Users, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import type { Side } from '@/lib/janggi';
 import { TURN_OPTIONS } from '@/lib/janggiRoom';
@@ -14,11 +14,17 @@ import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiPiece from './JanggiPiece';
 import JanggiResult from './JanggiResult';
 import JanggiTable from './JanggiTable';
-import { GOLD_TEXT, J_PANEL, J_TITLE, JANGGI_FOG, SIDE_COLORS, hanjaFont } from './theme';
+import JanggiReplay from './JanggiReplay';
+import { RESULT_DELAY_MS } from './JanggiGame';
+import WallGoShards from '../WallGoShards';
+import GameHeader from '../ui/GameHeader';
+import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, playerRow, seg, timer } from '../ui/gameUi';
+import { GOLD, JANGGI_FOG, SIDE_COLORS, hanjaFont } from './theme';
 
 export default function JanggiRoomView({ code }: { code: string }) {
   const t = useTranslations('JanggiOnline');
   const tj = useTranslations('Janggi');
+  const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useJanggiRoom(code, defaultName);
@@ -27,6 +33,8 @@ export default function JanggiRoomView({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [resultFor, setResultFor] = useState<string | null>(null); // finished game whose result popup is open
+  const [replayFor, setReplayFor] = useState<string | null>(null); // finished game being replayed
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
   // Report a finished game once, when the room moves into "finished".
@@ -46,6 +54,16 @@ export default function JanggiRoomView({ code }: { code: string }) {
     setShareUrl(`${window.location.origin}/${locale}/janggi/room/${code}`);
     return () => { window.clearInterval(timer); window.clearTimeout(slow); };
   }, [code, locale]);
+
+  // Each finished game gets a key, so a rematch starts with the popup closed again.
+  const finishedKey = state?.phase === 'finished' && state.game ? `${state.sid}-${state.first}-${state.game.moves?.length ?? state.game.ply}-${state.game.reason}` : null;
+  // Leave the final board up for a moment before the result pops up.
+  useEffect(() => {
+    if (!finishedKey) return;
+    const timer = window.setTimeout(() => setResultFor(finishedKey), RESULT_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [finishedKey]);
+  const showReplay = !!finishedKey && replayFor === finishedKey;
 
   const viewer: Side = mySeat ?? 0;
   const online = new Set(peers.map((peer) => peer.id));
@@ -67,35 +85,30 @@ export default function JanggiRoomView({ code }: { code: string }) {
   const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? tj('gameOver') : myTurn ? tj('yourTurn') : t('waitingFor', { player: seatName(game!.turn) });
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0a0c10] text-[#eceff4]" style={{ backgroundImage: JANGGI_FOG }}>
-      <RoomAlerts alerts={alerts} accent="#e8c170" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-      <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/40 px-4 py-2 backdrop-blur md:px-8">
-        <div className="flex min-w-0 items-center gap-3">
-          <Link href="/janggi" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /></Link>
-          <span className="h-5 w-px bg-white/15" />
-          <strong className={`${hanjaFont.className} ${GOLD_TEXT} text-xl tracking-[0.18em]`}>十二將棋</strong>
-          <span className="hidden text-[9px] font-bold tracking-[0.18em] text-[#e8c170]/70 sm:inline">ONLINE · 1:1 · {code.toUpperCase()}</span>
-        </div>
+    <div className={SHELL} style={{ ...accentVars(GOLD, '#1a1408'), backgroundImage: JANGGI_FOG }}>
+      <WallGoShards tint="#4a3812" />
+      <RoomAlerts alerts={alerts} accent={GOLD} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
+      <GameHeader backHref="/janggi" backLabel={tc('janggi')} title="十二將棋" titleClass={hanjaFont.className} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <LanguageSwitcher compact dark />
-      </header>
+      </GameHeader>
 
-      {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1100px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}
+      {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}
 
       {!state || !game ? (
         <main className="relative z-10 flex min-h-[60vh] items-center justify-center px-4">
           {!notice && <p className="flex items-center gap-2 text-sm text-white/50"><Loader2 size={16} className="animate-spin" />{t('connecting')}</p>}
-          {notice && <Link href="/janggi" className="rounded-[12px] bg-[#e8c170] px-4 py-2.5 text-sm font-black text-[#1a1408]">{t('back')}</Link>}
+          {notice && <Link href="/janggi" className={`px-4 py-2.5 text-sm ${BTN_ACCENT}`}>{t('back')}</Link>}
         </main>
       ) : (
-        <main className="relative z-10 mx-auto grid w-full max-w-[1100px] gap-6 px-4 py-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-6 lg:py-8">
-          <section className="rounded-[20px] border border-white/10 bg-white/[0.02] p-3 sm:p-5">
-            <div className="mx-auto mb-4 flex max-w-[440px] items-center justify-between gap-3">
+        <main className={MAIN}>
+          <section className={STAGE}>
+            <div className="mx-auto mb-4 flex max-w-[480px] items-center justify-between gap-3 px-1">
               <div className="min-w-0">
-                <p className="font-mono text-[10px] font-bold tracking-[0.25em] text-[#e8c170]">{state.phase === 'lobby' ? 'LOBBY' : `MOVE ${String(game.ply + 1).padStart(2, '0')}`}</p>
-                <h1 className="mt-1 truncate text-lg font-extrabold tracking-tight">{heading}</h1>
+                <p className={KICKER}>{state.phase === 'lobby' ? 'LOBBY' : `MOVE ${String(game.ply + 1).padStart(2, '0')}`}</p>
+                <h1 className={`mt-1 truncate ${HEADING}`}>{heading}</h1>
               </div>
               {state.phase === 'playing' && (
-                <div className={`flex min-w-[78px] items-center justify-center gap-2 rounded-full px-3 py-2 font-mono text-sm font-bold ${seconds <= 10 && myTurn ? 'animate-pulse bg-[#ff5b3a] text-white' : 'border border-white/15 bg-black/50 text-white/80'}`}>
+                <div className={timer(seconds <= 10 && myTurn)}>
                   <Clock3 size={14} />{`${String(Math.floor(seconds / 60)).padStart(1, '0')}:${String(seconds % 60).padStart(2, '0')}`}
                 </div>
               )}
@@ -108,34 +121,34 @@ export default function JanggiRoomView({ code }: { code: string }) {
                   <span className={`${hanjaFont.className} self-center text-2xl text-white/30`}>對</span>
                   <JanggiPiece type="wang" owner={1} flipped className="h-16 w-16" />
                 </div>
-                <div className="rounded-[16px] border border-[#e8c170]/30 bg-black/40 p-5">
-                  <p className={J_TITLE}>{t('inviteTitle')}</p>
+                <div className="rounded-[12px] border border-(--accent)/30 bg-black/50 p-5">
+                  <p className={PANEL_TITLE}>{t('inviteTitle')}</p>
                   <p className="mt-2 text-sm text-white/60">{t('inviteDesc')}</p>
-                  <div className="mt-4 flex items-center gap-2 rounded-[12px] border border-white/10 bg-[#0a0c10] p-2">
+                  <div className="mt-4 flex items-center gap-2 rounded-md border border-white/10 bg-[#0b0b0e] p-2">
                     <span className="min-w-0 flex-1 truncate px-2 font-mono text-xs text-white/70">{shareUrl}</span>
-                    <button onClick={copyLink} className="flex shrink-0 items-center gap-1.5 rounded-[10px] border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold hover:bg-white/10">{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t('copied') : t('copy')}</button>
-                    <button onClick={shareLink} className="flex shrink-0 items-center gap-1.5 rounded-[10px] bg-[#e8c170] px-3 py-2 text-xs font-black text-[#1a1408]"><Share2 size={14} />{t('share')}</button>
+                    <button onClick={copyLink} className={`shrink-0 ${BTN}`}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t('copied') : t('copy')}</button>
+                    <button onClick={shareLink} className={`shrink-0 ${BTN_ACCENT}`}><Share2 size={14} />{t('share')}</button>
                   </div>
                 </div>
-                <div className={J_PANEL}>
-                  <p className={J_TITLE}>{t('turnTime')}</p>
+                <div className={PANEL}>
+                  <p className={PANEL_TITLE}>{t('turnTime')}</p>
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     {TURN_OPTIONS.map((sec) => (
-                      <button key={sec} disabled={!me?.isHost} onClick={() => dispatch({ t: 'config', turnSec: sec })} className={`rounded-[10px] py-2.5 text-sm font-black transition ${state.turnSec === sec ? 'bg-white text-[#0a0c10]' : 'border border-white/10 bg-white/[0.03] text-white/50 enabled:hover:text-white'} disabled:cursor-default`}>{t('seconds', { n: sec })}</button>
+                      <button key={sec} disabled={!me?.isHost} onClick={() => dispatch({ t: 'config', turnSec: sec })} className={`py-2.5 ${seg(state.turnSec === sec)} disabled:cursor-default`}>{t('seconds', { n: sec })}</button>
                     ))}
                   </div>
                   {!me?.isHost && <p className="mt-2 text-[11px] text-white/40">{t('hostSetsTime')}</p>}
                 </div>
                 <form onSubmit={(event) => { event.preventDefault(); rename(nameDraft); setNameDraft(''); }} className="flex items-center gap-2">
-                  <input value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} maxLength={16} placeholder={me?.name ?? ''} aria-label={t('nickname')} className="min-w-0 flex-1 rounded-[12px] border border-white/10 bg-[#0a0c10] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-[#e8c170]/60" />
-                  <button type="submit" className="shrink-0 rounded-[12px] border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-bold hover:bg-white/10">{t('rename')}</button>
+                  <input value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} maxLength={16} placeholder={me?.name ?? ''} aria-label={t('nickname')} className={INPUT} />
+                  <button type="submit" className={`shrink-0 px-4 py-2.5 ${BTN}`}>{t('rename')}</button>
                 </form>
                 {me?.isHost ? (
                   <div className="space-y-2">
-                    <button onClick={() => dispatch({ t: 'start' })} disabled={!full} style={{ ['--ready-glow' as string]: 'rgba(232,193,112,.6)' }} className={`flex w-full items-center justify-center gap-2 rounded-[14px] py-3.5 text-sm font-black transition ${full ? 'animate-[readyGlow_1.6s_ease-in-out_infinite] bg-[#e8c170] text-[#1a1408] hover:bg-[#f3d38d]' : 'cursor-not-allowed border border-dashed border-white/20 bg-white/[0.04] text-white/40'}`}>
+                    <button onClick={() => dispatch({ t: 'start' })} disabled={!full} style={{ ['--ready-glow' as string]: 'rgba(232,193,112,.6)' }} className={`flex w-full items-center justify-center gap-2 rounded-md py-3.5 text-sm font-extrabold transition ${full ? 'animate-[readyGlow_1.6s_ease-in-out_infinite] bg-(--accent) text-(--accent-ink) hover:brightness-110' : 'cursor-not-allowed border border-dashed border-white/20 bg-white/[0.04] text-white/40'}`}>
                       {full ? <Swords size={16} /> : <Lock size={15} />}{full ? t('start') : t('startLocked')}
                     </button>
-                    <p className={`text-center text-[11px] ${full ? 'font-bold text-[#e8c170]' : 'text-white/40'}`}>{full ? t('startReady') : t('startLockedHint')}</p>
+                    <p className={`text-center text-[11px] ${full ? 'font-bold text-(--accent)' : 'text-white/40'}`}>{full ? t('startReady') : t('startLockedHint')}</p>
                   </div>
                 ) : (
                   <p className="text-center text-sm text-white/50">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>
@@ -143,52 +156,55 @@ export default function JanggiRoomView({ code }: { code: string }) {
               </div>
             ) : (
               <>
-                <JanggiTable game={game} viewer={viewer} canAct={myTurn} onAction={(action) => dispatch({ t: 'act', action })} />
+                {showReplay
+                  ? <JanggiReplay game={game} viewer={viewer} names={names} onShowResult={() => { setReplayFor(null); setResultFor(finishedKey); }} onClose={() => setReplayFor(null)} />
+                  : <JanggiTable game={game} viewer={viewer} canAct={myTurn} onAction={(action) => dispatch({ t: 'act', action })} />}
                 {mySeat === null && <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
               </>
             )}
           </section>
 
           <aside className="flex flex-col gap-4">
-            <section className={J_PANEL}>
-              <div className="mb-3 flex items-center justify-between"><h2 className={J_TITLE}>{t('players')}</h2><span className="flex items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-1 text-[10px] font-bold text-white/60"><Users size={12} />{state.seats.filter(Boolean).length}/2</span></div>
+            <section className={PANEL}>
+              <div className="mb-3 flex items-center justify-between"><h2 className={PANEL_TITLE}>{t('players')}</h2><span className={CHIP}><Users size={12} />{state.seats.filter(Boolean).length}/2</span></div>
               <div className="space-y-2">
                 {[0, 1].map((seat) => {
                   const active = state.phase === 'playing' && game.turn === seat;
                   const occupant = state.seats[seat];
                   return (
-                    <div key={seat} className={`flex items-center gap-3 rounded-[12px] border p-3 ${active ? 'border-[#e8c170]/50 bg-white/[0.04]' : 'border-transparent'} ${occupant ? '' : 'opacity-50'}`}>
+                    <div key={seat} className={`${playerRow(active)} ${occupant ? '' : 'opacity-50'}`}>
                       <JanggiPiece type="wang" owner={seat as Side} showReading={false} className="h-10 w-10 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
                           <p className="truncate text-sm font-extrabold">{names[seat]}</p>
-                          {seat === 0 && <Crown size={12} className="shrink-0 text-[#e8c170]" aria-label={t('host')} />}
+                          {seat === 0 && <Crown size={12} className="shrink-0 text-[#f2c14e]" aria-label={t('host')} />}
                           {occupant && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${online.has(occupant.id) ? 'bg-[#3ddc97]' : 'bg-white/25'}`} />}
                         </div>
                         <p className="text-[11px] text-white/45">{state.phase === 'lobby' ? (occupant ? t('ready') : t('waiting')) : state.first === seat ? t('firstMover') : t('secondMover')}</p>
                       </div>
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: SIDE_COLORS[seat] }} />
+                      <span className="h-2.5 w-2.5 rotate-45" style={{ background: SIDE_COLORS[seat] }} />
                     </div>
                   );
                 })}
               </div>
               {state.phase !== 'lobby' && <p className="mt-3 text-[11px] text-white/40">{t('turnTimeInfo', { n: state.turnSec })}</p>}
             </section>
-            <section className="rounded-[16px] border border-white/10 bg-black/40 p-5">
-              <h2 className={J_TITLE}>{tj('quickRules')}</h2>
-              <ol className="mt-3 space-y-2.5 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-[#e8c170]">0{i + 1}</span><span>{tj(key)}</span></li>)}</ol>
+            <section className={NOTE}>
+              <h2 className={PANEL_TITLE}>{tj('quickRules')}</h2>
+              <ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{tj(key)}</span></li>)}</ol>
               <p className="mt-3 text-[11px] text-white/40">{t('timeoutRule')}</p>
             </section>
             {state.phase === 'playing' && mySeat !== null && (
-              <button onClick={() => { if (window.confirm(t('resignConfirm'))) dispatch({ t: 'resign' }); }} className="flex items-center justify-center gap-2 rounded-[12px] border border-white/10 py-2.5 text-xs font-bold text-white/45 hover:text-white"><Flag size={13} />{tj('resign')}</button>
+              <button onClick={() => { if (window.confirm(t('resignConfirm'))) dispatch({ t: 'resign' }); }} className={`py-2.5 ${BTN} text-white/45`}><Flag size={13} />{tj('resign')}</button>
             )}
           </aside>
         </main>
       )}
 
-      {state?.phase === 'finished' && game && (
+      {state?.phase === 'finished' && game && resultFor === finishedKey && !showReplay && (
         <JanggiResult game={game} viewer={mySeat} names={state.seats.map((seat) => seat?.name ?? '')}
-          onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} againLabel={t('rematch')} waitingLabel={t('rematchWait')} exitPath="/janggi" />
+          onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} againLabel={t('rematch')} waitingLabel={t('rematchWait')} exitPath="/janggi"
+          onReplay={() => { setResultFor(null); setReplayFor(finishedKey); }} onClose={() => setResultFor(null)} />
       )}
     </div>
   );

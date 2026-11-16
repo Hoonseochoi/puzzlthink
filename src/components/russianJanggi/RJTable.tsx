@@ -43,8 +43,9 @@ export default function RJTable({ game, viewer, canAct, onAction, names }: {
   return (
     <div className="space-y-3">
       <Hand side={other(viewer)} game={game} label={names[other(viewer)]} selectable={false} selected={null} onPick={() => {}} active={game.turn === other(viewer)} />
-      <div className="relative mx-auto w-full max-w-[440px] rounded-[26px] bg-gradient-to-br from-[#f2b84b]/50 via-white/10 to-[#f2b84b]/40 p-[1.5px] shadow-[0_30px_80px_rgba(0,0,0,0.55)]">
-        <div className="rounded-[24px] bg-[linear-gradient(135deg,#2a1d14,#1a120c)] p-3 sm:p-4">
+      <div className="relative mx-auto w-full max-w-[440px] rounded-[12px] bg-gradient-to-br from-[#f2b84b]/50 via-white/10 to-[#f2b84b]/40 p-[1.5px] shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+        {['-left-1.5 -top-1.5', '-right-1.5 -top-1.5', '-bottom-1.5 -left-1.5', '-bottom-1.5 -right-1.5'].map((corner) => <span key={corner} aria-hidden className={`absolute z-30 h-3 w-3 rotate-45 border border-[#b9c1d3] bg-[#0b0b0e] ${corner}`} />)}
+        <div className="rounded-[10.5px] bg-[linear-gradient(135deg,#2a1d14,#1a120c)] p-3 sm:p-4">
           <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
             {Array.from({ length: 9 }, (_, i) => (viewer === 0 ? i : 8 - i)).map((cell) => {
               const stack = game.board[cell];
@@ -56,7 +57,7 @@ export default function RJTable({ game, viewer, canAct, onAction, names }: {
               return (
                 <button
                   key={cell} type="button" onClick={() => onCell(cell)} aria-label={`cell ${cell + 1}`}
-                  className={`relative aspect-square overflow-hidden rounded-[16px] border transition ${winning ? 'border-[#f2b84b] shadow-[0_0_0_2px_rgba(242,184,75,.55),0_0_30px_rgba(242,184,75,.45)]' : wasLast ? 'border-[#f2b84b]/45' : 'border-black/40'} ${target || piece?.owner === viewer ? 'cursor-pointer' : ''} ${lifted ? 'ring-2 ring-[#f2b84b]/70' : ''}`}
+                  className={`relative aspect-square overflow-hidden rounded-[8px] border transition ${winning ? 'border-[#f2b84b] shadow-[0_0_0_2px_rgba(242,184,75,.55),0_0_30px_rgba(242,184,75,.45)]' : wasLast ? 'border-[#f2b84b]/45' : 'border-black/40'} ${target || piece?.owner === viewer ? 'cursor-pointer' : ''} ${lifted ? 'ring-2 ring-[#f2b84b]/70' : ''}`}
                   style={{ background: 'repeating-linear-gradient(92deg, #6b4a2f 0px, #6b4a2f 7px, #5f4129 7px, #5f4129 11px, #73502f 11px, #73502f 19px)', boxShadow: 'inset 0 6px 14px rgba(0,0,0,.55)' }}
                 >
                   <span className="pointer-events-none absolute inset-0 bg-black/25" />
@@ -73,7 +74,7 @@ export default function RJTable({ game, viewer, canAct, onAction, names }: {
                       />
                     );
                   })}
-                  {stack.length > 1 && <span className="absolute right-1.5 top-1.5 rounded-full bg-black/60 px-1.5 text-[9px] font-black text-white/70">×{stack.length}</span>}
+                  {stack.length > 1 && <span className="absolute right-1.5 top-1.5 rounded-[3px] bg-black/60 px-1.5 text-[9px] font-black text-white/70">×{stack.length}</span>}
                   {target && size !== null && (
                     <RJPiece
                       ghost owner={viewer} size={size}
@@ -97,7 +98,7 @@ function Hand({ side, game, label, selectable, selected, onPick, active }: {
   side: Side; game: RJState; label: string; selectable: boolean; selected: Size | null; onPick: (size: Size) => void; active: boolean;
 }) {
   return (
-    <div className={`mx-auto flex w-full max-w-[440px] items-center gap-3 rounded-[16px] border px-3 py-2 transition ${active ? 'border-white/20 bg-white/[0.05]' : 'border-white/[0.07] bg-white/[0.02]'}`}>
+    <div className={`mx-auto flex w-full max-w-[440px] items-center gap-3 rounded-[10px] border px-3 py-2 transition ${active ? 'border-(--accent)/50 bg-white/[0.04] shadow-[inset_0_0_20px_rgba(242,184,75,.08)]' : 'border-white/10 bg-black/40'}`}>
       <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: SIDE_COLORS[side], boxShadow: `0 0 10px ${SIDE_COLORS[side]}` }} />
       <span className="w-14 shrink-0 truncate text-[11px] font-black text-white/60">{label}</span>
       <div className="grid flex-1 grid-cols-3 gap-2">
@@ -107,7 +108,7 @@ function Hand({ side, game, label, selectable, selected, onPick, active }: {
           return (
             <button
               key={size} type="button" disabled={!selectable || left === 0} onClick={() => onPick(size)}
-              className={`relative flex h-14 items-center justify-center gap-1 rounded-[12px] transition ${isSel ? 'bg-[#f2b84b]/15 shadow-[0_0_0_2px_#f2b84b,0_0_18px_rgba(242,184,75,.45)]' : 'bg-black/25'} ${selectable && left ? 'cursor-pointer hover:-translate-y-0.5 hover:bg-white/[0.06]' : 'cursor-default'}`}
+              className={`relative flex h-14 items-center justify-center gap-1 rounded-md transition ${isSel ? 'bg-(--accent)/15 shadow-[0_0_0_2px_var(--accent),0_0_18px_var(--accent-glow)]' : 'bg-white/[0.03]'} ${selectable && left ? 'cursor-pointer hover:-translate-y-0.5 hover:bg-white/[0.06]' : 'cursor-default'}`}
             >
               {Array.from({ length: PER_SIZE }, (_, k) => (
                 <span key={k} className="flex h-11 w-[44%] items-end justify-center pb-0.5">

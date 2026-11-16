@@ -26,9 +26,9 @@ export default function JanggiTutorial({ onClose }: { onClose: () => void }) {
   return (
     <AnimatePresence>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-        <motion.div key={step} initial={{ y: 14, scale: 0.97, opacity: 0 }} animate={{ y: 0, scale: 1, opacity: 1 }} className="flex max-h-[92vh] w-full max-w-md flex-col overflow-y-auto rounded-[28px] border border-[#e8c170]/25 bg-[#11131a] p-6 text-[#eceff4] shadow-[0_0_90px_rgba(232,193,112,.15)] sm:p-8">
+        <motion.div key={step} initial={{ y: 14, scale: 0.97, opacity: 0 }} animate={{ y: 0, scale: 1, opacity: 1 }} className="flex max-h-[92vh] w-full max-w-md flex-col overflow-y-auto rounded-[16px] border border-white/10 bg-[#121217] p-6 text-[#e6e9f0] shadow-[0_0_80px_rgba(232,193,112,.18)] sm:p-8">
           <div className="flex items-center justify-between">
-            <span className="rounded-full bg-[#e8c170] px-3 py-1 text-[9px] font-black tracking-[0.18em] text-[#1a1408]">{t(`label${step}`)}</span>
+            <span className="rounded-md bg-[#e8c170] px-2.5 py-1 text-[9px] font-black tracking-[0.18em] text-[#1a1408]">{t(`label${step}`)}</span>
             <span className="font-mono text-[10px] text-white/35">{step + 1} / {STEPS.length}</span>
           </div>
           <div className="flex flex-1 flex-col items-center py-5">
@@ -39,15 +39,15 @@ export default function JanggiTutorial({ onClose }: { onClose: () => void }) {
             ) : (
               <div className="w-56"><JanggiDiagram spec={spec} label={t(`title${step}`)} /></div>
             )}
-            <h2 className="mt-6 text-center text-xl font-black tracking-[-0.03em]">{t(`title${step}`)}</h2>
-            <p className="mt-2.5 text-center text-sm leading-7 text-white/60">{t(`desc${step}`)}</p>
+            <h2 className="mt-6 text-center text-xl font-extrabold tracking-tight text-[#eef1f7]">{t(`title${step}`)}</h2>
+            <p className="mt-2.5 text-center text-sm leading-7 text-white/55">{t(`desc${step}`)}</p>
           </div>
           <div className="flex items-center justify-between border-t border-white/10 pt-5">
             <button onClick={onClose} className="px-2 py-2 text-xs font-bold text-white/40 hover:text-white">{t('skip')}</button>
             <div className="flex gap-1.5">{STEPS.map((_, i) => <span key={i} className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-[#e8c170]' : 'w-1.5 bg-white/15'}`} />)}</div>
             <div className="flex gap-2">
-              {step > 0 && <button onClick={() => setStep((s) => s - 1)} className="rounded-[10px] border border-white/15 px-3 py-2.5 text-xs font-bold text-white/70">{t('prev')}</button>}
-              <button onClick={() => (last ? onClose() : setStep((s) => s + 1))} className="rounded-[10px] bg-[#e8c170] px-5 py-2.5 text-xs font-black text-[#1a1408]">{last ? t('start') : t('next')}</button>
+              {step > 0 && <button onClick={() => setStep((s) => s - 1)} className="rounded-md border border-white/15 bg-white/5 px-3 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10">{t('prev')}</button>}
+              <button onClick={() => (last ? onClose() : setStep((s) => s + 1))} className="rounded-md bg-[#e8c170] px-5 py-2.5 text-xs font-extrabold text-[#1a1408] shadow-[0_0_18px_rgba(232,193,112,.4)] hover:brightness-110">{last ? t('start') : t('next')}</button>
             </div>
           </div>
         </motion.div>

@@ -47,7 +47,7 @@ export default function JanggiTable({ game, viewer, canAct, onAction }: {
         onSelect={(type) => select(active?.kind === 'hand' && active.type === type ? null : { kind: 'hand', type })}
       />
       {game.winner === null && !game.reason && (kingIn(viewer) || kingIn(opponent)) && (
-        <p className="mx-auto max-w-[440px] rounded-[12px] border border-[#e8c170]/30 bg-[#e8c170]/10 px-3 py-2 text-center text-xs font-bold text-[#f3d99a]">
+        <p className="mx-auto max-w-[440px] rounded-md border border-(--accent)/30 bg-(--accent)/10 px-3 py-2 text-center text-xs font-bold text-(--accent)">
           {kingIn(viewer) ? t('kingEntryMine') : t('kingEntryTheirs')}
         </p>
       )}

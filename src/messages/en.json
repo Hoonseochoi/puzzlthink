@@ -603,7 +603,18 @@
     "reason_entry": "The king entered the enemy camp and survived a turn.",
     "reason_draw": "200 moves passed with no winner.",
     "reason_resign": "The game ended by resignation.",
-    "reason_timeout": "The game ended after repeated timeouts."
+    "reason_timeout": "The game ended after repeated timeouts.",
+    "replay": "Replay",
+    "replayTitle": "REPLAY",
+    "replayStart": "Opening — press ▶ to step through the game",
+    "replayShowResult": "Show result",
+    "replayExit": "End replay",
+    "closeResult": "Close and view board",
+    "turnTime": "Turn time",
+    "turnTime_off": "Off",
+    "turnSeconds": "{n}s",
+    "turnTimeHint": "When time runs out a random move is played; three in a row loses on time.",
+    "logTimeoutMove": "⏱ Time out ·"
   },
   "JanggiTutorial": {
     "skip": "Skip",

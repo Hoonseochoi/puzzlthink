@@ -1,3 +1,10 @@
-export const RR_BG = 'radial-gradient(circle at 50% 25%, rgba(38,133,164,.22), transparent 34%), radial-gradient(circle at 50% 90%, rgba(108,62,154,.18), transparent 42%), linear-gradient(145deg,#090d13,#111722 52%,#090c12)';
-export const RR_PANEL = 'rounded-[18px] border border-[#65e5ff]/15 bg-[#101722]/85 p-4 shadow-[0_20px_50px_rgba(0,0,0,.25)] backdrop-blur';
-export const RR_TITLE = 'text-[10px] font-black uppercase tracking-[0.2em] text-[#65e5ff]/70';
+import { PANEL, PANEL_TITLE, accentVars, fog } from '../ui/gameUi';
+
+export const RR_ACCENT = '#65e5ff';
+/** Page root style: cyan accent tokens + 벽바둑-style fog tinted cyan. */
+export const RR_ROOT_STYLE = { ...accentVars(RR_ACCENT, '#04161c'), backgroundImage: fog('101, 229, 255') };
+export const RR_SHARD_TINT = '#0d3a47';
+export const RR_PANEL = PANEL;
+export const RR_TITLE = PANEL_TITLE;
+/** MODAL from gameUi without its size/padding, so the wider roulette dialogs can set their own. */
+export const RR_MODAL = 'relative w-full rounded-[16px] border border-white/10 bg-[#121217] text-center shadow-[0_0_80px_var(--accent-glow)]';

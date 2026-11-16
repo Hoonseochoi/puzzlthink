@@ -1,4 +1,6 @@
+import type { CSSProperties } from 'react';
 import type { Chip } from '@/lib/heavy13';
+import { PANEL, PANEL_TITLE, accentVars, fog } from '../ui/gameUi';
 
 export const STAND: Record<Chip, { main: string; soft: string; deep: string }> = {
   r: { main: '#f0524f', soft: 'rgba(240,82,79,0.14)', deep: '#7a1d1b' },
@@ -7,7 +9,10 @@ export const STAND: Record<Chip, { main: string; soft: string; deep: string }> =
   w: { main: '#ffffff', soft: 'rgba(255,255,255,0.08)', deep: '#333' },
 };
 export const RAINBOW = 'conic-gradient(from 210deg, #f0524f, #f5b041, #34c47c, #4f7cf0, #a463f2, #f0524f)';
-export const QUARRY_BG = 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(214,180,120,0.14), transparent 70%), radial-gradient(ellipse 70% 40% at 50% 100%, rgba(240,82,79,0.12), transparent 70%)';
-export const H_PANEL = 'rounded-[16px] border border-white/10 bg-white/[0.035] p-4';
-export const H_TITLE = 'text-[10px] font-black uppercase tracking-[0.18em] text-white/40';
+export const H_PANEL = PANEL;
+export const H_TITLE = PANEL_TITLE;
 export const SAND = '#e6c48a';
+export const SAND_INK = '#1a1408';
+/** Page-root style: sand accent on the shared 벽바둑 stage. */
+export const H_ROOT_STYLE: CSSProperties = { ...accentVars(SAND, SAND_INK), backgroundImage: fog('230, 196, 138') };
+export const SHARD_TINT = '#4a3a1c';

@@ -19,6 +19,8 @@ export type JanggiState = {
   reason: WinReason | null;
   ply: number;
   last: Action | null;
+  first?: Side; // who moved first — with `moves`, enough to replay the game
+  moves?: Action[]; // kept by playAction only (the AI search uses applyAction and skips it)
 };
 
 export const HANJA: Record<PieceType, string> = { jang: '將', sang: '相', wang: '王', ja: '子', hu: '侯' };
@@ -49,7 +51,7 @@ export function initialState(first: Side = 0): JanggiState {
   board[idx(0, 1)] = { type: 'wang', owner: 1 };
   board[idx(0, 2)] = { type: 'sang', owner: 1 };
   board[idx(1, 1)] = { type: 'ja', owner: 1 };
-  return { board, hands: [[], []], turn: first, winner: null, reason: null, ply: 0, last: null };
+  return { board, hands: [[], []], turn: first, winner: null, reason: null, ply: 0, last: null, first, moves: [] };
 }
 
 /** Squares a piece on `from` can move to (ignores whose turn it is). */
@@ -121,6 +123,18 @@ export function applyAction(state: JanggiState, action: Action): JanggiState {
   const ply = state.ply + 1;
   if (winner === null && ply >= MAX_PLY) reason = 'draw';
   return { board, hands, turn: enemy, winner, reason, ply, last: action };
+}
+
+/** applyAction for real games: also records the move so the game can be replayed. */
+export function playAction(state: JanggiState, action: Action): JanggiState {
+  return { ...applyAction(state, action), first: state.first, moves: [...(state.moves ?? []), action] };
+}
+
+/** Every position of a game, from the opening to its last move. */
+export function replayStates(game: JanggiState): JanggiState[] {
+  const states = [initialState(game.first ?? 0)];
+  for (const action of game.moves ?? []) states.push(applyAction(states[states.length - 1], action));
+  return states;
 }
 
 export function finish(state: JanggiState, winner: Side, reason: WinReason): JanggiState {

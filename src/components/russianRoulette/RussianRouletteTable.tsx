@@ -9,7 +9,7 @@ import type { RussianRouletteRoom, RussianRouletteRoomAction } from '@/lib/russi
 import { playCylinderSpin, playDryFire, playRevolverShot, unlockGameAudio } from '@/lib/gameAudio';
 import RouletteCharacter from './RouletteCharacter';
 import { RR_FIRE_FLASH_MS, RR_FIRE_LEAD_MS, RR_FIRE_ROTATE_MS, RR_FIRE_STEP_MS, RR_CYLINDER_SPIN_MS, RR_SPIN_MS } from './firing';
-import { RR_PANEL, RR_TITLE } from './theme';
+import { DIAMOND, PANEL, PANEL_TITLE, WELL } from '../ui/gameUi';
 
 type Pending = 'publicInspect' | 'privateInspect' | 'manipulate' | null;
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -138,11 +138,11 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
 
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
-      <section className="relative min-h-[560px] overflow-hidden rounded-[24px] border border-white/10 bg-[#080c12]/75 shadow-[inset_0_0_80px_rgba(46,189,224,.05)] sm:min-h-[650px]">
-        <div className="absolute left-2 top-2 z-30 w-[104px] rounded-[12px] border border-[#65e5ff]/20 bg-[#0b111b]/90 p-2 sm:p-3 shadow-xl backdrop-blur sm:left-4 sm:top-4 sm:w-[188px]">
-          <p className={RR_TITLE}>{t('confirmedTitle')}</p>
+      <section className="relative min-h-[560px] overflow-hidden rounded-[14px] border border-white/10 bg-[#121217]/85 shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur sm:min-h-[650px]">
+        <div className="absolute left-2 top-2 z-30 w-[104px] rounded-[10px] border border-white/10 bg-black/60 p-2 shadow-xl backdrop-blur sm:p-3 sm:left-4 sm:top-4 sm:w-[188px]">
+          <p className={PANEL_TITLE}>{t('confirmedTitle')}</p>
           <div className="mt-2 flex min-h-8 flex-wrap gap-1.5">
-            {confirmedBullets.length ? confirmedBullets.map((letter) => <span key={letter} className="flex items-center gap-1 rounded-full bg-[#ffcf58]/15 px-2 py-1 font-mono text-[11px] font-black text-[#ffcf58]"><i className="h-2 w-2 rounded-full bg-[#ffcf58]" />{letter}</span>) : <span className="text-[11px] leading-5 text-white/35">{t('confirmedNone')}</span>}
+            {confirmedBullets.length ? confirmedBullets.map((letter) => <span key={letter} className="flex items-center gap-1 rounded-md bg-[#ffcf58]/15 px-2 py-1 font-mono text-[11px] font-black text-[#ffcf58]"><i className="h-2 w-2 rounded-full bg-[#ffcf58]" />{letter}</span>) : <span className="text-[11px] leading-5 text-white/35">{t('confirmedNone')}</span>}
           </div>
         </div>
 
@@ -152,9 +152,9 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
             const hit = visibleHits.includes(seat);
             return (
               <button key={seat} type="button" onClick={() => toggleSuspected(seat)} style={position} className="absolute z-20 flex w-[112px] -translate-x-1/2 -translate-y-1/2 flex-col items-center sm:w-[148px]" aria-label={t('markSuspect', { player: playerName(seat) })}>
-                <AnimatePresence>{bubble?.seat === seat && <motion.span key={bubble.id} initial={{ opacity: 0, y: seat === 0 ? -6 : 6, scale: .9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: .9 }} role="status" className={`pointer-events-none absolute left-1/2 z-40 -translate-x-1/2 whitespace-nowrap rounded-full border px-3 py-1.5 text-[11px] font-black shadow-[0_8px_24px_rgba(0,0,0,.55)] ${seat === 0 ? 'top-[calc(100%+4px)]' : 'bottom-[calc(100%+6px)]'} ${bubble.text === t('bubbleSecret') ? 'border-[#a978ed]/50 bg-[#1b1428] text-[#d7c2fb]' : 'border-[#ffcf58]/50 bg-[#262012] text-[#ffe29a]'}`}>{bubble.text}<i className={`absolute left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-[#ffffff00] ${seat === 0 ? '-top-1' : '-bottom-1'} ${bubble.text === t('bubbleSecret') ? 'bg-[#1b1428]' : 'bg-[#262012]'}`} /></motion.span>}</AnimatePresence>
+                <AnimatePresence>{bubble?.seat === seat && <motion.span key={bubble.id} initial={{ opacity: 0, y: seat === 0 ? -6 : 6, scale: .9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: .9 }} role="status" className={`pointer-events-none absolute left-1/2 z-40 -translate-x-1/2 whitespace-nowrap rounded-md border px-3 py-1.5 text-[11px] font-black shadow-[0_8px_24px_rgba(0,0,0,.55)] ${seat === 0 ? 'top-[calc(100%+4px)]' : 'bottom-[calc(100%+6px)]'} ${bubble.text === t('bubbleSecret') ? 'border-[#a978ed]/50 bg-[#1b1428] text-[#d7c2fb]' : 'border-[#ffcf58]/50 bg-[#262012] text-[#ffe29a]'}`}>{bubble.text}<i className={`absolute left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-[#ffffff00] ${seat === 0 ? '-top-1' : '-bottom-1'} ${bubble.text === t('bubbleSecret') ? 'bg-[#1b1428]' : 'bg-[#262012]'}`} /></motion.span>}</AnimatePresence>
                 <RouletteCharacter seat={seat} selected={current} hit={hit} suspected={suspected.includes(seat)} label={playerName(seat)} className="h-[76px] sm:h-[104px]" />
-                <span className={`mt-1.5 max-w-full truncate rounded-full border px-2.5 py-1 text-[10px] font-black backdrop-blur ${current ? 'border-[#65e5ff]/50 bg-[#65e5ff]/15 text-[#a7efff]' : 'border-white/10 bg-black/55 text-white/70'}`}><b className="mr-1 font-mono text-[#65e5ff]">{LETTERS[seat]}</b>{playerName(seat)}</span>
+                <span className={`mt-1.5 max-w-full truncate rounded-md border px-2.5 py-1 text-[10px] font-black backdrop-blur ${current ? 'border-(--accent)/50 bg-(--accent)/15 text-white shadow-[0_0_14px_var(--accent-glow)]' : 'border-white/10 bg-black/60 text-white/70'}`}><b className="mr-1 font-mono text-(--accent)">{LETTERS[seat]}</b>{playerName(seat)}</span>
                 <span className="mt-1 flex items-center gap-1 text-[9px] font-bold text-white/35"><Coins size={9} />{seat === mySeat ? game.credits[seat] : '••'} {seat === mySeat && game.credits[seat] === 0 && <span className="text-[#ff7b71]">· PASS</span>}</span>
               </button>
             );
@@ -183,7 +183,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
             const source = game.phase === 'finished' ? 'final' : publicValue !== null ? 'public' : privateValue !== null ? 'private' : 'unknown';
             const active = pending !== null;
             return (
-              <button key={chamber} type="button" disabled={!active || !myTurn} onClick={() => choosePair(chamber)} style={{ left: `${left}%`, top: `${top}%` }} className={`absolute z-20 flex h-[62px] w-[62px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] transition sm:h-[78px] sm:w-[78px] ${active && myTurn ? 'cursor-pointer hover:scale-110 hover:border-[#65e5ff]' : ''} ${source === 'public' ? 'border-[#ffcf58]/70 bg-[#302818]' : source === 'private' ? 'border-[#a978ed]/70 bg-[#271d35]' : source === 'final' ? 'border-white/35 bg-[#171d26]' : 'border-[#323c48] bg-[#111720]'}`}>
+              <button key={chamber} type="button" disabled={!active || !myTurn} onClick={() => choosePair(chamber)} style={{ left: `${left}%`, top: `${top}%` }} className={`absolute z-20 flex h-[62px] w-[62px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] transition sm:h-[78px] sm:w-[78px] ${active && myTurn ? 'cursor-pointer hover:scale-110 hover:border-(--accent)' : ''} ${source === 'public' ? 'border-[#ffcf58]/70 bg-[#302818]' : source === 'private' ? 'border-[#a978ed]/70 bg-[#271d35]' : source === 'final' ? 'border-white/35 bg-[#171d26]' : 'border-[#323c48] bg-[#111720]'}`}>
                 <span className="absolute inset-0 flex items-center justify-center" style={{ transform: `rotate(${-cylinderAngle}deg)`, ...cylinderTransition }}>
                 <span className="absolute -top-4 rounded-full bg-[#0b1017] px-1.5 font-mono text-[9px] font-black text-white/45">{LETTERS[chamber]}</span>
                 {value === true ? <span className="h-[52%] w-[52%] rounded-full border-4 border-[#8b5a2b] bg-[radial-gradient(circle_at_42%_35%,#fff3b0,#d99830_34%,#7b421a_70%)] shadow-[0_0_18px_rgba(255,207,88,.4)]" /> : value === false ? <span className="h-[44%] w-[44%] rounded-full border-2 border-white/15 bg-black/45" /> : <ShieldQuestion size={24} className="text-white/20" />}
@@ -195,7 +195,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
           </div>
           </div>
           <div className="absolute left-1/2 top-1/2 z-30 flex h-[82px] w-[82px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/10 bg-[#090d13] shadow-xl">
-            <span className="font-mono text-[9px] font-black tracking-[0.15em] text-[#65e5ff]/60">ROUND</span>
+            <span className="font-mono text-[9px] font-black tracking-[0.15em] text-(--accent)/70">ROUND</span>
             <strong className="font-mono text-2xl text-white">{String(game.round).padStart(2, '0')}</strong>
           </div>
           {game.phase === 'finished' && firingShot >= 0 && <div className="pointer-events-none absolute -inset-[4%] z-50">
@@ -203,49 +203,49 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
               <motion.img src="/russian-roulette/revolver-v1.png" alt="" animate={muzzleFlash ? { x: [0, -13, 4, 0], scale: [1, 1.035, .99, 1] } : { x: 0, scale: 1 }} transition={{ duration: .28 }} className="w-[94%] drop-shadow-[0_18px_24px_rgba(0,0,0,.72)]" />
               {muzzleFlash && <motion.span initial={{ scale: .15, opacity: 1 }} animate={{ scale: 1.3, opacity: 0 }} transition={{ duration: RR_FIRE_FLASH_MS / 1000 }} className="absolute right-[-2%] top-1/2 h-20 w-20 -translate-y-1/2 bg-[radial-gradient(circle,#fff_0%,#ffe58c_28%,#ff8a28_55%,transparent_72%)] [clip-path:polygon(50%_0%,61%_31%,98%_18%,72%_48%,100%_68%,65%_66%,61%_100%,43%_72%,15%_92%,27%_58%,0%_42%,38%_38%)] sm:h-28 sm:w-28" />}
             </motion.div>
-            {currentShot && <div className="absolute bottom-[2%] left-1/2 min-w-40 -translate-x-1/2 rounded-full border border-white/10 bg-[#080c12]/90 px-4 py-2 text-center shadow-xl backdrop-blur">
-              <p className="font-mono text-[9px] font-black tracking-[.12em] text-[#65e5ff]">{LETTERS[currentShot.chamber]} → {playerName(currentShot.target)}</p>
+            {currentShot && <div className="absolute bottom-[2%] left-1/2 min-w-40 -translate-x-1/2 rounded-md border border-white/10 bg-[#121217]/90 px-4 py-2 text-center shadow-xl backdrop-blur">
+              <p className="font-mono text-[9px] font-black tracking-[.12em] text-(--accent)">{LETTERS[currentShot.chamber]} → {playerName(currentShot.target)}</p>
               <p className={`mt-0.5 text-[10px] font-black ${currentShotResolved && currentShot.fired ? 'text-[#ff7268]' : 'text-white/45'}`}>{currentShotResolved ? currentShot.fired ? t('loadedShot') : t('emptyShot') : t('cylinderTurning')}</p>
             </div>}
           </div>}
         </div>
 
-        {pending && <div className="absolute bottom-3 left-1/2 z-40 flex w-[calc(100%-24px)] max-w-md -translate-x-1/2 items-center justify-between gap-3 rounded-[14px] border border-[#65e5ff]/25 bg-[#0b111b]/95 p-3 shadow-2xl backdrop-blur">
-          <div><p className="text-xs font-black text-[#a7efff]">{t(`pending_${pending}`)}</p><p className="mt-0.5 text-[10px] text-white/40">{pending === 'manipulate' ? t('manipulatePairHint') : t('chooseAdjacent')}</p></div>
-          <div className="flex items-center gap-2"><button onClick={() => setPending(null)} className="rounded-[10px] border border-white/10 p-2 text-white/50"><X size={14} /></button></div>
+        {pending && <div className="absolute bottom-3 left-1/2 z-40 flex w-[calc(100%-24px)] max-w-md -translate-x-1/2 items-center justify-between gap-3 rounded-[10px] border border-(--accent)/30 bg-[#121217]/95 p-3 shadow-2xl backdrop-blur">
+          <div><p className="text-xs font-extrabold text-(--accent)">{t(`pending_${pending}`)}</p><p className="mt-0.5 text-[10px] text-white/40">{pending === 'manipulate' ? t('manipulatePairHint') : t('chooseAdjacent')}</p></div>
+          <div className="flex items-center gap-2"><button onClick={() => setPending(null)} className="rounded-md border border-white/15 bg-white/5 p-2 text-white/60 hover:bg-white/10"><X size={14} /></button></div>
         </div>}
       </section>
 
       <aside className="flex flex-col gap-3">
-        <section className={RR_PANEL}>
-          <div className="flex items-center justify-between"><p className={RR_TITLE}>{t('terminal')}</p><div className="flex items-center gap-2"><button onClick={toggleSound} aria-label={soundOn ? t('soundOn') : t('soundOff')} className="rounded-full border border-white/10 p-1.5 text-white/35 transition hover:text-white/70">{soundOn ? <Volume2 size={12} /> : <VolumeX size={12} />}</button><span className={`h-2 w-2 rounded-full ${myTurn ? 'animate-pulse bg-[#65e5ff]' : 'bg-white/15'}`} /></div></div>
+        <section className={PANEL}>
+          <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('terminal')}</p><div className="flex items-center gap-2"><button onClick={toggleSound} aria-label={soundOn ? t('soundOn') : t('soundOff')} className="rounded-md border border-white/10 p-1.5 text-white/35 transition hover:bg-white/10 hover:text-white/70">{soundOn ? <Volume2 size={12} /> : <VolumeX size={12} />}</button><span className={`h-2 w-2 rotate-45 ${myTurn ? 'animate-pulse bg-(--accent) shadow-[0_0_8px_var(--accent)]' : 'bg-white/15'}`} /></div></div>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-[12px] bg-white/[0.04] p-3"><p className="text-[9px] font-black tracking-widest text-white/30">CREDIT</p><p className="mt-1 font-mono text-2xl font-black text-[#ffcf58]">{myCredits ?? '—'}</p></div>
-            <div className="rounded-[12px] bg-white/[0.04] p-3"><p className="text-[9px] font-black tracking-widest text-white/30">CONTROL</p><p className="mt-1 font-mono text-2xl font-black text-[#a978ed]" title={t('myContribution')}>{myFund}</p></div>
+            <div className={`p-3 ${WELL}`}><p className="text-[9px] font-black tracking-widest text-white/30">CREDIT</p><p className="mt-1 font-mono text-2xl font-black text-[#ffcf58]">{myCredits ?? '—'}</p></div>
+            <div className={`p-3 ${WELL}`}><p className="text-[9px] font-black tracking-widest text-white/30">CONTROL</p><p className="mt-1 font-mono text-2xl font-black text-[#a978ed]" title={t('myContribution')}>{myFund}</p></div>
           </div>
           <p className="mt-3 min-h-9 text-xs leading-5 text-white/50">{game.phase === 'finished' ? t('finished') : myTurn ? t('yourTurn') : t('waiting', { player: playerName(game.turn) })}</p>
         </section>
 
-        <section className={`${RR_PANEL} space-y-1.5`}>
-          <p className={`${RR_TITLE} mb-2`}>{t('actions')}</p>
+        <section className={`${PANEL} space-y-1.5`}>
+          <p className={`${PANEL_TITLE} mb-2`}>{t('actions')}</p>
           <ActionButton icon={<Eye size={15} />} label={t('publicInspect')} cost={1} disabled={!myTurn || (myCredits ?? 0) < 1} active={pending === 'publicInspect'} onClick={() => setPending('publicInspect')} />
           <ActionButton icon={<EyeOff size={15} />} label={t('privateInspect')} cost={2} disabled={!myTurn || (myCredits ?? 0) < 2} active={pending === 'privateInspect'} onClick={() => setPending('privateInspect')} />
           <ActionButton icon={<RotateCw size={15} />} label={t('rotate1')} cost={3} disabled={!myTurn || (myCredits ?? 0) < 3} onClick={() => act({ kind: 'rotate1' })} />
           <ActionButton icon={<RefreshCw size={15} />} label={t('rotate2')} cost={4} disabled={!myTurn || (myCredits ?? 0) < 4} onClick={() => act({ kind: 'rotate2' })} />
-          <button disabled={!myTurn || (myCredits ?? 0) < 1} onClick={() => setPending('manipulate')} className={`w-full rounded-[11px] border p-2.5 text-left transition disabled:opacity-25 ${pending === 'manipulate' ? 'border-[#a978ed]/70 bg-[#a978ed]/15' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.07]'}`}>
+          <button disabled={!myTurn || (myCredits ?? 0) < 1} onClick={() => setPending('manipulate')} className={`w-full rounded-md border p-2.5 text-left transition disabled:opacity-25 ${pending === 'manipulate' ? 'border-[#a978ed]/70 bg-[#a978ed]/15' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.07]'}`}>
             <span className="flex items-center justify-between gap-2"><span className="flex items-center gap-2 text-xs font-extrabold"><LockKeyhole size={15} className="text-[#a978ed]" />{t('manipulate')}</span><span className="text-[9px] font-black text-[#a978ed]">1–3</span></span>
           </button>
-          {pending === 'manipulate' && <div className="grid grid-cols-3 gap-1.5 pt-1">{([1, 2, 3] as const).map((value) => <button key={value} disabled={(myCredits ?? 0) < value} onClick={() => setAmount(value)} className={`rounded-[9px] border py-2 font-mono text-xs font-black ${amount === value ? 'border-[#a978ed] bg-[#a978ed]/20 text-[#d8baff]' : 'border-white/10 text-white/40'} disabled:opacity-20`}>+{value}</button>)}</div>}
+          {pending === 'manipulate' && <div className="grid grid-cols-3 gap-1.5 pt-1">{([1, 2, 3] as const).map((value) => <button key={value} disabled={(myCredits ?? 0) < value} onClick={() => setAmount(value)} className={`rounded-md border py-2 font-mono text-xs font-black ${amount === value ? 'border-[#a978ed] bg-[#a978ed]/20 text-[#d8baff]' : 'border-white/10 text-white/40'} disabled:opacity-20`}>+{value}</button>)}</div>}
         </section>
 
-        <section className={RR_PANEL}>
-          <p className={RR_TITLE}>{t('intelLegend')}</p>
+        <section className={PANEL}>
+          <p className={PANEL_TITLE}>{t('intelLegend')}</p>
           <div className="mt-3 space-y-2 text-[10px] text-white/45"><p className="flex items-center gap-2"><i className="h-2.5 w-2.5 rounded-full bg-[#ffcf58]" />{t('publicIntel')}</p><p className="flex items-center gap-2"><i className="h-2.5 w-2.5 rounded-full bg-[#a978ed]" />{t('privateIntel')}</p><p className="flex items-center gap-2"><i className="h-2.5 w-2.5 rounded-full border border-[#ffcf58]" />{t('virtualTarget')}</p></div>
           <p className="mt-3 border-t border-white/10 pt-3 text-[9px] leading-4 text-white/30">{t('suspectHint')}</p>
           {online && <p className="mt-3 border-t border-white/10 pt-3 text-[9px] leading-4 text-white/25">{t('privacyNote')}</p>}
         </section>
-        <section className={RR_PANEL}>
-          <p className={RR_TITLE}>{t('actionHistory')}</p>
+        <section className={PANEL}>
+          <p className={PANEL_TITLE}>{t('actionHistory')}</p>
           <div className="mt-3 space-y-2">{game.log.slice(0, 5).map((entry, index) => {
             const text = entry.k === 'round' ? t('logRound', { round: entry.round, player: playerName(entry.start) })
               : entry.k === 'publicInspect' ? t('logPublic', { player: playerName(entry.seat), a: LETTERS[entry.pair], b: LETTERS[(entry.pair + 1) % 6] })
@@ -254,7 +254,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
                     : entry.k === 'manipulateFund' && index === 0 && entry.seat === mySeat && myCredits === 0 ? t('logPass', { player: playerName(entry.seat) })
                     : entry.k === 'fire' ? `${LETTERS[entry.chamber]} → ${playerName(entry.seat)} ${entry.fired ? '●' : '○'}`
                       : t('logSecret', { player: playerName(entry.seat) });
-            return <p key={`${entry.k}-${index}`} className="flex gap-2 text-[10px] leading-4 text-white/40"><i className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${index === 0 ? 'bg-[#65e5ff]' : 'bg-white/15'}`} />{text}</p>;
+            return <p key={`${entry.k}-${index}`} className="flex gap-2 text-[11px] leading-relaxed text-white/55"><i className={index === 0 ? DIAMOND : 'mt-1 h-1.5 w-1.5 shrink-0 rotate-45 bg-white/15'} />{text}</p>;
           })}</div>
         </section>
       </aside>
@@ -263,5 +263,5 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
 }
 
 function ActionButton({ icon, label, cost, disabled, active, onClick }: { icon: React.ReactNode; label: string; cost: number; disabled: boolean; active?: boolean; onClick: () => void }) {
-  return <button disabled={disabled} onClick={onClick} className={`flex w-full items-center justify-between rounded-[11px] border p-2.5 transition disabled:opacity-25 ${active ? 'border-[#65e5ff]/70 bg-[#65e5ff]/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.07]'}`}><span className="flex items-center gap-2 text-xs font-extrabold text-white/80">{icon}{label}</span><span className="flex items-center gap-1 font-mono text-[9px] font-black text-[#ffcf58]"><Coins size={10} />{cost}<ChevronRight size={12} className="text-white/20" /></span></button>;
+  return <button disabled={disabled} onClick={onClick} className={`flex w-full items-center justify-between rounded-md border p-2.5 transition disabled:opacity-25 ${active ? 'border-(--accent)/70 bg-(--accent)/10 shadow-[0_0_14px_var(--accent-glow)]' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.07]'}`}><span className="flex items-center gap-2 text-xs font-extrabold text-white/80">{icon}{label}</span><span className="flex items-center gap-1 font-mono text-[9px] font-black text-[#ffcf58]"><Coins size={10} />{cost}<ChevronRight size={12} className="text-white/20" /></span></button>;
 }

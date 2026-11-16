@@ -1,5 +1,5 @@
 // Shared-room state for 12-janggi with a friend. Seat index = side (seat 0 is the host).
-import { type Action, type JanggiState, type Side, applyAction, finish, initialState, isLegal, legalActions } from './janggi';
+import { type Action, type JanggiState, type Side, playAction, finish, initialState, isLegal, legalActions } from './janggi';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
 export const TURN_OPTIONS = [90, 60, 30] as const;
@@ -49,7 +49,7 @@ export function reduceJanggiRoom(state: JanggiRoom, action: JanggiRoomAction, se
     }
     case 'act':
       if (state.phase !== 'playing' || seat !== state.game.turn || !isLegal(state.game, action.action)) break;
-      next = afterMove(state, applyAction(state.game, action.action), 0);
+      next = afterMove(state, playAction(state.game, action.action), 0);
       break;
     case 'resign':
       if (state.phase !== 'playing' || (seat !== 0 && seat !== 1)) break;
@@ -62,7 +62,7 @@ export function reduceJanggiRoom(state: JanggiRoom, action: JanggiRoomAction, se
       if (state.timeouts >= 2) { next = { ...state, phase: 'finished', game: finish(state.game, loser === 0 ? 1 : 0, 'timeout') }; break; }
       const options = legalActions(state.game);
       if (!options.length) { next = { ...state, phase: 'finished', game: finish(state.game, loser === 0 ? 1 : 0, 'timeout') }; break; }
-      next = afterMove(state, applyAction(state.game, options[Math.floor(Math.random() * options.length)]), state.timeouts + 1);
+      next = afterMove(state, playAction(state.game, options[Math.floor(Math.random() * options.length)]), state.timeouts + 1);
       break;
     }
   }
