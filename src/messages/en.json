@@ -13,11 +13,12 @@
     "rules": "How to play",
     "tagline": "Small games for long thoughts.",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "janggi": "12 Janggi"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Games from The Devil's Plan & The Genius, online",
-    "metaDescription": "Play strategy games from brain-survival shows like The Devil's Plan and The Genius in your browser, starting with Wallgo. No sign-up, instant matches against AI. Sudoku included.",
+    "metaDescription": "Play games from brain-survival shows — Wallgo from The Devil's Plan and 12 Janggi from The Genius — in your browser. No sign-up: play the AI or a friend live via link.",
     "eyebrow": "THINK · PLAY · REPEAT",
     "title1": "Small games for",
     "title2": "long thoughts",
@@ -39,21 +40,28 @@
       "The Devil's Plan game",
       "Devil's Plan wall go",
       "The Genius game",
+      "The Genius 12 janggi",
+      "12 Janggi",
       "Wallgo",
       "wall go online",
       "brain games",
-      "browser board games",
-      "sudoku"
+      "browser board games"
     ],
     "seoTitle": "Games from The Devil's Plan and The Genius, on the web",
-    "seoBody": "Ever watched a brain-survival show and wondered how you would have played? PUZZLTHINK brings strategy games like Wallgo, made popular on The Devil's Plan, to your browser. No install, no sign-up — just challenge the AI. More games are on the way.",
+    "seoBody": "Ever watched a brain-survival show and wondered how you would have played? PUZZLTHINK brings strategy games like Wallgo from The Devil's Plan and 12 Janggi from The Genius to your browser. Play the AI or challenge a friend live with a single link.",
     "modeTitle": "Pick a mode and play",
     "modeThreeAi": "1:1:1",
     "modeThreeAiDesc": "vs 2 AI",
     "modeTwoAi": "1:1",
     "modeTwoAiDesc": "vs 1 AI",
     "modeFriend": "1:1",
-    "modeFriendDesc": "friend via link"
+    "modeFriendDesc": "friend via link",
+    "janggiDescription": "Capture the king or march into the enemy camp. A sharp duel on 12 squares.",
+    "janggiMeta": "vs AI · live with friends",
+    "modeAi": "vs AI",
+    "modeAiDesc": "3 levels",
+    "modeFriendJanggi": "1:1",
+    "modeFriendJanggiDesc": "friend via link"
   },
   "WallGo": {
     "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
@@ -458,5 +466,235 @@
     "createTwo": "Create 1:1 room",
     "createThree": "Create 1:1:1 room",
     "onLogStalemate": "No one can move, so the game is scored as it stands."
+  },
+  "Janggi": {
+    "metaTitle": "12 Janggi Online — the game from The Genius, vs AI or friends",
+    "metaDescription": "Play 12 Janggi (Sibi Janggi), the mini chess from the final of The Genius, free in your browser. Capture the king or march yours into the enemy camp on a 3×4 board — vs AI or live with a friend via link.",
+    "keywords": [
+      "12 Janggi",
+      "Sibi Janggi",
+      "12 janggi online",
+      "The Genius 12 janggi",
+      "The Genius game",
+      "mini janggi",
+      "12 janggi rules",
+      "12 janggi strategy"
+    ],
+    "subtitle": "12 JANGGI",
+    "howToPlay": "How to play",
+    "newGame": "New game",
+    "gameOver": "Game over",
+    "yourTurn": "Your move",
+    "aiThinking": "AI is thinking…",
+    "you": "You",
+    "opponentHand": "THEIR CAPTURES",
+    "myHand": "YOUR CAPTURES",
+    "emptyHand": "No captured pieces yet",
+    "camp": "CAMP",
+    "kingEntryMine": "Your king is in the enemy camp! Survive their turn to win.",
+    "kingEntryTheirs": "Their king entered your camp! Capture it this turn or you lose.",
+    "logMove": "{player}: {piece} → {cell}",
+    "logCapture": "{player}: {piece} captured {target} on {cell}",
+    "logDrop": "{player}: dropped {piece} on {cell}",
+    "logYouFirst": "You move first.",
+    "logAiFirst": "AI moves first.",
+    "friendTitle": "Play with a friend",
+    "friendDesc": "Create a room and send the link to play live on the same board. Choose 90, 60 or 30 seconds per turn.",
+    "createRoom": "Create 1:1 room",
+    "difficulty": "AI difficulty",
+    "difficulty_easy": "Easy",
+    "difficulty_normal": "Normal",
+    "difficulty_hard": "Hard",
+    "firstPlayer": "First move",
+    "first_me": "Me",
+    "first_ai": "AI",
+    "first_random": "Random",
+    "quickRules": "Key rules",
+    "quick1": "Pieces move one step, only toward the triangles on their tile.",
+    "quick2": "Captured pieces join your hand; drop them on any empty square except the enemy camp.",
+    "quick3": "A 子 that reaches the enemy camp promotes to 侯.",
+    "quick4": "Capture the enemy 王, or keep your 王 alive in their camp for a turn, to win!",
+    "record": "My record",
+    "games": "Games",
+    "wins": "Wins",
+    "winRate": "Win rate",
+    "recordEmpty": "Start your first game.",
+    "log": "Moves",
+    "resign": "Resign",
+    "resultWin": "You win!",
+    "resultWinner": "{player} wins",
+    "resultDraw": "Draw",
+    "playAgain": "Play again",
+    "reason_capture": "The enemy king was captured.",
+    "reason_entry": "The king entered the enemy camp and survived a turn.",
+    "reason_draw": "200 moves passed with no winner.",
+    "reason_resign": "The game ended by resignation.",
+    "reason_timeout": "The game ended after repeated timeouts."
+  },
+  "JanggiTutorial": {
+    "skip": "Skip",
+    "prev": "Back",
+    "next": "Next",
+    "start": "Start",
+    "label0": "GOAL",
+    "title0": "Capture the enemy king",
+    "desc0": "Move one piece one step at a time on a tiny 3×4 board. Capture the enemy 王 (king) to win. Your camp is the bottom row, theirs is the top row.",
+    "label1": "MOVES",
+    "title1": "One step toward a triangle",
+    "desc1": "The small triangles on each tile show where it can move. 王 goes all 8 ways, 將 straight, 相 diagonal, and 子 only forward. Pieces never rotate.",
+    "label2": "CAPTURE",
+    "title2": "Captured pieces become yours",
+    "desc2": "Move onto an enemy piece to capture it. It goes to your hand and you can use it from your next turn.",
+    "label3": "DROP",
+    "title3": "Drop a captured piece",
+    "desc3": "Instead of moving, you may drop a captured piece on an empty square. Not in the enemy camp (top row), and it uses your turn.",
+    "label4": "PROMOTION",
+    "title4": "子 becomes 侯 in the enemy camp",
+    "desc4": "When a 子 enters the enemy camp it flips to 侯, which moves in 6 directions (all but back-diagonals). A captured 侯 returns as 子.",
+    "label5": "KING ENTRY",
+    "title5": "Survive one turn in their camp",
+    "desc5": "If your 王 enters the enemy camp and they fail to capture it before your next turn, you win."
+  },
+  "JanggiGuide": {
+    "eyebrow": "12 JANGGI GUIDE",
+    "title": "12 Janggi Online — the game from The Genius",
+    "intro": "12 Janggi is a mini chess that became famous in the final of the brain-survival show The Genius. Just 4 pieces on 12 squares, but captured pieces can be dropped back in, so every move counts. Play the AI or invite a friend with a link.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Two players play on a 3-wide, 4-tall board of 12 squares. The row nearest each player is their camp.",
+      "Each starts with 將, 相, 王 and 子 on fixed squares: 將 on the camp’s right, 相 on its left, 王 in the middle and 子 in front of 王.",
+      "Players alternate moving one piece one step in a marked direction. Pieces cannot rotate.",
+      "Moving onto an enemy piece captures it; it joins your hand and can be used from your next turn whenever you like.",
+      "Dropping a captured piece also uses a turn. You cannot drop onto an occupied square or into the enemy camp.",
+      "A 子 that enters the enemy camp flips to 侯. A captured 侯 is used as 子.",
+      "Capture the enemy 王 to win. You also win if your 王 enters the enemy camp and survives until your next turn."
+    ],
+    "piecesTitle": "How pieces move",
+    "piecesIntro": "Gold squares are where a piece can step. Up is toward the opponent.",
+    "piece_wang": "王 King",
+    "piece_jang": "將 General",
+    "piece_sang": "相 Minister",
+    "piece_ja": "子 Pawn",
+    "piece_hu": "侯 Lord",
+    "pieceDesc_wang": "All 8 directions. Losing it ends the game.",
+    "pieceDesc_jang": "Forward, back, left, right.",
+    "pieceDesc_sang": "The 4 diagonals.",
+    "pieceDesc_ja": "One step forward only.",
+    "pieceDesc_hu": "Promoted 子. All but the back diagonals.",
+    "specialTitle": "Special rules at a glance",
+    "special": [
+      {
+        "title": "Captures go to your hand",
+        "body": "Capture with 子 and the piece lands in your hand below the board. Use it any later turn, or never."
+      },
+      {
+        "title": "Dropping pieces",
+        "body": "Dropping uses your turn. Gold dots show legal squares; the red X marks the enemy camp where drops are not allowed."
+      },
+      {
+        "title": "子 promotes to 侯",
+        "body": "A 子 reaching the enemy camp flips to the much stronger 侯. If you capture a 侯, it comes back as 子."
+      },
+      {
+        "title": "King entry win",
+        "body": "If your 王 enters the enemy camp and they cannot capture it before your next turn, you win. Check every attacker before you step in."
+      }
+    ],
+    "strategyTitle": "Strategy by situation — with diagrams",
+    "strategyIntro": "With so few pieces, one mistake decides the game. Here are common situations.",
+    "strategies": [
+      {
+        "tag": "TEMPO",
+        "title": "Count the opening pawn trade",
+        "body": "The first player can take the enemy 子 at once, but the enemy 王 recaptures right away. Moving first means seizing the initiative; moving second means punishing overreach."
+      },
+      {
+        "tag": "KING",
+        "title": "Bring the king forward",
+        "body": "The king is your most mobile piece. One step forward it protects your other pieces and blocks the enemy king’s path. Just never step onto a square an enemy piece attacks."
+      },
+      {
+        "tag": "VALUE",
+        "title": "子 < 相 < 將",
+        "body": "Generally a 相 is worth more than a 子 and a 將 more than a 相. When trading, compare what you give and get — and remember captured pieces come back as drops."
+      },
+      {
+        "tag": "LINKS",
+        "title": "Pieces that guard each other",
+        "body": "Two 相 linked on a diagonal recapture for each other. Shapes where pieces support one another make it hard for the opponent to break in."
+      },
+      {
+        "tag": "HAND",
+        "title": "Plan where drops can go",
+        "body": "Drops cannot enter the enemy camp, so attacking drops need open middle squares. Rather than rushing, drop decisively onto the enemy king’s path or next to your own king."
+      },
+      {
+        "tag": "READING",
+        "title": "Stop entry threats at once",
+        "body": "If the enemy king reaches the square in front of your camp, guard its entry squares now. With so few possibilities, reading 3–5 moves ahead decides games."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play 12 Janggi?",
+        "a": "Right here on PUZZLTHINK, in any desktop or mobile browser, with no sign-up."
+      },
+      {
+        "q": "Can I play with a friend?",
+        "a": "Yes. Create a 1:1 room and send the link to play live. Choose 90, 60 or 30 seconds per turn."
+      },
+      {
+        "q": "When should I use captured pieces?",
+        "a": "Any later turn, on any empty square outside the enemy camp. Dropping uses your turn."
+      },
+      {
+        "q": "Is it free?",
+        "a": "Yes, every game is free."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Genius or its broadcaster. Show names are used only to describe the games."
+  },
+  "JanggiOnline": {
+    "metaTitle": "Play 12 Janggi with a friend",
+    "metaDescription": "Play 12 Janggi live on the same board with a friend who opens your link.",
+    "guest": "Guest",
+    "me": "you",
+    "emptySeat": "Open seat",
+    "host": "Host",
+    "ready": "Joined",
+    "waiting": "Waiting for a friend",
+    "connecting": "Connecting to the room…",
+    "unconfigured": "The live server is not set up yet.",
+    "connectionError": "Could not reach the live server. Please refresh.",
+    "roomNotFound": "Room not found. Make sure the host is still online.",
+    "hostOffline": "The host disconnected. The game continues when they return.",
+    "back": "Back to 12 Janggi",
+    "lobbyTitle": "Waiting for a friend",
+    "inviteTitle": "Invite link",
+    "inviteDesc": "Send this link to a friend. Opening it seats them as your opponent.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "shareText": "Let's play 12 Janggi on PUZZLTHINK!",
+    "turnTime": "Time per turn",
+    "seconds": "{n}s",
+    "hostSetsTime": "The host sets the turn time.",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "start": "Start game",
+    "waitingFriend": "Start once your friend joins",
+    "waitingHost": "Waiting for the host to start.",
+    "roomFull": "Both seats are taken. You joined as a spectator.",
+    "spectating": "Spectating",
+    "waitingFor": "{player}'s move",
+    "players": "Players",
+    "firstMover": "Moves first",
+    "secondMover": "Moves second",
+    "turnTimeInfo": "{n}s per turn",
+    "timeoutRule": "When time runs out a random move is played; three in a row loses on time.",
+    "resignConfirm": "Resign this game?",
+    "rematch": "Play again",
+    "rematchWait": "The host can start a rematch."
   }
 }

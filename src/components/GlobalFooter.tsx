@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { usePathname, Link } from '@/i18n/routing';
 
-const HIDE_ON = ['/play', '/wallgo'];
+const HIDE_ON = ['/play', '/wallgo', '/janggi'];
 
 export default function GlobalFooter() {
   const pathname = usePathname();
@@ -16,6 +16,7 @@ export default function GlobalFooter() {
         <div><p className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</p><p className="mt-1 text-[11px] text-black/40">{t('tagline')}</p></div>
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
           <Link href="/wallgo" className="hover:text-black">{t('wallgo')}</Link>
+          <Link href="/janggi" className="hover:text-black">{t('janggi')}</Link>
           <Link href="/play" className="hover:text-black">{t('sudoku')}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>

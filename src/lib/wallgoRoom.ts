@@ -16,10 +16,12 @@ import {
   isOccupied,
   nextPlayerOf,
 } from './wallgo';
+import { type Peer, type Seat, bump, seatOf as genericSeatOf, syncSeats as genericSyncSeats } from './room';
+
+export type { Peer, Seat };
 
 export const TURN_MS = 90_000;
 
-export type Seat = { id: string; name: string } | null;
 export type LogEntry = { k: string; s?: PlayerId; cell?: string; dir?: Direction };
 export type RoomPhase = 'lobby' | 'placement' | 'playing' | 'finished';
 
@@ -50,7 +52,6 @@ export type RoomAction =
   | { t: 'wall'; direction: Direction }
   | { t: 'timeout' };
 
-export type Peer = { id: string; name: string; at: number };
 
 const cellName = (p: Position) => `${String.fromCharCode(65 + p.col)}${p.row + 1}`;
 const pick = <T,>(items: T[]) => items[Math.floor(Math.random() * items.length)];
@@ -66,30 +67,10 @@ export function createRoom(mode: ModeId, host: Peer): RoomState {
 }
 
 export function seatOf(state: RoomState, clientId: string): PlayerId | null {
-  const index = state.seats.findIndex((seat) => seat?.id === clientId);
-  return index < 0 ? null : (index as PlayerId);
+  return genericSeatOf(state, clientId) as PlayerId | null;
 }
 
-/** In the lobby, seats follow who is present (host first, then join order). Later, seats are fixed. */
-export function syncSeats(state: RoomState, peers: Peer[]): RoomState {
-  const byId = new Map(peers.map((peer) => [peer.id, peer]));
-  if (state.phase !== 'lobby') {
-    const seats = state.seats.map((seat) => (seat && byId.has(seat.id) ? { ...seat, name: byId.get(seat.id)!.name } : seat));
-    return JSON.stringify(seats) === JSON.stringify(state.seats) ? state : bump({ ...state, seats });
-  }
-  const host = state.seats[0]!;
-  const others = peers.filter((peer) => peer.id !== host.id).sort((a, b) => a.at - b.at);
-  const seats: Seat[] = state.seats.map((_, i) => {
-    if (i === 0) return { id: host.id, name: byId.get(host.id)?.name ?? host.name };
-    const peer = others[i - 1];
-    return peer ? { id: peer.id, name: peer.name } : null;
-  });
-  return JSON.stringify(seats) === JSON.stringify(state.seats) ? state : bump({ ...state, seats });
-}
-
-function bump(state: RoomState): RoomState {
-  return { ...state, v: state.v + 1 };
-}
+export const syncSeats = (state: RoomState, peers: Peer[]) => genericSyncSeats(state, peers);
 
 function withLog(state: RoomState, ...entries: LogEntry[]): RoomState {
   return { ...state, log: [...entries.reverse(), ...state.log].slice(0, 12) };

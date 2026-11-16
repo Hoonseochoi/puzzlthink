@@ -6,7 +6,7 @@ import { Grid2X2, Menu, X } from 'lucide-react';
 import { usePathname, Link } from '@/i18n/routing';
 import LanguageSwitcher from './LanguageSwitcher';
 
-const HIDE_ON = ['/play', '/wallgo'];
+const HIDE_ON = ['/play', '/wallgo', '/janggi'];
 
 export default function GlobalHeader() {
   const pathname = usePathname();
@@ -17,6 +17,7 @@ export default function GlobalHeader() {
   const nav = [
     { href: '/', label: t('games') },
     { href: '/wallgo', label: t('wallgo') },
+    { href: '/janggi', label: t('janggi') },
     { href: '/play', label: t('sudoku') },
   ] as const;
 

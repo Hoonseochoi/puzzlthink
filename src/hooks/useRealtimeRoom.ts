@@ -1,0 +1,163 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { RealtimeChannel } from '@supabase/supabase-js';
+import { getSupabase } from '@/lib/supabase';
+import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
+
+/**
+ * Host-authoritative room over Supabase Realtime (broadcast + presence).
+ * The browser that created the room holds the state, applies every action through
+ * `engine.reduce`, and broadcasts the result; guests only send actions.
+ */
+export type RoomEngine<S extends BaseRoom, A> = {
+  channel: string; // channel prefix, e.g. "wallgo-room"
+  storage: string; // localStorage prefix for host flag and saved state
+  create: (hostValue: string, host: Peer) => S | null;
+  restorable: (saved: S, hostValue: string) => boolean;
+  reduce: (state: S, action: A, seat: number | null, isHost: boolean) => S | null;
+  syncSeats: (state: S, peers: Peer[]) => S;
+  running: (state: S) => boolean; // whether the turn clock applies
+  timeoutAction: A;
+};
+
+const CLIENT_KEY = 'puzzlthink_client_id';
+const NAME_KEY = 'puzzlthink_nickname';
+const read = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
+const write = (key: string, value: string) => { try { localStorage.setItem(key, value); } catch { /* Storage is optional. */ } };
+export const hostKeyFor = (storage: string, code: string) => `${storage}_host_${code}`;
+const stateKeyFor = (storage: string, code: string) => `${storage}_state_${code}`;
+
+function clientId() {
+  let id = read(CLIENT_KEY);
+  if (!id) { id = crypto.randomUUID(); write(CLIENT_KEY, id); }
+  return id;
+}
+
+/** Creates a room code and marks this browser as its host. Returns the code to navigate to. */
+export function prepareRoom(storage: string, hostValue: string): string {
+  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const bytes = crypto.getRandomValues(new Uint8Array(6));
+  const code = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+  write(hostKeyFor(storage, code), hostValue);
+  return code;
+}
+
+export type RoomStatus = 'connecting' | 'online' | 'unconfigured' | 'error';
+
+export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>, code: string, defaultName: string) {
+  const [status, setStatus] = useState<RoomStatus>('connecting');
+  const [state, setState] = useState<S | null>(null);
+  const [peers, setPeers] = useState<Peer[]>([]);
+  const [hostOnline, setHostOnline] = useState(true);
+  const [me, setMe] = useState<{ id: string; name: string; isHost: boolean } | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const stateRef = useRef<S | null>(null);
+  const meRef = useRef(me);
+  const joinedAt = useRef(0);
+
+  const commit = useCallback((next: S) => {
+    stateRef.current = next;
+    setState(next);
+    write(stateKeyFor(engine.storage, code), JSON.stringify(next));
+    channelRef.current?.send({ type: 'broadcast', event: 'state', payload: next });
+  }, [engine, code]);
+
+  const apply = useCallback((action: A, fromId: string) => {
+    const current = stateRef.current;
+    if (!current) return;
+    const next = engine.reduce(current, action, seatOf(current, fromId), meRef.current?.isHost ?? false);
+    if (next) commit(next);
+  }, [engine, commit]);
+
+  useEffect(() => {
+    const id = clientId();
+    joinedAt.current = Date.now();
+    const hostValue = read(hostKeyFor(engine.storage, code));
+    const savedName = read(NAME_KEY);
+    if (!savedName) write(NAME_KEY, defaultName);
+    const host = { id, name: savedName || defaultName, at: joinedAt.current };
+    const created = hostValue ? engine.create(hostValue, host) : null;
+    const identity = { id, name: host.name, isHost: !!created };
+    meRef.current = identity;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- identity comes from localStorage, only available on the client
+    setMe(identity);
+
+    const supabase = getSupabase();
+    if (!supabase) { setStatus('unconfigured'); return; }
+
+    if (created && hostValue) {
+      let saved: S | null = null;
+      try { saved = JSON.parse(read(stateKeyFor(engine.storage, code)) || 'null'); } catch { saved = null; }
+      const initial = saved && engine.restorable(saved, hostValue) ? saved : created;
+      stateRef.current = initial;
+      setState(initial);
+    }
+
+    const channel = supabase.channel(`${engine.channel}-${code}`, { config: { presence: { key: id }, broadcast: { self: false } } });
+    channelRef.current = channel;
+
+    channel.on('presence', { event: 'sync' }, () => {
+      const presence = channel.presenceState<{ name: string; at: number; host: boolean }>();
+      const list: Peer[] = Object.entries(presence).map(([key, metas]) => ({ id: key, name: metas[0]?.name ?? '', at: metas[0]?.at ?? 0 }));
+      setPeers(list);
+      setHostOnline(Object.values(presence).some((metas) => metas.some((meta) => meta.host)));
+      if (meRef.current?.isHost && stateRef.current) {
+        const next = engine.syncSeats(stateRef.current, list);
+        if (next !== stateRef.current) commit(next);
+      }
+    });
+    channel.on('broadcast', { event: 'state' }, ({ payload }) => {
+      if (meRef.current?.isHost) return;
+      const incoming = payload as S;
+      const current = stateRef.current;
+      if (!current || incoming.sid !== current.sid || incoming.v >= current.v) { stateRef.current = incoming; setState(incoming); }
+    });
+    channel.on('broadcast', { event: 'action' }, ({ payload }) => {
+      if (meRef.current?.isHost) apply(payload.action as A, payload.from as string);
+    });
+    channel.on('broadcast', { event: 'hello' }, () => {
+      if (meRef.current?.isHost && stateRef.current) channel.send({ type: 'broadcast', event: 'state', payload: stateRef.current });
+    });
+
+    channel.subscribe(async (result) => {
+      if (result === 'SUBSCRIBED') {
+        setStatus('online');
+        await channel.track({ name: identity.name, at: joinedAt.current, host: identity.isHost });
+        if (!identity.isHost) channel.send({ type: 'broadcast', event: 'hello', payload: {} });
+      } else if (result === 'CHANNEL_ERROR' || result === 'TIMED_OUT') setStatus('error');
+    });
+
+    return () => { channelRef.current = null; supabase.removeChannel(channel); };
+  }, [engine, code, defaultName, apply, commit]);
+
+  // The host enforces the turn limit for everyone.
+  useEffect(() => {
+    if (!me?.isHost) return;
+    const timer = window.setInterval(() => {
+      const current = stateRef.current;
+      if (current && engine.running(current) && Date.now() >= current.deadline) apply(engine.timeoutAction, me.id);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [engine, me, apply]);
+
+  const dispatch = useCallback((action: A) => {
+    const identity = meRef.current;
+    if (!identity) return;
+    if (identity.isHost) apply(action, identity.id);
+    else channelRef.current?.send({ type: 'broadcast', event: 'action', payload: { from: identity.id, action } });
+  }, [apply]);
+
+  const rename = useCallback((name: string) => {
+    const identity = meRef.current;
+    const trimmed = name.trim().slice(0, 16);
+    if (!identity || !trimmed) return;
+    write(NAME_KEY, trimmed);
+    meRef.current = { ...identity, name: trimmed };
+    setMe(meRef.current);
+    channelRef.current?.track({ name: trimmed, at: joinedAt.current, host: identity.isHost });
+  }, []);
+
+  const mySeat = state && me ? seatOf(state, me.id) : null;
+  return { status, state, peers, hostOnline, me, mySeat, dispatch, rename };
+}
