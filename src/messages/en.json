@@ -11,11 +11,13 @@
     "home": "All games",
     "newGame": "New game",
     "rules": "How to play",
-    "tagline": "Small games for long thoughts."
+    "tagline": "Small games for long thoughts.",
+    "about": "About",
+    "contact": "Contact"
   },
   "Home": {
-    "metaTitle": "PUZZLTHINK — Small games for long thoughts",
-    "metaDescription": "Play Wallgo and Sudoku instantly. A clean collection of thoughtful online board games.",
+    "metaTitle": "PUZZLTHINK — Games from The Devil's Plan & The Genius, online",
+    "metaDescription": "Play strategy games from brain-survival shows like The Devil's Plan and The Genius in your browser, starting with Wallgo. No sign-up, instant matches against AI. Sudoku included.",
     "eyebrow": "THINK · PLAY · REPEAT",
     "title1": "Small games for",
     "title2": "long thoughts",
@@ -32,11 +34,23 @@
     "instantPlay": "Play instantly",
     "instantPlayDesc": "No waiting with AI opponents",
     "growing": "Always growing",
-    "growingDesc": "More board games are on the way"
+    "growingDesc": "More board games are on the way",
+    "keywords": [
+      "The Devil's Plan game",
+      "Devil's Plan wall go",
+      "The Genius game",
+      "Wallgo",
+      "wall go online",
+      "brain games",
+      "browser board games",
+      "sudoku"
+    ],
+    "seoTitle": "Games from The Devil's Plan and The Genius, on the web",
+    "seoBody": "Ever watched a brain-survival show and wondered how you would have played? PUZZLTHINK brings strategy games like Wallgo, made popular on The Devil's Plan, to your browser. No install, no sign-up — just challenge the AI. More games are on the way."
   },
   "WallGo": {
-    "metaTitle": "Wallgo — Territory strategy against AI",
-    "metaDescription": "Move characters and build walls to claim the largest territory in this three-player strategy game.",
+    "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
+    "metaDescription": "Play Wallgo, the wall-building territory game from The Devil's Plan, free in your browser. Move, build walls, and claim the largest territory against two AI opponents — no sign-up.",
     "roundSolo": "ROUND 01 · SOLO",
     "placement": "Choose an empty tile for your character",
     "thinking": "{player} is thinking",
@@ -110,7 +124,16 @@
     "tutorial3Desc": "Each player can break one wall in their movement path per game. Select a character and move to a red-marked tile.",
     "tutorial4Label": "WINNING",
     "tutorial4Title": "Territory is scored when everyone is separated",
-    "tutorial4Desc": "The game ends as soon as no space contains different players. Most claimed tiles wins; ties are decided by the largest single area."
+    "tutorial4Desc": "The game ends as soon as no space contains different players. Most claimed tiles wins; ties are decided by the largest single area.",
+    "keywords": [
+      "Wallgo",
+      "wall go online",
+      "Devil's Plan wall go",
+      "The Devil's Plan game",
+      "The Genius game",
+      "Wallgo rules",
+      "Wallgo AI"
+    ]
   },
   "Sudoku": {
     "metaTitle": "Online Sudoku",
@@ -170,20 +193,159 @@
     "privacyTitle": "Privacy Policy",
     "privacyDescription": "The PUZZLTHINK privacy policy.",
     "privacySections": [
-      {"title": "1. Information we store", "body": "PUZZLTHINK does not require an account. Game records and tutorial preferences are stored only in your browser."},
-      {"title": "2. How information is used", "body": "Browser data is used to resume games, display match records, and improve your experience. It is not sent to our servers."},
-      {"title": "3. Local storage", "body": "You can delete PUZZLTHINK local data from your browser settings at any time. Doing so resets records and preferences."},
-      {"title": "4. Service providers", "body": "Our hosting provider may process technical logs needed for security and performance."},
-      {"title": "5. Contact", "body": "For privacy questions, contact chlgnstj1@gmail.com."}
+      {
+        "title": "1. Information we store",
+        "body": "PUZZLTHINK does not require an account and does not directly collect personal information such as your name or contact details. Game records and tutorial preferences are stored only in your browser."
+      },
+      {
+        "title": "2. How information is used",
+        "body": "Browser data is used to resume games, display match records, and improve your experience. It is not sent to our servers."
+      },
+      {
+        "title": "3. Local storage",
+        "body": "You can delete PUZZLTHINK local data from your browser settings at any time. Doing so resets records and preferences."
+      },
+      {
+        "title": "4. Advertising and cookies",
+        "body": "PUZZLTHINK may display ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it and its partners to serve ads based on your visits to this and other sites."
+      },
+      {
+        "title": "5. Opting out of personalized ads",
+        "body": "You may opt out of personalized advertising in Google Ads Settings (https://adssettings.google.com), and opt out of third-party vendors' cookies for personalized advertising at www.aboutads.info. Learn how Google uses data at https://policies.google.com/technologies/partner-sites. Users in the EEA, the UK, and Switzerland are asked for consent before cookies are used."
+      },
+      {
+        "title": "6. Service providers",
+        "body": "Our hosting provider may process technical logs (such as IP address and browser information) needed for security and performance."
+      },
+      {
+        "title": "7. Contact",
+        "body": "For privacy questions, contact chlgnstj1@gmail.com."
+      }
     ],
     "termsTitle": "Terms of Service",
     "termsDescription": "The PUZZLTHINK terms of service.",
     "termsSections": [
-      {"title": "1. Using the service", "body": "PUZZLTHINK is provided free for personal entertainment. Features and availability may change without notice."},
-      {"title": "2. Fair play", "body": "You may not use automation to manipulate game records or results."},
-      {"title": "3. Intellectual property", "body": "The service design, code, graphics, and game implementations are protected by the rights of their respective owners."},
-      {"title": "4. Disclaimer", "body": "The service is provided as is. We do not guarantee uninterrupted availability or protection from local data loss."},
-      {"title": "5. Contact", "body": "For questions about these terms, contact chlgnstj1@gmail.com."}
+      {
+        "title": "1. Using the service",
+        "body": "PUZZLTHINK is provided free for personal entertainment. Features and availability may change without notice."
+      },
+      {
+        "title": "2. Fair play",
+        "body": "You may not use automation to manipulate game records or results."
+      },
+      {
+        "title": "3. Intellectual property",
+        "body": "The service design, code, graphics, and game implementations are protected by the rights of their respective owners."
+      },
+      {
+        "title": "4. Disclaimer",
+        "body": "The service is provided as is. We do not guarantee uninterrupted availability or protection from local data loss."
+      },
+      {
+        "title": "5. Contact",
+        "body": "For questions about these terms, contact chlgnstj1@gmail.com."
+      }
     ]
+  },
+  "Info": {
+    "email": "chlgnstj1@gmail.com",
+    "aboutEyebrow": "ABOUT",
+    "aboutTitle": "About PUZZLTHINK",
+    "aboutDescription": "A puzzle site bringing games from The Devil's Plan and The Genius to the web.",
+    "aboutSections": [
+      {
+        "title": "What we make",
+        "body": "PUZZLTHINK recreates games from brain-survival shows like The Devil's Plan and The Genius for the web. Starting with Wallgo from The Devil's Plan, we build the strategy games you wanted to try while watching — playable instantly in your browser with no install or sign-up."
+      },
+      {
+        "title": "WallGo",
+        "body": "A strategy board game where you move a piece and then place a wall to divide the board. The player who claims the larger territory wins, and you can play against an AI opponent."
+      },
+      {
+        "title": "Sudoku",
+        "body": "The classic logic puzzle: fill each row, column, and 3×3 box of a 9×9 grid with the digits 1 to 9 exactly once. Multiple difficulty levels and a notes mode are included."
+      },
+      {
+        "title": "How we operate",
+        "body": "All games are free, and game records are stored only in your browser. Running costs may be covered by advertising revenue."
+      },
+      {
+        "title": "Who runs it",
+        "body": "PUZZLTHINK is an independent project run by a solo developer. Send suggestions or bug reports to chlgnstj1@gmail.com."
+      },
+      {
+        "title": "Notice",
+        "body": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius, or their broadcasters. Show names are used only to describe the games."
+      }
+    ],
+    "contactEyebrow": "CONTACT",
+    "contactTitle": "Contact",
+    "contactDescription": "Questions about games, bugs, partnerships, or privacy are welcome.",
+    "contactSections": [
+      {
+        "title": "Email",
+        "body": "Send all inquiries to chlgnstj1@gmail.com. We usually reply within three business days."
+      },
+      {
+        "title": "Reporting bugs",
+        "body": "Including your device, browser, the game, and what happened helps us look into it faster."
+      },
+      {
+        "title": "Privacy requests",
+        "body": "PUZZLTHINK does not store personal information on its servers. For questions about advertising cookies, see the Privacy Policy or email us."
+      }
+    ]
+  },
+  "WallGoGuide": {
+    "eyebrow": "WALLGO GUIDE",
+    "title": "Wallgo Online — the Devil's Plan game, on the web",
+    "intro": "Wallgo is a territory strategy game that became a fan favorite on Netflix's brain-survival show The Devil's Plan. If you enjoy shows like The Genius, it will feel right at home. PUZZLTHINK brings Wallgo to the web so anyone can play against two AI opponents right in the browser.",
+    "rulesTitle": "Wallgo rules",
+    "rules": [
+      "On a 7×7 board, players take turns placing two characters each.",
+      "On your turn, move one character one or two tiles in a straight line.",
+      "Then you must build a wall on one of the four sides of the character you moved.",
+      "Once per game, each player may break through a wall blocking their path.",
+      "When every player is sealed off from the others, the game ends and the most claimed tiles wins. Ties go to the largest single area."
+    ],
+    "tipsTitle": "Winning strategy",
+    "tips": [
+      {
+        "title": "Take the center early",
+        "body": "Characters placed near the center have more directions to move, making it easier to expand your territory."
+      },
+      {
+        "title": "Use both characters together",
+        "body": "If both of your characters share a space, the whole space is yours. Guarding one region together often beats spreading out."
+      },
+      {
+        "title": "Build walls toward opponents",
+        "body": "Place walls to block opponents’ entry rather than shrink your own space. A continuous line of walls can lock in a large area at once."
+      },
+      {
+        "title": "Save your wall break",
+        "body": "You only get one. Breaking in just as an opponent is about to seal their region can flip the game."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Wallgo?",
+        "a": "Right here on PUZZLTHINK — in any desktop or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "Is it the same game as on The Devil's Plan?",
+        "a": "It is built on the core rules seen on the show — moving, building walls, and scoring territory — adapted for solo play against AI."
+      },
+      {
+        "q": "Is it free?",
+        "a": "Yes, every game is free."
+      },
+      {
+        "q": "Can I play with friends?",
+        "a": "Currently it is a three-player match against two AI opponents, with Easy, Normal, and Hard difficulty."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius, or their broadcasters. Show names are used only to describe the games."
   }
 }

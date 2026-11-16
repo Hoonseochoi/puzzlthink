@@ -17,6 +17,8 @@ export default function GlobalFooter() {
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
           <Link href="/wallgo" className="hover:text-black">{t('wallgo')}</Link>
           <Link href="/play" className="hover:text-black">{t('sudoku')}</Link>
+          <Link href="/about" className="hover:text-black">{t('about')}</Link>
+          <Link href="/contact" className="hover:text-black">{t('contact')}</Link>
           <Link href="/privacy-policy" className="hover:text-black">{t('privacy')}</Link>
           <Link href="/terms" className="hover:text-black">{t('terms')}</Link>
           <span>© {new Date().getFullYear()}</span>

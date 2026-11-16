@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import HomeClient from '@/components/HomeClient';
+import JsonLd from '@/components/JsonLd';
 
 const BASE_URL = 'https://www.puzzlthink.com';
 
@@ -9,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: 'Home' });
   const canonical = `${BASE_URL}/${locale}`;
   return {
-    title: t('metaTitle'), description: t('metaDescription'),
+    title: t('metaTitle'), description: t('metaDescription'), keywords: t.raw('keywords') as string[],
     alternates: { canonical, languages: { ko: `${BASE_URL}/ko`, en: `${BASE_URL}/en`, 'x-default': `${BASE_URL}/ko` } },
     openGraph: { title: t('metaTitle'), description: t('metaDescription'), url: canonical, siteName: 'PUZZLTHINK', type: 'website', images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630, alt: 'PUZZLTHINK online board games' }] },
   };
@@ -18,5 +19,17 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <HomeClient />;
+  const t = await getTranslations({ locale, namespace: 'Home' });
+  return (
+    <>
+      <JsonLd data={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'PUZZLTHINK', url: `${BASE_URL}/${locale}`, description: t('metaDescription'), inLanguage: locale }} />
+      <HomeClient />
+      <section className="bg-[#f3f0e8] px-5 pb-20">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{t('seoTitle')}</h2>
+          <p className="mt-4 text-sm leading-7 text-black/55">{t('seoBody')}</p>
+        </div>
+      </section>
+    </>
+  );
 }

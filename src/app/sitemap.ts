@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 const BASE_URL = 'https://www.puzzlthink.com';
 const locales = ['ko', 'en'] as const;
-const paths = ['', '/wallgo', '/play', '/privacy-policy', '/terms'];
+const paths = ['', '/wallgo', '/play', '/about', '/contact', '/privacy-policy', '/terms'];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return paths.flatMap((path) => locales.map((locale) => ({

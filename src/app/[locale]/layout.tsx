@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import GlobalHeader from '@/components/GlobalHeader';
 import GlobalFooter from '@/components/GlobalFooter';
 import { routing } from '@/i18n/routing';
+import { ADSENSE_CLIENT } from '@/lib/adsense';
 import '../globals.css';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
@@ -26,6 +27,12 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      {ADSENSE_CLIENT && (
+        <head>
+          <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
+          <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`} crossOrigin="anonymous" />
+        </head>
+      )}
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#f3f0e8] font-sans text-[#17201e] antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <GlobalHeader />
