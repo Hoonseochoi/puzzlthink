@@ -13,6 +13,7 @@ export const H13_ROOM: RoomEngine<H13Room, H13Action> = {
   running: (state) => state.phase === 'playing',
   timeoutAction: { t: 'timeout' },
   autoAction: h13AutoAction,
+  autoDelay: 1500, // wait at least 1.5s after any move before the next AI step, so play is easy to follow
   redact: redactH13,
 };
 
