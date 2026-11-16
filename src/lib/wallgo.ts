@@ -182,6 +182,11 @@ export function getTerritory(pieces: Piece[], walls: Set<string>, totalPieces = 
   return { scores, largest, separated, cellOwners };
 }
 
+/** True when no player in the mode has a legal move (the game cannot progress). */
+export function noOneCanMove(pieces: Piece[], walls: Set<string>, mode: GameMode, breaks: boolean[]) {
+  return mode.players.every((player) => getMoveOptions(pieces, walls, player, mode.wallBreak && breaks[player]).length === 0);
+}
+
 export function getWinner(territory: TerritoryResult, players: PlayerId[] = [0, 1, 2]): PlayerId {
   return [...players].sort((a, b) =>
     territory.scores[b] - territory.scores[a] || territory.largest[b] - territory.largest[a],

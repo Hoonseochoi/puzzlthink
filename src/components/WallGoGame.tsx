@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, BookOpen, Check, Clock3, RotateCcw, ShieldOff, Sparkles } from 'lucide-react';
-import { Link } from '@/i18n/routing';
+import { ArrowLeft, BookOpen, Check, Clock3, Link2, RotateCcw, ShieldOff, Sparkles } from 'lucide-react';
+import { Link, useRouter } from '@/i18n/routing';
+import { hostKey } from '@/hooks/useWallGoRoom';
 import {
-  BOARD_SIZE,
   type AiDifficulty,
   type Direction,
   type ModeId,
@@ -18,18 +18,18 @@ import {
   getTerritory,
   getWallOptions,
   getWinner,
-  hasWall,
   isOccupied,
   MODES,
   nextPlayerOf,
+  noOneCanMove,
   placementOrder,
-  positionKey,
 } from '@/lib/wallgo';
 import LanguageSwitcher from './LanguageSwitcher';
+import WallGoBoard from './WallGoBoard';
 import WallGoCharacter from './WallGoCharacter';
 import WallGoTutorial from './WallGoTutorial';
 import Shards from './WallGoShards';
-import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT, TERRITORY_TINTS } from './wallgoTheme';
+import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
 
 const DIFFICULTIES: AiDifficulty[] = ['easy', 'normal', 'hard'];
 const RECORD_KEY = 'puzzlthink_wallgo_records';
@@ -38,6 +38,8 @@ type MatchRecord = { id: number; won: boolean; score: number; difficulty: AiDiff
 
 export default function WallGoGame() {
   const t = useTranslations('WallGo');
+  const to = useTranslations('WallGoOnline');
+  const router = useRouter();
   const [modeId, setModeId] = useState<ModeId>('three');
   const [order, setOrder] = useState<PlayerId[]>(() => placementOrder(MODES.three, 0));
   const [pieces, setPieces] = useState<Piece[]>([]);
@@ -61,7 +63,8 @@ export default function WallGoGame() {
   const playerNames = [t('you'), 'MIRA', 'NOVA'];
   const canBreak = (player: PlayerId) => mode.wallBreak && breakAvailable[player];
   const piecesPerPlayer = mode.totalPieces / mode.players.length;
-  const territory = useMemo(() => getTerritory(pieces, walls, mode.totalPieces), [pieces, walls, mode.totalPieces]);
+  // Territory only means something once every piece is on the board.
+  const territory = useMemo(() => getTerritory(phase === 'placement' ? [] : pieces, walls, mode.totalPieces), [phase, pieces, walls, mode.totalPieces]);
   const allMoves = useMemo(() => phase === 'playing' && currentPlayer === 0 && turnStep === 'move' ? getMoveOptions(pieces, walls, 0, mode.wallBreak && breakAvailable[0]) : [], [phase, currentPlayer, turnStep, pieces, walls, breakAvailable, mode.wallBreak]);
   const selectedMoves = selectedPieceId ? allMoves.filter((move) => move.pieceId === selectedPieceId) : [];
   const modeRecords = records.filter((record) => (record.mode ?? 'three') === modeId);
@@ -107,7 +110,7 @@ export default function WallGoGame() {
     const nextTerritory = getTerritory(nextPieces, nextWalls, mode.totalPieces);
     setPieces(nextPieces); setWalls(nextWalls); addLog(log);
     setSelectedPieceId(null); setMovedPieceId(null); setTurnStep('move'); setSeconds(90);
-    if (nextTerritory.separated) {
+    if (nextTerritory.separated || noOneCanMove(nextPieces, nextWalls, mode, breakAvailable)) {
       const result = getWinner(nextTerritory, mode.players);
       setWinner(result); setPhase('finished'); saveRecord(result, nextTerritory);
       addLog(t('logWinner', { player: playerNames[result] }));
@@ -221,6 +224,14 @@ export default function WallGoGame() {
       : currentPlayer !== 0 ? t('thinking', { player: playerNames[currentPlayer] })
         : turnStep === 'move' ? (selectedPieceId ? t('chooseMove') : t('selectPiece')) : t('placeWall');
 
+  const createRoom = (roomMode: ModeId) => {
+    const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+    const bytes = crypto.getRandomValues(new Uint8Array(6));
+    const code = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+    try { localStorage.setItem(hostKey(code), roomMode); } catch { /* Needed to become host; ignore if storage is blocked. */ }
+    router.push(`/wallgo/room/${code}`);
+  };
+
   const closeTutorial = () => { localStorage.setItem('puzzlthink_wallgo_tutorial_seen', '1'); setShowTutorial(false); };
 
   return <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ backgroundImage: FOG }}>
@@ -230,24 +241,11 @@ export default function WallGoGame() {
 
     <main className="relative z-10 mx-auto grid w-full max-w-[1180px] gap-6 px-4 py-5 lg:grid-cols-[minmax(0,760px)_320px] lg:px-6 lg:py-8">
       <section className="rounded-[14px] border border-white/10 bg-[#121217]/85 p-3 shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur sm:p-5"><div className="mb-4 flex items-center justify-between px-1 sm:px-2"><div><p className="mb-1 font-mono text-[10px] font-bold tracking-[0.25em] text-[#ff4d5e]">TURN {String(turnNumber).padStart(2, '0')}</p><h2 className="text-base font-extrabold tracking-tight text-[#eef1f7] sm:text-xl">{instruction}</h2></div><div className={`flex min-w-[82px] items-center justify-center gap-2 rounded-md px-3 py-2.5 font-mono text-base font-bold ${seconds <= 15 && currentPlayer === 0 && phase === 'playing' ? 'animate-pulse bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.6)]' : 'border border-white/15 bg-black/60 text-[#c9cfdc]'}`}><Clock3 size={16} />{currentPlayer === 0 && phase === 'playing' ? `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}` : '--:--'}</div></div>
-        <div className="relative mx-auto aspect-square w-full max-w-[680px] rounded-[8px] bg-gradient-to-br from-[#8d95a8] via-[#24252d] to-[#8d95a8] p-[2px] shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
-          {['-left-1.5 -top-1.5', '-right-1.5 -top-1.5', '-bottom-1.5 -left-1.5', '-bottom-1.5 -right-1.5'].map((corner) => <span key={corner} aria-hidden className={`absolute z-30 h-3 w-3 rotate-45 border border-[#b9c1d3] bg-[#0b0b0e] ${corner}`} />)}
-          <div className="h-full w-full rounded-[6px] bg-[#0e0e12] p-2 sm:p-3"><div className="relative grid h-full w-full grid-cols-7 grid-rows-7 overflow-hidden rounded-[3px] bg-[#17181e]">{Array.from({ length: BOARD_SIZE * BOARD_SIZE }).map((_, index) => {
-          const row = Math.floor(index / BOARD_SIZE), col = index % BOARD_SIZE, position = { row, col };
-          const piece = pieces.find((item) => item.row === row && item.col === col);
-          const selected = piece?.id === selectedPieceId, move = selectedMoves.find((item) => item.to.row === row && item.to.col === col), moved = piece?.id === movedPieceId;
-          const territoryOwner = territory.cellOwners[positionKey(position)];
-          const canPlace = phase === 'placement' && currentPlayer === 0 && !piece;
-          const topWall = row > 0 && hasWall(walls, position, { row: row - 1, col }), leftWall = col > 0 && hasWall(walls, position, { row, col: col - 1 });
-          return <div key={positionKey(position)} role="button" tabIndex={canPlace || move || piece?.player === 0 ? 0 : -1} aria-label={`${String.fromCharCode(65 + col)}${row + 1}`} onClick={() => handleCellClick(row, col)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') handleCellClick(row, col); }} className={`group relative flex items-center justify-center border-b border-r border-[#2a2c35] transition-colors ${canPlace ? 'cursor-pointer hover:bg-[#e0283a]/10' : ''} ${move ? move.brokenWall ? 'cursor-pointer bg-[#e0283a]/15' : 'cursor-pointer bg-white/[0.06]' : ''} ${selected ? 'bg-white/[0.05]' : ''}`}>
-            {territoryOwner !== null && territoryOwner !== undefined && <span aria-hidden className="pointer-events-none absolute inset-0" style={{ backgroundColor: TERRITORY_TINTS[territoryOwner] }} />}
-            {topWall && <span className="pointer-events-none absolute -top-[3px] left-[-2px] right-[-2px] z-20 h-[6px] rounded-[2px] bg-gradient-to-b from-[#f1f4fa] to-[#7d8597] shadow-[0_0_8px_rgba(200,210,230,.35)]" />}{leftWall && <span className="pointer-events-none absolute -left-[3px] bottom-[-2px] top-[-2px] z-20 w-[6px] rounded-[2px] bg-gradient-to-r from-[#f1f4fa] to-[#7d8597] shadow-[0_0_8px_rgba(200,210,230,.35)]" />}
-            {move && <span className={`absolute z-0 h-4 w-4 rotate-45 border-2 sm:h-5 sm:w-5 ${move.brokenWall ? 'border-[#0b0b0e] bg-[#e0283a] shadow-[0_0_12px_rgba(224,40,58,.9)] before:absolute before:-inset-2 before:animate-ping before:border before:border-[#e0283a]' : 'border-[#0b0b0e] bg-[#c9cfdc] shadow-[0_0_10px_rgba(201,207,220,.5)]'}`} />}
-            {canPlace && <span className="h-2 w-2 rotate-45 bg-white/15 transition group-hover:scale-150 group-hover:bg-[#e0283a]" />}
-            {piece && <WallGoCharacter player={piece.player} selected={selected} label={playerNames[piece.player]} className="z-10 h-[58%]" />}
-            {moved && turnStep === 'wall' && getWallOptions(pieces, walls, movedPieceId!).map((option) => { const placement: Record<Direction,string> = { up: '-top-1 left-1/2 h-3 w-10 -translate-x-1/2', right: '-right-1 top-1/2 h-10 w-3 -translate-y-1/2', down: '-bottom-1 left-1/2 h-3 w-10 -translate-x-1/2', left: '-left-1 top-1/2 h-10 w-3 -translate-y-1/2' }; return <button key={option.direction} aria-label={`${directionLabel(option.direction)} wall`} onClick={(event) => { event.stopPropagation(); placeHumanWall(option.direction); }} className={`absolute z-30 animate-pulse rounded-[2px] bg-[#e0283a] shadow-[0_0_0_2px_#0b0b0e,0_0_16px_rgba(224,40,58,.85)] transition hover:scale-110 hover:animate-none ${placement[option.direction]}`} />; })}
-          </div>;
-        })}</div></div></div>
+        <WallGoBoard
+          pieces={pieces} walls={walls} cellOwners={territory.cellOwners} selectedPieceId={selectedPieceId} moves={selectedMoves}
+          wallPieceId={turnStep === 'wall' ? movedPieceId : null} playerNames={playerNames} interactivePlayer={0}
+          canPlace={phase === 'placement' && currentPlayer === 0} onCellClick={handleCellClick} onWall={placeHumanWall}
+        />
         {phase !== 'finished' && !mode.wallBreak && <div className="mx-auto mt-4 flex max-w-[680px] flex-wrap items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-black/40 p-3"><div className="min-w-0"><p className="text-xs font-extrabold">{t('duelTitle')}</p><p className="text-[11px] text-white/45">{t('duelHint')}</p></div><span className="flex items-center gap-1.5 text-[10px] font-bold text-white/45"><i className="h-2.5 w-2.5 rotate-45 bg-[#c9cfdc]" />{t('normalMove')}</span></div>}
         {phase !== 'finished' && mode.wallBreak && <div className="mx-auto mt-4 flex max-w-[680px] flex-wrap items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-black/40 p-3"><div className="flex min-w-0 items-center gap-3"><div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-[#0b0b0e]"><ShieldOff size={18} className={breakAvailable[0] ? 'text-[#ff4d5e]' : 'text-white/20'} /><span className={`absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-[#0b0b0e] ${breakAvailable[0] ? 'bg-[#e0283a] shadow-[0_0_8px_rgba(224,40,58,.9)]' : 'bg-white/20'}`} /></div><div className="min-w-0"><p className="text-xs font-extrabold">{t('breakTitle')}</p><p className="text-[11px] text-white/45">{t(breakAvailable[0] ? 'breakAvailableHint' : 'breakUsedHint')}</p></div></div><div className="flex items-center gap-3 text-[10px] font-bold text-white/45"><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rotate-45 bg-[#c9cfdc]" />{t('normalMove')}</span><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rotate-45 bg-[#e0283a]" />{t('breakMove')}</span></div></div>}
       </section>
@@ -255,6 +253,7 @@ export default function WallGoGame() {
       <aside className="flex flex-col gap-4">
         <section className={PANEL}><div className="mb-3 flex items-center justify-between"><h2 className={PANEL_TITLE}>{t('players')}</h2><span className="rounded-md border border-white/10 px-2.5 py-1 text-[10px] font-bold text-white/60">{t(modeId === 'two' ? 'twoPlayers' : 'threePlayers')}</span></div><div className="space-y-2">{mode.players.map((player) => <div key={player} className={`flex items-center gap-3 rounded-[10px] border p-3 ${currentPlayer === player && phase !== 'finished' ? 'border-[#e0283a]/50 bg-white/[0.04] shadow-[inset_0_0_20px_rgba(224,40,58,.08)]' : 'border-transparent'}`}><WallGoCharacter player={player} className="h-10 shrink-0" /><div className="min-w-0 flex-1"><div className="flex items-center gap-1.5"><p className="text-sm font-extrabold">{playerNames[player]}</p>{player !== 0 && <span className="text-[9px] font-black text-white/30">AI</span>}</div><p className="text-[11px] text-white/45">{t('areaPieces', { area: territory.scores[player], pieces: pieces.filter((piece) => piece.player === player).length, total: piecesPerPlayer })}</p></div>{mode.wallBreak && <div className="text-right"><p className="text-[9px] font-bold text-white/35">{t('break')}</p><p className={`text-xs font-black ${breakAvailable[player] ? 'text-[#ff4d5e]' : 'text-white/25'}`}>{t(breakAvailable[player] ? 'ready' : 'used')}</p></div>}</div>)}</div></section>
         <section className={PANEL}><h2 className={PANEL_TITLE}>{t('mode')}</h2><div className="mt-3 grid grid-cols-2 gap-2">{(['three', 'two'] as ModeId[]).map((id) => <button key={id} onClick={() => resetGame(difficulty, id)} className={`rounded-md p-2.5 text-left transition ${modeId === id ? 'bg-[#e0283a] text-white shadow-[0_0_14px_rgba(224,40,58,.4)]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}><span className="block text-xs font-extrabold">{t(id === 'two' ? 'modeTwo' : 'modeThree')}</span><span className="mt-0.5 block text-[10px] opacity-70">{t(id === 'two' ? 'modeTwoDesc' : 'modeThreeDesc')}</span></button>)}</div></section>
+        <section className="rounded-[14px] border border-[#e0283a]/40 bg-[#1a0d10]/80 p-4"><div className="flex items-center gap-2"><Link2 size={14} className="text-[#ff4d5e]" /><h2 className={PANEL_TITLE}>{to('panelTitle')}</h2></div><p className="mt-2 text-[11px] leading-5 text-white/50">{to('panelDesc')}</p><div className="mt-3 grid grid-cols-2 gap-2">{(['two', 'three'] as ModeId[]).map((id) => <button key={id} onClick={() => createRoom(id)} className="rounded-md border border-white/15 bg-white/5 p-2.5 text-xs font-extrabold text-white/85 transition hover:border-[#e0283a]/60 hover:bg-[#e0283a]/15">{to(id === 'two' ? 'createTwo' : 'createThree')}</button>)}</div></section>
         <section className={PANEL}><h2 className={PANEL_TITLE}>{t('difficulty')}</h2><div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => resetGame(level)} className={`rounded-md p-2.5 text-xs font-extrabold transition ${difficulty === level ? 'bg-[#e0283a] text-white shadow-[0_0_14px_rgba(224,40,58,.4)]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}>{t(`difficulty${level[0].toUpperCase()}${level.slice(1)}`)}</button>)}</div></section>
         <section className="rounded-[14px] border border-[#e0283a]/30 bg-black/60 p-5"><div className="mb-4 flex items-center gap-2"><Sparkles size={15} className="text-[#ff4d5e]" /><h2 className={PANEL_TITLE}>{t('howToPlay')}</h2></div><ol className="space-y-3 text-xs leading-relaxed text-white/65">{(modeId === 'two' ? ['duelRule1', 'rule1', 'rule2', 'duelRule3'] : ['rule1', 'rule2', 'rule3']).map((key, index) => <li key={key} className="flex gap-3"><span className="font-mono text-[#ff4d5e]">0{index + 1}</span><span>{t(key)}</span></li>)}</ol></section>
         <section className={`grid grid-cols-3 gap-2 ${PANEL}`}><h2 className={`col-span-3 ${PANEL_TITLE}`}>{t('record')}</h2>{games ? <><div><p className="text-[10px] text-white/35">{t('recordGames')}</p><p className="text-xl font-black">{games}</p></div><div><p className="text-[10px] text-white/35">{t('recordWins')}</p><p className="text-xl font-black text-[#ff4d5e]">{wins}</p></div><div><p className="text-[10px] text-white/35">{t('recordRate')}</p><p className="text-xl font-black">{Math.round(wins / games * 100)}%</p></div></> : <p className="col-span-3 text-xs text-white/40">{t('recordEmpty')}</p>}</section>
