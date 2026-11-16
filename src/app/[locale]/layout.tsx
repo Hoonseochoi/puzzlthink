@@ -1,3 +1,4 @@
+import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -6,11 +7,18 @@ import GlobalHeader from '@/components/GlobalHeader';
 import { AuthProvider } from '@/components/AuthProvider';
 import HallCelebration from '@/components/HallCelebration';
 import GlobalFooter from '@/components/GlobalFooter';
+import InstallBanner from '@/components/InstallBanner';
 import { routing } from '@/i18n/routing';
 import { ADSENSE_CLIENT } from '@/lib/adsense';
 import '../globals.css';
 
-export const metadata = { metadataBase: new URL('https://www.puzzlthink.com') };
+export const metadata: Metadata = {
+  metadataBase: new URL('https://www.puzzlthink.com'),
+  applicationName: 'PUZZLTHINK',
+  appleWebApp: { capable: true, title: 'PUZZLTHINK', statusBarStyle: 'default' },
+};
+
+export const viewport: Viewport = { themeColor: '#f3f0e8' };
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
@@ -40,6 +48,7 @@ export default async function LocaleLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#f3f0e8] font-sans text-[#17201e] antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
+          <InstallBanner />
           <GlobalHeader />
           {children}
           <GlobalFooter />

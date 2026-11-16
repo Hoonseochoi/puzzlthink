@@ -1313,5 +1313,16 @@
     "startLocked": "Waiting for a friend",
     "startLockedHint": "The start button unlocks when your friend joins",
     "startReady": "Your friend is here! Start the game"
+  },
+  "Install": {
+    "title": "Install the PUZZLTHINK app",
+    "desc": "Launch from your home screen · Free",
+    "kakaoDesc": "KakaoTalk can't install apps. Open in your browser",
+    "install": "Install",
+    "openBrowser": "Open",
+    "close": "Close",
+    "iosStep1a": "1. Tap the ",
+    "iosStep1b": " Share button below",
+    "iosStep2": "2. Choose 'Add to Home Screen'"
   }
 }
