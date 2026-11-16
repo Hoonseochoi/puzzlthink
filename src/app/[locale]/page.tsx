@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import HomeClient from '@/components/HomeClient';
 import JsonLd from '@/components/JsonLd';
+import AdSlot from '@/components/AdSlot';
 
 const BASE_URL = 'https://www.puzzlthink.com';
 
@@ -25,6 +26,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'PUZZLTHINK', url: `${BASE_URL}/${locale}`, description: t('metaDescription'), inLanguage: locale }} />
       <HomeClient />
       <section className="bg-[#f3f0e8] px-5 pb-20">
+        <AdSlot placement="inline" className="mx-auto mb-12 max-w-3xl" />
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{t('seoTitle')}</h2>
           <p className="mt-4 text-sm leading-7 text-black/55">{t('seoBody')}</p>

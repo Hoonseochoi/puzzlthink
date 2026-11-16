@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Check, LogOut, RotateCcw, Share2 } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
+import AdSlot from './AdSlot';
 
 /**
  * End-of-game buttons: play again (if allowed), leave, and share — share copies the game's page link.
@@ -34,6 +35,7 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
   };
 
   return (
+    <>
     <div className="mt-6 space-y-2">
       {onAgain
         ? <button onClick={onAgain} className={`flex w-full items-center justify-center gap-2 py-3.5 text-sm font-black ${primaryClass}`}><RotateCcw size={15} />{t('playAgainShort')}</button>
@@ -45,5 +47,8 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
         </button>
       </div>
     </div>
+    {/* Below the buttons so a late-loading ad never shifts them under the player's finger. */}
+    <AdSlot placement="result" tone="dark" compact className="mt-5 border-t border-white/10 pt-4" />
+    </>
   );
 }

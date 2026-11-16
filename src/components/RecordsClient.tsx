@@ -7,6 +7,7 @@ import { Link } from '@/i18n/routing';
 import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfFame, fetchMyRecords, saveProfile } from '@/lib/stats';
 import AuthButton from './AuthButton';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
+import AdSlot from './AdSlot';
 
 const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'wallgo', href: '/wallgo', color: '#ff6b4a' },
@@ -165,6 +166,7 @@ export default function RecordsClient() {
             </>
           )}
         </section>
+        <AdSlot placement="inline" className="mt-14" />
       </div>
     </main>
   );

@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import AdSlot from '@/components/AdSlot';
 
 type Cell = [number, number];
 type Spec = {
@@ -56,6 +57,7 @@ export default async function SudokuGuide({ locale }: { locale: string }) {
   const faq = t.raw('faq') as Faq[];
   return (
     <section className="border-t border-black/[0.07] bg-[#f3f0e8] px-5 py-16 text-[#17201e]">
+      <AdSlot placement="inline" tone="light" className="mx-auto mb-12 max-w-3xl" />
       <article className="mx-auto max-w-4xl">
         <span className="text-[10px] font-black tracking-[0.2em] text-[#4b7bff]">{t('eyebrow')}</span>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">{t('title')}</h1>
