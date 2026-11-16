@@ -27,7 +27,7 @@
     "classic": "CLASSIC",
     "wallgoDescription": "Move your characters, build walls, and claim more territory than anyone else.",
     "sudokuDescription": "A timeless number puzzle that starts light and keeps you thinking.",
-    "soloAi": "Solo · vs AI",
+    "soloAi": "vs AI · live with friends",
     "soloLevels": "Solo · 3 levels",
     "clearRules": "Clear rules",
     "clearRulesDesc": "Easy to learn, rich in strategy",
@@ -46,7 +46,14 @@
       "sudoku"
     ],
     "seoTitle": "Games from The Devil's Plan and The Genius, on the web",
-    "seoBody": "Ever watched a brain-survival show and wondered how you would have played? PUZZLTHINK brings strategy games like Wallgo, made popular on The Devil's Plan, to your browser. No install, no sign-up — just challenge the AI. More games are on the way."
+    "seoBody": "Ever watched a brain-survival show and wondered how you would have played? PUZZLTHINK brings strategy games like Wallgo, made popular on The Devil's Plan, to your browser. No install, no sign-up — just challenge the AI. More games are on the way.",
+    "modeTitle": "Pick a mode and play",
+    "modeThreeAi": "1:1:1",
+    "modeThreeAiDesc": "vs 2 AI",
+    "modeTwoAi": "1:1",
+    "modeTwoAiDesc": "vs 1 AI",
+    "modeFriend": "1:1",
+    "modeFriendDesc": "friend via link"
   },
   "WallGo": {
     "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",

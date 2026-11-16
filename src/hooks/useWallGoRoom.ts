@@ -20,6 +20,15 @@ function clientId() {
   return id;
 }
 
+/** Creates a room code and marks this browser as its host. Returns the code to navigate to. */
+export function prepareHostedRoom(mode: ModeId): string {
+  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const bytes = crypto.getRandomValues(new Uint8Array(6));
+  const code = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+  write(hostKey(code), mode);
+  return code;
+}
+
 export type RoomStatus = 'connecting' | 'online' | 'unconfigured' | 'error';
 
 export function useWallGoRoom(code: string, defaultName: string) {

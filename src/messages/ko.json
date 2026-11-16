@@ -27,7 +27,7 @@
     "classic": "CLASSIC",
     "wallgoDescription": "말을 옮기고 벽을 세워, 누구보다 넓은 나만의 영역을 만드세요.",
     "sudokuDescription": "매일 가볍게 시작하고, 끝까지 깊게 생각하는 클래식 숫자 퍼즐.",
-    "soloAi": "1인 · AI 대전",
+    "soloAi": "AI 대전 · 친구와 실시간",
     "soloLevels": "1인 · 3단계",
     "clearRules": "선명한 규칙",
     "clearRulesDesc": "배우기 쉽고 깊이 있는 게임",
@@ -46,7 +46,14 @@
       "스도쿠"
     ],
     "seoTitle": "데블스플랜, 더 지니어스 속 그 게임을 웹으로",
-    "seoBody": "방송을 보며 \"나라면 어떻게 뒀을까?\" 생각해본 적 있나요? PUZZLTHINK는 데블스플랜에서 화제가 된 벽바둑처럼 두뇌 서바이벌 예능에 나오는 전략 게임을 브라우저에서 바로 즐길 수 있도록 구현합니다. 설치도 가입도 없이 AI 상대와 대결해보세요. 새로운 게임도 계속 추가할 예정입니다."
+    "seoBody": "방송을 보며 \"나라면 어떻게 뒀을까?\" 생각해본 적 있나요? PUZZLTHINK는 데블스플랜에서 화제가 된 벽바둑처럼 두뇌 서바이벌 예능에 나오는 전략 게임을 브라우저에서 바로 즐길 수 있도록 구현합니다. 설치도 가입도 없이 AI 상대와 대결해보세요. 새로운 게임도 계속 추가할 예정입니다.",
+    "modeTitle": "모드를 골라 바로 시작",
+    "modeThreeAi": "1:1:1",
+    "modeThreeAiDesc": "AI 2명과",
+    "modeTwoAi": "1:1",
+    "modeTwoAiDesc": "AI 1명과",
+    "modeFriend": "1:1",
+    "modeFriendDesc": "친구와 링크로"
   },
   "WallGo": {
     "metaTitle": "벽바둑 온라인 — 데블스플랜 그 게임을 AI와 플레이",

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, BookOpen, Check, Clock3, Link2, RotateCcw, ShieldOff, Sparkles } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
-import { hostKey } from '@/hooks/useWallGoRoom';
+import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
 import {
   type AiDifficulty,
   type Direction,
@@ -99,7 +99,13 @@ export default function WallGoGame() {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try { setRecords(JSON.parse(localStorage.getItem(RECORD_KEY) || '[]')); } catch { /* Optional local history. */ }
-      if (localStorage.getItem(MODE_KEY) === 'two') resetGame(difficulty, 'two');
+      // ?mode= from the home screen wins over the last mode played here.
+      const params = new URLSearchParams(window.location.search);
+      const requested = params.get('mode');
+      const wanted = requested === 'two' || requested === 'three' ? requested : localStorage.getItem(MODE_KEY);
+      if (wanted === 'two') resetGame(difficulty, 'two');
+      if (requested) { params.delete('mode'); window.history.replaceState(null, '', `${window.location.pathname}${params.size ? `?${params}` : ''}`); }
+      if (requested === 'three') try { localStorage.setItem(MODE_KEY, 'three'); } catch { /* Optional preference. */ }
       if (!localStorage.getItem('puzzlthink_wallgo_tutorial_seen')) setShowTutorial(true);
     }, 0);
     return () => window.clearTimeout(timer);
@@ -224,13 +230,7 @@ export default function WallGoGame() {
       : currentPlayer !== 0 ? t('thinking', { player: playerNames[currentPlayer] })
         : turnStep === 'move' ? (selectedPieceId ? t('chooseMove') : t('selectPiece')) : t('placeWall');
 
-  const createRoom = (roomMode: ModeId) => {
-    const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
-    const bytes = crypto.getRandomValues(new Uint8Array(6));
-    const code = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
-    try { localStorage.setItem(hostKey(code), roomMode); } catch { /* Needed to become host; ignore if storage is blocked. */ }
-    router.push(`/wallgo/room/${code}`);
-  };
+  const createRoom = (roomMode: ModeId) => router.push(`/wallgo/room/${prepareHostedRoom(roomMode)}`);
 
   const closeTutorial = () => { localStorage.setItem('puzzlthink_wallgo_tutorial_seen', '1'); setShowTutorial(false); };
 
