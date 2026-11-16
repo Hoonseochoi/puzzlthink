@@ -1530,5 +1530,218 @@
     "start": "Start game",
     "howToPlay": "How to play",
     "startHint": "Read the rules? Jump right in."
+  },
+  "RussianRouletteGuide": {
+    "eyebrow": "RUSSIAN ROULETTE GUIDE",
+    "title": "Russian Roulette online — The Devil's Plan prison match on the web",
+    "intro": "Russian Roulette is a deduction game for six players around one revolver. Two of its six chambers are loaded, and each player spends 16 credits to inspect chambers, turn the muzzle or secretly swap chambers. When the shots are fired, the two players hit are out and four survive. It is inspired by the Russian roulette prison match in Netflix's \"The Devil's Plan: Dead Again\", and PUZZLTHINK lets you play it against AI or in a friend room. It is a brain game with nothing to do with real firearms.",
+    "rulesTitle": "Basic rules",
+    "rules": [
+      "Six players sit in a circle. Two of the revolver's six chambers are loaded at random, and the muzzle starts pointing at a random player.",
+      "Everyone gets 16 private credits. Starting with the start player and going clockwise, each player takes one action at a time; the start player moves one seat each round.",
+      "Public inspection (1 credit): open two adjacent chambers and show the result to everyone.",
+      "Private inspection (2 credits): look at two adjacent chambers yourself. Others only see that you inspected.",
+      "Turn the muzzle 1 seat (3 credits) or 2 seats (4 credits) clockwise. Everyone sees the turn.",
+      "Manipulation (1–3 credits): everyone secretly pays into one shared pool. Whoever brings it to 6 swaps the contents of two adjacent chambers they choose, and the pool resets to 0; anything over 6 is lost. Who paid what is revealed after the shots.",
+      "A player with no credits left skips their turns. The moment three players have spent all their credits, the shots are fired.",
+      "Firing starts with the player the muzzle points at and goes clockwise, one chamber per player. The two players hit are out; the other four survive."
+    ],
+    "specialTitle": "Rules that are easy to miss",
+    "special": [
+      {
+        "title": "Who gets hit depends on the muzzle and the chambers",
+        "body": "When firing, the first chamber goes to the player the muzzle points at, the second to the next player clockwise, and so on. If you know where both bullets are and where the muzzle points, you can work out the two players who will be hit."
+      },
+      {
+        "title": "Public and private intel are tracked separately",
+        "body": "Public results appear for everyone under confirmed bullet positions; private results stay on your screen with a lock icon. Tap a character to mark who you think will be hit."
+      },
+      {
+        "title": "Manipulation happens silently",
+        "body": "When chambers are swapped there is no notice, so intel you gathered earlier can quietly become wrong. Only the player who made the swap knows the new contents of those two chambers."
+      },
+      {
+        "title": "Running out of credits ends the game",
+        "body": "As soon as three players have no credits left, the shots are fired, no matter how many credits the others still hold. Keep count of who has spent what."
+      }
+    ],
+    "strategyTitle": "Strategy — how survivors think",
+    "strategyIntro": "It looks like luck, but how you spend information and credits changes your odds a lot.",
+    "strategies": [
+      {
+        "tag": "COUNT",
+        "title": "Count seats from the muzzle",
+        "body": "Number the player the muzzle points at as 1, then 2, 3… clockwise: player k takes chamber k. Match the bullets you know against these numbers to see at once whether you are in danger."
+      },
+      {
+        "tag": "INTEL",
+        "title": "Public inspection is cheap but helps everyone",
+        "body": "A 1-credit public inspection gives your rivals the same information. If it shows that you are the one in danger, nobody else has a reason to turn the muzzle for you. For chambers tied to your own seat, paying 2 credits to look privately is safer."
+      },
+      {
+        "tag": "TURN",
+        "title": "Turning the muzzle shifts every target by one",
+        "body": "One turn moves every chamber one player along. If you are in line to be hit, turn to escape; if you are already safe, spending your credits quickly can bring the shots forward before anyone turns it back."
+      },
+      {
+        "tag": "SWAP",
+        "title": "Be the one who fills the pool to 6",
+        "body": "Only the player who brings the pool to 6 chooses the swap. Paying 1–2 credits early may just set up someone else's swap. If it looks like others have been paying in, aim to be the one who completes it."
+      },
+      {
+        "tag": "DOUBT",
+        "title": "The older the intel, the less you should trust it",
+        "body": "A secret swap may have changed chambers you already saw, so at key moments it can be worth checking again. If you made the swap yourself, letting others rely on stale intel is your weapon."
+      },
+      {
+        "tag": "TIMING",
+        "title": "Spending credits decides when the shots come",
+        "body": "If you are sure you are safe, spend fast to bring the third player to zero sooner; if you are in danger, save credits to buy time for turns and swaps."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Russian Roulette?",
+        "a": "On the PUZZLTHINK Russian Roulette page, right in a desktop or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "Can I play alone?",
+        "a": "Yes. The AI game has you and five AI players, and you can choose easy, normal or hard AI."
+      },
+      {
+        "q": "How do I play with friends?",
+        "a": "Create a friend room and send the link or the 6-digit invite code. AI fills empty seats, and each turn in a friend room lasts 60 seconds."
+      },
+      {
+        "q": "Are the bullet positions really random?",
+        "a": "Yes. Each game loads two of the six chambers at random and starts the muzzle at a random player. After that, only players' turns and swaps change them."
+      },
+      {
+        "q": "Is it exactly the show's rules?",
+        "a": "It is inspired by the show's Russian roulette and tuned by PUZZLTHINK for playing on the web, so details may differ from the broadcast."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan or Netflix. Show titles are used only to describe the games. This game has nothing to do with real firearms."
+  },
+  "RussianJanggiGuide": {
+    "eyebrow": "RUSSIAN JANGGI GUIDE",
+    "title": "Russian Janggi online — cover, move and line up three on 3×3",
+    "intro": "Russian Janggi is tic-tac-toe with pieces of different sizes. A bigger piece can cover a smaller one like a cup, and pieces already on the board can move to another square, so the board can flip until the very last move. The name comes from pieces nesting like matryoshka dolls, and the rules belong to the same family as the board game Gobblet Gobblers. Enjoy a fast battle of wits against AI or friends on PUZZLTHINK.",
+    "rulesTitle": "Basic rules",
+    "rules": [
+      "Two players take turns on a 3×3 board.",
+      "Each player starts with two large, two medium and two small pieces in hand.",
+      "On your turn, either place a piece from your hand, or move one of your pieces that is showing on top to another square.",
+      "A piece can go on an empty square or over any smaller piece, yours or your opponent's. Pieces of the same size cannot cover each other.",
+      "Three of your pieces showing on top in a row, column or diagonal wins. Covered pieces do not count.",
+      "Moving a piece reveals whatever was under it. If that reveals your opponent's line, they win — even if you complete a line of your own at the same moment.",
+      "Each turn lasts 10 seconds (the AI game can turn the timer off). If you run out of time or cannot move, the turn passes; after 80 moves the game is a draw."
+    ],
+    "specialTitle": "Moments that are easy to misread",
+    "special": [
+      {
+        "title": "A covered piece has not gone anywhere",
+        "body": "A covered piece is hidden but still on the board. When the piece above it leaves, it shows again and can form a line again. Remembering whose piece sits under each square is half the skill."
+      },
+      {
+        "title": "Moving can open your opponent's line",
+        "body": "If your large piece is sitting on an opponent's small piece to block their line, moving it brings that line back and you lose on the spot. Always check what is underneath before you lift a piece."
+      },
+      {
+        "title": "A large piece is an unbreakable lid",
+        "body": "Nothing can cover a large piece. Once placed, it holds that square until its owner moves it."
+      },
+      {
+        "title": "Pieces left in hand are information too",
+        "body": "If your opponent still holds a large piece, your medium piece can be covered. Keep an eye on both players' hands on screen."
+      }
+    ],
+    "strategyTitle": "Strategy — a small board with deep play",
+    "strategyIntro": "There are only nine squares, but covering and moving create plenty of options. Here are common ideas.",
+    "strategies": [
+      {
+        "tag": "FIRST",
+        "title": "The center and the value of large pieces",
+        "body": "The center square sits on four lines (row, column and both diagonals). Opening with a large piece in the center claims a spot nobody can cover. In simulated AI games the first player won about 58% to 42%."
+      },
+      {
+        "tag": "SAVE",
+        "title": "Keep a large piece for the finish",
+        "body": "If you spend both large pieces early, you have nothing to cover back when your opponent covers your small piece with a medium one. Keep one large piece to block a line or to cover your way to a win."
+      },
+      {
+        "tag": "FORK",
+        "title": "Threaten two lines at once",
+        "body": "If one move gives you two pieces on two different lines, your opponent can block only one. Holding a corner and the center makes these forks easier."
+      },
+      {
+        "tag": "MEMORY",
+        "title": "Remember who covered whom",
+        "body": "Knowing what is covered tells you which pieces your opponent cannot safely move. Their own piece that is blocking their line becomes a chain they cannot lift."
+      },
+      {
+        "tag": "COVER",
+        "title": "Cover rather than block",
+        "body": "When your opponent nearly has a line, covering one of its pieces with a bigger piece is often stronger than filling the empty square, because you break their line and build your own at once."
+      },
+      {
+        "tag": "TIME",
+        "title": "What to check in 10 seconds",
+        "body": "1) Can your opponent win next move? 2) Can you win now? 3) What is under the piece you want to move? Checking just these three cuts most mistakes."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Russian Janggi?",
+        "a": "On the PUZZLTHINK Russian Janggi page, right in a desktop or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "Is it the same as Gobblet Gobblers?",
+        "a": "It belongs to the same family: pieces of different sizes cover and move to make three in a row. PUZZLTHINK uses two pieces of each size per player and a 10-second turn."
+      },
+      {
+        "q": "Can it end in a draw?",
+        "a": "Pieces can keep moving back and forth, so the game is a draw after 80 moves. It is also a draw when neither player can move."
+      },
+      {
+        "q": "Does going first help?",
+        "a": "A little, because the first player can take the center. In the AI game you can choose who goes first: you, the AI, or random."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with the makers of Gobblet Gobblers or any broadcaster. Game names are used only to describe the rules.",
+    "tutorial": [
+      {
+        "label": "GOAL",
+        "title": "Three of yours in a row",
+        "desc": "Win with three of your pieces showing on top in a row, column or diagonal."
+      },
+      {
+        "label": "PIECES",
+        "title": "Six pieces of three sizes",
+        "desc": "You start with two large, two medium and two small pieces. Size is power."
+      },
+      {
+        "label": "COVER",
+        "title": "Bigger covers smaller",
+        "desc": "You can cover any smaller piece, yours or your opponent's. Equal sizes cannot cover each other."
+      },
+      {
+        "label": "MOVE",
+        "title": "Place, or move",
+        "desc": "On your turn, place a piece from your hand or move one of your top pieces to another square."
+      },
+      {
+        "label": "CAREFUL",
+        "title": "Lifting reveals what is below",
+        "desc": "Moving a piece uncovers what was under it. If that completes your opponent's line, they win."
+      },
+      {
+        "label": "TIME",
+        "title": "10 seconds a turn",
+        "desc": "If you do not move in time, the turn passes. The AI game can turn the timer off."
+      }
+    ]
   }
 }
