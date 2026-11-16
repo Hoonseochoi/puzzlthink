@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: t('metaDescription'),
     keywords: t.raw('keywords') as string[],
     alternates: { canonical, languages: { ko: `${BASE_URL}/ko/janggi`, en: `${BASE_URL}/en/janggi` } },
-    openGraph: { title: `${t('metaTitle')} | PUZZLTHINK`, description: t('metaDescription'), url: canonical, siteName: 'PUZZLTHINK', type: 'website', images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630 }] },
+    openGraph: { title: `${t('metaTitle')} | PUZZLTHINK`, description: t('metaDescription'), url: canonical, siteName: 'PUZZLTHINK', type: 'website' },
   };
 }
 

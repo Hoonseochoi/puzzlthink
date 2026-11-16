@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t('metaTitle'), description: t('metaDescription'), keywords: t.raw('keywords') as string[],
     alternates: { canonical, languages: { ko: `${BASE_URL}/ko`, en: `${BASE_URL}/en`, 'x-default': `${BASE_URL}/ko` } },
-    openGraph: { title: t('metaTitle'), description: t('metaDescription'), url: canonical, siteName: 'PUZZLTHINK', type: 'website', images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630, alt: 'PUZZLTHINK online board games' }] },
+    openGraph: { title: t('metaTitle'), description: t('metaDescription'), url: canonical, siteName: 'PUZZLTHINK', type: 'website' },
   };
 }
 
