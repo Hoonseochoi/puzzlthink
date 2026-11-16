@@ -1118,7 +1118,8 @@
     "revealManipulation": "Reveal manipulation",
     "manipNone": "Nobody paid into manipulation this game.",
     "manipFund": "{player} paid +{amount} into manipulation (shared pool {pool}/{max})",
-    "manipSwap": "{player} triggered the swap · chambers {a}↔{b}"
+    "manipSwap": "{player} triggered the swap · chambers {a}↔{b} · pool reset to 0",
+    "manipLost": "{n} extra lost"
   },
   "RussianRouletteOnline": {
     "metaTitle": "Russian Roulette Friend Room",

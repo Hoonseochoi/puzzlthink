@@ -1126,7 +1126,8 @@
     "revealManipulation": "조작 확인하기",
     "manipNone": "이번 게임에서는 아무도 조작 크레딧을 내지 않았습니다.",
     "manipFund": "{player} 조작 크레딧 +{amount} (공동 누적 {pool}/{max})",
-    "manipSwap": "{player} 조작 실행 · {a}↔{b} 약실 교체"
+    "manipSwap": "{player} 조작 실행 · {a}↔{b} 약실 교체 · 공동 크레딧 0으로 초기화",
+    "manipLost": "초과 {n}개 소멸"
   },
   "RussianRouletteOnline": {
     "metaTitle": "러시안 룰렛 친구 방",

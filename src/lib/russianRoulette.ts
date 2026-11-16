@@ -8,7 +8,7 @@ export type RRShot = { chamber: number; target: number; fired: boolean };
 export const RR_MANIPULATE_AT = 6;
 /** Hidden from everyone until the shots are fired, then shown in the result's manipulation reveal. */
 export type RRManipEntry =
-  | { k: 'fund'; round: number; seat: number; amount: number; pool: number }
+  | { k: 'fund'; round: number; seat: number; amount: number; pool: number; lost?: number } // lost: overflow past 6, discarded
   | { k: 'swap'; round: number; seat: number; pair: number };
 export type RRLog =
   | { k: 'round'; round: number; start: number }
@@ -160,7 +160,7 @@ export function applyRRAction(game: RussianRoulette, seat: number, action: RRAct
     // empties and any excess is lost. Nobody else learns about it, so their intel silently goes stale.
     const pool = (game.pool ?? 0) + action.amount;
     const manipulation = game.manipulation.map((value, i) => i === seat ? value + action.amount : value);
-    let history = [...(game.manipHistory ?? []), { k: 'fund' as const, round: game.round, seat, amount: action.amount, pool: Math.min(pool, RR_MANIPULATE_AT) }];
+    let history = [...(game.manipHistory ?? []), { k: 'fund' as const, round: game.round, seat, amount: action.amount, pool: Math.min(pool, RR_MANIPULATE_AT), ...(pool > RR_MANIPULATE_AT ? { lost: pool - RR_MANIPULATE_AT } : {}) }];
     next = { ...next, manipulation, pool, log: pushLog(game.log, { k: 'manipulateFund', seat }) };
     if (pool >= RR_MANIPULATE_AT) {
       const [a, b] = pairCells(action.pair);

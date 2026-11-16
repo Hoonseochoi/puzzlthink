@@ -50,7 +50,7 @@ export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLa
             {manipHistory.length === 0 ? <li className="text-[11px] text-white/40">{t('manipNone')}</li> : manipHistory.map((entry, i) => <li key={i} className={`flex gap-2 text-[11px] leading-5 ${entry.k === 'swap' ? 'font-black text-[#ffcf58]' : 'text-white/60'}`}>
               <span className="shrink-0 font-mono text-[9px] leading-5 text-white/30">R{entry.round}</span>
               {entry.k === 'fund'
-                ? t('manipFund', { player: name(entry.seat), amount: entry.amount, pool: entry.pool, max: RR_MANIPULATE_AT })
+                ? `${t('manipFund', { player: name(entry.seat), amount: entry.amount, pool: entry.pool, max: RR_MANIPULATE_AT })}${entry.lost ? ` · ${t('manipLost', { n: entry.lost })}` : ''}`
                 : t('manipSwap', { player: name(entry.seat), a: letter(entry.pair), b: letter(entry.pair + 1) })}
             </li>)}
           </ol>}
