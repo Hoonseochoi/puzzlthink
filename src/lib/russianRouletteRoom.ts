@@ -89,6 +89,40 @@ export function reduceRussianRouletteRoom(state: RussianRouletteRoom, action: Ru
   return next ? bump(next) : null;
 }
 
+type RRSecret = { credits: number; manipulation: number; intel: (boolean | null)[]; rotation: number };
+
+/** What every guest receives: no bullet positions, no one's private intel, credits or turns of the muzzle. */
+export function redactRussianRoulette(state: RussianRouletteRoom): RussianRouletteRoom {
+  const g = state.game;
+  if (g.phase === 'finished') return state;
+  return {
+    ...state,
+    game: {
+      ...g,
+      chambers: Array(RR_PLAYERS).fill(false),
+      muzzle: g.baseMuzzle ?? 0,
+      rotations: Array(RR_PLAYERS).fill(0),
+      credits: g.credits.map((c) => (c === 0 ? 0 : 1)), // only "has credits left" is public
+      manipulation: Array(RR_PLAYERS).fill(0),
+      privateIntel: g.privateIntel.map((row) => row.map(() => null)),
+      log: g.log.map((e) => (e.k === 'manipulate' || e.k === 'rotate' ? { k: 'manipulateFund', seat: e.seat } : e)),
+    },
+  };
+}
+
+export function russianRouletteSecret(state: RussianRouletteRoom, seat: number): RRSecret {
+  const g = state.game;
+  return { credits: g.credits[seat], manipulation: g.manipulation[seat], intel: g.privateIntel[seat], rotation: g.rotations?.[seat] ?? 0 };
+}
+
+export function withRussianRouletteSecret(state: RussianRouletteRoom, secret: unknown, seat: number): RussianRouletteRoom {
+  const s = secret as RRSecret;
+  const g = state.game;
+  if (g.phase === 'finished' || !s || seat < 0 || seat >= RR_PLAYERS) return state;
+  const put = <T,>(list: T[], value: T) => list.map((v, i) => (i === seat ? value : v));
+  return { ...state, game: { ...g, credits: put(g.credits, s.credits), manipulation: put(g.manipulation, s.manipulation), privateIntel: put(g.privateIntel, s.intel), rotations: put(g.rotations ?? Array(RR_PLAYERS).fill(0), s.rotation) } };
+}
+
 export function russianRouletteAutoAction(state: RussianRouletteRoom): RussianRouletteRoomAction | null {
   return state.phase === 'playing' && state.ai[state.game.turn] ? { t: 'ai' } : null;
 }

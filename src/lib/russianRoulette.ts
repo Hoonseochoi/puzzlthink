@@ -22,7 +22,9 @@ export type RussianRoulette = {
   turn: number;
   remaining: number[];
   chambers: boolean[];
-  muzzle: number;
+  muzzle: number; // true muzzle (host only)
+  baseMuzzle?: number; // where everyone saw the muzzle at the start
+  rotations?: number[]; // steps each player turned it; rotation is a private action
   credits: number[];
   manipulation: number[];
   publicIntel: RRKnowledge[];
@@ -65,14 +67,21 @@ function loadChambers(random: () => number) {
 
 export function newRussianRoulette(random: () => number = Math.random): RussianRoulette {
   const start = 0;
+  const muzzle = Math.floor(random() * RR_PLAYERS);
   return {
     phase: 'playing', round: 1, roundStart: start, turn: start, remaining: orderFrom(start),
-    chambers: loadChambers(random), muzzle: Math.floor(random() * RR_PLAYERS),
+    chambers: loadChambers(random), muzzle, baseMuzzle: muzzle, rotations: Array(RR_PLAYERS).fill(0),
     credits: Array(RR_PLAYERS).fill(RR_START_CREDITS), manipulation: Array(RR_PLAYERS).fill(0),
     publicIntel: Array(RR_CHAMBERS).fill(null),
     privateIntel: Array.from({ length: RR_PLAYERS }, () => Array<RRKnowledge>(RR_CHAMBERS).fill(null)),
     hits: [], shots: [], log: [{ k: 'round', round: 1, start }],
   };
+}
+
+/** Where `seat` believes the muzzle points: the starting position plus only their own turns. */
+export function knownMuzzle(game: RussianRoulette, seat: number | null) {
+  if (game.phase === 'finished' || seat === null || game.baseMuzzle === undefined || !game.rotations) return game.muzzle;
+  return (game.baseMuzzle + (game.rotations[seat] ?? 0)) % RR_PLAYERS;
 }
 
 export function actionCost(action: RRAction) {
@@ -141,7 +150,8 @@ export function applyRRAction(game: RussianRoulette, seat: number, action: RRAct
     next = { ...next, privateIntel, log: pushLog(game.log, { k: 'privateInspect', seat }) };
   } else if (action.kind === 'rotate1' || action.kind === 'rotate2') {
     const steps = action.kind === 'rotate1' ? 1 : 2;
-    next = { ...next, muzzle: (game.muzzle + steps) % RR_PLAYERS, log: pushLog(game.log, { k: 'rotate', seat, steps }) };
+    const rotations = (game.rotations ?? Array(RR_PLAYERS).fill(0)).map((value, i) => i === seat ? value + steps : value);
+    next = { ...next, muzzle: (game.muzzle + steps) % RR_PLAYERS, rotations, log: pushLog(game.log, { k: 'rotate', seat, steps }) };
   } else {
     const total = game.manipulation[seat] + action.amount;
     if (total < 6) {
@@ -182,6 +192,7 @@ export function chooseRRAction(game: RussianRoulette, seat: number, level: 'easy
   unknownPairs.sort((a, b) => b.unknown - a.unknown || Math.random() - 0.5);
   const pair = unknownPairs[0].pair;
   const fund = game.manipulation[seat];
+  const muzzle = knownMuzzle(game, seat); // AI only knows its own turns too
 
   if (fund > 0 && credit > 0 && (fund >= 3 || level === 'hard')) {
     const amount = Math.min(3, credit) as 1 | 2 | 3;
@@ -190,8 +201,8 @@ export function chooseRRAction(game: RussianRoulette, seat: number, level: 'easy
   if (credit >= 3 && level !== 'easy' && Math.random() < (level === 'hard' ? 0.28 : 0.14)) {
     return { kind: 'manipulate', amount: Math.min(3, credit) as 1 | 2 | 3 };
   }
-  if (credit >= 4 && game.muzzle === seat && Math.random() < 0.72) return { kind: 'rotate2' };
-  if (credit >= 3 && game.muzzle === seat && Math.random() < 0.82) return { kind: 'rotate1' };
+  if (credit >= 4 && muzzle === seat && Math.random() < 0.72) return { kind: 'rotate2' };
+  if (credit >= 3 && muzzle === seat && Math.random() < 0.82) return { kind: 'rotate1' };
   if (credit >= 2 && unknownPairs[0].unknown > 0 && level !== 'easy' && Math.random() < 0.58) return { kind: 'privateInspect', pair };
   if (unknownPairs[0].unknown > 0 || credit < 3) return { kind: 'publicInspect', pair };
   if (credit >= 4 && Math.random() < 0.45) return { kind: 'rotate2' };

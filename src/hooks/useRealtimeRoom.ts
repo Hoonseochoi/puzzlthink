@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { getSupabase } from '@/lib/supabase';
 import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
+import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypto';
 
 /**
  * Host-authoritative room over Supabase Realtime (broadcast + presence).
@@ -22,6 +23,9 @@ export type RoomEngine<S extends BaseRoom, A> = {
   autoAction?: (state: S) => A | null; // host-run steps, e.g. AI seats (one per tick)
   autoDelay?: number; // minimum ms between a state change and the next auto step (slows AI tempo)
   redact?: (state: S) => S; // what guests may see (hide secret picks)
+  // Per-seat secrets, delivered end-to-end encrypted to that seat's browser only.
+  privateFor?: (state: S, seat: number) => unknown;
+  withPrivate?: (state: S, secret: unknown, seat: number) => S;
 };
 
 const CLIENT_KEY = 'puzzlthink_client_id';
@@ -60,13 +64,53 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   const joinedAt = useRef(0);
 
   const lastChange = useRef(0);
+  // Encrypted per-seat secrets (only used when the engine defines privateFor).
+  const keysRef = useRef<Promise<{ privateKey: CryptoKey; pub: string }> | null>(null);
+  const peerPubs = useRef(new Map<string, string>()); // peer id -> public key
+  const sharedKeys = useRef(new Map<string, Promise<CryptoKey>>()); // public key -> AES key
+  const publicRef = useRef<S | null>(null); // guest: last public state from the host
+  const secretRef = useRef<{ sid: string; seat: number; value: unknown } | null>(null); // guest: my decrypted secret
+
+  const keyFor = useCallback(async (pub: string) => {
+    const keys = await keysRef.current;
+    if (!keys) throw new Error('no keys');
+    let key = sharedKeys.current.get(pub);
+    if (!key) { key = deriveKey(keys.privateKey, pub); sharedKeys.current.set(pub, key); }
+    return key;
+  }, []);
+
+  const sendSecrets = useCallback((next: S) => {
+    if (!engine.privateFor || !keysRef.current || !meRef.current?.isHost) return;
+    const hostId = meRef.current.id;
+    next.seats.forEach((seat, index) => {
+      if (!seat || seat.id === hostId) return;
+      const pub = peerPubs.current.get(seat.id);
+      if (!pub) return;
+      const value = engine.privateFor!(next, index);
+      keyFor(pub).then((key) => seal(key, value)).then((box) => {
+        channelRef.current?.send({ type: 'broadcast', event: 'secret', payload: { to: seat.id, sid: next.sid, v: next.v, seat: index, ...box } });
+      }).catch(() => { /* peer key not usable */ });
+    });
+  }, [engine, keyFor]);
+
+  // Guest view = public state + my own secret (when it belongs to this game).
+  const showGuestView = useCallback(() => {
+    const pub = publicRef.current;
+    if (!pub) return;
+    const secret = secretRef.current;
+    const view = engine.withPrivate && secret && secret.sid === pub.sid ? engine.withPrivate(pub, secret.value, secret.seat) : pub;
+    stateRef.current = view;
+    setState(view);
+  }, [engine]);
+
   const commit = useCallback((next: S) => {
     stateRef.current = next;
     lastChange.current = Date.now();
     setState(next);
     write(stateKeyFor(engine.storage, code), JSON.stringify(next));
     channelRef.current?.send({ type: 'broadcast', event: 'state', payload: engine.redact ? engine.redact(next) : next });
-  }, [engine, code]);
+    sendSecrets(next);
+  }, [engine, code, sendSecrets]);
 
   const apply = useCallback((action: A, fromId: string) => {
     const current = stateRef.current;
@@ -89,6 +133,8 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
 
     const supabase = getSupabase();
     if (!supabase) { setStatus('unconfigured'); return; }
+    if (engine.privateFor && cryptoReady()) keysRef.current = makeKeyPair();
+    publicRef.current = null; secretRef.current = null;
 
     if (created && hostValue) {
       let saved: S | null = null;
@@ -102,38 +148,51 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     channelRef.current = channel;
 
     channel.on('presence', { event: 'sync' }, () => {
-      const presence = channel.presenceState<{ name: string; at: number; host: boolean }>();
+      const presence = channel.presenceState<{ name: string; at: number; host: boolean; pub?: string }>();
       const list: Peer[] = Object.entries(presence).map(([key, metas]) => ({ id: key, name: metas[0]?.name ?? '', at: metas[0]?.at ?? 0 }));
+      for (const [key, metas] of Object.entries(presence)) { const pub = metas[0]?.pub; if (pub) peerPubs.current.set(key, pub); }
+      const hostMeta = Object.entries(presence).find(([, metas]) => metas.some((meta) => meta.host));
+      if (hostMeta?.[1][0]?.pub) peerPubs.current.set('__host__', hostMeta[1][0].pub);
       setPeers(list);
       setHostOnline(Object.values(presence).some((metas) => metas.some((meta) => meta.host)));
       if (meRef.current?.isHost && stateRef.current) {
         const next = engine.syncSeats(stateRef.current, list);
-        if (next !== stateRef.current) commit(next);
+        if (next !== stateRef.current) commit(next); else sendSecrets(next);
       }
     });
     channel.on('broadcast', { event: 'state' }, ({ payload }) => {
       if (meRef.current?.isHost) return;
       const incoming = payload as S;
-      const current = stateRef.current;
-      if (!current || incoming.sid !== current.sid || incoming.v >= current.v) { stateRef.current = incoming; setState(incoming); }
+      const current = publicRef.current;
+      if (!current || incoming.sid !== current.sid || incoming.v >= current.v) { publicRef.current = incoming; showGuestView(); }
+    });
+    channel.on('broadcast', { event: 'secret' }, ({ payload }) => {
+      if (meRef.current?.isHost || payload?.to !== meRef.current?.id) return;
+      const hostPub = peerPubs.current.get('__host__');
+      if (!hostPub) return;
+      keyFor(hostPub).then((key) => open(key, payload)).then((value) => {
+        secretRef.current = { sid: payload.sid, seat: payload.seat, value };
+        showGuestView();
+      }).catch(() => { /* not for this key */ });
     });
     channel.on('broadcast', { event: 'action' }, ({ payload }) => {
       if (meRef.current?.isHost) apply(payload.action as A, payload.from as string);
     });
     channel.on('broadcast', { event: 'hello' }, () => {
-      if (meRef.current?.isHost && stateRef.current) channel.send({ type: 'broadcast', event: 'state', payload: engine.redact ? engine.redact(stateRef.current) : stateRef.current });
+      if (meRef.current?.isHost && stateRef.current) { channel.send({ type: 'broadcast', event: 'state', payload: engine.redact ? engine.redact(stateRef.current) : stateRef.current }); sendSecrets(stateRef.current); }
     });
 
     channel.subscribe(async (result) => {
       if (result === 'SUBSCRIBED') {
         setStatus('online');
-        await channel.track({ name: identity.name, at: joinedAt.current, host: identity.isHost });
+        const pub = keysRef.current ? (await keysRef.current.catch(() => null))?.pub : undefined;
+        await channel.track({ name: identity.name, at: joinedAt.current, host: identity.isHost, ...(pub ? { pub } : {}) });
         if (!identity.isHost) channel.send({ type: 'broadcast', event: 'hello', payload: {} });
       } else if (result === 'CHANNEL_ERROR' || result === 'TIMED_OUT') setStatus('error');
     });
 
     return () => { channelRef.current = null; supabase.removeChannel(channel); };
-  }, [engine, code, defaultName, apply, commit]);
+  }, [engine, code, defaultName, apply, commit, sendSecrets, showGuestView, keyFor]);
 
   // The host enforces the turn limit for everyone.
   useEffect(() => {
@@ -162,7 +221,8 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     write(NAME_KEY, trimmed);
     meRef.current = { ...identity, name: trimmed };
     setMe(meRef.current);
-    channelRef.current?.track({ name: trimmed, at: joinedAt.current, host: identity.isHost });
+    const keys = keysRef.current;
+    (keys ? keys.then((k) => k.pub, () => undefined) : Promise.resolve(undefined)).then((pub) => channelRef.current?.track({ name: trimmed, at: joinedAt.current, host: identity.isHost, ...(pub ? { pub } : {}) }));
   }, []);
 
   const mySeat = state && me ? seatOf(state, me.id) : null;

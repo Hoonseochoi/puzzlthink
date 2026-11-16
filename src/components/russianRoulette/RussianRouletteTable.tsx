@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, ChevronRight, Coins, Eye, EyeOff, LockKeyhole, RefreshCw, RotateCw, ShieldQuestion, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { RRAction } from '@/lib/russianRoulette';
+import { type RRAction, knownMuzzle } from '@/lib/russianRoulette';
 import type { RussianRouletteRoom, RussianRouletteRoomAction } from '@/lib/russianRouletteRoom';
 import { playCylinderSpin, unlockGameAudio } from '@/lib/gameAudio';
 import RouletteCharacter from './RouletteCharacter';
@@ -25,10 +25,12 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
   const [amount, setAmount] = useState<1 | 2 | 3>(1);
   const [suspected, setSuspected] = useState<number[]>([]);
   const game = room.game;
-  const previousMuzzle = useRef(game.muzzle);
+  // Each player only sees their own turns of the muzzle.
+  const viewMuzzle = knownMuzzle(game, mySeat);
+  const previousMuzzle = useRef(viewMuzzle);
   // Muzzle pointer angle only ever grows (always turns clockwise); each turn also spins the cylinder once.
-  const [spinView, setSpinView] = useState({ muzzle: game.muzzle, angle: game.muzzle * 60, spins: 0 });
-  if (spinView.muzzle !== game.muzzle) setSpinView((v) => ({ muzzle: game.muzzle, angle: v.angle + ((game.muzzle - v.muzzle + 6) % 6) * 60, spins: v.spins + 1 }));
+  const [spinView, setSpinView] = useState({ muzzle: viewMuzzle, angle: viewMuzzle * 60, spins: 0 });
+  if (spinView.muzzle !== viewMuzzle) setSpinView((v) => ({ muzzle: viewMuzzle, angle: v.angle + ((viewMuzzle - v.muzzle + 6) % 6) * 60, spins: v.spins + 1 }));
   const myTurn = mySeat !== null && game.phase === 'playing' && game.turn === mySeat && !room.ai[mySeat];
   const myCredits = mySeat === null ? null : game.credits[mySeat];
   const myFund = mySeat === null ? 0 : game.manipulation[mySeat];
@@ -38,11 +40,11 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
 
   // Speech bubble over whoever just acted: public inspections say which chambers, everything else stays secret.
   const [bubble, setBubble] = useState<{ seat: number; text: string; id: number } | null>(null);
-  const creditTotal = game.credits.reduce((a, b) => a + b, 0);
-  const previousTotal = useRef(creditTotal);
+  const actionKey = JSON.stringify(game.log.slice(0, 2));
+  const previousKey = useRef(actionKey);
   useEffect(() => {
-    if (previousTotal.current === creditTotal) return;
-    previousTotal.current = creditTotal;
+    if (previousKey.current === actionKey) return;
+    previousKey.current = actionKey;
     const entry = game.log.find((e) => e.k !== 'round' && e.k !== 'pass' && e.k !== 'fire');
     if (!entry || !('seat' in entry)) return;
     const text = entry.k === 'publicInspect' ? t('bubblePublic', { a: LETTERS[entry.pair], b: LETTERS[(entry.pair + 1) % 6] }) : t('bubbleSecret');
@@ -50,12 +52,12 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
     const show = window.setTimeout(() => setBubble({ seat: entry.seat, text, id }), 0);
     const hide = window.setTimeout(() => setBubble((current) => current?.id === id ? null : current), 2300);
     return () => { window.clearTimeout(show); window.clearTimeout(hide); };
-  }, [creditTotal, game.log, t]);
+  }, [actionKey, game.log, t]);
 
   useEffect(() => {
-    if (previousMuzzle.current !== game.muzzle) playCylinderSpin();
-    previousMuzzle.current = game.muzzle;
-  }, [game.muzzle]);
+    if (previousMuzzle.current !== viewMuzzle) playCylinderSpin();
+    previousMuzzle.current = viewMuzzle;
+  }, [viewMuzzle]);
 
   const act = (action: RRAction) => { unlockGameAudio(); onAction({ t: 'act', action }); setPending(null); };
   const choosePair = (pair: number) => {
@@ -165,7 +167,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
           <div className="mt-3 space-y-2">{game.log.slice(0, 5).map((entry, index) => {
             const text = entry.k === 'round' ? t('logRound', { round: entry.round, player: playerName(entry.start) })
               : entry.k === 'publicInspect' ? t('logPublic', { player: playerName(entry.seat), a: LETTERS[entry.pair], b: LETTERS[(entry.pair + 1) % 6] })
-                : entry.k === 'rotate' ? t('logRotate', { player: playerName(entry.seat), n: entry.steps })
+                : entry.k === 'rotate' && entry.seat === mySeat ? t('logRotate', { player: playerName(entry.seat), n: entry.steps })
                   : entry.k === 'pass' ? t('logPass', { player: playerName(entry.seat) })
                     : entry.k === 'fire' ? `${LETTERS[entry.chamber]} → ${playerName(entry.seat)} ${entry.fired ? '●' : '○'}`
                       : t('logSecret', { player: playerName(entry.seat) });
