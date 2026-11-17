@@ -1,6 +1,7 @@
 // Shared pieces for host-authoritative realtime rooms (WallGo, 12-janggi).
 export type Seat = { id: string; name: string } | null;
-export type Peer = { id: string; name: string; at: number };
+/** A browser in the room. `emote` is the latest quick reaction (ㅎㅇ, ㅇㅋ…) and when it was sent. */
+export type Peer = { id: string; name: string; at: number; emote?: string; emoteAt?: number };
 export type BaseRoom = { sid: string; v: number; seats: Seat[]; phase: string; deadline: number };
 
 /** Whether `text` is a room code: the 4-digit invite codes, or the older 6-character ones (old links keep working). */

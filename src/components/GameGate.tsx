@@ -2,10 +2,12 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { BookOpen, Bot, KeyRound, Link2, Loader2, Play, UserRound, UsersRound } from 'lucide-react';
+import { BookOpen, Bot, DoorOpen, KeyRound, Link2, Loader2, Play, RefreshCw, UserRound, UsersRound } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import type { GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
+import { type OpenRoomRow, listOpenRooms } from '@/lib/openRooms';
+import OpenRoomPanel from './OpenRoomPanel';
 import { GAME_MODES } from './gameModes';
 import { accentVars } from './ui/gameUi';
 import SupportLink from './SupportLink';
@@ -36,13 +38,48 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   const [creating, setCreating] = useState<string | null>(null); // label of the room being created
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState(false);
+  const [openRoom, setOpenRoom] = useState<{ code: string; variant: number } | null>(null);
+  const [openRooms, setOpenRooms] = useState<OpenRoomRow[] | null>(null);
+  const [listTick, setListTick] = useState(0);
+
+  // Open rooms waiting for players: refreshed every 10 s while the entry screen is showing.
+  useEffect(() => {
+    if (started || !modes.useRoom) return;
+    let alive = true;
+    const load = () => { if (document.visibilityState === 'visible') listOpenRooms(game).then((rows) => { if (alive) setOpenRooms(rows); }); };
+    load();
+    const timer = window.setInterval(load, 10_000);
+    return () => { alive = false; window.clearInterval(timer); };
+  }, [started, game, modes.useRoom, listTick]);
 
   useEffect(() => {
-    const sync = () => setStarted(window.location.hash === PLAY_HASH);
+    const sync = () => {
+      setStarted(window.location.hash === PLAY_HASH);
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('open');
+      setOpenRoom(code && isRoomCode(code) && window.location.hash === PLAY_HASH ? { code, variant: Number(params.get('v')) || 0 } : null);
+    };
     sync();
     window.addEventListener('popstate', sync);
     return () => window.removeEventListener('popstate', sync);
   }, []);
+
+  /** Solo play query for an open room's variant (e.g. WallGo 1:1 vs 1:1:1). */
+  const playQuery = (variant: number) => modes.rooms[variant]?.play ?? modes.ai[0]?.query;
+  const enterOpenRoom = (code: string, variant: number) => {
+    const base = playQuery(variant);
+    start(`${base ? `${base}&` : ''}open=${code}&v=${variant}`);
+    setOpenRoom({ code, variant });
+  };
+  const createOpenRoom = async (variant: number) => {
+    const label = `open-${variant}`;
+    setCreating(label);
+    try {
+      const code = await modes.rooms[variant].create();
+      setCreating(null);
+      enterOpenRoom(code, variant);
+    } catch { setCreating(null); }
+  };
 
   const start = (query?: string) => {
     // The tutorial was just shown on this page, so the game should not pop it up again.
@@ -65,7 +102,10 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     router.push(`${modes.path}/room/${value}`);
   };
 
-  if (started) return <>{children}</>;
+  if (started) {
+    if (!openRoom) return <>{children}</>;
+    return <><div className="lg:pl-[272px]">{children}</div><OpenRoomPanel game={game} code={openRoom.code} variant={openRoom.variant} /></>;
+  }
 
   const dark = tone === 'dark';
   const card = `rounded-[14px] border p-4 sm:p-5 ${dark ? 'border-white/10 bg-[#121217]/85' : 'border-black/10 bg-white/70'}`;
@@ -120,6 +160,42 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
               </section>
             )}
           </div>
+
+          {/* Open rooms: anyone can join; play solo while it fills, the host starts whenever ready. */}
+          {modes.useRoom && (
+            <section className={`${card} mt-3`}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="flex items-center gap-2 text-base font-black"><DoorOpen size={17} className="text-(--accent)" />{t('openTitle')}</h3>
+                  <p className={`mt-1 text-xs leading-5 ${muted}`}>{t('openDesc')}</p>
+                </div>
+                <button type="button" onClick={() => setListTick((n) => n + 1)} className={`shrink-0 rounded-md p-2 ${muted} hover:text-(--accent)`} aria-label={t('openRefresh')}><RefreshCw size={15} /></button>
+              </div>
+              <div className="mt-4 space-y-2">
+                {openRooms === null ? <p className={`flex items-center gap-2 text-xs ${muted}`}><Loader2 size={13} className="animate-spin" />{t('openLoading')}</p>
+                  : openRooms.length === 0 ? <p className={`rounded-md border border-dashed px-3 py-3 text-center text-xs ${dark ? 'border-white/15' : 'border-black/15'} ${muted}`}>{t('openEmpty')}</p>
+                    : openRooms.map((room) => {
+                      const full = room.players >= room.capacity;
+                      return (
+                        <div key={room.code} className={`flex items-center gap-3 rounded-md border px-3 py-2.5 ${dark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white'}`}>
+                          <span className="font-mono text-xs font-black text-(--accent)">{room.code}</span>
+                          <span className="min-w-0 flex-1 truncate text-sm font-bold">{t('openHost', { name: room.host })}{modes.rooms.length > 1 && modes.rooms[room.variant] ? ` · ${t(modes.rooms[room.variant].label)}` : ''}</span>
+                          <span className={`font-mono text-xs font-bold ${muted}`}>{room.players}/{room.capacity}</span>
+                          <button type="button" disabled={full} onClick={() => enterOpenRoom(room.code, room.variant)} className={`${primary} !px-3 !py-1.5 text-xs disabled:opacity-40`}>{full ? t('openFull') : t('openJoin')}</button>
+                        </div>
+                      );
+                    })}
+              </div>
+              <div className={`mt-4 grid gap-2 ${modes.rooms.length > 1 ? 'sm:grid-cols-2' : ''}`}>
+                {modes.rooms.map((room, variant) => (
+                  <button key={room.label} type="button" disabled={creating !== null} onClick={() => createOpenRoom(variant)} className={secondary}>
+                    {creating === `open-${variant}` ? <Loader2 size={15} className="animate-spin" /> : <DoorOpen size={15} />}
+                    {creating === `open-${variant}` ? t('creating') : modes.rooms.length > 1 ? t('openCreateFor', { label: t(room.label) }) : t('openCreate')}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
           {tutorial && <a href="#how-to-play" className={`mt-4 inline-flex items-center gap-2 text-sm font-bold underline-offset-4 hover:underline ${muted}`}><BookOpen size={15} />{t('howToPlay')}</a>}
         </div>

@@ -11,6 +11,7 @@ import type { LogEntry } from '@/lib/wallgoRoom';
 import { useWallGoRoom } from '@/hooks/useWallGoRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from './RoomAlerts';
+import RoomEmotes from '@/components/RoomEmotes';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
@@ -26,7 +27,7 @@ export default function WallGoRoom({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useWallGoRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useWallGoRoom(code, defaultName);
   const [selectedPieceId, setSelectedPieceId] = useState<string | null>(null);
   const [pendingBreak, setPendingBreak] = useState<string | null>(null); // wall picked to knock down before moving
   const [now, setNow] = useState(() => Date.now());
@@ -109,6 +110,7 @@ export default function WallGoRoom({ code }: { code: string }) {
     <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ backgroundImage: FOG }}>
       <Shards />
       <RoomAlerts alerts={alerts} accent="#ff4d5e" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
+      <RoomEmotes peers={peers} onEmote={emote} />
       <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/wallgo" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">{tc('wallgo')}</span></Link>

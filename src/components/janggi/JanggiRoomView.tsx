@@ -11,6 +11,7 @@ import { TURN_OPTIONS } from '@/lib/janggiRoom';
 import { useJanggiRoom } from '@/hooks/useJanggiRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
+import RoomEmotes from '@/components/RoomEmotes';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiPiece from './JanggiPiece';
@@ -29,7 +30,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useJanggiRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useJanggiRoom(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -89,7 +90,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={{ ...accentVars(GOLD, '#1a1408'), backgroundImage: JANGGI_FOG }}>
       <WallGoShards tint="#4a3812" />
-      <RoomAlerts alerts={alerts} accent={GOLD} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
+      <RoomAlerts alerts={alerts} accent={GOLD} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
       <GameHeader backHref="/janggi" backLabel={tc('janggi')} title="十二將棋" titleClass={hanjaFont.className} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>

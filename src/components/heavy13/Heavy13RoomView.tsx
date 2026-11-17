@@ -11,6 +11,7 @@ import { H13_PLAYER_OPTIONS, H13_TURN_OPTIONS, redactH13 } from '@/lib/heavy13Ro
 import { useHeavy13Room } from '@/hooks/useHeavy13Room';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
+import RoomEmotes from '@/components/RoomEmotes';
 import AwayBanner from '../ui/AwayBanner';
 import { reportGame } from '@/lib/stats';
 import { ranking } from '@/lib/heavy13';
@@ -30,7 +31,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
   const to = useTranslations('Heavy13Online');
   const locale = useLocale();
   const [defaultName] = useState(() => `${to('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useHeavy13Room(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useHeavy13Room(code, defaultName);
   const [shareUrl, setShareUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -76,7 +77,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={H_ROOT_STYLE}>
       <WallGoShards tint={SHARD_TINT} />
-      <RoomAlerts alerts={alerts} accent={SAND} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
+      <RoomAlerts alerts={alerts} accent={SAND} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
       <GameHeader backHref="/heavy13" backLabel={t('title')} title={t('title')} subtitle={`ONLINE · ${code.toUpperCase()}`}>
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
         <BugReport /><LanguageSwitcher compact dark />

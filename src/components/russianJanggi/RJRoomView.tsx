@@ -11,6 +11,7 @@ import { useRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { reportGame } from '@/lib/stats';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
+import RoomEmotes from '@/components/RoomEmotes';
 import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
@@ -28,7 +29,7 @@ export default function RJRoomView({ code }: { code: string }) {
   const tg = useTranslations('RussianJanggi');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useRussianJanggiRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useRussianJanggiRoom(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -102,7 +103,7 @@ export default function RJRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={RJ_ROOT}>
       <WallGoShards tint={RJ_SHARD} />
-      <RoomAlerts alerts={alerts} accent="#f2b84b" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
+      <RoomAlerts alerts={alerts} accent="#f2b84b" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
       <GameHeader backHref="/russian-janggi" backLabel={tg('title')} title={tg('title')} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
