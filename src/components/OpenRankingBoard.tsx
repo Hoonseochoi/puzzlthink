@@ -15,8 +15,8 @@ const GAMES: { id: GameId; color: string }[] = [
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 /**
- * Open-match ranking per game: the top 5 (names only for players who show themselves in the Hall of Fame)
- * and, for a signed-in player, the places just above and below theirs with names blurred.
+ * Open-match ranking per game: the top 5 and, for a signed-in player, the places just above and below
+ * theirs. Everyone appears under their current nickname.
  */
 export default function OpenRankingBoard() {
   const t = useTranslations('OpenRanking');
@@ -65,7 +65,7 @@ export default function OpenRankingBoard() {
                 <li key={i} className={`flex items-center gap-2.5 rounded-2xl px-3 py-2.5 ${row ? 'bg-white' : 'border border-dashed border-black/10'}`}>
                   <span className="w-7 text-center text-base font-black">{MEDALS[i] ?? i + 1}</span>
                   {row ? <>
-                    <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{row.nickname ?? <span className="select-none blur-[5px]">PLAYER</span>}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{row.nickname ?? 'Player'}</span>
                     <span className="shrink-0 font-mono text-[11px] font-black text-black/55">{wl(row)}</span>
                   </> : <span className="text-[11px] text-black/30">{t('empty')}</span>}
                 </li>
@@ -85,7 +85,7 @@ export default function OpenRankingBoard() {
                   {near.filter((row) => row.rank !== null).map((row) => (
                     <li key={`${row.rank}-${row.is_me}`} className={`flex items-center gap-2.5 rounded-2xl px-3 py-2.5 ${row.is_me ? 'text-white' : 'bg-white'}`} style={row.is_me ? { background: color } : undefined}>
                       <span className="w-7 text-center font-mono text-sm font-black">{row.rank}</span>
-                      <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{row.is_me ? t('me') : <span className="select-none blur-[5px]">PLAYER{row.rank}</span>}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{row.nickname ?? t('me')}{row.is_me ? ` (${t('me')})` : ''}</span>
                       <span className={`shrink-0 font-mono text-[11px] font-black ${row.is_me ? '' : 'text-black/55'}`}>{wl(row)}</span>
                     </li>
                   ))}

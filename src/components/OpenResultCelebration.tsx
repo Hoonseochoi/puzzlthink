@@ -12,7 +12,7 @@ const RANK_FROM = 3; // wins needed to appear in the open ranking
 
 /**
  * After a game against signed-in players: revenge success / failure, and for open matches the ranking
- * change with the places around me (other names blurred, only win/loss counts).
+ * change with the places around me (by nickname, with win/loss counts).
  */
 export default function OpenResultCelebration() {
   const t = useTranslations('OpenResult');
@@ -80,9 +80,7 @@ export default function OpenResultCelebration() {
                 {near.filter((row) => row.rank !== null).map((row) => (
                   <li key={`${row.rank}-${row.is_me}`} className={`flex items-center gap-3 rounded-xl px-3 py-2 ${row.is_me ? 'bg-[#ffd36e] text-[#2a2118]' : 'bg-white/[.05]'}`}>
                     <span className="w-8 font-mono text-sm font-black">{row.rank}</span>
-                    {row.is_me
-                      ? <span className="min-w-0 flex-1 truncate text-sm font-black">{t('me')}</span>
-                      : <span className="min-w-0 flex-1 select-none truncate text-sm font-bold blur-[5px]" aria-label={t('hidden')}>PLAYER{row.rank}</span>}
+                    <span className={`min-w-0 flex-1 truncate text-sm ${row.is_me ? 'font-black' : 'font-bold'}`}>{row.nickname ?? t('me')}{row.is_me ? ` (${t('me')})` : ''}</span>
                     <span className={`font-mono text-xs font-black ${row.is_me ? '' : 'text-white/70'}`}>{t('wl', { w: row.wins, l: row.losses })}</span>
                   </li>
                 ))}

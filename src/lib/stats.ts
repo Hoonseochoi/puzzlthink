@@ -25,7 +25,7 @@ let roomOpen = false;
 export function setRoomOpen(open: boolean) { roomOpen = open; }
 
 export const OPEN_RESULT_EVENT = 'puzzlthink:open-result';
-export type RankRow = { rank: number | null; wins: number; losses: number; draws: number; is_me: boolean };
+export type RankRow = { rank: number | null; nickname?: string | null; wins: number; losses: number; draws: number; is_me: boolean };
 export type OpenResultDetail = {
   game: GameId; result: GameResult; open: boolean;
   revenge: { status: 'success' | 'fail'; names: string[] } | null;
