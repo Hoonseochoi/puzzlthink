@@ -56,10 +56,10 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
       </div>
 
       {/* A wall of the games you can open a room for. */}
-      <div className="relative mt-4 grid grid-cols-5 gap-1.5 sm:mt-6 sm:gap-2.5">
+      <div className="relative mt-4 grid grid-cols-6 gap-1.5 sm:mt-6 sm:gap-2">
         {ROOM_GAMES.map((game) => (
           <div key={game.id} className="relative aspect-square overflow-hidden rounded-lg bg-white/[.06] ring-1 ring-white/10 sm:rounded-xl" title={tc(game.id)}>
-            <div className="absolute left-0 top-0 flex h-[300px] w-[300px] origin-top-left scale-[.2] items-center justify-center min-[400px]:scale-[.21] sm:scale-[.29] md:scale-[.18] lg:scale-[.27]">{previews[game.id]}</div>
+            <div className="absolute left-0 top-0 flex h-[300px] w-[300px] origin-top-left scale-[.165] items-center justify-center min-[400px]:scale-[.18] sm:scale-[.25] md:scale-[.15] lg:scale-[.22]">{previews[game.id]}</div>
           </div>
         ))}
       </div>

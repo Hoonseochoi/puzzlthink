@@ -255,9 +255,11 @@
     "modeBw2Friend": "친구와 1:1",
     "modeBw2FriendDesc": "링크·초대코드",
     "piggyBankDescription": "저금통에 넣은 동전을 기억하세요. 틀린 대답은 의심해서 점수를 빼앗아요.",
-    "piggyBankMeta": "AI 3명과 4인전 · 기억·의심",
+    "piggyBankMeta": "AI·친구 4인전 · 기억·의심",
     "modePiggyAi": "AI와 4인전",
-    "modePiggyAiDesc": "쉬움 · 보통 · 어려움"
+    "modePiggyAiDesc": "쉬움 · 보통 · 어려움",
+    "modePiggyFriend": "친구와 하기",
+    "modePiggyFriendDesc": "2~4명 · 빈자리 AI"
   },
   "WallGo": {
     "metaTitle": "벽바둑 온라인 — 데블스 플랜 3 벽바둑 AI·친구 대전 무료",
@@ -1876,7 +1878,7 @@
         "pace": "한 판 5~10분 · 넣기 30초 · 대답 20초 · 의심 10초",
         "level": "AI 기억력 쉬움 · 보통 · 어려움",
         "ai": "4인전, 3단계 AI",
-        "friend": "친구전 준비 중",
+        "friend": "2~4명, 빈자리는 AI · 링크·초대코드",
         "rules": [
           "모두 흑1·백1이 든 저금통을 하나씩 아래칸에 받고, 선 플레이어는 위칸에 5번 저금통을 더 받습니다.",
           "내 차례에는 아래칸 저금통에 동전 1~5개를 넣고, 넣은 색과 개수를 공개한 뒤 원하는 사람에게 전달합니다. 내 위칸 저금통은 아래칸으로 내려옵니다.",
@@ -1958,7 +1960,9 @@
     "openLogin": "공개방은 로그인한 사람끼리만 만들고 참가할 수 있어요. 서로의 전적이 기록돼요.",
     "short_roomTwo": "1:1",
     "short_roomThree": "1:1:1",
-    "aiFour": "4인전 · AI 3명과"
+    "aiFour": "4인전 · AI 3명과",
+    "roomFour": "친구 방 만들기 (2~4명)",
+    "short_roomFour": "2~4명"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
