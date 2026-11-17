@@ -1,7 +1,7 @@
 import {
-  BW2_MAIN_POINTS, BW2_OVERTIME_POINTS, BW2_OVERTIME_ROUNDS, BW2_WIN_SCORE,
+  BW2_MAIN_POINTS, BW2_OVERTIME_POINTS,
   type BW2Color, type BW2Round, type BW2Side, type BW2Stage,
-  bw2ColorOf, bw2GaugeOf, bw2NextLeader, bw2Other, bw2ResolveRound, bw2ScoresOf, bw2StageRounds, bw2WinnerOf,
+  bw2ColorOf, bw2GaugeOf, bw2IsOver, bw2NextLeader, bw2Other, bw2ResolveRound, bw2RoundsLeft, bw2ScoresOf, bw2StageRounds, bw2WinnerOf,
 } from './blackWhite2';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
@@ -49,16 +49,6 @@ export const seatToBid = (state: BlackWhite2Room): BW2Side => {
   return state.lead ? bw2Other(leader) : leader;
 };
 
-function gameFinished(rounds: BW2Round[], stage: BW2Stage) {
-  const scores = bw2ScoresOf(rounds);
-  if (scores[0] >= BW2_WIN_SCORE || scores[1] >= BW2_WIN_SCORE) return true;
-  if (stage === 'main') {
-    const main = bw2StageRounds(rounds, 'main');
-    return main.length >= 9 && scores[0] !== scores[1];
-  }
-  return bw2StageRounds(rounds, 'overtime').length >= BW2_OVERTIME_ROUNDS;
-}
-
 function bid(state: BlackWhite2Room, seat: BW2Side, points: number, timeouts: [number, number]): BlackWhite2Room {
   const now = Date.now();
   const leader = bw2NextLeader(state.rounds, state.first);
@@ -71,7 +61,7 @@ function bid(state: BlackWhite2Room, seat: BW2Side, points: number, timeouts: [n
 
   const rounds = [...state.rounds, bw2ResolveRound(state.stage, leader, state.lead.bid, points, bank)];
   const base = { ...state, rounds, bank, gauges, lead: null, timeouts, resolvedAt: now, deadline: now + BW2_FLASH_MS + state.turnSec * 1000 };
-  if (gameFinished(rounds, state.stage)) {
+  if (bw2IsOver(rounds)) {
     return { ...base, phase: 'finished' as const, winner: bw2WinnerOf(rounds), reason: 'score' as const, deadline: 0 };
   }
 
@@ -115,7 +105,9 @@ export function reduceBlackWhite2Room(state: BlackWhite2Room, action: BlackWhite
       if (!isHost || state.phase !== 'playing' || Date.now() < state.deadline) break;
       const late = seatToBid(state);
       if (state.timeouts[late] >= 2) { next = { ...state, phase: 'finished', winner: bw2Other(late), reason: 'timeout', lead: null, deadline: 0 }; break; }
-      const points = Math.floor(Math.random() * (state.bank[late] + 1));
+      // An automatic bid: up to twice a fair share of what is left, never the whole bank at once.
+      const share = Math.ceil(state.bank[late] / bw2RoundsLeft(state.rounds, state.stage));
+      const points = Math.floor(Math.random() * (Math.min(state.bank[late], share * 2) + 1));
       next = bid(state, late, points, state.timeouts.map((value, index) => (index === late ? value + 1 : value)) as [number, number]);
       break;
     }
@@ -127,16 +119,18 @@ export function redactBlackWhite2(state: BlackWhite2Room): BlackWhite2Room {
   if (state.phase !== 'playing') return state;
   return {
     ...state,
-    rounds: state.rounds.map((round) => ({ ...round, bids: [BW2_HIDDEN, BW2_HIDDEN] })),
+    // Remaining points per round would give the exact bids away, so only the public gauges stay.
+    rounds: state.rounds.map((round) => ({ ...round, bids: [BW2_HIDDEN, BW2_HIDDEN], remainingAfter: [BW2_HIDDEN, BW2_HIDDEN] })),
     bank: [BW2_HIDDEN, BW2_HIDDEN],
     lead: state.lead ? { ...state.lead, bid: BW2_HIDDEN } : null,
   };
 }
 
-type BW2Secret = { bids: number[]; bank: number; lead: number | null };
+type BW2Secret = { bids: number[]; remaining: number[]; bank: number; lead: number | null };
 
 export const blackWhite2Secret = (state: BlackWhite2Room, seat: number): BW2Secret => ({
   bids: state.rounds.map((round) => round.bids[seat]),
+  remaining: state.rounds.map((round) => round.remainingAfter[seat]),
   bank: state.bank[seat],
   lead: state.lead?.side === seat ? state.lead.bid : null,
 });
@@ -149,7 +143,11 @@ export function withBlackWhite2Secret(state: BlackWhite2Room, secret: unknown, s
   return {
     ...state,
     bank,
-    rounds: state.rounds.map((round, index) => ({ ...round, bids: round.bids.map((bidValue, side) => (side === seat ? value.bids[index] : bidValue)) as [number, number] })),
+    rounds: state.rounds.map((round, index) => ({
+      ...round,
+      bids: round.bids.map((bidValue, side) => (side === seat ? value.bids[index] : bidValue)) as [number, number],
+      remainingAfter: round.remainingAfter.map((left, side) => (side === seat && Array.isArray(value.remaining) ? value.remaining[index] : left)) as [number, number],
+    })),
     lead: state.lead && state.lead.side === seat && value.lead !== null ? { ...state.lead, bid: value.lead } : state.lead,
   };
 }
