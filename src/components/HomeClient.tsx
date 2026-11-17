@@ -18,6 +18,8 @@ import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
 import VisitCounter from './VisitCounter';
+import { Pedestal } from './piggyBank/PiggyParts';
+import { preparePiggyRoom } from '@/hooks/usePiggyRoom';
 import OpenMatchCard from './OpenMatchCard';
 
 const MODE_BASE = 'flex flex-col items-center gap-0.5 rounded-2xl border px-2 py-2.5 text-center transition hover:-translate-y-0.5 sm:gap-1 sm:py-3';
@@ -47,13 +49,26 @@ function BlindGomokuPreview() {
   </div>;
 }
 
+/** The 돼지 저금통 table at 300×300: four stepped boxes with gold pigs around the clock. */
+export function PiggyBankArt() {
+  const box = (upper: number | null, lower: number | null, pos: string, active = false) => (
+    <div className={`absolute ${pos}`}><Pedestal small upper={upper} lower={lower} active={active} buzz={false} /></div>
+  );
+  return (
+    <div className="relative h-[300px] w-[300px] overflow-hidden rounded-[28px] border-4 border-[#17201e] shadow-2xl" style={{ background: 'radial-gradient(ellipse at 50% 45%, #4a5278 0%, #2b3150 55%, #181b2e 100%)' }}>
+      <div className="pointer-events-none absolute inset-0 opacity-[.18]" style={{ backgroundImage: 'radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 2px), radial-gradient(circle at 70% 60%, #fff 0 1px, transparent 2px)', backgroundSize: '38px 38px, 53px 53px' }} />
+      {box(1, 3, 'left-[100px] top-[4px]', true)}
+      {box(null, 4, 'left-[4px] top-[108px]')}
+      {box(null, 2, 'right-[4px] top-[108px]')}
+      {box(null, 5, 'left-[100px] bottom-[6px]')}
+      <div className="absolute left-1/2 top-1/2 flex h-[58px] w-[58px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] border-[#ffd84a] bg-[#1a1c2c] font-mono text-xl font-black text-white">10</div>
+      <span className="absolute left-[178px] top-[10px] rounded-lg bg-[#efe9ff] px-1.5 py-0.5 text-[11px] font-black text-[#2b2f4a] shadow">흑6</span>
+    </div>
+  );
+}
+
 function PiggyBankPreview() {
-  // Four players' gold pigs around the table, with the numbers on their sides.
-  const pig = (n: number, pos: string) => <span className={`absolute ${pos} flex h-[22%] w-[30%] items-center justify-center rounded-[50%] border-2 border-[#e0a91c] font-serif text-[10px] font-black text-[#3a2a06] shadow-lg sm:text-2xl`} style={{ background: 'radial-gradient(circle at 35% 30%, #fff6b0, #ffd84a 45%, #d99a12)' }}>{n}</span>;
-  return <div className="relative aspect-square w-full overflow-hidden rounded-xl border-[3px] border-[#17201e] shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:shadow-2xl" style={{ background: 'radial-gradient(ellipse at 50% 45%, #4a5278 0%, #2b3150 55%, #181b2e 100%)' }}>
-    {pig(1, 'left-[35%] top-[8%]')}{pig(5, 'left-[6%] top-[39%]')}{pig(3, 'right-[6%] top-[39%]')}{pig(4, 'left-[35%] bottom-[8%]')}
-    <span className="absolute left-1/2 top-1/2 flex h-[20%] w-[20%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#ffd84a] bg-[#1a1c2c] font-mono text-[9px] font-black text-white sm:text-xl">10</span>
-  </div>;
+  return <div className="relative h-24 w-24 sm:h-[300px] sm:w-[300px]"><div className="absolute left-0 top-0 origin-top-left scale-[.32] sm:scale-100"><PiggyBankArt /></div></div>;
 }
 
 function NemoCountPreview() {
@@ -157,7 +172,7 @@ export default function HomeClient() {
   return <main className="min-h-screen bg-[#f3f0e8] text-[#17201e]"><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
     <div className="mx-auto max-w-3xl text-center"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/50 backdrop-blur"><Sparkles size={12} className="text-[#ff6b4a]" /> {t('eyebrow')}</div><h1 className="text-balance break-keep text-[2.4rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-7xl sm:leading-[0.98]">{t('title1')}<br />{t('title2')}</h1><p className="mx-auto mt-4 max-w-xl break-keep text-sm leading-6 text-black/55 sm:mt-6 sm:text-base sm:leading-7">{t('description1')}<br className="hidden sm:block" /> {t('description2')}</p><VisitCounter /></div>
     <div className="mt-8 grid gap-3 sm:mt-12 sm:gap-5 md:grid-cols-2"><OpenMatchCard previews={{
-      nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, wallgo: <WallGoPreview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} />{games.map((game) => (
@@ -175,7 +190,10 @@ export default function HomeClient() {
         {game.illustration === 'piggyBank' && (
           <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <Link href="/piggy-bank" className={`${MODE_BUTTON} w-full`}><Bot size={15} className="text-[#e0a91c]" /><span className="text-sm font-black">{t('modePiggyAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modePiggyAiDesc')}</span></Link>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/piggy-bank" className={MODE_BUTTON}><Bot size={15} className="text-[#e0a91c]" /><span className="text-sm font-black">{t('modePiggyAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modePiggyAiDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/piggy-bank/room/${await preparePiggyRoom()}`)} className={`${MODE_BASE} border-[#e0a91c]/45 bg-[#fdf4dc] hover:border-[#e0a91c]`}><UsersRound size={15} className="text-[#e0a91c]" /><span className="text-sm font-black">{t('modePiggyFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modePiggyFriendDesc')}</span></button>
+            </div>
           </div>
         )}
         {game.illustration === 'nemoCount' && (

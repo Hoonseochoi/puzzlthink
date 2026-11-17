@@ -11,6 +11,7 @@ import { useNemoRoom } from '@/hooks/useNemoRoom';
 import { useLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { useBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 import { useBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
+import { preparePiggyRoom, usePiggyRoom } from '@/hooks/usePiggyRoom';
 import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
 import { prepareHeavy13Room } from '@/hooks/useHeavy13Room';
 import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
@@ -41,7 +42,7 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
-  piggyBank: { path: '/piggy-bank', ai: [{ label: 'aiFour' }], rooms: [] },
+  piggyBank: { path: '/piggy-bank', ai: [{ label: 'aiFour' }], rooms: [{ label: 'roomFour', create: preparePiggyRoom, openMin: 1 }], useRoom: usePiggyRoom },
   nemoCount: {
     path: '/nemo-count', solo: true,
     ai: [{ label: 'nemoChallenge', query: 'mode=challenge' }, { label: 'nemoPractice', query: 'mode=practice' }, { label: 'nemoTutorial', query: 'mode=tutorial' }],

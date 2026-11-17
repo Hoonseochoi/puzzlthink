@@ -248,9 +248,11 @@
     "modeBw2Friend": "Friend 1:1",
     "modeBw2FriendDesc": "Link or code",
     "piggyBankDescription": "Remember the coins dropped into each piggy bank — and doubt every wrong answer.",
-    "piggyBankMeta": "4 players vs 3 AI · memory & doubt",
+    "piggyBankMeta": "4 players vs AI or friends",
     "modePiggyAi": "4-player vs AI",
-    "modePiggyAiDesc": "Easy · Normal · Hard"
+    "modePiggyAiDesc": "Easy · Normal · Hard",
+    "modePiggyFriend": "With friends",
+    "modePiggyFriendDesc": "2–4, AI fills seats"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -1836,7 +1838,7 @@
         "pace": "5–10 minutes · put 30s · answer 20s · doubt 10s",
         "level": "AI memory: Easy · Normal · Hard",
         "ai": "4 players, three AI levels",
-        "friend": "Friend games coming soon",
+        "friend": "2–4 players, AI fills seats · link or code",
         "rules": [
           "Everyone gets a piggy bank holding 1 black and 1 white coin in their lower slot; the first player also gets bank 5 on top.",
           "On your turn put 1–5 coins in your lower bank, say what you put in, and hand it to anyone. Your top bank drops to the lower slot.",
@@ -1917,7 +1919,9 @@
     "openLogin": "Open rooms are for signed-in players only, so both sides keep their record.",
     "short_roomTwo": "1:1",
     "short_roomThree": "1:1:1",
-    "aiFour": "4 players · with 3 AI"
+    "aiFour": "4 players · with 3 AI",
+    "roomFour": "Create a room (2–4)",
+    "short_roomFour": "2–4"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
