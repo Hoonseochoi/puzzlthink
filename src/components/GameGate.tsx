@@ -183,7 +183,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                       return (
                         <div key={room.code} className={`flex items-center gap-3 rounded-md border px-3 py-2.5 ${dark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white'}`}>
                           <span className="font-mono text-xs font-black text-(--accent)">{room.code}</span>
-                          <span className="min-w-0 flex-1 truncate text-sm font-bold">{t('openHost', { name: room.host })}{modes.rooms.length > 1 && modes.rooms[room.variant] ? ` · ${t(modes.rooms[room.variant].label)}` : ''}</span>
+                          <span className="min-w-0 flex-1 truncate text-sm font-bold">{t('openHost', { name: room.host })}{modes.rooms.length > 1 && modes.rooms[room.variant] ? ` · ${t(`short_${modes.rooms[room.variant].label}`)}` : ''}</span>
                           <span className={`font-mono text-xs font-bold ${muted}`}>{room.players}/{room.capacity}</span>
                           <button type="button" disabled={full || !signedIn} onClick={() => enterOpenRoom(room.code, room.variant)} className={`${primary} !px-3 !py-1.5 text-xs disabled:opacity-40`}>{full ? t('openFull') : t('openJoin')}</button>
                         </div>
@@ -200,7 +200,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                 {modes.rooms.map((room, variant) => (
                   <button key={room.label} type="button" disabled={creating !== null || !signedIn} onClick={() => createOpenRoom(variant)} className={secondary}>
                     {creating === `open-${variant}` ? <Loader2 size={15} className="animate-spin" /> : <DoorOpen size={15} />}
-                    {creating === `open-${variant}` ? t('creating') : modes.rooms.length > 1 ? t('openCreateFor', { label: t(room.label) }) : t('openCreate')}
+                    {creating === `open-${variant}` ? t('creating') : modes.rooms.length > 1 ? t('openCreateFor', { label: t(`short_${room.label}`) }) : t('openCreate')}
                   </button>
                 ))}
               </div>

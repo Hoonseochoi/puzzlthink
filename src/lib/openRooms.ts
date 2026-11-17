@@ -30,6 +30,16 @@ export async function listOpenRooms(game: string): Promise<OpenRoomRow[]> {
   return error || !Array.isArray(data) ? [] : (data as OpenRoomRow[]);
 }
 
+export type OpenRoomAnyRow = OpenRoomRow & { game: string };
+
+/** Open rooms of every game (home page card). Null when the list could not be read. */
+export async function listAllOpenRooms(): Promise<OpenRoomAnyRow[] | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('open_room_list_all');
+  return error || !Array.isArray(data) ? null : (data as OpenRoomAnyRow[]);
+}
+
 export async function putOpenRoom(game: string, code: string, row: { variant: number; host: string; players: number; capacity: number }) {
   const supabase = getSupabase();
   const token = hostToken(game, code, true);

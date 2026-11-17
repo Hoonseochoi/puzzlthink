@@ -62,3 +62,10 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
   russianJanggi: { path: '/russian-janggi', ai: [{ label: 'aiPlay' }], rooms: [{ label: 'roomCreate', create: prepareRussianJanggiRoom }], useRoom: useRussianJanggiRoom },
   sudoku: { path: '/play', solo: true, ai: [{ label: 'soloPlay' }], rooms: [] },
 };
+
+/** Where an open room is played from: the game page in solo play with the waiting room open. */
+export function openRoomHref(game: GameId, code: string, variant: number) {
+  const modes = GAME_MODES[game];
+  const play = modes.rooms[variant]?.play ?? modes.ai[0]?.query;
+  return `${modes.path}?${play ? `${play}&` : ''}open=${code}&v=${variant}#play`;
+}
