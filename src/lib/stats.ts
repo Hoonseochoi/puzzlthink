@@ -14,6 +14,12 @@ export type HallEntry = { game: GameId; rank: number; nickname: string; avatar_u
 
 const reported = new Set<string>();
 
+/** AI/solo games opened beside a public waiting room are practice only, never part of records. */
+function isOpenRoomPractice() {
+  if (typeof window === 'undefined') return false;
+  return new URLSearchParams(window.location.search).has('open') && window.location.hash === '#play';
+}
+
 // Signed-in players met in the current friend/open room (their account ids). Friend results carry them
 // as `detail.vs`, so a player can later see their record against each opponent.
 let roomOpponents: { uid: string; name: string }[] = [];
@@ -61,6 +67,7 @@ async function insertResult(supabase: Supabase, userId: string, game: GameId, mo
  * Signed out: the game is kept as "pending" (latest one only) so signing in from the result screen still saves it.
  */
 export async function reportGame(key: string, game: GameId, mode: GameMode, result: GameResult, detail: Record<string, unknown> = {}, opts: { revealDelayMs?: number } = {}) {
+  if (isOpenRoomPractice()) return;
   if (reported.has(key)) return;
   reported.add(key);
   const opponents = mode === 'friend' ? roomOpponents : [];
