@@ -413,7 +413,7 @@
       },
       {
         "title": "5. Statistics that cannot identify you",
-        "body": "For everyone, we count visitors per day and plays per game and mode as plain numbers. These counts contain no name, email, IP address or anything else that identifies you. To avoid counting the same visit twice in a day, the date of your visit is stored in your browser. To show how many people are online right now, a randomly generated device identifier is connected to our real-time server (Supabase) while a page is open. It is not stored and disappears when you close the page."
+        "body": "For everyone, we count visitors per day and plays per game and mode as plain numbers. These counts contain no name, email, IP address or anything else that identifies you. To avoid counting the same visit twice in a day, the date of your visit is stored in your browser. To show how many people are online right now, a randomly generated device identifier and the time of your last visit are recorded in our database (Supabase) about every 45 seconds while a page is open. It cannot identify you and is deleted automatically 10 minutes after you leave."
       },
       {
         "title": "6. Playing with friends (real-time)",

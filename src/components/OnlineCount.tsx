@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { getSupabase } from '@/lib/supabase';
 
-const CHANNEL = 'site-online';
 const CLIENT_KEY = 'puzzlthink_client_id'; // shared with friend rooms: one id per browser
+const PING_MS = 45_000; // the server counts browsers seen in the last 90 s
 
 function browserId() {
   try {
@@ -17,8 +17,10 @@ function browserId() {
 
 /**
  * "지금 N명 접속 중": a small live count in the bottom-right corner of every page (site and installed
- * app). Each open browser joins one Supabase Realtime presence channel keyed by its browser id, so
- * several tabs of the same browser count once. Nothing is shown until the first count arrives.
+ * app). Each open, visible browser pings a tiny database function every 45 seconds; the count is the
+ * browsers seen in the last 90 seconds. No Realtime connection is used, so the free plan's Realtime
+ * connections stay free for friend rooms. Hidden tabs stop pinging and drop off. Nothing is shown until
+ * the first count arrives (or if the database function is missing).
  * It sits above a game entry screen's sticky start bar (marked data-gate-bar) when there is one.
  */
 export default function OnlineCount() {
@@ -28,10 +30,18 @@ export default function OnlineCount() {
   useEffect(() => {
     const supabase = getSupabase();
     if (!supabase) return;
-    const channel = supabase.channel(CHANNEL, { config: { presence: { key: browserId() } } });
-    channel.on('presence', { event: 'sync' }, () => setCount(Math.max(1, Object.keys(channel.presenceState()).length)));
-    channel.subscribe((status) => { if (status === 'SUBSCRIBED') channel.track({ at: Date.now() }); });
-    return () => { supabase.removeChannel(channel); };
+    const id = browserId();
+    let stopped = false;
+    const ping = async () => {
+      if (stopped || document.visibilityState !== 'visible') return;
+      const { data, error } = await supabase.rpc('online_ping', { p_id: id });
+      if (!stopped) setCount(error || typeof data !== 'number' ? null : Math.max(1, data));
+    };
+    ping();
+    const timer = window.setInterval(ping, PING_MS);
+    const onVisible = () => { if (document.visibilityState === 'visible') ping(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { stopped = true; window.clearInterval(timer); document.removeEventListener('visibilitychange', onVisible); };
   }, []);
 
   if (count === null) return null;
