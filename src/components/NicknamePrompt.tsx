@@ -29,8 +29,9 @@ function randomName(locale: string) {
 export default function NicknamePrompt() {
   const t = useTranslations('Nickname');
   const locale = useLocale();
-  const { user, nicknameSet, saveNickname } = useAuth();
-  const [draft, setDraft] = useState('');
+  const { user, nicknameSet, prefillNickname, saveNickname } = useAuth();
+  const [typed, setTyped] = useState<string | null>(null);
+  const draft = typed ?? prefillNickname ?? ''; // existing members start with their current name
   const [suggestion, setSuggestion] = useState(() => randomName(locale));
   const [taken, setTaken] = useState<string | null>(null); // the name found to be in use
   const [error, setError] = useState('');
@@ -72,7 +73,7 @@ export default function NicknamePrompt() {
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#17201e] text-[#ffd36e]"><UserRound size={26} /></span>
         <h2 id="nickname-title" className="mt-4 text-xl font-black">{t('title')}</h2>
         <p className="mt-1.5 break-keep text-xs leading-5 text-black/55">{t('desc')}</p>
-        <input autoFocus value={draft} maxLength={16} onChange={(event) => { setDraft(event.target.value); setError(''); }}
+        <input autoFocus value={draft} maxLength={16} onChange={(event) => { setTyped(event.target.value); setError(''); }}
           placeholder={suggestion} className="mt-4 w-full rounded-2xl border border-black/15 bg-white px-4 py-3 text-center text-base font-black outline-none placeholder:font-bold placeholder:text-black/30 focus:border-[#17201e]" />
         <p className="mt-1.5 text-[10px] text-black/40">{t('emptyHint')}</p>
         {isTaken && draft.trim() && <p className="mt-2 text-xs font-bold text-[#c2410c]">{t('taken')}</p>}
