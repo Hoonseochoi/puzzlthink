@@ -17,10 +17,9 @@ import { ADSENSE_CLIENT } from '@/lib/adsense';
 import { GA_ID } from '@/lib/analytics';
 import '../globals.css';
 
-// Search-console ownership tags: set the codes from Google Search Console / Naver Search Advisor in the
-// deploy environment (no code change needed when they change).
+// Search-console ownership tags. These codes are public (they sit in the page HTML); an env var overrides.
 const GOOGLE_VERIFY = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
-const NAVER_VERIFY = process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION;
+const NAVER_VERIFY = process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION || 'daac49e52f997a9e91b9d086787f073f54eb3b65'; // Naver Search Advisor (public value)
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.puzzlthink.com'),
