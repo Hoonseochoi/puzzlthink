@@ -7,7 +7,7 @@ import { type Chip, type Color, type LogEntry, CHIPS, COLORS, LIMIT, PLAYERS, RO
 import type { H13Action, H13Room } from '@/lib/heavy13Room';
 import { ChipToken, CubeStack, RockCard } from './Bits';
 import { STAND, SAND, SAND_INK } from './theme';
-import TurnDrawer from './TurnDrawer';
+import TurnDrawer from '../ui/TurnDrawer';
 import { BTN_ACCENT, DIAMOND, accentVars, HEADING, KICKER, PANEL, PANEL_TITLE, WELL, timer } from '../ui/gameUi';
 
 /** Everything on the table. `room` should already be the redacted view for this player. */

@@ -1309,7 +1309,10 @@
     "manipNone": "이번 게임에서는 아무도 조작 크레딧을 내지 않았습니다.",
     "manipFund": "{player} 조작 크레딧 +{amount} (공동 누적 {pool}/{max})",
     "manipSwap": "{player} 조작 실행 · {a}↔{b} 약실 교체 · 공동 크레딧 0으로 초기화",
-    "manipLost": "초과 {n}개 소멸"
+    "manipLost": "초과 {n}개 소멸",
+    "drawerHandle": "내 차례",
+    "drawerClose": "행동 창 접기",
+    "manipulateAmountHint": "넣을 크레딧을 고르면 창이 접혀요. 그다음 바꿀 두 칸을 실린더에서 누르세요."
   },
   "RussianRouletteOnline": {
     "metaTitle": "러시안 룰렛 친구 방",
