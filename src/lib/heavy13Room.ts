@@ -1,7 +1,7 @@
 // Room for 무거운 13: 7 seats, humans join by link, empty seats are filled with AI at start.
 import {
   type AiLevel, type Color, type Heavy13, type Submission, PLAYERS,
-  bestStand, chooseSubmission, newHeavy13, options, pass, place, placementDecision, submit,
+  bestStand, planSubmissions, newHeavy13, options, pass, place, placementDecision, submit,
 } from './heavy13';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
@@ -98,7 +98,9 @@ export function reduceH13Room(state: H13Room, action: H13Action, seat: number | 
       if (!isHost || state.phase !== 'playing') break;
       let g: Heavy13 | null = game;
       if (game.phase === 'submit') {
-        for (let s = 0; s < PLAYERS; s += 1) if (state.ai[s] && !g!.subs[s]) g = submit(g!, s, chooseSubmission(g!, s, state.aiLevel)) ?? g;
+        const seats = Array.from({ length: PLAYERS }, (_, s) => s).filter((s) => state.ai[s] && !game.subs[s]);
+        const subs = planSubmissions(game, seats, state.aiLevel);
+        seats.forEach((s, k) => { g = submit(g!, s, subs[k]) ?? g; });
         if (g === game) g = null;
       } else if (game.phase === 'place' && game.current !== null && state.ai[game.current]) {
         g = decide(game, game.current, state.aiLevel);
