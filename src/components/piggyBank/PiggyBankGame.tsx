@@ -7,7 +7,7 @@ import { CoinCount, CoinDot, GoldPig, Pedestal, TimerRing } from './PiggyParts';
 import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import {
   type Color, type Memory, type PbEvent, type PbLevel, type PbState, ANSWER_MS, DOUBT_MS, PB_MAX_PUT, PUT_MS, PB_WIN, RESET_VOTES,
-  aiAllIn, aiAnswer, aiDoubts, aiPut, allInGuess, answerCount, finishReset, answerTimeout, createPiggyBank, doubt, freshMemory, noDoubt, putCoins, ranking, remember, voteReset,
+  aiAllIn, aiAnswer, aiDoubts, aiPut, allInGuess, answerCount, finishReset, passDoubt, answerTimeout, createPiggyBank, doubt, freshMemory, noDoubt, putCoins, ranking, remember, voteReset,
 } from '@/lib/piggyBank';
 
 // Draft (not linked from the site yet): 돼지 저금통 against three AI players. Korean text only for now.
@@ -55,14 +55,14 @@ export default function PiggyBankGame() {
   }, []);
   const stateRef = useRef<PbState | null>(null);
   const memRef = useRef<Memory[]>([]);
-  const dueRef = useRef<{ seq: number; at: number; doubtAt: number[] }>({ seq: -1, at: 0, doubtAt: [] });
+  const dueRef = useRef<{ seq: number; at: number; doubtAt: number[]; last: PbEvent | null }>({ seq: -1, at: 0, doubtAt: [], last: null });
   const holdRef = useRef(0); // play pauses until then while a pig is opened or a challenge is shown
   const [holdUntil, setHoldUntil] = useState(0); // the same, for rendering
 
   const start = () => {
     const s = createPiggyBank(NAMES, [false, true, true, true]);
     stateRef.current = s; memRef.current = s.players.map(() => freshMemory(s));
-    dueRef.current = { seq: -1, at: 0, doubtAt: [] };
+    dueRef.current = { seq: -1, at: 0, doubtAt: [], last: null };
     holdRef.current = 0; setHoldUntil(0); setAllIn({});
     setState(s); setShownSeq(-1);
   };
@@ -76,7 +76,9 @@ export default function PiggyBankGame() {
       const s = stateRef.current;
       if (!s) return;
       const due = dueRef.current;
+      if (due.seq !== s.seq && s.last === due.last) due.seq = s.seq; // a pass only: AIs keep the timing they already chose
       if (due.seq !== s.seq) {
+        due.last = s.last;
         // New public event: every AI updates its memory, maybe votes to reset, and picks when to act.
         memRef.current = memRef.current.map((m, i) => (s.players[i].ai ? remember(m, s, level) : m));
         due.seq = s.seq;
@@ -88,7 +90,7 @@ export default function PiggyBankGame() {
         }
         const base = Math.max(t, holdRef.current);
         due.at = base + 1200 + Math.random() * 1600;
-        due.doubtAt = s.players.map(() => base + 700 + Math.random() * 3300); // within the 5-second window
+        due.doubtAt = s.players.map(() => base + 1200 + Math.random() * 5500); // AIs decide within the 10-second window
         if (s.last?.k === 'put') {
           for (let i = 1; i < s.players.length; i += 1) {
             const unsure = Object.values(memRef.current[i]).reduce((a, m) => a + m.unsure, 0);
@@ -108,8 +110,10 @@ export default function PiggyBankGame() {
         const a = s.answer!;
         for (let i = 1; i < s.players.length; i += 1) {
           if (i !== a.seat && t >= due.doubtAt[i] && due.doubtAt[i] > 0) {
-            due.doubtAt[i] = 0; // decide once
+            due.doubtAt[i] = 0; // decide once: doubt, or press "no doubt"
             if (aiDoubts(s, memRef.current[i])) { apply(doubt(s, i)); return; }
+            apply(passDoubt(stateRef.current!, i));
+            return;
           }
         }
         if (t >= s.deadline) apply(noDoubt(s));
@@ -153,7 +157,7 @@ export default function PiggyBankGame() {
   const event = shownSeq === s.seq && now - shownAt < (s.last?.k === 'put' ? PUT_SHOW_MS : SHOW_MS) ? s.last : null;
   const myPut = s.phase === 'put' && s.turn === ME;
   const myAnswer = s.phase === 'answer' && s.turn === ME;
-  const canDoubt = s.phase === 'doubt' && s.answer?.seat !== ME;
+  const canDoubt = s.phase === 'doubt' && s.answer?.seat !== ME && !s.passed.includes(ME);
   const myAllIn = s.phase === 'allIn' && s.allInSeats.includes(ME);
   const votes = s.players.filter((p) => p.resetVote).length;
   // Score pop-ups on the seats while a reveal is up.
@@ -204,6 +208,7 @@ export default function PiggyBankGame() {
                     <span className="max-w-[72px] truncate">{p.name}</span>
                     <span className="font-mono">{p.score}점</span>
                     {p.resetVote && <RotateCcw size={10} />}
+                    {s.phase === 'doubt' && s.passed.includes(seat) && <span className="rounded-full bg-white/15 px-1.5 text-[9px]">패스</span>}
                   </div>
                   {speaking && (
                     <span key={s.seq} className="bw-result absolute -top-1 right-0 z-10 translate-x-1/3 rounded-lg bg-[#efe9ff] px-2 py-1 text-xs font-black text-[#2b2f4a] shadow-lg sm:text-sm">
@@ -271,14 +276,10 @@ export default function PiggyBankGame() {
                 <p className="mt-2 text-center text-[10px] text-white/40">{ANSWER_MS / 1000}초 안에 대답하지 않으면 0개로 처리돼요</p>
               </div>
             ) : (
-              <div className="text-center">
-                <p className="min-h-5 text-sm">{s.phase === 'doubt' && s.answer ? <>{s.players[s.answer.seat].name}: “#{s.pigs[s.answer.pig]?.label} 속 {COLOR_KO[s.answer.color]} {s.answer.value}개”</> : <span className="text-xs text-white/45">공개되는 숫자를 기억하세요. 대답이 나오면 5초 동안 의심할 수 있어요.</span>}</p>
-                <button type="button" disabled={!canDoubt || revealing} onClick={() => apply(doubt(s, ME))}
-                  className={`mt-3 inline-flex items-center gap-2 rounded-md px-8 py-3.5 text-base font-black transition ${canDoubt && !revealing ? 'bg-[#ff4d6d] text-white shadow-[0_0_24px_rgba(255,77,109,.55)] hover:brightness-110' : 'cursor-not-allowed bg-white/[.06] text-white/30'}`}>
-                  <Hand size={18} />의심!{canDoubt && !revealing ? ` ${secs}` : ''}
-                </button>
-                <p className="mt-2 text-[10px] text-white/40">{canDoubt ? '성공 +1 / 실패 −1' : s.phase === 'doubt' ? '내 대답은 의심할 수 없어요' : '대답 직후 5초 동안만 눌러요'}</p>
-              </div>
+              <p className="py-3 text-center text-xs text-white/45">
+                {s.phase === 'doubt' && s.answer ? (s.answer.seat === ME ? '다른 사람들이 의심할지 고르는 중…' : s.passed.includes(ME) ? '의심 안 함 — 다른 사람을 기다리는 중…' : '의심할지 골라 주세요')
+                  : '공개되는 숫자를 기억하세요. 대답이 나오면 10초 동안 의심할 수 있어요.'}
+              </p>
             )}
           </div>
         </section>
@@ -296,7 +297,7 @@ export default function PiggyBankGame() {
                 '내 차례: 아래칸 저금통에 동전 1~5개(흑·백)를 넣고, 넣은 개수를 말한 뒤 원하는 사람에게 전달해요.',
                 '전달하면 내 위칸 저금통이 아래칸으로 내려와요.',
                 '받은 사람은 20초 안에 받은 저금통 속 지정 색(흑→백→흑…) 동전 개수를 말해요.',
-                '대답 직후 5초 동안만 의심 버튼이 켜져요. 의심하면 열어서 확인: 대답이 틀렸으면 의심한 사람 +1·대답한 사람 −1, 맞았으면 의심한 사람 −1.',
+                '대답이 나오면 10초 동안 의심 / 의심 안 함을 골라요. 모두 의심 안 함이면 바로 넘어가요. 의심하면 열어서 확인: 틀렸으면 의심한 사람 +1·대답한 사람 −1, 맞았으면 의심한 사람 −1.',
                 '연 저금통은 빠지고, 감점된 사람이 새 저금통(흑1·백1)을 받아 차례를 이어가요.',
                 `누군가 ${PB_WIN}점이 되면 끝나고, 점수 순으로 순위가 정해져요.`,
               ].map((r) => <li key={r} className="flex gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-(--accent)" /><span className="break-keep">{r}</span></li>)}
@@ -308,6 +309,27 @@ export default function PiggyBankGame() {
           </section>
         </aside>
       </main>
+
+      {/* Doubt window: after each answer, everyone else chooses "doubt" or "no doubt" within 10 seconds. */}
+      {canDoubt && !revealing && s.answer && (
+        <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center p-3 sm:inset-0 sm:items-center sm:bg-black/40">
+          <div className="hall-pop w-full max-w-sm rounded-[22px] border border-[#ff4d6d]/40 bg-[#1b1e33]/97 p-5 text-center shadow-[0_0_60px_rgba(255,77,109,.3)]">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-black tracking-[0.3em] text-[#ff8b96]">DOUBT?</p>
+              <span className={`rounded-md px-2 py-1 font-mono text-sm font-black ${secs <= 3 ? 'bg-[#ff3b5c] text-white' : 'bg-black/40'}`}>{secs}s</span>
+            </div>
+            <p className="mt-2 text-sm text-white/70">{s.players[s.answer.seat].name}의 대답</p>
+            <p className="mt-1 flex items-center justify-center gap-2 text-2xl font-black">
+              #{s.pigs[s.answer.pig]?.label} 속 <CoinDot color={s.answer.color} size={18} />{COLOR_KO[s.answer.color]} {s.answer.value}개
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => apply(passDoubt(s, ME))} className={`${BTN} py-3.5 text-sm`}>의심 안 함</button>
+              <button type="button" onClick={() => apply(doubt(s, ME))} className="flex items-center justify-center gap-2 rounded-md bg-[#ff4d6d] py-3.5 text-sm font-black text-white shadow-[0_0_20px_rgba(255,77,109,.5)] hover:brightness-110"><Hand size={16} />의심</button>
+            </div>
+            <p className="mt-2 text-[10px] text-white/40">대답이 틀렸으면 +1, 맞았으면 −1 · 모두 의심 안 함이면 바로 넘어가요</p>
+          </div>
+        </div>
+      )}
 
       {/* A doubted pig is opened in the middle of the table. */}
       {revealing && s.last?.k === 'doubt' && (() => {

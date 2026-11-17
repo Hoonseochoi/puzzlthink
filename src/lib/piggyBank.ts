@@ -14,7 +14,7 @@ export const PB_WIN = 5;
 export const PB_MAX_PUT = 5;
 export const ANSWER_MS = 20_000;
 export const PUT_MS = 30_000; // time to put coins and pick who gets the pig
-export const DOUBT_MS = 5_000; // the doubt window right after an answer
+export const DOUBT_MS = 10_000; // the doubt window right after an answer (ends early once everyone else passes)
 export const RESET_VOTES = 3;
 export const ALLIN_MS = 45_000; // time to fill in every pig before the reset
 
@@ -39,6 +39,7 @@ export type PbState = {
   phase: 'put' | 'answer' | 'doubt' | 'allIn' | 'finished';
   ask: Color; // colour asked next
   answer: { seat: number; pig: number; color: Color; value: number } | null;
+  passed: number[]; // seats that chose "no doubt" in the current window
   deadline: number;
   allInSeats: number[]; // non-voters who may still try the all-pigs guess before a reset
   resume: 'put' | 'answer' | 'doubt' | null; // where play continues after a reset
@@ -56,7 +57,7 @@ export function createPiggyBank(names: string[], ai: boolean[], now = Date.now()
   const order = [0, 1, 2, 3].sort(() => Math.random() - 0.5);
   let state: PbState = {
     players: names.map((name, i) => ({ name, ai: ai[i], score: 0, upper: null, lower: null, resetVote: false })),
-    pigs: {}, nextId: 1, nextLabel: 1, order, turn: order[0], phase: 'put', ask: 'black', answer: null,
+    pigs: {}, nextId: 1, nextLabel: 1, order, turn: order[0], phase: 'put', ask: 'black', answer: null, passed: [],
     deadline: 0, allInSeats: [], resume: null, last: null, seq: 0,
   };
   // Pigs 1–4 go under each player's table slot in turn order; pig 5 goes on the first player's table.
@@ -95,7 +96,7 @@ export function answerCount(state: PbState, seat: number, value: number, now = D
   const pigId = state.players[seat]?.upper;
   if (state.phase !== 'answer' || seat !== state.turn || pigId == null || !Number.isInteger(value) || value < 0) return null;
   const answer = { seat, pig: pigId, color: state.ask, value };
-  return bump({ ...state, phase: 'doubt', answer, deadline: now + DOUBT_MS }, { k: 'answer', ...answer });
+  return bump({ ...state, phase: 'doubt', answer, passed: [], deadline: now + DOUBT_MS }, { k: 'answer', ...answer });
 }
 
 /** Someone doubts the answer: the pig is opened and leaves the game. */
@@ -121,6 +122,15 @@ export function doubt(state: PbState, seat: number, now = Date.now()): PbState |
 export function noDoubt(state: PbState, now = Date.now()): PbState | null {
   if (state.phase !== 'doubt' || !state.answer) return null;
   return bump({ ...state, phase: 'put', ask: flip(state.answer.color), answer: null, deadline: now + PUT_MS }, { k: 'pass', seat: state.answer.seat });
+}
+
+/** A player chooses not to doubt. When everyone but the answerer has passed, play moves on at once. */
+export function passDoubt(state: PbState, seat: number, now = Date.now()): PbState | null {
+  const a = state.answer;
+  if (state.phase !== 'doubt' || !a || seat === a.seat || state.passed.includes(seat)) return null;
+  const passed = [...state.passed, seat];
+  const next = { ...state, passed, seq: state.seq + 1 };
+  return passed.length >= state.players.length - 1 ? noDoubt(next, now) : next;
 }
 
 /** Timed out answering: counts as answering 0 (others can still doubt it). */
