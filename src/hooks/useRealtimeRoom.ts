@@ -98,6 +98,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   const stateRef = useRef<S | null>(null);
   const meRef = useRef(me);
   const joinedAt = useRef(0);
+  const pubRef = useRef<string | undefined>(undefined);
 
   const lastChange = useRef(0);
   // Encrypted per-seat secrets (only used when the engine defines privateFor).
@@ -184,8 +185,8 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     channelRef.current = channel;
 
     channel.on('presence', { event: 'sync' }, () => {
-      const presence = channel.presenceState<{ name: string; at: number; host: boolean; pub?: string }>();
-      const list: Peer[] = Object.entries(presence).map(([key, metas]) => ({ id: key, name: metas[0]?.name ?? '', at: metas[0]?.at ?? 0 }));
+      const presence = channel.presenceState<{ name: string; at: number; host: boolean; pub?: string; emote?: string; emoteAt?: number }>();
+      const list: Peer[] = Object.entries(presence).map(([key, metas]) => ({ id: key, name: metas[0]?.name ?? '', at: metas[0]?.at ?? 0, emote: metas[0]?.emote, emoteAt: metas[0]?.emoteAt }));
       for (const [key, metas] of Object.entries(presence)) { const pub = metas[0]?.pub; if (pub) peerPubs.current.set(key, pub); }
       const hostMeta = Object.entries(presence).find(([, metas]) => metas.some((meta) => meta.host));
       if (hostMeta?.[1][0]?.pub) peerPubs.current.set('__host__', hostMeta[1][0].pub);
@@ -222,6 +223,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       if (result === 'SUBSCRIBED') {
         setStatus('online');
         const pub = keysRef.current ? (await keysRef.current.catch(() => null))?.pub : undefined;
+        pubRef.current = pub;
         await channel.track({ name: identity.name, at: joinedAt.current, host: identity.isHost, ...(pub ? { pub } : {}) });
         if (!identity.isHost) channel.send({ type: 'broadcast', event: 'hello', payload: {} });
       } else if (result === 'CHANNEL_ERROR' || result === 'TIMED_OUT') setStatus('error');
@@ -250,6 +252,17 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     else channelRef.current?.send({ type: 'broadcast', event: 'action', payload: { from: identity.id, action } });
   }, [apply]);
 
+  /** A quick reaction shown over this player's name for a few seconds (sent through presence, no chat log). */
+  const lastEmote = useRef(0);
+  const emote = useCallback((text: string) => {
+    const identity = meRef.current;
+    const now = Date.now();
+    if (!identity || now - lastEmote.current < 1500) return; // light rate limit keeps Realtime traffic small
+    lastEmote.current = now;
+    const pub = pubRef.current;
+    channelRef.current?.track({ name: identity.name, at: joinedAt.current, host: identity.isHost, ...(pub ? { pub } : {}), emote: text.slice(0, 4), emoteAt: now });
+  }, []);
+
   const rename = useCallback((name: string) => {
     const identity = meRef.current;
     const trimmed = name.trim().slice(0, 16);
@@ -262,7 +275,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   }, []);
 
   const mySeat = state && me ? seatOf(state, me.id) : null;
-  return { status, state, peers, hostOnline, me, mySeat, dispatch, rename };
+  return { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote };
 }
 
 /** Same engine, played entirely in this browser (solo vs AI). Seat 0 is the local player. */

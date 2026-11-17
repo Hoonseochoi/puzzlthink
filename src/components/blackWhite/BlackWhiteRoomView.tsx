@@ -6,6 +6,7 @@ import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, RotateCcw, Send, 
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
+import RoomEmotes from '@/components/RoomEmotes';
 import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
@@ -26,7 +27,7 @@ export default function BlackWhiteRoomView({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useBlackWhiteRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useBlackWhiteRoom(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -98,6 +99,7 @@ export default function BlackWhiteRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('180, 180, 190') }}>
       <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
+      <RoomEmotes peers={peers} onEmote={emote} />
       <GameHeader backHref="/black-white" backLabel={tc('blackWhite')} title={tb('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>

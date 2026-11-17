@@ -15,6 +15,7 @@ import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, WELL, seg } from '../ui/gameUi';
 import AwayBanner from '../ui/AwayBanner';
 import RoomAlerts from '../RoomAlerts';
+import RoomEmotes from '@/components/RoomEmotes';
 import RussianRouletteResult from './RussianRouletteResult';
 import RussianRouletteTable from './RussianRouletteTable';
 import RussianRouletteTutorial from './RussianRouletteTutorial';
@@ -27,7 +28,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
   const to = useTranslations('RussianRouletteOnline');
   const locale = useLocale();
   const [defaultName] = useState(() => `${to('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useRussianRouletteRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useRussianRouletteRoom(code, defaultName);
   const [shareUrl, setShareUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -58,7 +59,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
 
   return <div className={SHELL} style={RR_ROOT_STYLE}>
     <WallGoShards tint={RR_SHARD_TINT} />
-    <RoomAlerts alerts={alerts} accent={RR_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
+    <RoomAlerts alerts={alerts} accent={RR_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
     <GameHeader backHref="/russian-roulette" backLabel={t('title')} title={t('title')} subtitle={<span className="font-mono">ONLINE · {code.toUpperCase()}</span>}>
       <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
       <BugReport /><LanguageSwitcher compact dark />

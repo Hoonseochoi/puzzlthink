@@ -1872,7 +1872,17 @@
     "nemoChallenge": "30-minute challenge (ranked)",
     "nemoPractice": "Untimed practice",
     "nemoTutorial": "Two tutorial boards",
-    "nemoRoom": "Create a friend room (2–6)"
+    "nemoRoom": "Create a friend room (2–6)",
+    "openTitle": "Open rooms",
+    "openDesc": "Rooms anyone can join. Play solo while people gather; the game starts when the host presses start. Empty seats go to the AI (in games with AI seats).",
+    "openRefresh": "Refresh",
+    "openLoading": "Loading open rooms…",
+    "openEmpty": "No open rooms right now. Start one!",
+    "openHost": "{name}'s room",
+    "openFull": "Full",
+    "openJoin": "Join",
+    "openCreate": "Create an open room",
+    "openCreateFor": "Open room · {label}"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -3309,5 +3319,26 @@
       }
     ],
     "disclaimer": "Black & White II is PUZZLTHINK's web adaptation of a game format shown on TV and is not affiliated with the broadcaster or producers."
+  },
+  "OpenRoom": {
+    "guest": "Guest",
+    "close": "Close",
+    "players": "{n}/{cap} players",
+    "error": "Could not connect to the room.",
+    "connecting": "Connecting to the room…",
+    "emptySeat": "Empty seat",
+    "me": "me",
+    "host": "Host",
+    "hostAway": "The host stepped away. You can start once they're back.",
+    "emotesTitle": "Quick reactions",
+    "startWithAi": "Start · AI fills empty seats ({n}/{cap})",
+    "start": "Start",
+    "startHint": "Everyone moves to the game room.",
+    "needMore": "Needs {n} players to start.",
+    "waitHost": "You'll move to the game room when the host starts.",
+    "soloHint": "Feel free to play solo while you wait.",
+    "leave": "Leave room",
+    "openPanel": "Open the waiting room",
+    "tab": "Lobby"
   }
 }

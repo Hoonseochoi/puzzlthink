@@ -6,6 +6,7 @@ import { Check, ChevronLeft, ChevronRight, Clock3, Copy, Crown, Flag, Loader2, L
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
+import RoomEmotes from '@/components/RoomEmotes';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
@@ -27,7 +28,7 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useLaserJanggiRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useLaserJanggiRoom(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -74,7 +75,7 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
   const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? result : animating ? tg('laserFiring') : myTurn ? t('yourTurn') : t('waitingFor', { player: seatName(state.current) });
 
   return <div className={SHELL} style={{ ...accentVars(LASER_CYAN, '#041015'), backgroundImage: fog('35, 190, 220') }}>
-    <Shards /><RoomAlerts alerts={alerts} accent={LASER_CYAN} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
+    <Shards /><RoomAlerts alerts={alerts} accent={LASER_CYAN} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
     <GameHeader backHref="/laser-janggi" backLabel={tc('laserJanggi')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}
     {!state ? <main className="relative z-10 flex min-h-[60vh] items-center justify-center px-4">{!notice ? <p className="flex items-center gap-2 text-sm text-white/50"><Loader2 size={16} className="animate-spin" />{t('connecting')}</p> : <Link href="/laser-janggi" className={BTN_ACCENT}>{t('back')}</Link>}</main> :

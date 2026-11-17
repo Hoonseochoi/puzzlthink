@@ -1913,7 +1913,17 @@
     "nemoChallenge": "30분 챌린지 (기록)",
     "nemoPractice": "무제한 연습",
     "nemoTutorial": "튜토리얼 문제 2개",
-    "nemoRoom": "친구 방 만들기 (2~6명)"
+    "nemoRoom": "친구 방 만들기 (2~6명)",
+    "openTitle": "공개방",
+    "openDesc": "누구나 들어올 수 있는 방이에요. 사람이 모이는 동안 혼자 플레이하고, 방장이 시작을 누르면 바로 시작해요. 빈자리는 AI가 채워요(AI 자리가 있는 게임).",
+    "openRefresh": "새로고침",
+    "openLoading": "공개방을 불러오는 중…",
+    "openEmpty": "지금 열린 공개방이 없어요. 하나 만들어 보세요!",
+    "openHost": "{name}님의 방",
+    "openFull": "가득 참",
+    "openJoin": "참가",
+    "openCreate": "공개방 만들기",
+    "openCreateFor": "공개방 만들기 · {label}"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -3366,5 +3376,26 @@
       }
     ],
     "disclaimer": "흑과 백 II는 방송에 소개된 게임 방식에서 착안해 PUZZLTHINK가 웹용으로 다시 만든 것으로, 방송사·제작사와 관련이 없습니다."
+  },
+  "OpenRoom": {
+    "guest": "게스트",
+    "close": "닫기",
+    "players": "{n}/{cap}명",
+    "error": "방에 연결하지 못했어요.",
+    "connecting": "방에 연결하는 중…",
+    "emptySeat": "빈자리",
+    "me": "나",
+    "host": "방장",
+    "hostAway": "방장이 잠시 나갔어요. 돌아오면 이어서 시작할 수 있어요.",
+    "emotesTitle": "한마디",
+    "startWithAi": "시작하기 · 빈자리는 AI ({n}/{cap})",
+    "start": "시작하기",
+    "startHint": "누르면 모두 게임 방으로 이동해요.",
+    "needMore": "{n}명이 모이면 시작할 수 있어요.",
+    "waitHost": "방장이 시작하면 자동으로 게임 방으로 이동해요.",
+    "soloHint": "기다리는 동안 옆에서 혼자 플레이해도 돼요.",
+    "leave": "방 나가기",
+    "openPanel": "대기실 열기",
+    "tab": "대기실"
   }
 }
