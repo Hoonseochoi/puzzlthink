@@ -1030,7 +1030,7 @@
   },
   "Heavy13": {
     "metaTitle": "Heavy 13 Online — The Devil's Plan prison match with friends or AI",
-    "metaDescription": "Play Heavy 13, the prison match from The Devil's Plan: Death Room, free in your browser. A 7-player mind game: push a stand to 13 and you take the penalty. Play the AI or invite friends — AI fills empty seats.",
+    "metaDescription": "Play Heavy 13, the prison match from The Devil's Plan: Dead Again (season 3), free in your browser. A 7-player mind game: push a stand to 13 and you take the penalty. Play the AI or invite friends — AI fills empty seats.",
     "keywords": [
       "Heavy 13",
       "Devil's Plan Heavy 13",
@@ -1141,7 +1141,7 @@
   "Heavy13Guide": {
     "eyebrow": "HEAVY 13 GUIDE",
     "title": "Heavy 13 — The Devil's Plan prison match, on the web",
-    "intro": "Heavy 13 is the 7-player game from the first prison match of The Devil's Plan: Death Room. Players stack rocks on red, green and blue stands; whoever pushes a stand to 13 or more takes all the rocks that were there. It is less about arithmetic and more about reading where everyone else will play. Play six AIs right away, or invite friends and let AI fill the empty seats.",
+    "intro": "Heavy 13 is the 7-player game from the first prison match of The Devil's Plan: Dead Again (season 3). Players stack rocks on red, green and blue stands; whoever pushes a stand to 13 or more takes all the rocks that were there. It is less about arithmetic and more about reading where everyone else will play. Play six AIs right away, or invite friends and let AI fill the empty seats.",
     "kitLabel": "Each player gets",
     "rulesTitle": "Rules",
     "rules": [
@@ -1670,7 +1670,7 @@
           "The rainbow chip places first (and picks its stand), then higher numbers. Ties go clockwise from the start player, and once per round you may pass to place later.",
           "Whoever pushes a stand to 13 or more takes a penalty for each rock already on it. After 14 rounds the fewest penalties wins."
         ],
-        "origin": "The first prison match of The Devil's Plan: Death Room. Taking a penalty for crossing a threshold closely resembles the card game 6 nimmt!."
+        "origin": "The first prison match of The Devil's Plan: Dead Again (season 3). Taking a penalty for crossing a threshold closely resembles the card game 6 nimmt!."
       },
       "janggi": {
         "tagline": "Capture the king or march into the enemy camp. A sharp duel on 12 squares.",
@@ -1730,7 +1730,7 @@
           "Count how many rectangles have numbers adding up exactly to the target.",
           "Solo, see how many you solve in 30 minutes; with friends, whoever buzzes first answers within 10 seconds."
         ],
-        "origin": "Based on Nemo Count from Netflix's The Devil's Plan: Death Room; boards are generated at random and every answer and solution is computed automatically."
+        "origin": "Based on Nemo Count from Netflix's The Devil's Plan: Dead Again (season 3); boards are generated at random and every answer and solution is computed automatically."
       }
     }
   },
@@ -2517,7 +2517,7 @@
   "NemoCountGuide": {
     "eyebrow": "NEMO COUNT GUIDE",
     "title": "Nemo Count — the Devil's Plan counting game, and how to count fast",
-    "intro": "Nemo Count is the counting game from Netflix's The Devil's Plan: Death Room. On a board of cells, count how many rectangles have numbers adding up to the target. The rule is simple, but missing one or counting one twice is a wrong answer, so a systematic way of counting decides it. PUZZLTHINK generates boards at random and computes every answer and solution, so there is always a new board.",
+    "intro": "Nemo Count is the counting game from Netflix's The Devil's Plan: Dead Again (season 3). On a board of cells, count how many rectangles have numbers adding up to the target. The rule is simple, but missing one or counting one twice is a wrong answer, so a systematic way of counting decides it. PUZZLTHINK generates boards at random and computes every answer and solution, so there is always a new board.",
     "rulesTitle": "Rules",
     "rules": [
       "The board is made of square cells; some carry numbers. Blank cells are 0.",
