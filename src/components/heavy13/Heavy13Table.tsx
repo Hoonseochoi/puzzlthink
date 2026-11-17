@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Bot, Check, Clock3, Crown, Hand, Info, X } from 'lucide-react';
-import { type Chip, type Color, type LogEntry, CHIPS, COLORS, LIMIT, PLAYERS, ROUNDS, canPass, sum } from '@/lib/heavy13';
+import { type Chip, type Color, type LogEntry, CHIPS, COLORS, LIMIT, ROUNDS, canPass, sum } from '@/lib/heavy13';
 import type { H13Action, H13Room } from '@/lib/heavy13Room';
 import { ChipToken, CubeStack, RockCard } from './Bits';
 import { STAND, SAND, SAND_INK } from './theme';
@@ -33,8 +33,15 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
   const turnKey = me && g.phase === 'submit' && !iSubmitted ? `s-${g.round}` : myTurn && mySub ? `p-${g.round}-${g.resolvingPasses ? 'r' : 'm'}` : null;
   const drawerOpen = turnKey !== null && closedFor !== turnKey;
   const lastLog = g.log[0];
+  // `g.passed` is consumed again while deferred players place, so derive the complete
+  // current-round pass history from the immutable log for display.
+  const roundStart = g.log.findIndex((entry) => entry.k === 'round' && entry.round === g.round);
+  const passOrder = g.log.slice(0, roundStart < 0 ? g.log.length : roundStart)
+    .filter((entry): entry is Extract<LogEntry, { k: 'pass' }> => entry.k === 'pass')
+    .reverse()
+    .map((entry) => entry.seat);
   const fresh = (c: Color) => lastLog && (lastLog.k === 'place' || lastLog.k === 'collapse') && lastLog.color === c;
-  const status = g.phase === 'finished' ? t('finished') : g.phase === 'submit' ? (iSubmitted || mySeat === null ? t('waitingSubmit', { n: room.submitted.filter(Boolean).length }) : t('chooseSubmit'))
+  const status = g.phase === 'finished' ? t('finished') : g.phase === 'submit' ? (iSubmitted || mySeat === null ? t('waitingSubmit', { n: room.submitted.filter(Boolean).length, total: g.players.length }) : t('chooseSubmit'))
     : myTurn ? t('yourPlacement') : t('placing', { player: name(g.current ?? 0) });
 
   const doSubmit = () => { if (card === null || !chip) return; onAction({ t: 'submit', sub: { card, chip } }); setCard(null); setChip(null); };
@@ -64,6 +71,15 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
         )}
       </div>
 
+      {g.phase === 'place' && (
+        <div className="flex min-h-9 items-center gap-2 rounded-[10px] border border-white/10 bg-black/35 px-2.5 py-2 sm:px-3">
+          <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-white/35">{t('passOrder')}</span>
+          {passOrder.length ? <ol className="flex min-w-0 flex-wrap items-center gap-1.5">
+            {passOrder.map((seat, index) => <li key={seat} className="flex items-center gap-1 rounded-full border border-[#e6c48a]/25 bg-[#e6c48a]/10 px-2 py-1 text-[10px] font-bold text-[#f1d9ad]"><span className="font-mono text-[8px] text-[#e6c48a]/65">{index + 1}</span><span className="max-w-20 truncate">{name(seat)}</span></li>)}
+          </ol> : <span className="text-[10px] text-white/30">{t('passOrderEmpty')}</span>}
+        </div>
+      )}
+
       {/* Stands */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {COLORS.map((c) => {
@@ -87,23 +103,23 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
       </div>
 
       {/* Players */}
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:grid sm:grid-cols-7 sm:overflow-visible">
-        {Array.from({ length: PLAYERS }, (_, s) => {
+      <div className={`grid gap-1.5 sm:gap-2 ${g.players.length === 4 ? 'grid-cols-4 sm:grid-cols-4' : g.players.length <= 6 ? 'grid-cols-3 sm:grid-cols-6' : 'grid-cols-4 sm:grid-cols-7'}`}>
+        {Array.from({ length: g.players.length }, (_, s) => {
           const p = g.players[s];
           const sub = g.phase === 'place' ? g.subs[s] : null;
           const orderIdx = g.phase === 'place' ? g.placedOrder.indexOf(s) : -1;
           const active = g.phase === 'place' && g.current === s;
           return (
-            <div key={s} className={`relative flex w-[92px] shrink-0 flex-col items-center rounded-[10px] border px-2 py-2.5 text-center sm:w-auto ${active ? 'border-(--accent)/60 bg-white/[0.04] shadow-[inset_0_0_20px_var(--accent-glow)]' : s === mySeat ? 'border-white/25 bg-white/[0.06]' : 'border-white/10 bg-black/30'}`}>
-              {g.start === s && <button type="button" onClick={() => setStartTip((open) => !open)} title={t('startTipTitle')} aria-expanded={startTip} aria-controls="h13-start-tip" className="absolute -top-2 left-1/2 z-10 flex -translate-x-1/2 items-center gap-0.5 rounded-sm bg-(--accent) px-1.5 py-0.5 text-[8px] font-black text-(--accent-ink) hover:brightness-110"><Crown size={8} />{t('startMark')}<Info size={8} className="opacity-70" /></button>}
-              <span className="flex items-center gap-1 truncate text-[11px] font-extrabold">{room.ai[s] && <Bot size={11} className="shrink-0 text-white/40" />}<span className="truncate">{name(s)}</span></span>
-              <span className="mt-1 font-mono text-xl font-black" style={{ color: p.penalty ? '#ff8a7a' : '#ffffff' }}>{p.penalty}</span>
-              <span className="text-[9px] font-bold text-white/35">{t('penalty')}</span>
-              <div className="mt-1.5 flex h-7 items-center justify-center gap-1">
+            <div key={s} className={`relative flex min-w-0 flex-col items-center rounded-[9px] border px-1.5 pb-1.5 pt-2 text-center sm:rounded-[10px] sm:px-2 sm:py-2.5 ${active ? 'border-(--accent)/60 bg-white/[0.06] shadow-[inset_0_0_20px_var(--accent-glow),0_0_16px_var(--accent-glow)]' : s === mySeat ? 'border-white/25 bg-white/[0.06]' : 'border-white/10 bg-black/30'}`}>
+              {g.start === s && <button type="button" onClick={() => setStartTip((open) => !open)} title={t('startTipTitle')} aria-expanded={startTip} aria-controls="h13-start-tip" className="absolute -top-1.5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-0.5 rounded-sm bg-(--accent) px-1 py-0.5 text-[7px] font-black text-(--accent-ink) hover:brightness-110 sm:-top-2 sm:px-1.5 sm:text-[8px]"><Crown size={7} />{t('startMark')}<Info size={7} className="hidden opacity-70 sm:block" /></button>}
+              <span className="flex w-full min-w-0 items-center justify-center gap-0.5 truncate text-[9px] font-extrabold sm:gap-1 sm:text-[11px]">{room.ai[s] && <Bot size={9} className="shrink-0 text-white/40 sm:h-[11px] sm:w-[11px]" />}<span className="truncate">{name(s)}</span></span>
+              <span className="mt-0.5 flex items-baseline gap-0.5 sm:mt-1 sm:block"><b className="font-mono text-base font-black sm:text-xl" style={{ color: p.penalty ? '#ff8a7a' : '#ffffff' }}>{p.penalty}</b><span className="text-[7px] font-bold text-white/35 sm:block sm:text-[9px]">{t('penalty')}</span></span>
+              <div className="mt-0.5 flex h-5 items-center justify-center gap-0.5 sm:mt-1.5 sm:h-7 sm:gap-1">
                 {g.phase === 'submit' && (room.submitted[s] ? <Check size={14} className="text-[#34c47c]" /> : <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/30" />)}
-                {sub && <><ChipToken chip={sub.chip} size={16} /><RockCard value={sub.card} size="sm" /></>}
+                {sub && <><ChipToken chip={sub.chip} size={13} /><span className="origin-center scale-[.7] sm:scale-100"><RockCard value={sub.card} size="sm" /></span></>}
               </div>
-              {orderIdx >= 0 && <span className="text-[9px] font-bold text-white/40">#{orderIdx + 1}{g.passed.includes(s) ? ` · ${t('passed')}` : ''}</span>}
+              {orderIdx >= 0 && <span className="text-[8px] font-bold text-white/40 sm:text-[9px]">#{orderIdx + 1}</span>}
+              {passOrder.includes(s) && <span className="h13-pass-pop absolute -right-1 top-[38%] z-20 rounded-md border border-[#e6c48a]/55 bg-[#211a10] px-1.5 py-1 text-[8px] font-black text-[#f5dba8] shadow-[0_5px_14px_rgba(0,0,0,.55)] after:absolute after:-bottom-1 after:left-2 after:h-2 after:w-2 after:rotate-45 after:border-b after:border-r after:border-[#e6c48a]/55 after:bg-[#211a10] sm:right-1 sm:text-[9px]">{t('passBubble')}</span>}
             </div>
           );
         })}

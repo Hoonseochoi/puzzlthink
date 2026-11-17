@@ -25,6 +25,8 @@ button:disabled { cursor: default; }
 @keyframes roomAlertIn { from { opacity: 0; transform: translateY(-8px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes readyGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,.0), 0 0 18px var(--ready-glow, rgba(232,193,112,.45)); } 50% { box-shadow: 0 0 0 4px rgba(255,255,255,.12), 0 0 34px var(--ready-glow, rgba(232,193,112,.7)); } }
 @keyframes rjDrop { 0% { opacity: 0; transform: translateY(-55%); } 55% { opacity: 1; transform: translateY(4%); } 75% { transform: translateY(-3%); } 100% { transform: none; } }
+@keyframes h13PassPop { 0% { opacity: 0; transform: translateY(4px) scale(.72); } 65% { opacity: 1; transform: translateY(-2px) scale(1.08); } 100% { transform: none; } }
+.h13-pass-pop { animation: h13PassPop .38s cubic-bezier(.2,.9,.3,1.2) both; }
 /* AdSense: collapse a unit (and its label) when Google has no ad to show. */
 .ad-slot:has(ins.adsbygoogle[data-ad-status="unfilled"]) { display: none; }
 @keyframes hallPop { 0% { opacity: 0; transform: scale(.7) translateY(20px); } 60% { opacity: 1; transform: scale(1.04); } 100% { transform: none; } }
@@ -45,4 +47,5 @@ button:disabled { cursor: default; }
   .laser-janggi-beam, .laser-janggi-hit { animation: none; }
   .nemo-highlight { animation: none; }
   .dp3-tag { animation: none; }
+  .h13-pass-pop { animation: none; }
 }

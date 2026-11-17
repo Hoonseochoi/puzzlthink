@@ -8,6 +8,8 @@ import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './
 export const H13_TURN_OPTIONS = [180, 90, 60, 30] as const;
 export type H13TurnSec = (typeof H13_TURN_OPTIONS)[number] | 0; // 0 = no clock (solo play)
 export const PLACE_SEC = 20;
+export const H13_PLAYER_OPTIONS = [4, 5, 6, 7] as const;
+export type H13PlayerCount = (typeof H13_PLAYER_OPTIONS)[number];
 
 export type H13Room = BaseRoom & {
   phase: 'lobby' | 'playing' | 'finished';
@@ -16,10 +18,12 @@ export type H13Room = BaseRoom & {
   turnSec: H13TurnSec;
   game: Heavy13;
   submitted: boolean[]; // public: who has submitted this round (submissions stay hidden)
+  playerCount?: H13PlayerCount; // optional keeps pre-setting rooms restorable as 7-player rooms
+  fillAi?: boolean;
 };
 
 export type H13Action =
-  | { t: 'config'; turnSec?: H13TurnSec; aiLevel?: AiLevel }
+  | { t: 'config'; turnSec?: H13TurnSec; aiLevel?: AiLevel; playerCount?: H13PlayerCount; fillAi?: boolean }
   | { t: 'start' }
   | { t: 'submit'; sub: Submission }
   | { t: 'place'; color?: Color }
@@ -34,11 +38,18 @@ export function createH13Room(host: Peer, opts: { solo?: boolean; aiLevel?: AiLe
   const room: H13Room = {
     sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, ai: Array(PLAYERS).fill(false),
     aiLevel: opts.aiLevel ?? 'normal', turnSec: opts.solo ? 0 : 90, game: newHeavy13(0), submitted: Array(PLAYERS).fill(false),
+    playerCount: PLAYERS, fillAi: true,
   };
   return opts.solo ? startRoom(room)! : room;
 }
 
-export const syncH13Seats = (state: H13Room, peers: Peer[]) => syncSeats(state, peers);
+export function syncH13Seats(state: H13Room, peers: Peer[]) {
+  const synced = syncSeats(state, peers);
+  if (synced.phase !== 'lobby') return synced;
+  const humans = synced.seats.filter(Boolean).length;
+  const playerCount = Math.max(synced.playerCount ?? PLAYERS, Math.min(PLAYERS, humans)) as H13PlayerCount;
+  return playerCount === synced.playerCount ? synced : bump({ ...synced, playerCount });
+}
 
 function clock(state: H13Room, game: Heavy13): number {
   if (!state.turnSec) return Number.MAX_SAFE_INTEGER;
@@ -56,10 +67,15 @@ function withGame(state: H13Room, game: Heavy13): H13Room {
 }
 
 function startRoom(state: H13Room): H13Room | null {
+  const playerCount = state.playerCount ?? PLAYERS;
+  const fillAi = state.fillAi ?? true;
+  const humans = state.seats.filter(Boolean).length;
+  if (humans > playerCount || (!fillAi && humans !== playerCount)) return null;
   let n = 0;
-  const seats = state.seats.map((seat, i) => seat ?? { id: `ai-${i}`, name: `AI ${++n}` });
-  const ai = state.seats.map((seat) => !seat);
-  const game = newHeavy13(Math.floor(Math.random() * PLAYERS));
+  const activeSeats = state.seats.slice(0, playerCount).map((seat, i) => seat ?? { id: `ai-${i}`, name: `AI ${++n}` });
+  const seats = [...activeSeats, ...Array(PLAYERS - playerCount).fill(null)];
+  const ai = seats.map((seat, i) => i < playerCount && !!seat?.id.startsWith('ai-'));
+  const game = newHeavy13(Math.floor(Math.random() * playerCount), playerCount);
   const next: H13Room = { ...state, seats, ai, phase: 'playing', game, submitted: Array(PLAYERS).fill(false) };
   return { ...next, deadline: clock(next, game) };
 }
@@ -75,7 +91,12 @@ export function reduceH13Room(state: H13Room, action: H13Action, seat: number | 
   switch (action.t) {
     case 'config':
       if (!isHost || state.phase !== 'lobby') break;
-      next = { ...state, turnSec: action.turnSec ?? state.turnSec, aiLevel: action.aiLevel ?? state.aiLevel };
+      if (action.playerCount !== undefined && (action.playerCount < 4 || action.playerCount > 7 || action.playerCount < state.seats.filter(Boolean).length)) break;
+      next = {
+        ...state, turnSec: action.turnSec ?? state.turnSec, aiLevel: action.aiLevel ?? state.aiLevel,
+        playerCount: action.playerCount ?? state.playerCount ?? PLAYERS,
+        fillAi: action.fillAi ?? state.fillAi ?? true,
+      };
       break;
     case 'start':
       if (!isHost || state.phase === 'playing') break;
@@ -98,7 +119,7 @@ export function reduceH13Room(state: H13Room, action: H13Action, seat: number | 
       if (!isHost || state.phase !== 'playing') break;
       let g: Heavy13 | null = game;
       if (game.phase === 'submit') {
-        const seats = Array.from({ length: PLAYERS }, (_, s) => s).filter((s) => state.ai[s] && !game.subs[s]);
+        const seats = Array.from({ length: game.players.length }, (_, s) => s).filter((s) => state.ai[s] && !game.subs[s]);
         const subs = planSubmissions(game, seats, state.aiLevel);
         seats.forEach((s, k) => { g = submit(g!, s, subs[k]) ?? g; });
         if (g === game) g = null;
@@ -112,7 +133,7 @@ export function reduceH13Room(state: H13Room, action: H13Action, seat: number | 
       if (!isHost || state.phase !== 'playing' || !state.turnSec || Date.now() < state.deadline) break;
       let g: Heavy13 = game;
       if (game.phase === 'submit') {
-        for (let s = 0; s < PLAYERS; s += 1) if (!g.subs[s]) { const opts = options(g, s); g = submit(g, s, opts[Math.floor(Math.random() * opts.length)]) ?? g; }
+        for (let s = 0; s < game.players.length; s += 1) if (!g.subs[s]) { const opts = options(g, s); g = submit(g, s, opts[Math.floor(Math.random() * opts.length)]) ?? g; }
       } else if (game.phase === 'place' && game.current !== null) {
         const sub = game.subs[game.current]!;
         g = place(game, game.current, sub.chip === 'w' ? bestStand(game.stands, sub.card) : undefined) ?? game;
