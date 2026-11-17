@@ -47,9 +47,10 @@ export const CoinCount = ({ color, n }: { color: Color; n: number }) => (
  * A player's stepped box: the raised back step is 위칸 (on the table), the low front step is 아래칸.
  * A buzzer sits beside it (lit when this player just doubted).
  */
-export function Pedestal({ upper, lower, buzz, active, small = false, resetVoted = false, onReset }: {
+export function Pedestal({ upper, lower, buzz, active, small = false, resetVoted = false, onReset, onBuzz }: {
   upper: number | null; lower: number | null; buzz: boolean; active: boolean; small?: boolean;
   resetVoted?: boolean; onReset?: () => void; // reset button beside the buzzer (clickable only on my own box)
+  onBuzz?: () => void; // my own buzzer, pressable only during the doubt window
 }) {
   const w = small ? 80 : 132;
   const pig = small ? 34 : 54;
@@ -71,10 +72,10 @@ export function Pedestal({ upper, lower, buzz, active, small = false, resetVoted
       <button type="button" disabled={!onReset || resetVoted} onClick={onReset} title="리셋"
         className={`absolute right-0 flex items-center justify-center rounded-full border text-[9px] font-black transition ${small ? 'bottom-6 h-5 w-5' : 'bottom-9 h-7 w-7 text-[10px]'} ${resetVoted ? 'border-white bg-white text-[#1d2036] shadow-[0_0_14px_rgba(255,255,255,.8)]' : 'border-white/25 bg-[#2a2d44] text-white/60'} ${onReset && !resetVoted ? 'cursor-pointer hover:border-white hover:text-white' : 'cursor-default'}`}>R</button>
       {/* buzzer */}
-      <span className={`absolute bottom-0 right-0 flex items-end justify-center ${small ? 'h-5 w-5' : 'h-7 w-7'}`}>
+      <button type="button" disabled={!onBuzz} onClick={onBuzz} title="의심" className={`absolute bottom-0 right-0 flex items-end justify-center ${small ? 'h-5 w-5' : 'h-7 w-7'} ${onBuzz ? 'cursor-pointer' : 'cursor-default'}`}>
         <span className="absolute bottom-0 h-[45%] w-full rounded-[4px] bg-[#2a2d44] ring-1 ring-white/10" />
-        <span className={`relative mb-[30%] h-[60%] w-[70%] rounded-full ${buzz ? 'bg-[#ff3b5c] shadow-[0_0_16px_#ff3b5c]' : 'bg-[#a81f36]'}`} />
-      </span>
+        <span className={`relative mb-[30%] h-[60%] w-[70%] rounded-full ${buzz ? 'bg-[#ff3b5c] shadow-[0_0_16px_#ff3b5c]' : onBuzz ? 'animate-pulse bg-[#ff4d6d] shadow-[0_0_12px_#ff4d6d]' : 'bg-[#a81f36]'}`} />
+      </button>
     </div>
   );
 }

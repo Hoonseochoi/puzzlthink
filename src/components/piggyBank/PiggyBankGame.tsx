@@ -88,7 +88,7 @@ export default function PiggyBankGame() {
         }
         const base = Math.max(t, holdRef.current);
         due.at = base + 1200 + Math.random() * 1600;
-        due.doubtAt = s.players.map(() => base + 900 + Math.random() * 3500);
+        due.doubtAt = s.players.map(() => base + 700 + Math.random() * 3300); // within the 5-second window
         if (s.last?.k === 'put') {
           for (let i = 1; i < s.players.length; i += 1) {
             const unsure = Object.values(memRef.current[i]).reduce((a, m) => a + m.unsure, 0);
@@ -213,6 +213,7 @@ export default function PiggyBankGame() {
                   {delta[seat] ? <span key={`d${s.seq}`} className={`bw-result absolute -top-5 left-1/2 z-10 -translate-x-1/2 rounded-full px-2 py-0.5 font-mono text-sm font-black ${delta[seat] > 0 ? 'bg-[#3ddc97] text-[#06291a]' : 'bg-[#ff3b5c] text-white'}`}>{delta[seat] > 0 ? `+${delta[seat]}` : delta[seat]}</span> : null}
                   <Pedestal small={small} active={active} buzz={buzz} resetVoted={p.resetVote}
                     onReset={seat === ME && s.phase !== 'finished' && s.phase !== 'allIn' ? () => apply(voteReset(s, ME)) : undefined}
+                    onBuzz={seat === ME && canDoubt && !revealing ? () => apply(doubt(s, ME)) : undefined}
                     upper={p.upper !== null ? s.pigs[p.upper].label : null} lower={p.lower !== null ? s.pigs[p.lower].label : null} />
                 </div>
               );
@@ -239,8 +240,6 @@ export default function PiggyBankGame() {
                   <li key={seat} className="flex items-center gap-3 rounded-lg bg-white/[.04] px-3 py-2 text-sm">
                     <span className="w-6 font-mono font-black">{r + 1}</span><span className="flex-1 text-left font-bold">{s.players[seat].name}</span>
                     <span className="font-mono">{s.players[seat].score}점</span>
-                    {r === 0 && <span className="flex items-center gap-1 text-xs font-black text-[#ffd36e]"><Crown size={12} />피스 3개</span>}
-                    {r === 3 && <span className="text-xs font-black text-[#ff8b96]">탈락</span>}
                   </li>))}
                 </ol>
                 <button type="button" onClick={start} className={`${BTN_ACCENT} mt-4 w-full py-3`}>다시 하기</button>
@@ -271,14 +270,15 @@ export default function PiggyBankGame() {
                 </div>
                 <p className="mt-2 text-center text-[10px] text-white/40">{ANSWER_MS / 1000}초 안에 대답하지 않으면 0개로 처리돼요</p>
               </div>
-            ) : canDoubt ? (
-              <div className="text-center">
-                <p className="text-sm">{s.players[s.answer!.seat].name}: “#{s.pigs[s.answer!.pig]?.label} 속 {COLOR_KO[s.answer!.color]} {s.answer!.value}개”</p>
-                <button type="button" onClick={() => apply(doubt(s, ME))} className="mt-3 inline-flex items-center gap-2 rounded-md bg-[#ff4d6d] px-8 py-3.5 text-base font-black text-white shadow-[0_0_24px_rgba(255,77,109,.45)] hover:brightness-110"><Hand size={18} />의심!</button>
-                <p className="mt-2 text-[10px] text-white/40">{DOUBT_MS / 1000}초 안에 · 성공 +1 / 실패 −1</p>
-              </div>
             ) : (
-              <p className="py-3 text-center text-xs text-white/45">다른 플레이어의 차례예요. 공개되는 숫자를 기억하세요.</p>
+              <div className="text-center">
+                <p className="min-h-5 text-sm">{s.phase === 'doubt' && s.answer ? <>{s.players[s.answer.seat].name}: “#{s.pigs[s.answer.pig]?.label} 속 {COLOR_KO[s.answer.color]} {s.answer.value}개”</> : <span className="text-xs text-white/45">공개되는 숫자를 기억하세요. 대답이 나오면 5초 동안 의심할 수 있어요.</span>}</p>
+                <button type="button" disabled={!canDoubt || revealing} onClick={() => apply(doubt(s, ME))}
+                  className={`mt-3 inline-flex items-center gap-2 rounded-md px-8 py-3.5 text-base font-black transition ${canDoubt && !revealing ? 'bg-[#ff4d6d] text-white shadow-[0_0_24px_rgba(255,77,109,.55)] hover:brightness-110' : 'cursor-not-allowed bg-white/[.06] text-white/30'}`}>
+                  <Hand size={18} />의심!{canDoubt && !revealing ? ` ${secs}` : ''}
+                </button>
+                <p className="mt-2 text-[10px] text-white/40">{canDoubt ? '성공 +1 / 실패 −1' : s.phase === 'doubt' ? '내 대답은 의심할 수 없어요' : '대답 직후 5초 동안만 눌러요'}</p>
+              </div>
             )}
           </div>
         </section>
@@ -296,9 +296,9 @@ export default function PiggyBankGame() {
                 '내 차례: 아래칸 저금통에 동전 1~5개(흑·백)를 넣고, 넣은 개수를 말한 뒤 원하는 사람에게 전달해요.',
                 '전달하면 내 위칸 저금통이 아래칸으로 내려와요.',
                 '받은 사람은 20초 안에 받은 저금통 속 지정 색(흑→백→흑…) 동전 개수를 말해요.',
-                '10초 안에 다른 사람이 의심하면 열어서 확인: 맞으면 의심한 사람 +1·대답한 사람 −1, 틀리면 의심한 사람 −1.',
+                '대답 직후 5초 동안만 의심 버튼이 켜져요. 의심하면 열어서 확인: 대답이 틀렸으면 의심한 사람 +1·대답한 사람 −1, 맞았으면 의심한 사람 −1.',
                 '연 저금통은 빠지고, 감점된 사람이 새 저금통(흑1·백1)을 받아 차례를 이어가요.',
-                `누군가 ${PB_WIN}점이 되면 끝. 1위는 피스 3개, 꼴찌는 탈락.`,
+                `누군가 ${PB_WIN}점이 되면 끝나고, 점수 순으로 순위가 정해져요.`,
               ].map((r) => <li key={r} className="flex gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-(--accent)" /><span className="break-keep">{r}</span></li>)}
             </ul>
           </section>
@@ -416,13 +416,11 @@ export default function PiggyBankGame() {
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4">
           <div className="hall-pop w-full max-w-sm rounded-[24px] border border-[#ffd84a]/40 bg-gradient-to-b from-[#2b3150] to-[#151829] p-6 text-center shadow-[0_0_100px_rgba(255,216,74,.25)]">
             <Crown size={34} className="mx-auto text-[#ffd84a]" />
-            <h2 className="mt-2 text-2xl font-black">{ranking(s)[0] === ME ? '1위! 피스 3개 획득' : ranking(s)[3] === ME ? '아쉽게 탈락…' : '게임 종료'}</h2>
+            <h2 className="mt-2 text-2xl font-black">{ranking(s)[0] === ME ? '1위!' : `${ranking(s).indexOf(ME) + 1}위`}</h2>
             <ol className="mt-4 space-y-1.5">{ranking(s).map((seat, r) => (
               <li key={seat} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${seat === ME ? 'bg-[#ffd84a] text-[#2a1d00]' : 'bg-white/[.06]'}`}>
-                <span className="w-6 font-mono font-black">{r + 1}</span><span className="flex-1 text-left font-bold">{s.players[seat].name}</span>
+                <span className="w-9 font-mono font-black">{r + 1}위</span><span className="flex-1 text-left font-bold">{s.players[seat].name}</span>
                 <span className="font-mono font-black">{s.players[seat].score}점</span>
-                {r === 0 && <span className="text-[11px] font-black">피스 3개</span>}
-                {r === 3 && <span className={`text-[11px] font-black ${seat === ME ? '' : 'text-[#ff8b96]'}`}>탈락</span>}
               </li>))}
             </ol>
             <button type="button" onClick={start} className={`${BTN_ACCENT} mt-5 w-full py-3`}>다시 하기</button>

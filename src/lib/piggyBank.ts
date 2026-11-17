@@ -7,14 +7,14 @@
 // answerer −1; a wrong doubt: doubter −1. The player who lost a point gets a new pig (1 black,
 // 1 white) on the table and takes the next turn; with no doubt the receiver takes it.
 // Three reset votes restart every pig; first, anyone who did not vote may try to name every pig's
-// coins (+3 / −2). The game ends when someone reaches 5 points.
+// coins (+3 / −2). The game ends when someone reaches 5 points; players are ranked by score.
 
 export const PB_PLAYERS = 4;
 export const PB_WIN = 5;
 export const PB_MAX_PUT = 5;
 export const ANSWER_MS = 20_000;
 export const PUT_MS = 30_000; // time to put coins and pick who gets the pig
-export const DOUBT_MS = 10_000;
+export const DOUBT_MS = 5_000; // the doubt window right after an answer
 export const RESET_VOTES = 3;
 export const ALLIN_MS = 45_000; // time to fill in every pig before the reset
 
