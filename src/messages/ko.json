@@ -205,7 +205,12 @@
     "modeNemoSolo": "혼자 하기",
     "modeNemoSoloDesc": "30분 챌린지·연습",
     "modeNemoFriend": "친구와 하기",
-    "modeNemoFriendDesc": "2~6명 · 버저 대결"
+    "modeNemoFriendDesc": "2~6명 · 버저 대결",
+    "show_dp3": "데블스 플랜 3",
+    "show_genius2": "더 지니어스 2",
+    "show_society2": "소사이어티 게임 2",
+    "show_dp1": "데블스 플랜 1",
+    "show_genius34": "더 지니어스 3·4"
   },
   "WallGo": {
     "metaTitle": "벽바둑 온라인 — 데블스플랜 그 게임을 AI와 플레이",

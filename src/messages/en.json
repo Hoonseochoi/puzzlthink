@@ -204,7 +204,12 @@
     "modeNemoSolo": "Solo",
     "modeNemoSoloDesc": "30-min challenge, practice",
     "modeNemoFriend": "With friends",
-    "modeNemoFriendDesc": "2–6 players · buzzer"
+    "modeNemoFriendDesc": "2–6 players · buzzer",
+    "show_dp3": "The Devil's Plan 3",
+    "show_genius2": "The Genius 2",
+    "show_society2": "The Society Game 2",
+    "show_dp1": "The Devil's Plan 1",
+    "show_genius34": "The Genius 3·4"
   },
   "WallGo": {
     "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
