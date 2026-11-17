@@ -13,6 +13,11 @@ export type Profile = { nickname: string | null; full_name: string | null; avata
 export type HallEntry = { game: GameId; rank: number; nickname: string; avatar_url: string | null; wins: number; games: number };
 
 const reported = new Set<string>();
+
+// Signed-in players met in the current friend/open room (their account ids). Friend results carry them
+// as `detail.vs`, so a player can later see their record against each opponent.
+let roomOpponents: string[] = [];
+export function setRoomOpponents(ids: string[]) { roomOpponents = [...new Set(ids)].slice(0, 8); }
 const PENDING_KEY = 'puzzlthink_pending_game';
 type Pending = { key: string; game: GameId; mode: GameMode; result: GameResult; detail: Record<string, unknown> };
 type Supabase = NonNullable<ReturnType<typeof getSupabase>>;
@@ -45,6 +50,7 @@ async function insertResult(supabase: Supabase, userId: string, game: GameId, mo
 export async function reportGame(key: string, game: GameId, mode: GameMode, result: GameResult, detail: Record<string, unknown> = {}, opts: { revealDelayMs?: number } = {}) {
   if (reported.has(key)) return;
   reported.add(key);
+  if (mode === 'friend' && roomOpponents.length) detail = { ...detail, vs: roomOpponents };
   const supabase = getSupabase();
   if (!supabase) return;
   // Play counter for every finished game, signed in or not (no personal data).
@@ -99,4 +105,26 @@ export async function fetchHallOfFame(): Promise<{ entries: HallEntry[]; error: 
 export async function saveProfile(nickname: string, showInHall: boolean) {
   const { error } = await getSupabase()!.rpc('update_profile', { p_nickname: nickname, p_show_in_hall: showInHall });
   return error?.message ?? null;
+}
+
+export type Tally = { win: number; loss: number; draw: number };
+const tally = (rows: { result: GameResult }[]): Tally => ({
+  win: rows.filter((r) => r.result === 'win').length, loss: rows.filter((r) => r.result === 'loss').length, draw: rows.filter((r) => r.result === 'draw').length,
+});
+
+/** My record in one game against one signed-in player (from my own results that list them in `vs`). */
+export async function fetchHeadToHead(game: GameId, opponentId: string): Promise<Tally | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase.from('game_results').select('result').eq('game', game).eq('mode', 'friend').contains('detail', { vs: [opponentId] }).limit(1000);
+  return error ? null : tally((data as { result: GameResult }[]) ?? []);
+}
+
+/** A signed-in player's overall record in one game (counts only; needs the player_record function). */
+export async function fetchPlayerRecord(game: GameId, userId: string): Promise<Tally | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('player_record', { p_user: userId, p_game: game });
+  const row = Array.isArray(data) ? data[0] : data;
+  return error || !row ? null : { win: Number(row.wins) || 0, loss: Number(row.losses) || 0, draw: Number(row.draws) || 0 };
 }

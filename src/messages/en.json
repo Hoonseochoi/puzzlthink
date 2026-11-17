@@ -1874,7 +1874,7 @@
     "nemoTutorial": "Two tutorial boards",
     "nemoRoom": "Create a friend room (2–6)",
     "openTitle": "Open rooms",
-    "openDesc": "Rooms anyone can join. Play solo while people gather; the game starts when the host presses start. Empty seats go to the AI (in games with AI seats).",
+    "openDesc": "Rooms anyone signed in can join. Play solo while people gather; the game starts when the host presses start. Empty seats go to the AI (in games with AI seats). Results count toward each other's records.",
     "openRefresh": "Refresh",
     "openLoading": "Loading open rooms…",
     "openEmpty": "No open rooms right now. Start one!",
@@ -1882,7 +1882,8 @@
     "openFull": "Full",
     "openJoin": "Join",
     "openCreate": "Create an open room",
-    "openCreateFor": "Open room · {label}"
+    "openCreateFor": "Open room · {label}",
+    "openLogin": "Open rooms are for signed-in players only, so both sides keep their record."
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -3339,6 +3340,11 @@
     "soloHint": "Feel free to play solo while you wait.",
     "leave": "Leave room",
     "openPanel": "Open the waiting room",
-    "tab": "Lobby"
+    "tab": "Lobby",
+    "loginTitle": "Sign in to join",
+    "loginDesc": "Open rooms are for signed-in players. Results go to your record and your record against each opponent.",
+    "tally": "{w}W {l}L {d}D",
+    "recordAll": "Record {r}",
+    "recordVs": "vs me {r}"
   }
 }
