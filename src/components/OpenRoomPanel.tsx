@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Crown, DoorOpen, Loader2, Lock, Play, Users, X } from 'lucide-react';
+import { Crown, DoorOpen, Loader2, Lock, Pencil, Play, Swords, Users, X } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import type { GameId } from '@/lib/gameCatalog';
-import { EMOTES, EMOTE_MS, STATS_ID, closeOpenRoom, putOpenRoom } from '@/lib/openRooms';
-import { type Tally, fetchHeadToHead, fetchPlayerRecord } from '@/lib/stats';
+import { EMOTES, EMOTE_MS, closeOpenRoom, listOpenRooms, putOpenRoom, saveTitle, savedTitle } from '@/lib/openRooms';
+import { type Tally, fetchHeadToHeadAll, fetchVersusRecord } from '@/lib/stats';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import type { Peer } from '@/lib/room';
@@ -81,21 +81,22 @@ function SignInPanel() {
 
 const fmt = (t: ReturnType<typeof useTranslations>, r: Tally | null | undefined) => (r ? t('tally', { w: r.win, l: r.loss, d: r.draw }) : '…');
 
-/** Each seated player's record in this game, and mine against them. */
-function useRecords(game: GameId, uids: string[], myUid: string | undefined) {
+/** Each seated player's record against people (every game), and mine against them. */
+function useRecords(uids: string[], myUid: string | undefined) {
   const [records, setRecords] = useState<Record<string, { all: Tally | null; vsMe: Tally | null }>>({});
   const key = uids.join(',');
   useEffect(() => {
     let alive = true;
-    const stat = STATS_ID[game];
     for (const uid of key ? key.split(',') : []) {
-      Promise.all([fetchPlayerRecord(stat, uid), uid === myUid ? Promise.resolve(null) : fetchHeadToHead(stat, uid)])
+      Promise.all([fetchVersusRecord(uid), uid === myUid ? Promise.resolve(null) : fetchHeadToHeadAll(uid)])
         .then(([all, vsMe]) => { if (alive) setRecords((prev) => ({ ...prev, [uid]: { all, vsMe } })); });
     }
     return () => { alive = false; };
-  }, [game, key, myUid]);
+  }, [key, myUid]);
   return records;
 }
+
+const played = (r: Tally | null | undefined) => !!r && r.win + r.loss + r.draw > 0;
 
 function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; variant: number; useRoom: RoomHook }) {
   const t = useTranslations('OpenRoom');
@@ -108,6 +109,9 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   const { status, state, peers, hostOnline, me, dispatch, emote } = useRoom(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const leaving = useRef(false);
+  const [title, setTitle] = useState(() => savedTitle(code));
+  const [editing, setEditing] = useState(false);
+  const [listedTitle, setListedTitle] = useState('');
 
   useEffect(() => {
     const tick = window.setInterval(() => setNow(Date.now()), 500);
@@ -124,11 +128,16 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   // The host keeps the room in the public list while it waits, and takes it off when it starts or closes.
   useEffect(() => {
     if (!isHost || state?.phase !== 'lobby' || !me) return;
-    const put = () => putOpenRoom(game, code, { variant, host: me.name, players: humans, capacity });
+    const put = () => putOpenRoom(game, code, { variant, host: me.name, players: humans, capacity, title: title.trim() || t('defaultTitle', { name: me.name }) });
     put();
     const timer = window.setInterval(put, 20_000);
     return () => window.clearInterval(timer);
-  }, [isHost, state?.phase, me, game, code, variant, humans, capacity]);
+  }, [isHost, state?.phase, me, game, code, variant, humans, capacity, title, t]);
+  // Guests read the room title from the public list.
+  useEffect(() => {
+    if (isHost) return;
+    listOpenRooms(game).then((rows) => setListedTitle(rows.find((row) => row.code === code)?.title ?? ''));
+  }, [isHost, game, code]);
   useEffect(() => {
     if (!isHost) return;
     const close = () => { closeOpenRoom(game, code); };
@@ -153,7 +162,8 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   const peerOf = (id: string) => peers.find((peer) => peer.id === id);
   const { user } = useAuth();
   const uids = seats.flatMap((seat) => { const uid = seat ? peerOf(seat.id)?.uid : undefined; return uid ? [uid] : []; }).sort();
-  const records = useRecords(game, uids, user?.id);
+  const records = useRecords(uids, user?.id);
+  const shownTitle = isHost ? (title.trim() || (me ? t('defaultTitle', { name: me.name }) : '')) : listedTitle;
   const startLabel = humans < capacity && need < capacity ? t('startWithAi', { n: humans, cap: capacity }) : t('start');
 
   const body = (
@@ -161,7 +171,18 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-mono text-[10px] font-black tracking-[0.2em] text-(--accent)">OPEN ROOM · {code}</p>
-          <h2 className="mt-1 truncate text-base font-black text-white">{tc(game)}{modes.rooms.length > 1 ? ` · ${tg(`short_${option.label}`)}` : ''}</h2>
+          {isHost && editing ? (
+            <form onSubmit={(event) => { event.preventDefault(); saveTitle(code, title); setEditing(false); }} className="mt-1 flex gap-1.5">
+              <input autoFocus value={title} maxLength={30} onChange={(event) => setTitle(event.target.value)} onBlur={() => { saveTitle(code, title); setEditing(false); }}
+                placeholder={me ? t('defaultTitle', { name: me.name }) : ''} className="min-w-0 flex-1 rounded-md border border-white/15 bg-black/40 px-2 py-1.5 text-sm font-bold text-white outline-none focus:border-(--accent)" />
+            </form>
+          ) : (
+            <button type="button" disabled={!isHost} onClick={() => setEditing(true)} className="mt-1 flex max-w-full items-center gap-1.5 text-left disabled:cursor-default">
+              <span className="truncate text-base font-black text-white">{shownTitle || tc(game)}</span>
+              {isHost && <Pencil size={12} className="shrink-0 text-white/40" />}
+            </button>
+          )}
+          <p className="mt-0.5 truncate text-[11px] font-bold text-white/55">{tc(game)}{modes.rooms.length > 1 ? ` · ${tg(`short_${option.label}`)}` : ''}</p>
           <p className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-white/45"><Users size={12} />{t('players', { n: humans, cap: capacity || '–' })}</p>
         </div>
       </div>
@@ -178,6 +199,9 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
                   {seat && <EmoteBubble peer={peerOf(seat.id)} now={now} />}
                   <span className={`h-2 w-2 shrink-0 rounded-full ${seat && !ai ? 'bg-[#3ddc97]' : 'bg-white/15'}`} />
                   <span className="min-w-0 flex-1 truncate text-sm font-bold">{seat ? seat.name : t('emptySeat')}{seat?.id === me?.id ? ` (${t('me')})` : ''}</span>
+                  {seat && seat.id !== me?.id && played(records[peerOf(seat.id)?.uid ?? '']?.vsMe) && (
+                    <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[9px] font-black text-white shadow-[0_0_10px_rgba(255,77,94,.5)]"><Swords size={9} />{t('revenge')}</span>
+                  )}
                   {i === 0 && seat && <Crown size={13} className="shrink-0 text-[#f2c14e]" aria-label={t('host')} />}
                   {seat && (() => {
                     const uid = peerOf(seat.id)?.uid;
@@ -185,7 +209,7 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
                     if (!uid) return null;
                     return (
                       <span className="basis-full pl-4 text-[10px] leading-4 text-white/45">
-                        {t('recordAll', { r: fmt(t, rec?.all) })}{seat.id !== me?.id && rec?.vsMe ? ` · ${t('recordVs', { r: fmt(t, rec.vsMe) })}` : ''}
+                        {t('recordAll', { r: fmt(t, rec?.all) })}{seat.id !== me?.id && played(rec?.vsMe) ? <b className="text-[#ff9aa4]"> · {t('recordVs', { r: fmt(t, rec?.vsMe) })}</b> : null}
                       </span>
                     );
                   })()}

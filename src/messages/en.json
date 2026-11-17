@@ -3346,8 +3346,11 @@
     "loginTitle": "Sign in to join",
     "loginDesc": "Open rooms are for signed-in players. Results go to your record and your record against each opponent.",
     "tally": "{w}W {l}L {d}D",
-    "recordAll": "Record {r}",
-    "recordVs": "vs me {r}"
+    "recordAll": "Versus {r}",
+    "recordVs": "vs me {r}",
+    "defaultTitle": "{name}'s room",
+    "revenge": "Revenge",
+    "editTitle": "Edit room title"
   },
   "OpenMatch": {
     "title": "Open Match",
