@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { UserRound } from 'lucide-react';
 import { useAuth } from './AuthProvider';
+import { isNicknameTaken, nicknameAvailable } from '@/lib/stats';
 
 const ADJ = {
   ko: ['불쌍한', '배고픈', '졸린', '용감한', '수줍은', '심심한', '똑똑한', '느긋한', '수상한', '행복한', '엉뚱한', '날쌘'],
@@ -30,18 +31,38 @@ export default function NicknamePrompt() {
   const locale = useLocale();
   const { user, nicknameSet, saveNickname } = useAuth();
   const [draft, setDraft] = useState('');
-  const [suggestion] = useState(() => randomName(locale));
+  const [suggestion, setSuggestion] = useState(() => randomName(locale));
+  const [taken, setTaken] = useState<string | null>(null); // the name found to be in use
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  if (!user || nicknameSet !== false) return null;
+  const open = !!user && nicknameSet === false;
   const value = draft.trim() || suggestion; // empty → the grey suggestion
+
+  // Check the name as the player types (and the grey suggestion: draw another if it is taken).
+  useEffect(() => {
+    if (!open || value.length < 2) return;
+    let alive = true;
+    const timer = window.setTimeout(() => {
+      nicknameAvailable(value).then((free) => {
+        if (!alive || free === null) return;
+        if (!free && !draft.trim()) { setSuggestion(randomName(locale)); return; }
+        setTaken(free ? null : value);
+      });
+    }, 350);
+    return () => { alive = false; window.clearTimeout(timer); };
+  }, [open, value, draft, locale]);
+
+  if (!open) return null;
+  const isTaken = taken === value;
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (value.trim().length < 2) { setError(t('tooShort')); return; }
+    if (isTaken) return;
     setBusy(true);
     const failed = await saveNickname(value);
     setBusy(false);
+    if (isNicknameTaken(failed)) { setTaken(value); return; }
     if (failed) setError(t('failed'));
   };
 
@@ -54,8 +75,9 @@ export default function NicknamePrompt() {
         <input autoFocus value={draft} maxLength={16} onChange={(event) => { setDraft(event.target.value); setError(''); }}
           placeholder={suggestion} className="mt-4 w-full rounded-2xl border border-black/15 bg-white px-4 py-3 text-center text-base font-black outline-none placeholder:font-bold placeholder:text-black/30 focus:border-[#17201e]" />
         <p className="mt-1.5 text-[10px] text-black/40">{t('emptyHint')}</p>
+        {isTaken && draft.trim() && <p className="mt-2 text-xs font-bold text-[#c2410c]">{t('taken')}</p>}
         {error && <p className="mt-2 text-xs font-bold text-[#c2410c]">{error}</p>}
-        <button type="submit" disabled={busy} className="mt-4 w-full rounded-2xl bg-[#17201e] py-3 text-sm font-black text-white disabled:opacity-50">{t('save')}</button>
+        <button type="submit" disabled={busy || isTaken} className="mt-4 w-full rounded-2xl bg-[#17201e] py-3 text-sm font-black text-white disabled:opacity-50">{t('save')}</button>
         <p className="mt-3 text-[10px] text-black/40">{t('changeLater')}</p>
       </form>
     </div>
