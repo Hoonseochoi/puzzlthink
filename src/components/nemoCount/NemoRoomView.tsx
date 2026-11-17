@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { BellRing, Check, Clock3, Copy, Crown, Hand, Loader2, Lock, RotateCcw, Share2, Swords, Trophy, Users, WifiOff, X } from 'lucide-react';
+import { BellRing, Check, Clock3, Copy, Crown, Hand, Loader2, Lock, RotateCcw, Share2, Swords, ThumbsDown, ThumbsUp, Trophy, Users, WifiOff } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
@@ -14,7 +14,7 @@ import { useNemoRoom } from '@/hooks/useNemoRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
 import { NEMO_DIFFICULTIES, formatMs } from '@/lib/nemoCount';
-import { BUZZ_MS, NEMO_MAX_PLAYERS, NEMO_MIN_PLAYERS, NEMO_PROBLEM_OPTIONS, NEMO_TIME_OPTIONS, nemoRanking } from '@/lib/nemoCountRoom';
+import { BUZZ_MS, REBUZZ_MS, VOTE_MS, NEMO_MAX_PLAYERS, NEMO_MIN_PLAYERS, NEMO_PROBLEM_OPTIONS, NEMO_TIME_OPTIONS, nemoRanking } from '@/lib/nemoCountRoom';
 import { reportGame } from '@/lib/stats';
 import { AnswerInput, NEMO_ACCENT, NEMO_INK, NemoBoardView, SolutionReplay, TargetPlate } from './NemoParts';
 
@@ -48,6 +48,19 @@ export default function NemoRoomView({ code }: { code: string }) {
     if (buzzKey !== buzzSeen.key) setBuzzSeen({ key: buzzKey, at: Date.now() });
   }, [buzzKey, buzzSeen.key]);
 
+  const [coolSeen, setCoolSeen] = useState({ key: '', at: 0 });
+  const myCooldown = state && mySeat !== null && state.cooldown[mySeat] ? `${state.index}-${state.cooldown[mySeat]}` : '';
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- marks when my wrong answer came back
+    if (myCooldown && myCooldown !== coolSeen.key) setCoolSeen({ key: myCooldown, at: Date.now() });
+  }, [myCooldown, coolSeen.key]);
+  const [voteSeen, setVoteSeen] = useState({ key: '', at: 0 });
+  const voteKey = state?.vote ? `${state.index}-${state.vote.seat}-${state.vote.until}` : '';
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- marks when this pass proposal arrived here
+    if (voteKey !== voteSeen.key) setVoteSeen({ key: voteKey, at: Date.now() });
+  }, [voteKey, voteSeen.key]);
+
   // Record each finished game once per player (reportGame ignores a key it has already sent).
   useEffect(() => {
     if (!state || state.phase !== 'finished' || mySeat === null || !state.players.includes(mySeat)) return;
@@ -65,18 +78,26 @@ export default function NemoRoomView({ code }: { code: string }) {
   const problem = state && (state.phase === 'playing' || state.phase === 'reveal') ? state.problems[state.index] : null;
   const playing = state?.phase === 'playing';
   const inGame = !!state && mySeat !== null && state.players.includes(mySeat);
-  const iAmOut = !!state && mySeat !== null && state.out.includes(mySeat);
+  // After a wrong answer this player waits a moment before buzzing again (timed locally, like the buzz).
+  const coolKey = state && mySeat !== null && state.cooldown[mySeat] ? `${state.index}-${state.cooldown[mySeat]}` : '';
+  const coolLeft = coolKey && coolSeen.key === coolKey ? Math.max(0, REBUZZ_MS - (now - coolSeen.at)) : 0;
+  const cooling = coolLeft > 0;
   const myBuzz = !!state?.buzz && state.buzz.seat === mySeat;
   const buzzLeft = state?.buzz ? Math.max(0, BUZZ_MS - (now - buzzSeen.at)) : 0;
   const problemLeft = state && state.timeSec && playing ? Math.max(0, state.problemEnd - now) : null;
   const elapsed = state && problem ? (state.phase === 'reveal' ? (state.results.at(-1)?.ms ?? state.revealUntil - state.problemStart) : now - state.problemStart) : 0;
   const lastResult = state?.phase === 'reveal' ? state.results.at(-1) : null;
+  const vote = playing ? state!.vote : null;
+  const voteLeft = vote ? Math.max(0, VOTE_MS - (now - voteSeen.at)) : 0;
+  const myVoteDone = !!vote && mySeat !== null && (vote.seat === mySeat || vote.yes.includes(mySeat));
+  const voters = vote ? state!.players.filter((p) => p !== vote.seat).length : 0;
   const clock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
 
   const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? t('finished')
-    : lastResult ? (lastResult.winner !== null ? t('solvedBy', { player: name(lastResult.winner), time: formatMs(lastResult.ms ?? 0) }) : lastResult.reason === 'time' ? t('timeUp') : t('nobody'))
+    : lastResult ? (lastResult.winner !== null ? t('solvedBy', { player: name(lastResult.winner), time: formatMs(lastResult.ms ?? 0) }) : lastResult.reason === 'time' ? t('timeUp') : t('passAgreed'))
+      : state.vote ? t('voteHeading', { player: name(state.vote.seat) })
       : state.buzz ? (myBuzz ? t('yourBuzz') : t('buzzing', { player: name(state.buzz.seat) }))
-        : iAmOut ? t('youAreOut') : tn('howMany');
+        : cooling ? t('wrongRetry', { s: Math.ceil(coolLeft / 1000) }) : tn('howMany');
 
   return (
     <div className={SHELL} style={{ ...accentVars(NEMO_ACCENT, NEMO_INK), backgroundImage: fog('120, 130, 160') }}>
@@ -155,17 +176,30 @@ export default function NemoRoomView({ code }: { code: string }) {
                     <AnswerInput onSubmit={(value) => dispatch({ t: 'answer', value })} placeholder={t('answerIn', { s: Math.ceil(buzzLeft / 1000) })} submitLabel={tn('submit')} />
                   </>
                 ) : (
-                  <button type="button" onClick={() => dispatch({ t: 'buzz' })} disabled={!!state.buzz || iAmOut}
+                  <button type="button" onClick={() => dispatch({ t: 'buzz' })} disabled={!!state.buzz || !!state.vote || cooling}
                     className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#e5484d] py-4 text-lg font-black text-white shadow-[0_10px_0_#8d1e22,0_18px_30px_rgba(229,72,77,.35)] transition active:translate-y-[6px] active:shadow-[0_4px_0_#8d1e22] disabled:bg-white/10 disabled:text-white/35 disabled:shadow-none">
-                    <BellRing size={20} />{iAmOut ? t('outForThis') : state.buzz ? t('someoneAnswering') : t('buzzer')}
+                    <BellRing size={20} />{cooling ? t('buzzIn', { s: Math.ceil(coolLeft / 1000) }) : state.buzz ? t('someoneAnswering') : state.vote ? t('voteInProgress') : t('buzzer')}
                   </button>
                 )}
-                {!myBuzz && !iAmOut && (
-                  <button type="button" onClick={() => { if (window.confirm(t('passConfirm'))) dispatch({ t: 'pass' }); }} disabled={state.passesLeft[mySeat!] <= 0} className={`w-full py-2.5 ${BTN} disabled:opacity-35`}>
-                    <Hand size={14} />{t('pass', { n: state.passesLeft[mySeat!] })}
+                {vote && (
+                  <div className="rounded-[12px] border border-(--accent)/40 bg-(--accent)/10 p-3">
+                    <p className="text-center text-sm font-black">{vote.seat === mySeat ? t('voteWaiting', { yes: vote.yes.length, total: voters }) : t('voteAsk', { player: name(vote.seat) })}</p>
+                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-(--accent) transition-[width] duration-200" style={{ width: `${(voteLeft / VOTE_MS) * 100}%` }} /></div>
+                    {!myVoteDone && (
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <button type="button" onClick={() => dispatch({ t: 'vote', agree: true })} className={`${BTN_ACCENT} py-2.5`}><ThumbsUp size={14} />{t('agree')}</button>
+                        <button type="button" onClick={() => dispatch({ t: 'vote', agree: false })} className={`${BTN} py-2.5`}><ThumbsDown size={14} />{t('decline')}</button>
+                      </div>
+                    )}
+                    {myVoteDone && vote.seat !== mySeat && <p className="mt-2 text-center text-[11px] text-white/50">{t('voted')}</p>}
+                  </div>
+                )}
+                {!myBuzz && !vote && (
+                  <button type="button" onClick={() => dispatch({ t: 'pass' })} disabled={!!state.buzz || state.passesLeft[mySeat!] <= 0 || state.proposed.includes(mySeat!)} className={`w-full py-2.5 ${BTN} disabled:opacity-35`}>
+                    <Hand size={14} />{state.proposed.includes(mySeat!) && state.passesLeft[mySeat!] > 0 ? t('passTried') : t('pass', { n: state.passesLeft[mySeat!] })}
                   </button>
                 )}
-                {state.wrong[mySeat!] !== undefined && <p className="text-center text-xs font-bold text-[#ff9b94]">{t('yourWrong', { n: state.wrong[mySeat!] })}</p>}
+                {(state.wrong[mySeat!]?.length ?? 0) > 0 && <p className="text-center text-xs font-bold text-[#ff9b94]">{t('yourWrong', { list: state.wrong[mySeat!].join(', ') })}</p>}
               </div>
             )}
             {playing && !inGame && <p className="mt-4 text-center text-xs text-white/45">{t('spectating')}</p>}
@@ -193,17 +227,16 @@ export default function NemoRoomView({ code }: { code: string }) {
               <div className="space-y-2">
                 {state.seats.map((seat, i) => {
                   if (!seat && state.phase !== 'lobby') return null;
-                  const out = state.out.includes(i);
+                  const misses = state.wrong[i]?.length ?? 0;
                   const buzzing = state.buzz?.seat === i;
                   return (
                     <div key={i} className={`${playerRow(buzzing)} ${seat ? '' : 'opacity-40'}`}>
                       <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md font-mono text-sm font-black ${buzzing ? 'bg-[#e5484d] text-white' : 'bg-white/10 text-white/60'}`}>{buzzing ? <BellRing size={15} /> : i + 1}</span>
                       <div className="min-w-0 flex-1">
                         <p className="flex items-center gap-1.5 truncate text-sm font-extrabold">{seat ? name(i) : t('emptySeat')}{seat?.id === me?.id ? ` (${t('me')})` : ''}{i === 0 && <Crown size={12} className="shrink-0 text-[#f2c14e]" />}</p>
-                        {state.phase !== 'lobby' && seat && <p className="text-[10px] text-white/45">{t('scoreLine', { n: state.scores[i], pass: state.passesLeft[i] })}{out ? ` · ${state.wrong[i] !== undefined ? t('wrongMark') : t('passedMark')}` : ''}</p>}
+                        {state.phase !== 'lobby' && seat && <p className="text-[10px] text-white/45">{t('scoreLine', { n: state.scores[i], pass: state.passesLeft[i] })}{misses ? ` · ${t('wrongMark', { n: misses })}` : ''}</p>}
                       </div>
                       {state.phase !== 'lobby' && seat && <span className="font-mono text-lg font-black text-(--accent)">{state.scores[i]}</span>}
-                      {out && <X size={14} className="text-[#ff9b94]" />}
                     </div>
                   );
                 })}

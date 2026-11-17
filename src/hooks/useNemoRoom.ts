@@ -7,7 +7,7 @@ const NEMO_ROOM: RoomEngine<NemoRoom, NemoRoomAction> = {
   channel: 'nemo-count-room',
   storage: 'puzzlthink_nemo',
   create: (value, host) => (value === 'nemo' ? createNemoRoom(host) : null),
-  restorable: (saved) => Array.isArray(saved?.seats) && Array.isArray(saved.problems),
+  restorable: (saved) => Array.isArray(saved?.seats) && Array.isArray(saved.problems) && typeof saved.cooldown === 'object', // older rooms (lock-out rules) start fresh
   reduce: reduceNemoRoom,
   syncSeats: syncNemoSeats,
   running: (state) => state.phase === 'playing',
