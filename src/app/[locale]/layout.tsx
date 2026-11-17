@@ -9,6 +9,7 @@ import { AuthProvider } from '@/components/AuthProvider';
 import HallCelebration from '@/components/HallCelebration';
 import GlobalFooter from '@/components/GlobalFooter';
 import InstallBanner from '@/components/InstallBanner';
+import OnlineCount from '@/components/OnlineCount';
 import { routing } from '@/i18n/routing';
 import { ADSENSE_CLIENT } from '@/lib/adsense';
 import { GA_ID } from '@/lib/analytics';
@@ -55,6 +56,7 @@ export default async function LocaleLayout({
           {children}
           <GlobalFooter />
           <HallCelebration />
+          <OnlineCount />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>
