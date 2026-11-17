@@ -11,7 +11,7 @@ const noop = () => () => {};
  * Your-turn controls as a panel that slides in from the right edge, so you can choose without
  * scrolling below the table. It opens by itself when your turn starts; tap the close tab (or swipe it
  * to the right) to tuck it away, and tap the edge handle (or swipe it left) to bring it back.
- * Outside your turn nothing is shown.
+ * Outside your turn nothing is shown. Used by Heavy13 and Russian roulette.
  */
 export default function TurnDrawer({ active, open, onOpen, onClose, label, closeLabel, children, style }: {
   active: boolean; // it is your turn, so the drawer (or its handle) is available
@@ -41,7 +41,7 @@ export default function TurnDrawer({ active, open, onOpen, onClose, label, close
     <div style={style} className="contents text-[#e6e9f0]">
       {/* Edge handle while tucked away. */}
       <button
-        type="button" onClick={onOpen} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} aria-expanded={open} aria-controls="h13-turn-drawer"
+        type="button" onClick={onOpen} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} aria-expanded={open} aria-controls="turn-drawer"
         className={`fixed right-0 top-1/2 z-40 flex -translate-y-1/2 items-center gap-1 rounded-l-[12px] border border-r-0 border-(--accent)/60 bg-[#17130c]/95 py-4 pl-2 pr-1.5 text-(--accent) shadow-[0_0_24px_var(--accent-glow)] backdrop-blur transition-transform duration-300 ${open ? 'translate-x-full' : 'translate-x-0'}`}
       >
         <ChevronLeft size={16} className="animate-pulse" />
@@ -49,7 +49,7 @@ export default function TurnDrawer({ active, open, onOpen, onClose, label, close
       </button>
 
       <aside
-        id="h13-turn-drawer" aria-hidden={!open} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+        id="turn-drawer" aria-hidden={!open} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
         className={`fixed right-0 top-1/2 z-40 max-h-[calc(100dvh-5rem)] w-[min(88vw,380px)] -translate-y-1/2 overflow-y-auto rounded-l-[16px] border border-r-0 border-(--accent)/45 bg-[#121217]/95 shadow-[-18px_0_50px_rgba(0,0,0,.6)] backdrop-blur-md transition-transform duration-300 ease-out ${open ? 'translate-x-0' : 'pointer-events-none translate-x-full'}`}
       >
         <button type="button" onClick={onClose} aria-label={closeLabel} className="absolute left-0 top-1/2 flex h-16 w-5 -translate-y-1/2 items-center justify-center rounded-r-md bg-white/[0.06] text-white/50 hover:bg-white/10 hover:text-white">

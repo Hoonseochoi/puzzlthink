@@ -1301,7 +1301,10 @@
     "manipNone": "Nobody paid into manipulation this game.",
     "manipFund": "{player} paid +{amount} into manipulation (shared pool {pool}/{max})",
     "manipSwap": "{player} triggered the swap · chambers {a}↔{b} · pool reset to 0",
-    "manipLost": "{n} extra lost"
+    "manipLost": "{n} extra lost",
+    "drawerHandle": "Your turn",
+    "drawerClose": "Tuck the panel away",
+    "manipulateAmountHint": "Pick how much to put in and the panel tucks away; then tap the pair to swap on the cylinder."
   },
   "RussianRouletteOnline": {
     "metaTitle": "Russian Roulette Friend Room",
