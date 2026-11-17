@@ -10,6 +10,8 @@ import { playCylinderSpin, playDryFire, playRevolverShot, unlockGameAudio } from
 import RouletteCharacter from './RouletteCharacter';
 import { RR_FIRE_FLASH_MS, RR_FIRE_LEAD_MS, RR_FIRE_ROTATE_MS, RR_FIRE_STEP_MS, RR_CYLINDER_SPIN_MS, RR_SPIN_MS } from './firing';
 import { DIAMOND, PANEL, PANEL_TITLE, WELL } from '../ui/gameUi';
+import TurnDrawer from '../ui/TurnDrawer';
+import { RR_ROOT_STYLE } from './theme';
 
 type Pending = 'publicInspect' | 'privateInspect' | 'manipulate' | null;
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -115,6 +117,14 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [game.phase, game.shots]);
 
+  // Each of my turns opens the action drawer; picking an action that needs a chamber tucks it away so
+  // the cylinder can be tapped, and cancelling that brings it back.
+  const [closedFor, setClosedFor] = useState<string | null>(null);
+  const turnKey = myTurn ? `${game.round}-${actionKey}` : null;
+  const drawerOpen = turnKey !== null && closedFor !== turnKey;
+  const startPending = (kind: Exclude<Pending, null>) => { setPending(kind); if (kind !== 'manipulate') setClosedFor(turnKey); };
+  const cancelPending = () => { setPending(null); setClosedFor(null); };
+
   const act = (action: RRAction) => { unlockGameAudio(); onAction({ t: 'act', action }); setPending(null); };
   const toggleSound = () => {
     const next = !soundOn;
@@ -212,7 +222,7 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
 
         {pending && <div className="absolute bottom-3 left-1/2 z-40 flex w-[calc(100%-24px)] max-w-md -translate-x-1/2 items-center justify-between gap-3 rounded-[10px] border border-(--accent)/30 bg-[#121217]/95 p-3 shadow-2xl backdrop-blur">
           <div><p className="text-xs font-extrabold text-(--accent)">{t(`pending_${pending}`)}</p><p className="mt-0.5 text-[10px] text-white/40">{pending === 'manipulate' ? t('manipulatePairHint') : t('chooseAdjacent')}</p></div>
-          <div className="flex items-center gap-2"><button onClick={() => setPending(null)} className="rounded-md border border-white/15 bg-white/5 p-2 text-white/60 hover:bg-white/10"><X size={14} /></button></div>
+          <div className="flex items-center gap-2"><button onClick={cancelPending} className="rounded-md border border-white/15 bg-white/5 p-2 text-white/60 hover:bg-white/10"><X size={14} /></button></div>
         </div>}
       </section>
 
@@ -226,17 +236,6 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
           <p className="mt-3 min-h-9 text-xs leading-5 text-white/50">{game.phase === 'finished' ? t('finished') : myTurn ? t('yourTurn') : t('waiting', { player: playerName(game.turn) })}</p>
         </section>
 
-        <section className={`${PANEL} space-y-1.5`}>
-          <p className={`${PANEL_TITLE} mb-2`}>{t('actions')}</p>
-          <ActionButton icon={<Eye size={15} />} label={t('publicInspect')} cost={1} disabled={!myTurn || (myCredits ?? 0) < 1} active={pending === 'publicInspect'} onClick={() => setPending('publicInspect')} />
-          <ActionButton icon={<EyeOff size={15} />} label={t('privateInspect')} cost={2} disabled={!myTurn || (myCredits ?? 0) < 2} active={pending === 'privateInspect'} onClick={() => setPending('privateInspect')} />
-          <ActionButton icon={<RotateCw size={15} />} label={t('rotate1')} cost={3} disabled={!myTurn || (myCredits ?? 0) < 3} onClick={() => act({ kind: 'rotate1' })} />
-          <ActionButton icon={<RefreshCw size={15} />} label={t('rotate2')} cost={4} disabled={!myTurn || (myCredits ?? 0) < 4} onClick={() => act({ kind: 'rotate2' })} />
-          <button disabled={!myTurn || (myCredits ?? 0) < 1} onClick={() => setPending('manipulate')} className={`w-full rounded-md border p-2.5 text-left transition disabled:opacity-25 ${pending === 'manipulate' ? 'border-[#a978ed]/70 bg-[#a978ed]/15' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.07]'}`}>
-            <span className="flex items-center justify-between gap-2"><span className="flex items-center gap-2 text-xs font-extrabold"><LockKeyhole size={15} className="text-[#a978ed]" />{t('manipulate')}</span><span className="text-[9px] font-black text-[#a978ed]">1–3</span></span>
-          </button>
-          {pending === 'manipulate' && <div className="grid grid-cols-3 gap-1.5 pt-1">{([1, 2, 3] as const).map((value) => <button key={value} disabled={(myCredits ?? 0) < value} onClick={() => setAmount(value)} className={`rounded-md border py-2 font-mono text-xs font-black ${amount === value ? 'border-[#a978ed] bg-[#a978ed]/20 text-[#d8baff]' : 'border-white/10 text-white/40'} disabled:opacity-20`}>+{value}</button>)}</div>}
-        </section>
 
         <section className={PANEL}>
           <p className={PANEL_TITLE}>{t('intelLegend')}</p>
@@ -258,6 +257,25 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
           })}</div>
         </section>
       </aside>
+      <TurnDrawer active={turnKey !== null} open={drawerOpen} onOpen={() => setClosedFor(null)} onClose={() => setClosedFor(turnKey)} label={t('drawerHandle')} closeLabel={t('drawerClose')} style={RR_ROOT_STYLE}>
+        <p className="mb-3 text-sm font-black text-(--accent)">{t('yourTurn')}</p>
+        <div className="mb-3 grid grid-cols-2 gap-2">
+          <div className={`p-2.5 ${WELL}`}><p className="text-[9px] font-black tracking-widest text-white/30">CREDIT</p><p className="mt-0.5 font-mono text-xl font-black text-[#ffcf58]">{myCredits ?? '—'}</p></div>
+          <div className={`p-2.5 ${WELL}`}><p className="text-[9px] font-black tracking-widest text-white/30">CONTROL</p><p className="mt-0.5 font-mono text-xl font-black text-[#a978ed]">{myFund}</p></div>
+        </div>
+          <section className="space-y-1.5">
+            <p className={`${PANEL_TITLE} mb-2`}>{t('actions')}</p>
+            <ActionButton icon={<Eye size={15} />} label={t('publicInspect')} cost={1} disabled={!myTurn || (myCredits ?? 0) < 1} active={pending === 'publicInspect'} onClick={() => startPending('publicInspect')} />
+            <ActionButton icon={<EyeOff size={15} />} label={t('privateInspect')} cost={2} disabled={!myTurn || (myCredits ?? 0) < 2} active={pending === 'privateInspect'} onClick={() => startPending('privateInspect')} />
+            <ActionButton icon={<RotateCw size={15} />} label={t('rotate1')} cost={3} disabled={!myTurn || (myCredits ?? 0) < 3} onClick={() => act({ kind: 'rotate1' })} />
+            <ActionButton icon={<RefreshCw size={15} />} label={t('rotate2')} cost={4} disabled={!myTurn || (myCredits ?? 0) < 4} onClick={() => act({ kind: 'rotate2' })} />
+            <button disabled={!myTurn || (myCredits ?? 0) < 1} onClick={() => startPending('manipulate')} className={`w-full rounded-md border p-2.5 text-left transition disabled:opacity-25 ${pending === 'manipulate' ? 'border-[#a978ed]/70 bg-[#a978ed]/15' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.07]'}`}>
+              <span className="flex items-center justify-between gap-2"><span className="flex items-center gap-2 text-xs font-extrabold"><LockKeyhole size={15} className="text-[#a978ed]" />{t('manipulate')}</span><span className="text-[9px] font-black text-[#a978ed]">1–3</span></span>
+            </button>
+            {pending === 'manipulate' && <p className="pt-1 text-[10px] text-white/45">{t('manipulateAmountHint')}</p>}
+            {pending === 'manipulate' && <div className="grid grid-cols-3 gap-1.5 pt-1">{([1, 2, 3] as const).map((value) => <button key={value} disabled={(myCredits ?? 0) < value} onClick={() => { setAmount(value); setClosedFor(turnKey); }} className={`rounded-md border py-2 font-mono text-xs font-black ${amount === value ? 'border-[#a978ed] bg-[#a978ed]/20 text-[#d8baff]' : 'border-white/10 text-white/40'} disabled:opacity-20`}>+{value}</button>)}</div>}
+          </section>
+      </TurnDrawer>
     </div>
   );
 }

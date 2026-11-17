@@ -1097,7 +1097,9 @@
     "quick3": "받침대 합이 13 이상이 되면 원래 있던 큐브 수만큼 벌점! 내 큐브만 남아요.",
     "quick4": "라운드에 한 번 패스로 순서를 맨 뒤로 미룰 수 있어요.",
     "quick5": "14라운드 후 벌점이 가장 적은 사람이 1위, 6·7위는 탈락.",
-    "howToPlay": "게임 방법"
+    "howToPlay": "게임 방법",
+    "drawerHandle": "내 차례",
+    "drawerClose": "선택 창 접기"
   },
   "Heavy13Online": {
     "metaTitle": "무거운 13 친구와 하기",
@@ -1314,7 +1316,10 @@
     "manipNone": "이번 게임에서는 아무도 조작 크레딧을 내지 않았습니다.",
     "manipFund": "{player} 조작 크레딧 +{amount} (공동 누적 {pool}/{max})",
     "manipSwap": "{player} 조작 실행 · {a}↔{b} 약실 교체 · 공동 크레딧 0으로 초기화",
-    "manipLost": "초과 {n}개 소멸"
+    "manipLost": "초과 {n}개 소멸",
+    "drawerHandle": "내 차례",
+    "drawerClose": "행동 창 접기",
+    "manipulateAmountHint": "넣을 크레딧을 고르면 창이 접혀요. 그다음 바꿀 두 칸을 실린더에서 누르세요."
   },
   "RussianRouletteOnline": {
     "metaTitle": "러시안 룰렛 친구 방",
