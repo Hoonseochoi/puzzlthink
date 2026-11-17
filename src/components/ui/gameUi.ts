@@ -18,7 +18,7 @@ export const fog = (rgb: string) =>
 
 export const SHELL = 'relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]';
 export const HEADER = 'relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8';
-export const MAIN = 'relative z-10 mx-auto grid w-full max-w-[1180px] gap-4 px-3 py-3 sm:gap-6 sm:px-4 sm:py-5 lg:grid-cols-[minmax(0,760px)_320px] lg:px-6 lg:py-8';
+export const MAIN = 'relative z-10 mx-auto grid w-full max-w-[1180px] grid-cols-1 gap-4 px-3 py-3 sm:gap-6 sm:px-4 sm:py-5 lg:grid-cols-[minmax(0,760px)_320px] lg:px-6 lg:py-8';
 
 /** The big card that holds the board. */
 export const STAGE = 'rounded-[14px] border border-white/10 bg-[#121217]/85 p-2.5 shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur sm:p-5';
