@@ -11,6 +11,7 @@ import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { prepareBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
 import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import LaserPiece from './laserJanggi/LaserPiece';
+import { prepareNemoRoom } from '@/hooks/useNemoRoom';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
@@ -40,6 +41,17 @@ function BlindGomokuPreview() {
     <div className="absolute inset-[12%]" style={{ backgroundImage: 'linear-gradient(to right, transparent 49%, rgba(103,232,255,.35) 49%, rgba(103,232,255,.35) 51%, transparent 51%), linear-gradient(to bottom, transparent 49%, rgba(103,232,255,.35) 49%, rgba(103,232,255,.35) 51%, transparent 51%)', backgroundSize: '25% 25%' }} />
     {Array.from({ length: 25 }, (_, index) => <span key={index} className="relative z-10 flex items-center justify-center">{stones.has(index) && <MiniFace color={stones.get(index)!} />}</span>)}
     <span className="absolute right-2 top-2 z-20 rounded-full bg-[#17201e] px-2 py-1 text-[7px] font-black tracking-wider text-[#ffd166] sm:right-3 sm:top-3 sm:text-[9px]">HIDDEN</span>
+  </div>;
+}
+
+function NemoCountPreview() {
+  // A 3×3 corner of the broadcast board with one rectangle that makes the target picked out.
+  const cells = [1, 8, 6, 3, 5, 2, 7, 4, 9];
+  return <div className="relative w-full rounded-xl border-[3px] border-[#17201e] bg-[#5d6478] p-2 shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:p-4 sm:shadow-2xl">
+    <span className="absolute right-1.5 top-1.5 rounded-[3px] bg-[#2c2e4b] px-1 text-center font-serif text-[7px] font-black leading-tight text-[#d6d9e8] sm:right-3 sm:top-3 sm:px-2 sm:py-1 sm:text-[11px]">TARGET<br /><b className="text-[10px] sm:text-xl">20</b></span>
+    <div className="relative mt-3 grid w-[78%] grid-cols-3 sm:mt-6">{cells.map((v, i) => <span key={i} className="flex aspect-square items-center justify-center border border-[#1a1d3a] bg-gradient-to-b from-[#e4e5ea] to-[#c9cbd3] font-serif text-[10px] font-black text-[#15161d] sm:text-2xl">{v}</span>)}
+      <span className="pointer-events-none absolute left-[33.3%] top-[33.3%] h-[66.7%] w-[66.7%] rounded-[2px] border-2 border-[#ffcf3f] bg-[#ffcf3f]/25 sm:border-[3px]" />
+    </div>
   </div>;
 }
 
@@ -92,6 +104,7 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const router = useRouter();
   const games = [
+    { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', status: t('new'), meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
     { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', status: t('new'), meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
     { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', status: t('new'), meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', status: t('new'), meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
@@ -109,13 +122,22 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="rounded-full px-3 py-1 text-[10px] font-black tracking-[0.15em] text-white" style={{ background: game.color }}>{game.status}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>
             </div>
           </div>
         </Link>
+        {game.illustration === 'nemoCount' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/nemo-count" className={MODE_BUTTON}><Brain size={15} className="text-[#7d86a8]" /><span className="text-sm font-black">{t('modeNemoSolo')}</span><span className="text-[10px] font-bold text-black/45">{t('modeNemoSoloDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/nemo-count/room/${await prepareNemoRoom()}`)} className={`${MODE_BASE} border-[#7d86a8]/45 bg-[#eef0f7] hover:border-[#7d86a8]`}><UsersRound size={15} className="text-[#7d86a8]" /><span className="text-sm font-black">{t('modeNemoFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeNemoFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
         {game.illustration === 'laserJanggi' && (
           <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35">{t('modeTitle')}</p>

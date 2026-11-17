@@ -38,7 +38,8 @@
     "hallCongratsClose": "Close",
     "gamesIntro": "About games",
     "contactPartnership": "Contact & partnerships",
-    "onlineNow": "{count} online now"
+    "onlineNow": "{count} online now",
+    "nemoCount": "Nemo Count"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku — five hidden behind color",
@@ -197,7 +198,13 @@
     "modeBlindAi": "AI 1:1",
     "modeBlindAiDesc": "3 memory levels",
     "modeBlindFriend": "Friend 1:1",
-    "modeBlindFriendDesc": "Link or code"
+    "modeBlindFriendDesc": "Link or code",
+    "nemoCountDescription": "Count every rectangle whose numbers add up to the target. A 30-minute challenge or a buzzer duel with friends.",
+    "nemoCountMeta": "Solo 30-min challenge · 2–6 friends",
+    "modeNemoSolo": "Solo",
+    "modeNemoSoloDesc": "30-min challenge, practice",
+    "modeNemoFriend": "With friends",
+    "modeNemoFriendDesc": "2–6 players · buzzer"
   },
   "WallGo": {
     "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
@@ -1703,6 +1710,22 @@
           "Every puzzle has exactly one solution and can be solved by logic alone."
         ],
         "origin": "A classic puzzle solved with logic, not arithmetic. The rules take a minute to learn, but harder puzzles need reasoning several steps ahead."
+      },
+      "nemoCount": {
+        "tagline": "Find every rectangle whose numbers add up to the target, without missing one.",
+        "players": "1, or 2–6 friends",
+        "pace": "Challenge 30 min · friend games 1–5 min per problem or untimed",
+        "level": "Easy · Normal · Hard (random boards)",
+        "solo": "30-minute challenge · untimed practice",
+        "friend": "2–6 players, buzzer and pass, link or 4-digit code",
+        "ai": "30-minute challenge · untimed practice",
+        "rules": [
+          "The board is made of square cells; some carry numbers. Blank cells count as 0.",
+          "A \"nemo\" is any rectangle of whole cells (squares and single cells included) that lies entirely inside the board.",
+          "Count how many rectangles have numbers adding up exactly to the target.",
+          "Solo, see how many you solve in 30 minutes; with friends, whoever buzzes first answers within 10 seconds."
+        ],
+        "origin": "Based on Nemo Count from Netflix's The Devil's Plan: Death Room; boards are generated at random and every answer and solution is computed automatically."
       }
     }
   },
@@ -1752,7 +1775,11 @@
     "codeInvalid": "Enter the 4-digit invite code.",
     "inviteCode": "INVITE CODE",
     "inviteCodeHint": "Friends can enter this number under \"Join with an invite code\" on the game's start screen.",
-    "howToPlayTitle": "How to play"
+    "howToPlayTitle": "How to play",
+    "nemoChallenge": "30-minute challenge (ranked)",
+    "nemoPractice": "Untimed practice",
+    "nemoTutorial": "Two tutorial boards",
+    "nemoRoom": "Create a friend room (2–6)"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -2338,5 +2365,229 @@
       }
     ],
     "disclaimer": "Laser Janggi is PUZZLTHINK's unofficial web adaptation of rules presented on television and is not affiliated with any broadcaster or producer."
+  },
+  "NemoCount": {
+    "metaTitle": "Nemo Count — how many rectangles make the target?",
+    "metaDescription": "The Devil's Plan counting game on the web. Count rectangles that sum to the target in a 30-minute challenge or a buzzer duel with 2–6 friends, with a solution replay for every board.",
+    "title": "Nemo Count",
+    "subtitle": "COUNT THE SQUARES",
+    "restart": "Restart",
+    "mode_challenge": "30-min challenge",
+    "mode_practice": "Practice",
+    "mode_tutorial": "Tutorial",
+    "challengeTitle": "How many in 30 minutes?",
+    "challengeDesc": "Random boards keep coming. One answer per board; right or wrong, the next one appears. Your number of correct answers is recorded.",
+    "bestScore": "Best on {level} · {n}",
+    "level_easy": "Easy",
+    "level_normal": "Normal",
+    "level_hard": "Hard",
+    "startChallenge": "Start challenge",
+    "timeUp": "TIME UP",
+    "summaryScore": "{n} correct",
+    "statAttempted": "Answered",
+    "statAccuracy": "Accuracy",
+    "statAvg": "Avg time",
+    "statCorrect": "Correct",
+    "again": "Try again",
+    "tutorialKicker": "TUTORIAL {n} / 2",
+    "challengeKicker": "CHALLENGE · #{n}",
+    "practiceKicker": "PRACTICE · {level}",
+    "tutorialHint0": "The first board from the show. How many rectangles sum to 20? The 21 cells are bigger than 20, so no rectangle can include them.",
+    "tutorialHint1": "The second board from the show. Target 0 means: count rectangles with no 1 inside. Count every rectangle made only of blank cells.",
+    "solvedIn": "Correct! {time}",
+    "gaveUp": "The answer is {answer}. Check the solution",
+    "tryAgain": "Not quite — count again",
+    "howMany": "How many rectangles add up to the target?",
+    "answerPlaceholder": "Number of rectangles",
+    "submit": "Submit",
+    "skip": "Skip",
+    "reveal": "Show answer",
+    "endNow": "End now",
+    "answerIs": "Answer: {n}",
+    "toPractice": "Start practising",
+    "nextProblem": "Next board",
+    "wrongCount": "{n} wrong",
+    "difficulty": "Difficulty",
+    "levelHint_easy": "Small boards · answers 2–5 (blank boards up to 30)",
+    "levelHint_normal": "Medium boards, big-number bridges · answers 3–9 (blank boards 25–90)",
+    "levelHint_hard": "Large boards · answers 5–14 (blank boards up to 200+)",
+    "session": "This session",
+    "historyLine": "Target {target} · answer {answer}",
+    "quickRules": "Quick rules",
+    "quick1": "A nemo is any rectangle of cells — squares and single cells too — that stays on the board.",
+    "quick2": "Blank cells are 0. A rectangle counts if its numbers add up to the target.",
+    "quick3": "In the challenge you get one answer per board; in practice you can retry as often as you like.",
+    "quick4": "Every board has a solution replay that outlines each rectangle, smallest first.",
+    "replayStep": "Solution {step} / {total} · {size}",
+    "replayNone": "No rectangle on this board makes the target",
+    "prev": "Previous",
+    "next": "Next",
+    "play": "Play",
+    "pause": "Pause",
+    "replaySlider": "Solution step"
+  },
+  "NemoOnline": {
+    "metaTitle": "Nemo Count with friends",
+    "metaDescription": "A Nemo Count buzzer duel with 2–6 friends who join by link or 4-digit code.",
+    "guest": "Guest",
+    "me": "me",
+    "emptySeat": "Empty seat",
+    "shareText": "Let's play a Nemo Count buzzer duel on PUZZLTHINK!",
+    "unconfigured": "The realtime server isn't set up yet.",
+    "connectionError": "Couldn't reach the realtime server. Please reload.",
+    "roomNotFound": "Room not found. Check that the host is online.",
+    "hostOffline": "The host disconnected. The game continues when they are back.",
+    "back": "Back to Nemo Count",
+    "connecting": "Connecting to the room…",
+    "lobbyTitle": "Waiting for friends (2–6)",
+    "finished": "Final ranking",
+    "solvedBy": "{player} got it! · {time}",
+    "timeUp": "Time's up — nobody got it",
+    "nobody": "All wrong or passed — nobody got it",
+    "yourBuzz": "Buzzed! Enter the count within 10 seconds",
+    "buzzing": "{player} is answering…",
+    "youAreOut": "You're out of this one (wrong or passed)",
+    "problemKicker": "PROBLEM {n} / {total}",
+    "inviteTitle": "Invite",
+    "inviteDesc": "Send the link or the 4-digit code. Up to 6 players can join.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "problemCount": "Problems",
+    "problems": "{n}",
+    "timeLimit": "Time per problem",
+    "minutes": "{n} min",
+    "noLimit": "No limit",
+    "hostSets": "The host sets these.",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "start": "Start with {n}",
+    "needPlayers": "You can start once 2 or more have joined",
+    "roomFull": "All seats are taken. You're spectating.",
+    "waitingHost": "Waiting for the host to start.",
+    "answerIn": "Answer · {s}s",
+    "outForThis": "You're done with this one",
+    "someoneAnswering": "Someone is answering",
+    "buzzer": "Buzz",
+    "passConfirm": "Give up this board? You get one pass per game.",
+    "pass": "Pass ({n} left)",
+    "yourWrong": "Your wrong answer: {n}",
+    "spectating": "You're spectating",
+    "correctN": "{n} correct",
+    "tieRule": "Ties go to the shorter total time on solved boards.",
+    "rematch": "Rematch with new boards",
+    "rematchWait": "The host can start a rematch.",
+    "players": "Players",
+    "scoreLine": "Correct {n} · pass {pass}",
+    "wrongMark": "wrong",
+    "passedMark": "passed",
+    "rulesTitle": "Friend game rules",
+    "r1": "Everyone sees the same board. When you have the count, buzz and answer within 10 seconds.",
+    "r2": "A wrong answer, or no answer in 10 seconds, takes you out of that board.",
+    "r3": "One pass per game gives up the current board. When everyone is out or time runs out, the next board starts.",
+    "r4": "Most correct answers wins; ties go to the shorter total time.",
+    "joined": "{name} joined",
+    "left": "{name} left"
+  },
+  "NemoTutorial": {
+    "s1Title": "The board and the target",
+    "s1Desc": "The board is made of square cells, some with numbers. The TARGET plate shows the sum to make.",
+    "s2Title": "A nemo is a rectangle on the board",
+    "s2Desc": "Any rectangle of whole cells counts, squares and single cells included. The yellow 2×2 is fine; the red dashed one runs into the gap, so it is not.",
+    "s3Title": "Answer for board 1 from the show: {answer}",
+    "s3Desc": "Find every rectangle that sums to 20, such as the yellow 4+9+2+5 = 20. The 21 cells are bigger than 20 and can never be included.",
+    "s4Title": "Answer for board 2 from the show: {answer}",
+    "s4Desc": "With target 0, count rectangles that avoid the 1s. A full block a wide and b tall holds a(a+1)/2 × b(b+1)/2 rectangles.",
+    "s5Title": "30-minute challenge and practice",
+    "s5Desc": "The challenge records how many boards you solve in 30 minutes. Practice has no clock; retry as often as you like and check with the solution replay.",
+    "s6Title": "Friends: buzzer and pass",
+    "s6Desc": "2–6 players see the same board. Buzz and answer within 10 seconds; a wrong answer takes you out of that board. One pass per game."
+  },
+  "NemoCountGuide": {
+    "eyebrow": "NEMO COUNT GUIDE",
+    "title": "Nemo Count — the Devil's Plan counting game, and how to count fast",
+    "intro": "Nemo Count is the counting game from Netflix's The Devil's Plan: Death Room. On a board of cells, count how many rectangles have numbers adding up to the target. The rule is simple, but missing one or counting one twice is a wrong answer, so a systematic way of counting decides it. PUZZLTHINK generates boards at random and computes every answer and solution, so there is always a new board.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "The board is made of square cells; some carry numbers. Blank cells are 0.",
+      "A nemo is a rectangle of whole cells. Squares and single cells count; it may not leave the board or cross a gap.",
+      "A rectangle counts once if its numbers add up exactly to the target.",
+      "Solo: the 30-minute challenge allows one answer per board and records how many you solve. Practice has no time limit.",
+      "Friends (2–6): the first to buzz answers within 10 seconds. A wrong answer takes you out of that board; each player has one pass per game.",
+      "A friend game moves on when the time per problem (1–5 min or none) runs out or everyone is out. After the set number of boards, most correct answers wins, then the shorter total time."
+    ],
+    "specialTitle": "Easy to miss",
+    "special": [
+      {
+        "title": "A single cell is a nemo",
+        "body": "A cell whose number equals the target is one rectangle. With target 0, every blank cell counts."
+      },
+      {
+        "title": "Not only squares",
+        "body": "Rectangles like 1×3 or 2×4 count too. Counting by size keeps you from missing any."
+      },
+      {
+        "title": "No crossing gaps",
+        "body": "Boards have uneven shapes, so every cell of a rectangle must be on the board."
+      },
+      {
+        "title": "Numbers above the target are walls",
+        "body": "No number is negative, so a cell bigger than the target can never be inside a counted rectangle. Split the board around it."
+      }
+    ],
+    "strategyTitle": "Tips — none missed, none twice",
+    "strategyIntro": "On the show, the order of counting mattered more than arithmetic. Common methods:",
+    "strategies": [
+      {
+        "tag": "Formula",
+        "title": "Full blocks by formula",
+        "body": "A blank block a cells wide and b tall holds a(a+1)/2 × b(b+1)/2 rectangles; a 3×3 holds 6×6 = 36. For target 0, split into blocks, use the formula, and add the rectangles that span blocks."
+      },
+      {
+        "tag": "Order",
+        "title": "Anchor on the top-left cell",
+        "body": "Every rectangle has exactly one top-left cell. Count, cell by cell, only the rectangles starting there and you will never count one twice."
+      },
+      {
+        "tag": "By size",
+        "title": "Singles, rows, columns, then blocks",
+        "body": "Count single cells first, then 1×2 and 1×3 rows, then columns, then 2×2 and up. The solution replay walks in the same order, smallest first."
+      },
+      {
+        "tag": "Pruning",
+        "title": "Stop when the sum overflows",
+        "body": "There are no negatives, so once a growing rectangle passes the target, that direction is done. Big numbers cut things short quickly."
+      },
+      {
+        "tag": "Target 0",
+        "title": "Split the board at the 1s",
+        "body": "With target 0, every numbered cell is a wall. Cut the board into pieces at those cells, count each piece by formula, then the rectangles that cross between pieces."
+      },
+      {
+        "tag": "Practice",
+        "title": "Review misses with the replay",
+        "body": "In practice, Show answer outlines each rectangle in turn. Seeing which size you missed lifts your accuracy fast."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Nemo Count?",
+        "a": "On the PUZZLTHINK Nemo Count page, in any desktop or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "How many boards are there?",
+        "a": "There is no fixed set: a new board is generated for each problem at the chosen difficulty, and the answer and solution are computed by checking every rectangle."
+      },
+      {
+        "q": "Do only squares count?",
+        "a": "No. Any rectangle of whole cells counts, single cells included."
+      },
+      {
+        "q": "How many friends can play?",
+        "a": "From 2 to 6. Create a room under Play with friends and send the link or 4-digit code."
+      }
+    ],
+    "disclaimer": "Nemo Count is PUZZLTHINK's web version of a game format seen on TV and is not affiliated with any broadcaster or producer."
   }
 }
