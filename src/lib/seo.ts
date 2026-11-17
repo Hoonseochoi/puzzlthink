@@ -33,6 +33,7 @@ export const SHOWS = {
   dp1: { ko: '데블스 플랜', en: "The Devil's Plan" },
   dp3: { ko: '데블스 플랜: 데드 어게인', en: "The Devil's Plan: Dead Again" },
   genius2: { ko: '더 지니어스: 룰 브레이커', en: 'The Genius: Rule Breaker' },
+  genius3: { ko: '더 지니어스: 블랙가넷', en: 'The Genius: Black Garnet' },
   genius34: { ko: '더 지니어스', en: 'The Genius' },
   society2: { ko: '소사이어티 게임 2', en: 'The Society Game 2' },
 } as const;

@@ -11,6 +11,7 @@ import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { prepareBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
 import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { prepareBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
+import { prepareBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
 import LaserPiece from './laserJanggi/LaserPiece';
 import { prepareNemoRoom } from '@/hooks/useNemoRoom';
 import { initialState } from '@/lib/janggi';
@@ -76,6 +77,11 @@ function BlackWhitePreview() {
   </div>;
 }
 
+function BlackWhite2Preview() {
+  const card = (black: boolean, n: string) => <span className={`flex aspect-[5/7] w-[30%] items-center justify-center rounded-[10%] border-2 text-[20px] font-black shadow-xl sm:text-5xl ${black ? 'border-[#55555e] bg-gradient-to-b from-[#34343b] to-[#050506] text-[#f4efe4]' : 'border-white bg-gradient-to-b from-[#fffdf8] to-[#cfc8ba] text-[#0d0d10]'}`}>{n}</span>;
+  return <div className="relative flex aspect-square w-full flex-col items-center justify-center overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#121217] shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:shadow-2xl"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(239,51,64,.22),transparent_65%)]" /><div className="relative flex items-center justify-center gap-[8%]">{card(true, '9')}{card(false, '?')}</div><div className="relative mt-[8%] flex gap-1.5 sm:gap-3">{Array.from({ length: 5 }, (_, index) => <i key={index} className={`h-2.5 w-2.5 rotate-45 rounded-[2px] sm:h-5 sm:w-5 ${index < 4 ? 'bg-[#ef3340] shadow-[0_0_10px_#ef3340]' : 'bg-white/10'}`} />)}</div><span className="absolute bottom-2 rounded-full bg-[#ef3340] px-2 py-0.5 text-[7px] font-black tracking-wider text-white sm:bottom-4 sm:text-[10px]">99 POINTS</span></div>;
+}
+
 function JanggiPreview() {
   const board = initialState(0).board;
   return <div className="grid w-[74%] grid-cols-3 gap-0.5 rounded-xl border-[3px] border-[#17201e] bg-[#14161c] p-1 shadow-xl sm:w-[48%] sm:gap-1.5 sm:rounded-2xl sm:border-4 sm:p-2 sm:shadow-2xl">
@@ -129,6 +135,7 @@ export default function HomeClient() {
     { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', show: 'dp3', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', show: 'dp3', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'BLACK & WHITE', display: tc('blackWhite'), description: t('blackWhiteDescription'), href: '/black-white', show: 'genius2', meta: t('blackWhiteMeta'), color: '#2b2b31', illustration: 'blackWhite' },
+    { title: 'BLACK & WHITE II', display: tc('blackWhite2'), description: t('blackWhite2Description'), href: '/black-white-2', show: 'genius3', meta: t('blackWhite2Meta'), color: '#ef3340', illustration: 'blackWhite2' },
     { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', show: 'genius2', meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
     { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', show: 'society2', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
     { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', show: 'dp1', meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
@@ -143,7 +150,7 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><ShowTag show={game.show} color={game.color} label={game.show === 'classic' ? t('classic') : t(`show_${game.show}`)} /><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>
@@ -165,6 +172,15 @@ export default function HomeClient() {
             <div className="grid grid-cols-2 gap-2">
               <Link href="/black-white" className={MODE_BUTTON}><Bot size={15} className="text-[#2b2b31]" /><span className="text-sm font-black">{t('modeBwAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBwAiDesc')}</span></Link>
               <button type="button" onClick={async () => router.push(`/black-white/room/${await prepareBlackWhiteRoom()}`)} className={`${MODE_BASE} border-[#2b2b31]/35 bg-[#ecebe8] hover:border-[#2b2b31]`}><UsersRound size={15} className="text-[#2b2b31]" /><span className="text-sm font-black">{t('modeBwFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBwFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
+        {game.illustration === 'blackWhite2' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35">{t('modeTitle')}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/black-white-2" className={MODE_BUTTON}><Bot size={15} className="text-[#ef3340]" /><span className="text-sm font-black">{t('modeBw2Ai')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBw2AiDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/black-white-2/room/${await prepareBlackWhite2Room()}`)} className={`${MODE_BASE} border-[#ef3340]/35 bg-[#fdecee] hover:border-[#ef3340]`}><UsersRound size={15} className="text-[#ef3340]" /><span className="text-sm font-black">{t('modeBw2Friend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBw2FriendDesc')}</span></button>
             </div>
           </div>
         )}

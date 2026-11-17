@@ -18,6 +18,7 @@ export default function GlobalFooter() {
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
           <Link href="/nemo-count" className="hover:text-black">{t('nemoCount')}</Link>
           <Link href="/black-white" className="hover:text-black">{t('blackWhite')}</Link>
+          <Link href="/black-white-2" className="hover:text-black">{t('blackWhite2')}</Link>
           <Link href="/laser-janggi" className="hover:text-black">{t('laserJanggi')}</Link>
           <Link href="/blind-gomoku" className="hover:text-black">{t('blindGomoku')}</Link>
           <Link href="/wallgo" className="hover:text-black">{t('wallgo')}</Link>
