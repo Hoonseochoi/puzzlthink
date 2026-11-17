@@ -5,7 +5,8 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { getSupabase } from '@/lib/supabase';
 import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
 import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypto';
-import { setRoomOpponents } from '@/lib/stats';
+import { setRoomOpen, setRoomOpponents } from '@/lib/stats';
+import { isOpenRoom } from '@/lib/openRooms';
 
 /**
  * Host-authoritative room over Supabase Realtime (broadcast + presence).
@@ -280,15 +281,18 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   }, [presenceMeta]);
 
   // Signed-in players seated with me this game, remembered even if they drop out before it ends.
-  const met = useRef<{ sid: string; ids: Map<string, string> }>({ sid: '', ids: new Map() });
+  const met = useRef<{ sid: string; ids: Map<string, { uid: string; name: string }> }>({ sid: '', ids: new Map() });
   useEffect(() => {
     if (!state || !me) return;
     if (met.current.sid !== state.sid) met.current = { sid: state.sid, ids: new Map() };
     const seated = new Set(state.seats.flatMap((seat) => (seat && seat.id !== me.id ? [seat.id] : [])));
-    for (const peer of peers) if (peer.uid && seated.has(peer.id)) met.current.ids.set(peer.id, peer.uid);
+    for (const peer of peers) if (peer.uid && seated.has(peer.id)) met.current.ids.set(peer.id, { uid: peer.uid, name: peer.name });
     setRoomOpponents([...met.current.ids.values()]);
   }, [state, peers, me]);
-  useEffect(() => () => setRoomOpponents([]), []);
+  useEffect(() => {
+    setRoomOpen(isOpenRoom(code));
+    return () => { setRoomOpponents([]); setRoomOpen(false); };
+  }, [code]);
 
   const mySeat = state && me ? seatOf(state, me.id) : null;
   return { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote };

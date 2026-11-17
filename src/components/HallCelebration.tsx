@@ -6,12 +6,12 @@ import { Crown, X } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { type GameId, HALL_RANK_EVENT, type HallRankDetail } from '@/lib/stats';
 
-const GAME_LABEL: Record<GameId, string> = { wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', sudoku: 'sudoku' };
+export const GAME_LABEL: Record<GameId, string> = { wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
 const COLORS = ['#ffd36e', '#ff6b4a', '#65e5ff', '#3ddc97', '#a978ed', '#ffffff', '#f2b84b'];
 
 /** Full-screen confetti bursts from both lower corners, then a gentle rain from the top. */
-function Fireworks() {
+export function Fireworks() {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;

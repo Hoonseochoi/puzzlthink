@@ -3422,5 +3422,39 @@
     "createTitle": "어떤 게임으로 열까요?",
     "close": "닫기",
     "note": "로그인한 사람끼리만 참가할 수 있어요. 결과는 서로의 전적으로 남아요."
+  },
+  "OpenResult": {
+    "close": "닫기",
+    "me": "나",
+    "hidden": "가려진 이름",
+    "wl": "{w}승 {l}패",
+    "eyebrow": "오픈대전 랭킹 · {game}",
+    "revengeWin": "리벤지 성공!",
+    "revengeWinDesc": "지난번에 졌던 {names}님에게 제대로 갚아줬어요!",
+    "revengeLose": "리벤지 실패…",
+    "revengeLoseDesc": "{names}님에게 또 졌어요. 다음 판엔 꼭 갚아줘요!",
+    "notRankedTitle": "랭킹까지 조금만 더",
+    "notRankedDesc": "오픈대전에서 {n}승만 더 하면 랭킹에 이름이 올라가요.",
+    "top5Title": "TOP 5 진입!",
+    "top5Desc": "{game} 오픈대전 랭킹 {rank}위! 최상위권에 이름을 올렸어요.",
+    "enterTitle": "랭킹 진입!",
+    "enterDesc": "{game} 오픈대전 랭킹에 {rank}위로 처음 올라갔어요. 축하해요!",
+    "upTitle": "랭킹 상승!",
+    "upDesc": "{from}위 → {to}위. 이 기세로 계속 올라가 봐요!",
+    "downTitle": "괜찮아요, 다시 올라가요",
+    "downDesc": "{from}위 → {to}위. 한 판이면 금방 되찾을 수 있어요. 힘내요!",
+    "keepTitle": "순위 유지",
+    "keepDesc": "지금 {rank}위를 지키고 있어요.",
+    "viewRanking": "랭킹 보기"
+  },
+  "OpenRanking": {
+    "title": "오픈대전 랭킹",
+    "desc": "오픈방에서 거둔 승리로 매기는 종목별 랭킹이에요. 3승부터 이름이 올라가요. 순서: 승수 → 승률 → 그 승수에 먼저 도달한 사람.",
+    "wl": "{w}승 {l}패",
+    "empty": "아직 비어 있어요",
+    "nearTitle": "내 주변 순위",
+    "loginToSee": "로그인하면 내 순위와 주변 순위를 볼 수 있어요.",
+    "notRanked": "아직 랭킹 밖이에요 ({w}승 {l}패). 오픈대전에서 {n}승만 더 하면 올라가요!",
+    "me": "나"
   }
 }
