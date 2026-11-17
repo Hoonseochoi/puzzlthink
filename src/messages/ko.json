@@ -2014,7 +2014,9 @@
     "byTimeout": "시간패",
     "winnerIs": "{player} 승리 · {reason}",
     "youWin": "승리했어요 · {reason}",
-    "youLose": "패배했어요 · {reason}"
+    "youLose": "패배했어요 · {reason}",
+    "colorRuleHost": "색 규칙은 방장이 정하고, 대국 중에는 바뀌지 않아요. 한 판 더 하기 전에는 결과 화면에서 다시 정할 수 있어요.",
+    "colorRuleGuest": "색 규칙은 방장이 정해요."
   },
   "BlindGomokuTutorial": {
     "you": "나",

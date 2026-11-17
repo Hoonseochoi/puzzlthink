@@ -13,8 +13,8 @@ import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL
 import { useBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
-import { findWinningLine, type StoneColor } from '@/lib/blindGomoku';
-import { BG_TURN_OPTIONS, REVEALS, ownerOf, seatToMove } from '@/lib/blindGomokuRoom';
+import { STONE_COLORS, colorsInPlay, findWinningLine, type StoneColor } from '@/lib/blindGomoku';
+import { BG_TURN_OPTIONS, REVEALS, ownerOf, roomPlayableColors, seatToMove } from '@/lib/blindGomokuRoom';
 import BlindGomokuBoard from './BlindGomokuBoard';
 import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
@@ -60,6 +60,10 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
   const peekSeconds = state ? Math.max(0, Math.ceil((state.revealUntil - now) / 1000)) : 0;
   const seconds = state ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : 0;
   const copyColor = state && moves.length % 2 === 1 ? moves.at(-1)!.color : null; // white must copy this
+  const colorCount = state?.colorCount ?? STONE_COLORS.length;
+  const mustChange = !!state?.mustChange;
+  const playable = state ? roomPlayableColors(state) : colorsInPlay(colorCount);
+  const blackColor = playable.includes(color) ? color : playable[0]; // picked colour, kept within the rule
 
   const copyLink = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* Clipboard may be blocked. */ } };
   const shareLink = async () => {
@@ -83,7 +87,22 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
   const boardMoves = finished ? moves.slice(0, replay.step) : moves;
   const replayLine = finished ? findWinningLine(boardMoves, boardMoves.at(-1)) : null;
   const flipped = finished ? replay.truth : peeking;
-  const place = (row: number, col: number) => dispatch({ t: 'place', row, col, color: iAmBlack ? color : undefined });
+  const place = (row: number, col: number) => dispatch({ t: 'place', row, col, color: iAmBlack ? blackColor : undefined });
+
+  // The host sets the colour rule in the lobby, or between games before a rematch.
+  const colorRulePanel = state && (
+      <div className={PANEL}>
+        <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{tb('colorRule')}</p><span className="text-[10px] font-bold text-white/35">{tb('colorCountValue', { count: colorCount })}</span></div>
+        <div className="mt-3 grid grid-cols-6 gap-1.5">
+          {[2, 3, 4, 5, 6, 7].map((n) => <button key={n} disabled={!me?.isHost} aria-pressed={colorCount === n} onClick={() => dispatch({ t: 'config', colorCount: n })} className={`py-2 font-mono ${seg(colorCount === n)} disabled:cursor-default`}>{n}</button>)}
+        </div>
+        <label className={`mt-3 flex items-center justify-between gap-3 rounded-md border border-white/10 bg-black/25 px-3 py-2.5 text-xs font-bold ${me?.isHost ? 'cursor-pointer' : ''}`}>
+          <span>{tb('mustChange')}<span className="mt-0.5 block text-[10px] font-medium text-white/40">{tb('mustChangeDesc')}</span></span>
+          <input type="checkbox" checked={mustChange} disabled={!me?.isHost} onChange={(event) => dispatch({ t: 'config', mustChange: event.target.checked })} className="h-4 w-4 accent-[#ffd166]" />
+        </label>
+        <p className="mt-2 text-[11px] text-white/40">{me?.isHost ? t('colorRuleHost') : t('colorRuleGuest')}</p>
+      </div>
+  );
 
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('190, 132, 35') }}>
@@ -136,6 +155,7 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
                   </div>
                   {!me?.isHost && <p className="mt-2 text-[11px] text-white/40">{t('hostSetsTime')}</p>}
                 </div>
+                {colorRulePanel}
                 <form onSubmit={(event) => { event.preventDefault(); rename(nameDraft); setNameDraft(''); }} className="flex items-center gap-2">
                   <input value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} maxLength={16} placeholder={me?.name ?? ''} aria-label={t('nickname')} className={INPUT} />
                   <button type="submit" className={`shrink-0 px-4 py-2.5 ${BTN}`}>{t('rename')}</button>
@@ -151,7 +171,7 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
               </div>
             ) : (
               <>
-                <BlindGomokuBoard moves={boardMoves} flipped={flipped} interactive={myTurn && !peeking} previewColor={iAmBlack ? color : (copyColor ?? color)} winningLine={finished ? replayLine : null} onPlace={place} />
+                <BlindGomokuBoard moves={boardMoves} flipped={flipped} interactive={myTurn && !peeking} previewColor={iAmBlack ? blackColor : (copyColor ?? blackColor)} winningLine={finished ? replayLine : null} onPlace={place} />
                 {finished && <ReplayBar moves={moves} replay={replay} />}
                 {mySeat === null && <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
               </>
@@ -182,10 +202,12 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
                 })}
               </div>
               {state.phase !== 'lobby' && <p className="mt-3 text-[11px] text-white/40">{t('turnTimeInfo', { n: state.turnSec })}</p>}
+              {state.phase !== 'lobby' && <p className="mt-1 text-[11px] text-white/40">{tb('colorCountValue', { count: colorCount })}{mustChange ? ` · ${tb('mustChange')}` : ''}</p>}
             </section>
 
             {state.phase === 'playing' && mySeat !== null && <>
-              <ColorPicker selected={color} onSelect={setColor} disabled={!myTurn || peeking} locked={iAmBlack ? null : copyColor} note={iAmBlack ? t('blackPicks') : t('whiteCopies')} />
+              <ColorPicker selected={blackColor} onSelect={setColor} disabled={!myTurn || peeking} locked={iAmBlack ? null : copyColor} note={iAmBlack ? t('blackPicks') : t('whiteCopies')}
+                colors={colorsInPlay(colorCount)} blocked={iAmBlack && mustChange ? moves.at(-1)?.color : null} />
               <section className="rounded-[14px] border border-[#ffd166]/30 bg-[#ffd166]/[.07] p-4">
                 <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('peekTitle')}</p><span className="rounded-md border border-[#ffd166]/30 bg-black/25 px-2 py-1 font-mono text-[10px] font-black text-[#ffe39a]">{tb('usesLeft', { count: state.reveals[mySeat] })}</span></div>
                 <p className="mt-2 break-keep text-xs leading-5 text-white/55">{t('peekDesc')}</p>
@@ -195,6 +217,7 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
               </section>
             </>}
 
+            {finished && me?.isHost && colorRulePanel}
             {finished && me?.isHost && <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} py-3`}><RotateCcw size={14} />{t('rematch')}</button>}
             {finished && !me?.isHost && <p className="text-center text-[11px] text-white/40">{t('rematchWait')}</p>}
 

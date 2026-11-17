@@ -1,7 +1,7 @@
 // Shared-room state for 1:1 blind gomoku with a friend. Seat 0 is the host.
 // Whoever is black (`first`) picks each stone's colour; white must answer with the same colour,
 // exactly as the AI does in the solo game, so a colour never tells you whose stone it is.
-import { BOARD_SIZE, STONE_COLORS, findWinningLine, isOnBoard, type GomokuMove, type StoneColor, type StoneOwner, type WinningLine } from './blindGomoku';
+import { BOARD_SIZE, MIN_COLORS, STONE_COLORS, findWinningLine, isOnBoard, playableColors, type GomokuMove, type StoneColor, type StoneOwner, type WinningLine } from './blindGomoku';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
 export const BG_TURN_OPTIONS = [60, 30, 90] as const;
@@ -20,11 +20,13 @@ export type BlindGomokuRoom = BaseRoom & {
   reveals: [number, number]; // peeks left, by seat
   revealUntil: number; // the player to move is peeking until then (their clock keeps running)
   timeouts: number; // automatic moves in a row; three in a row loses on time
+  colorCount: number; // outer colours in play (2–7), set in the lobby
+  mustChange: boolean; // black may not reuse its previous colour
 };
 
 export type BlindGomokuRoomAction =
   | { t: 'start' }
-  | { t: 'config'; turnSec: BgTurnSeconds }
+  | { t: 'config'; turnSec?: BgTurnSeconds; colorCount?: number; mustChange?: boolean }
   | { t: 'place'; row: number; col: number; color?: StoneColor }
   | { t: 'reveal' }
   | { t: 'resign' }
@@ -34,6 +36,7 @@ export function createBlindGomokuRoom(host: Peer, turnSec: BgTurnSeconds = 60): 
   return {
     sid: newSid(), v: 1, seats: [{ id: host.id, name: host.name }, null] as Seat[], phase: 'lobby', deadline: 0,
     turnSec, first: 0, moves: [], winner: null, line: null, reason: null, reveals: [REVEALS, REVEALS], revealUntil: 0, timeouts: 0,
+    colorCount: STONE_COLORS.length, mustChange: false,
   };
 }
 
@@ -56,10 +59,14 @@ function play(state: BlindGomokuRoom, row: number, col: number, color: StoneColo
   return base;
 }
 
-/** Colour of the next stone: black chooses it, white copies the stone just played. */
+/** Colours black may pick now, under the room's colour rule. Older saved rooms have no rule: all seven. */
+export const roomPlayableColors = (state: BlindGomokuRoom) =>
+  playableColors(state.colorCount ?? STONE_COLORS.length, !!state.mustChange, state.moves.at(-1)?.color);
+
+/** Colour of the next stone: black chooses it (within the colour rule), white copies the stone just played. */
 function colorFor(state: BlindGomokuRoom, chosen?: StoneColor): StoneColor | null {
   if (state.moves.length % 2 === 1) return state.moves.at(-1)!.color;
-  return isColor(chosen) ? chosen : null;
+  return isColor(chosen) && roomPlayableColors(state).includes(chosen) ? chosen : null;
 }
 
 /** A free point next to the stones (or the centre), for a move made on time out. */
@@ -79,9 +86,14 @@ function fallbackPoint(moves: GomokuMove[]) {
 export function reduceBlindGomokuRoom(state: BlindGomokuRoom, action: BlindGomokuRoomAction, seat: number | null, isHost: boolean): BlindGomokuRoom | null {
   let next: BlindGomokuRoom | null = null;
   switch (action.t) {
-    case 'config':
-      if (isHost && state.phase === 'lobby' && (BG_TURN_OPTIONS as readonly number[]).includes(action.turnSec)) next = { ...state, turnSec: action.turnSec };
+    case 'config': {
+      if (!isHost || state.phase === 'playing') break;
+      const turnSec = action.turnSec !== undefined && (BG_TURN_OPTIONS as readonly number[]).includes(action.turnSec) ? action.turnSec : state.turnSec;
+      const colorCount = typeof action.colorCount === 'number' && action.colorCount >= MIN_COLORS && action.colorCount <= STONE_COLORS.length ? Math.round(action.colorCount) : state.colorCount ?? STONE_COLORS.length;
+      const mustChange = typeof action.mustChange === 'boolean' ? action.mustChange : !!state.mustChange;
+      next = { ...state, turnSec, colorCount, mustChange };
       break;
+    }
     case 'start': {
       if (!isHost || state.phase === 'playing' || state.seats.some((s) => !s)) break;
       const first = (Math.random() < 0.5 ? 0 : 1) as 0 | 1;
@@ -108,7 +120,8 @@ export function reduceBlindGomokuRoom(state: BlindGomokuRoom, action: BlindGomok
       const loser = seatToMove(state);
       const point = fallbackPoint(state.moves);
       if (state.timeouts >= 2 || !point) { next = { ...state, phase: 'finished', winner: ownerOf(state, 1 - loser), reason: 'timeout', revealUntil: 0 }; break; }
-      const color = colorFor(state, STONE_COLORS[Math.floor(Math.random() * STONE_COLORS.length)].id)!;
+      const options = roomPlayableColors(state);
+      const color = colorFor(state, options[Math.floor(Math.random() * options.length)])!;
       next = play(state, point.row, point.col, color, state.timeouts + 1);
       break;
     }

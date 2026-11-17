@@ -2004,7 +2004,9 @@
     "byTimeout": "time out",
     "winnerIs": "{player} wins · {reason}",
     "youWin": "You win · {reason}",
-    "youLose": "You lose · {reason}"
+    "youLose": "You lose · {reason}",
+    "colorRuleHost": "You set the colour rule; it stays fixed during a game. You can change it again before a rematch.",
+    "colorRuleGuest": "The host sets the colour rule."
   },
   "BlindGomokuTutorial": {
     "you": "You",
