@@ -1469,7 +1469,8 @@
     "saved": "Saved",
     "privacyNote": "Only your nickname and profile photo appear in the Hall of Fame. Your email is never shown.",
     "rouletteLine": "Survived {s} · Shot {h}",
-    "nicknameNote": "The nickname you set here is used in waiting rooms, game rooms, the open-match ranking and the Hall of Fame. Changes show in the ranking right away."
+    "nicknameNote": "The nickname you set here is used in waiting rooms, game rooms, the open-match ranking and the Hall of Fame. Changes show in the ranking right away.",
+    "nicknameTaken": "That nickname is taken. Please save a different one."
   },
   "RussianJanggi": {
     "metaTitle": "Russian Janggi online — The Society Game 2 stacking tic-tac-toe",
@@ -3409,6 +3410,7 @@
     "changeLater": "You can change it any time in Records.",
     "tooShort": "Use at least 2 characters.",
     "failed": "Couldn't save. Please try again in a moment.",
-    "emptyHint": "Leave it empty to use the grey name."
+    "emptyHint": "Leave it empty to use the grey name.",
+    "taken": "That nickname is taken. Please pick another."
   }
 }

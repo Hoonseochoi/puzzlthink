@@ -159,6 +159,15 @@ export async function fetchHallOfFame(): Promise<{ entries: HallEntry[]; error: 
   return { entries: (data as HallEntry[]) ?? [], error: error?.message ?? null };
 }
 
+/** Whether a nickname is free (true/false), or null if it could not be checked. */
+export async function nicknameAvailable(name: string): Promise<boolean | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('nickname_available', { p_nickname: name.trim() });
+  return error || typeof data !== 'boolean' ? null : data;
+}
+export const isNicknameTaken = (message: string | null | undefined) => !!message && message.includes('nickname_taken');
+
 export async function saveProfile(nickname: string, showInHall: boolean) {
   const { error } = await getSupabase()!.rpc('update_profile', { p_nickname: nickname, p_show_in_hall: showInHall });
   return error?.message ?? null;
