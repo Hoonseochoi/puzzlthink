@@ -1083,7 +1083,9 @@
     "quick3": "If a stand reaches 13+, you take a penalty per cube already there; only your cube stays.",
     "quick4": "Once per round you may pass to place last.",
     "quick5": "After 14 rounds the fewest penalties wins; 6th and 7th are out.",
-    "howToPlay": "How to play"
+    "howToPlay": "How to play",
+    "drawerHandle": "Your turn",
+    "drawerClose": "Tuck the panel away"
   },
   "Heavy13Online": {
     "metaTitle": "Play Heavy 13 with friends",
