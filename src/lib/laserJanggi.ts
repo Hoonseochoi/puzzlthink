@@ -74,7 +74,8 @@ function piece(id: string, owner: LaserOwner, type: LaserPieceType, row: number,
  * The setup from the TV death match (「더 지니어스: 룰 브레이커」), read off the broadcast board.
  * Blue holds the left column with its laser in the bottom-left corner firing right; red is the same
  * turned 180°. Each side: laser, king, splitter, one square knight and six triangles, two of them in the
- * centre "bow tie". Opening beams only bounce between mirrors and back into their own laser.
+ * centre "bow tie", whose mirrors all face the middle. Each opening beam is turned off the board by
+ * the triangle in front of its laser, so nothing is hit before the first move.
  */
 export function initialLaserPieces(): LaserPiece[] {
   const blue: LaserPiece[] = [
@@ -84,9 +85,9 @@ export function initialLaserPieces(): LaserPiece[] {
     piece('b-king', 0, 'king', 4, 0, 0),
     piece('b-square-0', 0, 'square', 3, 0, 1),
     piece('b-triangle-1', 0, 'triangle', 2, 0, 0),
-    piece('b-triangle-2', 0, 'triangle', 3, 3, 3), // centre bow tie
-    piece('b-triangle-3', 0, 'triangle', 4, 3, 2), // centre bow tie
-    piece('b-triangle-4', 0, 'triangle', 7, 4, 3),
+    piece('b-triangle-2', 0, 'triangle', 3, 3, 1), // centre bow tie: mirrors face the centre
+    piece('b-triangle-3', 0, 'triangle', 4, 3, 0), // centre bow tie: mirrors face the centre
+    piece('b-triangle-4', 0, 'triangle', 7, 4, 2),
     piece('b-triangle-5', 0, 'triangle', 6, 6, 3),
   ];
   const red = blue.map((item): LaserPiece => ({
