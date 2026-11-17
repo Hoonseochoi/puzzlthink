@@ -8,6 +8,7 @@ import type { GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
 import { type OpenRoomRow, listOpenRooms } from '@/lib/openRooms';
 import OpenRoomPanel from './OpenRoomPanel';
+import OpenPracticeShell from './OpenPractice';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import { GAME_MODES } from './gameModes';
@@ -108,7 +109,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
 
   if (started) {
     if (!openRoom) return <>{children}</>;
-    return <><div className="lg:pl-[272px]">{children}</div><OpenRoomPanel game={game} code={openRoom.code} variant={openRoom.variant} /></>;
+    return <div style={accentVars(accent, ink)}><div className="lg:pl-[272px]"><OpenPracticeShell game={game}>{children}</OpenPracticeShell></div><OpenRoomPanel game={game} code={openRoom.code} variant={openRoom.variant} /></div>;
   }
 
   const dark = tone === 'dark';

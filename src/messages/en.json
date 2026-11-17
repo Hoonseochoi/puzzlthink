@@ -3412,5 +3412,22 @@
     "failed": "Couldn't save. Please try again in a moment.",
     "emptyHint": "Leave it empty to use the grey name.",
     "taken": "That nickname is taken. Please pick another."
+  },
+  "OpenPractice": {
+    "waitingBadge": "Open room · waiting",
+    "intro": "Waiting for players to join. Meanwhile you can play a practice game against the AI.",
+    "howTitle": "How it works",
+    "how": [
+      "Practice is against the AI. The real match starts when the host presses start.",
+      "When the host starts, you move to the game room straight away, even mid-practice.",
+      "See who joined in the lobby on the left and send quick reactions like ㅎㅇ or ㄱㄷ."
+    ],
+    "start": "Start practice",
+    "orWait": "You can also just wait.",
+    "practiceBadge": "Practice",
+    "againShort": "Again",
+    "waitShort": "Wait",
+    "wait": "Back to waiting",
+    "again": "Practice again"
   }
 }
