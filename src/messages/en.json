@@ -50,7 +50,8 @@
     "awayRejoin": "Rejoin",
     "awayOthers": "{names} stopped responding; the AI is playing for them",
     "blackWhite": "Black & White",
-    "blackWhite2": "Black & White II"
+    "blackWhite2": "Black & White II",
+    "piggyBank": "Piggy Bank"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -245,7 +246,11 @@
     "modeBw2Ai": "AI 1:1",
     "modeBw2AiDesc": "Three strategy levels",
     "modeBw2Friend": "Friend 1:1",
-    "modeBw2FriendDesc": "Link or code"
+    "modeBw2FriendDesc": "Link or code",
+    "piggyBankDescription": "Remember the coins dropped into each piggy bank — and doubt every wrong answer.",
+    "piggyBankMeta": "4 players vs 3 AI · memory & doubt",
+    "modePiggyAi": "4-player vs AI",
+    "modePiggyAiDesc": "Easy · Normal · Hard"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -1824,6 +1829,21 @@
           "First to five, or the higher score after round nine, wins. A round-nine tie resets both players to 33 points for a best-of-three overtime."
         ],
         "origin": "A web adaptation of Black & White II from a death match in The Genius: Black Garnet. After the game, every hidden bid is revealed and the replay calls out close wins, bait, overspending and pressure."
+      },
+      "piggyBank": {
+        "tagline": "Remember the black and white coins in each piggy bank, answer right, and doubt wrong answers to score.",
+        "players": "4 players (you + 3 AI)",
+        "pace": "5–10 minutes · put 30s · answer 20s · doubt 10s",
+        "level": "AI memory: Easy · Normal · Hard",
+        "ai": "4 players, three AI levels",
+        "friend": "Friend games coming soon",
+        "rules": [
+          "Everyone gets a piggy bank holding 1 black and 1 white coin in their lower slot; the first player also gets bank 5 on top.",
+          "On your turn put 1–5 coins in your lower bank, say what you put in, and hand it to anyone. Your top bank drops to the lower slot.",
+          "The receiver says how many coins of the asked colour (black, white, black…) their top bank holds, within 20 seconds.",
+          "Others may doubt within 10 seconds: a wrong answer gives the doubter +1 and the answerer −1; a right one costs the doubter 1. First to 5 points ends the game."
+        ],
+        "origin": "A web adaptation of the Piggy Bank prison match from Netflix's The Devil's Plan: Dead Again. Coin drops are shown only briefly and never logged — it's all memory."
       }
     },
     "keywords": [
@@ -1896,7 +1916,8 @@
     "openCreateFor": "Open room · {label}",
     "openLogin": "Open rooms are for signed-in players only, so both sides keep their record.",
     "short_roomTwo": "1:1",
-    "short_roomThree": "1:1:1"
+    "short_roomThree": "1:1:1",
+    "aiFour": "4 players · with 3 AI"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -3439,5 +3460,118 @@
     "waitShort": "Wait",
     "wait": "Back to waiting",
     "again": "Practice again"
+  },
+  "PiggyBank": {
+    "metaTitle": "Piggy Bank — The Devil's Plan memory game online",
+    "metaDescription": "Play the Piggy Bank prison match from The Devil's Plan 3 online. Remember the coins in each bank and doubt wrong answers. 4 players vs 3 AI, free, no install.",
+    "keywords": [
+      "Piggy Bank game",
+      "The Devil's Plan piggy bank",
+      "prison match game",
+      "memory game online",
+      "coin memory game",
+      "doubt game",
+      "4 player game online"
+    ]
+  },
+  "PiggyBankTutorial": {
+    "s1Title": "Piggy banks 1–5",
+    "s1Desc": "Each bank starts with 1 black and 1 white coin. The four players get banks 1–4 in their lower slots; the first player also gets bank 5 on top.",
+    "s2Title": "Put coins in your lower bank",
+    "s2Desc": "On your turn put 1–5 coins (black and white together) into your lower bank. What you put in is announced to everyone.",
+    "putSample": "2 black · 1 white",
+    "s3Title": "Hand it to anyone",
+    "s3Desc": "The bank goes to that player's top slot. Your own top bank drops into your lower slot.",
+    "s4Title": "Say the count",
+    "s4Desc": "The receiver says how many coins of the asked colour their top bank holds, within 20 seconds. The colour alternates black → white → black.",
+    "bubble": "B6",
+    "s5Title": "Doubt within 10 seconds",
+    "s5Desc": "After an answer everyone else picks Doubt or No doubt within 10 seconds. A doubted bank is opened and leaves; a new one (6, 7, 8…) comes in.",
+    "doubtSample": "Bear · #2 has 2 white",
+    "doubt": "Doubt",
+    "noDoubt": "No doubt",
+    "s6Title": "Reset & all-in guess",
+    "s6Desc": "When three players press reset, every bank goes back to 1 black and 1 white. Anyone who didn't press may first try to name every bank (+3 / −2).",
+    "votes": "Reset 3/3"
+  },
+  "PiggyBankGuide": {
+    "eyebrow": "PIGGY BANK GUIDE",
+    "title": "Piggy Bank — remember and doubt",
+    "intro": "Piggy Bank is a four-player memory game based on a prison match from Netflix's The Devil's Plan: Dead Again. Every coin drop is announced truthfully but never written down, so you must remember who put what into which bank. On PUZZLTHINK you play against three AI players with different memories.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Banks start with 1 black and 1 white coin. Banks 1–4 go into each player's lower slot, bank 5 onto the first player's top slot.",
+      "On your turn put 1–5 coins into your lower bank and announce exactly what you put in.",
+      "Hand that bank to anyone: it goes to their top slot, and your top bank drops into your lower slot.",
+      "The receiver says how many coins of the asked colour their top bank holds, within 20 seconds. The colour alternates black → white → black.",
+      "Everyone else picks Doubt or No doubt within 10 seconds. If all pass, play moves on and the receiver takes the next turn.",
+      "A doubted bank is opened: if the answer was wrong the doubter gets +1 and the answerer −1; if it was right the doubter loses 1.",
+      "The opened bank leaves the game; whoever lost a point gets a new bank (1 black, 1 white, next number) on top and takes the turn.",
+      "When three players press reset, every bank goes back to 1 black and 1 white; anyone who didn't press may first try to name every bank (+3 / −2).",
+      "The game ends when someone reaches 5 points; players are ranked by score."
+    ],
+    "specialTitle": "Tricky moments",
+    "special": [
+      {
+        "title": "Shown briefly, never logged",
+        "body": "Coin drops appear for a few seconds and then vanish. There's no log or notepad — it's all memory."
+      },
+      {
+        "title": "Answer timeout",
+        "body": "No answer within 20 seconds counts as 0. Others can still doubt it."
+      },
+      {
+        "title": "A failed doubt",
+        "body": "Doubting a correct answer costs you 1 point, and you get a new bank and the turn."
+      },
+      {
+        "title": "Reset keeps the score",
+        "body": "A reset only puts the coins back to 1 black and 1 white. Scores and bank numbers stay."
+      }
+    ],
+    "strategyTitle": "Tips — shake their memory, doubt only when sure",
+    "strategyIntro": "Piggy Bank is as much about protecting your memory as disturbing everyone else's.",
+    "strategies": [
+      {
+        "tag": "Memory",
+        "title": "One line per bank",
+        "body": "Pair each number with its counts, like \"5: 3 black 2 white\", and update that line every drop."
+      },
+      {
+        "tag": "Disrupt",
+        "title": "Pass the busy banks",
+        "body": "Banks that took many drops are the easiest to get wrong. Hand them to whoever seems least sure."
+      },
+      {
+        "tag": "Doubt",
+        "title": "Only when certain",
+        "body": "A wrong doubt costs you a point. Doubt only on banks you're sure of."
+      },
+      {
+        "tag": "Reset",
+        "title": "Read the reset",
+        "body": "Resets come when memories blur. If you know every bank, don't press — go for the +3 all-in guess."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Piggy Bank?",
+        "a": "On the PUZZLTHINK Piggy Bank page in any desktop or mobile browser, no install or sign-up."
+      },
+      {
+        "q": "Can I play with friends?",
+        "a": "For now it's four players against three AI. Friend games are coming."
+      },
+      {
+        "q": "Does the AI know every coin?",
+        "a": "No. The AI remembers only what was announced and sometimes misremembers — more often on Easy."
+      },
+      {
+        "q": "Are results saved?",
+        "a": "Sign in with Google: first place counts as a win and the rest as losses in your records; wins also count for the Hall of Fame."
+      }
+    ],
+    "disclaimer": "Piggy Bank is PUZZLTHINK's web adaptation of a game format shown on TV and is not affiliated with the broadcaster or producers."
   }
 }
