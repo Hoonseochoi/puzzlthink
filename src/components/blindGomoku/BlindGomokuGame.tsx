@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { BookOpen, Eye, EyeOff, RotateCcw, ShieldQuestion, Sparkles } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
@@ -33,6 +34,9 @@ export default function BlindGomokuGame() {
   const replay = useReplay(moves, phase === 'finished', `${gameNo}-${phase}`);
 
   const finish = (nextMoves: GomokuMove[], result: StoneOwner | 'draw', line: WinningLine | null) => {
+    // One record per game (the key holds the game number and length, so a rerender can't count it twice).
+    reportGame(`blind_gomoku-ai-${gameNo}-${nextMoves.length}-${Date.now()}`, 'blind_gomoku', 'ai', result === 'draw' ? 'draw' : result === 'black' ? 'win' : 'loss',
+      { difficulty, colors: colorCount, mustChange, moves: nextMoves.length, peeksUsed: 2 - revealUses });
     setMoves(nextMoves);
     setWinner(result);
     setWinningLine(line);

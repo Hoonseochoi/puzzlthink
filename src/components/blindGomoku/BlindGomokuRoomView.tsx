@@ -11,6 +11,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
 import { useBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
+import { reportGame } from '@/lib/stats';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
 import { STONE_COLORS, colorsInPlay, findWinningLine, type StoneColor } from '@/lib/blindGomoku';
@@ -48,6 +49,15 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
   const finished = state?.phase === 'finished';
   const gameKey = state ? `${state.sid}-${state.first}-${state.phase}-${moves.length}` : '';
   const replay = useReplay(moves, finished, gameKey);
+
+  // Record a finished game once for each player (reportGame ignores a key it has already sent).
+  useEffect(() => {
+    if (!state || state.phase !== 'finished' || mySeat === null) return;
+    const mine = ownerOf(state, mySeat);
+    reportGame(`blind_gomoku-friend-${state.sid}-${state.first}-${state.moves.length}-${state.reason}`, 'blind_gomoku', 'friend',
+      state.winner === 'draw' ? 'draw' : state.winner === mine ? 'win' : 'loss',
+      { reason: state.reason, colors: state.colorCount ?? 7, mustChange: !!state.mustChange, moves: state.moves.length, turnSec: state.turnSec });
+  }, [state, mySeat]);
 
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
   const names = [0, 1].map((seat) => (state?.seats[seat]?.id === me?.id ? `${seatName(seat)} (${t('me')})` : seatName(seat)));

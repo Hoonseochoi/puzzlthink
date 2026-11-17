@@ -14,6 +14,7 @@ const GAMES: { path: string; id: string; label: string }[] = [
   { path: '/heavy13', id: 'heavy13', label: 'heavy13' },
   { path: '/russian-roulette', id: 'russian_roulette', label: 'russianRoulette' },
   { path: '/russian-janggi', id: 'russian_janggi', label: 'russianJanggi' },
+  { path: '/blind-gomoku', id: 'blind_gomoku', label: 'blindGomoku' },
   { path: '/play', id: 'sudoku', label: 'sudoku' },
 ];
 const CATEGORIES = ['bug', 'rule', 'display', 'online', 'other'] as const;
