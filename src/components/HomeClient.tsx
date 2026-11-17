@@ -99,20 +99,29 @@ function SudokuPreview() {
   return <div className="grid aspect-square w-full grid-cols-4 overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-white text-[10px] shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:text-base sm:shadow-2xl">{nums.map((num, index) => <span key={index} className={`flex items-center justify-center border-b border-r border-black/15 font-black text-[#293634] sm:text-lg ${index === 5 || index === 10 ? 'bg-[#edf2ff] text-[#4b7bff]' : ''}`}>{num}</span>)}</div>;
 }
 
+/** Programme tag on each card. Devil's Plan 3 (on air now) gets a dark plate with glowing red letters. */
+function ShowTag({ show, color, label }: { show: string; color: string; label: string }) {
+  if (show === 'dp3') {
+    return <span className="dp3-tag rounded-full border border-[#ff2d55]/60 bg-[#0b0a10] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#ff5c7a]">{label}</span>;
+  }
+  return <span className="rounded-full px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white" style={{ background: color }}>{label}</span>;
+}
+
 export default function HomeClient() {
   const t = useTranslations('Home');
   const tc = useTranslations('Common');
   const router = useRouter();
+  // Order: the hot Devil's Plan 3 games first, then the rest. `show` is the programme each game is from.
   const games = [
-    { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', status: t('new'), meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
-    { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', status: t('new'), meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
-    { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', status: t('new'), meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
-    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', status: t('new'), meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
-    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', status: t('new'), meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
-    { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', status: t('new'), meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
-    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', status: t('new'), meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
-    { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', status: t('new'), meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
-    { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', status: t('classic'), meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
+    { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', show: 'dp3', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
+    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', show: 'dp3', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
+    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', show: 'dp3', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
+    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', show: 'dp3', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
+    { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', show: 'genius2', meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
+    { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', show: 'society2', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
+    { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', show: 'dp1', meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
+    { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', show: 'genius34', meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
+    { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', show: 'classic', meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
   ] as const;
 
   return <main className="min-h-screen bg-[#f3f0e8] text-[#17201e]"><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
@@ -120,7 +129,7 @@ export default function HomeClient() {
     <div className="mt-8 grid gap-3 sm:mt-12 sm:gap-5 md:grid-cols-2">{games.map((game) => (
       <div key={game.title} className="group relative flex flex-col overflow-hidden rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4 shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px] sm:p-5 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_70px_rgba(30,38,36,0.14)] sm:p-7">
         <Link href={game.href} className="block flex-1">
-          <div className="flex items-center justify-between"><span className="rounded-full px-3 py-1 text-[10px] font-black tracking-[0.15em] text-white" style={{ background: game.color }}>{game.status}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
+          <div className="flex items-center justify-between"><ShowTag show={game.show} color={game.color} label={game.show === 'classic' ? t('classic') : t(`show_${game.show}`)} /><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">

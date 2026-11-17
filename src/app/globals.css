@@ -37,8 +37,12 @@ button:disabled { cursor: default; }
 .laser-janggi-hit { transform-box: fill-box; transform-origin: center; animation: laserHit .72s .25s ease-out both; }
 @keyframes nemoHighlight { from { opacity: 0; transform: scale(1.08); } to { opacity: 1; transform: scale(1); } }
 .nemo-highlight { animation: nemoHighlight .22s ease-out both; }
+/* Devil's Plan 3 tag on the home cards: dark plate, glowing letters. */
+@keyframes dp3Glow { 0%, 100% { text-shadow: 0 0 4px #ff2d55, 0 0 10px rgba(255,45,85,.75); box-shadow: 0 0 10px rgba(255,45,85,.35), inset 0 0 8px rgba(255,45,85,.18); } 50% { text-shadow: 0 0 6px #ff2d55, 0 0 18px rgba(255,45,85,.95); box-shadow: 0 0 18px rgba(255,45,85,.55), inset 0 0 10px rgba(255,45,85,.28); } }
+.dp3-tag { animation: dp3Glow 2.4s ease-in-out infinite; text-shadow: 0 0 5px #ff2d55, 0 0 12px rgba(255,45,85,.8); }
 @media (prefers-reduced-motion: reduce) {
   .blind-gomoku-win-line { animation: none; stroke-dashoffset: 0; }
   .laser-janggi-beam, .laser-janggi-hit { animation: none; }
   .nemo-highlight { animation: none; }
+  .dp3-tag { animation: none; }
 }
