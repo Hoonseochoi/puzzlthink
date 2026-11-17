@@ -31,6 +31,15 @@ function WallGoPreview() {
   </div>;
 }
 
+function BlindGomokuPreview() {
+  const stones = new Map<number, string>([[7, '#ef4957'], [8, '#ef4957'], [12, '#4e87ed'], [13, '#f4cf4b'], [17, '#4e87ed'], [18, '#f4cf4b'], [19, '#49bf83']]);
+  return <div className="relative grid aspect-square w-full grid-cols-5 overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#080c12] p-2 shadow-xl ring-1 ring-[#67e8ff]/30 sm:w-[62%] sm:rounded-2xl sm:border-4 sm:p-3 sm:shadow-2xl">
+    <div className="absolute inset-[12%]" style={{ backgroundImage: 'linear-gradient(to right, transparent 49%, rgba(103,232,255,.35) 49%, rgba(103,232,255,.35) 51%, transparent 51%), linear-gradient(to bottom, transparent 49%, rgba(103,232,255,.35) 49%, rgba(103,232,255,.35) 51%, transparent 51%)', backgroundSize: '25% 25%' }} />
+    {Array.from({ length: 25 }, (_, index) => <span key={index} className="relative z-10 flex items-center justify-center">{stones.has(index) && <MiniFace color={stones.get(index)!} />}</span>)}
+    <span className="absolute right-2 top-2 z-20 rounded-full bg-[#17201e] px-2 py-1 text-[7px] font-black tracking-wider text-[#ffd166] sm:right-3 sm:top-3 sm:text-[9px]">HIDDEN</span>
+  </div>;
+}
+
 function JanggiPreview() {
   const board = initialState(0).board;
   return <div className="grid w-[74%] grid-cols-3 gap-0.5 rounded-xl border-[3px] border-[#17201e] bg-[#14161c] p-1 shadow-xl sm:w-[48%] sm:gap-1.5 sm:rounded-2xl sm:border-4 sm:p-2 sm:shadow-2xl">
@@ -70,6 +79,7 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const router = useRouter();
   const games = [
+    { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', status: t('new'), meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', status: t('new'), meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', status: t('new'), meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
     { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', status: t('new'), meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
@@ -85,7 +95,7 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="rounded-full px-3 py-1 text-[10px] font-black tracking-[0.15em] text-white" style={{ background: game.color }}>{game.status}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>

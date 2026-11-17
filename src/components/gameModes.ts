@@ -12,6 +12,7 @@ export type RoomOption = { label: string; create: () => Promise<string> };
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[] }> = {
+  blindGomoku: { path: '/blind-gomoku', ai: [{ label: 'aiPlay' }], rooms: [] },
   wallgo: {
     path: '/wallgo',
     ai: [{ label: 'aiThree', query: 'mode=three' }, { label: 'aiTwo', query: 'mode=two' }],
