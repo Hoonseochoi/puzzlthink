@@ -4,6 +4,7 @@ import { pageMetadata } from '@/lib/seo';
 import HomeClient from '@/components/HomeClient';
 import JsonLd from '@/components/JsonLd';
 import AdSlot from '@/components/AdSlot';
+import SupportLink from '@/components/SupportLink';
 import { GAMES } from '@/lib/gameCatalog';
 
 const BASE_URL = 'https://www.puzzlthink.com';
@@ -28,6 +29,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <HomeClient />
       <section className="bg-[#f3f0e8] px-5 pb-20">
         <AdSlot placement="inline" className="mx-auto mb-12 max-w-3xl" />
+        <div className="mb-12"><SupportLink /></div>
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{t('seoTitle')}</h2>
           <p className="mt-4 text-sm leading-7 text-black/55">{t('seoBody')}</p>

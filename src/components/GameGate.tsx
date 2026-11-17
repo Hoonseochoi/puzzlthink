@@ -8,6 +8,7 @@ import type { GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
 import { GAME_MODES } from './gameModes';
 import { accentVars } from './ui/gameUi';
+import SupportLink from './SupportLink';
 
 const PLAY_HASH = '#play';
 
@@ -135,6 +136,8 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
       )}
 
       {guide}
+
+      <section className={`border-t px-4 py-10 sm:px-5 ${dark ? 'border-white/10' : 'border-black/10'}`}><SupportLink tone={tone} /></section>
 
       {/* Always-visible start while reading. */}
       <div data-gate-bar className={`fixed inset-x-0 bottom-0 z-30 border-t px-4 py-3 backdrop-blur ${dark ? 'border-white/10 bg-black/75' : 'border-black/10 bg-[#f3f0e8]/90'}`}>
