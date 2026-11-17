@@ -4,8 +4,8 @@ import { SIDE_COLORS } from './theme';
 
 // Cup shading per side: [edge, body, light].
 const SHADES = [
-  ['#7a0d1a', '#e2283c', '#ff8a95'],
-  ['#0a5a2c', '#1fb560', '#7ff5b0'],
+  ['#8a1a12', '#ec3b2c', '#ff9a8a'],
+  ['#0d2f78', '#2f6fe8', '#9cc4ff'],
 ] as const;
 
 /** Cup ratio (width : height) — pieces sit on their rim, so they are drawn bottom-aligned. */
@@ -13,7 +13,8 @@ export const CUP_RATIO = 100 / 92;
 
 /**
  * A hollow cup seen from the side, like the pieces on the show's board.
- * Bigger cups go over smaller ones; the plus mark grows with the size.
+ * Bigger cups go over smaller ones. The side mark grows with the size: red cups carry a "+", blue cups
+ * a "○", so the two sides differ in shape as well as colour.
  */
 export default function RJPiece({ owner, size, className = '', style, ghost = false }: {
   owner: Side; size: Size; className?: string; style?: React.CSSProperties; ghost?: boolean;
@@ -49,10 +50,14 @@ export default function RJPiece({ owner, size, className = '', style, ghost = fa
           <ellipse cx="50" cy="86" rx="44" ry="4.5" fill={edge} />
           <ellipse cx="50" cy="85" rx="42" ry="2.6" fill="#000" opacity="0.35" />
           <ellipse cx="32" cy="34" rx="7" ry="17" fill="#fff" opacity="0.38" transform="rotate(18 32 34)" />
-          <g opacity="0.75" fill="#fff">
-            <rect x={50 - arm} y={52 - 2.6} width={arm * 2} height="5.2" rx="2.6" />
-            <rect x={50 - 2.6} y={52 - arm} width="5.2" height={arm * 2} rx="2.6" />
-          </g>
+          {owner === 0 ? (
+            <g opacity="0.8" fill="#fff">
+              <rect x={50 - arm} y={52 - 2.6} width={arm * 2} height="5.2" rx="2.6" />
+              <rect x={50 - 2.6} y={52 - arm} width="5.2" height={arm * 2} rx="2.6" />
+            </g>
+          ) : (
+            <circle cx="50" cy="52" r={arm - 1.5} fill="none" stroke="#fff" strokeWidth="5" opacity="0.8" />
+          )}
         </>
       )}
     </svg>
