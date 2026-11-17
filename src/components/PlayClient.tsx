@@ -11,6 +11,7 @@ import { useSudoku } from '@/hooks/useSudoku';
 import { reportGame } from '@/lib/stats';
 import type { Difficulty } from '@/lib/sudoku';
 import TutorialOverlay from './TutorialOverlay';
+import { CoffeeNudge } from './SupportLink';
 import AdSlot from './AdSlot';
 import LanguageSwitcher from './LanguageSwitcher';
 
@@ -109,7 +110,7 @@ export default function PlayClient() {
             })}
           </div>
           {game.status === 'paused' && <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#f8f6ef]/90 backdrop-blur-sm"><Pause size={38} /><h2 className="mt-3 text-2xl font-black">{t('paused')}</h2><button onClick={game.resumeGame} className="mt-5 rounded-2xl bg-[#17201e] px-6 py-3 text-sm font-bold text-white">{t('resume')}</button></div>}
-          {(game.status === 'won' || game.status === 'lost') && <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#f8f6ef]/92 p-6 text-center backdrop-blur-sm"><div className={`flex h-16 w-16 items-center justify-center rounded-full text-white ${game.status === 'won' ? 'bg-[#12a594]' : 'bg-[#ff6b4a]'}`}>{game.status === 'won' ? <Trophy /> : <CircleX />}</div><h2 className="mt-4 text-3xl font-black">{t(game.status === 'won' ? 'victory' : 'gameOver')}</h2><p className="mt-2 text-sm text-black/50">{game.status === 'won' ? t('victoryDesc', { time: formatTime(game.timer) }) : t('gameOverDesc')}</p><button onClick={() => game.startGame(game.difficulty)} className="mt-6 rounded-2xl bg-[#17201e] px-7 py-3 text-sm font-bold text-white">{t('playAgain')}</button><AdSlot placement="result" compact className="mt-6 w-full max-w-[320px]" /></div>}
+          {(game.status === 'won' || game.status === 'lost') && <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#f8f6ef]/92 p-6 text-center backdrop-blur-sm"><div className={`flex h-16 w-16 items-center justify-center rounded-full text-white ${game.status === 'won' ? 'bg-[#12a594]' : 'bg-[#ff6b4a]'}`}>{game.status === 'won' ? <Trophy /> : <CircleX />}</div><h2 className="mt-4 text-3xl font-black">{t(game.status === 'won' ? 'victory' : 'gameOver')}</h2><p className="mt-2 text-sm text-black/50">{game.status === 'won' ? t('victoryDesc', { time: formatTime(game.timer) }) : t('gameOverDesc')}</p><button onClick={() => game.startGame(game.difficulty)} className="mt-6 rounded-2xl bg-[#17201e] px-7 py-3 text-sm font-bold text-white">{t('playAgain')}</button><CoffeeNudge tone="light" className="mt-4" /><AdSlot placement="result" compact className="mt-6 w-full max-w-[320px]" /></div>}
         </div>
         <div className="mx-auto mt-4 grid max-w-[610px] grid-cols-9 gap-1.5 sm:gap-2">{[1,2,3,4,5,6,7,8,9].map((number) => <button key={number} onClick={() => game.inputValue(number)} className="aspect-square rounded-xl border border-black/10 bg-[#f9f7f1] text-lg font-black shadow-sm transition hover:-translate-y-0.5 hover:bg-white sm:text-xl">{number}</button>)}</div>
       </section>

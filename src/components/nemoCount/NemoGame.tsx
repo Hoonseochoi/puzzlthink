@@ -10,6 +10,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { CHALLENGE_MS, NEMO_DIFFICULTIES, type NemoDifficulty, type NemoProblem, formatMs, generateProblem, tutorialProblems } from '@/lib/nemoCount';
 import { reportGame } from '@/lib/stats';
+import { CoffeeNudge } from '@/components/SupportLink';
 import { AnswerInput, NEMO_ACCENT, NEMO_INK, NemoBoardView, SolutionReplay, TargetPlate } from './NemoParts';
 
 type Mode = 'challenge' | 'practice' | 'tutorial';
@@ -182,6 +183,7 @@ export default function NemoGame() {
               </div>
               <p className="mt-3 text-center text-xs text-white/40">{t('bestScore', { level: t(`level_${difficulty}`), n: best[difficulty] ?? 0 })}</p>
               <button type="button" onClick={startChallenge} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{t('again')}</button>
+              <CoffeeNudge className="mt-4" />
             </div>
           )}
 

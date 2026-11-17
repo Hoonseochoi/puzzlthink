@@ -31,3 +31,18 @@ export default function SupportLink({ variant = 'card', tone = 'light' }: { vari
     </div>
   );
 }
+
+/**
+ * One quiet line for end-of-game screens: "☕ 재밌었다면 개발자에게 커피 한 잔". Small, centred, no box,
+ * so it never competes with "play again".
+ */
+export function CoffeeNudge({ tone = 'dark', className = '' }: { tone?: 'light' | 'dark'; className?: string }) {
+  const t = useTranslations('Common');
+  return (
+    <p className={`text-center ${className}`}>
+      <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-1 text-[11px] font-bold underline-offset-4 transition hover:underline ${tone === 'dark' ? 'text-white/45 hover:text-[#ffb199]' : 'text-black/45 hover:text-[#e8590c]'}`}>
+        <Coffee size={12} />{t('coffeeNudge')}
+      </a>
+    </p>
+  );
+}

@@ -17,6 +17,7 @@ import { Link } from '@/i18n/routing';
 import { legalActions, type LaserAction } from '@/lib/laserJanggi';
 import { LASER_TURN_OPTIONS } from '@/lib/laserJanggiRoom';
 import LaserBoard from './LaserBoard';
+import { CoffeeNudge } from '../SupportLink';
 import LaserPiece from './LaserPiece';
 import { LASER_CYAN } from './theme';
 
@@ -92,6 +93,7 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
         <section className={PANEL}><div className="mb-3 flex justify-between"><p className={PANEL_TITLE}>{t('players')}</p><span className={CHIP}><Users size={12}/>{state.seats.filter(Boolean).length}/2</span></div>{[0,1].map((seat) => { const p=state.seats[seat]; return <div key={seat} className={`${playerRow(state.phase==='playing'&&state.current===seat)} ${p?'':'opacity-45'}`}><span className="h-8 w-8"><LaserPiece piece={{id:`seat-${seat}`,owner:seat as 0|1,type:'king',row:0,col:0,direction:0}} /></span><div className="min-w-0 flex-1"><p className="truncate text-sm font-black">{seatName(seat)}{p?.id===me?.id?` (${t('me')})`:''}</p><p className="text-[10px] text-white/40">{seat===0?t('cyanRole'):t('redRole')}</p></div>{seat===0&&<Crown size={12} className="text-[#ffd166]"/>}{p&&<span className={`h-1.5 w-1.5 rounded-full ${online.has(p.id)?'bg-[#3ddc97]':'bg-white/20'}`}/>}</div>; })}</section>
         <section className={NOTE}><p className={PANEL_TITLE}>{tg('quickRules')}</p><ol className="mt-3 space-y-3 text-xs leading-5 text-white/60">{['quick1','quick2','quick3','quick4'].map((key,i)=><li key={key} className="flex gap-3"><span className="font-mono text-[#59e6ff]">0{i+1}</span>{tg(key)}</li>)}</ol></section>
         {state.phase==='finished'&&me?.isHost&&<button onClick={() => dispatch({t:'start'})} className={`${BTN_ACCENT} py-3`}><RotateCcw size={14}/>{t('rematch')}</button>}
+        {state.phase==='finished'&&<CoffeeNudge />}
         {state.phase==='playing'&&mySeat!==null&&<button onClick={() => { if(window.confirm(t('resignConfirm'))) dispatch({t:'resign'}); }} className={`${BTN} py-2.5 text-white/45`}><Flag size={13}/>{t('resign')}</button>}
         <div className="rounded-[12px] border border-white/10 bg-black/25 p-3 text-[10px] leading-4 text-white/35">{t('timeoutRule')}</div>
       </aside>

@@ -13,6 +13,7 @@ import { STONE_COLORS, chooseAiMove, coordinateLabel, playableColors, findWinnin
 import BlindGomokuBoard from './BlindGomokuBoard';
 import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
+import { CoffeeNudge } from '../SupportLink';
 
 type Phase = 'human' | 'ai' | 'finished';
 const ACCENT = '#ffd166';
@@ -138,7 +139,7 @@ export default function BlindGomokuGame() {
             onPlace={placeHuman}
           />
 
-          {phase === 'finished' && <ReplayBar moves={moves} replay={replay} />}
+          {phase === 'finished' && <><ReplayBar moves={moves} replay={replay} /><CoffeeNudge className="mt-3" /></>}
         </section>
 
         <aside className="flex flex-col gap-4">

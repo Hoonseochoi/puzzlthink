@@ -16,6 +16,7 @@ import { Link } from '@/i18n/routing';
 import { NEMO_DIFFICULTIES, formatMs } from '@/lib/nemoCount';
 import { BUZZ_MS, REBUZZ_MS, VOTE_MS, NEMO_MAX_PLAYERS, NEMO_MIN_PLAYERS, NEMO_PROBLEM_OPTIONS, NEMO_TIME_OPTIONS, nemoRanking } from '@/lib/nemoCountRoom';
 import { reportGame } from '@/lib/stats';
+import { CoffeeNudge } from '@/components/SupportLink';
 import { AnswerInput, NEMO_ACCENT, NEMO_INK, NemoBoardView, SolutionReplay, TargetPlate } from './NemoParts';
 
 export default function NemoRoomView({ code }: { code: string }) {
@@ -217,6 +218,7 @@ export default function NemoRoomView({ code }: { code: string }) {
                 ))}</ol>
                 <p className="mt-2 text-center text-[11px] text-white/40">{t('tieRule')}</p>
                 {me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-4 w-full py-3`}><RotateCcw size={14} />{t('rematch')}</button> : <p className="mt-4 text-center text-xs text-white/45">{t('rematchWait')}</p>}
+                <CoffeeNudge className="mt-4" />
               </div>
             )}
           </section>

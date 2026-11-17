@@ -12,6 +12,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { applyLaserAction, chooseLaserAiAction, initialLaserPieces, legalActions, type LaserAction, type LaserDifficulty, type LaserOwner, type LaserPiece as Piece, type LaserPieceType, type LaserShot } from '@/lib/laserJanggi';
 import LaserBoard from './LaserBoard';
+import { CoffeeNudge } from '../SupportLink';
 import LaserPiece from './LaserPiece';
 import { LASER_CYAN } from './theme';
 
@@ -89,6 +90,7 @@ export default function LaserJanggiGame() {
           <span className={`flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-black ${busy ? 'border-[#59e6ff]/60 bg-[#59e6ff]/10 text-[#a8f5ff]' : 'border-white/10 bg-black/40 text-white/45'}`}><Crosshair size={14} />{busy ? t('beamLive') : t('beamReady')}</span>
         </div>
         <LaserBoard pieces={pieces} current={current} interactive={current === 0 && !busy && winner === null && !draw} selectedId={selectedId} shot={shot} onSelect={(id) => setSelectedId((value) => value === id ? null : id)} onMove={(action) => commit(action, 0)} />
+        {(winner !== null || draw) && <div className="mt-4 flex flex-col items-center gap-2"><button type="button" onClick={reset} className={`${BTN_ACCENT} px-6 py-2.5`}><RotateCcw size={14} />{t('newGame')}</button><CoffeeNudge /></div>}
         {selected && current === 0 && !busy && winner === null && <div className="mx-auto mt-3 flex max-w-[700px] items-center justify-between rounded-[10px] border border-[#59e6ff]/20 bg-black/50 px-3 py-2">
           <div className="flex items-center gap-2"><div className="h-9 w-9"><LaserPiece piece={selected} /></div><span className="min-w-0"><span className="block text-xs font-bold text-white/70">{t(`pieces.${selected.type}.name`)}</span><span className="block text-[10px] leading-4 text-white/45">{t(`pieces.${selected.type}.tip`)}</span></span></div>
           <div className="flex gap-2"><button type="button" onClick={() => rotate(-1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === -1)} className={BTN}><ChevronLeft size={15} />{t('rotateLeft')}</button><button type="button" onClick={() => rotate(1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === 1)} className={BTN}>{t('rotateRight')}<ChevronRight size={15} /></button></div>
