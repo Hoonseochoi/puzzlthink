@@ -69,13 +69,18 @@ export function bw2ResolveRound(stage: BW2Stage, leader: BW2Side, leadBid: numbe
   };
 }
 
+/**
+ * Over when: someone reaches 5 wins within the nine main rounds; or the main rounds end with
+ * a different score; or, after a tie, the overtime (33 points, best of three) is decided or played out.
+ */
 export function bw2IsOver(rounds: BW2Round[]) {
-  const score = bw2ScoresOf(rounds);
-  if (score[0] >= BW2_WIN_SCORE || score[1] >= BW2_WIN_SCORE) return true;
   const main = bw2StageRounds(rounds, 'main');
-  if (main.length < BW2_MAIN_ROUNDS) return false;
-  if (score[0] !== score[1]) return true;
-  return bw2StageRounds(rounds, 'overtime').length >= BW2_OVERTIME_ROUNDS;
+  const mainScore = bw2ScoresOf(main);
+  if (main.length < BW2_MAIN_ROUNDS) return mainScore[0] >= BW2_WIN_SCORE || mainScore[1] >= BW2_WIN_SCORE;
+  if (mainScore[0] !== mainScore[1]) return true;
+  const overtime = bw2StageRounds(rounds, 'overtime');
+  const ot = bw2ScoresOf(overtime);
+  return overtime.length >= BW2_OVERTIME_ROUNDS || Math.abs(ot[0] - ot[1]) > BW2_OVERTIME_ROUNDS - overtime.length;
 }
 
 export function bw2WinnerOf(rounds: BW2Round[]): BW2Side | 'draw' | null {
@@ -90,8 +95,10 @@ export const bw2RoundsLeft = (rounds: BW2Round[], stage = bw2StageOf(rounds)) =>
 };
 
 // -------------------------------------------------------------------------------------------------
-// AI. It is deliberately fed public information only: its exact bank, the rival's public gauge,
-// shown colours/results and (when replying) the colour and updated gauge of the leading bid.
+// AI. It is fed public information only: its own bids and bank, the rival's colours, results and
+// gauges, and (when replying) the colour and new gauge of the leading bid. Easy plays by feel.
+// Normal and hard narrow down the rival's bank from that information, then try a set of bids and
+// play each one out many times against sampled rival banks, keeping the bid that wins most often.
 
 type Rand = () => number;
 type AiInput = {
@@ -106,75 +113,155 @@ type AiInput = {
   rand?: Rand;
 };
 
-const clampBid = (n: number, bank: number) => Math.max(0, Math.min(bank, Math.round(n)));
-const randomInt = (max: number, rand: Rand) => Math.floor(rand() * (max + 1));
-const jitter = (n: number, spread: number, bank: number, rand: Rand) => clampBid(n + (rand() * 2 - 1) * spread, bank);
-
-const gaugeRange = (level: number, cap: number): [number, number] => {
-  const low = level <= 1 ? 0 : (level - 1) * 20;
-  const high = Math.min(cap, level * 20 - 1);
-  return [Math.min(low, high), Math.max(low, high)];
+/** Small seeded generator, so every candidate bid is played out against the same luck. */
+const seeded = (seed: number): Rand => () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 };
+const randomInt = (max: number, rand: Rand) => Math.floor(rand() * (Math.max(0, max) + 1));
+const clampBid = (n: number, bank: number) => Math.max(0, Math.min(bank, Math.round(n)));
 
-function chooseLead(input: AiInput, rand: Rand) {
-  const { rounds, me, stage, myBank, opponentGauge, level } = input;
-  const left = bw2RoundsLeft(rounds, stage);
-  const score = bw2ScoresOf(rounds);
-  const diff = score[me] - score[bw2Other(me)];
+/** Points range a gauge level stands for. */
+export const bw2GaugeRange = (level: number): [number, number] => [level <= 1 ? 0 : (level - 1) * 20, level * 20 - 1];
 
-  if (level === 'easy') {
-    const cap = Math.min(myBank, Math.max(12, Math.ceil(myBank / left) * 2));
-    return randomInt(cap, rand);
+/** Compact game state for play-outs. */
+type Sim = { stage: BW2Stage; main: [number, number]; mainCount: number; ot: [number, number]; otCount: number; banks: [number, number]; leader: BW2Side };
+
+const simOver = (g: Sim) => {
+  if (g.stage === 'main') return g.mainCount < BW2_MAIN_ROUNDS ? Math.max(...g.main) >= BW2_WIN_SCORE : g.main[0] !== g.main[1];
+  return g.otCount >= BW2_OVERTIME_ROUNDS || Math.abs(g.ot[0] - g.ot[1]) > BW2_OVERTIME_ROUNDS - g.otCount;
+};
+const simNeed = (g: Sim, side: BW2Side) => g.stage === 'main' ? BW2_WIN_SCORE - g.main[side] : 2 - g.ot[side];
+const simLeft = (g: Sim) => g.stage === 'main' ? BW2_MAIN_ROUNDS - g.mainCount : BW2_OVERTIME_ROUNDS - g.otCount;
+
+function simPlay(g: Sim, leadBid: number, followBid: number) {
+  const leader = g.leader, follower = bw2Other(leader);
+  g.banks[leader] -= leadBid; g.banks[follower] -= followBid;
+  const winner: BW2Side | null = leadBid === followBid ? null : leadBid > followBid ? leader : follower;
+  if (g.stage === 'main') {
+    g.mainCount += 1;
+    if (winner !== null) g.main[winner] += 1;
+    if (g.mainCount >= BW2_MAIN_ROUNDS && g.main[0] === g.main[1]) { g.stage = 'overtime'; g.banks = [BW2_OVERTIME_POINTS, BW2_OVERTIME_POINTS]; }
+  } else {
+    g.otCount += 1;
+    if (winner !== null) g.ot[winner] += 1;
   }
-
-  let target = myBank / Math.max(1, left);
-  if (diff < 0) target += Math.min(8, -diff * 3);
-  if (diff > 1) target -= 3;
-  if (score[bw2Other(me)] === 4) target += 8;
-
-  // Mix black probes, boundary bluffs and honest white pressure so patterns are not deterministic.
-  const roll = rand();
-  if (roll < (level === 'hard' ? 0.28 : 0.18) && myBank >= 9) return jitter(8, 1.4, myBank, rand);
-  if (roll < (level === 'hard' ? 0.48 : 0.34) && myBank >= 10) return jitter(10, 1.2, myBank, rand);
-  if (level === 'hard' && opponentGauge < bw2GaugeOf(myBank) && rand() < 0.3) target += 5;
-  return jitter(target, level === 'hard' ? 4 : 7, myBank, rand);
+  if (winner !== null) g.leader = winner;
 }
 
-function chooseFollow(input: AiInput, rand: Rand) {
-  const { rounds, me, stage, myBank, opponentGauge, lead, level } = input;
-  if (!lead) return chooseLead(input, rand);
-  const left = bw2RoundsLeft(rounds, stage);
-  const score = bw2ScoresOf(rounds);
-  const myScore = score[me], theirScore = score[bw2Other(me)];
-  const mustFight = theirScore === 4 || (stage === 'overtime' && left === 1 && myScore <= theirScore);
+/** Quick lead used inside play-outs: roughly the price of one needed win, sometimes a cheap black. */
+function quickLead(g: Sim, side: BW2Side, rand: Rand) {
+  const bank = g.banks[side];
+  if (bank <= 0) return 0;
+  const need = Math.max(1, simNeed(g, side));
+  if (simLeft(g) > need && rand() < 0.3) return randomInt(Math.min(9, bank), rand);
+  return clampBid((bank / need) * (0.6 + 0.7 * rand()), bank);
+}
 
-  if (level === 'easy') {
-    if (lead.color === 'black' && myBank >= 10 && rand() < 0.55) return 10;
-    return randomInt(Math.min(myBank, Math.max(12, Math.ceil(myBank / left) * 2)), rand);
+/** Quick reply inside play-outs: knows only the lead colour. */
+function quickFollow(g: Sim, side: BW2Side, color: BW2Color, rand: Rand) {
+  const bank = g.banks[side];
+  if (bank <= 0) return 0;
+  const need = Math.max(1, simNeed(g, side));
+  const left = simLeft(g);
+  if (color === 'black') return bank >= 10 && rand() < 0.85 ? 10 : randomInt(Math.min(9, bank), rand);
+  const price = bank / need;
+  const must = need >= left;
+  if (must || (price >= 13 && rand() < 0.55)) return clampBid(price * (0.85 + 0.6 * rand()), bank);
+  return rand() < 0.75 ? 0 : randomInt(Math.min(9, bank), rand);
+}
+
+function playOutSim(g: Sim, me: BW2Side, rand: Rand) {
+  let guard = 0;
+  while (!simOver(g) && guard++ < 16) {
+    const lead = quickLead(g, g.leader, rand);
+    const follow = quickFollow(g, bw2Other(g.leader), bw2ColorOf(lead), rand);
+    simPlay(g, Math.min(lead, g.banks[g.leader]), Math.min(follow, g.banks[bw2Other(g.leader)]));
   }
+  const total: [number, number] = [g.main[0] + g.ot[0], g.main[1] + g.ot[1]];
+  return total[me] === total[bw2Other(me)] ? 0.5 : total[me] > total[bw2Other(me)] ? 1 : 0;
+}
 
-  if (lead.color === 'black') {
-    if (myBank >= 10 && (mustFight || rand() < (level === 'hard' ? 0.66 : 0.52))) return jitter(10, 0.7, myBank, rand);
-    return jitter(level === 'hard' ? 8 : 7, 1.8, myBank, rand);
+/** What the rival's bids could have been, from colours, results and our own bids. Bank range now (before any lead this round). */
+function rivalBankRange(rounds: BW2Round[], me: BW2Side, stage: BW2Stage): [number, number] {
+  const opp = bw2Other(me);
+  const start = stage === 'main' ? BW2_MAIN_POINTS : BW2_OVERTIME_POINTS;
+  let lo = 0, hi = 0; // total spent so far in this stage
+  for (const r of bw2StageRounds(rounds, stage)) {
+    const mine = r.bids[me];
+    let a = r.colors[opp] === 'black' ? 0 : 10, b = r.colors[opp] === 'black' ? 9 : start;
+    if (r.winner === null) { a = mine; b = mine; } else if (r.winner === opp) a = Math.max(a, mine + 1); else b = Math.min(b, mine - 1);
+    lo += a; hi += Math.max(a, b);
   }
+  let low = Math.max(0, start - hi), high = Math.max(0, start - lo);
+  const last = bw2StageRounds(rounds, stage).at(-1);
+  if (last) {
+    const [gl, gh] = bw2GaugeRange(last.gaugesAfter[opp]);
+    low = Math.max(low, gl); high = Math.min(high, gh);
+  }
+  return low <= high ? [low, high] : [Math.max(0, start - hi), Math.max(0, start - lo)];
+}
 
-  const cap = stage === 'main' ? BW2_MAIN_POINTS : BW2_OVERTIME_POINTS;
-  const [low, high] = gaugeRange(opponentGauge, cap);
-  const estimatedRemaining = (low + high) / 2;
-  const estimatedBid = Math.max(10, (cap - estimatedRemaining) / Math.max(1, bw2StageRounds(rounds, stage).length + 1));
-  const affordable = myBank / Math.max(1, left);
-  const chase = Math.max(11, estimatedBid + 1, affordable * (mustFight ? 1.7 : 1.05));
-
-  // Sometimes concede cheaply to make a large white lead expensive; hard AI does this more selectively.
-  const concedeChance = mustFight ? 0 : level === 'hard' ? 0.38 : 0.28;
-  if (rand() < concedeChance || (chase > myBank * 0.72 && !mustFight)) return jitter(rand() < 0.55 ? 0 : 7, 2, myBank, rand);
-  return jitter(chase, level === 'hard' ? 3 : 6, myBank, rand);
+function candidateBids(bank: number) {
+  const list = [0, 1, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15, 17, 19, 21, 24, 27, 30, 34, 38, 43, 49, 56, 64, 73, 83, bank];
+  return [...new Set(list.filter((n) => n <= bank))];
 }
 
 export function chooseBw2AiBid(input: AiInput): number {
   const rand = input.rand ?? Math.random;
-  if (input.myBank <= 0) return 0;
-  return input.lead ? chooseFollow(input, rand) : chooseLead(input, rand);
+  const { rounds, me, stage, myBank, lead, level } = input;
+  if (myBank <= 0) return 0;
+  const opp = bw2Other(me);
+  const main = bw2StageRounds(rounds, 'main');
+  const ot = bw2StageRounds(rounds, 'overtime');
+  const base: Sim = {
+    stage, main: bw2ScoresOf(main), mainCount: main.length, ot: bw2ScoresOf(ot), otCount: ot.length,
+    banks: [0, 0], leader: lead ? opp : me,
+  };
+
+  if (level === 'easy') {
+    const g = { ...base, banks: [myBank, myBank] as [number, number] };
+    return lead ? quickFollow(g, me, lead.color, rand) : quickLead(g, me, rand);
+  }
+
+  const [bankLo, bankHi] = rivalBankRange(rounds, me, stage);
+  const samples = level === 'hard' ? 500 : 120;
+  const candidates = candidateBids(myBank);
+  const totals = new Map<number, number>(candidates.map((c) => [c, 0]));
+  let used = 0;
+  for (let s = 0; s < samples * 3 && used < samples; s += 1) {
+    const rivalBank = bankLo + randomInt(bankHi - bankLo, rand);
+    let leadBid: number | null = null;
+    if (lead) {
+      // A lead bid that fits its colour and the gauge it left behind.
+      const [cLo, cHi] = lead.color === 'black' ? [0, Math.min(9, rivalBank)] : [10, rivalBank];
+      if (cLo > cHi) continue;
+      const [gLo, gHi] = bw2GaugeRange(lead.gaugeAfter);
+      const lo = Math.max(cLo, rivalBank - gHi), hi = Math.min(cHi, rivalBank - gLo);
+      if (lo > hi) continue;
+      leadBid = lo + randomInt(hi - lo, rand);
+    }
+    used += 1;
+    const seed = Math.floor(rand() * 2 ** 31);
+    for (const c of candidates) {
+      const luck = seeded(seed);
+      const g: Sim = { ...base, main: [...base.main] as [number, number], ot: [...base.ot] as [number, number], banks: (me === 0 ? [myBank, rivalBank] : [rivalBank, myBank]) as [number, number] };
+      if (leadBid !== null) simPlay(g, leadBid, c);
+      else simPlay(g, c, Math.min(g.banks[opp], quickFollow(g, opp, bw2ColorOf(c), luck)));
+      totals.set(c, totals.get(c)! + playOutSim(g, me, luck));
+    }
+  }
+  if (!used) return clampBid(myBank / Math.max(1, bw2RoundsLeft(rounds, stage)), myBank);
+  // Softmax over win rates so the AI is not predictable: sharper on hard.
+  const temp = level === 'hard' ? 0.025 : 0.06;
+  const entries = [...totals.entries()].map(([c, v]) => [c, v / used] as const);
+  const top = Math.max(...entries.map(([, v]) => v));
+  const weights = entries.map(([c, v]) => [c, Math.exp((v - top) / temp)] as const);
+  let r = rand() * weights.reduce((a, [, w]) => a + w, 0);
+  for (const [c, w] of weights) { r -= w; if (r <= 0) return c; }
+  return entries[0][0];
 }
 
 // -------------------------------------------------------------------------------------------------

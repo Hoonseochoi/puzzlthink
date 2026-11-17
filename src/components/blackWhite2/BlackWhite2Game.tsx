@@ -12,7 +12,7 @@ import { reportGame } from '@/lib/stats';
 import {
   BW2_MAIN_POINTS, BW2_OVERTIME_POINTS,
   type BW2Difficulty, type BW2Round, type BW2Side, type BW2Stage,
-  bw2ColorOf, bw2GaugeOf, bw2IsOver, bw2NextLeader, bw2Other, bw2ResolveRound, bw2RoundsLeft, bw2ScoresOf, bw2StageRounds, bw2WinnerOf, chooseBw2AiBid,
+  bw2ColorOf, bw2GaugeOf, bw2IsOver, bw2NextLeader, bw2ResolveRound, bw2RoundsLeft, bw2ScoresOf, bw2StageRounds, bw2WinnerOf, chooseBw2AiBid,
 } from '@/lib/blackWhite2';
 import { BW2GaugePanel, type BW2LeadView, BW2Replay, BW2RoundLog, BW2Scoreboard, BW2Table, BidControl } from './BW2Parts';
 
