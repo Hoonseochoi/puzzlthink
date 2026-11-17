@@ -16,9 +16,9 @@ function PieceRow() {
 function BeamDemo() {
   return <div className="relative h-28 w-56 overflow-hidden rounded-lg border border-[#59e6ff]/20 bg-[#05080d]">
     <span className="absolute left-3 top-1/2 h-10 w-10 -translate-y-1/2"><LaserPiece piece={{ id: 'demo-laser', owner: 0, type: 'laser', row: 0, col: 0, direction: 1 }} /></span>
-    <span className="absolute left-[56px] top-1/2 h-[2px] w-[80px] -translate-y-1/2 bg-[#59e6ff] shadow-[0_0_10px_#59e6ff]" />
-    <span className="absolute right-7 top-1/2 h-12 w-12 -translate-y-1/2"><LaserPiece piece={{ id: 'demo-tri', owner: 1, type: 'triangle', row: 0, col: 0, direction: 1 }} /></span>
-    <span className="absolute right-[48px] top-1 h-[42px] w-[2px] bg-[#ff4d6d] shadow-[0_0_10px_#ff4d6d]" />
+    <span className="absolute left-[52px] right-[51px] top-1/2 h-[2px] -translate-y-1/2 bg-[#59e6ff] shadow-[0_0_10px_#59e6ff]" />
+    <span className="absolute right-7 top-1/2 h-12 w-12 -translate-y-1/2"><LaserPiece piece={{ id: 'demo-tri', owner: 1, type: 'triangle', row: 0, col: 0, direction: 3 }} /></span>
+    <span className="absolute right-[51px] top-0 h-[56px] w-[2px] bg-[#59e6ff] shadow-[0_0_10px_#59e6ff]" />
   </div>;
 }
 

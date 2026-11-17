@@ -25,9 +25,10 @@ export default function LaserPiece({ piece, selected = false, label, className =
             <circle cx="50" cy="53" r="7" fill={color} filter={`url(#glow-${piece.id})`} />
           </>}
           {piece.type === 'triangle' && <>
-            <path d="M17 78 L83 78 L50 16 Z" fill={`url(#body-${piece.id})`} stroke={color} strokeWidth="3" />
-            <path d="M23 72 L67 28" stroke="#e9fdff" strokeWidth="8" strokeLinecap="round" filter={`url(#glow-${piece.id})`} />
-            <path d="M25 72 L69 28" stroke={color} strokeWidth="3" strokeLinecap="round" />
+            {/* Right triangle in the lower-left corner; its long side (the mirror) faces up and right at direction 0. */}
+            <path d="M18 18 L18 82 L82 82 Z" fill={`url(#body-${piece.id})`} stroke={color} strokeWidth="3" strokeLinejoin="round" />
+            <path d="M22 22 L78 78" stroke="#e9fdff" strokeWidth="8" strokeLinecap="round" filter={`url(#glow-${piece.id})`} />
+            <path d="M22 22 L78 78" stroke={color} strokeWidth="3" strokeLinecap="round" />
           </>}
           {piece.type === 'square' && <>
             <rect x="18" y="18" width="64" height="64" rx="10" fill={`url(#body-${piece.id})`} stroke={color} strokeWidth="3" />

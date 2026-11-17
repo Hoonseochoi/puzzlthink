@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { BookOpen, Bot, ChevronLeft, ChevronRight, Crosshair, RotateCcw, ShieldQuestion, Sparkles } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import { reportGame } from '@/lib/stats';
+import { LASER_MAX_TURNS } from '@/lib/laserJanggiRoom';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
-import { applyLaserAction, chooseLaserAiAction, initialLaserPieces, legalActions, type LaserAction, type LaserDifficulty, type LaserOwner, type LaserPiece as Piece, type LaserShot } from '@/lib/laserJanggi';
+import { applyLaserAction, chooseLaserAiAction, initialLaserPieces, legalActions, type LaserAction, type LaserDifficulty, type LaserOwner, type LaserPiece as Piece, type LaserPieceType, type LaserShot } from '@/lib/laserJanggi';
 import LaserBoard from './LaserBoard';
 import LaserPiece from './LaserPiece';
 import { LASER_CYAN } from './theme';
@@ -24,25 +26,37 @@ export default function LaserJanggiGame() {
   const [busy, setBusy] = useState(false);
   const [turn, setTurn] = useState(1);
   const [showRules, setShowRules] = useState(false);
+  const [draw, setDraw] = useState(false); // turn limit reached
+  const [guideType, setGuideType] = useState<LaserPieceType | null>(null); // piece guide entry opened by tap
+  const gameRef = useRef(0); // bumps on "new game" so a beam timer from the old game can't change turns
 
   const reset = () => {
+    gameRef.current += 1;
     setPieces(initialLaserPieces()); setCurrent(0); setSelectedId(null); setShot(null);
-    setWinner(null); setBusy(false); setTurn(1);
+    setWinner(null); setBusy(false); setTurn(1); setDraw(false);
   };
 
   const commit = (action: LaserAction, owner: LaserOwner) => {
     const result = applyLaserAction(pieces, owner, action);
     if (!result) return;
     setPieces(result.pieces); setShot(result.shot); setSelectedId(null); setBusy(true);
+    const over = result.winner !== null || turn >= LASER_MAX_TURNS;
     if (result.winner !== null) setWinner(result.winner);
+    else if (over) setDraw(true);
+    if (over) {
+      reportGame(`laser_janggi-ai-${gameRef.current}-${Date.now()}`, 'laser_janggi', 'ai', result.winner === null ? 'draw' : result.winner === 0 ? 'win' : 'loss',
+        { difficulty, turns: turn, pieces: result.pieces.filter((item) => item.owner === 0).length });
+    }
+    const game = gameRef.current;
     window.setTimeout(() => {
+      if (gameRef.current !== game) return;
       setBusy(false);
-      if (result.winner === null) { setCurrent((1 - owner) as LaserOwner); setTurn((value) => value + 1); }
+      if (!over) { setCurrent((1 - owner) as LaserOwner); setTurn((value) => value + 1); }
     }, 1050);
   };
 
   useEffect(() => {
-    if (current !== 1 || busy || winner !== null) return;
+    if (current !== 1 || busy || winner !== null || draw) return;
     const timer = window.setTimeout(() => {
       const action = chooseLaserAiAction(pieces, 1, difficulty);
       if (action) commit(action, 1);
@@ -50,7 +64,7 @@ export default function LaserJanggiGame() {
     return () => window.clearTimeout(timer);
     // The position is frozen whenever the AI receives its turn.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current, busy, winner]);
+  }, [current, busy, winner, draw]);
 
   const selected = pieces.find((item) => item.id === selectedId) ?? null;
   const rotations = selected ? legalActions(pieces, current).filter((action) => action.type === 'rotate' && action.pieceId === selected.id) : [];
@@ -58,7 +72,7 @@ export default function LaserJanggiGame() {
     const action = rotations.find((item) => item.type === 'rotate' && item.delta === delta);
     if (action && current === 0 && !busy && winner === null) commit(action, 0);
   };
-  const status = winner !== null ? (winner === 0 ? t('youWin') : t('aiWins')) : busy ? t('laserFiring') : current === 0 ? t('yourTurn') : t('aiThinking');
+  const status = draw ? t('draw') : winner !== null ? (winner === 0 ? t('youWin') : t('aiWins')) : busy ? t('laserFiring') : current === 0 ? t('yourTurn') : t('aiThinking');
 
   return <div className={SHELL} style={{ ...accentVars(LASER_CYAN, '#041015'), backgroundImage: fog('35, 190, 220') }}>
     <Shards />
@@ -71,12 +85,12 @@ export default function LaserJanggiGame() {
     <main className={MAIN}>
       <section className={STAGE}>
         <div className="mb-3 flex items-end justify-between gap-3 px-1 sm:mb-4 sm:px-2">
-          <div><p className={KICKER}>{winner !== null ? t('result') : t('turn', { turn })}</p><h1 className="mt-1 text-base font-extrabold text-[#eef1f7] sm:text-xl">{status}</h1></div>
+          <div><p className={KICKER}>{winner !== null || draw ? t('result') : t('turn', { turn })}</p><h1 className="mt-1 text-base font-extrabold text-[#eef1f7] sm:text-xl">{status}</h1></div>
           <span className={`flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-black ${busy ? 'border-[#59e6ff]/60 bg-[#59e6ff]/10 text-[#a8f5ff]' : 'border-white/10 bg-black/40 text-white/45'}`}><Crosshair size={14} />{busy ? t('beamLive') : t('beamReady')}</span>
         </div>
-        <LaserBoard pieces={pieces} current={current} interactive={current === 0 && !busy && winner === null} selectedId={selectedId} shot={shot} onSelect={(id) => setSelectedId((value) => value === id ? null : id)} onMove={(action) => commit(action, 0)} />
+        <LaserBoard pieces={pieces} current={current} interactive={current === 0 && !busy && winner === null && !draw} selectedId={selectedId} shot={shot} onSelect={(id) => setSelectedId((value) => value === id ? null : id)} onMove={(action) => commit(action, 0)} />
         {selected && current === 0 && !busy && winner === null && <div className="mx-auto mt-3 flex max-w-[700px] items-center justify-between rounded-[10px] border border-[#59e6ff]/20 bg-black/50 px-3 py-2">
-          <div className="flex items-center gap-2"><div className="h-9 w-9"><LaserPiece piece={selected} /></div><span className="text-xs font-bold text-white/70">{t(`pieces.${selected.type}.name`)}</span></div>
+          <div className="flex items-center gap-2"><div className="h-9 w-9"><LaserPiece piece={selected} /></div><span className="min-w-0"><span className="block text-xs font-bold text-white/70">{t(`pieces.${selected.type}.name`)}</span><span className="block text-[10px] leading-4 text-white/45">{t(`pieces.${selected.type}.tip`)}</span></span></div>
           <div className="flex gap-2"><button type="button" onClick={() => rotate(-1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === -1)} className={BTN}><ChevronLeft size={15} />{t('rotateLeft')}</button><button type="button" onClick={() => rotate(1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === 1)} className={BTN}>{t('rotateRight')}<ChevronRight size={15} /></button></div>
         </div>}
       </section>
@@ -86,7 +100,7 @@ export default function LaserJanggiGame() {
 
         <section className={PANEL}><p className={PANEL_TITLE}>{t('selectedPiece')}</p>{selected ? <div className="mt-3 flex items-center gap-3"><div className="h-14 w-14"><LaserPiece piece={selected} selected /></div><div><p className="font-black">{t(`pieces.${selected.type}.name`)}</p><p className="mt-1 text-xs leading-5 text-white/50">{t(`pieces.${selected.type}.tip`)}</p></div></div> : <p className="mt-3 text-xs leading-5 text-white/45">{t('selectHint')}</p>}</section>
 
-        <section className={PANEL}><p className={PANEL_TITLE}>{t('pieceGuide')}</p><div className="mt-3 grid grid-cols-5 gap-1">{(['laser','splitter','king','triangle','square'] as const).map((type) => { const example = pieces.find((item) => item.type === type) ?? { id: `guide-${type}`, owner: 0 as const, type, row: 0, col: 0, direction: 0 as const }; return <div key={type} className="group relative rounded-md border border-white/5 bg-black/25 p-1"><LaserPiece piece={example} label={t(`pieces.${type}.name`)} /><span className="pointer-events-none absolute bottom-[105%] left-1/2 z-20 hidden w-44 -translate-x-1/2 rounded-md border border-white/10 bg-[#080b10] p-2 text-[10px] leading-4 text-white/65 shadow-xl group-hover:block"><b className="block text-white">{t(`pieces.${type}.name`)}</b>{t(`pieces.${type}.tip`)}</span></div>; })}</div><p className="mt-2 text-[10px] text-white/35">{t('tooltipHint')}</p></section>
+        <section className={PANEL}><p className={PANEL_TITLE}>{t('pieceGuide')}</p><div className="mt-3 grid grid-cols-5 gap-1">{(['laser','splitter','king','triangle','square'] as const).map((type) => { const example = pieces.find((item) => item.type === type) ?? { id: `guide-${type}`, owner: 0 as const, type, row: 0, col: 0, direction: 0 as const }; return <button key={type} type="button" aria-pressed={guideType === type} onClick={() => setGuideType((value) => value === type ? null : type)} className={`rounded-md border p-1 transition ${guideType === type ? 'border-[#59e6ff]/70 bg-[#59e6ff]/10' : 'border-white/5 bg-black/25 hover:border-white/20'}`}><LaserPiece piece={example} label={t(`pieces.${type}.name`)} /></button>; })}</div>{guideType ? <p className="mt-2 rounded-md border border-white/10 bg-black/40 p-2 text-[11px] leading-5 text-white/65"><b className="block text-white">{t(`pieces.${guideType}.name`)}</b>{t(`pieces.${guideType}.tip`)}</p> : <p className="mt-2 text-[10px] text-white/35">{t('tooltipHint')}</p>}</section>
 
         <section className="rounded-[14px] border border-[#59e6ff]/25 bg-[#59e6ff]/[.05] p-4"><p className={PANEL_TITLE}>{t('quickRules')}</p><ol className="mt-3 space-y-2.5 text-xs leading-5 text-white/55">{(['quick1','quick2','quick3','quick4'] as const).map((key, i) => <li key={key} className="flex gap-2.5"><span className="font-mono text-[#59e6ff]">0{i + 1}</span><span>{t(key)}</span></li>)}</ol></section>
         <section className={PANEL}><div className="flex items-center gap-2 text-xs text-white/55"><Sparkles size={14} className="text-[#ffd166]" />{t('fairPlay')}</div></section>

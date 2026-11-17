@@ -125,13 +125,17 @@ export function isLegalLaserAction(pieces: LaserPiece[], owner: LaserOwner, acti
   return legalActions(pieces, owner).some((candidate) => JSON.stringify(candidate) === JSON.stringify(action));
 }
 
-/** Triangle mirror: one diagonal face is safe from two incoming directions; the other two sides are vulnerable. */
+/**
+ * Triangle mirror (a right triangle, like a Khet pyramid). Its mirror is the long side, which faces two
+ * directions: `direction` and the next one clockwise (0 = faces up and right). A beam coming in against
+ * one of those faces turns out through the other; a beam hitting either short side destroys the piece.
+ * Example (direction 0): a beam travelling down turns right, a beam travelling left turns up.
+ */
 function triangleReflection(item: LaserPiece, incoming: Direction): Direction | null {
-  const rotation = item.direction;
-  const protectedA = rotation;
-  const protectedB = ((rotation + 1) % 4) as Direction;
-  if (incoming === protectedA) return ((rotation + 1) % 4) as Direction;
-  if (incoming === protectedB) return rotation;
+  const faceA = item.direction;
+  const faceB = ((item.direction + 1) % 4) as Direction;
+  if (incoming === opposite(faceA)) return faceB;
+  if (incoming === opposite(faceB)) return faceA;
   return null;
 }
 

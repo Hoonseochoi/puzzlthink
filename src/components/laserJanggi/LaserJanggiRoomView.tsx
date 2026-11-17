@@ -12,6 +12,7 @@ import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
 import { useLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
+import { reportGame } from '@/lib/stats';
 import { Link } from '@/i18n/routing';
 import { legalActions, type LaserAction } from '@/lib/laserJanggi';
 import { LASER_TURN_OPTIONS } from '@/lib/laserJanggiRoom';
@@ -42,12 +43,26 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
     return () => { window.clearInterval(tick); window.clearTimeout(slow); };
   }, [code, locale]);
 
+  // Record each finished game once per player (reportGame ignores a key it has already sent).
+  useEffect(() => {
+    if (!state || state.phase !== 'finished' || mySeat === null) return;
+    reportGame(`laser_janggi-friend-${state.sid}-${state.turn}-${state.reason}`, 'laser_janggi', 'friend',
+      state.winner === null ? 'draw' : state.winner === mySeat ? 'win' : 'loss', { reason: state.reason, turns: state.turn, turnSec: state.turnSec });
+  }, [state, mySeat]);
+
   const copyLink = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* blocked */ } };
   const shareLink = async () => { if (navigator.share) { try { await navigator.share({ title: tg('title'), text: t('shareText'), url: shareUrl }); return; } catch { /* cancelled */ } } copyLink(); };
   const notice = status === 'unconfigured' ? t('unconfigured') : status === 'error' ? t('connectionError') : !state && waitedLong ? t('roomNotFound') : state && !me?.isHost && !hostOnline ? t('hostOffline') : null;
   const full = !!state && state.seats.every(Boolean);
   const online = new Set(peers.map((peer) => peer.id));
-  const animating = !!state && now < state.shotAt + 900;
+  // The beam plays for 0.9 s after a move arrives. Timed from when this browser saw it (not the host's
+  // clock), so a guest whose clock runs behind is not locked out of moving.
+  const [shotSeen, setShotSeen] = useState({ shotAt: 0, at: 0 });
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- marks when this move's beam arrived here
+    if (state && state.shotAt !== shotSeen.shotAt) setShotSeen({ shotAt: state.shotAt, at: Date.now() });
+  }, [state, shotSeen.shotAt]);
+  const animating = !!state && state.shotAt > 0 && now < shotSeen.at + 900;
   const myTurn = !!state && state.phase === 'playing' && mySeat === state.current && !animating;
   const seconds = state ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : 0;
   const selected = state?.pieces.find((item) => item.id === selectedId) ?? null;
@@ -71,7 +86,7 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
           <div className={PANEL}><p className={PANEL_TITLE}>{t('turnTime')}</p><div className="mt-3 grid grid-cols-3 gap-2">{LASER_TURN_OPTIONS.map((sec) => <button key={sec} disabled={!me?.isHost} onClick={() => dispatch({ t:'config', turnSec:sec })} className={`py-2.5 ${seg(state.turnSec === sec)}`}>{t('seconds',{n:sec})}</button>)}</div></div>
           <form onSubmit={(e) => { e.preventDefault(); rename(nameDraft); setNameDraft(''); }} className="flex gap-2"><input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} maxLength={16} placeholder={me?.name ?? ''} className={INPUT} /><button className={BTN}>{t('rename')}</button></form>
           {me?.isHost ? <button onClick={() => dispatch({t:'start'})} disabled={!full} className={`flex w-full items-center justify-center gap-2 rounded-md py-3.5 text-sm font-black ${full ? 'bg-[#59e6ff] text-[#041015]' : 'border border-dashed border-white/20 text-white/35'}`}>{full ? <Swords size={16}/> : <Lock size={15}/>} {full ? t('start') : t('startLocked')}</button> : <p className="text-center text-sm text-white/45">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>}
-        </div> : <><LaserBoard pieces={state.pieces} current={state.current} interactive={myTurn} selectedId={selectedId} shot={state.shot} onSelect={(id) => setSelectedId((v) => v === id ? null : id)} onMove={play} />{selected && myTurn && <div className="mx-auto mt-3 flex max-w-[700px] items-center justify-between rounded-[10px] border border-[#59e6ff]/20 bg-black/50 px-3 py-2"><span className="text-xs font-black">{tg(`pieces.${selected.type}.name`)}</span><div className="flex gap-2"><button onClick={() => { const a=rotations.find((x) => x.type==='rotate'&&x.delta===-1); if(a) play(a); }} className={BTN}><ChevronLeft size={15}/>{tg('rotateLeft')}</button><button onClick={() => { const a=rotations.find((x) => x.type==='rotate'&&x.delta===1); if(a) play(a); }} className={BTN}>{tg('rotateRight')}<ChevronRight size={15}/></button></div></div>}</>}
+        </div> : <><LaserBoard pieces={state.pieces} current={state.current} interactive={myTurn} selectedId={selectedId} shot={state.shot} onSelect={(id) => setSelectedId((v) => v === id ? null : id)} onMove={play} />{selected && myTurn && <div className="mx-auto mt-3 flex max-w-[700px] items-center justify-between rounded-[10px] border border-[#59e6ff]/20 bg-black/50 px-3 py-2"><span className="min-w-0"><span className="block text-xs font-black">{tg(`pieces.${selected.type}.name`)}</span><span className="block text-[10px] leading-4 text-white/45">{tg(`pieces.${selected.type}.tip`)}</span></span><div className="flex gap-2"><button onClick={() => { const a=rotations.find((x) => x.type==='rotate'&&x.delta===-1); if(a) play(a); }} className={BTN}><ChevronLeft size={15}/>{tg('rotateLeft')}</button><button onClick={() => { const a=rotations.find((x) => x.type==='rotate'&&x.delta===1); if(a) play(a); }} className={BTN}>{tg('rotateRight')}<ChevronRight size={15}/></button></div></div>}</>}
       </section>
       <aside className="flex flex-col gap-4">
         <section className={PANEL}><div className="mb-3 flex justify-between"><p className={PANEL_TITLE}>{t('players')}</p><span className={CHIP}><Users size={12}/>{state.seats.filter(Boolean).length}/2</span></div>{[0,1].map((seat) => { const p=state.seats[seat]; return <div key={seat} className={`${playerRow(state.phase==='playing'&&state.current===seat)} ${p?'':'opacity-45'}`}><span className="h-8 w-8"><LaserPiece piece={{id:`seat-${seat}`,owner:seat as 0|1,type:'king',row:0,col:0,direction:0}} /></span><div className="min-w-0 flex-1"><p className="truncate text-sm font-black">{seatName(seat)}{p?.id===me?.id?` (${t('me')})`:''}</p><p className="text-[10px] text-white/40">{seat===0?t('cyanRole'):t('redRole')}</p></div>{seat===0&&<Crown size={12} className="text-[#ffd166]"/>}{p&&<span className={`h-1.5 w-1.5 rounded-full ${online.has(p.id)?'bg-[#3ddc97]':'bg-white/20'}`}/>}</div>; })}</section>

@@ -1586,21 +1586,21 @@
     "unsupported": "Not available",
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
     "games": {
-    "laserJanggi": {
-      "tagline": "Turn the mirrors, engineer the light path, and strike the enemy king first.",
-      "players": "2 players (AI or friend)",
-      "pace": "Friend games: 30, 60 or 90 seconds per turn",
-      "level": "Easy · Normal · Hard AI",
-      "ai": "1v1, three AI levels",
-      "friend": "1v1, invite link or 4-digit code",
-      "rules": [
-        "On the 8×8 board, move one piece a single square in any of eight directions, or rotate it 90°. The laser cannot move.",
-        "Your laser fires automatically after the action. Mirrors reflect it; the splitter sends it straight and reflects a second beam.",
-        "Triangle and square knights are removed when struck on a non-mirrored side. Lasers and splitters are beam-proof.",
-        "A king is removed by a beam from any direction. Strike the enemy king first to win."
-      ],
-      "origin": "A web adaptation of Laser Janggi as featured in The Genius: Rule Breaker, using a symmetric 8×8 setup and explicit beam tracing."
-    },
+      "laserJanggi": {
+        "tagline": "Turn the mirrors, engineer the light path, and strike the enemy king first.",
+        "players": "2 players (AI or friend)",
+        "pace": "Friend games: 30, 60 or 90 seconds per turn",
+        "level": "Easy · Normal · Hard AI",
+        "ai": "1v1, three AI levels",
+        "friend": "1v1, invite link or 4-digit code",
+        "rules": [
+          "On the 8×8 board, move one piece a single square in any of eight directions, or rotate it 90°. The laser cannot move.",
+          "Your laser fires automatically after the action. Mirrors reflect it; the splitter sends it straight and reflects a second beam.",
+          "Triangle and square knights are removed when struck on a non-mirrored side. Lasers and splitters are beam-proof.",
+          "A king is removed by a beam from any direction. Strike the enemy king first to win."
+        ],
+        "origin": "A web adaptation of Laser Janggi as featured in The Genius: Rule Breaker, using a symmetric 8×8 setup and explicit beam tracing."
+      },
       "blindGomoku": {
         "tagline": "Black and white hide behind color. Remember, deduce, and connect five first.",
         "players": "2 (1:1 vs AI or a friend)",
@@ -2147,53 +2147,195 @@
   "LaserJanggi": {
     "metaTitle": "Laser Janggi — engineer the path of light",
     "metaDescription": "Move and rotate mirrored pieces on a neon 8×8 board. Face three AI levels or a friend and strike the enemy king first.",
-    "title": "LASER JANGGI", "subtitle": "NEON BEAM TACTICS", "rules": "How to play", "newGame": "New game", "result": "MISSION COMPLETE", "turn": "TURN {turn}",
-    "youWin": "Enemy king hit — you win", "aiWins": "Your king was hit — PRISM wins", "laserFiring": "Tracing the beam…", "yourTurn": "Select a piece to move or rotate 90°", "aiThinking": "PRISM is calculating a light path…", "beamLive": "LASER LIVE", "beamReady": "LASER READY", "rotateLeft": "90° left", "rotateRight": "90° right",
-    "difficulty": "AI difficulty", "difficultyLevels": { "easy": "Easy", "normal": "Normal", "hard": "Hard" }, "difficultyTips": { "easy": "Sees immediate gains but makes frequent mistakes.", "normal": "Balances attacks and material.", "hard": "Looks one strong reply further ahead." },
-    "selectedPiece": "Selected piece", "selectHint": "Select one of your pieces to see moves and rotation controls.", "pieceGuide": "Piece guide · hover to inspect", "tooltipHint": "Hover or tap a piece to review its role.",
-    "quickRules": "Quick rules", "quick1": "Move one piece one square in eight directions, or rotate it 90°.", "quick2": "Your laser fires automatically after the action.", "quick3": "Mirrored sides reflect; vulnerable sides are removed when hit.", "quick4": "Hit the enemy king with a beam first to win.", "fairPlay": "If your beam hits your own king, you lose immediately. Trace before firing.",
-    "rulesKicker": "LASER JANGGI", "rulesTitle": "Bend the light and hunt the king",
-    "fullRules": ["Each side starts with one laser, one splitter, one king, five triangle knights and two square knights.", "On your turn, move one piece one adjacent square in any direction or rotate it 90°. The laser can only rotate and cannot point outside the board.", "Your laser fires automatically after the action. A splitter transmits the original beam and creates a reflected beam.", "Triangle and square knights reflect on mirrored sides and are removed when struck on vulnerable sides. Lasers and splitters cannot be removed.", "A king is removed from any side. Hit your own king and the opponent wins; hit theirs and you win.", "Friend games offer 30, 60 or 90 second turns. Three consecutive timeouts lose, and reaching turn 200 ends a deadlock as a draw."],
+    "title": "LASER JANGGI",
+    "subtitle": "NEON BEAM TACTICS",
+    "rules": "How to play",
+    "newGame": "New game",
+    "result": "MISSION COMPLETE",
+    "turn": "TURN {turn}",
+    "youWin": "Enemy king hit — you win",
+    "aiWins": "Your king was hit — PRISM wins",
+    "laserFiring": "Tracing the beam…",
+    "yourTurn": "Select a piece to move or rotate 90°",
+    "aiThinking": "PRISM is calculating a light path…",
+    "beamLive": "LASER LIVE",
+    "beamReady": "LASER READY",
+    "rotateLeft": "90° left",
+    "rotateRight": "90° right",
+    "difficulty": "AI difficulty",
+    "difficultyLevels": {
+      "easy": "Easy",
+      "normal": "Normal",
+      "hard": "Hard"
+    },
+    "difficultyTips": {
+      "easy": "Sees immediate gains but makes frequent mistakes.",
+      "normal": "Balances attacks and material.",
+      "hard": "Looks one strong reply further ahead."
+    },
+    "selectedPiece": "Selected piece",
+    "selectHint": "Select one of your pieces to see moves and rotation controls.",
+    "pieceGuide": "Piece guide",
+    "tooltipHint": "Tap a piece to see what it does. On a computer you can also hover over pieces on the board.",
+    "quickRules": "Quick rules",
+    "quick1": "Move one piece one square in eight directions, or rotate it 90°.",
+    "quick2": "Your laser fires automatically after the action.",
+    "quick3": "Mirrored sides reflect; vulnerable sides are removed when hit.",
+    "quick4": "Hit the enemy king with a beam first to win.",
+    "fairPlay": "If your beam hits your own king, you lose immediately. Trace before firing.",
+    "rulesKicker": "LASER JANGGI",
+    "rulesTitle": "Bend the light and hunt the king",
+    "fullRules": [
+      "Each side starts with one laser, one splitter, one king, five triangle knights and two square knights.",
+      "On your turn, move one piece one adjacent square in any direction or rotate it 90°. The laser can only rotate and cannot point outside the board.",
+      "Your laser fires automatically after the action. A splitter transmits the original beam and creates a reflected beam.",
+      "Triangle and square knights reflect on mirrored sides and are removed when struck on vulnerable sides. Lasers and splitters cannot be removed.",
+      "A king is removed from any side. Hit your own king and the opponent wins; hit theirs and you win.",
+      "Friend games offer 30, 60 or 90 second turns. Three consecutive timeouts lose, and reaching turn 200 ends a deadlock as a draw."
+    ],
     "understood": "Got it — play",
     "pieces": {
-      "laser": { "name": "Attack laser", "tip": "Cannot move, only rotate 90°. Fires after your action and cannot be removed by a beam." },
-      "splitter": { "name": "Splitter", "tip": "Transmits the beam straight through and creates a reflected branch. It is beam-proof." },
-      "king": { "name": "King", "tip": "A beam from any direction removes it and ends the game immediately." },
-      "triangle": { "name": "Triangle knight", "tip": "Its diagonal mirror reflects 90°. A hit on either vulnerable side removes it." },
-      "square": { "name": "Square knight", "tip": "Only the marked face is mirrored and sends the beam back. A hit on any other face removes it." }
-    }
+      "laser": {
+        "name": "Attack laser",
+        "tip": "Cannot move, only rotate 90°. Fires after your action and cannot be removed by a beam."
+      },
+      "splitter": {
+        "name": "Splitter",
+        "tip": "Transmits the beam straight through and creates a reflected branch. It is beam-proof."
+      },
+      "king": {
+        "name": "King",
+        "tip": "A beam from any direction removes it and ends the game immediately."
+      },
+      "triangle": {
+        "name": "Triangle knight",
+        "tip": "The long glowing side is the mirror. Beams arriving from the two directions it faces turn 90°; a hit on either short side destroys it."
+      },
+      "square": {
+        "name": "Square knight",
+        "tip": "Only the marked face is mirrored and sends the beam back. A hit on any other face removes it."
+      }
+    },
+    "draw": "Turn 200 reached — draw"
   },
   "LaserJanggiOnline": {
-    "metaTitle": "Laser Janggi with a friend", "metaDescription": "Start a live 1v1 Laser Janggi game with an invite link or four-digit code.",
-    "guest": "Guest", "shareText": "Play Laser Janggi with me!", "unconfigured": "Realtime service configuration is required.", "connectionError": "Could not connect to the room.", "roomNotFound": "Room not found.", "hostOffline": "The host is offline.", "connecting": "Connecting to the room…", "back": "Back to Laser Janggi", "joined": "{name} joined.", "left": "{name} left.",
-    "lobbyTitle": "Invite a friend and prepare for battle", "yourTurn": "Your turn — move or rotate", "waitingFor": "Waiting for {player}", "inviteTitle": "Invite link", "inviteDesc": "Send the link or four-digit code to a friend.", "share": "Share", "turnTime": "Turn timer", "seconds": "{n}s", "rename": "Rename", "start": "Start match", "startLocked": "Waiting for a friend", "roomFull": "You joined as a spectator.", "waitingHost": "Waiting for the host to start…",
-    "players": "Players", "emptySeat": "Empty seat", "me": "me", "cyanRole": "CYAN · bottom side", "redRole": "RED · top side", "byKing": "king hit", "byResign": "by resignation", "byTimeout": "on time", "draw": "Turn 200 reached — draw", "rematch": "Rematch", "resign": "Resign", "resignConfirm": "Resign this match?", "timeoutRule": "A timeout triggers an automatic move. Three consecutive timeouts lose; turn 200 is a draw."
+    "metaTitle": "Laser Janggi with a friend",
+    "metaDescription": "Start a live 1v1 Laser Janggi game with an invite link or four-digit code.",
+    "guest": "Guest",
+    "shareText": "Play Laser Janggi with me!",
+    "unconfigured": "Realtime service configuration is required.",
+    "connectionError": "Could not connect to the room.",
+    "roomNotFound": "Room not found.",
+    "hostOffline": "The host is offline.",
+    "connecting": "Connecting to the room…",
+    "back": "Back to Laser Janggi",
+    "joined": "{name} joined.",
+    "left": "{name} left.",
+    "lobbyTitle": "Invite a friend and prepare for battle",
+    "yourTurn": "Your turn — move or rotate",
+    "waitingFor": "Waiting for {player}",
+    "inviteTitle": "Invite link",
+    "inviteDesc": "Send the link or four-digit code to a friend.",
+    "share": "Share",
+    "turnTime": "Turn timer",
+    "seconds": "{n}s",
+    "rename": "Rename",
+    "start": "Start match",
+    "startLocked": "Waiting for a friend",
+    "roomFull": "You joined as a spectator.",
+    "waitingHost": "Waiting for the host to start…",
+    "players": "Players",
+    "emptySeat": "Empty seat",
+    "me": "me",
+    "cyanRole": "CYAN · bottom side",
+    "redRole": "RED · top side",
+    "byKing": "king hit",
+    "byResign": "by resignation",
+    "byTimeout": "on time",
+    "draw": "Turn 200 reached — draw",
+    "rematch": "Rematch",
+    "resign": "Resign",
+    "resignConfirm": "Resign this match?",
+    "timeoutRule": "A timeout triggers an automatic move. Three consecutive timeouts lose; turn 200 is a draw."
   },
   "LaserJanggiTutorial": {
-    "s1Title": "Learn the five piece types", "s1Desc": "Inspect the mirrored faces and weaknesses of the laser, splitter, king, triangle and square knights.",
-    "s2Title": "Move or rotate — choose one", "s2Desc": "Move one piece one square in eight directions or rotate it 90° to finish your action.",
-    "s3Title": "Bend the beam with mirrors", "s3Desc": "Mirrored faces reflect. A splitter turns one beam into two paths.",
-    "s4Title": "Strike the king to win", "s4Desc": "Complete a path that sends the automatic end-of-turn beam into the enemy king."
+    "s1Title": "Learn the five piece types",
+    "s1Desc": "Inspect the mirrored faces and weaknesses of the laser, splitter, king, triangle and square knights.",
+    "s2Title": "Move or rotate — choose one",
+    "s2Desc": "Move one piece one square in eight directions or rotate it 90° to finish your action.",
+    "s3Title": "Bend the beam with mirrors",
+    "s3Desc": "Mirrored faces reflect. A splitter turns one beam into two paths.",
+    "s4Title": "Strike the king to win",
+    "s4Desc": "Complete a path that sends the automatic end-of-turn beam into the enemy king."
   },
   "LaserJanggiGuide": {
-    "eyebrow": "LASER JANGGI GUIDE", "title": "Complete Laser Janggi guide", "intro": "Laser Janggi is both a capture game and a light-routing puzzle. Read not only the current beam, but also every route that a single rotation could open.",
-    "rulesTitle": "The flow of a turn", "rules": ["Select one of your pieces.", "Move it one adjacent square or rotate it 90°.", "Your laser fires automatically when the action is committed.", "Resolve every hit and pass the turn."],
-    "specialTitle": "Special optics", "special": [
-      { "title": "Splitter", "body": "The incoming beam continues straight while a second beam reflects along the mirror. It can create two threats at once." },
-      { "title": "Friendly fire", "body": "Beams do not recognise sides. A mistaken reflection into your own king loses immediately." },
-      { "title": "Fixed laser", "body": "The laser cannot move but may rotate. It can never point outside the board." }
+    "eyebrow": "LASER JANGGI GUIDE",
+    "title": "Complete Laser Janggi guide",
+    "intro": "Laser Janggi is both a capture game and a light-routing puzzle. Read not only the current beam, but also every route that a single rotation could open.",
+    "rulesTitle": "The flow of a turn",
+    "rules": [
+      "Select one of your pieces.",
+      "Move it one adjacent square or rotate it 90°.",
+      "Your laser fires automatically when the action is committed.",
+      "Resolve every hit and pass the turn."
     ],
-    "strategyTitle": "Designing a winning light path", "strategyIntro": "Prioritise the network you create for the next turn over a small immediate capture.", "strategies": [
-      { "tag": "Safety", "title": "Put your king in shadow", "body": "Before attacking, break every direct line and reflection point that could connect the enemy laser to your king." },
-      { "tag": "Branch", "title": "Centralise the splitter", "body": "A central splitter extends two beams across more of the board and activates several mirrors at once." },
-      { "tag": "Bait", "title": "Offer a vulnerable face", "body": "Expose a knight to invite a capture line, then use one rotation to redirect that line toward the enemy king." },
-      { "tag": "Trace", "title": "Check once more before firing", "body": "Follow the path from your emitter through every reflection and branch after the selected change." }
+    "specialTitle": "Special optics",
+    "special": [
+      {
+        "title": "Splitter",
+        "body": "The incoming beam continues straight while a second beam reflects along the mirror. It can create two threats at once."
+      },
+      {
+        "title": "Friendly fire",
+        "body": "Beams do not recognise sides. A mistaken reflection into your own king loses immediately."
+      },
+      {
+        "title": "Fixed laser",
+        "body": "The laser cannot move but may rotate. It can never point outside the board."
+      }
     ],
-    "faqTitle": "FAQ", "faq": [
-      { "q": "Can the laser move?", "a": "No. It can only rotate 90 degrees in place and cannot point off the board." },
-      { "q": "Can my laser hit my own pieces?", "a": "Yes. Beams ignore sides. Your knights can be removed, and hitting your own king loses the game." },
-      { "q": "Does the splitter block a beam?", "a": "No. It transmits the beam and creates a second reflected branch." },
-      { "q": "How do I play with a friend?", "a": "Create a friend room and send its invite link or four-digit code." }
+    "strategyTitle": "Designing a winning light path",
+    "strategyIntro": "Prioritise the network you create for the next turn over a small immediate capture.",
+    "strategies": [
+      {
+        "tag": "Safety",
+        "title": "Put your king in shadow",
+        "body": "Before attacking, break every direct line and reflection point that could connect the enemy laser to your king."
+      },
+      {
+        "tag": "Branch",
+        "title": "Centralise the splitter",
+        "body": "A central splitter extends two beams across more of the board and activates several mirrors at once."
+      },
+      {
+        "tag": "Bait",
+        "title": "Offer a vulnerable face",
+        "body": "Expose a knight to invite a capture line, then use one rotation to redirect that line toward the enemy king."
+      },
+      {
+        "tag": "Trace",
+        "title": "Check once more before firing",
+        "body": "Follow the path from your emitter through every reflection and branch after the selected change."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Can the laser move?",
+        "a": "No. It can only rotate 90 degrees in place and cannot point off the board."
+      },
+      {
+        "q": "Can my laser hit my own pieces?",
+        "a": "Yes. Beams ignore sides. Your knights can be removed, and hitting your own king loses the game."
+      },
+      {
+        "q": "Does the splitter block a beam?",
+        "a": "No. It transmits the beam and creates a second reflected branch."
+      },
+      {
+        "q": "How do I play with a friend?",
+        "a": "Create a friend room and send its invite link or four-digit code."
+      }
     ],
     "disclaimer": "Laser Janggi is PUZZLTHINK's unofficial web adaptation of rules presented on television and is not affiliated with any broadcaster or producer."
   }
