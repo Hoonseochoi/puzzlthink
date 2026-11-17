@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { usePathname, Link } from '@/i18n/routing';
+import SupportLink from './SupportLink';
 
 const HIDE_ON = ['/play', '/wallgo', '/blind-gomoku', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
 
@@ -28,6 +29,7 @@ export default function GlobalFooter() {
           <Link href="/records" className="hover:text-black">{t('records')}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>
+          <SupportLink variant="link" />
           <Link href="/privacy-policy" className="hover:text-black">{t('privacy')}</Link>
           <Link href="/terms" className="hover:text-black">{t('terms')}</Link>
           <span>© {new Date().getFullYear()}</span>
