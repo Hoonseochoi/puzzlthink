@@ -44,7 +44,11 @@
     "supportDesc": "모든 게임은 무료예요. 커피 한 잔 후원은 새 게임과 서버 운영에 쓰여요. 후원은 크티(CTEE)에서 안전하게 진행돼요.",
     "supportButton": "개발자 응원하기",
     "supportShort": "응원하기",
-    "coffeeNudge": "재밌었다면 개발자에게 커피 한 잔 사주기"
+    "coffeeNudge": "재밌었다면 개발자에게 커피 한 잔 사주기",
+    "awayMeTitle": "연결이 끊겨 AI가 대신 플레이하고 있어요",
+    "awayMeDesc": "응답이 없어서 내 자리를 AI가 이어받았어요. 버튼을 누르면 바로 다시 내가 플레이해요.",
+    "awayRejoin": "다시 참여하기",
+    "awayOthers": "{names}님이 응답이 없어 AI가 대신 플레이 중이에요"
   },
   "BlindGomoku": {
     "metaTitle": "블라인드 오목 온라인 — 데블스 플랜 1 그 게임 AI·친구 대전",

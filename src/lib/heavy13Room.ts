@@ -3,6 +3,7 @@ import {
   type AiLevel, type Color, type Heavy13, type Submission, PLAYERS,
   bestStand, planSubmissions, newHeavy13, options, pass, place, placementDecision, submit,
 } from './heavy13';
+import { type AwayFields, clearMiss, giveBack, humansBack, noteMiss, resetAway, seatDueForAway, takeOver, trackPresence } from './roomAway';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
 export const H13_TURN_OPTIONS = [180, 90, 60, 30] as const;
@@ -11,7 +12,7 @@ export const PLACE_SEC = 20;
 export const H13_PLAYER_OPTIONS = [4, 5, 6, 7] as const;
 export type H13PlayerCount = (typeof H13_PLAYER_OPTIONS)[number];
 
-export type H13Room = BaseRoom & {
+export type H13Room = BaseRoom & AwayFields & {
   phase: 'lobby' | 'playing' | 'finished';
   ai: boolean[];
   aiLevel: AiLevel;
@@ -29,7 +30,9 @@ export type H13Action =
   | { t: 'place'; color?: Color }
   | { t: 'pass' }
   | { t: 'ai' }
-  | { t: 'timeout' };
+  | { t: 'timeout' }
+  | { t: 'away'; seat: number } // host: the AI takes a disconnected player's seat
+  | { t: 'rejoin' }; // that player is back and takes the seat again
 
 
 export function createH13Room(host: Peer, opts: { solo?: boolean; aiLevel?: AiLevel } = {}): H13Room {
@@ -45,6 +48,7 @@ export function createH13Room(host: Peer, opts: { solo?: boolean; aiLevel?: AiLe
 
 export function syncH13Seats(state: H13Room, peers: Peer[]) {
   const synced = syncSeats(state, peers);
+  if (synced.phase === 'playing') return trackPresence(synced, peers);
   if (synced.phase !== 'lobby') return synced;
   const humans = synced.seats.filter(Boolean).length;
   const playerCount = Math.max(synced.playerCount ?? PLAYERS, Math.min(PLAYERS, humans)) as H13PlayerCount;
@@ -76,7 +80,7 @@ function startRoom(state: H13Room): H13Room | null {
   const seats = [...activeSeats, ...Array(PLAYERS - playerCount).fill(null)];
   const ai = seats.map((seat, i) => i < playerCount && !!seat?.id.startsWith('ai-'));
   const game = newHeavy13(Math.floor(Math.random() * playerCount), playerCount);
-  const next: H13Room = { ...state, seats, ai, phase: 'playing', game, submitted: Array(PLAYERS).fill(false) };
+  const next: H13Room = { ...state, seats, ai, phase: 'playing', game, submitted: Array(PLAYERS).fill(false), ...resetAway(PLAYERS) };
   return { ...next, deadline: clock(next, game) };
 }
 
@@ -101,18 +105,18 @@ export function reduceH13Room(state: H13Room, action: H13Action, seat: number | 
     case 'start':
       if (!isHost || state.phase === 'playing') break;
       // A rematch keeps the same seats; AI seats stay AI.
-      next = startRoom(state.phase === 'finished' ? { ...state, seats: state.seats.map((s, i) => (state.ai[i] ? null : s)) } : state);
+      { const base = humansBack(state); next = startRoom(state.phase === 'finished' ? { ...base, seats: base.seats.map((s, i) => (base.ai[i] ? null : s)) } : state); }
       break;
     case 'submit': {
       if (seat === null || state.ai[seat] || state.phase !== 'playing') break;
       const g = submit(game, seat, action.sub);
-      if (g) next = withGame(state, g);
+      if (g) next = withGame(clearMiss(state, seat), g);
       break;
     }
     case 'place': case 'pass': {
       if (seat === null || state.ai[seat] || game.current !== seat) break;
       const g = action.t === 'pass' ? pass(game, seat) : place(game, seat, action.color);
-      if (g) next = withGame(state, g);
+      if (g) next = withGame(clearMiss(state, seat), g);
       break;
     }
     case 'ai': {
@@ -132,15 +136,27 @@ export function reduceH13Room(state: H13Room, action: H13Action, seat: number | 
     case 'timeout': {
       if (!isHost || state.phase !== 'playing' || !state.turnSec || Date.now() < state.deadline) break;
       let g: Heavy13 = game;
+      let counted: H13Room = state;
       if (game.phase === 'submit') {
-        for (let s = 0; s < game.players.length; s += 1) if (!g.subs[s]) { const opts = options(g, s); g = submit(g, s, opts[Math.floor(Math.random() * opts.length)]) ?? g; }
+        // Everyone still missing gets a random play; a second timeout in a row hands the seat to the AI.
+        for (let s = 0; s < game.players.length; s += 1) if (!g.subs[s]) { counted = noteMiss(counted, s); const opts = options(g, s); g = submit(g, s, opts[Math.floor(Math.random() * opts.length)]) ?? g; }
       } else if (game.phase === 'place' && game.current !== null) {
+        counted = noteMiss(counted, game.current);
         const sub = game.subs[game.current]!;
         g = place(game, game.current, sub.chip === 'w' ? bestStand(game.stands, sub.card) : undefined) ?? game;
       }
-      if (g !== game) next = withGame(state, g);
+      if (g !== game) next = withGame(counted, g);
       break;
     }
+    case 'away': {
+      if (!isHost || state.phase !== 'playing' || seatDueForAway(state) !== action.seat) break;
+      next = takeOver(state, action.seat);
+      break;
+    }
+    case 'rejoin':
+      if (seat === null || state.phase !== 'playing') break;
+      next = giveBack(state, seat);
+      break;
   }
   return next ? bump(next) : null;
 }
@@ -154,6 +170,8 @@ export function redactH13(state: H13Room): H13Room {
 /** The host's automatic step for AI seats (one per tick so placements are watchable). */
 export function h13AutoAction(state: H13Room): H13Action | null {
   if (state.phase !== 'playing') return null;
+  const gone = seatDueForAway(state);
+  if (gone !== null) return { t: 'away', seat: gone };
   const g = state.game;
   if (g.phase === 'submit' && state.ai.some((ai, s) => ai && !g.subs[s])) return { t: 'ai' };
   if (g.phase === 'place' && g.current !== null && state.ai[g.current]) return { t: 'ai' };

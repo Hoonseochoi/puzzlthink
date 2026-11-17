@@ -1,4 +1,5 @@
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
+import { type AwayFields, clearMiss, giveBack, humansBack, noteMiss, resetAway, seatDueForAway, takeOver, trackPresence } from './roomAway';
 import {
   type RRAction, type RussianRoulette, RR_PLAYERS,
   applyRRAction, chooseRRAction, newRussianRoulette,
@@ -8,7 +9,7 @@ export type RRLevel = 'easy' | 'normal' | 'hard';
 export const RR_TURN_OPTIONS = [90, 60, 30] as const;
 export type RRTurnSec = (typeof RR_TURN_OPTIONS)[number] | 0;
 
-export type RussianRouletteRoom = BaseRoom & {
+export type RussianRouletteRoom = BaseRoom & AwayFields & {
   phase: 'lobby' | 'playing' | 'finished';
   ai: boolean[];
   aiLevel: RRLevel;
@@ -21,7 +22,9 @@ export type RussianRouletteRoomAction =
   | { t: 'start' }
   | { t: 'act'; action: RRAction }
   | { t: 'ai' }
-  | { t: 'timeout' };
+  | { t: 'timeout' }
+  | { t: 'away'; seat: number } // host: the AI takes a disconnected player's seat
+  | { t: 'rejoin' }; // that player is back and takes the seat again
 
 export function createRussianRouletteRoom(host: Peer, opts: { solo?: boolean; aiLevel?: RRLevel } = {}): RussianRouletteRoom {
   const seats: Seat[] = Array(RR_PLAYERS).fill(null);
@@ -34,7 +37,7 @@ export function createRussianRouletteRoom(host: Peer, opts: { solo?: boolean; ai
   return opts.solo ? startRoom(room, false)! : room;
 }
 
-export const syncRussianRouletteSeats = (state: RussianRouletteRoom, peers: Peer[]) => syncSeats(state, peers);
+export const syncRussianRouletteSeats = (state: RussianRouletteRoom, peers: Peer[]) => trackPresence(syncSeats(state, peers), peers);
 
 function startRoom(state: RussianRouletteRoom, shuffleHumans = true): RussianRouletteRoom | null {
   let aiNumber = 0;
@@ -45,6 +48,7 @@ function startRoom(state: RussianRouletteRoom, shuffleHumans = true): RussianRou
   return {
     ...state, seats: entries.map((entry) => entry.seat), ai: entries.map((entry) => entry.ai),
     phase: 'playing', game, deadline: state.turnSec ? Date.now() + state.turnSec * 1000 : Number.MAX_SAFE_INTEGER,
+    ...resetAway(RR_PLAYERS),
   };
 }
 
@@ -63,12 +67,12 @@ export function reduceRussianRouletteRoom(state: RussianRouletteRoom, action: Ru
       break;
     case 'start':
       if (!isHost || state.phase === 'playing') break;
-      next = startRoom(state.phase === 'finished' ? { ...state, seats: state.seats.map((value, i) => state.ai[i] ? null : value) } : state, !!state.turnSec);
+      { const base = humansBack(state); next = startRoom(state.phase === 'finished' ? { ...base, seats: base.seats.map((value, i) => base.ai[i] ? null : value) } : state, !!state.turnSec); }
       break;
     case 'act': {
       if (seat === null || state.ai[seat] || state.phase !== 'playing') break;
       const game = applyRRAction(state.game, seat, action.action);
-      if (game) next = withGame(state, game);
+      if (game) next = withGame(clearMiss(state, seat), game);
       break;
     }
     case 'ai': {
@@ -81,10 +85,22 @@ export function reduceRussianRouletteRoom(state: RussianRouletteRoom, action: Ru
     case 'timeout': {
       if (!isHost || state.phase !== 'playing' || !state.turnSec || Date.now() < state.deadline) break;
       const seatToAct = state.game.turn;
-      const game = applyRRAction(state.game, seatToAct, chooseRRAction(state.game, seatToAct, 'easy'));
-      if (game) next = withGame(state, game);
+      // A second timeout in a row hands the seat to the AI, which plays this turn at the room's level.
+      const counted = noteMiss(state, seatToAct);
+      const level = counted.ai[seatToAct] && !state.ai[seatToAct] ? state.aiLevel : 'easy';
+      const game = applyRRAction(state.game, seatToAct, chooseRRAction(state.game, seatToAct, level));
+      if (game) next = withGame(counted, game);
       break;
     }
+    case 'away': {
+      if (!isHost || state.phase !== 'playing' || seatDueForAway(state) !== action.seat) break;
+      next = takeOver(state, action.seat);
+      break;
+    }
+    case 'rejoin':
+      if (seat === null || state.phase !== 'playing') break;
+      next = giveBack(state, seat);
+      break;
   }
   return next ? bump(next) : null;
 }
@@ -124,5 +140,8 @@ export function withRussianRouletteSecret(state: RussianRouletteRoom, secret: un
 }
 
 export function russianRouletteAutoAction(state: RussianRouletteRoom): RussianRouletteRoomAction | null {
-  return state.phase === 'playing' && state.ai[state.game.turn] ? { t: 'ai' } : null;
+  if (state.phase !== 'playing') return null;
+  const gone = seatDueForAway(state);
+  if (gone !== null) return { t: 'away', seat: gone };
+  return state.ai[state.game.turn] ? { t: 'ai' } : null;
 }
