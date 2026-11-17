@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { Crown, Eye, Hand, RotateCcw, Send, Timer } from 'lucide-react';
+import { Crown, Eye, Hand, RotateCcw, Send } from 'lucide-react';
 import GameHeader from '@/components/ui/GameHeader';
+import { CoinCount, GoldPig, Pedestal, TimerRing } from './PiggyParts';
 import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import {
-  type Color, type Memory, type PbEvent, type PbLevel, type PbState, ANSWER_MS, DOUBT_MS, PB_MAX_PUT, PB_WIN, RESET_VOTES,
+  type Color, type Memory, type PbEvent, type PbLevel, type PbState, ANSWER_MS, DOUBT_MS, PB_MAX_PUT, PUT_MS, PB_WIN, RESET_VOTES,
   aiAllIn, aiAnswer, aiDoubts, aiPut, allInGuess, answerCount, answerTimeout, createPiggyBank, doubt, freshMemory, noDoubt, putCoins, ranking, remember, voteReset,
 } from '@/lib/piggyBank';
 
 // Draft (not linked from the site yet): 돼지 저금통 against three AI players. Korean text only for now.
-const ACCENT = '#ff8fab';
+const ACCENT = '#ffd84a';
 const ME = 0;
 const NAMES = ['나', '토끼', '곰', '여우'];
 const COLOR_KO: Record<Color, string> = { black: '흑', white: '백' };
@@ -18,31 +19,14 @@ const COLOR_KO: Record<Color, string> = { black: '흑', white: '백' };
 const SHOW_MS = 4200;
 const PUT_SHOW_MS = 6000;
 
-function PigIcon({ label, size = 'md', open = false }: { label: number; size?: 'sm' | 'md'; open?: boolean }) {
-  const box = size === 'md' ? 'h-14 w-16 text-[11px]' : 'h-9 w-11 text-[9px]';
-  return (
-    <span className={`relative inline-flex ${box} items-center justify-center rounded-[45%] border-2 border-[#ff6f95] bg-gradient-to-b from-[#ffc2d1] to-[#ff8fab] shadow-[0_6px_14px_rgba(255,111,149,.35)] ${open ? 'opacity-40' : ''}`}>
-      <i className="absolute -top-1.5 left-2 h-3 w-3 rotate-45 rounded-sm bg-[#ff8fab]" /><i className="absolute -top-1.5 right-2 h-3 w-3 rotate-45 rounded-sm bg-[#ff8fab]" />
-      <i className="absolute left-1/2 top-0 h-1 w-4 -translate-x-1/2 rounded-full bg-[#7a2a40]" /> {/* coin slot */}
-      <b className="relative font-mono font-black text-[#7a2a40]">#{label}</b>
-    </span>
-  );
-}
-
-const Coin = ({ color, n }: { color: Color; n: number }) => (
-  <span className="inline-flex items-center gap-1 font-mono text-sm font-black">
-    <i className={`h-3.5 w-3.5 rounded-full border ${color === 'black' ? 'border-white/30 bg-[#111]' : 'border-black/20 bg-[#f4efe4]'}`} />{n}
-  </span>
-);
-
 function describe(e: PbEvent | null, s: PbState) {
   if (!e) return null;
   const name = (i: number) => s.players[i].name;
   const pigLabel = (id: number) => s.pigs[id]?.label;
   switch (e.k) {
-    case 'put': return <>{name(e.seat)} → <b>#{pigLabel(e.pig)}</b>에 <Coin color="black" n={e.black} /> <Coin color="white" n={e.white} /> 넣고 <b>{name(e.to)}</b>에게 전달</>;
+    case 'put': return <>{name(e.seat)} → <b>#{pigLabel(e.pig)}</b>에 <CoinCount color="black" n={e.black} /> <CoinCount color="white" n={e.white} /> 넣고 <b>{name(e.to)}</b>에게 전달</>;
     case 'answer': return <><b>{name(e.seat)}</b>: “#{pigLabel(e.pig)} 속 {COLOR_KO[e.color]} 동전은 <b>{e.value}개</b>”</>;
-    case 'doubt': return <><b>{name(e.seat)}</b>의 의심 → 열어 보니 <Coin color="black" n={e.pigBlack} /> <Coin color="white" n={e.pigWhite} /> · {e.right ? <b className="text-[#3ddc97]">의심 성공! {name(e.seat)} +1, {name(e.target)} −1</b> : <b className="text-[#ff8b96]">의심 실패… {name(e.seat)} −1</b>}</>;
+    case 'doubt': return <><b>{name(e.seat)}</b>의 의심 → 열어 보니 <CoinCount color="black" n={e.pigBlack} /> <CoinCount color="white" n={e.pigWhite} /> · {e.right ? <b className="text-[#3ddc97]">의심 성공! {name(e.seat)} +1, {name(e.target)} −1</b> : <b className="text-[#ff8b96]">의심 실패… {name(e.seat)} −1</b>}</>;
     case 'pass': return <>아무도 의심하지 않았어요. {name(e.seat)}의 차례</>;
     case 'allIn': return <><b>{name(e.seat)}</b>의 전체 맞히기 {e.right ? <b className="text-[#3ddc97]">성공! +3</b> : <b className="text-[#ff8b96]">실패 −2</b>}</>;
     case 'reset': return <>리셋! 모든 저금통이 흑1·백1로 돌아갔어요</>;
@@ -58,6 +42,14 @@ export default function PiggyBankGame() {
   const [black, setBlack] = useState(1);
   const [white, setWhite] = useState(0);
   const [allIn, setAllIn] = useState<Record<number, { black: number; white: number }>>({});
+  const [small, setSmall] = useState(false); // phones: smaller boxes around the table
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const sync = () => setSmall(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
   const stateRef = useRef<PbState | null>(null);
   const memRef = useRef<Memory[]>([]);
   const dueRef = useRef<{ seq: number; at: number; doubtAt: number[] }>({ seq: -1, at: 0, doubtAt: [] });
@@ -124,10 +116,10 @@ export default function PiggyBankGame() {
 
   if (!state) {
     return (
-      <div className={SHELL} style={{ ...accentVars(ACCENT, '#3b0f1c'), backgroundImage: fog('255, 120, 160') }}>
+      <div className={SHELL} style={{ ...accentVars(ACCENT, '#2a1d00'), backgroundImage: fog('90, 110, 210') }}>
         <GameHeader backHref="/" backLabel="PUZZLTHINK" title="돼지 저금통" subtitle="DRAFT · 4인" />
         <main className="relative z-10 mx-auto max-w-lg px-5 py-14 text-center">
-          <div className="flex justify-center gap-2">{[1, 2, 3, 4, 5].map((n) => <PigIcon key={n} label={n} size="sm" />)}</div>
+          <div className="flex justify-center gap-2">{[1, 2, 3, 4, 5].map((n) => <GoldPig key={n} label={n} size={52} />)}</div>
           <h1 className="mt-6 text-3xl font-black">돼지 저금통 (초안)</h1>
           <p className="mt-3 break-keep text-sm leading-6 text-white/60">저금통에 넣은 동전을 기억해서 점수를 얻는 게임이에요. 넣은 동전은 잠깐 공개되고 사라지니, 잘 기억하세요. 5점을 먼저 얻으면 끝나요.</p>
           <div className="mx-auto mt-6 grid max-w-xs grid-cols-3 gap-1.5">
@@ -164,34 +156,49 @@ export default function PiggyBankGame() {
   };
 
   return (
-    <div className={SHELL} style={{ ...accentVars(ACCENT, '#3b0f1c'), backgroundImage: fog('255, 120, 160') }}>
+    <div className={SHELL} style={{ ...accentVars(ACCENT, '#2a1d00'), backgroundImage: fog('90, 110, 210') }}>
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title="돼지 저금통" subtitle="DRAFT · 4인">
         <button type="button" onClick={start} className={BTN_ACCENT}><RotateCcw size={14} />새 게임</button>
       </GameHeader>
       <main className={MAIN}>
         <section className={STAGE}>
-          <div className="mb-3 flex items-end justify-between gap-3 px-1">
-            <div className="min-w-0">
-              <p className={KICKER}>다음 질문 · <span className="inline-flex items-center gap-1"><i className={`h-2.5 w-2.5 rounded-full ${s.ask === 'black' ? 'bg-[#111] ring-1 ring-white/40' : 'bg-[#f4efe4]'}`} />{COLOR_KO[s.ask]}</span></p>
-              <h1 className={`mt-1 ${HEADING}`}>{status}</h1>
-            </div>
-            {(s.phase === 'answer' || s.phase === 'doubt' || myPut) && <span className="flex items-center gap-1.5 rounded-md border border-white/15 bg-black/50 px-3 py-2 font-mono text-sm font-bold"><Timer size={14} />{secs}s</span>}
+          <div className="mb-3 px-1">
+            <p className={KICKER}>{s.phase === 'finished' ? 'RESULT' : `다음 질문 · ${COLOR_KO[s.ask]}`}</p>
+            <h1 className={`mt-1 ${HEADING}`}>{status}</h1>
           </div>
 
-          {/* Seats: each player's table slot (위칸) and under-table slot (아래칸). */}
-          <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            {s.players.map((p, i) => (
-              <div key={i} className={`rounded-[14px] border p-3 ${s.turn === i && s.phase !== 'finished' ? 'border-(--accent)/60 bg-(--accent)/[.07]' : 'border-white/10 bg-black/30'}`}>
-                <div className="flex items-center justify-between">
-                  <p className="truncate text-sm font-black">{p.name}{i === ME ? '' : ` · AI`}{p.resetVote && <span className="ml-1.5 rounded bg-white/10 px-1 text-[9px]">리셋</span>}</p>
-                  <p className="font-mono text-lg font-black text-(--accent)">{p.score}</p>
+          {/* The table: four players around it (me at the bottom), the clock in the middle. */}
+          <div className="relative mx-auto grid w-full max-w-[680px] grid-cols-[1fr_auto_1fr] items-center justify-items-center gap-y-1 overflow-hidden rounded-[22px] border border-white/10 px-1 py-3 sm:gap-y-2 sm:p-5"
+            style={{ background: 'radial-gradient(ellipse at 50% 45%, #4a5278 0%, #2b3150 50%, #181b2e 100%)' }}>
+            <div className="pointer-events-none absolute inset-0 opacity-[.18]" style={{ backgroundImage: 'radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 2px), radial-gradient(circle at 70% 60%, #fff 0 1px, transparent 2px)', backgroundSize: '38px 38px, 53px 53px' }} />
+            {[{ seat: 2, cls: 'col-start-2 row-start-1' }, { seat: 1, cls: 'col-start-1 row-start-2' }, { seat: 3, cls: 'col-start-3 row-start-2' }, { seat: ME, cls: 'col-start-2 row-start-3' }].map(({ seat, cls }) => {
+              const p = s.players[seat];
+              const speaking = s.answer?.seat === seat && s.phase === 'doubt';
+              const buzz = !!event && event.k === 'doubt' && event.seat === seat;
+              const active = s.turn === seat && s.phase !== 'finished';
+              return (
+                <div key={seat} className={`relative flex flex-col items-center ${cls}`}>
+                  <div className={`mb-1 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black ${active ? 'bg-[#ffd84a] text-[#2a1d00]' : 'bg-black/40 text-white/80'}`}>
+                    {active && <span className="rounded-full bg-[#ff3b5c] px-1.5 text-[9px] text-white">차례</span>}
+                    <span className="max-w-[72px] truncate">{p.name}</span>
+                    <span className="font-mono">{p.score}점</span>
+                    {p.resetVote && <RotateCcw size={10} />}
+                  </div>
+                  {speaking && (
+                    <span key={s.seq} className="bw-result absolute -top-1 right-0 z-10 translate-x-1/3 rounded-lg bg-[#efe9ff] px-2 py-1 text-xs font-black text-[#2b2f4a] shadow-lg sm:text-sm">
+                      {COLOR_KO[s.answer!.color]}{s.answer!.value}
+                    </span>
+                  )}
+                  <Pedestal small={small} active={active} buzz={buzz}
+                    upper={p.upper !== null ? s.pigs[p.upper].label : null} lower={p.lower !== null ? s.pigs[p.lower].label : null} />
                 </div>
-                <div className="mt-2 flex items-end gap-3">
-                  <div className="text-center"><p className="text-[9px] font-bold text-white/35">위칸</p><div className="mt-1 flex h-14 items-center">{p.upper ? <PigIcon label={s.pigs[p.upper].label} /> : <span className="h-14 w-16 rounded-[45%] border border-dashed border-white/10" />}</div></div>
-                  <div className="text-center"><p className="text-[9px] font-bold text-white/35">아래칸</p><div className="mt-1 flex h-14 items-center">{p.lower ? <PigIcon label={s.pigs[p.lower].label} size="sm" /> : <span className="h-9 w-11 rounded-[45%] border border-dashed border-white/10" />}</div></div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
+            <div className="col-start-2 row-start-2 flex items-center justify-center px-1">
+              {s.phase === 'finished' ? <Crown size={40} className="text-[#ffd84a]" />
+                : <TimerRing secs={secs} total={(s.phase === 'put' ? PUT_MS : s.phase === 'doubt' ? DOUBT_MS : ANSWER_MS) / 1000} color={s.ask}
+                  label={s.phase === 'doubt' ? '의심?' : s.phase === 'answer' ? `${COLOR_KO[s.ask]}?` : s.phase === 'allIn' ? '도전' : '넣기'} />}
+            </div>
           </div>
 
           {/* The latest announcement, only for a few seconds. */}
@@ -220,7 +227,7 @@ export default function PiggyBankGame() {
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {Object.values(s.pigs).map((pig) => (
                     <div key={pig.id} className="flex items-center gap-2 rounded-lg bg-white/[.04] p-2">
-                      <PigIcon label={pig.label} size="sm" />
+                      <GoldPig label={pig.label} size={40} />
                       {(['black', 'white'] as Color[]).map((c) => (
                         <input key={c} type="number" min={0} value={allIn[pig.id]?.[c] ?? ''} placeholder={COLOR_KO[c]}
                           onChange={(e) => setAllIn((g) => ({ ...g, [pig.id]: { black: g[pig.id]?.black ?? 0, white: g[pig.id]?.white ?? 0, [c]: Number(e.target.value) } }))}
@@ -240,7 +247,7 @@ export default function PiggyBankGame() {
                   {(['black', 'white'] as Color[]).map((c) => (
                     <div key={c} className="flex items-center gap-2">
                       <button type="button" onClick={() => step(c, -1)} className={`${BTN} h-9 w-9 !p-0`}>−</button>
-                      <Coin color={c} n={c === 'black' ? black : white} />
+                      <CoinCount color={c} n={c === 'black' ? black : white} />
                       <button type="button" onClick={() => step(c, 1)} className={`${BTN} h-9 w-9 !p-0`}>+</button>
                     </div>
                   ))}
