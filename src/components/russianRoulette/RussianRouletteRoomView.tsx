@@ -13,6 +13,7 @@ import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, WELL, seg } from '../ui/gameUi';
+import AwayBanner from '../ui/AwayBanner';
 import RoomAlerts from '../RoomAlerts';
 import RussianRouletteResult from './RussianRouletteResult';
 import RussianRouletteTable from './RussianRouletteTable';
@@ -63,6 +64,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
       <BugReport /><LanguageSwitcher compact dark />
     </GameHeader>
     {notice && <p className="relative z-10 mx-auto mt-4 flex max-w-[1240px] items-center gap-2 px-4 text-xs text-[#ff948d]"><WifiOff size={14} />{notice}</p>}
+    {state?.phase === 'playing' && <AwayBanner seats={state.seats} away={state.away} mySeat={mySeat} onRejoin={() => dispatch({ t: 'rejoin' })} />}
     {!state ? <main className="relative z-10 flex min-h-[65vh] items-center justify-center px-4">{!notice ? <p className="flex items-center gap-2 text-sm text-white/45"><Loader2 size={16} className="animate-spin" />{to('connecting')}</p> : <Link href="/russian-roulette" className={`px-4 py-2.5 text-sm ${BTN_ACCENT}`}>{to('back')}</Link>}</main>
       : state.phase === 'lobby' ? <main className="relative z-10 mx-auto grid w-full max-w-[1050px] gap-5 px-3 py-5 sm:px-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-8">
         <section className={STAGE}>

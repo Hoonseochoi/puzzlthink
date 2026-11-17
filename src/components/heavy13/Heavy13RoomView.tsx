@@ -11,6 +11,7 @@ import { H13_PLAYER_OPTIONS, H13_TURN_OPTIONS, redactH13 } from '@/lib/heavy13Ro
 import { useHeavy13Room } from '@/hooks/useHeavy13Room';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
+import AwayBanner from '../ui/AwayBanner';
 import { reportGame } from '@/lib/stats';
 import { ranking } from '@/lib/heavy13';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -81,6 +82,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <p className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3a8] lg:px-6"><WifiOff size={14} />{notice}</p>}
+      {state?.phase === 'playing' && <AwayBanner seats={state.seats} away={state.away} mySeat={mySeat} onRejoin={() => dispatch({ t: 'rejoin' })} />}
 
       {!view ? (
         <main className="relative z-10 flex min-h-[60vh] items-center justify-center px-4">

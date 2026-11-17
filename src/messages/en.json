@@ -44,7 +44,11 @@
     "supportDesc": "Every game is free. A small tip helps us add new games and keep the servers running. Payments go through CTEE.",
     "supportButton": "Support the developer",
     "supportShort": "Support",
-    "coffeeNudge": "Enjoyed it? Buy the developer a coffee"
+    "coffeeNudge": "Enjoyed it? Buy the developer a coffee",
+    "awayMeTitle": "You were disconnected — the AI is playing for you",
+    "awayMeDesc": "You went quiet, so the AI took over your seat. Press the button to play again yourself.",
+    "awayRejoin": "Rejoin",
+    "awayOthers": "{names} stopped responding; the AI is playing for them"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
