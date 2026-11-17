@@ -170,50 +170,144 @@ export function bestStand(stands: Record<Color, number[]>, card: number): Color 
   return scored.sort((a, b) => b.value - a.value)[0].c;
 }
 
-/** Decide at your placement turn: pass if placing now would cost you and a pass is still available. */
-export function placementDecision(state: Heavy13, seat: number, level: AiLevel = 'normal'): { t: 'pass' } | { t: 'place'; color?: Color } {
+const standOf = (state: Heavy13, seat: number): Color => {
   const sub = state.subs[seat]!;
-  const color = sub.chip === 'w' ? (level === 'easy' ? pick([...COLORS]) : bestStand(state.stands, sub.card)) : sub.chip;
-  const penalty = sum(state.stands[color]) + sub.card >= LIMIT ? state.stands[color].length : 0;
-  const passable = canPass(state);
-  if (penalty > 0 && passable && level !== 'easy') {
-    // Others still to place may collapse it first; but if nobody else will touch it, passing only delays.
-    const othersOnStand = state.queue.some((s) => state.subs[s] && (state.subs[s]!.chip === color || state.subs[s]!.chip === 'w'));
-    if (othersOnStand || penalty >= 2) return { t: 'pass' };
-  }
-  return sub.chip === 'w' ? { t: 'place', color } : { t: 'place' };
-}
+  return sub.chip === 'w' ? bestStand(state.stands, sub.card) : sub.chip;
+};
 
-function simulateRound(state: Heavy13, subs: Submission[], level: AiLevel): Heavy13 {
-  const order = placementOrder(state, subs);
-  let s: Heavy13 = { ...state, subs, phase: 'place', queue: order.slice(1), passed: [], current: order[0], roundPenalized: null, resolvingPasses: false };
-  for (let guard = 0; s.phase === 'place' && s.current !== null && guard < 30; guard += 1) {
-    const seat: number = s.current;
-    const d = placementDecision(s, seat, level);
-    const next: Heavy13 | null = d.t === 'pass' ? pass(s, seat) : place(s, seat, d.t === 'place' ? d.color : undefined);
+/** Plays the rest of the round with nobody passing (rainbows on their best stand). */
+function placeOut(state: Heavy13): Heavy13 {
+  let s = state;
+  for (let guard = 0; s.phase === 'place' && s.round === state.round && s.current !== null && guard < 20; guard += 1) {
+    const next = place(s, s.current, standOf(s, s.current));
     if (!next) break;
     s = next;
-    if (s.round !== state.round) break;
   }
   return s;
 }
 
-/** Choose a card and chip by sampling what the others might play from their (public) remaining hands. */
-export function chooseSubmission(state: Heavy13, seat: number, level: AiLevel = 'normal'): Submission {
-  const mine = options(state, seat);
-  if (level === 'easy') return pick(mine);
-  const sims = level === 'hard' ? 90 : 35;
+/**
+ * Cheap placement rule, used inside simulations: place, unless passing is strictly cheaper when everyone
+ * after you simply places. Passing is only worth it when someone behind you collapses that stand first.
+ */
+function quickDecision(state: Heavy13, seat: number): { t: 'pass' } | { t: 'place'; color: Color } {
+  const color = standOf(state, seat);
+  const card = state.subs[seat]!.card;
+  const cost = sum(state.stands[color]) + card >= LIMIT ? state.stands[color].length : 0;
+  if (cost === 0 || !canPass(state)) return { t: 'place', color };
+  const before = state.players[seat].penalty;
+  const placed = placeOut(place(state, seat, color)!).players[seat].penalty - before;
+  const passed = placeOut(pass(state, seat)!).players[seat].penalty - before;
+  return passed < placed ? { t: 'pass' } : { t: 'place', color };
+}
+
+/** Plays the rest of the round with every placer using the cheap rule. */
+function playOut(state: Heavy13): Heavy13 {
+  let s = state;
+  for (let guard = 0; s.phase === 'place' && s.round === state.round && s.current !== null && guard < 30; guard += 1) {
+    const seat = s.current;
+    const d = quickDecision(s, seat);
+    const next = d.t === 'pass' ? pass(s, seat) : place(s, seat, d.color);
+    if (!next) break;
+    s = next;
+  }
+  return s;
+}
+
+/**
+ * Decide at your placement turn. Every submission is public by now, so try each choice (each stand for a
+ * rainbow, and passing if allowed), play the round out, and keep the cheapest. Ties keep placing, since a
+ * pass that saves nothing only gives up the option.
+ */
+export function placementDecision(state: Heavy13, seat: number, level: AiLevel = 'normal'): { t: 'pass' } | { t: 'place'; color?: Color } {
+  const sub = state.subs[seat]!;
+  if (level === 'easy') return sub.chip === 'w' ? { t: 'place', color: pick([...COLORS]) } : { t: 'place' };
+  const before = state.players[seat].penalty;
+  const preferred = bestStand(state.stands, sub.card);
+  const colors = sub.chip === 'w' ? [preferred, ...COLORS.filter((c) => c !== preferred)] : [sub.chip];
+  const choices: { d: { t: 'pass' } | { t: 'place'; color?: Color }; next: Heavy13 }[] = colors.map((color) => ({
+    d: sub.chip === 'w' ? { t: 'place', color } : { t: 'place' }, next: place(state, seat, color)!,
+  }));
+  if (canPass(state)) choices.push({ d: { t: 'pass' }, next: pass(state, seat)! });
+  let best = choices[0];
+  let bestCost = Infinity;
+  for (const c of choices) {
+    const end = playOut(c.next);
+    // Own penalty first; a little credit for penalty that lands on the others instead.
+    const others = end.players.reduce((t, p, i) => (i === seat ? t : t + p.penalty - state.players[i].penalty), 0);
+    const cost = end.players[seat].penalty - before - 0.02 * others;
+    if (cost < bestCost - 1e-9) { best = c; bestCost = cost; }
+  }
+  return best.d;
+}
+
+function simulateRound(state: Heavy13, subs: Submission[]): Heavy13 {
+  const order = placementOrder(state, subs);
+  return playOut({ ...state, subs, phase: 'place', queue: order.slice(1), passed: [], current: order[0], roundPenalized: null, resolvingPasses: false });
+}
+
+/** Cost of spending a flexible resource (0 card, rainbow chip) early in a hand. */
+function keepValue(state: Heavy13, option: Submission) {
   const half = state.round <= ROUNDS / 2 ? state.round : state.round - ROUNDS / 2; // 1..7 within the current hand
-  const scored = mine.map((option) => {
+  return half >= 6 ? 0 : (option.card === 0 ? 0.35 : 0) + (option.chip === 'w' ? 0.45 : 0);
+}
+
+type Mixed = { options: Submission[]; weights: number[] };
+
+function sample(m: Mixed): Submission {
+  let r = Math.random();
+  for (let i = 0; i < m.options.length; i += 1) { r -= m.weights[i]; if (r <= 0) return m.options[i]; }
+  return m.options[m.options.length - 1];
+}
+
+function softmax(values: number[], temp: number): number[] {
+  const lo = Math.min(...values);
+  const w = values.map((v) => Math.exp(-(v - lo) / temp));
+  const total = w.reduce((a, b) => a + b, 0);
+  return w.map((x) => x / total);
+}
+
+/** Expected round penalty (plus resource cost) of each of a seat's options, against the others' mixed play. */
+function optionValues(state: Heavy13, seat: number, model: Mixed[], sims: number): number[] {
+  return model[seat].options.map((option) => {
     let total = 0;
     for (let i = 0; i < sims; i += 1) {
-      const subs = state.players.map((_, s) => (s === seat ? option : state.subs[s] ?? pick(options(state, s))));
-      const after = simulateRound(state, subs, 'normal');
-      total += after.players[seat].penalty - state.players[seat].penalty;
+      const subs = model.map((m, s) => (s === seat ? option : sample(m)));
+      total += simulateRound(state, subs).players[seat].penalty - state.players[seat].penalty;
     }
-    // Keep the flexible resources (0 card, rainbow chip) unless they are needed or it is the end of a hand.
-    const keepValue = half >= 6 ? 0 : (option.card === 0 ? 0.35 : 0) + (option.chip === 'w' ? 0.45 : 0);
-    return { option, value: total / sims + keepValue + Math.random() * 0.05 };
+    return total / sims + keepValue(state, option);
   });
-  return scored.sort((a, b) => a.value - b.value)[0].option;
+}
+
+// sims: samples per option for the opponent forecast; finalSims: for the AI's own choice;
+// temp: how spread the forecast is; finalTemp: how sharply the AI takes its best option.
+const LEVELS = {
+  normal: { sims: 14, finalSims: 30, temp: 0.3, finalTemp: 0.05 },
+  hard: { sims: 24, finalSims: 70, temp: 0.25, finalTemp: 0.03 },
+};
+
+/**
+ * Choose cards and chips for several seats at once, from public information only (remaining hands are
+ * public; secret submissions are never read). Thinking one step ahead: first forecast what each player
+ * is likely to play (their good answers against random play, as a spread of chances), then pick the
+ * best answer against that forecast. The old AI answered random play directly, so every AI reached the
+ * same "safe" stand and they all piled onto it; answering the forecast steers away from the crowd.
+ */
+export function planSubmissions(state: Heavy13, seats: number[], level: AiLevel = 'normal'): Submission[] {
+  if (level === 'easy') return seats.map((s) => pick(options(state, s)));
+  const cfg = LEVELS[level];
+  const uniform: Mixed[] = state.players.map((_, s) => {
+    const opts = options(state, s);
+    return { options: opts, weights: opts.map(() => 1 / opts.length) };
+  });
+  const forecast: Mixed[] = uniform.map((m, s) => ({ options: m.options, weights: softmax(optionValues(state, s, uniform, cfg.sims), cfg.temp) }));
+  return seats.map((seat) => {
+    const values = optionValues(state, seat, forecast, cfg.finalSims);
+    return sample({ options: forecast[seat].options, weights: softmax(values, cfg.finalTemp) });
+  });
+}
+
+/** One seat's card and chip (see planSubmissions). */
+export function chooseSubmission(state: Heavy13, seat: number, level: AiLevel = 'normal'): Submission {
+  return planSubmissions(state, [seat], level)[0];
 }
