@@ -20,11 +20,12 @@ const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'laser_janggi', href: '/laser-janggi', color: '#28b9d7' },
   { id: 'black_white', href: '/black-white', color: '#e9c46a' },
   { id: 'black_white_2', href: '/black-white-2', color: '#ef3340' },
+  { id: 'piggy_bank', href: '/piggy-bank', color: '#e0a91c' },
   { id: 'nemo_count', href: '/nemo-count', color: '#7d86a8' },
   { id: 'sudoku', href: '/play', color: '#4b7bff' },
 ];
 /** Common message key for each game's name. */
-const GAME_LABEL: Record<GameId, string> = { wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', sudoku: 'sudoku' };
+const GAME_LABEL: Record<GameId, string> = { wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 function formatDuration(seconds: number, t: (k: string, v?: Record<string, number>) => string) {

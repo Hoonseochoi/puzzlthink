@@ -41,6 +41,7 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  piggyBank: { path: '/piggy-bank', ai: [{ label: 'aiFour' }], rooms: [] },
   nemoCount: {
     path: '/nemo-count', solo: true,
     ai: [{ label: 'nemoChallenge', query: 'mode=challenge' }, { label: 'nemoPractice', query: 'mode=practice' }, { label: 'nemoTutorial', query: 'mode=tutorial' }],

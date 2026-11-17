@@ -47,6 +47,15 @@ function BlindGomokuPreview() {
   </div>;
 }
 
+function PiggyBankPreview() {
+  // Four players' gold pigs around the table, with the numbers on their sides.
+  const pig = (n: number, pos: string) => <span className={`absolute ${pos} flex h-[22%] w-[30%] items-center justify-center rounded-[50%] border-2 border-[#e0a91c] font-serif text-[10px] font-black text-[#3a2a06] shadow-lg sm:text-2xl`} style={{ background: 'radial-gradient(circle at 35% 30%, #fff6b0, #ffd84a 45%, #d99a12)' }}>{n}</span>;
+  return <div className="relative aspect-square w-full overflow-hidden rounded-xl border-[3px] border-[#17201e] shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:shadow-2xl" style={{ background: 'radial-gradient(ellipse at 50% 45%, #4a5278 0%, #2b3150 55%, #181b2e 100%)' }}>
+    {pig(1, 'left-[35%] top-[8%]')}{pig(5, 'left-[6%] top-[39%]')}{pig(3, 'right-[6%] top-[39%]')}{pig(4, 'left-[35%] bottom-[8%]')}
+    <span className="absolute left-1/2 top-1/2 flex h-[20%] w-[20%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#ffd84a] bg-[#1a1c2c] font-mono text-[9px] font-black text-white sm:text-xl">10</span>
+  </div>;
+}
+
 function NemoCountPreview() {
   // A 3×3 corner of the broadcast board with one rectangle that makes the target picked out.
   const cells = [1, 8, 6, 3, 5, 2, 7, 4, 9];
@@ -131,6 +140,7 @@ export default function HomeClient() {
   const router = useRouter();
   // Order: the hot Devil's Plan 3 games first, then the rest. `show` is the programme each game is from.
   const games = [
+    { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', show: 'dp3', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
     { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', show: 'dp3', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
     { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', show: 'dp3', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
     { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', show: 'dp3', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
@@ -155,13 +165,19 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><ShowTag show={game.show} color={game.color} label={game.show === 'classic' ? t('classic') : t(`show_${game.show}`)} /><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>
             </div>
           </div>
         </Link>
+        {game.illustration === 'piggyBank' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
+            <Link href="/piggy-bank" className={`${MODE_BUTTON} w-full`}><Bot size={15} className="text-[#e0a91c]" /><span className="text-sm font-black">{t('modePiggyAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modePiggyAiDesc')}</span></Link>
+          </div>
+        )}
         {game.illustration === 'nemoCount' && (
           <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
