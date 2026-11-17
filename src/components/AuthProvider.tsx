@@ -18,16 +18,20 @@ type AuthState = {
   nickname: string | null;
   /** Whether they have chosen it (false: ask once after sign-in). Null while loading. */
   nicknameSet: boolean | null;
+  /** Members who joined before nicknames existed see their current name filled in; new members start empty. */
+  prefillNickname: string | null;
   saveNickname: (name: string) => Promise<string | null>;
 };
 
 const AuthContext = createContext<AuthState>({
   user: null, ready: false, configured: false, error: null,
   signIn: async () => {}, signOut: async () => {}, clearError: () => {}, setError: () => {},
-  nickname: null, nicknameSet: null, saveNickname: async () => null,
+  nickname: null, nicknameSet: null, prefillNickname: null, saveNickname: async () => null,
 });
 
 const NAME_KEY = 'puzzlthink_nickname';
+/** When nickname choice launched: members who joined before keep their current name as the default. */
+const NICKNAMES_LAUNCHED = Date.parse('2026-11-17T10:44:09Z');
 
 export const displayName = (user: User | null) =>
   (user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '') as string;
@@ -83,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   // Signed in: the profile nickname is the name in every room (waiting rooms, games, rankings).
-  const [profileName, setProfileName] = useState<{ uid: string; nickname: string | null; set: boolean } | null>(null);
+  const [profileName, setProfileName] = useState<{ uid: string; nickname: string | null; set: boolean; existing?: boolean } | null>(null);
   const writeRoomName = (name: string) => { try { localStorage.setItem(NAME_KEY, name.slice(0, 16)); } catch { /* storage optional */ } };
   useEffect(() => {
     if (!user) return;
@@ -91,12 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!supabase) return;
     let alive = true;
     // touch_profile (above) creates the row on first sign-in, so retry once if it is not there yet.
-    const load = (tries: number) => supabase.from('profiles').select('nickname, nickname_set').maybeSingle().then(({ data, error }) => {
+    const load = (tries: number) => supabase.from('profiles').select('nickname, nickname_set, created_at').maybeSingle().then(({ data, error }) => {
       if (!alive) return;
       if (!data && tries > 0) { window.setTimeout(() => load(tries - 1), 1200); return; }
       const nickname = (data?.nickname as string | null) ?? displayName(user).slice(0, 16) ?? null;
       // Before the nickname migration there is no nickname_set column: treat as chosen (no prompt).
-      setProfileName({ uid: user.id, nickname, set: error ? true : !!data?.nickname_set });
+      const existing = !!data?.created_at && new Date(data.created_at as string).getTime() < NICKNAMES_LAUNCHED;
+      setProfileName({ uid: user.id, nickname, set: error ? true : !!data?.nickname_set, existing });
       if (nickname) writeRoomName(nickname);
     });
     load(2);
@@ -129,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(() => ({
     user, ready, configured, error, signIn, signOut, clearError: () => setError(null), setError,
-    nickname: mine?.nickname ?? null, nicknameSet: mine ? mine.set : null, saveNickname,
+    nickname: mine?.nickname ?? null, nicknameSet: mine ? mine.set : null, prefillNickname: mine?.existing ? mine.nickname : null, saveNickname,
   }), [user, ready, configured, error, signIn, signOut, mine, saveNickname]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
