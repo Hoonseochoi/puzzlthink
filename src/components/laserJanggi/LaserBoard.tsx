@@ -43,7 +43,7 @@ export default function LaserBoard({ pieces, current, interactive, selectedId, s
                 {move && <span className="absolute h-[18%] w-[18%] rotate-45 bg-[#ffd166] shadow-[0_0_12px_#ffd166] transition group-hover/cell:scale-125" />}
                 {item && <div className="group/piece relative z-10 h-[78%] w-[78%]">
                   <LaserPiece piece={item} selected={item.id === selectedId} label={t(`pieces.${item.type}.name`)} className="h-full w-full" />
-                  <span className="pointer-events-none absolute bottom-[108%] left-1/2 z-50 hidden w-40 -translate-x-1/2 rounded-md border border-white/10 bg-[#0a0d13]/95 px-2.5 py-2 text-left text-[10px] leading-4 text-white/75 shadow-xl group-hover/piece:block group-focus-within/piece:block">
+                  <span className={`pointer-events-none absolute ${row <= 1 ? 'top-[108%]' : 'bottom-[108%]'} ${col <= 1 ? 'left-0' : col >= LASER_BOARD_SIZE - 2 ? 'right-0' : 'left-1/2 -translate-x-1/2'} z-50 hidden w-40 rounded-md border border-white/10 bg-[#0a0d13]/95 px-2.5 py-2 text-left text-[10px] leading-4 text-white/75 shadow-xl [@media(hover:hover)]:group-hover/piece:block`}>
                     <b className="block text-[11px] text-white">{t(`pieces.${item.type}.name`)}</b>{t(`pieces.${item.type}.tip`)}
                   </span>
                 </div>}

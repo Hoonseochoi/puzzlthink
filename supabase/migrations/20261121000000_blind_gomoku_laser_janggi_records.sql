@@ -1,21 +1,21 @@
--- Blind gomoku in the records, the Hall of Fame and the play counter.
+-- Blind gomoku and laser janggi in the records, the Hall of Fame and the play counter.
 -- Run once in the Supabase SQL Editor (project zxkuzpueuvhvypsqbelg), after 20261120000000_bug_reports.sql.
--- Until this runs, blind gomoku results are rejected by the checks below and nothing is stored.
+-- Until this runs, blind gomoku and laser janggi results are rejected by the checks below and nothing is stored.
 
 -- 1) Player records ------------------------------------------------------------------------
 alter table public.game_results drop constraint if exists game_results_game_check;
 alter table public.game_results add constraint game_results_game_check
-  check (game in ('wallgo', 'janggi', 'heavy13', 'sudoku', 'russian_roulette', 'russian_janggi', 'blind_gomoku'));
+  check (game in ('wallgo', 'janggi', 'heavy13', 'sudoku', 'russian_roulette', 'russian_janggi', 'blind_gomoku', 'laser_janggi'));
 
 -- 2) Play counter --------------------------------------------------------------------------
 alter table public.game_plays_daily drop constraint if exists game_plays_daily_game_check;
 alter table public.game_plays_daily add constraint game_plays_daily_game_check
-  check (game in ('wallgo', 'janggi', 'heavy13', 'sudoku', 'russian_roulette', 'russian_janggi', 'blind_gomoku'));
+  check (game in ('wallgo', 'janggi', 'heavy13', 'sudoku', 'russian_roulette', 'russian_janggi', 'blind_gomoku', 'laser_janggi'));
 
 create or replace function public.count_play(p_game text, p_mode text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
-  if p_game not in ('wallgo', 'janggi', 'heavy13', 'sudoku', 'russian_roulette', 'russian_janggi', 'blind_gomoku')
+  if p_game not in ('wallgo', 'janggi', 'heavy13', 'sudoku', 'russian_roulette', 'russian_janggi', 'blind_gomoku', 'laser_janggi')
      or p_mode not in ('ai', 'friend', 'solo') then
     return;
   end if;
@@ -26,6 +26,6 @@ end; $$;
 revoke all on function public.count_play(text, text) from public;
 grant execute on function public.count_play(text, text) to anon, authenticated;
 
--- Check: both should list blind_gomoku.
+-- Check: both should list blind_gomoku and laser_janggi.
 select conname, pg_get_constraintdef(oid) from pg_constraint
  where conname in ('game_results_game_check', 'game_plays_daily_game_check');
