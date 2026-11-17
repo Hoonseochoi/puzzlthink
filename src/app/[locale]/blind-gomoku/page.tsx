@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import BlindGomokuGame from '@/components/blindGomoku/BlindGomokuGame';
+import { BlindGomokuTutorialSteps } from '@/components/blindGomoku/BlindGomokuTutorial';
+import TextGuide from '@/components/TextGuide';
 import GameGate from '@/components/GameGate';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
@@ -24,6 +26,8 @@ export default async function BlindGomokuPage({ params }: { params: Promise<{ lo
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'BlindGomoku' });
   const url = `${BASE_URL}/${locale}/blind-gomoku`;
+  const g = await getTranslations({ locale, namespace: 'BlindGomokuGuide' });
+  const faq = g.raw('faq') as { q: string; a: string }[];
   return <>
     <JsonLd data={{
       '@context': 'https://schema.org',
@@ -35,12 +39,14 @@ export default async function BlindGomokuPage({ params }: { params: Promise<{ lo
       inLanguage: locale,
       genre: ['Strategy', 'Board game', 'Hidden information'],
       gamePlatform: 'Web browser',
-      playMode: 'SinglePlayer',
+      playMode: ['SinglePlayer', 'MultiPlayer'],
+      numberOfPlayers: 2,
       applicationCategory: 'Game',
       operatingSystem: 'Any',
       offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' },
     }} />
-    <GameGate game="blindGomoku" accent="#ffd166" ink="#17120a" hero={<GameIntroHero locale={locale} id="blindGomoku" />}>
+    <JsonLd data={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }} />
+    <GameGate game="blindGomoku" accent="#ffd166" ink="#17120a" hero={<GameIntroHero locale={locale} id="blindGomoku" />} tutorial={<BlindGomokuTutorialSteps />} guide={<TextGuide locale={locale} namespace="BlindGomokuGuide" />}>
       <BlindGomokuGame />
     </GameGate>
   </>;

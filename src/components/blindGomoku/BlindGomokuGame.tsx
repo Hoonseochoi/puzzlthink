@@ -2,14 +2,16 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { BookOpen, ChevronLeft, ChevronRight, Eye, EyeOff, Pause, Play, RotateCcw, ShieldQuestion, Sparkles } from 'lucide-react';
+import { BookOpen, Eye, EyeOff, RotateCcw, ShieldQuestion, Sparkles } from 'lucide-react';
+import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
-import { STONE_COLORS, chooseAiMove, coordinateLabel, findWinningLine, type GomokuDifficulty, type GomokuMove, type StoneColor, type StoneOwner, type WinningLine } from '@/lib/blindGomoku';
+import { chooseAiMove, coordinateLabel, findWinningLine, type GomokuDifficulty, type GomokuMove, type StoneColor, type StoneOwner, type WinningLine } from '@/lib/blindGomoku';
 import BlindGomokuBoard from './BlindGomokuBoard';
 import BlindStone from './BlindStone';
+import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
 
 type Phase = 'human' | 'ai' | 'finished';
 const ACCENT = '#ffd166';
@@ -25,8 +27,8 @@ export default function BlindGomokuGame() {
   const [winner, setWinner] = useState<StoneOwner | 'draw' | null>(null);
   const [winningLine, setWinningLine] = useState<WinningLine | null>(null);
   const [showRules, setShowRules] = useState(false);
-  const [replayStep, setReplayStep] = useState(0);
-  const [replayPlaying, setReplayPlaying] = useState(false);
+  const [gameNo, setGameNo] = useState(0);
+  const replay = useReplay(moves, phase === 'finished', `${gameNo}-${phase}`);
 
   const finish = (nextMoves: GomokuMove[], result: StoneOwner | 'draw', line: WinningLine | null) => {
     setMoves(nextMoves);
@@ -34,8 +36,6 @@ export default function BlindGomokuGame() {
     setWinningLine(line);
     setPhase('finished');
     setRevealSeconds(0);
-    setReplayStep(nextMoves.length);
-    setReplayPlaying(false);
   };
 
   const reset = () => {
@@ -46,8 +46,7 @@ export default function BlindGomokuGame() {
     setRevealSeconds(0);
     setWinner(null);
     setWinningLine(null);
-    setReplayStep(0);
-    setReplayPlaying(false);
+    setGameNo((n) => n + 1);
   };
 
   const placeHuman = (row: number, col: number) => {
@@ -84,26 +83,15 @@ export default function BlindGomokuGame() {
     return () => window.clearInterval(timer);
   }, [revealSeconds, phase]);
 
-  useEffect(() => {
-    if (!replayPlaying || phase !== 'finished') return;
-    const timer = window.setInterval(() => {
-      setReplayStep((step) => {
-        if (step >= moves.length) { setReplayPlaying(false); return step; }
-        return step + 1;
-      });
-    }, 560);
-    return () => window.clearInterval(timer);
-  }, [replayPlaying, phase, moves.length]);
-
   const useReveal = () => {
     if (phase !== 'human' || revealUses <= 0 || revealSeconds > 0 || moves.length === 0) return;
     setRevealUses((uses) => uses - 1);
     setRevealSeconds(5);
   };
 
-  const boardMoves = phase === 'finished' ? moves.slice(0, replayStep) : moves;
+  const boardMoves = phase === 'finished' ? moves.slice(0, replay.step) : moves;
   const replayLine = useMemo(() => phase === 'finished' ? findWinningLine(boardMoves, boardMoves.at(-1)) : null, [phase, boardMoves]);
-  const flipped = phase === 'finished' || revealSeconds > 0;
+  const flipped = phase === 'finished' ? replay.truth : revealSeconds > 0;
   const latest = moves.at(-1);
   const status = phase === 'finished'
     ? winner === 'draw' ? t('draw') : winner === 'black' ? t('youWin') : t('aiWins')
@@ -115,7 +103,7 @@ export default function BlindGomokuGame() {
       <Shards />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
         <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
-        <LanguageSwitcher compact dark />
+        <BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 
@@ -140,17 +128,7 @@ export default function BlindGomokuGame() {
             onPlace={placeHuman}
           />
 
-          {phase === 'finished' && <div className="mt-4 rounded-[12px] border border-white/10 bg-black/45 p-3 sm:p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div><p className={PANEL_TITLE}>{t('replay')}</p><p className="mt-1 text-xs font-bold text-white/70">{replayStep === 0 ? t('replayStart') : t('replayMove', { step: replayStep, total: moves.length, coordinate: coordinateLabel(boardMoves.at(-1)!.row, boardMoves.at(-1)!.col) })}</p></div>
-              <div className="flex items-center gap-1">
-                <button type="button" aria-label={t('previous')} onClick={() => { setReplayPlaying(false); setReplayStep((step) => Math.max(0, step - 1)); }} className="rounded-md border border-white/10 bg-white/5 p-2 text-white/70 hover:bg-white/10"><ChevronLeft size={16} /></button>
-                <button type="button" aria-label={replayPlaying ? t('pause') : t('play')} onClick={() => { if (replayStep >= moves.length) setReplayStep(0); setReplayPlaying((playing) => !playing); }} className="rounded-md bg-[#ffd166] p-2 text-[#17120a]">{replayPlaying ? <Pause size={16} /> : <Play size={16} />}</button>
-                <button type="button" aria-label={t('next')} onClick={() => { setReplayPlaying(false); setReplayStep((step) => Math.min(moves.length, step + 1)); }} className="rounded-md border border-white/10 bg-white/5 p-2 text-white/70 hover:bg-white/10"><ChevronRight size={16} /></button>
-              </div>
-            </div>
-            <input aria-label={t('replaySlider')} type="range" min={0} max={moves.length} value={replayStep} onChange={(event) => { setReplayPlaying(false); setReplayStep(Number(event.target.value)); }} className="mt-3 w-full accent-[#ffd166]" />
-          </div>}
+          {phase === 'finished' && <ReplayBar moves={moves} replay={replay} />}
         </section>
 
         <aside className="flex flex-col gap-4">
@@ -172,12 +150,7 @@ export default function BlindGomokuGame() {
             {latest && <p className="mt-3 flex items-center justify-center gap-2 rounded-md bg-black/30 px-3 py-2 text-[11px] text-white/55"><Sparkles size={12} className="text-[#ffd166]" />{t('lastMove', { player: latest.owner === 'black' ? t('you') : 'MIRA', coordinate: coordinateLabel(latest.row, latest.col) })}</p>}
           </section>
 
-          <section className={PANEL}>
-            <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('chooseColor')}</p><span className="text-[10px] font-bold text-white/35">{t('aiCopies')}</span></div>
-            <div className="mt-3 grid grid-cols-7 gap-1.5">
-              {STONE_COLORS.map((color) => <button key={color.id} type="button" disabled={phase !== 'human' || revealSeconds > 0} aria-label={t(`colors.${color.id}`)} aria-pressed={selectedColor === color.id} onClick={() => setSelectedColor(color.id)} className={`aspect-square rounded-full border-2 p-[3px] transition ${selectedColor === color.id ? 'scale-110 border-white shadow-[0_0_15px_rgba(255,255,255,.35)]' : 'border-transparent opacity-65 hover:opacity-100'}`}><BlindStone color={color.hex} owner="black" /></button>)}
-            </div>
-          </section>
+          <ColorPicker selected={selectedColor} onSelect={setSelectedColor} disabled={phase !== 'human' || revealSeconds > 0} note={t('aiCopies')} />
 
           <section className="rounded-[14px] border border-[#ffd166]/30 bg-[#ffd166]/[.07] p-4">
             <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('handicap')}</p><span className="rounded-md border border-[#ffd166]/30 bg-black/25 px-2 py-1 font-mono text-[10px] font-black text-[#ffe39a]">{t('usesLeft', { count: revealUses })}</span></div>

@@ -12,7 +12,7 @@ export interface CatalogGame {
 }
 
 export const GAMES: readonly CatalogGame[] = [
-  { id: 'blindGomoku', href: '/blind-gomoku', color: '#d39b2f', hasGuide: false },
+  { id: 'blindGomoku', href: '/blind-gomoku', color: '#d39b2f', hasGuide: true },
   { id: 'wallgo', href: '/wallgo', color: '#ff6b4a', hasGuide: true },
   { id: 'russianRoulette', href: '/russian-roulette', color: '#238ca8', hasGuide: true },
   { id: 'heavy13', href: '/heavy13', color: '#c9a061', hasGuide: true },
