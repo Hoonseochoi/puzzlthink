@@ -2213,7 +2213,7 @@
       },
       "square": {
         "name": "Square knight",
-        "tip": "Only the marked face is mirrored and sends the beam back. A hit on any other face removes it."
+        "tip": "Only the face with the glowing bar (the arrow points at it) is a mirror. A beam hitting it head-on bounces straight back; a hit on any other side destroys it."
       }
     },
     "draw": "Turn 200 reached — draw"

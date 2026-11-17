@@ -33,9 +33,12 @@ export default function LaserPiece({ piece, selected = false, label, className =
             <path d="M22 22 L78 78" stroke={color} strokeWidth="3" strokeLinecap="round" />
           </>}
           {piece.type === 'square' && <>
-            <rect x="18" y="18" width="64" height="64" rx="10" fill={`url(#body-${piece.id})`} stroke={color} strokeWidth="3" />
-            <path d="M24 20 H76" stroke="#fff" strokeWidth="8" strokeLinecap="round" filter={`url(#glow-${piece.id})`} />
-            <path d="M29 48 H71 M29 60 H71" stroke={color} strokeOpacity=".5" strokeWidth="3" />
+            {/* Body, with the three plain sides dimmed so the mirror face stands out. */}
+            <rect x="20" y="26" width="60" height="56" rx="8" fill={`url(#body-${piece.id})`} stroke={color} strokeOpacity=".45" strokeWidth="2.5" />
+            {/* Mirror face: a bright bar on one edge, glowing, with rays pointing out the way it reflects. */}
+            <rect x="13" y="15" width="74" height="11" rx="4" fill="#f4feff" stroke={color} strokeWidth="2.5" filter={`url(#glow-${piece.id})`} />
+            <path d="M30 9 V3 M50 9 V1 M70 9 V3" stroke={color} strokeWidth="3.5" strokeLinecap="round" filter={`url(#glow-${piece.id})`} />
+            <path d="M38 52 L50 40 L62 52" fill="none" stroke={color} strokeOpacity=".7" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
           </>}
           {piece.type === 'splitter' && <>
             <rect x="16" y="16" width="68" height="68" rx="14" fill={`url(#body-${piece.id})`} stroke={color} strokeWidth="3" />
