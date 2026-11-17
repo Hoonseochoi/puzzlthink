@@ -6,8 +6,9 @@ import { Bot, Check, Clock3, Crown, Hand, Info, X } from 'lucide-react';
 import { type Chip, type Color, type LogEntry, CHIPS, COLORS, LIMIT, PLAYERS, ROUNDS, canPass, sum } from '@/lib/heavy13';
 import type { H13Action, H13Room } from '@/lib/heavy13Room';
 import { ChipToken, CubeStack, RockCard } from './Bits';
-import { STAND } from './theme';
-import { BTN_ACCENT, DIAMOND, HEADING, KICKER, PANEL, PANEL_TITLE, WELL, timer } from '../ui/gameUi';
+import { STAND, SAND, SAND_INK } from './theme';
+import TurnDrawer from './TurnDrawer';
+import { BTN_ACCENT, DIAMOND, accentVars, HEADING, KICKER, PANEL, PANEL_TITLE, WELL, timer } from '../ui/gameUi';
 
 /** Everything on the table. `room` should already be the redacted view for this player. */
 export default function Heavy13Table({ room, mySeat, onAction, online }: {
@@ -18,6 +19,7 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
   const [card, setCard] = useState<number | null>(null);
   const [chip, setChip] = useState<Chip | null>(null);
   const [startTip, setStartTip] = useState(false); // "what does the start player do?" panel
+  const [closedFor, setClosedFor] = useState<string | null>(null); // the turn whose drawer was tucked away
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 500); return () => window.clearInterval(timer); }, []);
 
@@ -27,6 +29,9 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
   const myTurn = g.phase === 'place' && g.current === mySeat && mySeat !== null;
   const mySub = myTurn ? g.subs[mySeat!] : null;
   const seconds = Number.isFinite(room.deadline) && room.deadline < Number.MAX_SAFE_INTEGER ? Math.max(0, Math.ceil((room.deadline - now) / 1000)) : null;
+  // Each of my turns gets a key; a new one opens the drawer again (a pass brings a second placement turn).
+  const turnKey = me && g.phase === 'submit' && !iSubmitted ? `s-${g.round}` : myTurn && mySub ? `p-${g.round}-${g.resolvingPasses ? 'r' : 'm'}` : null;
+  const drawerOpen = turnKey !== null && closedFor !== turnKey;
   const lastLog = g.log[0];
   const fresh = (c: Color) => lastLog && (lastLog.k === 'place' || lastLog.k === 'collapse') && lastLog.color === c;
   const status = g.phase === 'finished' ? t('finished') : g.phase === 'submit' ? (iSubmitted || mySeat === null ? t('waitingSubmit', { n: room.submitted.filter(Boolean).length }) : t('chooseSubmit'))
@@ -111,43 +116,58 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
         </div>
       )}
 
-      {/* My controls */}
-      {me && g.phase === 'submit' && !iSubmitted && (
-        <section className={`${PANEL} space-y-3`}>
-          <p className={PANEL_TITLE}>{t('myCards')}</p>
-          <div className="flex flex-wrap gap-2">
-            {[0, 1, 2, 3, 4, 5, 6].map((v) => {
-              const has = me.cards.includes(v);
-              return <button key={v} type="button" disabled={!has} onClick={() => setCard(v)} aria-label={t('cardLabel', { n: v })}><RockCard value={v} dim={!has} selected={card === v} /></button>;
-            })}
-          </div>
-          <p className={PANEL_TITLE}>{t('myChips')}</p>
-          <div className="flex flex-wrap gap-2">
-            {CHIPS.map((c) => (
-              <button key={c} type="button" disabled={!me.chips[c]} onClick={() => setChip(c)} className={`flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-bold transition ${chip === c ? 'border-(--accent) bg-(--accent)/15 shadow-[0_0_14px_var(--accent-glow)]' : 'border-white/10 bg-black/30 hover:border-white/25'} disabled:opacity-30`}>
-                <ChipToken chip={c} size={20} />{t(`chip_${c}`)}<span className="text-white/40">×{me.chips[c]}</span>
-              </button>
-            ))}
-          </div>
-          <button type="button" onClick={doSubmit} disabled={card === null || !chip} className={`w-full py-3 text-sm ${BTN_ACCENT}`}>{t('submit')}</button>
-        </section>
-      )}
-      {me && g.phase === 'submit' && iSubmitted && <p className={`${WELL} p-3 text-center text-xs text-white/55`}>{t('submittedWait')}</p>}
+      {/* My controls: a drawer from the right edge, opened by itself on my turn. */}
+      <TurnDrawer active={turnKey !== null} open={drawerOpen} onOpen={() => setClosedFor(null)} onClose={() => setClosedFor(turnKey)} label={t('drawerHandle')} closeLabel={t('drawerClose')} style={accentVars(SAND, SAND_INK)}>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <p className="text-sm font-black text-(--accent)">{status}</p>
+          {seconds !== null && <span className="font-mono text-xs font-bold text-white/55"><Clock3 size={12} className="mr-1 inline" />{seconds}s</span>}
+        </div>
+        {/* The stands at a glance, so the board can stay covered. */}
+        <div className="mb-4 grid grid-cols-3 gap-1.5">
+          {COLORS.map((c) => (
+            <div key={c} className="rounded-md border px-2 py-1.5" style={{ borderColor: `${STAND[c].main}55`, background: STAND[c].soft }}>
+              <span className="flex items-center gap-1 text-[10px] font-black" style={{ color: STAND[c].main }}><ChipToken chip={c} size={11} />{t(`stand_${c}`)}</span>
+              <span className={`font-mono text-lg font-black ${sum(g.stands[c]) >= 10 ? 'text-[#ff8a7a]' : 'text-white'}`}>{sum(g.stands[c])}<span className="text-[10px] text-white/35">/{LIMIT} · {g.stands[c].length}</span></span>
+            </div>
+          ))}
+        </div>
+        {me && g.phase === 'submit' && !iSubmitted && (
+          <section className="space-y-3">
+            <p className={PANEL_TITLE}>{t('myCards')}</p>
+            <div className="flex flex-wrap gap-2">
+              {[0, 1, 2, 3, 4, 5, 6].map((v) => {
+                const has = me.cards.includes(v);
+                return <button key={v} type="button" disabled={!has} onClick={() => setCard(v)} aria-label={t('cardLabel', { n: v })}><RockCard value={v} dim={!has} selected={card === v} /></button>;
+              })}
+            </div>
+            <p className={PANEL_TITLE}>{t('myChips')}</p>
+            <div className="flex flex-wrap gap-2">
+              {CHIPS.map((c) => (
+                <button key={c} type="button" disabled={!me.chips[c]} onClick={() => setChip(c)} className={`flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-bold transition ${chip === c ? 'border-(--accent) bg-(--accent)/15 shadow-[0_0_14px_var(--accent-glow)]' : 'border-white/10 bg-black/30 hover:border-white/25'} disabled:opacity-30`}>
+                  <ChipToken chip={c} size={20} />{t(`chip_${c}`)}<span className="text-white/40">×{me.chips[c]}</span>
+                </button>
+              ))}
+            </div>
+            <button type="button" onClick={doSubmit} disabled={card === null || !chip} className={`w-full py-3 text-sm ${BTN_ACCENT}`}>{t('submit')}</button>
+          </section>
+        )}
+        {myTurn && mySub && (
+          <section className="space-y-3">
+            <div className="flex items-center gap-3"><ChipToken chip={mySub.chip} size={26} /><RockCard value={mySub.card} /><p className="text-xs text-white/60">{mySub.chip === 'w' ? t('chooseStand') : t('placeOn', { stand: t(`stand_${mySub.chip}`) })}</p></div>
+            <div className="grid grid-cols-2 gap-2">
+              {(mySub.chip === 'w' ? [...COLORS] : [mySub.chip]).map((c) => (
+                <button key={c} type="button" onClick={() => onAction({ t: 'place', color: c })} className="rounded-[10px] border px-2 py-2.5 text-left transition hover:brightness-125" style={{ borderColor: `${STAND[c].main}80`, background: STAND[c].soft }}>
+                  <span className="block text-xs font-black" style={{ color: STAND[c].main }}>{t('placeHere', { stand: t(`stand_${c}`) })}</span>
+                  <span className="block text-[10px] text-white/55">{preview(c, mySub.card)}</span>
+                </button>
+              ))}
+              {canPass(g) && <button type="button" onClick={() => onAction({ t: 'pass' })} className="flex flex-col items-start rounded-[10px] border border-white/15 bg-black/30 px-2 py-2.5 text-left hover:bg-white/10"><span className="flex items-center gap-1 text-xs font-black"><Hand size={12} />{t('pass')}</span><span className="text-[10px] text-white/50">{t('passHint')}</span></button>}
+            </div>
+          </section>
+        )}
 
-      {myTurn && mySub && (
-        <section className="space-y-3 rounded-[14px] border border-(--accent)/40 bg-[#121217]/85 p-4 backdrop-blur">
-          <div className="flex items-center gap-3"><ChipToken chip={mySub.chip} size={26} /><RockCard value={mySub.card} /><p className="text-xs text-white/60">{mySub.chip === 'w' ? t('chooseStand') : t('placeOn', { stand: t(`stand_${mySub.chip}`) })}</p></div>
-          <div className="grid grid-cols-3 gap-2">
-            {(mySub.chip === 'w' ? [...COLORS] : [mySub.chip]).map((c) => (
-              <button key={c} type="button" onClick={() => onAction({ t: 'place', color: c })} className="rounded-[10px] border px-2 py-2.5 text-left transition hover:brightness-125" style={{ borderColor: `${STAND[c].main}80`, background: STAND[c].soft }}>
-                <span className="block text-xs font-black" style={{ color: STAND[c].main }}>{t('placeHere', { stand: t(`stand_${c}`) })}</span>
-                <span className="block text-[10px] text-white/55">{preview(c, mySub.card)}</span>
-              </button>
-            ))}
-            {canPass(g) && <button type="button" onClick={() => onAction({ t: 'pass' })} className="flex flex-col items-start rounded-[10px] border border-white/15 bg-black/30 px-2 py-2.5 text-left hover:bg-white/10"><span className="flex items-center gap-1 text-xs font-black"><Hand size={12} />{t('pass')}</span><span className="text-[10px] text-white/50">{t('passHint')}</span></button>}
-          </div>
-        </section>
-      )}
+      </TurnDrawer>
+      {me && g.phase === 'submit' && iSubmitted && <p className={`${WELL} p-3 text-center text-xs text-white/55`}>{t('submittedWait')}</p>}
 
       <section className={`min-h-[142px] ${PANEL}`}>
         <p className={`mb-3 ${PANEL_TITLE}`}>{t('log')}</p>
