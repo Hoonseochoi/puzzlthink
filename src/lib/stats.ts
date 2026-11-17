@@ -128,3 +128,20 @@ export async function fetchPlayerRecord(game: GameId, userId: string): Promise<T
   const row = Array.isArray(data) ? data[0] : data;
   return error || !row ? null : { win: Number(row.wins) || 0, loss: Number(row.losses) || 0, draw: Number(row.draws) || 0 };
 }
+
+/** A player's record against other people across every game (friend and open rooms). */
+export async function fetchVersusRecord(userId: string): Promise<Tally | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('versus_record', { p_user: userId });
+  const row = Array.isArray(data) ? data[0] : data;
+  return error || !row ? null : { win: Number(row.wins) || 0, loss: Number(row.losses) || 0, draw: Number(row.draws) || 0 };
+}
+
+/** My record against one player in any game (from my own results that list them in `vs`). */
+export async function fetchHeadToHeadAll(opponentId: string): Promise<Tally | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase.from('game_results').select('result').eq('mode', 'friend').contains('detail', { vs: [opponentId] }).limit(1000);
+  return error ? null : tally((data as { result: GameResult }[]) ?? []);
+}

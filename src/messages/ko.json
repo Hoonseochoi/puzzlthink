@@ -3403,8 +3403,11 @@
     "loginTitle": "로그인이 필요해요",
     "loginDesc": "공개방은 로그인한 사람끼리만 할 수 있어요. 결과가 내 전적과 상대와의 전적으로 기록돼요.",
     "tally": "{w}승 {l}패 {d}무",
-    "recordAll": "전적 {r}",
-    "recordVs": "나와 {r}"
+    "recordAll": "대전 {r}",
+    "recordVs": "나와 {r}",
+    "defaultTitle": "{name}님의 방",
+    "revenge": "리벤지",
+    "editTitle": "방 제목 바꾸기"
   },
   "OpenMatch": {
     "title": "오픈 대전",

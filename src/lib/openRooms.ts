@@ -10,7 +10,7 @@ export const STATS_ID: Record<CatalogId, StatsId> = {
   wallgo: 'wallgo', russianRoulette: 'russian_roulette', heavy13: 'heavy13', janggi: 'janggi', russianJanggi: 'russian_janggi', sudoku: 'sudoku',
 };
 
-export type OpenRoomRow = { code: string; variant: number; host: string; players: number; capacity: number };
+export type OpenRoomRow = { code: string; variant: number; host: string; players: number; capacity: number; title?: string };
 
 const tokenKey = (game: string, code: string) => `puzzlthink_open_${game}_${code}`;
 
@@ -40,11 +40,14 @@ export async function listAllOpenRooms(): Promise<OpenRoomAnyRow[] | null> {
   return error || !Array.isArray(data) ? null : (data as OpenRoomAnyRow[]);
 }
 
-export async function putOpenRoom(game: string, code: string, row: { variant: number; host: string; players: number; capacity: number }) {
+export async function putOpenRoom(game: string, code: string, row: { variant: number; host: string; players: number; capacity: number; title: string }) {
   const supabase = getSupabase();
   const token = hostToken(game, code, true);
   if (!supabase || !token) return;
-  await supabase.rpc('open_room_put', { p_game: game, p_code: code, p_token: token, p_variant: row.variant, p_host: row.host, p_players: row.players, p_capacity: row.capacity });
+  const args = { p_game: game, p_code: code, p_token: token, p_variant: row.variant, p_host: row.host, p_players: row.players, p_capacity: row.capacity };
+  const { error } = await supabase.rpc('open_room_put', { ...args, p_title: row.title.slice(0, 30) });
+  // Before the titles migration the function takes no title: list the room without one.
+  if (error?.code === 'PGRST202') await supabase.rpc('open_room_put', args);
 }
 
 export async function closeOpenRoom(game: string, code: string) {
@@ -56,3 +59,8 @@ export async function closeOpenRoom(game: string, code: string) {
 
 export const EMOTES = ['ㅎㅇ', 'ㄱㄷ', 'ㅇㅋ', 'ㅈㅈ', 'ㅂㅂ'] as const;
 export const EMOTE_MS = 4000;
+
+const titleKey = (code: string) => `puzzlthink_open_title_${code}`;
+/** The host's room title (kept in this browser). */
+export function savedTitle(code: string) { try { return localStorage.getItem(titleKey(code)) ?? ''; } catch { return ''; } }
+export function saveTitle(code: string, title: string) { try { localStorage.setItem(titleKey(code), title.slice(0, 30)); } catch { /* optional */ } }

@@ -115,12 +115,13 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
                     const variants = GAME_MODES[game].rooms;
                     return (
                       <div key={`${room.game}-${room.code}`} className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white px-3 py-2.5">
-                        <span className="h-9 w-1.5 shrink-0 rounded-full" style={{ background: colorOf(room.game) }} />
+                        <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[#17201e] ring-2" style={{ ['--tw-ring-color' as string]: colorOf(room.game) }}>
+                          <span className="absolute left-0 top-0 flex h-[300px] w-[300px] origin-top-left scale-[.16] items-center justify-center">{previews[game]}</span>
+                        </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-black">{tc(game)}{variants.length > 1 && variants[room.variant] ? ` · ${tg(`short_${variants[room.variant].label}`)}` : ''}</p>
-                          <p className="truncate text-[11px] font-bold text-black/45">{tg('openHost', { name: room.host })} · <span className="font-mono">{room.code}</span></p>
+                          <p className="truncate text-[11px] font-black" style={{ color: colorOf(room.game) }}>{tc(game)}{variants.length > 1 && variants[room.variant] ? ` · ${tg(`short_${variants[room.variant].label}`)}` : ''}</p>
+                          <p className="truncate text-sm font-black">{room.title || tg('openHost', { name: room.host })}</p>
                         </div>
-                        <span className="font-mono text-xs font-bold text-black/50">{room.players}/{room.capacity}</span>
                         <button type="button" disabled={!signedIn} onClick={() => go(game, room.code, room.variant)} className="rounded-full bg-[#17201e] px-3.5 py-2 text-xs font-black text-white disabled:opacity-35">{tg('openJoin')}</button>
                       </div>
                     );
