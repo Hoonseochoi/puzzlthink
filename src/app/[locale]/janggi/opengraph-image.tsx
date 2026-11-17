@@ -8,8 +8,8 @@ export const generateStaticParams = () => [{ locale: 'ko' }, { locale: 'en' }];
 export const alt = 'PUZZLTHINK 12 Janggi';
 
 const COPY = {
-  ko: { title: '십이장기', kicker: '더 지니어스 그 게임', sub: '12칸 위의 수싸움 — 왕을 잡거나 적진에 입성하라', modes: ['AI 대전', '1:1 친구와'] },
-  en: { title: '12 Janggi', kicker: 'The Genius game', sub: 'A duel on 12 squares — capture the king or march in', modes: ['vs AI', '1:1 with a friend'] },
+  ko: { title: '십이장기', kicker: '더 지니어스 3·4', sub: '12칸 위의 수싸움 — 왕을 잡거나 적진에 입성하라', modes: ['AI 대전', '1:1 친구와'] },
+  en: { title: '12 Janggi', kicker: 'The Genius 3·4', sub: 'A duel on 12 squares — capture the king or march in', modes: ['vs AI', '1:1 with a friend'] },
 };
 const RED = '#ff5b3a', JADE = '#17c39a';
 const BOARD: [string, string, boolean][][] = [

@@ -6,20 +6,13 @@ import { WallGoTutorialSteps } from '@/components/WallGoTutorial';
 import WallGoGame from '@/components/WallGoGame';
 import WallGoGuide from '@/components/WallGoGuide';
 import JsonLd from '@/components/JsonLd';
+import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 
-const BASE_URL = 'https://www.puzzlthink.com';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'WallGo' });
-  const canonical = `${BASE_URL}/${locale}/wallgo`;
-  return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    keywords: t.raw('keywords') as string[],
-    alternates: { canonical, languages: { ko: `${BASE_URL}/ko/wallgo`, en: `${BASE_URL}/en/wallgo` } },
-    openGraph: { title: `${t('metaTitle')} | PUZZLTHINK`, description: t('metaDescription'), url: canonical, siteName: 'PUZZLTHINK', type: 'website' },
-  };
+  return pageMetadata({ locale, path: '/wallgo', title: t('metaTitle'), description: t('metaDescription'), keywords: t.raw('keywords') as string[] });
 }
 
 export default async function WallGoPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -27,17 +20,14 @@ export default async function WallGoPage({ params }: { params: Promise<{ locale:
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'WallGo' });
   const g = await getTranslations({ locale, namespace: 'WallGoGuide' });
-  const url = `${BASE_URL}/${locale}/wallgo`;
   const faq = g.raw('faq') as { q: string; a: string }[];
   return (
     <>
-      <JsonLd data={{
-        '@context': 'https://schema.org',
-        '@graph': [
-          { '@type': 'VideoGame', name: t('metaTitle'), alternateName: ['벽바둑', 'Wallgo', 'Wall Go'], description: t('metaDescription'), url, inLanguage: locale, genre: ['Strategy', 'Board game'], gamePlatform: 'Web browser', playMode: 'SinglePlayer', applicationCategory: 'Game', operatingSystem: 'Any', offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' }, publisher: { '@type': 'Organization', name: 'PUZZLTHINK', url: BASE_URL } },
-          { '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) },
-        ],
-      }} />
+      <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
+      gameJsonLd({ locale, path: '/wallgo', name: t('metaTitle'), alternateName: ['벽바둑', '벽바둑 온라인', 'Wall Go', 'Wallgo'], description: t('metaDescription'), genre: ['Strategy', 'Board game'], players: { min: 1, max: 3 }, show: 'dp3' }),
+      faqJsonLd(faq),
+      breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('metaTitle').split(' — ')[0], path: '/wallgo' }]),
+    ] }} />
       <GameGate game="wallgo" accent="#e0283a" tutorialKey="puzzlthink_wallgo_tutorial_seen" hero={<GameIntroHero locale={locale} id="wallgo" />} tutorial={<WallGoTutorialSteps />} guide={<WallGoGuide locale={locale} />}>
         <WallGoGame />
       </GameGate>

@@ -69,3 +69,31 @@ export function SudokuMini({ size = 260 }: { size?: number }) {
     </div>
   );
 }
+
+// ---------- shared game card (newer games) ----------
+
+/**
+ * Standard link-preview card: show tag, big title, one line, mode chips on the left; the game's own
+ * mini drawing on the right. `accent` tints the glow and the highlighted chip.
+ */
+export function GameOgCard({ kicker, title, sub, modes, accent, glow, art }: {
+  kicker: string; title: string; sub: string; modes: string[]; accent: string; glow: string; art: React.ReactNode;
+}) {
+  return (
+    <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', background: '#0b0c10', backgroundImage: `radial-gradient(ellipse 65% 60% at 80% 40%, ${glow}, rgba(11,12,16,0) 70%)`, fontFamily: 'Noto Sans KR', color: '#eef0f3', padding: '56px 64px', gap: 40 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <div style={{ display: 'flex', alignSelf: 'flex-start', padding: '8px 16px', borderRadius: 999, border: '2px solid rgba(255,45,85,0.7)', background: '#0b0a10', fontSize: 22, fontWeight: 900, color: '#ff5c7a', letterSpacing: 2 }}>{kicker}</div>
+        <div style={{ display: 'flex', fontSize: 104, fontWeight: 900, letterSpacing: -4, marginTop: 16, lineHeight: 1.05 }}>{title}</div>
+        <div style={{ display: 'flex', fontSize: 27, fontWeight: 400, marginTop: 10, color: 'rgba(238,240,243,0.72)' }}>{sub}</div>
+        <div style={{ display: 'flex', gap: 12, marginTop: 30 }}>
+          {modes.map((m, i) => <div key={m} style={{ display: 'flex', padding: '10px 18px', borderRadius: 12, fontSize: 22, fontWeight: 900, background: i === 0 ? accent : 'rgba(255,255,255,0.08)', color: i === 0 ? '#111318' : '#eef0f3' }}>{m}</div>)}
+        </div>
+        <div style={{ display: 'flex', fontSize: 22, color: 'rgba(238,240,243,0.45)', marginTop: 34 }}>PUZZLTHINK · puzzlthink.com</div>
+      </div>
+      <div style={{ display: 'flex' }}>{art}</div>
+    </div>
+  );
+}
+
+/** Text that a card draws, for loading just those glyphs. */
+export const ogText = (c: { kicker: string; title: string; sub: string; modes: string[] }, extra = '') => `PUZZLTHINK puzzlthink.com${c.kicker}${c.title}${c.sub}${c.modes.join('')}${extra}`;

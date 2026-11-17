@@ -8,8 +8,8 @@ export const generateStaticParams = () => [{ locale: 'ko' }, { locale: 'en' }];
 export const alt = 'PUZZLTHINK Wallgo';
 
 const COPY = {
-  ko: { title: '벽바둑', kicker: '데블스플랜 그 게임', sub: '말을 옮기고 벽을 세워 가장 넓은 영역을 차지하라', modes: ['1:1:1 AI', '1:1 AI', '1:1 친구와'] },
-  en: { title: 'Wallgo', kicker: "The Devil's Plan game", sub: 'Move, build walls, and claim the largest territory', modes: ['1:1:1 vs AI', '1:1 vs AI', '1:1 with a friend'] },
+  ko: { title: '벽바둑', kicker: '데블스 플랜 3', sub: '말을 옮기고 벽을 세워 가장 넓은 영역을 차지하라', modes: ['1:1:1 AI', '1:1 AI', '1:1 친구와'] },
+  en: { title: 'Wallgo', kicker: "The Devil's Plan 3", sub: 'Move, build walls, and claim the largest territory', modes: ['1:1:1 vs AI', '1:1 vs AI', '1:1 with a friend'] },
 };
 
 export default async function Image({ params }: { params: Promise<{ locale: string }> }) {

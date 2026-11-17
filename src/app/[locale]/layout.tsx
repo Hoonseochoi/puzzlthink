@@ -17,10 +17,26 @@ import { ADSENSE_CLIENT } from '@/lib/adsense';
 import { GA_ID } from '@/lib/analytics';
 import '../globals.css';
 
+// Search-console ownership tags: set the codes from Google Search Console / Naver Search Advisor in the
+// deploy environment (no code change needed when they change).
+const GOOGLE_VERIFY = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+const NAVER_VERIFY = process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION;
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.puzzlthink.com'),
   applicationName: 'PUZZLTHINK',
+  title: { default: 'PUZZLTHINK', template: '%s' },
+  creator: 'PUZZLTHINK',
+  publisher: 'PUZZLTHINK',
+  category: 'games',
+  formatDetection: { telephone: false },
   appleWebApp: { capable: true, title: 'PUZZLTHINK', statusBarStyle: 'default' },
+  ...(GOOGLE_VERIFY || NAVER_VERIFY ? {
+    verification: {
+      ...(GOOGLE_VERIFY ? { google: GOOGLE_VERIFY } : {}),
+      ...(NAVER_VERIFY ? { other: { 'naver-site-verification': NAVER_VERIFY } } : {}),
+    },
+  } : {}),
 };
 
 export const viewport: Viewport = { themeColor: '#f3f0e8' };

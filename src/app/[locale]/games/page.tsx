@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { pageMetadata } from '@/lib/seo';
 import { ArrowRight, BookOpen, Bot, Clock, Gauge, UserRound, UsersRound } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import JsonLd from '@/components/JsonLd';
@@ -10,13 +11,7 @@ const BASE_URL = 'https://www.puzzlthink.com';
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Games' });
-  const canonical = `${BASE_URL}/${locale}/games`;
-  return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    alternates: { canonical, languages: { ko: `${BASE_URL}/ko/games`, en: `${BASE_URL}/en/games` } },
-    openGraph: { title: `${t('metaTitle')} | PUZZLTHINK`, description: t('metaDescription'), url: canonical, siteName: 'PUZZLTHINK', type: 'website' },
-  };
+  return pageMetadata({ locale, path: '/games', title: t('metaTitle'), description: t('metaDescription'), keywords: t.raw('keywords') as string[] });
 }
 
 function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
