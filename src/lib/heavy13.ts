@@ -39,11 +39,12 @@ export type Heavy13 = {
 
 const freshHand = (): Hand => ({ cards: [...FULL_CARDS], chips: { ...FULL_CHIPS } });
 
-export function newHeavy13(start = 0): Heavy13 {
+export function newHeavy13(start = 0, playerCount = PLAYERS): Heavy13 {
+  const count = Math.max(4, Math.min(PLAYERS, playerCount));
   return {
-    round: 1, phase: 'submit', start,
-    players: Array.from({ length: PLAYERS }, () => ({ ...freshHand(), penalty: 0, lastPenaltyAt: -1 })),
-    stands: { r: [], g: [], b: [] }, subs: Array(PLAYERS).fill(null), queue: [], passed: [], resolvingPasses: false, current: null, placedOrder: [],
+    round: 1, phase: 'submit', start: start % count,
+    players: Array.from({ length: count }, () => ({ ...freshHand(), penalty: 0, lastPenaltyAt: -1 })),
+    stands: { r: [], g: [], b: [] }, subs: Array(count).fill(null), queue: [], passed: [], resolvingPasses: false, current: null, placedOrder: [],
     seq: 0, roundPenalized: null, log: [{ k: 'round', round: 1, start }],
   };
 }
@@ -58,10 +59,11 @@ export function canSubmit(state: Heavy13, seat: number, sub: Submission) {
 
 /** Placement order: rainbow first, then higher card, ties clockwise from the start player. */
 export function placementOrder(state: Heavy13, subs: Submission[]): number[] {
-  return Array.from({ length: PLAYERS }, (_, s) => s).sort((a, b) =>
+  const count = state.players.length;
+  return Array.from({ length: count }, (_, s) => s).sort((a, b) =>
     (subs[a].chip === 'w' ? 0 : 1) - (subs[b].chip === 'w' ? 0 : 1)
     || subs[b].card - subs[a].card
-    || ((a - state.start + PLAYERS) % PLAYERS) - ((b - state.start + PLAYERS) % PLAYERS));
+    || ((a - state.start + count) % count) - ((b - state.start + count) % count));
 }
 
 /** Records a secret submission. Cards and chips leave the hand only at the reveal, so nothing leaks early. */
@@ -125,7 +127,7 @@ function advance(state: Heavy13): Heavy13 {
 function endRound(state: Heavy13): Heavy13 {
   const start = state.roundPenalized ?? lastPenalized(state) ?? state.start;
   const round = state.round + 1;
-  const base = { ...state, current: null, queue: [], passed: [], resolvingPasses: false, subs: Array(PLAYERS).fill(null), start };
+  const base = { ...state, current: null, queue: [], passed: [], resolvingPasses: false, subs: Array(state.players.length).fill(null), start };
   if (round > ROUNDS) return { ...base, phase: 'finished' };
   let players = state.players;
   let log = push(state, { k: 'round', round, start });

@@ -7,7 +7,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, Sparkles, UserRound, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import type { AiLevel } from '@/lib/heavy13';
-import { H13_TURN_OPTIONS, redactH13 } from '@/lib/heavy13Room';
+import { H13_PLAYER_OPTIONS, H13_TURN_OPTIONS, redactH13 } from '@/lib/heavy13Room';
 import { useHeavy13Room } from '@/hooks/useHeavy13Room';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
@@ -43,7 +43,8 @@ export default function Heavy13RoomView({ code }: { code: string }) {
     const phase = state?.phase ?? null;
     if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
       const rank = ranking(state.game).indexOf(mySeat) + 1;
-      reportGame(`heavy13-friend-${crypto.randomUUID()}`, 'heavy13', 'friend', rank === 1 ? 'win' : rank >= 6 ? 'loss' : 'draw', { rank, penalty: state.game.players[mySeat].penalty, humans: state.ai.filter((a) => !a).length });
+      reportGame(`heavy13-friend-${crypto.randomUUID()}`, 'heavy13', 'friend', rank === 1 ? 'win' : rank >= state.game.players.length - 1 ? 'loss' : 'draw', // bottom two lose, whatever the table size
+        { rank, players: state.game.players.length, penalty: state.game.players[mySeat].penalty, humans: state.seats.filter((seat, i) => seat && !state.ai[i]).length });
     }
     prevPhase.current = phase;
   });
@@ -66,6 +67,10 @@ export default function Heavy13RoomView({ code }: { code: string }) {
     : !state && waitedLong ? to('roomNotFound') : state && !me?.isHost && !hostOnline ? to('hostOffline') : null;
   // Even the host's own screen shows only what every player may see.
   const view = state ? redactH13(state) : null;
+  const playerCount = view?.playerCount ?? 7;
+  const fillAi = view?.fillAi ?? true;
+  const readyToStart = fillAi || humans === playerCount;
+  const openSeats = Math.max(0, playerCount - humans);
 
   return (
     <div className={SHELL} style={H_ROOT_STYLE}>
@@ -96,11 +101,11 @@ export default function Heavy13RoomView({ code }: { code: string }) {
                 <button onClick={shareLink} className={`shrink-0 ${BTN_ACCENT}`}><Share2 size={14} />{to('share')}</button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {view.seats.map((seat, i) => (
+            <div className={`grid gap-2 ${playerCount === 4 ? 'grid-cols-2 sm:grid-cols-4' : playerCount <= 6 ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'}`}>
+              {view.seats.slice(0, playerCount).map((seat, i) => (
                 <div key={i} className={`flex items-center gap-2 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/15 bg-white/[0.04]' : 'border-dashed border-white/15 bg-transparent text-white/40'}`}>
-                  {seat ? <UserRound size={14} /> : <Bot size={14} />}
-                  <span className="min-w-0 flex-1 truncate text-xs font-bold">{seat ? (seat.id === me?.id ? `${seat.name} (${t('you')})` : seat.name) : to('aiSeat')}</span>
+                  {seat ? <UserRound size={14} /> : fillAi ? <Bot size={14} /> : <UserRound size={14} className="opacity-40" />}
+                  <span className="min-w-0 flex-1 truncate text-xs font-bold">{seat ? (seat.id === me?.id ? `${seat.name} (${t('you')})` : seat.name) : fillAi ? to('aiSeat') : to('friendSeat')}</span>
                   {i === 0 && <Crown size={11} className="text-[#f2c14e]" />}
                   {seat && <span className={`h-1.5 w-1.5 rounded-full ${online.has(seat.id) ? 'bg-[#3ddc97]' : 'bg-white/25'}`} />}
                 </div>
@@ -111,11 +116,17 @@ export default function Heavy13RoomView({ code }: { code: string }) {
               <button type="submit" className={`shrink-0 px-4 py-2.5 ${BTN}`}>{to('rename')}</button>
             </form>
             {me?.isHost
-              ? <button onClick={() => dispatch({ t: 'start' })} style={{ ['--ready-glow' as string]: 'rgba(230,196,138,.55)' }} className={`w-full animate-[readyGlow_1.6s_ease-in-out_infinite] py-3.5 text-sm ${BTN_ACCENT}`}>{humans < 7 ? to('startWithAi', { n: 7 - humans }) : to('start')}</button>
+              ? <button disabled={!readyToStart} onClick={() => dispatch({ t: 'start' })} style={{ ['--ready-glow' as string]: 'rgba(230,196,138,.55)' }} className={`w-full py-3.5 text-sm ${BTN_ACCENT} ${readyToStart ? 'animate-[readyGlow_1.6s_ease-in-out_infinite]' : ''}`}>{fillAi ? (openSeats ? to('startWithAi', { n: openSeats }) : to('start')) : readyToStart ? to('startFriendsOnly', { n: playerCount }) : to('waitForFriends', { n: openSeats })}</button>
               : <p className="text-center text-sm text-white/50">{mySeat === null ? to('roomFull') : to('waitingHost')}</p>}
           </section>
           <aside className="space-y-4">
             <section className={PANEL}>
+              <p className={PANEL_TITLE}>{to('playerCount')}</p>
+              <div className="mt-3 grid grid-cols-4 gap-2">{H13_PLAYER_OPTIONS.map((count) => <button key={count} disabled={!me?.isHost || count < humans} onClick={() => dispatch({ t: 'config', playerCount: count })} className={`py-2.5 disabled:cursor-not-allowed disabled:opacity-25 ${seg(playerCount === count)}`}>{to('playersCount', { n: count })}</button>)}</div>
+              <label className={`mt-3 flex items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-black/25 px-3 py-2.5 ${me?.isHost ? 'cursor-pointer' : ''}`}>
+                <span className="text-xs font-bold">{to('fillAi')}<span className="mt-0.5 block text-[10px] font-medium text-white/40">{to(fillAi ? 'fillAiOn' : 'fillAiOff')}</span></span>
+                <input type="checkbox" checked={fillAi} disabled={!me?.isHost} onChange={(event) => dispatch({ t: 'config', fillAi: event.target.checked })} className="h-4 w-4 accent-[#e6c48a]" />
+              </label>
               <p className={PANEL_TITLE}>{to('submitTime')}</p>
               <div className="mt-3 grid grid-cols-4 gap-2">{H13_TURN_OPTIONS.map((sec) => <button key={sec} disabled={!me?.isHost} onClick={() => dispatch({ t: 'config', turnSec: sec })} className={`py-2 disabled:cursor-default ${seg(view.turnSec === sec)}`}>{sec >= 60 ? to('minutes', { n: sec / 60 }) : to('seconds', { n: sec })}</button>)}</div>
               <p className={`${PANEL_TITLE} mt-4`}>{t('aiLevel')}</p>

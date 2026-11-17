@@ -22,7 +22,7 @@ export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel, exi
         <ol className="mt-5 space-y-1.5 text-left">
           {order.map((s, i) => (
             <li key={s} className={`flex items-center gap-3 rounded-md border px-3 py-2 text-sm ${s === mySeat ? 'border-(--accent)/50 bg-white/[0.06]' : 'border-white/5 bg-white/[0.03]'}`}>
-              <span className={`w-6 font-mono font-black ${rankOf(s) === 1 ? 'text-(--accent)' : i >= 5 ? 'text-[#ff8a7a]' : 'text-white/50'}`}>{rankOf(s)}</span>
+              <span className={`w-6 font-mono font-black ${rankOf(s) === 1 ? 'text-(--accent)' : i >= order.length - 2 ? 'text-[#ff8a7a]' : 'text-white/50'}`}>{rankOf(s)}</span>
               <span className="flex min-w-0 flex-1 items-center gap-1 truncate font-bold">{room.ai[s] && <Bot size={12} className="text-white/40" />}{name(s)}</span>
               {rankOf(s) === 1 && <span className="rounded-sm bg-(--accent) px-1.5 text-[9px] font-black text-(--accent-ink)">{t('winner')}</span>}
               {i >= 5 && <span className="rounded-sm bg-[#f0524f]/80 px-1.5 text-[9px] font-black text-white">{t('eliminated')}</span>}
