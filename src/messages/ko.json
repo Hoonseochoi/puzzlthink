@@ -1915,7 +1915,7 @@
     "nemoTutorial": "튜토리얼 문제 2개",
     "nemoRoom": "친구 방 만들기 (2~6명)",
     "openTitle": "공개방",
-    "openDesc": "누구나 들어올 수 있는 방이에요. 사람이 모이는 동안 혼자 플레이하고, 방장이 시작을 누르면 바로 시작해요. 빈자리는 AI가 채워요(AI 자리가 있는 게임).",
+    "openDesc": "누구나 들어올 수 있는 방이에요(로그인 필요). 사람이 모이는 동안 혼자 플레이하고, 방장이 시작을 누르면 바로 시작해요. 빈자리는 AI가 채워요(AI 자리가 있는 게임). 결과는 서로의 전적으로 남아요.",
     "openRefresh": "새로고침",
     "openLoading": "공개방을 불러오는 중…",
     "openEmpty": "지금 열린 공개방이 없어요. 하나 만들어 보세요!",
@@ -1923,7 +1923,8 @@
     "openFull": "가득 참",
     "openJoin": "참가",
     "openCreate": "공개방 만들기",
-    "openCreateFor": "공개방 만들기 · {label}"
+    "openCreateFor": "공개방 만들기 · {label}",
+    "openLogin": "공개방은 로그인한 사람끼리만 만들고 참가할 수 있어요. 서로의 전적이 기록돼요."
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -3396,6 +3397,11 @@
     "soloHint": "기다리는 동안 옆에서 혼자 플레이해도 돼요.",
     "leave": "방 나가기",
     "openPanel": "대기실 열기",
-    "tab": "대기실"
+    "tab": "대기실",
+    "loginTitle": "로그인이 필요해요",
+    "loginDesc": "공개방은 로그인한 사람끼리만 할 수 있어요. 결과가 내 전적과 상대와의 전적으로 기록돼요.",
+    "tally": "{w}승 {l}패 {d}무",
+    "recordAll": "전적 {r}",
+    "recordVs": "나와 {r}"
   }
 }

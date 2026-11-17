@@ -2,10 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Crown, DoorOpen, Loader2, Play, Users, X } from 'lucide-react';
+import { Crown, DoorOpen, Loader2, Lock, Play, Users, X } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import type { GameId } from '@/lib/gameCatalog';
-import { EMOTES, EMOTE_MS, closeOpenRoom, putOpenRoom } from '@/lib/openRooms';
+import { EMOTES, EMOTE_MS, STATS_ID, closeOpenRoom, putOpenRoom } from '@/lib/openRooms';
+import { type Tally, fetchHeadToHead, fetchPlayerRecord } from '@/lib/stats';
+import AuthButton from './AuthButton';
+import { useAuth } from './AuthProvider';
 import type { Peer } from '@/lib/room';
 import { GAME_MODES, type RoomHook } from './gameModes';
 
@@ -38,7 +41,60 @@ export function EmoteButtons({ onEmote, className = '' }: { onEmote: (text: stri
  */
 export default function OpenRoomPanel({ game, code, variant }: { game: GameId; code: string; variant: number }) {
   const modes = GAME_MODES[game];
-  return modes.useRoom ? <Panel game={game} code={code} variant={variant} useRoom={modes.useRoom} /> : null;
+  const { user, ready, configured } = useAuth();
+  if (!modes.useRoom || !ready) return null;
+  // Open rooms are for signed-in players, so every game is recorded against each opponent.
+  if (configured && !user) return <SignInPanel />;
+  return <Panel game={game} code={code} variant={variant} useRoom={modes.useRoom} />;
+}
+
+function Shell({ body, tab }: { body: React.ReactNode; tab: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <aside className="fixed bottom-0 left-0 top-0 z-40 hidden w-[272px] border-r border-white/10 bg-[#0d0d11]/95 text-[#e6e9f0] backdrop-blur lg:block">{body}</aside>
+      <button type="button" onClick={() => setOpen(true)} className="fixed left-0 top-[34%] z-40 flex flex-col items-center gap-1 rounded-r-xl border border-l-0 border-(--accent)/50 bg-[#0d0d11]/95 px-2 py-3 text-[10px] font-black text-white shadow-[0_0_18px_var(--accent-glow)] lg:hidden">{tab}</button>
+      <div className={`fixed inset-0 z-50 lg:hidden ${open ? '' : 'pointer-events-none'}`}>
+        <div onClick={() => setOpen(false)} className={`absolute inset-0 bg-black/60 transition-opacity ${open ? 'opacity-100' : 'opacity-0'}`} />
+        <aside className={`absolute bottom-0 left-0 top-0 w-[84vw] max-w-[300px] border-r border-white/10 bg-[#0d0d11] text-[#e6e9f0] shadow-2xl transition-transform duration-300 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+          <button type="button" onClick={() => setOpen(false)} className="absolute right-3 top-3 z-10 rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white" aria-label="close"><X size={16} /></button>
+          {body}
+        </aside>
+      </div>
+    </>
+  );
+}
+
+function SignInPanel() {
+  const t = useTranslations('OpenRoom');
+  const body = (
+    <div className="flex h-full flex-col justify-center gap-4 p-5 text-center">
+      <Lock size={26} className="mx-auto text-(--accent)" />
+      <p className="text-base font-black text-white">{t('loginTitle')}</p>
+      <p className="break-keep text-xs leading-5 text-white/55">{t('loginDesc')}</p>
+      <div className="flex justify-center"><AuthButton /></div>
+      <button type="button" onClick={() => { window.location.href = window.location.pathname; }} className="text-xs font-bold text-white/45 underline-offset-4 hover:underline">{t('leave')}</button>
+    </div>
+  );
+  return <Shell body={body} tab={<><Lock size={14} className="text-(--accent)" /><span className="[writing-mode:vertical-rl]">{t('tab')}</span></>} />;
+}
+
+const fmt = (t: ReturnType<typeof useTranslations>, r: Tally | null | undefined) => (r ? t('tally', { w: r.win, l: r.loss, d: r.draw }) : '…');
+
+/** Each seated player's record in this game, and mine against them. */
+function useRecords(game: GameId, uids: string[], myUid: string | undefined) {
+  const [records, setRecords] = useState<Record<string, { all: Tally | null; vsMe: Tally | null }>>({});
+  const key = uids.join(',');
+  useEffect(() => {
+    let alive = true;
+    const stat = STATS_ID[game];
+    for (const uid of key ? key.split(',') : []) {
+      Promise.all([fetchPlayerRecord(stat, uid), uid === myUid ? Promise.resolve(null) : fetchHeadToHead(stat, uid)])
+        .then(([all, vsMe]) => { if (alive) setRecords((prev) => ({ ...prev, [uid]: { all, vsMe } })); });
+    }
+    return () => { alive = false; };
+  }, [game, key, myUid]);
+  return records;
 }
 
 function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; variant: number; useRoom: RoomHook }) {
@@ -50,7 +106,6 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   const option = modes.rooms[variant] ?? modes.rooms[0];
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, dispatch, emote } = useRoom(code, defaultName);
-  const [open, setOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const leaving = useRef(false);
 
@@ -96,6 +151,9 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   };
 
   const peerOf = (id: string) => peers.find((peer) => peer.id === id);
+  const { user } = useAuth();
+  const uids = seats.flatMap((seat) => { const uid = seat ? peerOf(seat.id)?.uid : undefined; return uid ? [uid] : []; }).sort();
+  const records = useRecords(game, uids, user?.id);
   const startLabel = humans < capacity && need < capacity ? t('startWithAi', { n: humans, cap: capacity }) : t('start');
 
   const body = (
@@ -106,7 +164,6 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
           <h2 className="mt-1 truncate text-base font-black text-white">{tc(game)}{modes.rooms.length > 1 ? ` · ${tg(option.label)}` : ''}</h2>
           <p className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-white/45"><Users size={12} />{t('players', { n: humans, cap: capacity || '–' })}</p>
         </div>
-        <button type="button" onClick={() => setOpen(false)} className="rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white lg:hidden" aria-label={t('close')}><X size={16} /></button>
       </div>
 
       {status !== 'online' || !state ? (
@@ -117,11 +174,21 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
             {seats.slice(0, capacity).map((seat, i) => {
               const ai = state.ai?.[i];
               return (
-                <li key={i} className={`relative flex items-center gap-2 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/10 bg-white/[.04]' : 'border-dashed border-white/10 text-white/30'}`}>
+                <li key={i} className={`relative flex flex-wrap items-center gap-x-2 gap-y-0.5 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/10 bg-white/[.04]' : 'border-dashed border-white/10 text-white/30'}`}>
                   {seat && <EmoteBubble peer={peerOf(seat.id)} now={now} />}
                   <span className={`h-2 w-2 shrink-0 rounded-full ${seat && !ai ? 'bg-[#3ddc97]' : 'bg-white/15'}`} />
                   <span className="min-w-0 flex-1 truncate text-sm font-bold">{seat ? seat.name : t('emptySeat')}{seat?.id === me?.id ? ` (${t('me')})` : ''}</span>
                   {i === 0 && seat && <Crown size={13} className="shrink-0 text-[#f2c14e]" aria-label={t('host')} />}
+                  {seat && (() => {
+                    const uid = peerOf(seat.id)?.uid;
+                    const rec = uid ? records[uid] : undefined;
+                    if (!uid) return null;
+                    return (
+                      <span className="basis-full pl-4 text-[10px] leading-4 text-white/45">
+                        {t('recordAll', { r: fmt(t, rec?.all) })}{seat.id !== me?.id && rec?.vsMe ? ` · ${t('recordVs', { r: fmt(t, rec.vsMe) })}` : ''}
+                      </span>
+                    );
+                  })()}
                 </li>
               );
             })}
@@ -151,23 +218,12 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   );
 
   const latest = peers.filter((peer) => peer.emote && peer.emoteAt && now - peer.emoteAt < EMOTE_MS).sort((a, b) => (b.emoteAt ?? 0) - (a.emoteAt ?? 0))[0];
-
   return (
-    <>
-      {/* Desktop: fixed column on the left. */}
-      <aside className="fixed bottom-0 left-0 top-0 z-40 hidden w-[272px] border-r border-white/10 bg-[#0d0d11]/95 text-[#e6e9f0] backdrop-blur lg:block">{body}</aside>
-
-      {/* Phone/tablet: a tab on the left edge that slides the panel in. */}
-      <button type="button" onClick={() => setOpen(true)} className="fixed left-0 top-[34%] z-40 flex flex-col items-center gap-1 rounded-r-xl border border-l-0 border-(--accent)/50 bg-[#0d0d11]/95 px-2 py-3 text-[10px] font-black text-white shadow-[0_0_18px_var(--accent-glow)] lg:hidden" aria-label={t('openPanel')}>
-        <Users size={14} className="text-(--accent)" />
-        <span className="[writing-mode:vertical-rl]">{t('tab')}</span>
-        <span className="font-mono text-(--accent)">{humans}/{capacity || '–'}</span>
-        {latest && <span key={latest.emoteAt} className="bw-result absolute -right-9 top-1 rounded-full bg-(--accent) px-1.5 py-0.5 text-[10px] text-(--accent-ink)">{latest.emote}</span>}
-      </button>
-      <div className={`fixed inset-0 z-50 lg:hidden ${open ? '' : 'pointer-events-none'}`}>
-        <div onClick={() => setOpen(false)} className={`absolute inset-0 bg-black/60 transition-opacity ${open ? 'opacity-100' : 'opacity-0'}`} />
-        <aside className={`absolute bottom-0 left-0 top-0 w-[84vw] max-w-[300px] border-r border-white/10 bg-[#0d0d11] text-[#e6e9f0] shadow-2xl transition-transform duration-300 ${open ? 'translate-x-0' : '-translate-x-full'}`}>{body}</aside>
-      </div>
-    </>
+    <Shell body={body} tab={<>
+      <Users size={14} className="text-(--accent)" />
+      <span className="[writing-mode:vertical-rl]">{t('tab')}</span>
+      <span className="font-mono text-(--accent)">{humans}/{capacity || '–'}</span>
+      {latest && <span key={latest.emoteAt} className="bw-result absolute -right-9 top-1 rounded-full bg-(--accent) px-1.5 py-0.5 text-[10px] text-(--accent-ink)">{latest.emote}</span>}
+    </>} />
   );
 }

@@ -8,6 +8,8 @@ import type { GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
 import { type OpenRoomRow, listOpenRooms } from '@/lib/openRooms';
 import OpenRoomPanel from './OpenRoomPanel';
+import AuthButton from './AuthButton';
+import { useAuth } from './AuthProvider';
 import { GAME_MODES } from './gameModes';
 import { accentVars } from './ui/gameUi';
 import SupportLink from './SupportLink';
@@ -41,6 +43,8 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   const [openRoom, setOpenRoom] = useState<{ code: string; variant: number } | null>(null);
   const [openRooms, setOpenRooms] = useState<OpenRoomRow[] | null>(null);
   const [listTick, setListTick] = useState(0);
+  const { user, configured } = useAuth();
+  const signedIn = !!user || !configured; // open rooms need an account so results are kept for both sides
 
   // Open rooms waiting for players: refreshed every 10 s while the entry screen is showing.
   useEffect(() => {
@@ -181,14 +185,20 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                           <span className="font-mono text-xs font-black text-(--accent)">{room.code}</span>
                           <span className="min-w-0 flex-1 truncate text-sm font-bold">{t('openHost', { name: room.host })}{modes.rooms.length > 1 && modes.rooms[room.variant] ? ` · ${t(modes.rooms[room.variant].label)}` : ''}</span>
                           <span className={`font-mono text-xs font-bold ${muted}`}>{room.players}/{room.capacity}</span>
-                          <button type="button" disabled={full} onClick={() => enterOpenRoom(room.code, room.variant)} className={`${primary} !px-3 !py-1.5 text-xs disabled:opacity-40`}>{full ? t('openFull') : t('openJoin')}</button>
+                          <button type="button" disabled={full || !signedIn} onClick={() => enterOpenRoom(room.code, room.variant)} className={`${primary} !px-3 !py-1.5 text-xs disabled:opacity-40`}>{full ? t('openFull') : t('openJoin')}</button>
                         </div>
                       );
                     })}
               </div>
+              {!signedIn && (
+                <div className={`mt-4 flex flex-col items-center gap-2 rounded-md border px-3 py-3 text-center sm:flex-row sm:justify-between sm:text-left ${dark ? 'border-(--accent)/30 bg-(--accent)/[.06]' : 'border-black/10 bg-white'}`}>
+                  <p className={`break-keep text-xs font-bold leading-5 ${muted}`}>{t('openLogin')}</p>
+                  <AuthButton />
+                </div>
+              )}
               <div className={`mt-4 grid gap-2 ${modes.rooms.length > 1 ? 'sm:grid-cols-2' : ''}`}>
                 {modes.rooms.map((room, variant) => (
-                  <button key={room.label} type="button" disabled={creating !== null} onClick={() => createOpenRoom(variant)} className={secondary}>
+                  <button key={room.label} type="button" disabled={creating !== null || !signedIn} onClick={() => createOpenRoom(variant)} className={secondary}>
                     {creating === `open-${variant}` ? <Loader2 size={15} className="animate-spin" /> : <DoorOpen size={15} />}
                     {creating === `open-${variant}` ? t('creating') : modes.rooms.length > 1 ? t('openCreateFor', { label: t(room.label) }) : t('openCreate')}
                   </button>

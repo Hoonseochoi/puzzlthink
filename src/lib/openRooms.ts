@@ -1,6 +1,14 @@
 // Public ("open") rooms: a small Supabase table lists rooms that are waiting for players.
 // The room itself is an ordinary Realtime room; only the host's browser writes its row.
 import { getSupabase } from './supabase';
+import type { GameId as CatalogId } from './gameCatalog';
+import type { GameId as StatsId } from './stats';
+
+/** Records name each game differently from the catalog. */
+export const STATS_ID: Record<CatalogId, StatsId> = {
+  nemoCount: 'nemo_count', blackWhite: 'black_white', blackWhite2: 'black_white_2', laserJanggi: 'laser_janggi', blindGomoku: 'blind_gomoku',
+  wallgo: 'wallgo', russianRoulette: 'russian_roulette', heavy13: 'heavy13', janggi: 'janggi', russianJanggi: 'russian_janggi', sudoku: 'sudoku',
+};
 
 export type OpenRoomRow = { code: string; variant: number; host: string; players: number; capacity: number };
 

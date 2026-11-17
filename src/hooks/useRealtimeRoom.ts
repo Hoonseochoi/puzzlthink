@@ -5,6 +5,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { getSupabase } from '@/lib/supabase';
 import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
 import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypto';
+import { setRoomOpponents } from '@/lib/stats';
 
 /**
  * Host-authoritative room over Supabase Realtime (broadcast + presence).
@@ -99,6 +100,11 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   const meRef = useRef(me);
   const joinedAt = useRef(0);
   const pubRef = useRef<string | undefined>(undefined);
+  const uidRef = useRef<string | undefined>(undefined); // signed-in account id, shared so results can name opponents
+  const presenceMeta = useCallback((identity: { name: string; isHost: boolean }) => ({
+    name: identity.name, at: joinedAt.current, host: identity.isHost,
+    ...(pubRef.current ? { pub: pubRef.current } : {}), ...(uidRef.current ? { uid: uidRef.current } : {}),
+  }), []);
 
   const lastChange = useRef(0);
   // Encrypted per-seat secrets (only used when the engine defines privateFor).
@@ -185,8 +191,8 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     channelRef.current = channel;
 
     channel.on('presence', { event: 'sync' }, () => {
-      const presence = channel.presenceState<{ name: string; at: number; host: boolean; pub?: string; emote?: string; emoteAt?: number }>();
-      const list: Peer[] = Object.entries(presence).map(([key, metas]) => ({ id: key, name: metas[0]?.name ?? '', at: metas[0]?.at ?? 0, emote: metas[0]?.emote, emoteAt: metas[0]?.emoteAt }));
+      const presence = channel.presenceState<{ name: string; at: number; host: boolean; pub?: string; emote?: string; emoteAt?: number; uid?: string }>();
+      const list: Peer[] = Object.entries(presence).map(([key, metas]) => ({ id: key, name: metas[0]?.name ?? '', at: metas[0]?.at ?? 0, emote: metas[0]?.emote, emoteAt: metas[0]?.emoteAt, uid: metas[0]?.uid }));
       for (const [key, metas] of Object.entries(presence)) { const pub = metas[0]?.pub; if (pub) peerPubs.current.set(key, pub); }
       const hostMeta = Object.entries(presence).find(([, metas]) => metas.some((meta) => meta.host));
       if (hostMeta?.[1][0]?.pub) peerPubs.current.set('__host__', hostMeta[1][0].pub);
@@ -224,13 +230,14 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
         setStatus('online');
         const pub = keysRef.current ? (await keysRef.current.catch(() => null))?.pub : undefined;
         pubRef.current = pub;
-        await channel.track({ name: identity.name, at: joinedAt.current, host: identity.isHost, ...(pub ? { pub } : {}) });
+        uidRef.current = (await supabase.auth.getSession()).data.session?.user.id;
+        await channel.track(presenceMeta(identity));
         if (!identity.isHost) channel.send({ type: 'broadcast', event: 'hello', payload: {} });
       } else if (result === 'CHANNEL_ERROR' || result === 'TIMED_OUT') setStatus('error');
     });
 
     return () => { channelRef.current = null; supabase.removeChannel(channel); };
-  }, [engine, code, defaultName, apply, commit, sendSecrets, showGuestView, keyFor]);
+  }, [engine, code, defaultName, apply, commit, sendSecrets, showGuestView, keyFor, presenceMeta]);
 
   // The host enforces the turn limit for everyone.
   useEffect(() => {
@@ -259,9 +266,8 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     const now = Date.now();
     if (!identity || now - lastEmote.current < 1500) return; // light rate limit keeps Realtime traffic small
     lastEmote.current = now;
-    const pub = pubRef.current;
-    channelRef.current?.track({ name: identity.name, at: joinedAt.current, host: identity.isHost, ...(pub ? { pub } : {}), emote: text.slice(0, 4), emoteAt: now });
-  }, []);
+    channelRef.current?.track({ ...presenceMeta(identity), emote: text.slice(0, 4), emoteAt: now });
+  }, [presenceMeta]);
 
   const rename = useCallback((name: string) => {
     const identity = meRef.current;
@@ -270,9 +276,19 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     write(NAME_KEY, trimmed);
     meRef.current = { ...identity, name: trimmed };
     setMe(meRef.current);
-    const keys = keysRef.current;
-    (keys ? keys.then((k) => k.pub, () => undefined) : Promise.resolve(undefined)).then((pub) => channelRef.current?.track({ name: trimmed, at: joinedAt.current, host: identity.isHost, ...(pub ? { pub } : {}) }));
-  }, []);
+    channelRef.current?.track(presenceMeta(meRef.current));
+  }, [presenceMeta]);
+
+  // Signed-in players seated with me this game, remembered even if they drop out before it ends.
+  const met = useRef<{ sid: string; ids: Map<string, string> }>({ sid: '', ids: new Map() });
+  useEffect(() => {
+    if (!state || !me) return;
+    if (met.current.sid !== state.sid) met.current = { sid: state.sid, ids: new Map() };
+    const seated = new Set(state.seats.flatMap((seat) => (seat && seat.id !== me.id ? [seat.id] : [])));
+    for (const peer of peers) if (peer.uid && seated.has(peer.id)) met.current.ids.set(peer.id, peer.uid);
+    setRoomOpponents([...met.current.ids.values()]);
+  }, [state, peers, me]);
+  useEffect(() => () => setRoomOpponents([]), []);
 
   const mySeat = state && me ? seatOf(state, me.id) : null;
   return { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote };
