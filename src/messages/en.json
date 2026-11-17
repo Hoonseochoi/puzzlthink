@@ -35,7 +35,8 @@
     "hallCongratsView": "See the Hall of Fame",
     "hallCongratsClose": "Close",
     "gamesIntro": "About games",
-    "contactPartnership": "Contact & partnerships"
+    "contactPartnership": "Contact & partnerships",
+    "onlineNow": "{count} online now"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
@@ -288,7 +289,7 @@
       },
       {
         "title": "5. Statistics that cannot identify you",
-        "body": "For everyone, we count visitors per day and plays per game and mode as plain numbers. These counts contain no name, email, IP address or anything else that identifies you. To avoid counting the same visit twice in a day, the date of your visit is stored in your browser."
+        "body": "For everyone, we count visitors per day and plays per game and mode as plain numbers. These counts contain no name, email, IP address or anything else that identifies you. To avoid counting the same visit twice in a day, the date of your visit is stored in your browser. To show how many people are online right now, a randomly generated device identifier is connected to our real-time server (Supabase) while a page is open. It is not stored and disappears when you close the page."
       },
       {
         "title": "6. Playing with friends (real-time)",

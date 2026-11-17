@@ -137,7 +137,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
       {guide}
 
       {/* Always-visible start while reading. */}
-      <div className={`fixed inset-x-0 bottom-0 z-30 border-t px-4 py-3 backdrop-blur ${dark ? 'border-white/10 bg-black/75' : 'border-black/10 bg-[#f3f0e8]/90'}`}>
+      <div data-gate-bar className={`fixed inset-x-0 bottom-0 z-30 border-t px-4 py-3 backdrop-blur ${dark ? 'border-white/10 bg-black/75' : 'border-black/10 bg-[#f3f0e8]/90'}`}>
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
           <p className={`hidden text-xs font-bold sm:block ${muted}`}>{t('startHint')}</p>
           <div className="flex w-full gap-2 sm:w-auto">
