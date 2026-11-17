@@ -7,24 +7,28 @@ import { SudokuTutorialSteps } from '@/components/TutorialOverlay';
 import PlayClient from '@/components/PlayClient';
 import SudokuGuide from '@/components/SudokuGuide';
 import JsonLd from '@/components/JsonLd';
+import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 
-const BASE_URL = 'https://www.puzzlthink.com';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Sudoku' });
-  const canonical = `${BASE_URL}/${locale}/play`;
-  return { title: t('metaTitle'), description: t('description'), alternates: { canonical, languages: { ko: `${BASE_URL}/ko/play`, en: `${BASE_URL}/en/play` } }, openGraph: { title: `${t('metaTitle')} | PUZZLTHINK`, description: t('description'), url: canonical, type: 'website' } };
+  return pageMetadata({ locale, path: '/play', title: t('metaTitle'), description: t('metaDescription'), keywords: t.raw('keywords') as string[] });
 }
 
 export default async function PlayPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'Sudoku' });
   const g = await getTranslations({ locale, namespace: 'SudokuGuide' });
   const faq = g.raw('faq') as { q: string; a: string }[];
   return (
     <>
-      <JsonLd data={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) }} />
+      <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
+      gameJsonLd({ locale, path: '/play', name: t('metaTitle'), alternateName: ['스도쿠', '온라인 스도쿠', 'Sudoku'], description: t('metaDescription'), genre: ['Puzzle'], players: { min: 1, max: 1 } }),
+      faqJsonLd(faq),
+      breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('metaTitle').split(' — ')[0], path: '/play' }]),
+    ] }} />
       <GameGate game="sudoku" accent="#4b7bff" tone="light" tutorialKey="puzzlthink_sudoku_tutorial_seen" hero={<GameIntroHero locale={locale} id="sudoku" tone="light" />} tutorial={<SudokuTutorialSteps />} guide={<SudokuGuide locale={locale} />}>
         <Suspense fallback={<div className="min-h-screen bg-[#f3f0e8]" />}><PlayClient /></Suspense>
       </GameGate>

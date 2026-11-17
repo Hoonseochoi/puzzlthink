@@ -42,8 +42,8 @@
     "nemoCount": "Nemo Count"
   },
   "BlindGomoku": {
-    "metaTitle": "Blind Gomoku — five hidden behind color",
-    "metaDescription": "The colors match, but black and white are hidden underneath. Outsmart the AI and reveal the truth when five connect.",
+    "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
+    "metaDescription": "Play Blind Gomoku from The Devil's Plan (season 1) free. Stones look alike on top; black and white are hidden underneath. Win five in a row by memory: AI memory levels, colour rules, 1:1 with friends and a flip-board replay.",
     "title": "BLIND GOMOKU",
     "subtitle": "HIDDEN FIVE",
     "rules": "How to play",
@@ -119,11 +119,19 @@
     "colorCountValue": "{count} colours",
     "mustChange": "New colour every turn",
     "mustChangeDesc": "You can't reuse your last colour",
-    "colorRuleHint": "Fewer colours make stones look alike and harder to remember. Locked after the first move."
+    "colorRuleHint": "Fewer colours make stones look alike and harder to remember. Locked after the first move.",
+    "keywords": [
+      "Blind Gomoku",
+      "The Devil's Plan Blind Gomoku",
+      "gomoku variant",
+      "memory game",
+      "gomoku online",
+      "five in a row"
+    ]
   },
   "Home": {
-    "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
-    "metaDescription": "Play the hottest death matches from The Devil's Plan with your friends! Wallgo, 12 Janggi and Sudoku — no sign-up, one link to play, or take on the AI.",
+    "metaTitle": "PUZZLTHINK — free online games from The Devil's Plan and The Genius",
+    "metaDescription": "Play the brain games from The Devil's Plan 3 (Nemo Count, Heavy 13, Russian Roulette, Wall Go), The Genius (Laser Janggi, 12 Janggi), The Society Game (Russian Janggi) and Blind Gomoku — free, no sign-up, against AI or with friends.",
     "eyebrow": "DEATH MATCH · WITH FRIENDS",
     "title1": "Devil's Plan death matches,",
     "title2": "with your friends",
@@ -150,18 +158,22 @@
     "growing": "Always growing",
     "growingDesc": "More board games are on the way",
     "keywords": [
-      "The Devil's Plan game",
-      "Devil's Plan wall go",
-      "The Genius game",
-      "The Genius 12 janggi",
+      "The Devil's Plan games",
+      "Devil's Plan Dead Again",
+      "The Genius games",
+      "The Society Game",
+      "brain survival show games",
+      "Nemo Count",
+      "Heavy 13",
+      "Wall Go",
+      "Laser Janggi",
       "12 Janggi",
-      "Wallgo",
-      "wall go online",
-      "brain games",
-      "browser board games"
+      "Russian Janggi",
+      "Blind Gomoku",
+      "free online board games"
     ],
-    "seoTitle": "Games from The Devil's Plan and The Genius, on the web",
-    "seoBody": "Ever watched a brain-survival show and wondered how you would have played? PUZZLTHINK brings strategy games like Wallgo from The Devil's Plan and 12 Janggi from The Genius to your browser. Play the AI or challenge a friend live with a single link.",
+    "seoTitle": "Games from The Devil's Plan, The Genius and The Society Game, on the web",
+    "seoBody": "Ever watched and thought \"what would I have played?\" PUZZLTHINK brings the games from brain-survival shows to your browser: Nemo Count, Heavy 13, Russian Roulette and Wall Go from The Devil's Plan 3, Laser Janggi and 12 Janggi from The Genius, Russian Janggi from The Society Game 2 and Blind Gomoku from The Devil's Plan. No sign-up or install: play the AI, or challenge friends in real time with one link or a 4-digit code.",
     "modeTitle": "Pick a mode and play",
     "modeThreeAi": "1:1:1",
     "modeThreeAiDesc": "vs 2 AI",
@@ -177,12 +189,12 @@
     "modeFriendJanggiDesc": "Link or code",
     "visitToday": "Today",
     "visitTotal": "Total",
-    "heavy13Description": "Push a stand to 13 and take the penalty. A 7-player mind game.",
+    "heavy13Description": "Push a stand to 13 and take the penalty! A mind game for 4–7.",
     "heavy13Meta": "vs AI · invite friends · AI fills seats",
     "modeHeavyAi": "vs AI",
     "modeHeavyAiDesc": "with 6 AI",
     "modeHeavyFriend": "Invite",
-    "modeHeavyFriendDesc": "AI fills seats",
+    "modeHeavyFriendDesc": "4–7 players · AI optional",
     "rouletteDescription": "Track the loaded chambers, turn the muzzle, and survive the final trigger sequence.",
     "rouletteMeta": "6 players · AI or friends · hidden information",
     "modeRouletteAi": "6-player AI",
@@ -212,8 +224,8 @@
     "show_genius34": "The Genius 3·4"
   },
   "WallGo": {
-    "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
-    "metaDescription": "Play Wallgo, the wall-building territory game from The Devil's Plan, free in your browser. 3-player and 1:1 duel modes against AI — move, build walls, and claim the largest territory. No sign-up.",
+    "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
+    "metaDescription": "Play Wall Go (벽바둑) from The Devil's Plan: Dead Again (season 3) free. Move 0–2 squares, build walls and claim the largest territory. 3-player and 1:1 games against AI, or friends by invite link or 4-digit code.",
     "roundSolo": "ROUND 01 · SOLO",
     "placement": "Choose an empty tile for your character",
     "thinking": "{player} is thinking",
@@ -289,15 +301,12 @@
     "tutorial4Title": "Territory is scored when everyone is separated",
     "tutorial4Desc": "The game ends when every character is sealed in its own space. Most tiles wins, and a tie is a shared win. If several players are locked in together with no one able to move, each scores only the tile it stands on.",
     "keywords": [
+      "Wall Go",
       "Wallgo",
-      "wall go online",
-      "Devil's Plan wall go",
-      "The Devil's Plan game",
-      "The Genius game",
-      "Wallgo rules",
-      "Wallgo AI",
-      "Wallgo 2 player",
-      "Wallgo strategy"
+      "The Devil's Plan Wall Go",
+      "Devil's Plan game",
+      "territory strategy game",
+      "board game online"
     ],
     "roundDuel": "ROUND 02 · 1:1",
     "twoPlayers": "2 players",
@@ -320,7 +329,7 @@
     "breakWallLabel": "break wall"
   },
   "Sudoku": {
-    "metaTitle": "Online Sudoku — free puzzles and solving guide",
+    "metaTitle": "Free online Sudoku — puzzles and how to solve them",
     "description": "Play free online Sudoku in easy, medium, and hard difficulties.",
     "easy": "Easy",
     "medium": "Medium",
@@ -354,7 +363,16 @@
     "tip3Desc": "Press Space to turn on notes and record possible numbers.",
     "tip4Title": "4. Use logic",
     "tip4Desc": "Every puzzle can be solved logically without guessing.",
-    "closeTips": "Close tips"
+    "closeTips": "Close tips",
+    "metaDescription": "Clean, free online Sudoku with puzzles from easy to hard, notes, mistake checking, printable puzzles and a beginner guide to solving Sudoku.",
+    "keywords": [
+      "Sudoku",
+      "free Sudoku",
+      "online Sudoku",
+      "Sudoku puzzles",
+      "how to solve Sudoku",
+      "printable Sudoku"
+    ]
   },
   "Tutorial": {
     "skip": "Skip",
@@ -680,17 +698,15 @@
     "startReady": "Everyone is here! Start the game"
   },
   "Janggi": {
-    "metaTitle": "12 Janggi Online — the game from The Genius, vs AI or friends",
-    "metaDescription": "Play 12 Janggi (Sibi Janggi), the mini chess from the final of The Genius, free in your browser. Capture the king or march yours into the enemy camp on a 3×4 board — vs AI or live with a friend via link.",
+    "metaTitle": "12 Janggi online — The Genius 3·4 mini chess vs AI or friends",
+    "metaDescription": "Play 12 Janggi (Sibi Janggi) from The Genius seasons 3 and 4 free. Capture the king or march into the enemy camp on a 3×4 board, with captured pieces dropped back in. AI and link-based friend games, plus winning tips.",
     "keywords": [
       "12 Janggi",
       "Sibi Janggi",
-      "12 janggi online",
-      "The Genius 12 janggi",
+      "The Genius 12 Janggi",
       "The Genius game",
-      "mini janggi",
-      "12 janggi rules",
-      "12 janggi strategy"
+      "mini chess online",
+      "Korean chess variant"
     ],
     "subtitle": "12 JANGGI",
     "howToPlay": "How to play",
@@ -1029,15 +1045,15 @@
     ]
   },
   "Heavy13": {
-    "metaTitle": "Heavy 13 Online — The Devil's Plan prison match with friends or AI",
-    "metaDescription": "Play Heavy 13, the prison match from The Devil's Plan: Dead Again (season 3), free in your browser. A 7-player mind game: push a stand to 13 and you take the penalty. Play the AI or invite friends — AI fills empty seats.",
+    "metaTitle": "Heavy 13 online — The Devil's Plan 3 prison match with AI or friends",
+    "metaDescription": "Play Heavy 13 from The Devil's Plan: Dead Again (season 3) free. Push a stand to 13 and take the penalty in this mind game against six AIs, or with 4–7 friends by invite link, friends only or with AI in empty seats.",
     "keywords": [
       "Heavy 13",
-      "Devil's Plan Heavy 13",
+      "The Devil's Plan Heavy 13",
       "Devil's Plan prison match",
-      "The Devil's Plan game",
-      "Heavy 13 rules",
-      "Heavy 13 online"
+      "Devil's Plan game",
+      "party game online",
+      "mind game"
     ],
     "title": "Heavy 13",
     "newGame": "New game",
@@ -1092,7 +1108,7 @@
     "eliminated": "Out",
     "playAgain": "Play again",
     "friendTitle": "Play with friends",
-    "friendDesc": "Create a room and send the invite link. If fewer than 7 join, AI fills the empty seats so you can start right away.",
+    "friendDesc": "Create a room and send the invite link. Pick 4–7 players in total, then play friends only or let AI fill the empty seats.",
     "createRoom": "Create invite room",
     "aiLevel": "AI level",
     "level_easy": "Easy",
@@ -1254,13 +1270,14 @@
     "desc5": "After round 7 you get new cards and chips, but the stands keep their rocks. After 14 rounds, fewest penalties ranks first; 6th and 7th are out."
   },
   "RussianRoulette": {
-    "metaTitle": "Russian Roulette Online · AI and Friends",
-    "metaDescription": "A six-player deduction game: track two rounds in six chambers, spend credits to inspect, rotate and manipulate, then survive the final trigger sequence.",
+    "metaTitle": "Russian Roulette online — The Devil's Plan 3 deduction game",
+    "metaDescription": "Play the Russian Roulette game from The Devil's Plan: Dead Again (season 3) free. Track two bullets in six chambers by inspecting, rotating and rigging the cylinder. Six players: AI or friends by invite link.",
     "keywords": [
-      "Russian roulette strategy game",
-      "online deduction game",
-      "six player browser game",
-      "party game with friends"
+      "Russian Roulette game",
+      "The Devil's Plan Russian Roulette",
+      "deduction game online",
+      "party game",
+      "6 player game"
     ],
     "title": "Russian Roulette",
     "you": "You",
@@ -1430,15 +1447,14 @@
     "rouletteLine": "Survived {s} · Shot {h}"
   },
   "RussianJanggi": {
-    "metaTitle": "Russian Janggi Online — 3×3 strategy where big covers small",
-    "metaDescription": "Play Russian Janggi from The Society Game 2 free in your browser: 3×3 strategy where bigger cups cover smaller ones and cups on the board can move. Play the AI or invite a friend by link.",
+    "metaTitle": "Russian Janggi online — The Society Game 2 stacking tic-tac-toe",
+    "metaDescription": "Play Russian Janggi from The Society Game 2 free. Big cups cover small ones and pieces on the board can move in this 3×3 brain game. 1:1 vs AI at three levels or friends by link, plus winning tips.",
     "keywords": [
-      "russian janggi",
-      "nesting tic tac toe",
-      "big small tic tac toe",
-      "3x3 strategy game",
-      "online board game",
-      "The Society Game 2 Russian Janggi"
+      "Russian Janggi",
+      "The Society Game 2",
+      "Gobblet Gobblers online",
+      "stacking tic-tac-toe",
+      "3x3 strategy game"
     ],
     "title": "Russian Janggi",
     "newGame": "New game",
@@ -1589,8 +1605,8 @@
     "iosStep2": "2. Choose 'Add to Home Screen'"
   },
   "Games": {
-    "metaTitle": "Games — every PUZZLTHINK board game at a glance",
-    "metaDescription": "Wallgo, Russian Roulette, Heavy 13, 12 Janggi, Russian Janggi and Sudoku. Compare every PUZZLTHINK game by players, pace, modes, core rules and origin.",
+    "metaTitle": "All games — rules of The Devil's Plan and The Genius games | PUZZLTHINK",
+    "metaDescription": "Nemo Count, Heavy 13, Russian Roulette, Wall Go, Laser Janggi, Russian Janggi, Blind Gomoku, 12 Janggi and Sudoku: compare every PUZZLTHINK game by players, pace, modes, core rules and the show it comes from.",
     "eyebrow": "GAME GUIDE",
     "title": "About the games",
     "intro": "Every PUZZLTHINK game on one page. See how many players it takes, how a game runs and what you need to know, then jump right in. All games are free with no sign-up.",
@@ -1669,7 +1685,7 @@
         "origin": "The Russian roulette prison match from Netflix's The Devil's Plan: Dead Again, played with the same rules as the show."
       },
       "heavy13": {
-        "tagline": "Push a stand to 13 and take the penalty. A 7-player mind game.",
+        "tagline": "Push a stand to 13 and take the penalty! A mind game for 4–7.",
         "players": "7 vs AI · 4–7 with friends",
         "pace": "14 rounds · friend rooms: 90 s to submit, 20 s to place",
         "level": "AI: easy · normal · hard",
@@ -1696,7 +1712,7 @@
           "A Pawn that enters the enemy camp flips into a stronger Lord.",
           "Win by capturing the enemy King, or by moving your King into the enemy camp and surviving a turn there."
         ],
-        "origin": "The mini chess that became famous in the final of the brain-survival show The Genius."
+        "origin": "A mini chess made famous by the brain-survival show The Genius (seasons 3 and 4)."
       },
       "russianJanggi": {
         "tagline": "Tic-tac-toe where big pieces swallow small ones. 10 seconds per move.",
@@ -1743,7 +1759,13 @@
         ],
         "origin": "Based on Nemo Count from Netflix's The Devil's Plan: Dead Again (season 3); boards are generated at random and every answer and solution is computed automatically."
       }
-    }
+    },
+    "keywords": [
+      "Devil's Plan game rules",
+      "The Genius game rules",
+      "brain games collection",
+      "browser board games"
+    ]
   },
   "BugReport": {
     "button": "Report a bug",
@@ -2188,8 +2210,8 @@
     "disclaimer": "Blind Gomoku is PUZZLTHINK's web version of a game format seen on TV and is not affiliated with any broadcaster or producer."
   },
   "LaserJanggi": {
-    "metaTitle": "Laser Janggi — engineer the path of light",
-    "metaDescription": "Move and rotate mirrored pieces on a neon 8×8 board. Face three AI levels or a friend and strike the enemy king first.",
+    "metaTitle": "Laser Janggi online — The Genius 2 death match vs AI or friends",
+    "metaDescription": "Play Laser Janggi from the death match in The Genius: Rule Breaker (season 2) free. Move and turn mirrors to hit the enemy king with your laser first. The broadcast setup, three AI levels and 1:1 friend games.",
     "title": "LASER JANGGI",
     "subtitle": "NEON BEAM TACTICS",
     "rules": "How to play",
@@ -2259,7 +2281,15 @@
         "tip": "Only the face with the glowing bar (the arrow points at it) is a mirror. A beam hitting it head-on bounces straight back; a hit on any other side destroys it."
       }
     },
-    "draw": "Turn 200 reached — draw"
+    "draw": "Turn 200 reached — draw",
+    "keywords": [
+      "Laser Janggi",
+      "laser chess",
+      "Khet online",
+      "The Genius game",
+      "The Genius death match",
+      "mirror strategy game"
+    ]
   },
   "LaserJanggiOnline": {
     "metaTitle": "Laser Janggi with a friend",
@@ -2383,8 +2413,8 @@
     "disclaimer": "Laser Janggi is PUZZLTHINK's unofficial web adaptation of rules presented on television and is not affiliated with any broadcaster or producer."
   },
   "NemoCount": {
-    "metaTitle": "Nemo Count — how many rectangles make the target?",
-    "metaDescription": "The Devil's Plan counting game on the web. Count rectangles that sum to the target in a 30-minute challenge or a buzzer duel with 2–6 friends, with a solution replay for every board.",
+    "metaTitle": "Nemo Count online — The Devil's Plan 3 counting game, free",
+    "metaDescription": "Play Nemo Count from The Devil's Plan: Dead Again (season 3) free in your browser. Count the rectangles whose numbers add up to the target: endless boards by difficulty, a 30-minute challenge, solution replays, and 2–6 player buzzer duels.",
     "title": "Nemo Count",
     "subtitle": "COUNT THE SQUARES",
     "restart": "Restart",
@@ -2440,7 +2470,16 @@
     "next": "Next",
     "play": "Play",
     "pause": "Pause",
-    "replaySlider": "Solution step"
+    "replaySlider": "Solution step",
+    "keywords": [
+      "Nemo Count",
+      "The Devil's Plan game",
+      "Devil's Plan Dead Again",
+      "count rectangles puzzle",
+      "target number puzzle",
+      "brain teaser",
+      "brain game online"
+    ]
   },
   "NemoOnline": {
     "metaTitle": "Nemo Count with friends",

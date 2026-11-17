@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { pageMetadata } from '@/lib/seo';
 
-const BASE_URL = 'https://www.puzzlthink.com';
 type LegalSection = { title: string; body: string };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Legal' });
-  const canonical = `${BASE_URL}/${locale}/privacy-policy`;
-  return { title: t('privacyTitle'), description: t('privacyDescription'), alternates: { canonical, languages: { ko: `${BASE_URL}/ko/privacy-policy`, en: `${BASE_URL}/en/privacy-policy` } } };
+  return pageMetadata({ locale, path: '/privacy-policy', title: t('privacyTitle'), description: t('privacyDescription') });
 }
 
 export default async function PrivacyPolicyPage({ params }: { params: Promise<{ locale: string }> }) {

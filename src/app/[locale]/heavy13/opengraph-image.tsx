@@ -8,8 +8,8 @@ export const generateStaticParams = () => [{ locale: 'ko' }, { locale: 'en' }];
 export const alt = 'PUZZLTHINK Heavy 13';
 
 const COPY = {
-  ko: { title: '무거운 13', kicker: '데블스플랜 감옥매치', sub: '받침대 합이 13을 넘기면 벌점! 7인 눈치 싸움', modes: ['AI 대전', '친구 초대 · 빈자리 AI'] },
-  en: { title: 'Heavy 13', kicker: "The Devil's Plan prison match", sub: 'Push a stand to 13 and take the penalty. A 7-player mind game', modes: ['vs AI', 'Invite friends · AI fills seats'] },
+  ko: { title: '무거운 13', kicker: '데블스 플랜 3 감옥매치', sub: '받침대 합이 13을 넘기면 벌점! 눈치 싸움', modes: ['AI 6명과', '친구 4~7명'] },
+  en: { title: 'Heavy 13', kicker: "The Devil's Plan 3 prison match", sub: 'Push a stand to 13 and take the penalty. A mind game', modes: ['vs 6 AIs', '4–7 friends'] },
 };
 const STANDS: [string, number[]][] = [['#f0524f', [6, 5]], ['#34c47c', [4, 3, 2]], ['#4f7cf0', [5, 6]]];
 

@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { pageMetadata } from '@/lib/seo';
 
-const BASE_URL = 'https://www.puzzlthink.com';
 type LegalSection = { title: string; body: string };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Legal' });
-  const canonical = `${BASE_URL}/${locale}/terms`;
-  return { title: t('termsTitle'), description: t('termsDescription'), alternates: { canonical, languages: { ko: `${BASE_URL}/ko/terms`, en: `${BASE_URL}/en/terms` } } };
+  return pageMetadata({ locale, path: '/terms', title: t('termsTitle'), description: t('termsDescription') });
 }
 
 export default async function TermsPage({ params }: { params: Promise<{ locale: string }> }) {

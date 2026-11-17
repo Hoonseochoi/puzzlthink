@@ -7,20 +7,13 @@ import RJGame from '@/components/russianJanggi/RJGame';
 import { RJTutorialSteps } from '@/components/russianJanggi/RJTutorial';
 import TextGuide from '@/components/TextGuide';
 import JsonLd from '@/components/JsonLd';
+import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 
-const BASE_URL = 'https://www.puzzlthink.com';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'RussianJanggi' });
-  const canonical = `${BASE_URL}/${locale}/russian-janggi`;
-  return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    keywords: t.raw('keywords') as string[],
-    alternates: { canonical, languages: { ko: `${BASE_URL}/ko/russian-janggi`, en: `${BASE_URL}/en/russian-janggi` } },
-    openGraph: { title: `${t('metaTitle')} | PUZZLTHINK`, description: t('metaDescription'), url: canonical, siteName: 'PUZZLTHINK', type: 'website' },
-  };
+  return pageMetadata({ locale, path: '/russian-janggi', title: t('metaTitle'), description: t('metaDescription'), keywords: t.raw('keywords') as string[] });
 }
 
 export default async function RussianJanggiPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -32,9 +25,10 @@ export default async function RussianJanggiPage({ params }: { params: Promise<{ 
   return (
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
-        { '@type': 'VideoGame', name: t('metaTitle'), description: t('metaDescription'), url: `${BASE_URL}/${locale}/russian-janggi`, inLanguage: locale, genre: ['Strategy', 'Board game'], gamePlatform: 'Web browser', playMode: ['SinglePlayer', 'MultiPlayer'], numberOfPlayers: 2, offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' }, publisher: { '@type': 'Organization', name: 'PUZZLTHINK', url: BASE_URL } },
-        { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
-      ] }} />
+      gameJsonLd({ locale, path: '/russian-janggi', name: t('metaTitle'), alternateName: ['러시아장기', '러시아 장기', 'Russian Janggi'], description: t('metaDescription'), genre: ['Strategy', 'Board game'], players: { min: 1, max: 2 }, show: 'society2' }),
+      faqJsonLd(faq),
+      breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('metaTitle').split(' — ')[0], path: '/russian-janggi' }]),
+    ] }} />
       <GameGate game="russianJanggi" accent={ACCENT} ink="#1a1204" hero={<GameIntroHero locale={locale} id="russianJanggi" />} tutorial={<RJTutorialSteps />} guide={<TextGuide locale={locale} namespace="RussianJanggiGuide" />}>
         <RJGame />
       </GameGate>
