@@ -39,6 +39,13 @@ button:disabled { cursor: default; }
 .laser-janggi-hit { transform-box: fill-box; transform-origin: center; animation: laserHit .72s .25s ease-out both; }
 @keyframes nemoHighlight { from { opacity: 0; transform: scale(1.08); } to { opacity: 1; transform: scale(1); } }
 .nemo-highlight { animation: nemoHighlight .22s ease-out both; }
+/* 흑과 백: a tile laid face down, a number turned over in the replay, the round result. */
+@keyframes bwLay { 0% { opacity: 0; transform: translateY(-26px) rotate(-6deg) scale(1.08); } 70% { opacity: 1; transform: translateY(2px) rotate(1deg); } 100% { transform: none; } }
+@keyframes bwFlip { 0% { transform: rotateY(90deg); filter: brightness(1.8); } 100% { transform: none; filter: none; } }
+@keyframes bwResult { 0% { opacity: 0; transform: scale(.6); } 60% { opacity: 1; transform: scale(1.06); } 100% { transform: none; } }
+.bw-lay { animation: bwLay .42s cubic-bezier(.2,.8,.2,1) both; }
+.bw-flip { animation: bwFlip .38s cubic-bezier(.2,.8,.2,1) both; }
+.bw-result { animation: bwResult .5s cubic-bezier(.2,.8,.2,1) both; }
 /* Devil's Plan 3 tag on the home cards: dark plate, glowing letters. */
 @keyframes dp3Glow { 0%, 100% { text-shadow: 0 0 4px #ff2d55, 0 0 10px rgba(255,45,85,.75); box-shadow: 0 0 10px rgba(255,45,85,.35), inset 0 0 8px rgba(255,45,85,.18); } 50% { text-shadow: 0 0 6px #ff2d55, 0 0 18px rgba(255,45,85,.95); box-shadow: 0 0 18px rgba(255,45,85,.55), inset 0 0 10px rgba(255,45,85,.28); } }
 .dp3-tag { animation: dp3Glow 2.4s ease-in-out infinite; text-shadow: 0 0 5px #ff2d55, 0 0 12px rgba(255,45,85,.8); }
@@ -46,6 +53,7 @@ button:disabled { cursor: default; }
   .blind-gomoku-win-line { animation: none; stroke-dashoffset: 0; }
   .laser-janggi-beam, .laser-janggi-hit { animation: none; }
   .nemo-highlight { animation: none; }
+  .bw-lay, .bw-flip, .bw-result { animation: none; }
   .dp3-tag { animation: none; }
   .h13-pass-pop { animation: none; }
 }

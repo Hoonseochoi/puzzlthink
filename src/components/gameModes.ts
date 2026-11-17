@@ -7,6 +7,7 @@ import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { prepareBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
 import { prepareNemoRoom } from '@/hooks/useNemoRoom';
 import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
+import { prepareBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
 export type PlayOption = { label: string; query?: string };
@@ -20,6 +21,7 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
     ai: [{ label: 'nemoChallenge', query: 'mode=challenge' }, { label: 'nemoPractice', query: 'mode=practice' }, { label: 'nemoTutorial', query: 'mode=tutorial' }],
     rooms: [{ label: 'nemoRoom', create: prepareNemoRoom }],
   },
+  blackWhite: { path: '/black-white', ai: [{ label: 'aiTwo' }], rooms: [{ label: 'roomTwo', create: prepareBlackWhiteRoom }] },
   laserJanggi: { path: '/laser-janggi', ai: [{ label: 'aiPlay' }], rooms: [{ label: 'roomCreate', create: prepareLaserJanggiRoom }] },
   blindGomoku: { path: '/blind-gomoku', ai: [{ label: 'aiTwo' }], rooms: [{ label: 'roomTwo', create: prepareBlindGomokuRoom }] },
   wallgo: {
