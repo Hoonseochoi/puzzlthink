@@ -3407,7 +3407,8 @@
     "wl": "{w}W {l}L",
     "empty": "Still open",
     "nearTitle": "Around me",
-    "loginToSee": "Sign in to see your place and the places around it.",
+    "myPlace": "My place",
+    "loginToSee": "Sign in to see your place.",
     "notRanked": "Not ranked yet ({w}W {l}L). {n} more open-match wins to get on the board!",
     "me": "Me"
   },
