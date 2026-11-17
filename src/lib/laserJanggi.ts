@@ -88,7 +88,7 @@ export function initialLaserPieces(): LaserPiece[] {
     piece('b-triangle-2', 0, 'triangle', 3, 3, 1), // centre bow tie: mirrors face the centre
     piece('b-triangle-3', 0, 'triangle', 4, 3, 0), // centre bow tie: mirrors face the centre
     piece('b-triangle-4', 0, 'triangle', 7, 4, 2),
-    piece('b-triangle-5', 0, 'triangle', 6, 6, 3),
+    piece('b-triangle-5', 0, 'triangle', 7, 7, 3), // corner (H1; red's is A8)
   ];
   const red = blue.map((item): LaserPiece => ({
     ...item,
