@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { usePathname, Link } from '@/i18n/routing';
 import SupportLink from './SupportLink';
 
-const HIDE_ON = ['/play', '/wallgo', '/blind-gomoku', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
+const HIDE_ON = ['/play', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
 
 export default function GlobalFooter() {
   const pathname = usePathname();
@@ -17,6 +17,7 @@ export default function GlobalFooter() {
         <div><p className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</p><p className="mt-1 text-[11px] text-black/40">{t('tagline')}</p><p className="mt-1 text-[11px] text-black/45">{t('contactPartnership')} · <a href="mailto:contact@puzzlthink.com" className="font-bold hover:text-black">contact@puzzlthink.com</a></p></div>
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
           <Link href="/nemo-count" className="hover:text-black">{t('nemoCount')}</Link>
+          <Link href="/black-white" className="hover:text-black">{t('blackWhite')}</Link>
           <Link href="/laser-janggi" className="hover:text-black">{t('laserJanggi')}</Link>
           <Link href="/blind-gomoku" className="hover:text-black">{t('blindGomoku')}</Link>
           <Link href="/wallgo" className="hover:text-black">{t('wallgo')}</Link>

@@ -9,7 +9,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import AuthButton from './AuthButton';
 import GamesMenu from './GamesMenu';
 
-const HIDE_ON = ['/play', '/wallgo', '/blind-gomoku', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
+const HIDE_ON = ['/play', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
 const NAV_LINK = 'rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black';
 const MOBILE_LINK = 'rounded-xl px-4 py-3 text-sm font-extrabold hover:bg-white';
 

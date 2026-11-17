@@ -1,7 +1,7 @@
 // Player records stored in Supabase (only for signed-in players) plus an anonymous play counter. All calls fail quietly.
 import { getSupabase } from './supabase';
 
-export type GameId = 'wallgo' | 'janggi' | 'heavy13' | 'sudoku' | 'russian_roulette' | 'russian_janggi' | 'blind_gomoku' | 'laser_janggi' | 'nemo_count';
+export type GameId = 'wallgo' | 'janggi' | 'heavy13' | 'sudoku' | 'russian_roulette' | 'russian_janggi' | 'blind_gomoku' | 'laser_janggi' | 'nemo_count' | 'black_white';
 /** Wins needed before a player can appear in the Hall of Fame (same number as the SQL function). */
 export const HALL_MIN_WINS = 5;
 export const HALL_RANK_EVENT = 'puzzlthink:hall-rank';

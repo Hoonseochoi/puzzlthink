@@ -10,6 +10,7 @@ import { prepareRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
 import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { prepareBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
 import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
+import { prepareBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 import LaserPiece from './laserJanggi/LaserPiece';
 import { prepareNemoRoom } from '@/hooks/useNemoRoom';
 import { initialState } from '@/lib/janggi';
@@ -65,6 +66,16 @@ function LaserJanggiPreview() {
   return <div className="relative grid aspect-square w-full grid-cols-4 grid-rows-4 overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#05080d] p-2 shadow-xl ring-1 ring-[#59e6ff]/30 sm:w-[62%] sm:rounded-2xl sm:border-4 sm:p-3 sm:shadow-2xl">{Array.from({length:16},(_,i)=><span key={i} className="border-b border-r border-[#59e6ff]/20" />)}<span className="absolute left-[9%] top-[58%] h-[22%] w-[22%]"><LaserPiece piece={pieces[0]} /></span><span className="absolute left-[38%] top-[58%] h-[22%] w-[22%]"><LaserPiece piece={pieces[1]} /></span><span className="absolute right-[10%] top-[12%] h-[22%] w-[22%]"><LaserPiece piece={pieces[3]} /></span><span className="absolute right-[38%] top-[34%] h-[22%] w-[22%]"><LaserPiece piece={pieces[2]} /></span><i className="absolute left-[27%] top-[68.5%] h-[2px] w-[20%] bg-[#59e6ff] shadow-[0_0_8px_#59e6ff]" /><i className="absolute left-[48%] top-[49%] h-[20%] w-[2px] bg-[#ff4d6d] shadow-[0_0_8px_#ff4d6d]" /></div>;
 }
 
+function BlackWhitePreview() {
+  // My tile face up, the other side's tile face down: only its colour shows.
+  const tile = (black: boolean, n: string, tilt: string) => <span className={`flex aspect-[5/7] w-[34%] items-center justify-center rounded-[10%] border-2 text-[22px] font-black shadow-xl sm:text-6xl ${tilt} ${black ? 'border-[#55555e] bg-gradient-to-b from-[#34343b] to-[#050506] text-[#f4efe4]' : 'border-white bg-gradient-to-b from-[#fffdf8] to-[#cfc8ba] text-[#0d0d10]'}`}>{n}</span>;
+  return <div className="relative flex aspect-square w-full items-center justify-center gap-[6%] overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#121217] shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:shadow-2xl">
+    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(233,196,106,.22),transparent_65%)]" />
+    {tile(false, '7', '-rotate-6')}{tile(true, '?', 'rotate-6')}
+    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#e9c46a] px-2 py-0.5 text-[7px] font-black tracking-wider text-[#17120a] sm:bottom-4 sm:text-[10px]">WIN?</span>
+  </div>;
+}
+
 function JanggiPreview() {
   const board = initialState(0).board;
   return <div className="grid w-[74%] grid-cols-3 gap-0.5 rounded-xl border-[3px] border-[#17201e] bg-[#14161c] p-1 shadow-xl sm:w-[48%] sm:gap-1.5 sm:rounded-2xl sm:border-4 sm:p-2 sm:shadow-2xl">
@@ -117,6 +128,7 @@ export default function HomeClient() {
     { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', show: 'dp3', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
     { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', show: 'dp3', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', show: 'dp3', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
+    { title: 'BLACK & WHITE', display: tc('blackWhite'), description: t('blackWhiteDescription'), href: '/black-white', show: 'genius2', meta: t('blackWhiteMeta'), color: '#2b2b31', illustration: 'blackWhite' },
     { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', show: 'genius2', meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
     { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', show: 'society2', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
     { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', show: 'dp1', meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
@@ -131,7 +143,7 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><ShowTag show={game.show} color={game.color} label={game.show === 'classic' ? t('classic') : t(`show_${game.show}`)} /><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>
@@ -144,6 +156,15 @@ export default function HomeClient() {
             <div className="grid grid-cols-2 gap-2">
               <Link href="/nemo-count" className={MODE_BUTTON}><Brain size={15} className="text-[#7d86a8]" /><span className="text-sm font-black">{t('modeNemoSolo')}</span><span className="text-[10px] font-bold text-black/45">{t('modeNemoSoloDesc')}</span></Link>
               <button type="button" onClick={async () => router.push(`/nemo-count/room/${await prepareNemoRoom()}`)} className={`${MODE_BASE} border-[#7d86a8]/45 bg-[#eef0f7] hover:border-[#7d86a8]`}><UsersRound size={15} className="text-[#7d86a8]" /><span className="text-sm font-black">{t('modeNemoFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeNemoFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
+        {game.illustration === 'blackWhite' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35">{t('modeTitle')}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/black-white" className={MODE_BUTTON}><Bot size={15} className="text-[#2b2b31]" /><span className="text-sm font-black">{t('modeBwAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBwAiDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/black-white/room/${await prepareBlackWhiteRoom()}`)} className={`${MODE_BASE} border-[#2b2b31]/35 bg-[#ecebe8] hover:border-[#2b2b31]`}><UsersRound size={15} className="text-[#2b2b31]" /><span className="text-sm font-black">{t('modeBwFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBwFriendDesc')}</span></button>
             </div>
           </div>
         )}

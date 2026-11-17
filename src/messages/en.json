@@ -48,7 +48,8 @@
     "awayMeTitle": "You were disconnected — the AI is playing for you",
     "awayMeDesc": "You went quiet, so the AI took over your seat. Press the button to play again yourself.",
     "awayRejoin": "Rejoin",
-    "awayOthers": "{names} stopped responding; the AI is playing for them"
+    "awayOthers": "{names} stopped responding; the AI is playing for them",
+    "blackWhite": "Black & White"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -230,7 +231,13 @@
     "show_genius2": "The Genius 2",
     "show_society2": "The Society Game 2",
     "show_dp1": "The Devil's Plan 1",
-    "show_genius34": "The Genius 3·4"
+    "show_genius34": "The Genius 3·4",
+    "blackWhiteDescription": "Tiles 0–8, but only their colour shows. Read your rival's numbers and win with the bigger one.",
+    "blackWhiteMeta": "AI or friend 1:1 · mind-game replay",
+    "modeBwAi": "AI 1:1",
+    "modeBwAiDesc": "Three AI levels",
+    "modeBwFriend": "Friend 1:1",
+    "modeBwFriendDesc": "Link or code"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -1767,6 +1774,21 @@
           "Solo, see how many you solve in 30 minutes; with friends, whoever buzzes first answers within 10 seconds."
         ],
         "origin": "Based on Nemo Count from Netflix's The Devil's Plan: Dead Again (season 3); boards are generated at random and every answer and solution is computed automatically."
+      },
+      "blackWhite": {
+        "tagline": "Tiles 0–8, but only their colour shows. Read your rival's numbers and take rounds with the bigger tile.",
+        "players": "2 players (AI or friend)",
+        "pace": "3–5 minutes a game · friend turns 15–60 s",
+        "level": "Easy · Normal · Hard AI",
+        "ai": "1v1, three AI levels",
+        "friend": "1v1, invite link or 4-digit code",
+        "rules": [
+          "Both players get the same nine tiles, 0 to 8. Even tiles (0, 2, 4, 6, 8) are black; odd tiles (1, 3, 5, 7) are white.",
+          "The leader lays a tile face down and only its colour is shown; the other player answers after seeing that colour.",
+          "The higher number scores a point; equal numbers are a draw. Your rival's numbers stay hidden until the end.",
+          "The round winner leads next (after a draw the leader stays). The game ends after nine rounds or once it is decided."
+        ],
+        "origin": "A web adaptation of Black & White from the death match in The Genius: Rule Breaker. You never see your rival's numbers while playing; at the end every tile is turned over and you can replay the mind game round by round."
       }
     },
     "keywords": [
@@ -2659,5 +2681,301 @@
       }
     ],
     "disclaimer": "Nemo Count is PUZZLTHINK's web version of a game format seen on TV and is not affiliated with any broadcaster or producer."
+  },
+  "BlackWhite": {
+    "title": "Black & White",
+    "subtitle": "BLACK & WHITE · 1:1",
+    "metaTitle": "Black & White — The Genius number-tile mind game online",
+    "metaDescription": "Play Black & White from The Genius online. Tiles 0–8, only black or white shows. Face a three-level AI or a friend 1:1, then turn every tile over to replay the mind game. Free, no install.",
+    "keywords": [
+      "Black and White game",
+      "The Genius Black and White",
+      "number tile game",
+      "mind game",
+      "bluffing game",
+      "two player game online",
+      "The Genius games"
+    ],
+    "newGame": "New game",
+    "resultKicker": "REVEAL",
+    "vsAi": "VS MIRA · {level}",
+    "levels": {
+      "easy": "Easy",
+      "normal": "Normal",
+      "hard": "Hard"
+    },
+    "levelDesc": {
+      "easy": "Plays by feel: half the time it lays any tile.",
+      "normal": "Works out your remaining numbers from colours and results.",
+      "hard": "Weighs every possible history and simulates hundreds of games, mixing its choices so it is hard to read."
+    },
+    "difficulty": "AI level",
+    "you": "You",
+    "finishedDraw": "Draw",
+    "roundDraw": "Draw",
+    "roundWin": "WIN",
+    "roundLoss": "LOSE",
+    "roundWinLong": "You took this round",
+    "roundLossLong": "Your rival took this round",
+    "followYou": "Your rival laid a {color} tile. Pick your answer",
+    "leadYou": "You lead. Pick a tile to lay first",
+    "aiAnswering": "MIRA is picking an answer…",
+    "aiLeading": "MIRA is picking a tile to lead…",
+    "thinking": "Thinking…",
+    "color": {
+      "black": "black",
+      "white": "white"
+    },
+    "myTiles": "My tiles",
+    "evenOdd": "Even = black · Odd = white",
+    "playTile": "Play {n}",
+    "pickTile": "Pick a tile",
+    "quickRules": "Quick rules",
+    "quick": [
+      "Even tiles 0–8 are black, odd ones are white.",
+      "The leader's tile shows only its colour; the other answers after seeing it.",
+      "Higher number scores. Equal numbers draw.",
+      "The round winner leads next. Numbers are revealed at the end."
+    ],
+    "leadBadge": "LEAD",
+    "oppPlayed": "Tiles {name} played",
+    "left": "left",
+    "markDraw": "D",
+    "markWin": "W",
+    "markLoss": "L",
+    "markLaid": "laid",
+    "first": "lead",
+    "second": "reply",
+    "memoTitle": "Notes · rival's tiles",
+    "memoHint": "Tap a number your rival has probably used to cross it out. Tap again for '?', once more to clear. Only you can see these notes.",
+    "logTitle": "Rounds",
+    "readDraw": "Both played {n} — draw",
+    "readEdgeWin": "Won by one ({win} > {lose})",
+    "readEdgeLoss": "Lost by one ({win} > {lose})",
+    "readBaitWin": "Bait worked · your {lose} drew out their {win}",
+    "readBaitLoss": "Spent {win} on their bait ({lose})",
+    "readOverWin": "Overspent · your {win} vs their {lose}",
+    "readOverLoss": "They overspent · {win} vs your {lose}",
+    "readSolidWin": "Won ({win} > {lose})",
+    "readSolidLoss": "Lost ({lose} < {win})",
+    "replayKicker": "THE REVEAL",
+    "verdict": {
+      "perfect": {
+        "title": "Mind game won",
+        "desc": "You scored with small tiles. You read your rival perfectly."
+      },
+      "power": {
+        "title": "Won by force",
+        "desc": "A win, but you spent big tiles freely. Try saving them next time."
+      },
+      "close": {
+        "title": "Lost by a hair",
+        "desc": "You almost had it. One decisive round made the difference."
+      },
+      "outread": {
+        "title": "You were read",
+        "desc": "Your rival dodged your big tiles. Check the pattern in the replay."
+      },
+      "even": {
+        "title": "Dead even",
+        "desc": "You matched each other to the last tile."
+      }
+    },
+    "diffDraw": "Level",
+    "diffWin": "Won by {n}",
+    "diffLoss": "Lost by {n}",
+    "revealing": "Turning the tiles over one by one…",
+    "replayAgain": "Replay",
+    "replaySkip": "Skip",
+    "viewTruth": "All revealed",
+    "viewSeen": "What I saw then",
+    "decisive": "★ The round that settled it",
+    "statWaste": "Wasted margin",
+    "statWasteHint": "Extra margin on rounds won (lower is more efficient)",
+    "statBait": "Baits",
+    "statBaitHint": "A 0 or 1 that drew out a 6 or more",
+    "statEdge": "Wins by one",
+    "statEdgeHint": "Rounds won by exactly one",
+    "unplayed": "Tiles never played",
+    "finishedWin": "You beat MIRA!",
+    "finishedLoss": "MIRA wins this one"
+  },
+  "BlackWhiteOnline": {
+    "metaTitle": "Black & White with a friend",
+    "metaDescription": "Start a 1:1 Black & White mind game with a friend by invite link or 4-digit code.",
+    "guest": "Guest",
+    "shareText": "Play Black & White with me! Can you read my numbers?",
+    "unconfigured": "The realtime server is not configured.",
+    "connectionError": "Could not connect to the room.",
+    "roomNotFound": "Room not found.",
+    "hostOffline": "The host is not connected.",
+    "connecting": "Connecting to the room…",
+    "back": "Back to Black & White",
+    "joined": "{name} joined.",
+    "left": "{name} left.",
+    "lobbyTitle": "Invite a friend and get ready",
+    "waitingFor": "{player}'s turn",
+    "friendAnswering": "{player} is picking an answer…",
+    "friendLeading": "{player} is picking a tile to lead…",
+    "waitingShort": "{player} is thinking…",
+    "inviteTitle": "Invite link",
+    "inviteDesc": "Send the link or the 4-digit code to your friend.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "turnTime": "Turn time",
+    "seconds": "{n}s",
+    "hostSetsTime": "The host sets the turn time.",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "start": "Start",
+    "startLocked": "Waiting for a friend",
+    "startReady": "You're both here! Start the game.",
+    "startLockedHint": "You can start once your friend joins.",
+    "roomFull": "You joined as a spectator.",
+    "waitingHost": "Waiting for the host to start…",
+    "players": "Players",
+    "emptySeat": "Empty",
+    "me": "me",
+    "host": "Host",
+    "ready": "Ready",
+    "waiting": "Waiting",
+    "scoreLine": "{n} pts",
+    "turnTimeInfo": "{n}s per turn · three timeouts in a row lose",
+    "byResign": " · resignation",
+    "byTimeout": " · timeout",
+    "winnerIs": "{player} wins{reason}",
+    "youWin": "You win{reason}",
+    "youLose": "You lose{reason}",
+    "rematch": "Rematch",
+    "rematchWait": "A new game starts when the host presses rematch.",
+    "spectating": "Spectating — numbers are revealed at the end",
+    "quick": [
+      "Even is black, odd is white. The leader's tile shows only its colour.",
+      "Higher number scores, equal is a draw. The winner leads next.",
+      "Neither screen shows the other's numbers until the end.",
+      "When time runs out a random tile is played; three in a row lose."
+    ],
+    "resign": "Resign",
+    "resignConfirm": "Resign this game?"
+  },
+  "BlackWhiteTutorial": {
+    "you": "You",
+    "them": "Rival",
+    "first": "lead",
+    "second": "reply",
+    "s1Title": "Nine tiles, 0 to 8",
+    "s1Desc": "Both players get the same nine tiles. Even 0, 2, 4, 6, 8 are black; odd 1, 3, 5, 7 are white. There is one more black tile.",
+    "s2Title": "The leader goes first, colour only",
+    "s2Desc": "The leader lays a tile face down and only its colour shows. The other player reasons 'black, so 0, 2, 4, 6 or 8' and answers.",
+    "s3Title": "Higher number scores",
+    "s3Desc": "The higher number takes the round; equal numbers draw. Even after the result, nobody is told what the other played.",
+    "s4Title": "Read colours and results",
+    "s4Desc": "The colours your rival played and each result stay on screen. 'Two blacks gone, and that one lost to my 5, so it was 4 or less.' Use the notes panel to keep track.",
+    "s5Title": "Nine rounds, or until it's decided",
+    "s5Desc": "The round winner leads next. The game ends after nine rounds, or as soon as the lead can't be caught in the rounds left.",
+    "s6Title": "Turn every tile over",
+    "s6Desc": "At the end your rival's tiles flip round by round. See where a cheap tile drew out a big one, or a round was won by a single point.",
+    "winLabel": "5 > ? → only the result",
+    "hiddenNote": "Their number stays secret",
+    "leftNote": "3 black left · 3 white left",
+    "endNote": "First to 5 settles it",
+    "replay1": "Bait worked",
+    "replay2": "Won by one",
+    "replay3": "Lost",
+    "replayNote": "All revealed at the end"
+  },
+  "BlackWhiteGuide": {
+    "eyebrow": "BLACK & WHITE GUIDE",
+    "title": "Black & White — hide the numbers, read the colours",
+    "intro": "Black & White is a two-player mind game from a death match in The Genius: Rule Breaker. Both players hold the same tiles 0 to 8 and lay one at a time; the higher number wins. But your rival's numbers are never shown, only black or white, so the game becomes a battle over when to spend a big tile and when to throw one away. On PUZZLTHINK you can play a three-level AI or a friend 1:1 by link or 4-digit code, and turn every tile over at the end to replay the game round by round.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Each player gets nine tiles, 0 to 8. Even tiles (0, 2, 4, 6, 8) are black; odd tiles (1, 3, 5, 7) are white.",
+      "The round-1 leader is chosen at random. The leader lays a tile face down and only its colour is shown.",
+      "The other player sees that colour and lays a tile of their own.",
+      "The higher number scores one point. Equal numbers are a draw and nobody scores.",
+      "Only the result (win, loss or draw) is announced; the numbers stay hidden until the end.",
+      "The round winner leads the next round. After a draw the same player leads again.",
+      "The game ends after nine rounds, or once the lead is bigger than the rounds left. Equal scores are a draw.",
+      "Friend games have a turn timer (15, 30 or 60 s); when it runs out a random tile is played, and three in a row lose."
+    ],
+    "specialTitle": "Tricky moments",
+    "special": [
+      {
+        "title": "There is one more black tile",
+        "body": "Black has five tiles (0, 2, 4, 6, 8) and white four (1, 3, 5, 7). Both the strongest 8 and the weakest 0 are black, so a black tile might be either."
+      },
+      {
+        "title": "0 always loses, but…",
+        "body": "0 beats nothing and only draws with another 0. Yet if it makes your rival spend an 8, one cheap tile has wiped out their strongest."
+      },
+      {
+        "title": "Equal numbers draw",
+        "body": "If both play the same number it's a draw and the leader stays. Equal numbers share a colour, so it can only happen when you answer in the same colour."
+      },
+      {
+        "title": "It can end early",
+        "body": "Leading 5–2 with two rounds left can't be caught, so the game ends at once. Tiles never played are shown in the replay too."
+      }
+    ],
+    "strategyTitle": "Tips — save, throw away, read",
+    "strategyIntro": "It looks like luck, but tracking the tiles left and reading habits clearly raises your win rate.",
+    "strategies": [
+      {
+        "tag": "Track",
+        "title": "Count their colours first",
+        "body": "How many black and white tiles your rival has used stays on screen. If they have one black left and lay black, you may know the exact number. Cross numbers out in the notes."
+      },
+      {
+        "tag": "Track",
+        "title": "Narrow it down with results",
+        "body": "If their black lost to your 5 it was 0, 2 or 4; if it won, 6 or 8. Every result shrinks the range."
+      },
+      {
+        "tag": "Bait",
+        "title": "Throw your smallest on a lost round",
+        "body": "If their black looks like an 8, don't fight it: drop a 0 or 1 and erase their best tile at the lowest cost."
+      },
+      {
+        "tag": "Lead",
+        "title": "Probe with middle tiles when leading",
+        "body": "The leader gives information first. Middle tiles like 3, 4, 5 can draw out a big tile or invite a throwaway."
+      },
+      {
+        "tag": "Reply",
+        "title": "Win by just one when replying",
+        "body": "Once their range is narrow, win with the smallest tile that beats it. Winning big costs you later rounds."
+      },
+      {
+        "tag": "Replay",
+        "title": "Compare 'what I saw' with the truth",
+        "body": "In the replay, switch between 'What I saw then' and 'All revealed' to see what you knew, what you decided, and how your rival answered."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Black & White?",
+        "a": "On the PUZZLTHINK Black & White page, in any desktop or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "How do I play with a friend?",
+        "a": "Create a room with 'Play with a friend' on the entry or home screen to get an invite link and a 4-digit code. Your friend opens the link or enters the code under 'Join with code'."
+      },
+      {
+        "q": "Can my friend see my numbers?",
+        "a": "No. During the game your numbers are never sent to your rival's screen. Each player receives only their own, and all tiles are revealed together at the end."
+      },
+      {
+        "q": "Does the AI peek at my tiles?",
+        "a": "No. The AI sees exactly what a player sees: its tiles, your colours and the results. The hard AI only simulates every possibility from that."
+      },
+      {
+        "q": "Are my results saved?",
+        "a": "Sign in with Google to keep wins, losses and draws in the records; AI wins also count for the Hall of Fame."
+      }
+    ],
+    "disclaimer": "Black & White is PUZZLTHINK's web adaptation of a game format shown on TV and is not affiliated with the broadcaster or producers."
   }
 }

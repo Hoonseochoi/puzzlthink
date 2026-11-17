@@ -6,7 +6,7 @@ import { Crown, X } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { type GameId, HALL_RANK_EVENT, type HallRankDetail } from '@/lib/stats';
 
-const GAME_LABEL: Record<GameId, string> = { wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', sudoku: 'sudoku' };
+const GAME_LABEL: Record<GameId, string> = { wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
 const COLORS = ['#ffd36e', '#ff6b4a', '#65e5ff', '#3ddc97', '#a978ed', '#ffffff', '#f2b84b'];
 
