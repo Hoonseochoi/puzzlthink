@@ -64,3 +64,12 @@ const titleKey = (code: string) => `puzzlthink_open_title_${code}`;
 /** The host's room title (kept in this browser). */
 export function savedTitle(code: string) { try { return localStorage.getItem(titleKey(code)) ?? ''; } catch { return ''; } }
 export function saveTitle(code: string, title: string) { try { localStorage.setItem(titleKey(code), title.slice(0, 30)); } catch { /* optional */ } }
+
+// Rooms this browser entered as open rooms (their games count for the open ranking).
+const OPEN_KEY = 'puzzlthink_open_rooms';
+export function markOpenRoom(code: string) {
+  try { const list = JSON.parse(sessionStorage.getItem(OPEN_KEY) || '[]') as string[]; if (!list.includes(code)) sessionStorage.setItem(OPEN_KEY, JSON.stringify([...list, code].slice(-20))); } catch { /* optional */ }
+}
+export function isOpenRoom(code: string) {
+  try { return (JSON.parse(sessionStorage.getItem(OPEN_KEY) || '[]') as string[]).includes(code); } catch { return false; }
+}

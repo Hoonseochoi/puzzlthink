@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 import { Crown, DoorOpen, Loader2, Lock, Pencil, Play, Swords, Users, X } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import type { GameId } from '@/lib/gameCatalog';
-import { EMOTES, EMOTE_MS, closeOpenRoom, listOpenRooms, putOpenRoom, saveTitle, savedTitle } from '@/lib/openRooms';
-import { type Tally, fetchHeadToHeadAll, fetchVersusRecord } from '@/lib/stats';
+import { EMOTES, EMOTE_MS, closeOpenRoom, markOpenRoom, listOpenRooms, putOpenRoom, saveTitle, savedTitle } from '@/lib/openRooms';
+import { type GameResult, type Tally, fetchHeadToHeadAll, fetchVersusRecord, lastResultAgainst } from '@/lib/stats';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import type { Peer } from '@/lib/room';
@@ -83,13 +83,14 @@ const fmt = (t: ReturnType<typeof useTranslations>, r: Tally | null | undefined)
 
 /** Each seated player's record against people (every game), and mine against them. */
 function useRecords(uids: string[], myUid: string | undefined) {
-  const [records, setRecords] = useState<Record<string, { all: Tally | null; vsMe: Tally | null }>>({});
+  const [records, setRecords] = useState<Record<string, { all: Tally | null; vsMe: Tally | null; last: GameResult | null }>>({});
   const key = uids.join(',');
   useEffect(() => {
     let alive = true;
     for (const uid of key ? key.split(',') : []) {
-      Promise.all([fetchVersusRecord(uid), uid === myUid ? Promise.resolve(null) : fetchHeadToHeadAll(uid)])
-        .then(([all, vsMe]) => { if (alive) setRecords((prev) => ({ ...prev, [uid]: { all, vsMe } })); });
+      const mine = uid === myUid;
+      Promise.all([fetchVersusRecord(uid), mine ? Promise.resolve(null) : fetchHeadToHeadAll(uid), mine ? Promise.resolve(null) : lastResultAgainst(uid)])
+        .then(([all, vsMe, last]) => { if (alive) setRecords((prev) => ({ ...prev, [uid]: { all, vsMe, last } })); });
     }
     return () => { alive = false; };
   }, [key, myUid]);
@@ -107,6 +108,7 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   const option = modes.rooms[variant] ?? modes.rooms[0];
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, dispatch, emote } = useRoom(code, defaultName);
+  useEffect(() => { markOpenRoom(code); }, [code]);
   const [now, setNow] = useState(() => Date.now());
   const leaving = useRef(false);
   const [title, setTitle] = useState(() => savedTitle(code));
@@ -199,9 +201,14 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
                   {seat && <EmoteBubble peer={peerOf(seat.id)} now={now} />}
                   <span className={`h-2 w-2 shrink-0 rounded-full ${seat && !ai ? 'bg-[#3ddc97]' : 'bg-white/15'}`} />
                   <span className="min-w-0 flex-1 truncate text-sm font-bold">{seat ? seat.name : t('emptySeat')}{seat?.id === me?.id ? ` (${t('me')})` : ''}</span>
-                  {seat && seat.id !== me?.id && played(records[peerOf(seat.id)?.uid ?? '']?.vsMe) && (
-                    <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[9px] font-black text-white shadow-[0_0_10px_rgba(255,77,94,.5)]"><Swords size={9} />{t('revenge')}</span>
-                  )}
+                  {seat && seat.id !== me?.id && (() => {
+                    const rec = records[peerOf(seat.id)?.uid ?? ''];
+                    if (!played(rec?.vsMe)) return null;
+                    // Revenge when my last game against them was a loss; otherwise just a rematch.
+                    return rec?.last === 'loss'
+                      ? <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[9px] font-black text-white shadow-[0_0_10px_rgba(255,77,94,.5)]"><Swords size={9} />{t('revenge')}</span>
+                      : <span className="shrink-0 rounded-full bg-white/10 px-1.5 py-0.5 text-[9px] font-black text-white/70">{t('rematch')}</span>;
+                  })()}
                   {i === 0 && seat && <Crown size={13} className="shrink-0 text-[#f2c14e]" aria-label={t('host')} />}
                   {seat && (() => {
                     const uid = peerOf(seat.id)?.uid;

@@ -3365,5 +3365,39 @@
     "createTitle": "Which game?",
     "close": "Close",
     "note": "Signed-in players only. Results count toward each other's records."
+  },
+  "OpenResult": {
+    "close": "Close",
+    "me": "Me",
+    "hidden": "Hidden name",
+    "wl": "{w}W {l}L",
+    "eyebrow": "Open ranking · {game}",
+    "revengeWin": "Revenge!",
+    "revengeWinDesc": "You paid back {names} for last time!",
+    "revengeLose": "Revenge failed…",
+    "revengeLoseDesc": "{names} beat you again. Get them next time!",
+    "notRankedTitle": "Almost on the board",
+    "notRankedDesc": "{n} more open-match wins and your name joins the ranking.",
+    "top5Title": "Top 5!",
+    "top5Desc": "#{rank} in the {game} open ranking — you're among the very best.",
+    "enterTitle": "You're ranked!",
+    "enterDesc": "You entered the {game} open ranking at #{rank}. Congrats!",
+    "upTitle": "Climbing!",
+    "upDesc": "#{from} → #{to}. Keep it going!",
+    "downTitle": "You'll be back",
+    "downDesc": "#{from} → #{to}. One win and it's yours again. Hang in there!",
+    "keepTitle": "Holding your place",
+    "keepDesc": "You're holding #{rank}.",
+    "viewRanking": "View ranking"
+  },
+  "OpenRanking": {
+    "title": "Open-match ranking",
+    "desc": "Per-game ranking from open-room wins. Names appear from 3 wins. Order: wins → win rate → who reached that many wins first.",
+    "wl": "{w}W {l}L",
+    "empty": "Still open",
+    "nearTitle": "Around me",
+    "loginToSee": "Sign in to see your place and the places around it.",
+    "notRanked": "Not ranked yet ({w}W {l}L). {n} more open-match wins to get on the board!",
+    "me": "Me"
   }
 }

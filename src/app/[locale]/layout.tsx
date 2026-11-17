@@ -9,6 +9,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import GlobalHeader from '@/components/GlobalHeader';
 import { AuthProvider } from '@/components/AuthProvider';
 import HallCelebration from '@/components/HallCelebration';
+import OpenResultCelebration from '@/components/OpenResultCelebration';
 import GlobalFooter from '@/components/GlobalFooter';
 import InstallBanner from '@/components/InstallBanner';
 import OnlineCount from '@/components/OnlineCount';
@@ -73,6 +74,7 @@ export default async function LocaleLayout({
           {children}
           <GlobalFooter />
           <HallCelebration />
+          <OpenResultCelebration />
           <OnlineCount />
           </AuthProvider>
         </NextIntlClientProvider>

@@ -8,6 +8,7 @@ import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfF
 import AuthButton from './AuthButton';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
 import AdSlot from './AdSlot';
+import OpenRankingBoard from './OpenRankingBoard';
 
 const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'wallgo', href: '/wallgo', color: '#ff6b4a' },
@@ -120,6 +121,8 @@ export default function RecordsClient() {
             })}
           </div>
         </section>
+
+        <OpenRankingBoard />
 
         {/* My records */}
         <section className="mt-14">
