@@ -160,11 +160,11 @@ export default function NemoRoomView({ code }: { code: string }) {
               </div>
             )}
 
-            {problem && state.phase === 'playing' && <NemoBoardView board={problem} />}
+            {problem && state.phase === 'playing' && <NemoBoardView board={problem} fitHeight />}
             {problem && state.phase === 'reveal' && (
               <div>
                 <p className="mb-3 rounded-md bg-(--accent)/10 py-2 text-center text-sm font-black text-(--accent)">{tn('answerIs', { n: problem.answer })}</p>
-                <SolutionReplay key={`${state.sid}-${state.index}`} board={problem} auto stepMs={Math.max(120, Math.min(700, 5000 / Math.max(1, problem.answer)))} />
+                <SolutionReplay key={`${state.sid}-${state.index}`} board={problem} auto fitHeight stepMs={Math.max(120, Math.min(700, 5000 / Math.max(1, problem.answer)))} />
               </div>
             )}
 

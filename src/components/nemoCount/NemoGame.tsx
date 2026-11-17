@@ -154,6 +154,14 @@ export default function NemoGame() {
             ))}
           </div>
 
+          {/* Phones: difficulty right under the tabs (the side panel sits far below the board). */}
+          {mode !== 'tutorial' && (
+            <div className="-mt-2 mb-4 flex items-center gap-1.5 lg:hidden">
+              <span className="shrink-0 text-[10px] font-black tracking-widest text-white/40">{t('difficulty')}</span>
+              {NEMO_DIFFICULTIES.map((d) => <button key={d} type="button" disabled={!!challengeEnd} onClick={() => restart(mode, d)} className={`flex-1 py-1.5 text-[11px] ${seg(difficulty === d)} disabled:opacity-40`}>{t(`level_${d}`)}</button>)}
+            </div>
+          )}
+
           {mode === 'challenge' && !challengeEnd && !summary && (
             <div className="mx-auto max-w-md py-10 text-center">
               <Timer size={36} className="mx-auto text-(--accent)" />
@@ -191,11 +199,11 @@ export default function NemoGame() {
                 <TargetPlate target={problem.target} />
               </div>
 
-              <div className={`rounded-[12px] p-2 transition sm:p-4 ${flash === 'right' ? 'bg-[#34c47c]/15 ring-2 ring-[#34c47c]/60' : flash === 'wrong' ? 'bg-[#ff5d5d]/12 ring-2 ring-[#ff5d5d]/60' : ''}`}>
-                {showSolution || verdict?.correct ? <SolutionReplay board={problem} auto={!verdict?.correct} /> : <NemoBoardView board={problem} />}
+              <div className={`rounded-[12px] p-1 transition sm:p-4 ${flash === 'right' ? 'bg-[#34c47c]/15 ring-2 ring-[#34c47c]/60' : flash === 'wrong' ? 'bg-[#ff5d5d]/12 ring-2 ring-[#ff5d5d]/60' : ''}`}>
+                {showSolution || verdict?.correct ? <SolutionReplay board={problem} auto={!verdict?.correct} fitHeight /> : <NemoBoardView board={problem} fitHeight />}
               </div>
 
-              <div className="mx-auto mt-4 max-w-md space-y-2">
+              <div className="mx-auto mt-3 max-w-md space-y-2 sm:mt-4">
                 {!verdict && <AnswerInput onSubmit={submit} placeholder={t('answerPlaceholder')} submitLabel={t('submit')} />}
                 {!verdict && (
                   <div className="flex gap-2">
@@ -218,7 +226,7 @@ export default function NemoGame() {
 
         <aside className="flex flex-col gap-4">
           {mode !== 'tutorial' && (
-            <section className={PANEL}>
+            <section className={`hidden lg:block ${PANEL}`}>
               <p className={PANEL_TITLE}>{t('difficulty')}</p>
               <div className="mt-3 grid grid-cols-3 gap-1.5">
                 {NEMO_DIFFICULTIES.map((d) => <button key={d} type="button" disabled={!!challengeEnd} onClick={() => restart(mode, d)} className={`py-2.5 ${seg(difficulty === d)} disabled:opacity-40`}>{t(`level_${d}`)}</button>)}
