@@ -161,7 +161,7 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-mono text-[10px] font-black tracking-[0.2em] text-(--accent)">OPEN ROOM · {code}</p>
-          <h2 className="mt-1 truncate text-base font-black text-white">{tc(game)}{modes.rooms.length > 1 ? ` · ${tg(option.label)}` : ''}</h2>
+          <h2 className="mt-1 truncate text-base font-black text-white">{tc(game)}{modes.rooms.length > 1 ? ` · ${tg(`short_${option.label}`)}` : ''}</h2>
           <p className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-white/45"><Users size={12} />{t('players', { n: humans, cap: capacity || '–' })}</p>
         </div>
       </div>

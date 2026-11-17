@@ -1924,7 +1924,9 @@
     "openJoin": "참가",
     "openCreate": "공개방 만들기",
     "openCreateFor": "공개방 만들기 · {label}",
-    "openLogin": "공개방은 로그인한 사람끼리만 만들고 참가할 수 있어요. 서로의 전적이 기록돼요."
+    "openLogin": "공개방은 로그인한 사람끼리만 만들고 참가할 수 있어요. 서로의 전적이 기록돼요.",
+    "short_roomTwo": "1:1",
+    "short_roomThree": "1:1:1"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -3403,5 +3405,19 @@
     "tally": "{w}승 {l}패 {d}무",
     "recordAll": "전적 {r}",
     "recordVs": "나와 {r}"
+  },
+  "OpenMatch": {
+    "title": "오픈 대전",
+    "desc": "아무나 들어올 수 있는 공개방이에요. 방을 만들고 기다리는 동안 혼자 플레이하다가, 사람이 모이면 바로 대결하세요.",
+    "openNow": "지금 열린 방",
+    "create": "방 만들기",
+    "createDesc": "게임 고르기",
+    "join": "입장하기",
+    "joinDesc": "열린 방 보기",
+    "joinCount": "열린 방 {n}개",
+    "joinTitle": "열린 방",
+    "createTitle": "어떤 게임으로 열까요?",
+    "close": "닫기",
+    "note": "로그인한 사람끼리만 참가할 수 있어요. 결과는 서로의 전적으로 남아요."
   }
 }

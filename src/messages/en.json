@@ -1883,7 +1883,9 @@
     "openJoin": "Join",
     "openCreate": "Create an open room",
     "openCreateFor": "Open room · {label}",
-    "openLogin": "Open rooms are for signed-in players only, so both sides keep their record."
+    "openLogin": "Open rooms are for signed-in players only, so both sides keep their record.",
+    "short_roomTwo": "1:1",
+    "short_roomThree": "1:1:1"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -3346,5 +3348,19 @@
     "tally": "{w}W {l}L {d}D",
     "recordAll": "Record {r}",
     "recordVs": "vs me {r}"
+  },
+  "OpenMatch": {
+    "title": "Open Match",
+    "desc": "Public rooms anyone can join. Open one and play solo while you wait; start as soon as people arrive.",
+    "openNow": "open now",
+    "create": "Create",
+    "createDesc": "Pick a game",
+    "join": "Join",
+    "joinDesc": "See open rooms",
+    "joinCount": "{n} open",
+    "joinTitle": "Open rooms",
+    "createTitle": "Which game?",
+    "close": "Close",
+    "note": "Signed-in players only. Results count toward each other's records."
   }
 }
