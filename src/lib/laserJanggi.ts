@@ -43,8 +43,8 @@ export const PIECE_COUNTS: Record<LaserPieceType, number> = {
   laser: 1,
   splitter: 1,
   king: 1,
-  triangle: 5,
-  square: 2,
+  triangle: 6,
+  square: 1,
 };
 
 export const PIECE_VALUES: Record<LaserPieceType, number> = {
@@ -70,19 +70,24 @@ function piece(id: string, owner: LaserOwner, type: LaserPieceType, row: number,
   return { id, owner, type, row, col, direction };
 }
 
-/** Symmetric broadcast-inspired setup. Each emitter is initially shielded by its own square knight. */
+/**
+ * The setup from the TV death match (「더 지니어스: 룰 브레이커」), read off the broadcast board.
+ * Blue holds the left column with its laser in the bottom-left corner firing right; red is the same
+ * turned 180°. Each side: laser, king, splitter, one square knight and six triangles, two of them in the
+ * centre "bow tie". Opening beams only bounce between mirrors and back into their own laser.
+ */
 export function initialLaserPieces(): LaserPiece[] {
   const blue: LaserPiece[] = [
     piece('b-laser', 0, 'laser', 7, 0, 1),
-    piece('b-king', 0, 'king', 7, 4, 0),
-    piece('b-splitter', 0, 'splitter', 6, 4, 0),
-    piece('b-square-0', 0, 'square', 7, 2, 3),
-    piece('b-square-1', 0, 'square', 6, 6, 0),
-    piece('b-triangle-0', 0, 'triangle', 6, 0, 0),
-    piece('b-triangle-1', 0, 'triangle', 6, 2, 1),
-    piece('b-triangle-2', 0, 'triangle', 6, 5, 0),
-    piece('b-triangle-3', 0, 'triangle', 7, 6, 3),
-    piece('b-triangle-4', 0, 'triangle', 5, 1, 1),
+    piece('b-triangle-0', 0, 'triangle', 6, 0, 1),
+    piece('b-splitter', 0, 'splitter', 5, 0, 0),
+    piece('b-king', 0, 'king', 4, 0, 0),
+    piece('b-square-0', 0, 'square', 3, 0, 1),
+    piece('b-triangle-1', 0, 'triangle', 2, 0, 0),
+    piece('b-triangle-2', 0, 'triangle', 3, 3, 3), // centre bow tie
+    piece('b-triangle-3', 0, 'triangle', 4, 3, 2), // centre bow tie
+    piece('b-triangle-4', 0, 'triangle', 7, 4, 3),
+    piece('b-triangle-5', 0, 'triangle', 6, 6, 3),
   ];
   const red = blue.map((item): LaserPiece => ({
     ...item,

@@ -1599,7 +1599,7 @@
           "Triangle and square knights are removed when struck on a non-mirrored side. Lasers and splitters are beam-proof.",
           "A king is removed by a beam from any direction. Strike the enemy king first to win."
         ],
-        "origin": "A web adaptation of Laser Janggi as featured in The Genius: Rule Breaker, using a symmetric 8×8 setup and explicit beam tracing."
+        "origin": "A web adaptation of Laser Janggi from the death match in The Genius: Rule Breaker, using the broadcast board's 8×8 setup and explicit beam tracing."
       },
       "blindGomoku": {
         "tagline": "Black and white hide behind color. Remember, deduce, and connect five first.",
@@ -2186,7 +2186,7 @@
     "rulesKicker": "LASER JANGGI",
     "rulesTitle": "Bend the light and hunt the king",
     "fullRules": [
-      "Each side starts with one laser, one splitter, one king, five triangle knights and two square knights.",
+      "Each side starts with one laser, one king, one splitter (the glowing square), one square knight and six triangle knights, set up as on the TV death-match board (180° symmetric).",
       "On your turn, move one piece one adjacent square in any direction or rotate it 90°. The laser can only rotate and cannot point outside the board.",
       "Your laser fires automatically after the action. A splitter transmits the original beam and creates a reflected beam.",
       "Triangle and square knights reflect on mirrored sides and are removed when struck on vulnerable sides. Lasers and splitters cannot be removed.",
