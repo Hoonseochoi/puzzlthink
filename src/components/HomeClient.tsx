@@ -8,6 +8,7 @@ import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
 import { prepareHeavy13Room } from '@/hooks/useHeavy13Room';
 import { prepareRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
 import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
+import { prepareBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
@@ -102,6 +103,15 @@ export default function HomeClient() {
             </div>
           </div>
         </Link>
+        {game.illustration === 'blindGomoku' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/blind-gomoku" className={MODE_BUTTON}><Bot size={15} className="text-[#d39b2f]" /><span className="text-sm font-black">{t('modeBlindAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBlindAiDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/blind-gomoku/room/${await prepareBlindGomokuRoom()}`)} className={`${MODE_BASE} border-[#d39b2f]/45 bg-[#fdf4e2] hover:border-[#d39b2f]`}><UsersRound size={15} className="text-[#d39b2f]" /><span className="text-sm font-black">{t('modeBlindFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBlindFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
         {game.illustration === 'heavy13' && (
           <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>

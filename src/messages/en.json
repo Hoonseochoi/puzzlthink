@@ -64,8 +64,16 @@
     "chooseColor": "Surface color",
     "aiCopies": "AI copies it",
     "difficulty": "AI memory",
-    "difficultyLevels": { "easy": "LOW", "normal": "MID", "hard": "HIGH" },
-    "memory": { "easy": "last 5 moves", "normal": "last 15 moves", "hard": "perfect memory" },
+    "difficultyLevels": {
+      "easy": "LOW",
+      "normal": "MID",
+      "hard": "HIGH"
+    },
+    "memory": {
+      "easy": "last 5 moves",
+      "normal": "last 15 moves",
+      "hard": "perfect memory"
+    },
     "difficultyLocked": "Difficulty is locked after the opening move.",
     "handicap": "Human handicap",
     "usesLeft": "{count}/2 left",
@@ -93,8 +101,18 @@
       "As a human handicap, you may flip the board twice per game and inspect the hidden position for five seconds.",
       "Cheating is not allowed. At the end, the board flips, draws the winning line, and unlocks a complete replay."
     ],
-    "colors": { "red": "Red", "orange": "Orange", "yellow": "Yellow", "green": "Green", "blue": "Blue", "purple": "Purple", "pink": "Pink" },
-    "understood": "Start game"
+    "colors": {
+      "red": "Red",
+      "orange": "Orange",
+      "yellow": "Yellow",
+      "green": "Green",
+      "blue": "Blue",
+      "purple": "Purple",
+      "pink": "Pink"
+    },
+    "understood": "Start game",
+    "flipToColors": "Colour side",
+    "flipToTruth": "Black & white side"
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
@@ -108,7 +126,7 @@
     "classic": "CLASSIC",
     "wallgoDescription": "Move your characters, build walls, and claim more territory than anyone else.",
     "blindGomokuDescription": "Black and white hide beneath matching colors. Remember, deduce, and connect five.",
-    "blindGomokuMeta": "vs AI · 3 memory levels · replay",
+    "blindGomokuMeta": "AI or friend 1:1 · replay",
     "sudokuDescription": "A timeless number puzzle that starts light and keeps you thinking.",
     "soloAi": "vs AI · live with friends",
     "soloLevels": "Solo · 3 levels",
@@ -163,7 +181,11 @@
     "modeRjAi": "AI 1:1",
     "modeRjAiDesc": "3 difficulty levels",
     "modeRjFriend": "With a friend",
-    "modeRjFriendDesc": "Link or code"
+    "modeRjFriendDesc": "Link or code",
+    "modeBlindAi": "AI 1:1",
+    "modeBlindAiDesc": "3 memory levels",
+    "modeBlindFriend": "Friend 1:1",
+    "modeBlindFriendDesc": "Link or code"
   },
   "WallGo": {
     "metaTitle": "Wallgo Online — Play the Devil's Plan wall game vs AI",
@@ -1549,17 +1571,17 @@
     "games": {
       "blindGomoku": {
         "tagline": "Black and white hide behind color. Remember, deduce, and connect five first.",
-        "players": "1 (vs AI)",
-        "pace": "No time limit",
+        "players": "2 (1:1 vs AI or a friend)",
+        "pace": "No limit vs AI · 30–90 s turns with friends",
         "level": "AI memory: low · mid · high",
-        "solo": "vs AI · 2 position reveals",
+        "solo": "AI 1:1 · friend 1:1 · 2 peeks",
         "rules": [
           "You play first as black and the AI follows as white, but the sides stay hidden during play.",
           "Choose one of seven surface colors; the AI answers with a stone of that same color.",
           "There are no forbidden moves. The first side to connect five or more wins.",
           "Twice per game, flip the board to inspect the hidden position for five seconds."
         ],
-        "origin": "A blind-information twist on Gomoku. When the game ends, the board flips to reveal every side and draw the winning line."
+        "origin": "A gomoku variant inspired by blind gomoku on Netflix's The Devil's Plan. When the game ends the board flips to show black, white and the winning line, and you can replay on either side."
       },
       "wallgo": {
         "tagline": "Move your characters, build walls, and claim more territory than anyone else.",
@@ -1916,5 +1938,176 @@
         "desc": "If you do not move in time, the turn passes. The AI game can turn the timer off."
       }
     ]
+  },
+  "BlindGomokuOnline": {
+    "metaTitle": "Blind Gomoku with a friend",
+    "metaDescription": "Play 1:1 blind gomoku with a friend who joins by invite link or 4-digit code.",
+    "guest": "Guest",
+    "me": "me",
+    "emptySeat": "Empty seat",
+    "host": "Host",
+    "ready": "Joined",
+    "waiting": "Waiting for a friend",
+    "connecting": "Connecting to the room…",
+    "unconfigured": "The realtime server isn't set up yet.",
+    "connectionError": "Couldn't reach the realtime server. Please reload.",
+    "roomNotFound": "Room not found. Check that the host is online.",
+    "hostOffline": "The host disconnected. The game continues when they're back.",
+    "back": "Back to Blind Gomoku",
+    "lobbyTitle": "Waiting for a friend",
+    "inviteTitle": "Invite link",
+    "inviteDesc": "Send the link or tell them the 4-digit code. They take the other seat as soon as they join.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "shareText": "Let's play blind gomoku on PUZZLTHINK!",
+    "turnTime": "Turn time",
+    "seconds": "{n}s",
+    "hostSetsTime": "The host sets the turn time.",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "start": "Start game",
+    "startLocked": "Waiting for a friend",
+    "startLockedHint": "The start button lights up when your friend joins",
+    "startReady": "Your friend is here! Start the game",
+    "waitingHost": "Waiting for the host to start.",
+    "roomFull": "Both seats are taken. You're spectating.",
+    "spectating": "Spectating",
+    "waitingFor": "{player}'s turn",
+    "yourTurnWhite": "Pick a point; you must use the same colour as the last stone",
+    "players": "Players",
+    "blackRole": "Black · first · picks colours",
+    "whiteRole": "White · second · copies the colour",
+    "peeksLeft": "Peeks left",
+    "turnTimeInfo": "{n}s per turn · on time out a move is made for you; three in a row loses",
+    "blackPicks": "Black picks",
+    "whiteCopies": "White copies",
+    "peekTitle": "Peek",
+    "peekDesc": "On your turn, flip the board to see black and white for 5 seconds. Twice per game, for both players. Your clock keeps running while you look.",
+    "rematch": "Rematch (new colours)",
+    "rematchWait": "The host can start a rematch.",
+    "quick1": "Black and white are drawn at random. Black moves first.",
+    "quick2": "Black picks any of 7 outer colours; white must use the same colour as the stone just played.",
+    "quick3": "The board shows colours only. You have to remember whose stone is whose.",
+    "quick4": "No forbidden moves: the first to make five or more in a row wins, and the board flips to show the line.",
+    "resignConfirm": "Resign this game?",
+    "resign": "Resign",
+    "joined": "{name} joined",
+    "left": "{name} left",
+    "byFive": "five in a row",
+    "byResign": "resignation",
+    "byTimeout": "time out",
+    "winnerIs": "{player} wins · {reason}",
+    "youWin": "You win · {reason}",
+    "youLose": "You lose · {reason}"
+  },
+  "BlindGomokuTutorial": {
+    "you": "You",
+    "them": "Opponent",
+    "s1Title": "Pick a colour and play",
+    "s1Desc": "Black (first) picks one of 7 outer colours each turn and plays a point. Whether a stone is black or white underneath can't be seen on the board.",
+    "s2Title": "The reply uses the same colour",
+    "s2Desc": "White (the AI or a friend) must play the same outer colour black just used, so a colour never tells you whose stone it is.",
+    "s3Title": "Memory is your weapon",
+    "s3Desc": "Only colourful stones stay on the board. Remember where your stones and theirs are to find the fifth point.",
+    "s4Title": "Peek for 5 seconds, twice",
+    "s4Desc": "Up to twice a game, on your turn, flip the board to see the real black and white for 5 seconds. Save them for when you're unsure.",
+    "s5Title": "Five in a row flips the board",
+    "s5Desc": "Free gomoku: no forbidden moves and overlines win. When either side makes five, the board flips and the winning line is drawn.",
+    "s6Title": "Replay on either side",
+    "s6Desc": "After the game, flip between the colour side and the black-and-white side and step through every move to see where your memory slipped."
+  },
+  "BlindGomokuGuide": {
+    "eyebrow": "BLIND GOMOKU GUIDE",
+    "title": "Blind Gomoku — black and white hidden under colour",
+    "intro": "Blind Gomoku is a gomoku variant inspired by the blind gomoku game from Netflix's The Devil's Plan. Every stone shows one of seven colours on top; black and white are marked only underneath. Your opponent always plays the same colour you just used, so the board alone never tells you whose stone is whose. It comes down to memory and deduction. Play 1:1 against the AI, or 1:1 with a friend by invite link or 4-digit code.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "On a 15×15 board, black (first) and white (second) take turns. Against the AI you are black; with a friend, colours are drawn at random.",
+      "Each turn black picks red, orange, yellow, green, blue, purple or pink.",
+      "White plays the same outer colour black just used. The AI follows this rule too.",
+      "Only colours show on the board. You see black and white only when you peek: twice a game, 5 seconds each, on your turn.",
+      "Free gomoku rules: no forbidden 3-3 or 4-4, and six or more in a row also wins.",
+      "Whoever first makes five or more in a row wins; the board flips and the winning line is drawn. A full board is a draw.",
+      "Friend games have a turn clock (30, 60 or 90 s): on time out a move is made for you, and three in a row loses on time."
+    ],
+    "specialTitle": "Tricky moments",
+    "special": [
+      {
+        "title": "Same colours come in pairs",
+        "body": "White copies black's colour right away, so stones of one colour usually come as one black and one white. Reusing a colour creates several pairs and gets confusing."
+      },
+      {
+        "title": "Your opponent may already have four",
+        "body": "If your memory slips, you may mistake their stone for yours and not block. The moment they make five, the board flips and the game ends."
+      },
+      {
+        "title": "Peeks only on your turn",
+        "body": "You can peek only when it's your move, and you can't play while looking. In friend games your clock keeps running while you look."
+      },
+      {
+        "title": "The AI's memory",
+        "body": "AI difficulty is memory: easy remembers the last 5 moves, normal the last 15, hard the whole board. Building on old stones can catch easy and normal AIs out."
+      }
+    ],
+    "strategyTitle": "Tips — remember, mislead, check",
+    "strategyIntro": "In blind gomoku, managing your memory matters as much as gomoku skill. Common tricks:",
+    "strategies": [
+      {
+        "tag": "Memory",
+        "title": "Give colours a job",
+        "body": "For example, 'red and orange attack, blue and purple defend'. Your opponent uses the same colours, but your own scheme helps you recall what you put where."
+      },
+      {
+        "tag": "Memory",
+        "title": "One line, one colour",
+        "body": "Building a line in one colour makes it easy to remember it's yours. White drops the same colour nearby, so if a line mixes in that colour, recall the order of moves."
+      },
+      {
+        "tag": "Mislead",
+        "title": "Mix colours to confuse",
+        "body": "In friend games your opponent relies on memory too. As black, switch colours now and then so they lose track of your line, but not so much that you lose track yourself."
+      },
+      {
+        "tag": "Check",
+        "title": "Peek in the middle game",
+        "body": "Early on, memory is enough. Peek when there are 20 to 30 stones and you think 'is this four in a row?'. Keep the last peek for the decisive moment."
+      },
+      {
+        "tag": "Defend",
+        "title": "When unsure, block",
+        "body": "If you see a line of four and aren't sure whose it is, block it. Blocking your own line costs far less than letting them make five."
+      },
+      {
+        "tag": "vs AI",
+        "title": "Revive old stones",
+        "body": "Easy and normal AIs forget old moves. Finishing a line that connects to your early stones often goes unblocked."
+      },
+      {
+        "tag": "Replay",
+        "title": "Flip the board to review",
+        "body": "After the game, flip freely between the colour side and the black-and-white side while stepping through moves. The colour side shows what you saw; the other shows what was really there."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play blind gomoku?",
+        "a": "On the PUZZLTHINK Blind Gomoku page, in any desktop or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "How do I play with a friend?",
+        "a": "Choose 'Play with friends' on the entry screen or home page to make a room with an invite link and a 4-digit code. Your friend opens the link or types the code under 'Join with code'."
+      },
+      {
+        "q": "Are 3-3 and overlines allowed?",
+        "a": "Yes. Free gomoku rules: no forbidden moves, and six or more in a row also wins."
+      },
+      {
+        "q": "How many peeks do I get?",
+        "a": "Two per game, 5 seconds each. Against the AI only you peek; with a friend, both players get two."
+      }
+    ],
+    "disclaimer": "Blind Gomoku is PUZZLTHINK's web version of a game format seen on TV and is not affiliated with any broadcaster or producer."
   }
 }
