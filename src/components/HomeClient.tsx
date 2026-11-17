@@ -9,6 +9,8 @@ import { prepareHeavy13Room } from '@/hooks/useHeavy13Room';
 import { prepareRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
 import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { prepareBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
+import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
+import LaserPiece from './laserJanggi/LaserPiece';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
@@ -39,6 +41,16 @@ function BlindGomokuPreview() {
     {Array.from({ length: 25 }, (_, index) => <span key={index} className="relative z-10 flex items-center justify-center">{stones.has(index) && <MiniFace color={stones.get(index)!} />}</span>)}
     <span className="absolute right-2 top-2 z-20 rounded-full bg-[#17201e] px-2 py-1 text-[7px] font-black tracking-wider text-[#ffd166] sm:right-3 sm:top-3 sm:text-[9px]">HIDDEN</span>
   </div>;
+}
+
+function LaserJanggiPreview() {
+  const pieces = [
+    { id:'hp-l',owner:0 as const,type:'laser' as const,row:0,col:0,direction:1 as const },
+    { id:'hp-t',owner:0 as const,type:'triangle' as const,row:0,col:0,direction:1 as const },
+    { id:'hp-s',owner:1 as const,type:'splitter' as const,row:0,col:0,direction:0 as const },
+    { id:'hp-k',owner:1 as const,type:'king' as const,row:0,col:0,direction:0 as const },
+  ];
+  return <div className="relative grid aspect-square w-full grid-cols-4 grid-rows-4 overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#05080d] p-2 shadow-xl ring-1 ring-[#59e6ff]/30 sm:w-[62%] sm:rounded-2xl sm:border-4 sm:p-3 sm:shadow-2xl">{Array.from({length:16},(_,i)=><span key={i} className="border-b border-r border-[#59e6ff]/20" />)}<span className="absolute left-[9%] top-[58%] h-[22%] w-[22%]"><LaserPiece piece={pieces[0]} /></span><span className="absolute left-[38%] top-[58%] h-[22%] w-[22%]"><LaserPiece piece={pieces[1]} /></span><span className="absolute right-[10%] top-[12%] h-[22%] w-[22%]"><LaserPiece piece={pieces[3]} /></span><span className="absolute right-[38%] top-[34%] h-[22%] w-[22%]"><LaserPiece piece={pieces[2]} /></span><i className="absolute left-[27%] top-[68.5%] h-[2px] w-[20%] bg-[#59e6ff] shadow-[0_0_8px_#59e6ff]" /><i className="absolute left-[48%] top-[49%] h-[20%] w-[2px] bg-[#ff4d6d] shadow-[0_0_8px_#ff4d6d]" /></div>;
 }
 
 function JanggiPreview() {
@@ -80,6 +92,7 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const router = useRouter();
   const games = [
+    { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', status: t('new'), meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
     { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', status: t('new'), meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', status: t('new'), meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', status: t('new'), meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
@@ -96,13 +109,22 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="rounded-full px-3 py-1 text-[10px] font-black tracking-[0.15em] text-white" style={{ background: game.color }}>{game.status}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>
             </div>
           </div>
         </Link>
+        {game.illustration === 'laserJanggi' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35">{t('modeTitle')}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/laser-janggi" className={MODE_BUTTON}><Bot size={15} className="text-[#28b9d7]" /><span className="text-sm font-black">{t('modeLaserAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeLaserAiDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/laser-janggi/room/${await prepareLaserJanggiRoom()}`)} className={`${MODE_BASE} border-[#28b9d7]/45 bg-[#e8f8fb] hover:border-[#28b9d7]`}><UsersRound size={15} className="text-[#28b9d7]" /><span className="text-sm font-black">{t('modeLaserFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeLaserFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
         {game.illustration === 'blindGomoku' && (
           <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
