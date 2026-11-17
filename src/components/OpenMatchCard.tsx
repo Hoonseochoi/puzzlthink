@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { DoorOpen, Loader2, LogIn, Plus, RefreshCw, Swords, X } from 'lucide-react';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
@@ -12,6 +12,36 @@ import { GAME_MODES, openRoomHref } from './gameModes';
 /** Games that have friend rooms, in home-page order. */
 const ROOM_GAMES = GAMES.filter((game) => GAME_MODES[game.id].useRoom);
 const colorOf = (id: string) => GAMES.find((game) => game.id === id)?.color ?? '#17201e';
+
+/**
+ * A square tile that shows a home-card picture at whatever size the tile has: the picture is laid out
+ * in a 300px box, measured, then scaled so it fills about 90% of the tile, centred.
+ */
+function FitTile({ title, children }: { title: string; children: ReactNode }) {
+  const outer = useRef<HTMLDivElement>(null);
+  const inner = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0);
+  useLayoutEffect(() => {
+    const o = outer.current, i = inner.current;
+    if (!o || !i) return;
+    const fit = () => {
+      const art = i.firstElementChild as HTMLElement | null;
+      if (!art || !art.offsetWidth || !art.offsetHeight) return;
+      setScale(Math.min((o.clientWidth * 0.9) / art.offsetWidth, (o.clientHeight * 0.9) / art.offsetHeight));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(o);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={outer} className="relative aspect-square overflow-hidden rounded-lg bg-white/[.06] ring-1 ring-white/10 sm:rounded-xl" title={title}>
+      <div ref={inner} className="absolute left-1/2 top-1/2 flex w-[300px] items-center justify-center" style={{ transform: `translate(-50%, -50%) scale(${scale})`, opacity: scale ? 1 : 0 }}>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 /**
  * The first home card: open rooms across every game. Shows how many rooms are open now,
@@ -57,11 +87,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
 
       {/* A wall of the games you can open a room for. */}
       <div className="relative mt-4 grid grid-cols-6 gap-1.5 sm:mt-6 sm:gap-2">
-        {ROOM_GAMES.map((game) => (
-          <div key={game.id} className="relative aspect-square overflow-hidden rounded-lg bg-white/[.06] ring-1 ring-white/10 sm:rounded-xl" title={tc(game.id)}>
-            <div className="absolute left-0 top-0 flex h-[300px] w-[300px] origin-top-left scale-[.165] items-center justify-center min-[400px]:scale-[.18] sm:scale-[.25] md:scale-[.15] lg:scale-[.22]">{previews[game.id]}</div>
-          </div>
-        ))}
+        {ROOM_GAMES.map((game) => <FitTile key={game.id} title={tc(game.id)}>{previews[game.id]}</FitTile>)}
       </div>
 
       <div className="relative mt-4 flex items-end justify-between gap-3 sm:mt-6">

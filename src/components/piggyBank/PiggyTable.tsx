@@ -37,6 +37,7 @@ export function PiggyTable({ s, me: seat, onAct, onAgain }: { s: PbState; me: nu
   const [black, setBlack] = useState(1);
   const [white, setWhite] = useState(0);
   const [allIn, setAllIn] = useState<Record<number, { black: number; white: number }>>({});
+  const [replay, setReplay] = useState(false);
   const [small, setSmall] = useState(false); // phones: smaller boxes around the table
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -306,7 +307,8 @@ export function PiggyTable({ s, me: seat, onAct, onAgain }: { s: PbState; me: nu
       )}
 
       {/* Game over */}
-      {s.phase === 'finished' && !revealing && (
+      {replay && s.phase === 'finished' && <PiggyReplay s={s} onClose={() => setReplay(false)} />}
+      {s.phase === 'finished' && !revealing && !replay && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4">
           <div className="hall-pop w-full max-w-sm rounded-[24px] border border-[#ffd84a]/40 bg-gradient-to-b from-[#2b3150] to-[#151829] p-6 text-center shadow-[0_0_100px_rgba(255,216,74,.25)]">
             <Crown size={34} className="mx-auto text-[#ffd84a]" />
@@ -317,7 +319,8 @@ export function PiggyTable({ s, me: seat, onAct, onAgain }: { s: PbState; me: nu
                 <span className="font-mono font-black">{s.players[seat].score}점</span>
               </li>))}
             </ol>
-            <button type="button" onClick={onAgain} className={`${BTN_ACCENT} mt-5 w-full py-3`}>다시 하기</button>
+            <button type="button" onClick={() => setReplay(true)} className={`${BTN} mt-5 w-full py-3`}>저금통 복기 보기</button>
+            {onAgain ? <button type="button" onClick={onAgain} className={`${BTN_ACCENT} mt-2 w-full py-3`}>다시 하기</button> : <p className="mt-2 text-[11px] text-white/40">방장이 다시 시작하면 새 판이 열려요</p>}
           </div>
         </div>
       )}
@@ -350,5 +353,50 @@ export function PiggyAside({ s, me, onAct }: { s: PbState | null; me: number | n
           </ul>
         </section>
       </aside>
+  );
+}
+
+/** After the game: every pig's story — the coins that went in, resets, and how it ended. */
+export function PiggyReplay({ s, onClose }: { s: PbState; onClose: () => void }) {
+  const name = (i: number) => s.players[i].name;
+  const labels = [...new Set(s.log.flatMap((l) => ('label' in l ? [l.label] : [])))].sort((a, b) => a - b);
+  const left = new Map(Object.values(s.pigs).map((p) => [p.label, p]));
+  const story = (label: number) => {
+    const rows: { text: React.ReactNode; tone?: 'good' | 'bad' | 'muted' }[] = [];
+    let black = 1, white = 1, started = false, opened = false;
+    for (const l of s.log) {
+      if (l.k === 'reset') { if (started && !opened) { black = 1; white = 1; rows.push({ text: <>리셋 → <CoinCount color="black" n={1} /> <CoinCount color="white" n={1} /></>, tone: 'muted' }); } continue; }
+      if (l.label !== label) continue;
+      if (l.k === 'start' || l.k === 'new') { started = true; rows.push({ text: <>{l.k === 'new' ? `${name(l.seat)}에게 새로 지급` : `${name(l.seat)} 시작`} · <CoinCount color="black" n={1} /> <CoinCount color="white" n={1} /></>, tone: 'muted' }); }
+      if (l.k === 'put') { black += l.black; white += l.white; rows.push({ text: <><b>{name(l.seat)}</b> +<CoinCount color="black" n={l.black} /> <CoinCount color="white" n={l.white} /> → {name(l.to)} <span className="text-white/40">(합계 {black}·{white})</span></> }); }
+      if (l.k === 'open') opened = true;
+      if (l.k === 'open') rows.push({ text: <>개봉 <CoinCount color="black" n={l.black} /> <CoinCount color="white" n={l.white} /> · {name(l.target)} “{COLOR_KO[l.color]}{l.value}” · {name(l.by)} {l.right ? '의심 성공' : '의심 실패'}</>, tone: l.right ? 'good' : 'bad' });
+    }
+    const end = left.get(label);
+    if (end) rows.push({ text: <>끝까지 남음 · <CoinCount color="black" n={end.black} /> <CoinCount color="white" n={end.white} /></>, tone: 'good' });
+    return rows;
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-4" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} className="hall-pop max-h-[90svh] w-full max-w-xl overflow-y-auto rounded-t-[22px] border border-white/10 bg-[#1b1e33] p-5 sm:rounded-[22px]">
+        <div className="flex items-center justify-between">
+          <div><p className="text-[10px] font-black tracking-[0.3em] text-[#ffd84a]">REPLAY</p><h2 className="mt-1 text-xl font-black">저금통 복기</h2></div>
+          <button type="button" onClick={onClose} className={`${BTN} py-2`}>닫기</button>
+        </div>
+        <p className="mt-1 text-xs text-white/50">저금통마다 누가 동전을 얼마나 넣었는지, 어떻게 끝났는지 보여줘요.</p>
+        <div className="mt-4 space-y-3">
+          {labels.map((label) => (
+            <section key={label} className="rounded-2xl bg-white/[.05] p-3">
+              <div className="flex items-center gap-2"><GoldPig label={label} size={40} /><span className="text-sm font-black">#{label} 저금통</span></div>
+              <ol className="mt-2 space-y-1 border-l border-white/10 pl-3">
+                {story(label).map((row, i) => (
+                  <li key={i} className={`flex flex-wrap items-center gap-1 text-xs leading-5 ${row.tone === 'good' ? 'text-[#7ff0bf]' : row.tone === 'bad' ? 'text-[#ff9aa4]' : row.tone === 'muted' ? 'text-white/50' : 'text-white/80'}`}>{row.text}</li>
+                ))}
+              </ol>
+            </section>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
