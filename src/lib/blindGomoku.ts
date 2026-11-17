@@ -34,6 +34,20 @@ export const STONE_COLORS: { id: StoneColor; hex: string }[] = [
   { id: 'pink', hex: '#ed72ad' },
 ];
 
+export const MIN_COLORS = 2;
+
+/** The outer colours in play when a game uses `count` of them (the first ones of STONE_COLORS). */
+export const colorsInPlay = (count: number): StoneColor[] => STONE_COLORS.slice(0, Math.max(MIN_COLORS, Math.min(STONE_COLORS.length, count))).map((c) => c.id);
+
+/**
+ * Colours black may pick now. With `mustChange`, the colour of black's previous stone is not allowed,
+ * so every turn brings a new colour (with two colours in play, they simply alternate).
+ */
+export function playableColors(count: number, mustChange: boolean, previous?: StoneColor): StoneColor[] {
+  const all = colorsInPlay(count);
+  return mustChange && previous ? all.filter((c) => c !== previous) : all;
+}
+
 const DIRECTIONS = [
   [0, 1],
   [1, 0],

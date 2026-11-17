@@ -8,7 +8,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
-import { chooseAiMove, coordinateLabel, findWinningLine, type GomokuDifficulty, type GomokuMove, type StoneColor, type StoneOwner, type WinningLine } from '@/lib/blindGomoku';
+import { STONE_COLORS, chooseAiMove, coordinateLabel, playableColors, findWinningLine, type GomokuDifficulty, type GomokuMove, type StoneColor, type StoneOwner, type WinningLine } from '@/lib/blindGomoku';
 import BlindGomokuBoard from './BlindGomokuBoard';
 import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
@@ -22,6 +22,8 @@ export default function BlindGomokuGame() {
   const [phase, setPhase] = useState<Phase>('human');
   const [selectedColor, setSelectedColor] = useState<StoneColor>('red');
   const [difficulty, setDifficulty] = useState<GomokuDifficulty>('normal');
+  const [colorCount, setColorCount] = useState(STONE_COLORS.length);
+  const [mustChange, setMustChange] = useState(false);
   const [revealUses, setRevealUses] = useState(2);
   const [revealSeconds, setRevealSeconds] = useState(0);
   const [winner, setWinner] = useState<StoneOwner | 'draw' | null>(null);
@@ -49,9 +51,13 @@ export default function BlindGomokuGame() {
     setGameNo((n) => n + 1);
   };
 
+  // Colours black may use now; the picked colour falls back to the first allowed one.
+  const playable = playableColors(colorCount, mustChange, moves.at(-1)?.color);
+  const color = playable.includes(selectedColor) ? selectedColor : playable[0];
+
   const placeHuman = (row: number, col: number) => {
     if (phase !== 'human' || revealSeconds > 0 || moves.some((move) => move.row === row && move.col === col)) return;
-    const move: GomokuMove = { row, col, owner: 'black', color: selectedColor, turn: moves.length + 1 };
+    const move: GomokuMove = { row, col, owner: 'black', color, turn: moves.length + 1 };
     const nextMoves = [...moves, move];
     const line = findWinningLine(nextMoves, move);
     if (line) return finish(nextMoves, 'black', line);
@@ -64,7 +70,7 @@ export default function BlindGomokuGame() {
     if (phase !== 'ai') return;
     const timer = window.setTimeout(() => {
       const position = chooseAiMove(moves, difficulty);
-      const copiedColor = moves.at(-1)?.color ?? selectedColor;
+      const copiedColor = moves.at(-1)!.color;
       const move: GomokuMove = { ...position, owner: 'white', color: copiedColor, turn: moves.length + 1 };
       const nextMoves = [...moves, move];
       const line = findWinningLine(nextMoves, move);
@@ -123,7 +129,7 @@ export default function BlindGomokuGame() {
             moves={boardMoves}
             flipped={flipped}
             interactive={phase === 'human' && revealSeconds === 0}
-            previewColor={selectedColor}
+            previewColor={color}
             winningLine={phase === 'finished' ? replayLine : winningLine}
             onPlace={placeHuman}
           />
@@ -141,6 +147,18 @@ export default function BlindGomokuGame() {
           </section>
 
           <section className={PANEL}>
+            <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('colorRule')}</p><span className="text-[10px] font-bold text-white/35">{t('colorCountValue', { count: colorCount })}</span></div>
+            <div className="mt-3 grid grid-cols-6 gap-1.5">
+              {[2, 3, 4, 5, 6, 7].map((n) => <button key={n} type="button" disabled={moves.length > 0} aria-pressed={colorCount === n} onClick={() => setColorCount(n)} className={`rounded-md py-2 font-mono text-xs font-black transition ${colorCount === n ? 'bg-[#ffd166] text-[#17120a]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{n}</button>)}
+            </div>
+            <label className={`mt-3 flex items-center justify-between gap-3 rounded-md border border-white/10 bg-black/25 px-3 py-2.5 text-xs font-bold ${moves.length > 0 ? 'opacity-50' : 'cursor-pointer'}`}>
+              <span>{t('mustChange')}<span className="mt-0.5 block text-[10px] font-medium text-white/40">{t('mustChangeDesc')}</span></span>
+              <input type="checkbox" checked={mustChange} disabled={moves.length > 0} onChange={(event) => setMustChange(event.target.checked)} className="h-4 w-4 accent-[#ffd166]" />
+            </label>
+            <p className="mt-2 text-[10px] leading-4 text-white/35">{t('colorRuleHint')}</p>
+          </section>
+
+          <section className={PANEL}>
             <p className={PANEL_TITLE}>{t('players')}</p>
             <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
               <div className={`rounded-[10px] border p-3 text-center ${phase === 'human' ? 'border-[#ffd166]/55 bg-[#ffd166]/10' : 'border-white/10 bg-black/30'}`}><div className="mx-auto h-11 w-11"><BlindStone color="#ef4957" owner="black" revealed /></div><p className="mt-2 text-xs font-black">{t('you')}</p><p className="text-[10px] text-white/40">{t('blackHidden')}</p></div>
@@ -150,7 +168,8 @@ export default function BlindGomokuGame() {
             {latest && <p className="mt-3 flex items-center justify-center gap-2 rounded-md bg-black/30 px-3 py-2 text-[11px] text-white/55"><Sparkles size={12} className="text-[#ffd166]" />{t('lastMove', { player: latest.owner === 'black' ? t('you') : 'MIRA', coordinate: coordinateLabel(latest.row, latest.col) })}</p>}
           </section>
 
-          <ColorPicker selected={selectedColor} onSelect={setSelectedColor} disabled={phase !== 'human' || revealSeconds > 0} note={t('aiCopies')} />
+          <ColorPicker selected={color} onSelect={setSelectedColor} disabled={phase !== 'human' || revealSeconds > 0} note={t('aiCopies')}
+            colors={playableColors(colorCount, false)} blocked={mustChange ? moves.at(-1)?.color : null} />
 
           <section className="rounded-[14px] border border-[#ffd166]/30 bg-[#ffd166]/[.07] p-4">
             <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('handicap')}</p><span className="rounded-md border border-[#ffd166]/30 bg-black/25 px-2 py-1 font-mono text-[10px] font-black text-[#ffe39a]">{t('usesLeft', { count: revealUses })}</span></div>

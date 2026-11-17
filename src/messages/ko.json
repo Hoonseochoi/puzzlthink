@@ -112,7 +112,12 @@
     },
     "understood": "게임 시작",
     "flipToColors": "겉색 면으로",
-    "flipToTruth": "흑백 면으로"
+    "flipToTruth": "흑백 면으로",
+    "colorRule": "색 규칙",
+    "colorCountValue": "색 {count}개",
+    "mustChange": "매 턴 다른 색",
+    "mustChangeDesc": "직전에 쓴 색은 다시 못 써요",
+    "colorRuleHint": "색이 적을수록 돌이 비슷해 보여 기억하기 어려워요. 첫 수 이후에는 바꿀 수 없어요."
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — 데블스플랜 데스매치를 친구들과 함께",
