@@ -105,10 +105,10 @@ export default function NemoGame() {
     else setWrongTries((n) => n + 1);
   };
 
-  const skip = () => {
+  // Practice: give up and see the answer with its solution replay.
+  const reveal = () => {
     if (!problem) return;
     const ms = Date.now() - startedAt;
-    if (mode === 'challenge') { setAttempts((list) => [...list, { problem, given: null, correct: false, ms }]); newProblem('challenge', difficulty); return; }
     setVerdict({ correct: false, given: null, ms }); setShowSolution(true);
     setAttempts((list) => [...list, { problem, given: null, correct: false, ms }]);
   };
@@ -119,6 +119,15 @@ export default function NemoGame() {
       setTutorialIndex(1); newProblem('tutorial', difficulty, 1); return;
     }
     newProblem();
+  };
+
+  // Pass: count it as missed and go straight to the next board.
+  const pass = () => {
+    if (!problem) return;
+    const ms = Date.now() - startedAt;
+    setAttempts((list) => [...list, { problem, given: null, correct: false, ms }]);
+    if (mode === 'tutorial') { nextPractice(); return; }
+    newProblem(mode, difficulty);
   };
 
   const correctList = attempts.filter((a) => a.correct);
@@ -190,7 +199,8 @@ export default function NemoGame() {
                 {!verdict && <AnswerInput onSubmit={submit} placeholder={t('answerPlaceholder')} submitLabel={t('submit')} />}
                 {!verdict && (
                   <div className="flex gap-2">
-                    <button type="button" onClick={skip} className={`flex-1 py-2.5 ${BTN}`}>{mode === 'challenge' ? <><SkipForward size={14} />{t('skip')}</> : <><Flag size={14} />{t('reveal')}</>}</button>
+                    <button type="button" onClick={pass} className={`flex-1 py-2.5 ${BTN}`}><SkipForward size={14} />{t('skip')}</button>
+                    {mode !== 'challenge' && <button type="button" onClick={reveal} className={`flex-1 py-2.5 ${BTN}`}><Flag size={14} />{t('reveal')}</button>}
                     {mode === 'challenge' && <button type="button" onClick={() => finishChallenge(attempts)} className={`py-2.5 ${BTN} text-white/45`}>{t('endNow')}</button>}
                   </div>
                 )}
