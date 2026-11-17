@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Crown, Eye, Hand, RotateCcw, Send } from 'lucide-react';
 import GameHeader from '@/components/ui/GameHeader';
-import { CoinCount, GoldPig, Pedestal, TimerRing } from './PiggyParts';
+import { CoinCount, CoinDot, GoldPig, Pedestal, TimerRing } from './PiggyParts';
 import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import {
   type Color, type Memory, type PbEvent, type PbLevel, type PbState, ANSWER_MS, DOUBT_MS, PB_MAX_PUT, PUT_MS, PB_WIN, RESET_VOTES,
-  aiAllIn, aiAnswer, aiDoubts, aiPut, allInGuess, answerCount, answerTimeout, createPiggyBank, doubt, freshMemory, noDoubt, putCoins, ranking, remember, voteReset,
+  aiAllIn, aiAnswer, aiDoubts, aiPut, allInGuess, answerCount, finishReset, answerTimeout, createPiggyBank, doubt, freshMemory, noDoubt, putCoins, ranking, remember, voteReset,
 } from '@/lib/piggyBank';
 
 // Draft (not linked from the site yet): 돼지 저금통 against three AI players. Korean text only for now.
@@ -18,6 +18,9 @@ const COLOR_KO: Record<Color, string> = { black: '흑', white: '백' };
 // How long an announcement stays up (there is no log: it's a memory game). Coin drops a little longer.
 const SHOW_MS = 4200;
 const PUT_SHOW_MS = 6000;
+const HOLD_DOUBT_MS = 3800; // the opened pig stays up this long
+const HOLD_ALLIN_MS = 4500;
+const HOLD_RESET_MS = 1800;
 
 function describe(e: PbEvent | null, s: PbState) {
   if (!e) return null;
@@ -53,11 +56,14 @@ export default function PiggyBankGame() {
   const stateRef = useRef<PbState | null>(null);
   const memRef = useRef<Memory[]>([]);
   const dueRef = useRef<{ seq: number; at: number; doubtAt: number[] }>({ seq: -1, at: 0, doubtAt: [] });
+  const holdRef = useRef(0); // play pauses until then while a pig is opened or a challenge is shown
+  const [holdUntil, setHoldUntil] = useState(0); // the same, for rendering
 
   const start = () => {
     const s = createPiggyBank(NAMES, [false, true, true, true]);
     stateRef.current = s; memRef.current = s.players.map(() => freshMemory(s));
     dueRef.current = { seq: -1, at: 0, doubtAt: [] };
+    holdRef.current = 0; setHoldUntil(0); setAllIn({});
     setState(s); setShownSeq(-1);
   };
   const apply = (next: PbState | null) => { if (next) { stateRef.current = next; setState(next); } };
@@ -68,14 +74,21 @@ export default function PiggyBankGame() {
       const t = Date.now();
       setNow(t);
       const s = stateRef.current;
-      if (!s || s.phase === 'finished') return;
+      if (!s) return;
       const due = dueRef.current;
       if (due.seq !== s.seq) {
         // New public event: every AI updates its memory, maybe votes to reset, and picks when to act.
         memRef.current = memRef.current.map((m, i) => (s.players[i].ai ? remember(m, s, level) : m));
         due.seq = s.seq;
-        due.at = t + 1200 + Math.random() * 1600;
-        due.doubtAt = s.players.map(() => t + 900 + Math.random() * 3500);
+        const hold = s.last?.k === 'doubt' ? HOLD_DOUBT_MS : s.last?.k === 'allIn' ? HOLD_ALLIN_MS : s.last?.k === 'reset' ? HOLD_RESET_MS : 0;
+        if (hold) {
+          holdRef.current = t + hold;
+          setHoldUntil(t + hold);
+          if (s.phase !== 'finished') apply({ ...s, deadline: s.deadline + hold }); // the reveal doesn't eat into the next player's time
+        }
+        const base = Math.max(t, holdRef.current);
+        due.at = base + 1200 + Math.random() * 1600;
+        due.doubtAt = s.players.map(() => base + 900 + Math.random() * 3500);
         if (s.last?.k === 'put') {
           for (let i = 1; i < s.players.length; i += 1) {
             const unsure = Object.values(memRef.current[i]).reduce((a, m) => a + m.unsure, 0);
@@ -83,6 +96,7 @@ export default function PiggyBankGame() {
           }
         }
       }
+      if (s.phase === 'finished' || t < holdRef.current) return; // the last pig can still be shown opening
       const turnAi = s.players[s.turn].ai;
       if (s.phase === 'put') {
         if (turnAi && t >= due.at) { const m = aiPut(s, s.turn); apply(putCoins(s, s.turn, m.black, m.white, m.to)); }
@@ -100,8 +114,10 @@ export default function PiggyBankGame() {
         }
         if (t >= s.deadline) apply(noDoubt(s));
       } else if (s.phase === 'allIn') {
+        if (!s.allInSeats.length) { apply(finishReset(s)); return; }
         const seat = s.allInSeats.find((i) => s.players[i].ai);
-        if (seat !== undefined) apply(allInGuess(s, seat, aiAllIn(s, memRef.current[seat])));
+        if (seat !== undefined && t >= due.at) apply(allInGuess(s, seat, aiAllIn(s, memRef.current[seat])));
+        else if (seat === undefined && s.allInSeats.includes(ME) && t >= s.deadline) apply(allInGuess(s, ME, null)); // ran out of time: no challenge
       }
     }, 200);
     return () => window.clearInterval(timer);
@@ -140,6 +156,11 @@ export default function PiggyBankGame() {
   const canDoubt = s.phase === 'doubt' && s.answer?.seat !== ME;
   const myAllIn = s.phase === 'allIn' && s.allInSeats.includes(ME);
   const votes = s.players.filter((p) => p.resetVote).length;
+  // Score pop-ups on the seats while a reveal is up.
+  const revealing = now < holdUntil;
+  const delta: Record<number, number> = {};
+  if (revealing && s.last?.k === 'doubt') { delta[s.last.seat] = s.last.right ? 1 : -1; if (s.last.right) delta[s.last.target] = -1; }
+  if (revealing && s.last?.k === 'allIn') delta[s.last.seat] = s.last.right ? 3 : -2;
   const askPig = s.players[s.turn].upper;
   const status = s.phase === 'finished' ? '게임 종료'
     : s.phase === 'allIn' ? '리셋 직전 — 전체 맞히기 도전'
@@ -189,15 +210,18 @@ export default function PiggyBankGame() {
                       {COLOR_KO[s.answer!.color]}{s.answer!.value}
                     </span>
                   )}
-                  <Pedestal small={small} active={active} buzz={buzz}
+                  {delta[seat] ? <span key={`d${s.seq}`} className={`bw-result absolute -top-5 left-1/2 z-10 -translate-x-1/2 rounded-full px-2 py-0.5 font-mono text-sm font-black ${delta[seat] > 0 ? 'bg-[#3ddc97] text-[#06291a]' : 'bg-[#ff3b5c] text-white'}`}>{delta[seat] > 0 ? `+${delta[seat]}` : delta[seat]}</span> : null}
+                  <Pedestal small={small} active={active} buzz={buzz} resetVoted={p.resetVote}
+                    onReset={seat === ME && s.phase !== 'finished' && s.phase !== 'allIn' ? () => apply(voteReset(s, ME)) : undefined}
                     upper={p.upper !== null ? s.pigs[p.upper].label : null} lower={p.lower !== null ? s.pigs[p.lower].label : null} />
                 </div>
               );
             })}
-            <div className="col-start-2 row-start-2 flex items-center justify-center px-1">
+            <div className="relative col-start-2 row-start-2 flex items-center justify-center px-1 pb-4">
               {s.phase === 'finished' ? <Crown size={40} className="text-[#ffd84a]" />
                 : <TimerRing secs={secs} total={(s.phase === 'put' ? PUT_MS : s.phase === 'doubt' ? DOUBT_MS : ANSWER_MS) / 1000} color={s.ask}
                   label={s.phase === 'doubt' ? '의심?' : s.phase === 'answer' ? `${COLOR_KO[s.ask]}?` : s.phase === 'allIn' ? '도전' : '넣기'} />}
+              {votes > 0 && s.phase !== 'finished' && <span className="absolute bottom-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-black text-[#1d2036]">리셋 {votes}/{RESET_VOTES}</span>}
             </div>
           </div>
 
@@ -220,26 +244,6 @@ export default function PiggyBankGame() {
                   </li>))}
                 </ol>
                 <button type="button" onClick={start} className={`${BTN_ACCENT} mt-4 w-full py-3`}>다시 하기</button>
-              </div>
-            ) : myAllIn ? (
-              <div>
-                <p className="text-sm font-black">리셋 직전! 모든 저금통의 동전을 맞혀 보세요 (성공 +3 · 실패 −2)</p>
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {Object.values(s.pigs).map((pig) => (
-                    <div key={pig.id} className="flex items-center gap-2 rounded-lg bg-white/[.04] p-2">
-                      <GoldPig label={pig.label} size={40} />
-                      {(['black', 'white'] as Color[]).map((c) => (
-                        <input key={c} type="number" min={0} value={allIn[pig.id]?.[c] ?? ''} placeholder={COLOR_KO[c]}
-                          onChange={(e) => setAllIn((g) => ({ ...g, [pig.id]: { black: g[pig.id]?.black ?? 0, white: g[pig.id]?.white ?? 0, [c]: Number(e.target.value) } }))}
-                          className="w-12 rounded-md border border-white/15 bg-black/40 px-1.5 py-1 text-center font-mono text-sm" />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => apply(allInGuess(s, ME, null))} className={`${BTN} py-2.5`}>도전 안 함</button>
-                  <button type="button" onClick={() => apply(allInGuess(s, ME, allIn))} className={`${BTN_ACCENT} py-2.5`}>도전!</button>
-                </div>
               </div>
             ) : myPut ? (
               <div className="space-y-3">
@@ -304,6 +308,127 @@ export default function PiggyBankGame() {
           </section>
         </aside>
       </main>
+
+      {/* A doubted pig is opened in the middle of the table. */}
+      {revealing && s.last?.k === 'doubt' && (() => {
+        const e = s.last;
+        return (
+          <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4">
+            <div className="hall-pop w-full max-w-sm rounded-[22px] border border-[#ffd84a]/40 bg-gradient-to-b from-[#2b3150] to-[#151829] p-6 text-center shadow-[0_0_80px_rgba(255,216,74,.25)]">
+              <p className="text-[10px] font-black tracking-[0.3em] text-[#ffd84a]">OPEN</p>
+              <h2 className="mt-1 text-xl font-black">#{e.label} 저금통 개봉!</h2>
+              <div className="mt-3 flex justify-center"><GoldPig label={e.label} size={110} glow /></div>
+              <div className="mt-3 space-y-2">
+                {(['black', 'white'] as Color[]).map((c) => {
+                  const n = c === 'black' ? e.pigBlack : e.pigWhite;
+                  return (
+                    <div key={c} className={`flex items-center gap-2 rounded-xl px-3 py-2 ${c === e.color ? 'bg-white/10 ring-1 ring-[#ffd84a]/60' : 'bg-white/[.04]'}`}>
+                      <span className="w-6 text-xs font-black">{COLOR_KO[c]}</span>
+                      <span className="flex flex-1 flex-wrap gap-1">{Array.from({ length: n }, (_, i) => <CoinDot key={i} color={c} size={16} />)}</span>
+                      <span className="font-mono text-lg font-black">{n}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-sm text-white/70">{s.players[e.target].name}의 대답: <b className="text-white">{COLOR_KO[e.color]} {e.value}개</b></p>
+              <p className={`mt-2 text-lg font-black ${e.right ? 'text-[#3ddc97]' : 'text-[#ff8b96]'}`}>
+                {e.right ? `의심 성공! ${s.players[e.seat].name} +1 · ${s.players[e.target].name} −1` : `의심 실패… ${s.players[e.seat].name} −1`}
+              </p>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Before a reset: players who did not vote may name every pig's coins. */}
+      {myAllIn && (
+        <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/65 p-0 sm:items-center sm:p-4">
+          <div className="hall-pop max-h-[92svh] w-full max-w-lg overflow-y-auto rounded-t-[22px] border border-white/10 bg-[#1b1e33] p-5 sm:rounded-[22px]">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-black tracking-[0.3em] text-[#ffd84a]">ALL-IN CHALLENGE</p>
+              <span className="rounded-md bg-black/40 px-2 py-1 font-mono text-sm font-black">{secs}s</span>
+            </div>
+            <h2 className="mt-1 text-xl font-black">리셋 직전! 전체 맞히기 도전</h2>
+            <p className="mt-1 break-keep text-xs leading-5 text-white/60">모든 저금통의 흑·백 개수를 전부 맞히면 <b className="text-[#3ddc97]">+3점</b>, 하나라도 틀리면 <b className="text-[#ff8b96]">−2점</b>이에요. 도전하지 않아도 돼요.</p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {Object.values(s.pigs).sort((a, b) => a.label - b.label).map((pig) => (
+                <div key={pig.id} className="flex items-center gap-2 rounded-xl bg-white/[.05] p-2">
+                  <GoldPig label={pig.label} size={44} />
+                  {(['black', 'white'] as Color[]).map((c) => {
+                    const v = allIn[pig.id]?.[c] ?? 1;
+                    const set = (n: number) => setAllIn((g) => ({ ...g, [pig.id]: { black: g[pig.id]?.black ?? 1, white: g[pig.id]?.white ?? 1, [c]: Math.max(0, n) } }));
+                    return (
+                      <div key={c} className="flex flex-1 items-center justify-center gap-1">
+                        <button type="button" onClick={() => set(v - 1)} className="h-7 w-7 rounded-md bg-white/10 text-sm font-black">−</button>
+                        <span className="flex w-9 items-center justify-center gap-1 font-mono font-black"><CoinDot color={c} size={11} />{v}</span>
+                        <button type="button" onClick={() => set(v + 1)} className="h-7 w-7 rounded-md bg-white/10 text-sm font-black">+</button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => apply(allInGuess(s, ME, null))} className={`${BTN} py-3`}>도전 안 함</button>
+              <button type="button" onClick={() => apply(allInGuess(s, ME, Object.fromEntries(Object.values(s.pigs).map((p) => [p.id, { black: allIn[p.id]?.black ?? 1, white: allIn[p.id]?.white ?? 1 }]))))} className={`${BTN_ACCENT} py-3`}>도전하기</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {s.phase === 'allIn' && s.allInSeats.length > 0 && !myAllIn && !revealing && (
+        <div className="pointer-events-none fixed inset-x-0 top-20 z-40 flex justify-center px-4">
+          <div className="hall-pop rounded-full border border-white/15 bg-[#1b1e33]/95 px-4 py-2 text-sm font-black">리셋 직전 · {s.allInSeats.map((i) => s.players[i].name).join(', ')} 전체 맞히기 고민 중…</div>
+        </div>
+      )}
+
+      {/* All-in result: every pig opened. */}
+      {revealing && s.last?.k === 'allIn' && (() => {
+        const e = s.last;
+        return (
+          <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4">
+            <div className="hall-pop w-full max-w-md rounded-[22px] border border-white/10 bg-gradient-to-b from-[#2b3150] to-[#151829] p-6 text-center">
+              <p className="text-[10px] font-black tracking-[0.3em] text-[#ffd84a]">ALL-IN</p>
+              <h2 className={`mt-1 text-2xl font-black ${e.right ? 'text-[#3ddc97]' : 'text-[#ff8b96]'}`}>{s.players[e.seat].name} {e.right ? '전체 맞히기 성공! +3' : '전체 맞히기 실패 −2'}</h2>
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {e.pigs.map((pig) => (
+                  <div key={pig.label} className="rounded-xl bg-white/[.05] p-2">
+                    <div className="flex justify-center"><GoldPig label={pig.label} size={44} /></div>
+                    <p className="mt-1 flex justify-center gap-2 text-xs"><CoinCount color="black" n={pig.black} /><CoinCount color="white" n={pig.white} /></p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {revealing && s.last?.k === 'reset' && (
+        <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center">
+          <div className="hall-pop rounded-[22px] border border-white/20 bg-[#1b1e33]/95 px-8 py-6 text-center shadow-2xl">
+            <RotateCcw size={30} className="mx-auto text-white" />
+            <p className="mt-2 text-2xl font-black">리셋!</p>
+            <p className="mt-1 text-xs text-white/60">모든 저금통이 흑1·백1로 돌아갔어요</p>
+          </div>
+        </div>
+      )}
+
+      {/* Game over */}
+      {s.phase === 'finished' && !revealing && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4">
+          <div className="hall-pop w-full max-w-sm rounded-[24px] border border-[#ffd84a]/40 bg-gradient-to-b from-[#2b3150] to-[#151829] p-6 text-center shadow-[0_0_100px_rgba(255,216,74,.25)]">
+            <Crown size={34} className="mx-auto text-[#ffd84a]" />
+            <h2 className="mt-2 text-2xl font-black">{ranking(s)[0] === ME ? '1위! 피스 3개 획득' : ranking(s)[3] === ME ? '아쉽게 탈락…' : '게임 종료'}</h2>
+            <ol className="mt-4 space-y-1.5">{ranking(s).map((seat, r) => (
+              <li key={seat} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${seat === ME ? 'bg-[#ffd84a] text-[#2a1d00]' : 'bg-white/[.06]'}`}>
+                <span className="w-6 font-mono font-black">{r + 1}</span><span className="flex-1 text-left font-bold">{s.players[seat].name}</span>
+                <span className="font-mono font-black">{s.players[seat].score}점</span>
+                {r === 0 && <span className="text-[11px] font-black">피스 3개</span>}
+                {r === 3 && <span className={`text-[11px] font-black ${seat === ME ? '' : 'text-[#ff8b96]'}`}>탈락</span>}
+              </li>))}
+            </ol>
+            <button type="button" onClick={start} className={`${BTN_ACCENT} mt-5 w-full py-3`}>다시 하기</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

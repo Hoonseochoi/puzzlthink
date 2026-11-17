@@ -16,6 +16,7 @@ export const ANSWER_MS = 20_000;
 export const PUT_MS = 30_000; // time to put coins and pick who gets the pig
 export const DOUBT_MS = 10_000;
 export const RESET_VOTES = 3;
+export const ALLIN_MS = 45_000; // time to fill in every pig before the reset
 
 export type Color = 'black' | 'white';
 export type Pig = { id: number; label: number; black: number; white: number };
@@ -23,9 +24,9 @@ export type PbPlayer = { name: string; ai: boolean; score: number; upper: number
 export type PbEvent =
   | { k: 'put'; seat: number; to: number; pig: number; black: number; white: number }
   | { k: 'answer'; seat: number; pig: number; color: Color; value: number }
-  | { k: 'doubt'; seat: number; target: number; pig: number; color: Color; value: number; actual: number; right: boolean; pigBlack: number; pigWhite: number }
+  | { k: 'doubt'; seat: number; target: number; pig: number; label: number; color: Color; value: number; actual: number; right: boolean; pigBlack: number; pigWhite: number }
   | { k: 'pass'; seat: number } // nobody doubted
-  | { k: 'allIn'; seat: number; right: boolean }
+  | { k: 'allIn'; seat: number; right: boolean; pigs: { label: number; black: number; white: number }[] }
   | { k: 'reset' };
 
 export type PbState = {
@@ -109,7 +110,7 @@ export function doubt(state: PbState, seat: number, now = Date.now()): PbState |
   next = setPlayer(next, seat, { score: next.players[seat].score + (right ? 1 : -1) });
   if (right) next = setPlayer(next, a.seat, { score: next.players[a.seat].score - 1 });
   const loser = right ? a.seat : seat;
-  const event: PbEvent = { k: 'doubt', seat, target: a.seat, pig: a.pig, color: a.color, value: a.value, actual, right, pigBlack: pig.black, pigWhite: pig.white };
+  const event: PbEvent = { k: 'doubt', seat, target: a.seat, pig: a.pig, label: pig.label, color: a.color, value: a.value, actual, right, pigBlack: pig.black, pigWhite: pig.white };
   if (over(next)) return bump({ ...next, phase: 'finished', answer: null }, event);
   const [withPig, id] = newPig(next);
   next = setPlayer(withPig, loser, { upper: id });
@@ -131,7 +132,7 @@ export function voteReset(state: PbState, seat: number): PbState | null {
   const next = setPlayer(state, seat, { resetVote: true });
   if (next.players.filter((p) => p.resetVote).length < RESET_VOTES) return { ...next, seq: next.seq + 1 };
   const allInSeats = next.players.flatMap((p, i) => (p.resetVote ? [] : [i]));
-  return { ...next, phase: 'allIn', allInSeats, resume: state.phase, seq: next.seq + 1 };
+  return { ...next, phase: 'allIn', allInSeats, resume: state.phase, deadline: Date.now() + ALLIN_MS, seq: next.seq + 1 };
 }
 
 /** A non-voter guesses every pig (black and white): +3 if all right, −2 otherwise. Null guess = pass. */
@@ -140,11 +141,15 @@ export function allInGuess(state: PbState, seat: number, guess: Record<number, {
   let next: PbState = { ...state, allInSeats: state.allInSeats.filter((s) => s !== seat) };
   if (guess) {
     const right = Object.values(state.pigs).every((pig) => guess[pig.id]?.black === pig.black && guess[pig.id]?.white === pig.white);
-    next = bump(setPlayer(next, seat, { score: next.players[seat].score + (right ? 3 : -2) }), { k: 'allIn', seat, right });
+    const pigs = Object.values(state.pigs).map((p) => ({ label: p.label, black: p.black, white: p.white }));
+    next = bump(setPlayer(next, seat, { score: next.players[seat].score + (right ? 3 : -2) }), { k: 'allIn', seat, right, pigs });
     if (over(next)) return { ...next, phase: 'finished' };
   }
-  return next.allInSeats.length ? next : resetPigs(next);
+  return next; // once nobody is left to guess, finishReset() restarts the pigs (after the result is shown)
 }
+
+/** Everyone eligible has guessed (or passed): restart every pig. */
+export const finishReset = (state: PbState): PbState | null => (state.phase === 'allIn' && !state.allInSeats.length ? resetPigs(state) : null);
 
 /** Every pig goes back to 1 black, 1 white; the turn player keeps a pig on the table. */
 function resetPigs(state: PbState, now = Date.now()): PbState {
