@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, LogOut, RotateCcw, Share2, Trophy } from 'lucide-react';
+import { Check, Hourglass, LogOut, RotateCcw, Share2, Trophy } from 'lucide-react';
+import { usePractice } from './OpenPractice';
 import { useRouter } from '@/i18n/routing';
 import { displayName, useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
@@ -52,9 +53,11 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
   onAgain?: () => void; waitingLabel?: string; gamePath: string; exitPath: string; primaryClass: string;
 }) {
   const t = useTranslations('Common');
+  const tp = useTranslations('OpenPractice');
   const locale = useLocale();
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const practice = usePractice();
 
   const share = async () => {
     const url = `${window.location.origin}/${locale}${gamePath}`;
@@ -73,6 +76,15 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
   };
 
   const secondary = 'flex items-center justify-center gap-1.5 rounded-[12px] border border-white/15 bg-white/5 py-3 text-xs font-bold text-white/80 hover:bg-white/10';
+  // Practice beside an open room: back to waiting, or another practice game.
+  if (practice) {
+    return (
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button onClick={practice.wait} className={secondary}><Hourglass size={14} />{tp('wait')}</button>
+        <button onClick={practice.again} className={`flex items-center justify-center gap-1.5 py-3 text-xs font-black ${primaryClass}`}><RotateCcw size={14} />{tp('again')}</button>
+      </div>
+    );
+  }
   return (
     <>
       <RecordPrompt />
