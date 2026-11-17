@@ -33,6 +33,14 @@ export type PbEvent =
   | { k: 'allIn'; seat: number; right: boolean; pigs: { label: number; black: number; white: number }[] }
   | { k: 'reset' };
 
+/** What happened to the pigs, for the replay after the game (never shown while playing). */
+export type PbLog =
+  | { k: 'start'; label: number; seat: number }
+  | { k: 'put'; label: number; seat: number; to: number; black: number; white: number }
+  | { k: 'open'; label: number; by: number; target: number; black: number; white: number; color: Color; value: number; right: boolean }
+  | { k: 'new'; label: number; seat: number }
+  | { k: 'reset' };
+
 export type PbState = {
   players: PbPlayer[];
   pigs: Record<number, Pig>;
@@ -54,6 +62,7 @@ export type PbState = {
   holdUntil: number; // play pauses until then (see HOLD_*)
   level: PbLevel; // how well AI players remember
   mem: (Memory | null)[]; // each AI player's memory of the pigs (null for people)
+  log: PbLog[];
 };
 
 const newPig = (state: PbState, black = 1, white = 1): [PbState, number] => {
@@ -67,7 +76,7 @@ export function createPiggyBank(names: string[], ai: boolean[], level: PbLevel =
   let state: PbState = {
     players: names.map((name, i) => ({ name, ai: ai[i], score: 0, upper: null, lower: null, resetVote: false })),
     pigs: {}, nextId: 1, nextLabel: 1, order, turn: order[0], phase: 'put', ask: 'black', answer: null, passed: [],
-    deadline: 0, allInSeats: [], resume: null, last: null, seq: 0, changedAt: now, answerAt: 0, holdUntil: 0, level, mem: [],
+    deadline: 0, allInSeats: [], resume: null, last: null, seq: 0, changedAt: now, answerAt: 0, holdUntil: 0, level, mem: [], log: [],
   };
   // Pigs 1–4 go under each player's table slot in turn order; pig 5 goes on the first player's table.
   for (const seat of order) {
@@ -77,7 +86,8 @@ export function createPiggyBank(names: string[], ai: boolean[], level: PbLevel =
   }
   const [next, id] = newPig(state);
   state = { ...next, players: next.players.map((p, i) => (i === order[0] ? { ...p, upper: id } : p)) };
-  return { ...state, deadline: now + PUT_MS, mem: ai.map((isAi) => (isAi ? freshMemory(state) : null)) };
+  const log: PbLog[] = [...order.map((seat) => ({ k: 'start' as const, label: state.pigs[state.players[seat].lower!].label, seat })), { k: 'start', label: state.pigs[id].label, seat: order[0] }];
+  return { ...state, deadline: now + PUT_MS, mem: ai.map((isAi) => (isAi ? freshMemory(state) : null)), log };
 }
 
 const setPlayer = (state: PbState, seat: number, patch: Partial<PbPlayer>): PbState =>
@@ -97,7 +107,8 @@ export function putCoins(state: PbState, seat: number, black: number, white: num
   let next: PbState = { ...state, pigs: { ...state.pigs, [pigId]: { ...pig, black: pig.black + black, white: pig.white + white } } };
   next = setPlayer(next, seat, { lower: me.upper, upper: null });
   next = setPlayer(next, to, { upper: pigId });
-  return bump({ ...next, phase: 'answer', turn: to, answer: null, deadline: now + ANSWER_MS }, { k: 'put', seat, to, pig: pigId, black, white });
+  const log: PbLog = { k: 'put', label: pig.label, seat, to, black, white };
+  return bump({ ...next, phase: 'answer', turn: to, answer: null, deadline: now + ANSWER_MS, log: [...state.log, log] }, { k: 'put', seat, to, pig: pigId, black, white });
 }
 
 /** The receiver names the count of the asked colour in their table pig. */
@@ -121,9 +132,11 @@ export function doubt(state: PbState, seat: number, now = Date.now()): PbState |
   if (right) next = setPlayer(next, a.seat, { score: next.players[a.seat].score - 1 });
   const loser = right ? a.seat : seat;
   const event: PbEvent = { k: 'doubt', seat, target: a.seat, pig: a.pig, label: pig.label, color: a.color, value: a.value, actual, right, pigBlack: pig.black, pigWhite: pig.white };
+  next = { ...next, log: [...next.log, { k: 'open', label: pig.label, by: seat, target: a.seat, black: pig.black, white: pig.white, color: a.color, value: a.value, right }] };
   if (over(next)) return bump({ ...next, phase: 'finished', answer: null, holdUntil: now + HOLD_DOUBT_MS }, event);
   const [withPig, id] = newPig(next);
   next = setPlayer(withPig, loser, { upper: id });
+  next = { ...next, log: [...next.log, { k: 'new', label: next.pigs[id].label, seat: loser }] };
   return bump({ ...next, phase: 'put', turn: loser, ask: flip(a.color), answer: null, holdUntil: now + HOLD_DOUBT_MS, deadline: now + HOLD_DOUBT_MS + PUT_MS }, event);
 }
 
@@ -177,7 +190,7 @@ function resetPigs(state: PbState, now = Date.now()): PbState {
   for (const pig of Object.values(state.pigs)) pigs[pig.id] = { ...pig, black: 1, white: 1 };
   const players = state.players.map((p) => ({ ...p, resetVote: false }));
   const phase = state.resume ?? 'put';
-  return bump({ ...state, pigs, players, phase, resume: null, allInSeats: [], holdUntil: now + HOLD_RESET_MS, answerAt: now + HOLD_RESET_MS,
+  return bump({ ...state, pigs, players, phase, resume: null, allInSeats: [], log: [...state.log, { k: 'reset' }], holdUntil: now + HOLD_RESET_MS, answerAt: now + HOLD_RESET_MS,
     deadline: now + HOLD_RESET_MS + (phase === 'doubt' ? DOUBT_MS : phase === 'put' ? PUT_MS : ANSWER_MS) }, { k: 'reset' });
 }
 

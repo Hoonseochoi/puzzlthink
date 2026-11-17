@@ -64,7 +64,7 @@ export function reducePiggyRoom(state: PiggyRoom, action: PiggyRoomAction, seat:
 export function redactPiggy(state: PiggyRoom): PiggyRoom {
   if (!state.game || state.game.phase === 'finished') return state;
   const pigs = Object.fromEntries(Object.entries(state.game.pigs).map(([id, p]) => [id, { ...p, black: -1, white: -1 }]));
-  return { ...state, game: { ...state.game, pigs, mem: [] } };
+  return { ...state, game: { ...state.game, pigs, mem: [], log: [] } }; // the history would give the counts away
 }
 
 /** Host clock: one AI move or time limit per tick, while a game runs. */
