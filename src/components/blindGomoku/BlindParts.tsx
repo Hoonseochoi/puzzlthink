@@ -64,24 +64,27 @@ export function ReplayBar({ moves, replay }: { moves: GomokuMove[]; replay: Retu
   );
 }
 
-/** The seven outer colours. When `locked` is set (white must copy), it shows that colour only. */
-export function ColorPicker({ selected, onSelect, disabled, locked, note }: {
+/** The outer colours in play. When `locked` is set (white must copy), only that colour is active. */
+export function ColorPicker({ selected, onSelect, disabled, locked, note, colors, blocked }: {
   selected: StoneColor;
   onSelect: (color: StoneColor) => void;
   disabled: boolean;
   locked?: StoneColor | null;
   note: string;
+  colors?: StoneColor[]; // colours in play (default: all seven)
+  blocked?: StoneColor | null; // in play but not allowed this turn
 }) {
   const t = useTranslations('BlindGomoku');
   return (
     <section className={PANEL}>
       <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('chooseColor')}</p><span className="text-[10px] font-bold text-white/35">{note}</span></div>
       <div className="mt-3 grid grid-cols-7 gap-1.5">
-        {STONE_COLORS.map((color) => {
+        {STONE_COLORS.filter((color) => !colors || colors.includes(color.id)).map((color) => {
           const on = (locked ?? selected) === color.id;
+          const off = !!locked || blocked === color.id;
           return (
-            <button key={color.id} type="button" disabled={disabled || !!locked} aria-label={t(`colors.${color.id}`)} aria-pressed={on} onClick={() => onSelect(color.id)}
-              className={`aspect-square rounded-full border-2 p-[3px] transition ${on ? 'scale-110 border-white shadow-[0_0_15px_rgba(255,255,255,.35)]' : `border-transparent ${locked ? 'opacity-20' : 'opacity-65 hover:opacity-100'}`}`}>
+            <button key={color.id} type="button" disabled={disabled || off} aria-label={t(`colors.${color.id}`)} aria-pressed={on} onClick={() => onSelect(color.id)}
+              className={`aspect-square rounded-full border-2 p-[3px] transition ${on ? 'scale-110 border-white shadow-[0_0_15px_rgba(255,255,255,.35)]' : `border-transparent ${off ? 'opacity-20' : 'opacity-65 hover:opacity-100'}`}`}>
               <BlindStone color={color.hex} owner="black" />
             </button>
           );

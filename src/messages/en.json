@@ -112,7 +112,12 @@
     },
     "understood": "Start game",
     "flipToColors": "Colour side",
-    "flipToTruth": "Black & white side"
+    "flipToTruth": "Black & white side",
+    "colorRule": "Colour rule",
+    "colorCountValue": "{count} colours",
+    "mustChange": "New colour every turn",
+    "mustChangeDesc": "You can't reuse your last colour",
+    "colorRuleHint": "Fewer colours make stones look alike and harder to remember. Locked after the first move."
   },
   "Home": {
     "metaTitle": "PUZZLTHINK — Devil's Plan death matches with friends",
