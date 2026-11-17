@@ -10,6 +10,7 @@ import GlobalHeader from '@/components/GlobalHeader';
 import { AuthProvider } from '@/components/AuthProvider';
 import HallCelebration from '@/components/HallCelebration';
 import OpenResultCelebration from '@/components/OpenResultCelebration';
+import NicknamePrompt from '@/components/NicknamePrompt';
 import GlobalFooter from '@/components/GlobalFooter';
 import InstallBanner from '@/components/InstallBanner';
 import OnlineCount from '@/components/OnlineCount';
@@ -75,6 +76,7 @@ export default async function LocaleLayout({
           <GlobalFooter />
           <HallCelebration />
           <OpenResultCelebration />
+          <NicknamePrompt />
           <OnlineCount />
           </AuthProvider>
         </NextIntlClientProvider>

@@ -14,15 +14,20 @@ type AuthState = {
   signOut: () => Promise<void>;
   clearError: () => void;
   setError: (message: string) => void;
+  /** The player's nickname from their profile (null until loaded or signed out). */
+  nickname: string | null;
+  /** Whether they have chosen it (false: ask once after sign-in). Null while loading. */
+  nicknameSet: boolean | null;
+  saveNickname: (name: string) => Promise<string | null>;
 };
 
 const AuthContext = createContext<AuthState>({
   user: null, ready: false, configured: false, error: null,
   signIn: async () => {}, signOut: async () => {}, clearError: () => {}, setError: () => {},
+  nickname: null, nicknameSet: null, saveNickname: async () => null,
 });
 
 const NAME_KEY = 'puzzlthink_nickname';
-const AUTO_NAME = /^(손님|Guest) \d{4}$/;
 
 export const displayName = (user: User | null) =>
   (user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '') as string;
@@ -77,15 +82,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => window.clearInterval(timer);
   }, [user]);
 
-  // Use the Google name as the room nickname unless the player picked their own.
+  // Signed in: the profile nickname is the name in every room (waiting rooms, games, rankings).
+  const [profileName, setProfileName] = useState<{ uid: string; nickname: string | null; set: boolean } | null>(null);
+  const writeRoomName = (name: string) => { try { localStorage.setItem(NAME_KEY, name.slice(0, 16)); } catch { /* storage optional */ } };
   useEffect(() => {
-    const name = displayName(user).trim().slice(0, 16);
-    if (!name) return;
-    try {
-      const saved = localStorage.getItem(NAME_KEY);
-      if (!saved || AUTO_NAME.test(saved)) localStorage.setItem(NAME_KEY, name);
-    } catch { /* storage optional */ }
+    if (!user) return;
+    const supabase = getSupabase();
+    if (!supabase) return;
+    let alive = true;
+    // touch_profile (above) creates the row on first sign-in, so retry once if it is not there yet.
+    const load = (tries: number) => supabase.from('profiles').select('nickname, nickname_set').maybeSingle().then(({ data, error }) => {
+      if (!alive) return;
+      if (!data && tries > 0) { window.setTimeout(() => load(tries - 1), 1200); return; }
+      const nickname = (data?.nickname as string | null) ?? displayName(user).slice(0, 16) ?? null;
+      // Before the nickname migration there is no nickname_set column: treat as chosen (no prompt).
+      setProfileName({ uid: user.id, nickname, set: error ? true : !!data?.nickname_set });
+      if (nickname) writeRoomName(nickname);
+    });
+    load(2);
+    return () => { alive = false; };
   }, [user]);
+  const saveNickname = useCallback(async (name: string) => {
+    const supabase = getSupabase();
+    const trimmed = name.trim().slice(0, 16);
+    if (!supabase || !user || trimmed.length < 2) return 'invalid';
+    const { error: e } = await supabase.rpc('update_profile', { p_nickname: trimmed, p_show_in_hall: null });
+    if (e) return e.message;
+    setProfileName({ uid: user.id, nickname: trimmed, set: true });
+    writeRoomName(trimmed);
+    return null;
+  }, [user]);
+  const mine = profileName && user && profileName.uid === user.id ? profileName : null;
 
   const signIn = useCallback(async () => {
     const supabase = getSupabase();
@@ -100,7 +127,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }, []);
 
-  const value = useMemo(() => ({ user, ready, configured, error, signIn, signOut, clearError: () => setError(null), setError }), [user, ready, configured, error, signIn, signOut]);
+  const value = useMemo(() => ({
+    user, ready, configured, error, signIn, signOut, clearError: () => setError(null), setError,
+    nickname: mine?.nickname ?? null, nicknameSet: mine ? mine.set : null, saveNickname,
+  }), [user, ready, configured, error, signIn, signOut, mine, saveNickname]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

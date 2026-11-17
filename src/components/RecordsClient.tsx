@@ -42,7 +42,7 @@ function Avatar({ src, name, size = 40 }: { src?: string | null; name: string; s
 export default function RecordsClient() {
   const t = useTranslations('Records');
   const tc = useTranslations('Common');
-  const { user, ready } = useAuth();
+  const { user, ready, saveNickname } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [results, setResults] = useState<ResultRow[]>([]);
   const [hall, setHall] = useState<HallEntry[]>([]);
@@ -70,6 +70,7 @@ export default function RecordsClient() {
 
   const onSave = async () => {
     const error = await saveProfile(nickname, showInHall);
+    if (!error && nickname.trim().length >= 2) await saveNickname(nickname); // rooms and rankings use it from now on
     if (!error) { setSaved(true); window.setTimeout(() => setSaved(false), 1800); fetchHallOfFame().then(({ entries }) => setHall(entries)); }
   };
 
@@ -175,7 +176,8 @@ export default function RecordsClient() {
                 </label>
                 <button onClick={onSave} className="rounded-2xl bg-[#17201e] px-5 py-2.5 text-xs font-black text-white">{saved ? t('saved') : t('save')}</button>
               </section>
-              <p className="mt-2 flex items-center gap-1.5 text-[11px] text-black/40"><Crown size={11} />{t('privacyNote')}</p>
+              <p className="mt-2 break-keep text-[11px] font-bold text-black/55">{t('nicknameNote')}</p>
+              <p className="mt-1 flex items-center gap-1.5 text-[11px] text-black/40"><Crown size={11} />{t('privacyNote')}</p>
             </>
           )}
         </section>
