@@ -42,6 +42,7 @@ export default async function GameIntroHero({ locale, id, tone = 'dark' }: { loc
           ))}
         </ol>
         <p className={`mt-4 border-t pt-3 text-xs leading-6 ${dark ? 'border-white/10 text-white/45' : 'border-black/10 text-black/45'}`}><b className="font-black">{t('origin')}</b> · {t(`${key}.origin`)}</p>
+        <p className={`mt-1 text-[10px] leading-5 ${dark ? 'text-white/30' : 'text-black/35'}`}>{tc('unofficialNotice')}</p>
       </div>
     </div>
   );

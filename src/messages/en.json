@@ -63,7 +63,10 @@
     "replayLast": "Last",
     "replayPlay": "Play",
     "replayPause": "Pause",
-    "replayPartial": "Recorded from when this browser joined"
+    "replayPartial": "Recorded from when this browser joined",
+    "unofficialNotice": "PUZZLTHINK is an unofficial fan site, not affiliated with any broadcaster or producer. Show names and trademarks belong to their owners.",
+    "myCerts": "My clear certificates",
+    "myCertsEmpty": "Beat a Hard AI (or a Hard Sudoku) to get a numbered clear certificate."
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -3603,5 +3606,31 @@
       }
     ],
     "disclaimer": "Piggy Bank is PUZZLTHINK's web adaptation of a game format shown on TV and is not affiliated with the broadcaster or producers."
+  },
+  "Cert": {
+    "eyebrow": "HARD CLEAR",
+    "popupTitle": "Clear No. {n}!",
+    "popupTitleSignedOut": "Hard mode cleared!",
+    "popupDesc": "You are the No. {n} player to clear {label}. Your certificate is ready!",
+    "popupDescSignedOut": "You beat {label}. Impressive!",
+    "popupNudge": "Not many people get here. Show it off 🔥",
+    "signInPrompt": "Sign in to save this game and get an official certificate with your clear number.",
+    "share": "Share certificate",
+    "saveImage": "Save image",
+    "saving": "Saving…",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "openPage": "Open certificate page",
+    "close": "Close",
+    "imageLoading": "Making your certificate…",
+    "imageAlt": "{label} clear certificate No. {n}",
+    "shareText": "Cleared {label} as No. {n}! Can you?",
+    "metaTitle": "{name} · {label} clear No. {n}",
+    "metaDescription": "A PUZZLTHINK {label} clear certificate. Try it yourself!",
+    "notFound": "Certificate not found",
+    "pageTitle": "{name} cleared {label} as No. {n}",
+    "pageSub": "Cleared {date} · {total} players so far",
+    "challenge": "Try {label} yourself",
+    "note": "Numbers follow the order in which signed-in players first won on Hard. Certificates show only the nickname. PUZZLTHINK is an unofficial fan site, not affiliated with any broadcaster or producer."
   }
 }

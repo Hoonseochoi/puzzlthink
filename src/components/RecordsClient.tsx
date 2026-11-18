@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Bot, Clock3, Crown, DoorOpen, Gamepad2, Medal, Trophy } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Award, Bot, Clock3, Crown, DoorOpen, Gamepad2, Medal, Trophy } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfFame, fetchMyRecords, isNicknameTaken, saveProfile } from '@/lib/stats';
+import { clearLabel } from '@/lib/hardClear';
+import { getSupabase } from '@/lib/supabase';
 import AuthButton from './AuthButton';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
 import AdSlot from './AdSlot';
@@ -53,6 +55,8 @@ export default function RecordsClient() {
   const [saved, setSaved] = useState(false);
   const [nameTaken, setNameTaken] = useState(false);
   const [recordView, setRecordView] = useState<'ai' | 'open'>('ai');
+  const [certs, setCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
+  const locale = useLocale();
 
   useEffect(() => { fetchHallOfFame().then(({ entries, error }) => { setHall(entries); if (error) setLoadError(error); }); }, []);
   useEffect(() => {
@@ -62,6 +66,7 @@ export default function RecordsClient() {
       if (p) { setNickname(p.nickname ?? ''); setShowInHall(p.show_in_hall); }
       if (error) setLoadError(error);
     });
+    getSupabase()?.rpc('my_hard_clears').then(({ data }) => { if (Array.isArray(data)) setCerts(data); });
   }, [user]);
 
   const byGame = useMemo(() => {
@@ -169,6 +174,19 @@ export default function RecordsClient() {
                   <section className="rounded-[24px] border border-black/10 bg-white p-4"><p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-black/40"><Gamepad2 size={12} />{t('gamesPlayed')}</p><p className="mt-1 text-2xl font-black">{results.length}</p></section>
                 </div>
               </div>
+
+              <section className="mt-3 rounded-[24px] border border-[#d9b25f]/40 bg-[#fbf5e6] p-5">
+                <h3 className="flex items-center gap-1.5 text-sm font-black"><Award size={16} className="text-[#b8892e]" />{tc('myCerts')}</h3>
+                {certs.length ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {certs.map((c) => (
+                      <Link key={c.id} href={`/cert/${c.id}`} className="flex items-center gap-2 rounded-full border border-[#d9b25f]/50 bg-white px-3 py-1.5 text-xs font-bold hover:bg-[#fff8e6]">
+                        <span className="font-mono font-black text-[#b8892e]">#{c.clear_no}</span>{clearLabel(c.game, locale)}
+                      </Link>
+                    ))}
+                  </div>
+                ) : <p className="mt-2 text-xs text-black/50">{tc('myCertsEmpty')}</p>}
+              </section>
             </>
           )}
         </section>
