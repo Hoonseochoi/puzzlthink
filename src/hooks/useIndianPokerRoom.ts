@@ -14,4 +14,5 @@ export const INDIAN_POKER_ROOM: RoomEngine<IndianPokerRoom, IndianPokerAction> =
 
 export const prepareIndianPokerRoom = () => prepareRoom(INDIAN_POKER_ROOM.channel, INDIAN_POKER_ROOM.storage, 'indian-poker');
 export const useIndianPokerRoom = (code: string, defaultName: string) => useRealtimeRoom(INDIAN_POKER_ROOM, code, defaultName);
-export const useLocalIndianPoker = () => useLocalRoom(INDIAN_POKER_ROOM, () => createIndianPokerRoom({ id: 'local', name: 'YOU', at: 0 }, true));
+const createLocalIndianPoker = () => createIndianPokerRoom({ id: 'local', name: 'YOU', at: 0 }, true);
+export const useLocalIndianPoker = () => useLocalRoom(INDIAN_POKER_ROOM, createLocalIndianPoker);
