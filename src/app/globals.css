@@ -46,8 +46,6 @@ button:disabled { cursor: default; }
 .bw-lay { animation: bwLay .42s cubic-bezier(.2,.8,.2,1) both; }
 .bw-flip { animation: bwFlip .38s cubic-bezier(.2,.8,.2,1) both; }
 .bw-result { animation: bwResult .5s cubic-bezier(.2,.8,.2,1) both; }
-/* Devil's Plan 3 tag on the home cards: dark plate, glowing letters. */
-@keyframes dp3Glow { 0%, 100% { text-shadow: 0 0 4px #ff2d55, 0 0 10px rgba(255,45,85,.75); box-shadow: 0 0 10px rgba(255,45,85,.35), inset 0 0 8px rgba(255,45,85,.18); } 50% { text-shadow: 0 0 6px #ff2d55, 0 0 18px rgba(255,45,85,.95); box-shadow: 0 0 18px rgba(255,45,85,.55), inset 0 0 10px rgba(255,45,85,.28); } }
 /* 무거운 13 on the home page: the most played game. A warm gradient pill with a light sweep and a flickering flame. */
 .hype-tag { background: linear-gradient(100deg, #ff8a00 0%, #ff3d5a 55%, #c03cff 100%); box-shadow: 0 4px 14px rgba(255, 61, 90, .45), inset 0 1px 0 rgba(255,255,255,.35); text-shadow: 0 1px 2px rgba(120, 0, 30, .35); }
 .hype-tag::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.55) 50%, transparent 70%); transform: translateX(-120%); animation: hypeShine 2.8s ease-in-out infinite; }
@@ -55,13 +53,11 @@ button:disabled { cursor: default; }
 .hype-flame { animation: hypeFlicker 1.2s ease-in-out infinite; transform-origin: 50% 90%; }
 @keyframes hypeFlicker { 0%, 100% { transform: scale(1) rotate(-4deg); } 50% { transform: scale(1.18) rotate(4deg); } }
 .hype-card { box-shadow: 0 0 0 1px rgba(255, 106, 61, .18), 0 18px 50px rgba(255, 86, 61, .16); background-image: radial-gradient(ellipse 80% 45% at 50% 0%, rgba(255, 138, 0, .10), transparent 70%); }
-.dp3-tag { animation: dp3Glow 2.4s ease-in-out infinite; text-shadow: 0 0 5px #ff2d55, 0 0 12px rgba(255,45,85,.8); }
 @media (prefers-reduced-motion: reduce) {
   .blind-gomoku-win-line { animation: none; stroke-dashoffset: 0; }
   .laser-janggi-beam, .laser-janggi-hit { animation: none; }
   .nemo-highlight { animation: none; }
   .bw-lay, .bw-flip, .bw-result { animation: none; }
-  .dp3-tag { animation: none; }
   .hype-tag::after, .hype-flame { animation: none; }
   .h13-pass-pop { animation: none; }
 }
