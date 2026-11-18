@@ -14,8 +14,10 @@ import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL
 import { useLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { reportGame } from '@/lib/stats';
+import { useGameCounter, useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
+import { ReplayButton, ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import { Link } from '@/i18n/routing';
-import { legalActions, type LaserAction } from '@/lib/laserJanggi';
+import { legalActions, type LaserAction, type LaserShot } from '@/lib/laserJanggi';
 import { LASER_TURN_OPTIONS } from '@/lib/laserJanggiRoom';
 import LaserBoard from './LaserBoard';
 import { CoffeeNudge } from '../SupportLink';
@@ -36,6 +38,15 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
+  const [replaying, setReplaying] = useState(false);
+  // 복기: the position and beam after every move or turn, as this browser saw them.
+  const gameNo = useGameCounter(state?.phase, 'playing');
+  const inGame = state && state.phase !== 'lobby' ? state : null;
+  const frames = useReplayFrames(inGame ? `${state!.sid}-${gameNo}` : null, inGame ? { pieces: inGame.pieces, shot: inGame.shot } : null,
+    inGame ? inGame.pieces.map((p) => `${p.id}${p.row}${p.col}${p.direction}`).join() : '');
+  const showReplay = replaying && state?.phase === 'finished';
+  const replay = useReplayPlayer(Math.max(0, frames.length - 1), showReplay, 1300);
+  const frame = showReplay ? frames[replay.at] : null;
 
   useEffect(() => {
     const tick = window.setInterval(() => setNow(Date.now()), 250);
@@ -72,6 +83,11 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
   const play = (action: LaserAction) => { if (myTurn) { setSelectedId(null); dispatch({ t: 'play', action }); } };
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
   const result = !state ? '' : state.reason === 'turn-limit' ? t('draw') : state.winner === null ? '' : `${seatName(state.winner)} · ${state.reason === 'king' ? t('byKing') : state.reason === 'resign' ? t('byResign') : t('byTimeout')}`;
+  const shotCaption = (s: LaserShot | null) => {
+    if (!s) return tc('replayStart');
+    const player = seatName(s.owner);
+    return s.kingHits.length ? tg('replayKing', { player }) : s.captured.length ? tg('replayCaptured', { player, n: s.captured.length }) : tg('replayShot', { player });
+  };
   const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? result : animating ? tg('laserFiring') : myTurn ? t('yourTurn') : t('waitingFor', { player: seatName(state.current) });
 
   return <div className={SHELL} style={{ ...accentVars(LASER_CYAN, '#041015'), backgroundImage: fog('35, 190, 220') }}>
@@ -88,12 +104,13 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
           <div className={PANEL}><p className={PANEL_TITLE}>{t('turnTime')}</p><div className="mt-3 grid grid-cols-3 gap-2">{LASER_TURN_OPTIONS.map((sec) => <button key={sec} disabled={!me?.isHost} onClick={() => dispatch({ t:'config', turnSec:sec })} className={`py-2.5 ${seg(state.turnSec === sec)}`}>{t('seconds',{n:sec})}</button>)}</div></div>
           <form onSubmit={(e) => { e.preventDefault(); rename(nameDraft); setNameDraft(''); }} className="flex gap-2"><input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} maxLength={16} placeholder={me?.name ?? ''} className={INPUT} /><button className={BTN}>{t('rename')}</button></form>
           {me?.isHost ? <button onClick={() => dispatch({t:'start'})} disabled={!full} className={`flex w-full items-center justify-center gap-2 rounded-md py-3.5 text-sm font-black ${full ? 'bg-[#59e6ff] text-[#041015]' : 'border border-dashed border-white/20 text-white/35'}`}>{full ? <Swords size={16}/> : <Lock size={15}/>} {full ? t('start') : t('startLocked')}</button> : <p className="text-center text-sm text-white/45">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>}
-        </div> : <><LaserBoard pieces={state.pieces} current={state.current} interactive={myTurn} selectedId={selectedId} shot={state.shot} onSelect={(id) => setSelectedId((v) => v === id ? null : id)} onMove={play} />{selected && myTurn && <div className="mx-auto mt-3 flex max-w-[700px] items-center justify-between rounded-[10px] border border-[#59e6ff]/20 bg-black/50 px-3 py-2"><span className="min-w-0"><span className="block text-xs font-black">{tg(`pieces.${selected.type}.name`)}</span><span className="block text-[10px] leading-4 text-white/45">{tg(`pieces.${selected.type}.tip`)}</span></span><div className="flex gap-2"><button onClick={() => { const a=rotations.find((x) => x.type==='rotate'&&x.delta===-1); if(a) play(a); }} className={BTN}><ChevronLeft size={15}/>{tg('rotateLeft')}</button><button onClick={() => { const a=rotations.find((x) => x.type==='rotate'&&x.delta===1); if(a) play(a); }} className={BTN}>{tg('rotateRight')}<ChevronRight size={15}/></button></div></div>}</>}
+        </div> : frame ? <><ReplayHeader player={replay} caption={replay.at === 0 ? tc('replayStart') : shotCaption(frame.shot)} onClose={() => setReplaying(false)} /><LaserBoard key={`replay-${replay.at}`} pieces={frame.pieces} current={0} interactive={false} selectedId={null} shot={frame.shot} onSelect={() => {}} onMove={() => {}} /><ReplayControls player={replay} onShowResult={() => setReplaying(false)} /></> : <><LaserBoard pieces={state.pieces} current={state.current} interactive={myTurn} selectedId={selectedId} shot={state.shot} onSelect={(id) => setSelectedId((v) => v === id ? null : id)} onMove={play} />{selected && myTurn && <div className="mx-auto mt-3 flex max-w-[700px] items-center justify-between rounded-[10px] border border-[#59e6ff]/20 bg-black/50 px-3 py-2"><span className="min-w-0"><span className="block text-xs font-black">{tg(`pieces.${selected.type}.name`)}</span><span className="block text-[10px] leading-4 text-white/45">{tg(`pieces.${selected.type}.tip`)}</span></span><div className="flex gap-2"><button onClick={() => { const a=rotations.find((x) => x.type==='rotate'&&x.delta===-1); if(a) play(a); }} className={BTN}><ChevronLeft size={15}/>{tg('rotateLeft')}</button><button onClick={() => { const a=rotations.find((x) => x.type==='rotate'&&x.delta===1); if(a) play(a); }} className={BTN}>{tg('rotateRight')}<ChevronRight size={15}/></button></div></div>}</>}
       </section>
       <aside className="flex flex-col gap-4">
         <section className={PANEL}><div className="mb-3 flex justify-between"><p className={PANEL_TITLE}>{t('players')}</p><span className={CHIP}><Users size={12}/>{state.seats.filter(Boolean).length}/2</span></div>{[0,1].map((seat) => { const p=state.seats[seat]; return <div key={seat} className={`${playerRow(state.phase==='playing'&&state.current===seat)} ${p?'':'opacity-45'}`}><span className="h-8 w-8"><LaserPiece piece={{id:`seat-${seat}`,owner:seat as 0|1,type:'king',row:0,col:0,direction:0}} /></span><div className="min-w-0 flex-1"><p className="truncate text-sm font-black">{seatName(seat)}{p?.id===me?.id?` (${t('me')})`:''}</p><p className="text-[10px] text-white/40">{seat===0?t('cyanRole'):t('redRole')}</p></div>{seat===0&&<Crown size={12} className="text-[#ffd166]"/>}{p&&<span className={`h-1.5 w-1.5 rounded-full ${online.has(p.id)?'bg-[#3ddc97]':'bg-white/20'}`}/>}</div>; })}</section>
         <section className={NOTE}><p className={PANEL_TITLE}>{tg('quickRules')}</p><ol className="mt-3 space-y-3 text-xs leading-5 text-white/60">{['quick1','quick2','quick3','quick4'].map((key,i)=><li key={key} className="flex gap-3"><span className="font-mono text-[#59e6ff]">0{i+1}</span>{tg(key)}</li>)}</ol></section>
         {state.phase==='finished'&&me?.isHost&&<button onClick={() => dispatch({t:'start'})} className={`${BTN_ACCENT} py-3`}><RotateCcw size={14}/>{t('rematch')}</button>}
+        {state.phase==='finished'&&!showReplay&&frames.length>1&&<ReplayButton onClick={() => setReplaying(true)} className="!mt-0" />}
         {state.phase==='finished'&&<CoffeeNudge />}
         {state.phase==='playing'&&mySeat!==null&&<button onClick={() => { if(window.confirm(t('resignConfirm'))) dispatch({t:'resign'}); }} className={`${BTN} py-2.5 text-white/45`}><Flag size={13}/>{t('resign')}</button>}
         <div className="rounded-[12px] border border-white/10 bg-black/25 p-3 text-[10px] leading-4 text-white/35">{t('timeoutRule')}</div>

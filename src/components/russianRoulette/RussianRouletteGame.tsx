@@ -15,6 +15,7 @@ import { BTN, BTN_ACCENT, PANEL, PANEL_TITLE, SHELL, seg } from '../ui/gameUi';
 import RussianRouletteResult from './RussianRouletteResult';
 import { russianRouletteFiringDuration } from './firing';
 import RussianRouletteTable from './RussianRouletteTable';
+import RouletteReplay from './RouletteReplay';
 import RussianRouletteTutorial from './RussianRouletteTutorial';
 import { RR_ROOT_STYLE, RR_SHARD_TINT } from './theme';
 
@@ -27,6 +28,10 @@ export default function RussianRouletteGame() {
   const [showTutorial, setShowTutorial] = useState(false);
   const create = useCallback(() => createRussianRouletteRoom({ id: 'me', name: t('you'), at: 0 }, { solo: true, aiLevel: level }), [level, t]);
   const { state, dispatch, reset } = useLocalRoom(RUSSIAN_ROULETTE_ROOM, create);
+  const [replaying, setReplaying] = useState(false);
+  if (replaying && state?.phase !== 'finished') setReplaying(false); // a new game closes the replay
+  const showReplay = replaying && state?.phase === 'finished';
+  const seatName = (seat: number) => (seat === 0 ? t('you') : state?.seats[seat]?.name ?? `P${seat + 1}`);
 
   useEffect(() => {
     const timer = window.setTimeout(() => { try { if (!localStorage.getItem(TUTORIAL_KEY)) setShowTutorial(true); } catch { /* optional */ } }, 0);
@@ -48,12 +53,14 @@ export default function RussianRouletteGame() {
       <button onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
     </GameHeader>
     <main className="relative z-10 mx-auto w-full max-w-[1240px] px-3 py-4 sm:px-5 lg:py-7">
-      {state && <RussianRouletteTable room={state} mySeat={0} onAction={dispatch} online={false} />}
+      {showReplay && state && <RouletteReplay game={state.game} name={seatName} open={showReplay} onClose={() => setReplaying(false)} />}
+      {/* Kept mounted behind the replay so the firing sequence doesn't play again. */}
+      {state && <div className={showReplay ? 'hidden' : ''}><RussianRouletteTable room={state} mySeat={0} onAction={dispatch} online={false} /></div>}
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
         <section className={PANEL}><div className="flex items-center gap-2"><Bot size={14} className="text-(--accent)" /><h2 className={PANEL_TITLE}>{t('aiLevel')}</h2></div><div className="mt-3 grid grid-cols-3 gap-2">{LEVELS.map((value) => <button key={value} onClick={() => setLevel(value)} className={`py-2.5 ${seg(level === value)}`}>{t(`level_${value}`)}</button>)}</div></section>
       </div>
     </main>
-    {state?.phase === 'finished' && <RussianRouletteResult room={state} mySeat={0} onAgain={reset} />}
+    {state?.phase === 'finished' && <RussianRouletteResult room={state} mySeat={0} onAgain={reset} onReplay={() => setReplaying(true)} hidden={showReplay} />}
     {showTutorial && <RussianRouletteTutorial onClose={closeTutorial} />}
   </div>;
 }

@@ -121,7 +121,7 @@ export function redactRussianRoulette(state: RussianRouletteRoom): RussianRoulet
       pool: 0, // the shared manipulation pool and who paid into it stay secret until the shots
       manipHistory: [],
       privateIntel: g.privateIntel.map((row) => row.map(() => null)),
-      log: g.log.map((e) => e.k === 'manipulate' || e.k === 'pass' ? { k: 'manipulateFund', seat: e.seat } : e),
+      log: g.log.map((e) => e.k === 'manipulate' || e.k === 'pass' ? { k: 'manipulateFund', seat: e.seat } : e.k === 'privateInspect' ? { k: 'privateInspect', seat: e.seat } : e),
     },
   };
 }

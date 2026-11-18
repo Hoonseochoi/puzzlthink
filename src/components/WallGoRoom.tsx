@@ -9,6 +9,9 @@ import { Link } from '@/i18n/routing';
 import { MODES, type Direction, type PlayerId, getBreakOptions, getMoveOptions, getTerritory } from '@/lib/wallgo';
 import type { LogEntry } from '@/lib/wallgoRoom';
 import { useWallGoRoom } from '@/hooks/useWallGoRoom';
+import { useGameCounter, useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
+import { ReplayButton, ReplayControls, ReplayHeader } from './ui/ReplayBar';
+import { accentVars } from './ui/gameUi';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from './RoomAlerts';
 import RoomEmotes from '@/components/RoomEmotes';
@@ -36,6 +39,16 @@ export default function WallGoRoom({ code }: { code: string }) {
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
+  const [replaying, setReplaying] = useState(false);
+  // 복기: a snapshot per placement, move and wall, as this browser saw them.
+  const gameNo = useGameCounter(state?.phase, 'placement');
+  const inGame = state && state.phase !== 'lobby' ? state : null;
+  const frames = useReplayFrames(inGame ? `${state!.sid}-${gameNo}` : null,
+    inGame ? { pieces: inGame.pieces, walls: inGame.walls, breaks: inGame.breaks, log: inGame.log[0] as LogEntry | undefined } : null,
+    inGame ? `${inGame.pieces.map((p) => `${p.id}${p.row}${p.col}`).join('')}|${inGame.walls.length}` : '');
+  const showReplay = replaying && state?.phase === 'finished';
+  const replay = useReplayPlayer(Math.max(0, frames.length - 1), showReplay);
+  const frame = showReplay ? frames[replay.at] : null;
 
   // Report a finished game once, when the room moves into "finished".
   const prevPhase = useRef<string | null>(null);
@@ -60,6 +73,8 @@ export default function WallGoRoom({ code }: { code: string }) {
   const scoring = state?.phase === 'playing' || state?.phase === 'finished';
   // Territory only means something once every piece is on the board.
   const territory = useMemo(() => getTerritory(scoring ? state!.pieces : [], walls, mode?.totalPieces ?? 6), [scoring, state, walls, mode?.totalPieces]);
+  const frameWalls = useMemo(() => new Set(frame?.walls ?? []), [frame]);
+  const frameTerritory = useMemo(() => (frame ? getTerritory(frame.pieces.length >= (mode?.totalPieces ?? 6) ? frame.pieces : [], frameWalls, mode?.totalPieces ?? 6) : null), [frame, frameWalls, mode?.totalPieces]);
   const myTurn = !!state && mySeat !== null && state.current === mySeat && (state.phase === 'placement' || state.phase === 'playing');
   const myMoves = useMemo(() => (
     state && mode && myTurn && state.phase === 'playing' && state.step === 'move'
@@ -107,7 +122,7 @@ export default function WallGoRoom({ code }: { code: string }) {
     : !state && waitedLong ? t('roomNotFound') : state && !me?.isHost && !hostOnline ? t('hostOffline') : null;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ backgroundImage: FOG }}>
+    <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ ...accentVars('#e0283a'), backgroundImage: FOG }}>
       <Shards />
       <RoomAlerts alerts={alerts} accent="#ff4d5e" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <RoomEmotes peers={peers} onEmote={emote} />
@@ -171,7 +186,16 @@ export default function WallGoRoom({ code }: { code: string }) {
                 )}
               </div>
             ) : (
-              <>
+              frame && frameTerritory ? <>
+                <ReplayHeader player={replay} caption={replay.at === 0 || !frame.log ? tc('replayStart') : logLine(frame.log)} onClose={() => setReplaying(false)} />
+                <WallGoScoreStrip players={mode?.players ?? [0, 1, 2]} current={state.current} active={false} names={state.seats.map((seat, i) => seat?.name ?? t('emptySeat', { n: i + 1 }))} scores={frameTerritory.scores} pieces={(mode?.players ?? []).map((p) => frame.pieces.filter((piece) => piece.player === p).length)} total={(mode?.totalPieces ?? 6) / (mode?.players.length ?? 3)} breaks={mode?.wallBreak ? frame.breaks : null} unit={tw('unitTiles')} />
+                <WallGoBoard
+                  pieces={frame.pieces} walls={frameWalls} cellOwners={frameTerritory.cellOwners} selectedPieceId={null} moves={[]}
+                  wallPieceId={null} playerNames={names} interactivePlayer={null}
+                  canPlace={false} onCellClick={() => {}} onWall={() => {}} breakOptions={[]} pendingBreak={null} onBreak={() => {}}
+                />
+                <ReplayControls player={replay} onShowResult={() => setReplaying(false)} />
+              </> : <>
                 <WallGoScoreStrip players={mode?.players ?? [0, 1, 2]} current={state.current} active={state.phase === 'placement' || state.phase === 'playing'} names={state.seats.map((seat, i) => seat?.name ?? t('emptySeat', { n: i + 1 }))} scores={territory.scores} pieces={(mode?.players ?? []).map((p) => state.pieces.filter((piece) => piece.player === p).length)} total={(mode?.totalPieces ?? 6) / (mode?.players.length ?? 3)} breaks={mode?.wallBreak ? state.breaks : null} unit={tw('unitTiles')} />
                 <WallGoBoard
                   pieces={state.pieces} walls={walls} cellOwners={territory.cellOwners} selectedPieceId={selectedPieceId} moves={selectedMoves}
@@ -221,13 +245,14 @@ export default function WallGoRoom({ code }: { code: string }) {
         </main>
       )}
 
-      {state?.phase === 'finished' && state.winner !== null && (
+      {state?.phase === 'finished' && state.winner !== null && !showReplay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]">
             <div className="flex justify-center gap-2">{winners.map((p) => <WallGoCharacter key={p} player={p} className="h-20" />)}</div>
             <p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{tw('gameOver')}</p>
             <h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winners.length > 1 ? tw('coWin', { players: winners.map((p) => plainName(p)).join(' · ') }) : state.winner === mySeat ? tw('youWin') : t('winnerTitle', { player: plainName(state.winner) })}</h2>
             <p className="mt-2 text-sm text-white/50">{tw('finalScore', { score: territory.scores[state.winner], largest: territory.largest[state.winner] })}</p>
+            {frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} />}
             <ResultActions onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath="/wallgo" exitPath="/wallgo" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
           </div>
         </div>

@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, BookOpen, Check, Clock3, RotateCcw, ShieldOff, Sparkles } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { reportGame } from '@/lib/stats';
+import { useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
 import {
   type AiDifficulty,
   type Direction,
@@ -33,6 +34,8 @@ import WallGoScoreStrip from './WallGoScoreStrip';
 import WallGoCharacter from './WallGoCharacter';
 import WallGoTutorial from './WallGoTutorial';
 import Shards from './WallGoShards';
+import { ReplayButton, ReplayControls, ReplayHeader } from './ui/ReplayBar';
+import { accentVars } from './ui/gameUi';
 import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
 
 const DIFFICULTIES: AiDifficulty[] = ['easy', 'normal', 'hard'];
@@ -64,6 +67,8 @@ export default function WallGoGame() {
   const [difficulty, setDifficulty] = useState<AiDifficulty>('normal');
   const [records, setRecords] = useState<MatchRecord[]>([]);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [gameNo, setGameNo] = useState(0); // bumps on every new game, so the replay starts over
+  const [replaying, setReplaying] = useState(false);
 
   const mode = MODES[modeId];
   const playerNames = [t('you'), 'MIRA', 'NOVA'];
@@ -81,6 +86,15 @@ export default function WallGoGame() {
   const games = modeRecords.length;
   const wins = modeRecords.filter((record) => record.won).length;
 
+
+  // 복기: one snapshot per placement, move and wall (a turn's move and wall are separate steps).
+  const frames = useReplayFrames(`${gameNo}`, { pieces, walls: [...walls], breaks: breakAvailable, caption: history[0] ?? '' },
+    `${pieces.map((p) => `${p.id}${p.row}${p.col}`).join('')}|${[...walls].sort().join()}`);
+  const replay = useReplayPlayer(Math.max(0, frames.length - 1), replaying);
+  const frame = replaying ? frames[replay.at] : null;
+  const shownPieces = frame?.pieces ?? pieces;
+  const shownWalls = useMemo(() => (frame ? new Set(frame.walls) : walls), [frame, walls]);
+  const shownTerritory = useMemo(() => (frame ? getTerritory(frame.pieces.length >= mode.totalPieces ? frame.pieces : [], shownWalls, mode.totalPieces) : territory), [frame, shownWalls, territory, mode.totalPieces]);
 
   const directionLabel = (direction: Direction) => t(direction);
   const addLog = (message: string) => setHistory((items) => [message, ...items].slice(0, 8));
@@ -100,6 +114,7 @@ export default function WallGoGame() {
     const first: PlayerId = nextModeId === 'two' ? (Math.random() < 0.5 ? 0 : 1) : 0;
     const nextOrder = placementOrder(nextMode, first);
     try { localStorage.setItem(MODE_KEY, nextModeId); } catch { /* Optional preference. */ }
+    setGameNo((n) => n + 1); setReplaying(false);
     setModeId(nextModeId); setOrder(nextOrder);
     setDifficulty(nextDifficulty); setPieces(nextMode.fixedPieces); setWalls(new Set()); setPlacementIndex(0); setPhase('placement');
     setCurrentPlayer(nextOrder[0]); setTurnStep('move'); setSelectedPieceId(null); setMovedPieceId(null);
@@ -181,6 +196,18 @@ export default function WallGoGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, currentPlayer, pieces, walls, breakAvailable, difficulty, modeId]);
 
+  // Like the AI (and friend rooms), I skip a turn when none of my pieces can move — otherwise the game froze.
+  useEffect(() => {
+    if (phase !== 'playing' || currentPlayer !== 0 || turnStep !== 'move' || allMoves.length) return;
+    const timer = window.setTimeout(() => {
+      const next = nextPlayerOf(mode, 0);
+      addLog(t('logSkipped', { player: playerNames[0] })); setCurrentPlayer(next); setSeconds(90); setSelectedPieceId(null);
+      if (next === order[0]) setTurnNumber((turn) => turn + 1);
+    }, 900);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, currentPlayer, turnStep, allMoves]);
+
   useEffect(() => {
     if (phase !== 'playing' || currentPlayer !== 0) return;
     const timer = window.setInterval(() => setSeconds((value) => Math.max(0, value - 1)), 1000);
@@ -247,21 +274,27 @@ export default function WallGoGame() {
 
   const closeTutorial = () => { localStorage.setItem('puzzlthink_wallgo_tutorial_seen', '1'); setShowTutorial(false); };
 
-  return <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ backgroundImage: FOG }}>
+  return <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ ...accentVars('#e0283a'), backgroundImage: FOG }}>
     <Shards />
     {showTutorial && <WallGoTutorial onClose={closeTutorial} />}
     <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8"><div className="flex min-w-0 items-center gap-3"><Link href="/" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">PUZZLTHINK</span></Link><span className="h-5 w-px bg-white/15" /><div className="min-w-0"><strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc('wallgo') : 'WALLGO'}</strong><span className="ml-2 hidden text-[9px] font-bold tracking-[0.16em] text-[#ff4d5e]/70 sm:inline">{t(modeId === 'two' ? 'roundDuel' : 'roundSolo')}</span></div></div><div className="flex items-center gap-1.5"><button onClick={() => setShowTutorial(true)} className="flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white/80 hover:bg-white/10"><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button><BugReport /><LanguageSwitcher compact dark /><button onClick={() => resetGame()} className="flex items-center gap-2 rounded-md bg-[#e0283a] px-3 py-2 text-xs font-bold text-white shadow-[0_0_18px_rgba(224,40,58,.35)] hover:bg-[#f0354a]"><RotateCcw size={14} /><span className="hidden sm:inline">{t('playAgain')}</span></button></div></header>
 
     <main className="relative z-10 mx-auto grid w-full max-w-[1180px] gap-4 px-3 py-3 sm:gap-6 sm:px-4 sm:py-5 lg:grid-cols-[minmax(0,760px)_320px] lg:px-6 lg:py-8">
       <section className="rounded-[14px] border border-white/10 bg-[#121217]/85 p-2.5 shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur sm:p-5"><div className="mb-3 flex items-center justify-between px-1 sm:mb-4 sm:px-2"><div><p className="mb-1 font-mono text-[10px] font-bold tracking-[0.25em] text-[#ff4d5e]">TURN {String(turnNumber).padStart(2, '0')}</p><h2 className="text-base font-extrabold tracking-tight text-[#eef1f7] sm:text-xl">{instruction}</h2></div><div className={`flex min-w-[82px] items-center justify-center gap-2 rounded-md px-3 py-2.5 font-mono text-base font-bold ${seconds <= 15 && currentPlayer === 0 && phase === 'playing' ? 'animate-pulse bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.6)]' : 'border border-white/15 bg-black/60 text-[#c9cfdc]'}`}><Clock3 size={16} />{currentPlayer === 0 && phase === 'playing' ? `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}` : '--:--'}</div></div>
-        <WallGoScoreStrip players={mode.players} current={currentPlayer} active={phase !== 'finished'} names={playerNames} scores={territory.scores} pieces={mode.players.map((p) => pieces.filter((piece) => piece.player === p).length)} total={piecesPerPlayer} breaks={mode.wallBreak ? breakAvailable : null} unit={t('unitTiles')} />
-        <WallGoBoard
+        {frame && <ReplayHeader player={replay} caption={replay.at === 0 ? tc('replayStart') : frame.caption} onClose={() => setReplaying(false)} />}
+        <WallGoScoreStrip players={mode.players} current={currentPlayer} active={phase !== 'finished'} names={playerNames} scores={shownTerritory.scores} pieces={mode.players.map((p) => shownPieces.filter((piece) => piece.player === p).length)} total={piecesPerPlayer} breaks={mode.wallBreak ? (frame?.breaks ?? breakAvailable) : null} unit={t('unitTiles')} />
+        {frame ? <WallGoBoard
+          pieces={frame.pieces} walls={shownWalls} cellOwners={shownTerritory.cellOwners} selectedPieceId={null} moves={[]}
+          wallPieceId={null} playerNames={playerNames} interactivePlayer={0}
+          canPlace={false} onCellClick={() => {}} onWall={() => {}} breakOptions={[]} pendingBreak={null} onBreak={() => {}}
+        /> : <WallGoBoard
           pieces={pieces} walls={walls} cellOwners={territory.cellOwners} selectedPieceId={selectedPieceId} moves={selectedMoves}
           wallPieceId={turnStep === 'wall' ? movedPieceId : null} playerNames={playerNames} interactivePlayer={0}
           canPlace={phase === 'placement' && currentPlayer === 0} onCellClick={handleCellClick} onWall={placeHumanWall}
           breakOptions={turnStep === 'move' ? breakOptions : []} pendingBreak={activeBreak}
           onBreak={(key) => setPendingBreak((current) => (current === key ? null : key))}
-        />
+        />}
+        {frame && <ReplayControls player={replay} onShowResult={() => setReplaying(false)} />}
         {phase !== 'finished' && !mode.wallBreak && <div className="mx-auto mt-4 flex max-w-[680px] flex-wrap items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-black/40 p-3"><div className="min-w-0"><p className="text-xs font-extrabold">{t('duelTitle')}</p><p className="text-[11px] text-white/45">{t('duelHint')}</p></div><span className="flex items-center gap-1.5 text-[10px] font-bold text-white/45"><i className="h-2.5 w-2.5 rotate-45 bg-[#c9cfdc]" />{t('normalMove')}</span></div>}
         {phase !== 'finished' && mode.wallBreak && <div className="mx-auto mt-4 flex max-w-[680px] flex-wrap items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-black/40 p-3"><div className="flex min-w-0 items-center gap-3"><div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-[#0b0b0e]"><ShieldOff size={18} className={breakAvailable[0] ? 'text-[#ff4d5e]' : 'text-white/20'} /><span className={`absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-[#0b0b0e] ${breakAvailable[0] ? 'bg-[#e0283a] shadow-[0_0_8px_rgba(224,40,58,.9)]' : 'bg-white/20'}`} /></div><div className="min-w-0"><p className="text-xs font-extrabold">{t('breakTitle')}</p><p className="text-[11px] text-white/45">{t(breakAvailable[0] ? 'breakAvailableHint' : 'breakUsedHint')}</p></div></div><div className="flex items-center gap-3 text-[10px] font-bold text-white/45"><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rotate-45 bg-[#c9cfdc]" />{t('normalMove')}</span><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rotate-45 bg-[#e0283a]" />{t('breakMove')}</span></div></div>}
       </section>
@@ -276,6 +309,6 @@ export default function WallGoGame() {
       </aside>
     </main>
 
-    {phase === 'finished' && winner !== null && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]"><div className="flex justify-center gap-2">{(winners.length ? winners : [winner]).map((p) => <WallGoCharacter key={p} player={p} className="h-20" />)}</div><p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{t('gameOver')}</p><h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winners.length > 1 ? t('coWin', { players: winners.map((p) => playerNames[p]).join(' · ') }) : winner === 0 ? t('youWin') : t('playerWins', { player: playerNames[winner] })}</h2><p className="mt-2 text-sm text-white/50">{t('finalScore', { score: territory.scores[winner], largest: territory.largest[winner] })}</p><ResultActions onAgain={() => resetGame()} gamePath="/wallgo" exitPath="/" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" /></div></div>}
+    {phase === 'finished' && winner !== null && !replaying && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]"><div className="flex justify-center gap-2">{(winners.length ? winners : [winner]).map((p) => <WallGoCharacter key={p} player={p} className="h-20" />)}</div><p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{t('gameOver')}</p><h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winners.length > 1 ? t('coWin', { players: winners.map((p) => playerNames[p]).join(' · ') }) : winner === 0 ? t('youWin') : t('playerWins', { player: playerNames[winner] })}</h2><p className="mt-2 text-sm text-white/50">{t('finalScore', { score: territory.scores[winner], largest: territory.largest[winner] })}</p>{frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} />}<ResultActions onAgain={() => resetGame()} gamePath="/wallgo" exitPath="/" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" /></div></div>}
   </div>;
 }

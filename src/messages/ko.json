@@ -51,7 +51,19 @@
     "awayOthers": "{names}님이 응답이 없어 AI가 대신 플레이 중이에요",
     "blackWhite": "흑과 백",
     "blackWhite2": "흑과 백 II",
-    "piggyBank": "돼지 저금통"
+    "piggyBank": "돼지 저금통",
+    "replayOpen": "복기하기",
+    "replayTitle": "복기",
+    "replayStart": "게임 시작 — ▶를 눌러 한 수씩 다시 봐요",
+    "replayShowResult": "결과 다시 보기",
+    "replayExit": "복기 끝내기",
+    "replayFirst": "처음으로",
+    "replayPrev": "이전 수",
+    "replayNext": "다음 수",
+    "replayLast": "마지막으로",
+    "replayPlay": "자동 재생",
+    "replayPause": "일시 정지",
+    "replayPartial": "이 브라우저에서 본 장면부터 기록돼요"
   },
   "BlindGomoku": {
     "metaTitle": "블라인드 오목 온라인 — 데블스 플랜 1 그 게임 AI·친구 대전",
@@ -1416,7 +1428,16 @@
     "manipLost": "초과 {n}개 소멸",
     "drawerHandle": "내 차례",
     "drawerClose": "행동 창 접기",
-    "manipulateAmountHint": "넣을 크레딧을 고르면 창이 접혀요. 그다음 바꿀 두 칸을 실린더에서 누르세요."
+    "manipulateAmountHint": "넣을 크레딧을 고르면 창이 접혀요. 그다음 바꿀 두 칸을 실린더에서 누르세요.",
+    "replayPrivate": "{player} 비공개 조사 · {a}/{b}",
+    "replayPrivateHidden": "{player} 비공개 조사",
+    "replayFund": "{player} 조작 크레딧 {amount} 투입 · 공동 {pool}/6",
+    "replaySwap": "{player} 조작 실행 · {a}↔{b} 약실 교체",
+    "replayFire": "{chamber} 약실 → {player} · 탕!",
+    "replayFireEmpty": "{chamber} 약실 → {player} · 철컥 (빈 약실)",
+    "replayCredits": "남은 크레딧",
+    "replayHint": "빨간 점이 실제 탄이에요. 약실 아래 이름은 지금 총구 방향이면 그 약실을 맞을 사람이에요.",
+    "replayLegendInspected": "공개 조사됨"
   },
   "RussianRouletteOnline": {
     "metaTitle": "러시안 룰렛 친구 방",
@@ -2439,7 +2460,12 @@
       "Khet",
       "거울 게임",
       "전략 보드게임"
-    ]
+    ],
+    "replayShot": "{player} 레이저 발사",
+    "replayCaptured": "{player} 레이저 발사 · {n}개 제거",
+    "replayKing": "{player} 레이저 발사 · 왕 명중!",
+    "replayYou": "나",
+    "replayAi": "AI"
   },
   "LaserJanggiOnline": {
     "metaTitle": "레이저 장기 친구 대전",

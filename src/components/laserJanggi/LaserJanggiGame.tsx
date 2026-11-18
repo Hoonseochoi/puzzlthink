@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { BookOpen, Bot, ChevronLeft, ChevronRight, Crosshair, RotateCcw, ShieldQuestion, Sparkles } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import { reportGame } from '@/lib/stats';
+import { useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
+import { ReplayButton, ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import { LASER_MAX_TURNS } from '@/lib/laserJanggiRoom';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
@@ -18,6 +20,7 @@ import { LASER_CYAN } from './theme';
 
 export default function LaserJanggiGame() {
   const t = useTranslations('LaserJanggi');
+  const tc = useTranslations('Common');
   const [pieces, setPieces] = useState<Piece[]>(initialLaserPieces);
   const [current, setCurrent] = useState<LaserOwner>(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -29,10 +32,12 @@ export default function LaserJanggiGame() {
   const [showRules, setShowRules] = useState(false);
   const [draw, setDraw] = useState(false); // turn limit reached
   const [guideType, setGuideType] = useState<LaserPieceType | null>(null); // piece guide entry opened by tap
+  const [gameNo, setGameNo] = useState(0);
+  const [replaying, setReplaying] = useState(false);
   const gameRef = useRef(0); // bumps on "new game" so a beam timer from the old game can't change turns
 
   const reset = () => {
-    gameRef.current += 1;
+    gameRef.current += 1; setGameNo((n) => n + 1); setReplaying(false);
     setPieces(initialLaserPieces()); setCurrent(0); setSelectedId(null); setShot(null);
     setWinner(null); setBusy(false); setTurn(1); setDraw(false);
   };
@@ -67,6 +72,17 @@ export default function LaserJanggiGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, busy, winner, draw]);
 
+  // 복기: the position and beam after every move or turn.
+  const frames = useReplayFrames(`${gameNo}`, { pieces, shot }, pieces.map((p) => `${p.id}${p.row}${p.col}${p.direction}`).join());
+  const over = winner !== null || draw;
+  const replay = useReplayPlayer(Math.max(0, frames.length - 1), replaying && over, 1300);
+  const frame = replaying && over ? frames[replay.at] : null;
+  const shotCaption = (s: LaserShot | null) => {
+    if (!s) return tc('replayStart');
+    const player = s.owner === 0 ? t('replayYou') : t('replayAi');
+    return s.kingHits.length ? t('replayKing', { player }) : s.captured.length ? t('replayCaptured', { player, n: s.captured.length }) : t('replayShot', { player });
+  };
+
   const selected = pieces.find((item) => item.id === selectedId) ?? null;
   const rotations = selected ? legalActions(pieces, current).filter((action) => action.type === 'rotate' && action.pieceId === selected.id) : [];
   const rotate = (delta: -1 | 1) => {
@@ -89,8 +105,10 @@ export default function LaserJanggiGame() {
           <div><p className={KICKER}>{winner !== null || draw ? t('result') : t('turn', { turn })}</p><h1 className="mt-1 text-base font-extrabold text-[#eef1f7] sm:text-xl">{status}</h1></div>
           <span className={`flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-black ${busy ? 'border-[#59e6ff]/60 bg-[#59e6ff]/10 text-[#a8f5ff]' : 'border-white/10 bg-black/40 text-white/45'}`}><Crosshair size={14} />{busy ? t('beamLive') : t('beamReady')}</span>
         </div>
-        <LaserBoard pieces={pieces} current={current} interactive={current === 0 && !busy && winner === null && !draw} selectedId={selectedId} shot={shot} onSelect={(id) => setSelectedId((value) => value === id ? null : id)} onMove={(action) => commit(action, 0)} />
-        {(winner !== null || draw) && <div className="mt-4 flex flex-col items-center gap-2"><button type="button" onClick={reset} className={`${BTN_ACCENT} px-6 py-2.5`}><RotateCcw size={14} />{t('newGame')}</button><CoffeeNudge /></div>}
+        {frame && <ReplayHeader player={replay} caption={replay.at === 0 ? tc('replayStart') : shotCaption(frame.shot)} onClose={() => setReplaying(false)} />}
+        {frame ? <LaserBoard key={`replay-${replay.at}`} pieces={frame.pieces} current={0} interactive={false} selectedId={null} shot={frame.shot} onSelect={() => {}} onMove={() => {}} /> : <LaserBoard pieces={pieces} current={current} interactive={current === 0 && !busy && winner === null && !draw} selectedId={selectedId} shot={shot} onSelect={(id) => setSelectedId((value) => value === id ? null : id)} onMove={(action) => commit(action, 0)} />}
+        {frame && <ReplayControls player={replay} onShowResult={() => setReplaying(false)} />}
+        {over && !frame && <div className="mx-auto mt-4 flex max-w-[440px] flex-col items-center gap-2">{frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} className="!mt-0" />}<button type="button" onClick={reset} className={`${BTN_ACCENT} px-6 py-2.5`}><RotateCcw size={14} />{t('newGame')}</button><CoffeeNudge /></div>}
         {selected && current === 0 && !busy && winner === null && <div className="mx-auto mt-3 flex max-w-[700px] items-center justify-between rounded-[10px] border border-[#59e6ff]/20 bg-black/50 px-3 py-2">
           <div className="flex items-center gap-2"><div className="h-9 w-9"><LaserPiece piece={selected} /></div><span className="min-w-0"><span className="block text-xs font-bold text-white/70">{t(`pieces.${selected.type}.name`)}</span><span className="block text-[10px] leading-4 text-white/45">{t(`pieces.${selected.type}.tip`)}</span></span></div>
           <div className="flex gap-2"><button type="button" onClick={() => rotate(-1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === -1)} className={BTN}><ChevronLeft size={15} />{t('rotateLeft')}</button><button type="button" onClick={() => rotate(1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === 1)} className={BTN}>{t('rotateRight')}<ChevronRight size={15} /></button></div>

@@ -51,7 +51,19 @@
     "awayOthers": "{names} stopped responding; the AI is playing for them",
     "blackWhite": "Black & White",
     "blackWhite2": "Black & White II",
-    "piggyBank": "Piggy Bank"
+    "piggyBank": "Piggy Bank",
+    "replayOpen": "Replay",
+    "replayTitle": "Replay",
+    "replayStart": "Game start — press ▶ to step through every move",
+    "replayShowResult": "Show result",
+    "replayExit": "Close replay",
+    "replayFirst": "First",
+    "replayPrev": "Previous move",
+    "replayNext": "Next move",
+    "replayLast": "Last",
+    "replayPlay": "Play",
+    "replayPause": "Pause",
+    "replayPartial": "Recorded from when this browser joined"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -1382,7 +1394,16 @@
     "manipLost": "{n} extra lost",
     "drawerHandle": "Your turn",
     "drawerClose": "Tuck the panel away",
-    "manipulateAmountHint": "Pick how much to put in and the panel tucks away; then tap the pair to swap on the cylinder."
+    "manipulateAmountHint": "Pick how much to put in and the panel tucks away; then tap the pair to swap on the cylinder.",
+    "replayPrivate": "{player} private check · {a}/{b}",
+    "replayPrivateHidden": "{player} private check",
+    "replayFund": "{player} adds {amount} to tampering · pool {pool}/6",
+    "replaySwap": "{player} tampers · swaps {a}↔{b}",
+    "replayFire": "Chamber {chamber} → {player} · BANG!",
+    "replayFireEmpty": "Chamber {chamber} → {player} · click (empty)",
+    "replayCredits": "Credits left",
+    "replayHint": "Red dots are the real bullets. The name under each chamber is who it would hit with the muzzle where it is now.",
+    "replayLegendInspected": "Publicly checked"
   },
   "RussianRouletteOnline": {
     "metaTitle": "Russian Roulette Friend Room",
@@ -2393,7 +2414,12 @@
       "The Genius game",
       "The Genius death match",
       "mirror strategy game"
-    ]
+    ],
+    "replayShot": "{player} fires",
+    "replayCaptured": "{player} fires · {n} removed",
+    "replayKing": "{player} fires · king hit!",
+    "replayYou": "You",
+    "replayAi": "AI"
   },
   "LaserJanggiOnline": {
     "metaTitle": "Laser Janggi with a friend",
