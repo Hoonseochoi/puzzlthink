@@ -78,6 +78,7 @@ export async function reportGame(key: string, game: GameId, mode: GameMode, resu
   if (isOpenRoomPractice()) return;
   if (reported.has(key)) return;
   reported.add(key);
+  window.dispatchEvent(new Event('puzzlthink:game-finished')); // e.g. the one-time "install as app" card
   const opponents = mode === 'friend' ? roomOpponents : [];
   const open = mode === 'friend' && roomOpen;
   if (opponents.length) detail = { ...detail, vs: opponents.map((o) => o.uid) };
