@@ -13,6 +13,8 @@ import { useLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { useBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 import { useBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
 import { preparePiggyRoom, usePiggyRoom } from '@/hooks/usePiggyRoom';
+import { prepareGyulhapRoom, useGyulhapRoom } from '@/hooks/useGyulhapRoom';
+import { prepareIndianPokerRoom, useIndianPokerRoom } from '@/hooks/useIndianPokerRoom';
 import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
 import { prepareHeavy13Room } from '@/hooks/useHeavy13Room';
 import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
@@ -28,9 +30,10 @@ import { prepareBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
 export type PlayOption = { label: string; query?: string };
 /**
  * One kind of friend room. `create` picks a free invite code and makes this browser the host.
- * `play`: the solo game to play while an open room waits (an `ai` query). `openMin`: people needed to start it as an open room (empty seats go to the AI); left out = every seat.
+ * `play`: the solo game to play while an open room waits. `openMin`: people needed to start it as an open room; left out = every seat.
+ * `fillAi`: whether the start button should describe empty seats as AI seats.
  */
-export type RoomOption = { label: string; create: () => Promise<string>; openMin?: number; play?: string };
+export type RoomOption = { label: string; create: () => Promise<string>; openMin?: number; play?: string; fillAi?: boolean };
 
 /** What the open-room panel needs from any game's room hook. */
 export type RoomView = {
@@ -43,6 +46,12 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  gyulhap: {
+    path: '/gyulhap', solo: true,
+    ai: [{ label: 'gyulChallenge10', query: 'mode=challenge10' }, { label: 'gyulChallenge5', query: 'mode=challenge5' }, { label: 'gyulPractice', query: 'mode=practice' }],
+    rooms: [{ label: 'gyulRoom', create: prepareGyulhapRoom, openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useGyulhapRoom,
+  },
+  indianPoker: { path: '/indian-poker', ai: [{ label: 'aiTwo' }], rooms: [{ label: 'roomTwo', create: prepareIndianPokerRoom }], useRoom: useIndianPokerRoom },
   hexagon: {
     path: '/hexagon', solo: true,
     ai: [{ label: 'hexSolo', query: 'mode=solo' }, { label: 'hexChallenge', query: 'mode=challenge' }],

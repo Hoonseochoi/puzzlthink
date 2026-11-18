@@ -13,8 +13,8 @@ export const gameFromSlug = (slug: string): GameId | null =>
   (Object.keys(CERT_GAMES) as GameId[]).find((g) => rankSlug(g) === slug) ?? null;
 export const rankPath = (locale: string, game: GameId) => `/${locale}/ranking/${rankSlug(game)}`;
 export const rankImagePath = (game: GameId, locale: string) => `/api/ranking/${rankSlug(game)}?l=${locale === 'en' ? 'en' : 'ko'}`;
-/** Games ranked by wins against AI (네모 세기 is ranked by its challenge instead). */
-export const hasHall = (game: GameId) => game !== 'nemo_count';
+/** Games ranked by wins against AI (네모 세기 and 결합 use solo challenges instead). */
+export const hasHall = (game: GameId) => game !== 'nemo_count' && game !== 'gyulhap';
 export const hasOpen = (game: GameId) => game !== 'sudoku';
 
 async function rpc<T>(name: string, body: Record<string, unknown>): Promise<T | null> {

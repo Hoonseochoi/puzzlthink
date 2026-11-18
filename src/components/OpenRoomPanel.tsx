@@ -166,7 +166,7 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   const uids = seats.flatMap((seat) => { const uid = seat ? peerOf(seat.id)?.uid : undefined; return uid ? [uid] : []; }).sort();
   const records = useRecords(uids, user?.id);
   const shownTitle = isHost ? (title.trim() || (me ? t('defaultTitle', { name: me.name }) : '')) : listedTitle;
-  const startLabel = humans < capacity && need < capacity ? t('startWithAi', { n: humans, cap: capacity }) : t('start');
+  const startLabel = option.fillAi !== false && humans < capacity && need < capacity ? t('startWithAi', { n: humans, cap: capacity }) : t('start');
 
   const body = (
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-4">

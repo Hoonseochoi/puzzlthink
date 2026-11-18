@@ -13,6 +13,8 @@ import AdSlot from './AdSlot';
 import OpenRankingBoard from './OpenRankingBoard';
 
 const GAMES: { id: GameId; href: string; color: string }[] = [
+  { id: 'gyulhap', href: '/gyulhap', color: '#ffcf3f' },
+  { id: 'indian_poker', href: '/indian-poker', color: '#e6b94f' },
   { id: 'wallgo', href: '/wallgo', color: '#ff6b4a' },
   { id: 'heavy13', href: '/heavy13', color: '#c9a061' },
   { id: 'janggi', href: '/janggi', color: '#e8a33c' },
@@ -28,7 +30,7 @@ const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'sudoku', href: '/play', color: '#4b7bff' },
 ];
 /** Common message key for each game's name. */
-const GAME_LABEL: Record<GameId, string> = { wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
+const GAME_LABEL: Record<GameId, string> = { gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 function formatDuration(seconds: number, t: (k: string, v?: Record<string, number>) => string) {

@@ -68,6 +68,8 @@
     "myCerts": "My clear certificates",
     "myCertsEmpty": "Beat a Hard AI (or a Hard Sudoku) to get a numbered clear certificate.",
     "hexagon": "Hexagon",
+    "gyulhap": "Gyul! Hap!",
+    "indianPoker": "Indian Poker",
     "shareHallRank": "#{rank} in the {game} Hall of Fame! 🏆 Your move",
     "shareOpenRank": "#{rank} in the {game} open-match ranking! Come at me",
     "shareNow": "Share",
@@ -250,11 +252,16 @@
     "modeNemoFriend": "With friends",
     "modeNemoFriendDesc": "2–6 players · buzzer",
     "show_dp3": "The Devil's Plan 3",
+    "show_genius1": "The Genius 1",
     "show_genius2": "The Genius 2",
     "show_genius3": "The Genius 3",
     "show_society2": "The Society Game 2",
     "show_dp1": "The Devil's Plan 1",
     "show_genius34": "The Genius 3·4",
+    "gyulhapDescription": "Find triples that are all same or all different, then be first to claim the final Gyul.",
+    "gyulhapMeta": "5/10-minute challenges & practice · 2–4 friends",
+    "indianPokerDescription": "Never see your own card: read the visible number, the bet, and the bluff.",
+    "indianPokerMeta": "AI or friend 1:1 · chip mind game",
     "blackWhiteDescription": "Tiles 0–8, but only their colour shows. Read your rival's numbers and win with the bigger one.",
     "blackWhiteMeta": "AI or friend 1:1 · mind-game replay",
     "modeBwAi": "AI 1:1",
@@ -1708,6 +1715,18 @@
     "unsupported": "Not available",
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
     "games": {
+      "gyulhap": {
+        "tagline": "Read three attributes, find every Hap, then claim the final Gyul.",
+        "players": "Solo or 2–4 friends", "pace": "Solo 5/10 min · friend match 10 rounds", "level": "Practice · 5/10-minute challenge", "solo": "Timed scoring or untimed practice", "friend": "2–4, link or 4-digit code",
+        "rules": ["Nine of 27 cards are shown each round; every card combines a shape, ink color and background.", "Pick three whose values are all same or all different in every attribute: a correct Hap scores +1, a miss −1.", "When no unclaimed Hap remains, call Gyul for +3; call too early and lose 1.", "Solo play chases a high score before time expires; friend matches compare scores after ten rounds."],
+        "origin": "A web adaptation of Gyul! Hap! from the final of The Genius: Rules of the Game, with solo timed challenges and a 2–4 player buzzer match."
+      },
+      "indianPoker": {
+        "tagline": "See their card, never yours. Take every chip through betting and bluffing.",
+        "players": "2 (AI or friend)", "pace": "Until one stack is empty · 20–45 s friend turns", "level": "Easy · Normal · Hard AI", "ai": "1v1, three AI levels", "friend": "1v1, link or 4-digit code",
+        "rules": ["Start with 20 chips each and a 20-card deck containing two copies of 1–10.", "You see only the opponent's forehead card, then bet, call, raise or fold.", "At showdown the higher card wins the pot; equal cards carry the pot into the next hand.", "Folding a 10 pays 10 extra chips. Empty your opponent's stack to win."],
+        "origin": "Built from the Indian Poker rules used in the final of The Genius: Rules of the Game."
+      },
       "laserJanggi": {
         "tagline": "Turn the mirrors, engineer the light path, and strike the enemy king first.",
         "players": "2 players (AI or friend)",
@@ -1981,7 +2000,11 @@
     "short_roomFour": "2–4",
     "hexSolo": "Solo (10 rounds)",
     "hexChallenge": "10-minute challenge (scored)",
-    "hexRoom": "Create a friend room (2–4)"
+    "hexRoom": "Create a friend room (2–4)",
+    "gyulChallenge10": "10-minute challenge (scored)",
+    "gyulChallenge5": "5-minute challenge (scored)",
+    "gyulPractice": "Untimed practice",
+    "gyulRoom": "Create a friend room (2–4)"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -3925,6 +3948,43 @@
       }
     ],
     "disclaimer": "Hexagon is PUZZLTHINK's web version of a game shown on TV and is not affiliated with the broadcaster or producers."
+  },
+  "Gyulhap": {
+    "metaTitle":"Gyul! Hap! — 5/10-minute challenge and 2–4 friends","metaDescription":"Play Gyul! Hap! in 5/10-minute challenges, untimed practice, or a 2–4 player friend match.","keywords":["Gyul Hap game","The Genius games","set puzzle"],
+    "title":"Gyul! Hap!","subtitle":"ALL SAME OR ALL DIFFERENT","resultKicker":"FINAL SCORE","round":"ROUND {n} / 10","draw":"Draw","win":"You mastered Gyul — victory!","lose":"Another player scored more","you":"You","ai":"AI ORBIT","yourTurn":"Find a Hap or call Gyul","aiTurn":"The AI is scanning attributes…","hap":"Hap!","gyeol":"Gyul!","pass":"Pass","again":"Play again","difficulty":"AI difficulty","levels":{"easy":"Easy","normal":"Normal","hard":"Hard"},"boardInfo":"Board","remaining":"{n} Haps remain","found":"{n} found","quickRules":"Quick rules","quick":["For every attribute, all three must be the same or all different.","Correct Hap +1; wrong Hap −1.","Call Gyul with no unclaimed Hap for +3.","Highest total after ten rounds wins."],
+    "last":{"hap":{"ok":"{player}: correct Hap +1","bad":"{player}: wrong Hap −1"},"gyeol":{"ok":"{player}: correct Gyul +3","bad":"{player}: a Hap still remains"},"pass":{"ok":"{player} passed","bad":""}},
+    "modes":{"challenge10":"10-minute challenge","challenge5":"5-minute challenge","practice":"Untimed practice"},"soloRound":"BOARD {n}","soloPrompt":"Select three cards and find a Hap","timeUp":"Time · {n} points","session":"Session","score":"Score","boards":"Boards","foundLabel":"Haps found","tooltipsTitle":"Decision tips",
+    "notices":{"hapOk":"Correct Hap! +1","hapBad":"Not a Hap −1","gyeolOk":"Correct Gyul! +3 · next board","gyeolBad":"An unclaimed Hap remains −1"},
+    "tooltips":{"hap":"Checks whether all three selected cards are all same or all different in every attribute.","gyeol":"Declare only when you believe no unclaimed Hap remains.","pass":"Pass the turn with no score change."},
+    "tips":["Choose two cards first; each attribute then determines the only value that can complete them.","If any attribute has a two–one split, the triple cannot be a Hap.","Cards stay on the board, so remember claimed triples by position.","Gyul scores +3 only when zero unclaimed Haps remain."],
+    "roomTips":["Turns work like a buzzer: after any answer, play passes to the next person.","The player who finds the last Hap does not automatically get Gyul; track whose turn follows.","A timeout passes automatically, and empty seats are never filled by AI."],
+    "quickSolo":["Correct Hap +1; wrong Hap −1.","Correct Gyul +3; early Gyul −1 and a correct call deals the next board.","Score as many points as possible before a challenge timer ends.","Practice has no timer and does not save a result."]
+  },
+  "GyulhapOnline": {"metaTitle":"Gyul! Hap! 2–4 player match | PUZZLTHINK","metaDescription":"Start a 2–4 player Gyul! Hap! match by invite link.","guest":"Player","connecting":"Connecting…","connectionError":"Connection failed","hostOffline":"The host is offline.","lobbyTitle":"Start freely when 2–4 players are ready","inviteTitle":"Invite code","copied":"Copied","copy":"Copy link","share":"Share","rename":"Rename","start":"Start game","startCount":"Start with {n}","startLocked":"Waiting for one more player","freeStartHint":"Start with the current group at any size from two to four.","waitingHost":"Waiting for the host…","roomFull":"Room full","emptySeat":"Empty seat","me":"me","waitingFor":"Waiting for {player}","rematch":"Rematch","rematchWait":"The host can start a rematch.","players":"Players","turnTime":"Turn time","resign":"Resign","resignConfirm":"Resign this game?"},
+  "GyulhapTutorial": {"s1Title":"27 attribute cards","s1Desc":"Shape, ink and background each have three values.","s2Title":"Nine each round","s2Desc":"Find triples among the nine face-up cards.","s3Title":"Hap scores one","s3Desc":"Every attribute must be all identical or all different.","s4Title":"Finish with Gyul","s4Desc":"When no unclaimed Hap remains, call Gyul for three points."},
+  "GyulhapGuide": {
+    "eyebrow":"GYUL! HAP! GUIDE","title":"Gyul! Hap! — seeing three attributes at once","intro":"Gyul! Hap! is a pattern-recognition duel across shape, ink and background. Finding triples matters, but spotting the moment the last Hap disappears is worth even more.",
+    "rulesTitle":"Core rules","rules":["Nine of the 27 cards are dealt each round.","For shape, ink and background, three cards must be all same or all different.","A correct Hap is +1; a wrong one is −1.","A correct Gyul with no Hap remaining is +3; an early call is −1.","Play ten rounds and compare total scores."],
+    "specialTitle":"Easy to miss","special":[{"title":"Two alike fails","body":"If an attribute has two matching values and one different value, the triple is not a Hap."},{"title":"Cards stay","body":"Only the called combination is marked; cards remain and may belong to other Haps."},{"title":"One call per combination","body":"Calling the exact same three cards again is wrong."},{"title":"Gyul ends the round","body":"A correct Gyul immediately scores three and deals the next board."}],
+    "strategyTitle":"Strategy","strategyIntro":"Eliminate attributes one at a time and think about who gets the last move.","strategies":[{"tag":"Anchor","title":"Fix one card","body":"Use one card as an anchor and scan pairs that complete all three attributes."},{"tag":"Eliminate","title":"Drop 2–1 patterns","body":"The moment one attribute shows two alike and one different, reject it."},{"tag":"Memory","title":"Remember positions","body":"Track found triples by their three board numbers to avoid repeats."},{"tag":"Gyul","title":"Plan the final turn","body":"Sometimes letting the rival take the last Hap gives you the +3 Gyul."}],
+    "faqTitle":"FAQ","faq":[{"q":"What exactly is a Hap?","a":"Three cards whose three attributes are each all same or all different."},{"q":"Do cards disappear?","a":"No. Only that exact triple becomes used."},{"q":"Can I play friends?","a":"Yes. Two to four people can join by invite link or 4-digit code."}],"disclaimer":"An unofficial fan implementation inspired by a TV game; not affiliated with its broadcaster or producers."
+  },
+  "IndianPoker": {
+    "metaTitle":"Indian Poker — 1v1 mind game vs AI or friends","metaDescription":"Play The Genius-style Indian Poker with pot carryovers and the folded-10 penalty.","keywords":["Indian Poker","The Genius games","bluffing game"],
+    "title":"Indian Poker","subtitle":"SEE THEIRS · NEVER YOURS","hand":"HAND {n}","win":"You took every chip!","lose":"You lost your stack","draw":"Draw","handWin":"You won this pot","handLose":"Your rival won the pot","handDraw":"Tie — the pot carries over","yourTurn":"Read their card and choose","aiTurn":"The AI is betting while looking at your card…","you":"You","ai":"AI VEGA","call":"Call +{n}","bet":"Bet total {n}","allIn":"All in +{n}","fold":"Fold","again":"Play again","difficulty":"AI difficulty","levels":{"easy":"Easy","normal":"Normal","hard":"Hard"},"history":"Revealed cards","quickRules":"Quick rules","quick":["You never see your own card, only theirs.","Call to reveal; the higher card wins the pot.","Equal cards carry the pot to the next hand.","Fold a 10 and pay ten extra chips."],
+    "tooltipsTitle":"Betting & counting tips","targetNote":"Percentages are decision-strength targets, not guaranteed win rates; cards and opponent style still matter.",
+    "levelTips":{"easy":"Mostly ignores exposed-card history and often makes plausible mistakes. About 30% target strength.","normal":"Uses partial card counting and pot odds. About 60% target strength.","hard":"Counts the remaining deck and weighs pot odds, stack pressure and balanced bluffs. About 90% target strength."},
+    "tooltips":{"table":"The question mark on the left is your hidden card; the number on the right is the opponent's card.","call":"Match the opponent's total wager and reveal both cards.","bet":"The displayed number is your cumulative wager for this hand.","allIn":"Bet the largest total the opponent can still match.","fold":"Give up the hand and pot. Folding when your hidden card is 10 pays an extra ten-chip penalty."},
+    "tips":["A lower visible opponent card makes it more likely your hidden card is higher.","Remember exposed numbers to calculate your winning chance from the remaining deck.","Compare the call cost with the pot after calling; call when your chance beats those pot odds.","A carried tie pot makes even a small wager in the next hand much more valuable.","If many 10s remain, folding is riskier because your hidden card may trigger the ten-chip penalty.","Repeating one bet size reveals a pattern. Mix value bets and credible bluffs."]
+  },
+  "IndianPokerOnline": {"metaTitle":"Indian Poker friend match | PUZZLTHINK","metaDescription":"Start a 1v1 Indian Poker match by invite link.","guest":"Player","connecting":"Connecting…","connectionError":"Connection failed","hostOffline":"The host is offline.","lobbyTitle":"Invite a friend to start","inviteTitle":"Invite code","copied":"Copied","copy":"Copy link","share":"Share","rename":"Rename","start":"Start game","startLocked":"Waiting for a friend","waitingHost":"Waiting for the host…","roomFull":"Room full","emptySeat":"Empty seat","me":"me","waitingFor":"Waiting for {player}","rematch":"Rematch","rematchWait":"The host can start a rematch.","players":"Players","turnTime":"Turn time","resign":"Resign","resignConfirm":"Resign this game?"},
+  "IndianPokerTutorial": {"s1Title":"See only their card","s1Desc":"Your card is on your forehead; judge from the opponent's number.","s2Title":"Bet, call and raise","s2Desc":"Match the bet for showdown or raise to keep the mind game going.","s3Title":"High card takes the pot","s3Desc":"After a call, reveal both cards and award every wager to the higher number.","s4Title":"Folding a 10 hurts","s4Desc":"Fold the highest card and you pay ten extra chips.","you":"You","them":"Rival"},
+  "IndianPokerGuide": {
+    "eyebrow":"INDIAN POKER GUIDE","title":"Indian Poker — read your own hand through theirs","intro":"Indian Poker is one-card poker where only your own card is hidden from you. A low opponent card improves your odds, but they can see yours too, turning every bet into both information and a possible lie.",
+    "rulesTitle":"Core rules","rules":["Use two copies of 1–10 and start with 20 chips each.","See the opponent's card, never your own during the hand.","The first player bets; the rival calls, raises or folds.","A call reveals cards; high wins, equal carries the pot.","Folding a 10 pays ten extra chips.","Lose all chips and lose the game."],
+    "specialTitle":"Special cases","special":[{"title":"Tie carryover","body":"Equal cards leave the entire pot for the next hand's winner."},{"title":"Folded 10","body":"Folding a 10 transfers up to ten more chips, separate from the wager."},{"title":"Card counting","body":"The deck reshuffles after all 20 cards; remember reveals to narrow the unknown."},{"title":"Matchable all-in","body":"You cannot wager more than the other stack can match."}],
+    "strategyTitle":"Strategy","strategyIntro":"Combine the visible number, bet size and exposed-card history.","strategies":[{"tag":"Odds","title":"Attack low visible cards","body":"Against a 2, most possible cards in your hand win."},{"tag":"Bluff","title":"Sometimes reverse the signal","body":"If every bet follows the odds, your rival reads you perfectly."},{"tag":"Count","title":"Remember high cards","body":"When many 9s and 10s are gone, even a low visible card is less comforting."},{"tag":"Stack","title":"Use chip pressure","body":"A big stack widens your choices, but one loose call can flip the match."}],
+    "faqTitle":"FAQ","faq":[{"q":"Can I really never see my card?","a":"Not until the hand ends in a showdown or fold."},{"q":"What happens on equal cards?","a":"The pot moves intact into the next hand."},{"q":"What if I have fewer than ten chips when folding a 10?","a":"You pay what remains, hit zero and lose."}],"disclaimer":"An unofficial fan implementation inspired by rules shown on TV; not affiliated with its broadcaster or producers."
   },
   "Ranking": {
     "metaTitle": "{game} Ranking — Hall of Fame & open matches",
