@@ -10,7 +10,7 @@ import { Fireworks, GAME_LABEL } from './HallCelebration';
 import ShareButtons from './ShareButtons';
 
 const SHOW_AFTER_MS = 1400; // let the result screen land first
-const RANK_FROM = 3; // wins needed to appear in the open ranking
+const RANK_FROM = 1; // wins needed to appear in the open ranking
 
 /**
  * After a game against signed-in players: revenge success / failure, and for open matches the ranking
