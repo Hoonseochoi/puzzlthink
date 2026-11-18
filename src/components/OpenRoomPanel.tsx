@@ -72,7 +72,7 @@ function SignInPanel() {
       <Lock size={26} className="mx-auto text-(--accent)" />
       <p className="text-base font-black text-white">{t('loginTitle')}</p>
       <p className="break-keep text-xs leading-5 text-white/55">{t('loginDesc')}</p>
-      <div className="flex justify-center"><AuthButton /></div>
+      <div className="flex justify-center"><AuthButton source="open_room" /></div>
       <button type="button" onClick={() => { window.location.href = window.location.pathname; }} className="text-xs font-bold text-white/45 underline-offset-4 hover:underline">{t('leave')}</button>
     </div>
   );

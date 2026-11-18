@@ -40,7 +40,7 @@ function RecordPrompt() {
       <Trophy size={22} className="mx-auto text-[#ffd36e]" />
       <p className="mt-2 text-sm font-black text-white">{t('recordTitle')}</p>
       <p className="mt-1 text-xs text-white/60">{t('recordDesc')}</p>
-      <div className="mt-3 flex justify-center"><AuthButton /></div>
+      <div className="mt-3 flex justify-center"><AuthButton source="result" /></div>
     </div>
   );
 }

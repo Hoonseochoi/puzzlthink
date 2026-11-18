@@ -143,7 +143,7 @@ export default function RecordsClient() {
           {!ready ? null : !user ? (
             <div className="mt-4 flex flex-col items-start gap-3 rounded-[24px] border border-black/10 bg-[#f9f7f1] p-6">
               <p className="text-sm text-black/60">{t('loginPrompt')}</p>
-              <AuthButton />
+              <AuthButton source="records" />
             </div>
           ) : (
             <>

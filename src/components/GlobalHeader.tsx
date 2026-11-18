@@ -41,7 +41,7 @@ export default function GlobalHeader() {
 
         <div className="hidden items-center gap-2 md:flex">
           <LanguageSwitcher compact />
-          <AuthButton />
+          <AuthButton source="header" />
           <GamesMenu variant="cta" align="right" />
         </div>
 
@@ -66,7 +66,7 @@ export default function GlobalHeader() {
               </ul>
             )}
             {links.map((item) => <Link key={item.href} href={item.href} onClick={closeMenu} className={MOBILE_LINK}>{item.label}</Link>)}
-            <div className="mt-2 flex flex-col gap-2 border-t border-black/[0.07] pt-3"><AuthButton full /><LanguageSwitcher /></div>
+            <div className="mt-2 flex flex-col gap-2 border-t border-black/[0.07] pt-3"><AuthButton full source="header_menu" /><LanguageSwitcher /></div>
           </nav>
         </div>
       )}

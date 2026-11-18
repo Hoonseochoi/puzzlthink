@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { LogOut, X } from 'lucide-react';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
 import GoogleSignInButton from './GoogleSignInButton';
+import { type SignupSource, markSignupSource } from '@/lib/signupSource';
 
 function GoogleMark({ size = 16 }: { size?: number }) {
   return (
@@ -18,13 +19,22 @@ function GoogleMark({ size = 16 }: { size?: number }) {
 }
 
 /** Google sign-in button, or the signed-in avatar with a small menu. */
-export default function AuthButton({ full = false }: { full?: boolean }) {
+/** `source`: where this button sits, recorded when a new member signs up through it. */
+export default function AuthButton({ full = false, source = 'other' }: { full?: boolean; source?: SignupSource }) {
   const t = useTranslations('Auth');
   const { user, ready, configured, error, signIn, signOut, clearError, setError } = useAuth();
   const [useRedirect, setUseRedirect] = useState(false);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const signInRef = useRef<HTMLDivElement>(null);
+
+  // Google's button is a cross-origin iframe: a click on it shows up as the window losing focus to that iframe.
+  useEffect(() => {
+    const onBlur = () => { window.setTimeout(() => { if (signInRef.current?.contains(document.activeElement)) markSignupSource(source); }, 0); };
+    window.addEventListener('blur', onBlur);
+    return () => window.removeEventListener('blur', onBlur);
+  }, [source]);
 
   useEffect(() => {
     if (!open) return;
@@ -45,7 +55,7 @@ export default function AuthButton({ full = false }: { full?: boolean }) {
     return (
       <>
         {errorBox}
-        <GoogleSignInButton width={full ? 280 : undefined} onError={setError} onFallback={() => setUseRedirect(true)} />
+        <div ref={signInRef} onPointerDown={() => markSignupSource(source)}><GoogleSignInButton width={full ? 280 : undefined} onError={setError} onFallback={() => setUseRedirect(true)} /></div>
       </>
     );
   }
@@ -54,7 +64,7 @@ export default function AuthButton({ full = false }: { full?: boolean }) {
     return (
       <>
         {errorBox}
-        <button type="button" disabled={busy} onClick={() => { setBusy(true); signIn().finally(() => setBusy(false)); }}
+        <button type="button" disabled={busy} onClick={() => { markSignupSource(source); setBusy(true); signIn().finally(() => setBusy(false)); }}
           className={`flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-3.5 py-2 text-xs font-extrabold text-[#17201e] shadow-sm transition hover:bg-white/80 disabled:opacity-60 ${full ? 'w-full py-3 text-sm' : ''}`}>
           <GoogleMark />{t('signIn')}
         </button>
