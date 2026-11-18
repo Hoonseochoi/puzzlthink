@@ -10,7 +10,6 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { CHALLENGE_MS, IDLE_MS, MEMORIZE_MS, ROUNDS, type HexRound, broadcastRounds, generateRound, lineOf } from '@/lib/hexagon';
 import { reportGame } from '@/lib/stats';
-import { CoffeeNudge } from '@/components/SupportLink';
 import { HEX_ACCENT, HEX_INK, HexBoardView, type TileMark, TargetPlate, TimeBar, revealMarks, togglePick, useLetterKeys } from './HexParts';
 
 type Mode = 'solo' | 'challenge';
@@ -189,7 +188,6 @@ export default function HexagonGame() {
                 </li>
               ))}</ul>
               <button type="button" onClick={() => start()} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{t('again')}</button>
-              <CoffeeNudge className="mt-4" />
             </div>
           )}
 

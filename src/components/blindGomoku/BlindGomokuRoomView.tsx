@@ -20,7 +20,6 @@ import { BG_TURN_OPTIONS, REVEALS, ownerOf, roomPlayableColors, seatToMove } fro
 import BlindGomokuBoard from './BlindGomokuBoard';
 import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
-import { CoffeeNudge } from '../SupportLink';
 
 const ACCENT = '#ffd166';
 
@@ -184,7 +183,7 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
             ) : (
               <>
                 <BlindGomokuBoard moves={boardMoves} flipped={flipped} interactive={myTurn && !peeking} previewColor={iAmBlack ? blackColor : (copyColor ?? blackColor)} winningLine={finished ? replayLine : null} onPlace={place} />
-                {finished && <><ReplayBar moves={moves} replay={replay} /><CoffeeNudge className="mt-3" /></>}
+                {finished && <ReplayBar moves={moves} replay={replay} />}
                 {mySeat === null && <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
               </>
             )}

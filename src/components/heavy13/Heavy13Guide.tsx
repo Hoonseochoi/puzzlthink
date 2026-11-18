@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import type { Chip } from '@/lib/heavy13';
 import { ChipToken, RockCard, StandMini } from './Bits';
-import AdSlot from '@/components/AdSlot';
 
 type Item = { title: string; body: string; tag?: string };
 type Faq = { q: string; a: string };
@@ -20,7 +19,6 @@ export default async function Heavy13Guide({ locale }: { locale: string }) {
 
   return (
     <section id="guide" className="border-t border-white/10 bg-[#0b0b0e] px-5 py-16 text-[#e6e9f0]">
-      <AdSlot placement="inline" tone="dark" className="mx-auto mb-12 max-w-3xl" />
       <article className="mx-auto max-w-4xl">
         <span className="text-[10px] font-black tracking-[0.2em] text-[#e6c48a]">{t('eyebrow')}</span>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">{t('title')}</h1>

@@ -17,7 +17,6 @@ import { Link } from '@/i18n/routing';
 import { IDLE_MS, lineOf } from '@/lib/hexagon';
 import { BUZZ_MS, HEX_MAX_PLAYERS, HEX_MEMO_OPTIONS, HEX_MIN_PLAYERS, HEX_ROUND_OPTIONS, hexRanking, isOvertime } from '@/lib/hexagonRoom';
 import { reportGame } from '@/lib/stats';
-import { CoffeeNudge } from '@/components/SupportLink';
 import { HEX_ACCENT, HEX_INK, HexBoardView, type TileMark, TargetPlate, TimeBar, revealMarks, togglePick, useLetterKeys } from './HexParts';
 
 /** When this browser first saw `key` (timers run on local clocks, not the host's). */
@@ -239,7 +238,6 @@ export default function HexagonRoomView({ code }: { code: string }) {
                   </li>
                 ))}</ul>
                 {me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-4 w-full py-3`}><RotateCcw size={14} />{t('rematch')}</button> : <p className="mt-4 text-center text-xs text-white/45">{t('rematchWait')}</p>}
-                <CoffeeNudge className="mt-4" />
               </div>
             )}
           </section>

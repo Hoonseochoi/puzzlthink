@@ -7,7 +7,6 @@ import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import RoomEmotes from '@/components/RoomEmotes';
-import { CoffeeNudge } from '@/components/SupportLink';
 import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
@@ -110,7 +109,7 @@ export default function BlackWhite2RoomView({ code }: { code: string }) {
                 {me?.isHost ? <div className="space-y-2"><button onClick={() => dispatch({ t: 'start' })} disabled={!full} className={`flex w-full items-center justify-center gap-2 rounded-md py-3.5 text-sm font-extrabold transition ${full ? 'bg-[#ef3340] text-white hover:brightness-110' : 'cursor-not-allowed border border-dashed border-white/20 bg-white/[0.04] text-white/40'}`}>{full ? <Swords size={16} /> : <Lock size={15} />}{full ? t('start') : t('startLocked')}</button><p className={`text-center text-[11px] ${full ? 'font-bold text-[#ff8f97]' : 'text-white/40'}`}>{full ? t('startReady') : t('startLockedHint')}</p></div> : <p className="text-center text-sm text-white/50">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>}
               </div>
             ) : finished ? (
-              <BW2Replay key={state.sid} rounds={rounds} me={view} names={names} override={state.reason === 'score' ? null : resultText()}>{me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{t('rematch')}</button> : <p className="text-center text-[11px] text-white/40">{t('rematchWait')}</p>}<CoffeeNudge className="mt-1" /></BW2Replay>
+              <BW2Replay key={state.sid} rounds={rounds} me={view} names={names} override={state.reason === 'score' ? null : resultText()}>{me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{t('rematch')}</button> : <p className="text-center text-[11px] text-white/40">{t('rematchWait')}</p>}</BW2Replay>
             ) : (
               <div className="space-y-3 sm:space-y-4">
                 <BW2Scoreboard rounds={rounds} me={view} names={names} leader={leader} stage={state.stage} bank={state.bank} gauges={state.gauges} finished={false} />

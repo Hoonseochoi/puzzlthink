@@ -16,7 +16,6 @@ import GlobalFooter from '@/components/GlobalFooter';
 import InstallBanner from '@/components/InstallBanner';
 import OnlineCount from '@/components/OnlineCount';
 import { routing } from '@/i18n/routing';
-import { ADSENSE_CLIENT } from '@/lib/adsense';
 import { GA_ID } from '@/lib/analytics';
 import '../globals.css';
 
@@ -62,12 +61,6 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      {ADSENSE_CLIENT && (
-        <head>
-          <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
-          <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`} crossOrigin="anonymous" />
-        </head>
-      )}
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#f3f0e8] font-sans text-[#17201e] antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>

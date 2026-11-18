@@ -17,7 +17,6 @@ import { reportGame } from '@/lib/stats';
 import { type Side, colorOf, nextLeader, other, scoresOf } from '@/lib/blackWhite';
 import { BW_FLASH_MS, BW_TURN_OPTIONS, seatToPlay } from '@/lib/blackWhiteRoom';
 import { BWTile, Hand, MemoPad, OpponentTrack, Replay, RoundLog, Scoreboard, Table } from './BWParts';
-import { CoffeeNudge } from '../SupportLink';
 
 const ACCENT = '#e9c46a';
 
@@ -162,7 +161,6 @@ export default function BlackWhiteRoomView({ code }: { code: string }) {
                 {me?.isHost
                   ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{t('rematch')}</button>
                   : <p className="text-center text-[11px] text-white/40">{t('rematchWait')}</p>}
-                <CoffeeNudge className="mt-1" />
               </Replay>
             ) : (
               <div className="space-y-3 sm:space-y-4">

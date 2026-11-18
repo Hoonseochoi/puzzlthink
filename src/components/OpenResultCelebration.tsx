@@ -8,7 +8,6 @@ import { OPEN_RESULT_EVENT, type OpenResultDetail } from '@/lib/stats';
 import { rankImagePath, rankPath, rankSlug } from '@/lib/rankings';
 import { Fireworks, GAME_LABEL } from './HallCelebration';
 import ShareButtons from './ShareButtons';
-import { CelebrationSupport } from './SupportLink';
 
 const SHOW_AFTER_MS = 1400; // let the result screen land first
 const RANK_FROM = 1; // wins needed to appear in the open ranking
@@ -95,7 +94,6 @@ export default function OpenResultCelebration() {
 
         <div className="mt-5 grid gap-2">
           {open && after !== null && (up || top5) && <ShareButtons path={rankPath(locale, shown.game)} imagePath={rankImagePath(shown.game, locale)} fileName="puzzlthink-ranking.png" text={tc('shareOpenRank', { game, rank: after })} />}
-          {open && after !== null && (up || top5) && <CelebrationSupport place="open_rank" />}
           {open && <button onClick={() => { close(); router.push(`/ranking/${rankSlug(shown.game)}`); }} className={`rounded-[12px] py-3 text-sm font-black ${gold ? 'bg-[#ffd36e] text-[#2a2118] hover:bg-[#ffe09a]' : 'bg-white text-[#17201e] hover:bg-white/90'}`}>{t('viewRanking')}</button>}
           <button onClick={close} className="rounded-[12px] border border-white/15 bg-white/5 py-3 text-xs font-bold text-white/75 hover:bg-white/10">{t('close')}</button>
         </div>

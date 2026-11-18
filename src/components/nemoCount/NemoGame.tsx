@@ -13,7 +13,6 @@ import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accent
 import { CHALLENGE_MS, NEMO_DIFFICULTIES, type NemoDifficulty, type NemoProblem, formatMs, generateProblem, rng, tutorialProblems } from '@/lib/nemoCount';
 import { type Duel, QUICK_DUEL_COUNT, beats, createDuel, duelImagePath, duelPath, duelTime, getDuel, newSeed, submitDuel } from '@/lib/nemoDuel';
 import { reportGame } from '@/lib/stats';
-import { CoffeeNudge } from '@/components/SupportLink';
 import { AnswerInput, NEMO_ACCENT, NEMO_INK, NemoBoardView, SolutionReplay, TargetPlate } from './NemoParts';
 
 type Mode = 'challenge' | 'practice' | 'tutorial';
@@ -291,7 +290,6 @@ export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | n
                 </section>
               )}
               <button type="button" onClick={() => startChallenge(duel ? null : limit)} className={`${BTN} mt-4 w-full py-3`}><RotateCcw size={14} />{duel ? t('duelRetry') : t('again')}</button>
-              <CoffeeNudge className="mt-4" />
             </div>
           )}
 

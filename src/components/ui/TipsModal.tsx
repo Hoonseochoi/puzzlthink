@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { Lightbulb, Loader2, X } from 'lucide-react';
-import { showInterstitial } from '@/lib/ads';
 
 /**
  * Runs `judge` over `indices` one by one, yielding to the browser between positions, and stops at
@@ -32,14 +31,13 @@ export function useFirstMatch<T>(indices: number[], judge: (index: number) => T 
   return state;
 }
 
-/** "필승 꿀팁 보기" button for a result popup. Shows an interstitial (when ads are wired up) first. */
-export function TipsButton({ label, adName, onOpen }: { label: string; adName: string; onOpen: () => void }) {
-  const [busy, setBusy] = useState(false);
+/** "필승 꿀팁 보기" button for a result popup. */
+export function TipsButton({ label, onOpen }: { label: string; onOpen: () => void }) {
   return (
     <button
-      type="button" disabled={busy}
-      onClick={async () => { setBusy(true); try { await showInterstitial(adName); } finally { setBusy(false); onOpen(); } }}
-      className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-(--accent) py-3 text-sm font-extrabold text-(--accent-ink) shadow-[0_0_18px_var(--accent-glow)] hover:brightness-110 disabled:opacity-60"
+      type="button"
+      onClick={onOpen}
+      className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-(--accent) py-3 text-sm font-extrabold text-(--accent-ink) shadow-[0_0_18px_var(--accent-glow)] hover:brightness-110"
     >
       <Lightbulb size={15} />{label}
     </button>

@@ -14,6 +14,7 @@
     "newGame": "New game",
     "rules": "How to play",
     "tagline": "Small games for long thoughts.",
+    "hobbyOperationNotice": "PUZZLTHINK is a personal hobby project, and its operating costs are paid by the developer. There are currently no ads or plans for separate monetization. A voluntary support link is available for anyone who would like to help, with no reward or service benefit in return. The service may be changed, suspended or discontinued due to the developer's personal circumstances.",
     "about": "About",
     "contact": "Contact",
     "janggi": "12 Janggi",
@@ -40,11 +41,7 @@
     "contactPartnership": "Contact & partnerships",
     "onlineNow": "{count} online now",
     "nemoCount": "Nemo Count",
-    "supportTitle": "Enjoying PUZZLTHINK? Buy us a coffee",
-    "supportDesc": "Every game is free. A small tip helps us add new games and keep the servers running. Payments go through CTEE.",
-    "supportButton": "Support the developer",
-    "supportShort": "Support",
-    "coffeeNudge": "Enjoyed it? Buy the developer a coffee",
+    "supportShort": "Voluntary support",
     "awayMeTitle": "You were disconnected — the AI is playing for you",
     "awayMeDesc": "You went quiet, so the AI took over your seat. Press the button to play again yourself.",
     "awayRejoin": "Rejoin",
@@ -72,8 +69,7 @@
     "indianPoker": "Indian Poker",
     "shareHallRank": "#{rank} in the {game} Hall of Fame! 🏆 Your move",
     "shareOpenRank": "#{rank} in the {game} open-match ranking! Come at me",
-    "shareNow": "Share",
-    "celebrationSupport": "🏆 Congrats! PUZZLTHINK is made by one person. If you enjoyed this, a coffee keeps it going ☕"
+    "shareNow": "Share"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -303,7 +299,6 @@
     "modeHexChallengeDesc": "Best score",
     "modeHexFriend": "Friends",
     "modeHexFriendDesc": "2–4 · buzzer",
-    "sponsorTag": "Supporter request",
     "hypeTag": "most played"
   },
   "WallGo": {
@@ -474,7 +469,7 @@
   },
   "Legal": {
     "legal": "LEGAL",
-    "lastUpdated": "Last updated: November 17, 2026",
+    "lastUpdated": "Last updated: November 18, 2026",
     "privacyTitle": "Privacy Policy",
     "privacyDescription": "The PUZZLTHINK privacy policy.",
     "privacySections": [
@@ -516,34 +511,30 @@
       },
       {
         "title": "10. Service providers and international transfer",
-        "body": "We rely on the providers below, whose servers are outside Korea (Supabase in the Asia-Pacific region, the others mainly in the United States). Information is sent over the network when you use the Service, and each provider uses it only for the work we give them.\n• Supabase (Asia-Pacific region servers): sign-in, database (profiles, game results, bug reports, statistics) and real-time play\n• Vercel: website hosting and delivery (including access logs)\n• Google: Google sign-in, Google AdSense ads, Google Analytics visit statistics and the operator's inbox (Gmail)\n• Web3Forms: relays bug reports to the operator's email\n• Forward Email: forwards mail sent to contact@puzzlthink.com to the operator's inbox\nIf you do not want your information transferred abroad, you can play without signing in or sending reports, or ask us to delete it. All games remain available either way."
+        "body": "We rely on the providers below, whose servers are outside Korea (Supabase in the Asia-Pacific region, the others mainly in the United States). Information is sent over the network when you use the Service, and each provider uses it only for the work we give them.\n• Supabase (Asia-Pacific region servers): sign-in, database (profiles, game results, bug reports, statistics) and real-time play\n• Vercel: website hosting and delivery (including access logs)\n• Google: Google sign-in, Google Analytics visit statistics and the operator's inbox (Gmail)\n• Web3Forms: relays bug reports to the operator's email\n• Forward Email: forwards mail sent to contact@puzzlthink.com to the operator's inbox\nIf you do not want your information transferred abroad, you can play without signing in or sending reports, or ask us to delete it. All games remain available either way."
       },
       {
         "title": "11. Your rights",
         "body": "You can ask at any time to see, correct, delete or stop the processing of your personal information. You can change your nickname and Hall of Fame visibility yourself on the Records page; for anything else, email contact@puzzlthink.com and we will act without delay once we confirm it is you. Legal guardians of children under 14 have the same rights."
       },
       {
-        "title": "12. Ads and cookies",
-        "body": "The Service may show ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it to serve ads based on your visits to this and other sites.\nWe also use Google Analytics to collect visit statistics (pages viewed, time on page, referring site, device and browser type, approximate location). It tells browsers apart with a cookie but is not linked to your name or email, and we use it only to improve the Service. To opt out, install the browser add-on at https://tools.google.com/dlpage/gaoptout or block cookies in your browser."
+        "title": "12. Visit analytics and cookies",
+        "body": "We use Google Analytics to collect visit statistics (pages viewed, time on page, referring site, device and browser type, approximate location). It tells browsers apart with a cookie but is not linked to your name or email, and we use it only to improve the Service. To opt out, install the browser add-on at https://tools.google.com/dlpage/gaoptout or block cookies in your browser."
       },
       {
-        "title": "13. Opting out of personalized ads",
-        "body": "You can turn off personalized ads in Google Ads Settings (https://adssettings.google.com) and opt out of third-party vendors' cookies for personalized advertising at www.aboutads.info. To learn how Google uses data, see https://policies.google.com/technologies/partner-sites. Users in the EEA, the UK and Switzerland are asked for consent before cookies are used."
-      },
-      {
-        "title": "14. Security",
+        "title": "13. Security",
         "body": "All traffic is encrypted with HTTPS. The database uses row-level access control so you can see only your own records; bug reports and statistics can only be written through fixed functions and cannot be read by other users. Only the operator can access the admin tools."
       },
       {
-        "title": "15. Children's privacy",
+        "title": "14. Children's privacy",
         "body": "The Service does not knowingly collect personal information from children under 14. If we learn that a child under 14 has sent personal information through Google sign-in or a bug report, we delete it without delay."
       },
       {
-        "title": "16. Privacy officer and contact",
+        "title": "15. Privacy officer and contact",
         "body": "Privacy officer: the PUZZLTHINK operator\nContact: contact@puzzlthink.com\nFor help with a privacy complaint in Korea you can also contact the Personal Information Infringement Report Center (privacy.kisa.or.kr, 118) or the Personal Information Dispute Mediation Committee (www.kopico.go.kr, 1833-6972)."
       },
       {
-        "title": "17. Changes to this policy",
+        "title": "16. Changes to this policy",
         "body": "When this policy changes, we update the last updated date on this page."
       }
     ],
@@ -567,8 +558,8 @@
         "body": "The service’s design, code, graphics and game implementations belong to PUZZLTHINK. TV show names used to describe the games belong to their owners; PUZZLTHINK is an unofficial project not affiliated with any broadcaster."
       },
       {
-        "title": "5. Advertising",
-        "body": "The service may show third-party ads such as Google AdSense; advertisers are responsible for their ads."
+        "title": "5. Voluntary support",
+        "body": "The footer links to an external page where you may make voluntary support with no reward or service benefit. Every game and feature remains equally free whether or not you support the project."
       },
       {
         "title": "6. Disclaimer",
@@ -600,7 +591,7 @@
       },
       {
         "title": "How we operate",
-        "body": "All games are free, and game records are stored only in your browser. Running costs may be covered by advertising revenue."
+        "body": "PUZZLTHINK is a personal hobby project run by one developer. Every game and feature is free, with no advertising or paid products. Voluntary support through the footer provides no reward or service benefit."
       },
       {
         "title": "Who runs it",
@@ -621,7 +612,7 @@
       },
       {
         "title": "Partnerships & collaboration",
-        "body": "Game partnerships, content or streaming collaborations, advertising and sponsorship, and event proposals are all welcome at contact@puzzlthink.com. Put [Partnership] in the subject and include your company or channel, the proposal, timing and how to reach you."
+        "body": "Game partnerships, content or streaming collaborations, and event proposals are welcome at contact@puzzlthink.com. Put [Partnership] in the subject and include your company or channel, the proposal, timing and how to reach you."
       },
       {
         "title": "Reporting bugs",

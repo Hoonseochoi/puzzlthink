@@ -9,7 +9,6 @@ import { clearLabel } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
 import AuthButton from './AuthButton';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
-import AdSlot from './AdSlot';
 import OpenRankingBoard from './OpenRankingBoard';
 
 const GAMES: { id: GameId; href: string; color: string }[] = [
@@ -244,7 +243,6 @@ export default function RecordsClient() {
             </section>
           </>
         )}
-        <AdSlot placement="inline" className="mt-14" />
       </div>
     </main>
   );

@@ -32,7 +32,7 @@ export default function JanggiResult({ game, viewer, names, onAgain, waitingLabe
         {onReplay && (game.moves?.length ?? 0) > 0 && (
           <button onClick={onReplay} className="mt-5 flex w-full items-center justify-center gap-2 rounded-md border border-(--accent)/40 bg-(--accent)/10 py-3 text-sm font-extrabold text-(--accent) hover:bg-(--accent)/20"><History size={15} />{t('replay')}</button>
         )}
-        {lost && <TipsButton label={t('tipsButton')} adName="janggi-tips" onOpen={() => setTipsOpen(true)} />}
+        {lost && <TipsButton label={t('tipsButton')} onOpen={() => setTipsOpen(true)} />}
         <ResultActions onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/janggi" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
         {tipsOpen && lost && <JanggiTips game={game} viewer={viewer!} onClose={() => setTipsOpen(false)} />}
       </div>

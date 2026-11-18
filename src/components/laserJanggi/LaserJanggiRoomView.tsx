@@ -20,7 +20,6 @@ import { Link } from '@/i18n/routing';
 import { legalActions, type LaserAction, type LaserShot } from '@/lib/laserJanggi';
 import { LASER_TURN_OPTIONS } from '@/lib/laserJanggiRoom';
 import LaserBoard from './LaserBoard';
-import { CoffeeNudge } from '../SupportLink';
 import LaserPiece from './LaserPiece';
 import { LASER_CYAN } from './theme';
 
@@ -111,7 +110,6 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
         <section className={NOTE}><p className={PANEL_TITLE}>{tg('quickRules')}</p><ol className="mt-3 space-y-3 text-xs leading-5 text-white/60">{['quick1','quick2','quick3','quick4'].map((key,i)=><li key={key} className="flex gap-3"><span className="font-mono text-[#59e6ff]">0{i+1}</span>{tg(key)}</li>)}</ol></section>
         {state.phase==='finished'&&me?.isHost&&<button onClick={() => dispatch({t:'start'})} className={`${BTN_ACCENT} py-3`}><RotateCcw size={14}/>{t('rematch')}</button>}
         {state.phase==='finished'&&!showReplay&&frames.length>1&&<ReplayButton onClick={() => setReplaying(true)} className="!mt-0" />}
-        {state.phase==='finished'&&<CoffeeNudge />}
         {state.phase==='playing'&&mySeat!==null&&<button onClick={() => { if(window.confirm(t('resignConfirm'))) dispatch({t:'resign'}); }} className={`${BTN} py-2.5 text-white/45`}><Flag size={13}/>{t('resign')}</button>}
         <div className="rounded-[12px] border border-white/10 bg-black/25 p-3 text-[10px] leading-4 text-white/35">{t('timeoutRule')}</div>
       </aside>

@@ -7,7 +7,6 @@ import { useRouter } from '@/i18n/routing';
 import { rankImagePath, rankPath, rankSlug } from '@/lib/rankings';
 import { type GameId, HALL_RANK_EVENT, type HallRankDetail } from '@/lib/stats';
 import ShareButtons from './ShareButtons';
-import { CelebrationSupport } from './SupportLink';
 
 export const GAME_LABEL: Record<GameId, string> = { gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -99,7 +98,6 @@ export default function HallCelebration() {
         <p className="mt-3 text-xs leading-5 text-white/60">{t('hallCongratsDesc')}</p>
         <div className="mt-6 grid gap-2">
           <ShareButtons path={rankPath(locale, shown.game)} imagePath={rankImagePath(shown.game, locale)} fileName="puzzlthink-hall.png" text={t('shareHallRank', { game: t(GAME_LABEL[shown.game]), rank: shown.rank })} />
-          <CelebrationSupport place="hall" />
           <button onClick={() => { close(); router.push(`/ranking/${rankSlug(shown.game)}`); }} className="rounded-[12px] bg-[#ffd36e] py-3 text-sm font-black text-[#2a2118] hover:bg-[#ffe09a]">{t('hallCongratsView')}</button>
           <button onClick={close} className="rounded-[12px] border border-white/15 bg-white/5 py-3 text-xs font-bold text-white/75 hover:bg-white/10">{t('hallCongratsClose')}</button>
         </div>

@@ -7,8 +7,6 @@ import { usePractice } from './OpenPractice';
 import { useRouter } from '@/i18n/routing';
 import { displayName, useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
-import AdSlot from './AdSlot';
-import { CoffeeNudge } from './SupportLink';
 import { clearPendingGame } from '@/lib/stats';
 
 /** "Keep this on record?" card with Google sign-in, shown on result screens to signed-out players. */
@@ -98,9 +96,6 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
           </button>
         </div>
       </div>
-      <CoffeeNudge className="mt-4" />
-      {/* Below the buttons so a late-loading ad never shifts them under the player's finger. */}
-      <AdSlot placement="result" tone="dark" compact className="mt-5 border-t border-white/10 pt-4" />
     </>
   );
 }

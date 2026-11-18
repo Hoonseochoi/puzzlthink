@@ -1,6 +1,5 @@
 import { getTranslations } from 'next-intl/server';
 import WallGoDiagram, { type DiagramSpec } from './WallGoDiagram';
-import AdSlot from '@/components/AdSlot';
 
 type Strategy = { title: string; body: string; tag: string };
 type Faq = { q: string; a: string };
@@ -66,7 +65,6 @@ export default async function WallGoGuide({ locale }: { locale: string }) {
 
   return (
     <section id="guide" className="relative z-10 border-t border-white/10 bg-[#0b0b0e] px-5 py-16 text-[#e6e9f0]">
-      <AdSlot placement="inline" tone="dark" className="mx-auto mb-12 max-w-3xl" />
       <article className="mx-auto max-w-4xl">
         <span className="text-[10px] font-black tracking-[0.2em] text-[#ff4d5e]">{t('eyebrow')}</span>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">{t('title')}</h1>

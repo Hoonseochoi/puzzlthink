@@ -34,7 +34,7 @@ export default function RJResult({ game, viewer, names, onAgain, waitingLabel, e
         {onReplay && (game.moves?.length ?? 0) > 0 && (
           <button onClick={onReplay} className="mt-5 flex w-full items-center justify-center gap-2 rounded-md border border-(--accent)/40 bg-(--accent)/10 py-3 text-sm font-black text-(--accent) hover:bg-(--accent)/20"><History size={15} />{t('replay')}</button>
         )}
-        {lost && <TipsButton label={t('tipsButton')} adName="russian-janggi-tips" onOpen={() => setTipsOpen(true)} />}
+        {lost && <TipsButton label={t('tipsButton')} onOpen={() => setTipsOpen(true)} />}
         <ResultActions onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-janggi" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
         {tipsOpen && lost && <RJTips game={game} viewer={viewer!} onClose={() => setTipsOpen(false)} />}
       </div>
