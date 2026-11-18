@@ -14,6 +14,7 @@ import { prepareBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 import { prepareBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
 import LaserPiece from './laserJanggi/LaserPiece';
 import { prepareNemoRoom } from '@/hooks/useNemoRoom';
+import { prepareHexagonRoom } from '@/hooks/useHexagonRoom';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
@@ -69,6 +70,22 @@ export function PiggyBankArt() {
 
 function PiggyBankPreview() {
   return <div className="relative h-24 w-24 sm:h-[300px] sm:w-[300px]"><div className="absolute left-0 top-0 origin-top-left scale-[.32] sm:scale-100"><PiggyBankArt /></div></div>;
+}
+
+function HexagonPreview() {
+  // The first broadcast board (rows 3-4-5-4-3) with the line Q-R-S (1+1+3 = target 5) picked out.
+  const nums = [1, 6, 3, 2, 4, 5, 6, 2, 5, 2, 1, 3, 4, 5, 3, 5, 1, 1, 3];
+  const s = 10, w = Math.sqrt(3) * s;
+  const tiles: { x: number; y: number; v: number; on: boolean }[] = [];
+  let i = 0;
+  [3, 4, 5, 4, 3].forEach((len, row) => { for (let col = 0; col < len; col += 1) { tiles.push({ x: ((5 - len) * w) / 2 + col * w + w / 2, y: s + row * 1.5 * s, v: nums[i], on: i >= 16 }); i += 1; } });
+  const hex = (x: number, y: number) => [0, 1, 2, 3, 4, 5].map((k) => { const a = (Math.PI / 180) * (60 * k - 90); return `${(x + (s - 0.6) * Math.cos(a)).toFixed(2)},${(y + (s - 0.6) * Math.sin(a)).toFixed(2)}`; }).join(' ');
+  return <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#15182a] shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:shadow-2xl">
+    <svg viewBox={`-2 -2 ${5 * w + 4} ${8 * s + 4}`} className="w-[86%]">
+      {tiles.map((tile, k) => <g key={k}><polygon points={hex(tile.x, tile.y)} fill={tile.on ? '#ffcf3f' : '#efe8d6'} stroke="#e8b04a" strokeWidth={tile.on ? 1 : 0.4} /><text x={tile.x} y={tile.y + 3.4} textAnchor="middle" fontSize="9.5" fontWeight="900" fill="#17140d" fontFamily="Georgia, serif">{tile.v}</text></g>)}
+    </svg>
+    <span className="absolute right-[5%] top-[5%] rounded bg-[#2b2414] px-1 py-0.5 font-serif text-[8px] font-black text-[#f3e6c4] sm:px-2 sm:text-base">5</span>
+  </div>;
 }
 
 function NemoCountPreview() {
@@ -155,6 +172,7 @@ export default function HomeClient() {
   const router = useRouter();
   // Order: the hot Devil's Plan 3 games first, then the rest. `show` is the programme each game is from.
   const games = [
+    { title: 'HEXAGON', display: tc('hexagon'), description: t('hexagonDescription'), href: '/hexagon', show: 'dp1', meta: t('hexagonMeta'), color: '#e8b04a', illustration: 'hexagon' },
     { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', show: 'dp3', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
     { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', show: 'dp3', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
     { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', show: 'dp3', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
@@ -172,7 +190,7 @@ export default function HomeClient() {
   return <main className="min-h-screen bg-[#f3f0e8] text-[#17201e]"><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
     <div className="mx-auto max-w-3xl text-center"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/50 backdrop-blur"><Sparkles size={12} className="text-[#ff6b4a]" /> {t('eyebrow')}</div><h1 className="text-balance break-keep text-[2.4rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-7xl sm:leading-[0.98]">{t('title1')}<br />{t('title2')}</h1><p className="mx-auto mt-4 max-w-xl break-keep text-sm leading-6 text-black/55 sm:mt-6 sm:text-base sm:leading-7">{t('description1')}<br className="hidden sm:block" /> {t('description2')}</p><VisitCounter /></div>
     <div className="mt-8 grid gap-3 sm:mt-12 sm:gap-5 md:grid-cols-2"><OpenMatchCard previews={{
-      piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, wallgo: <WallGoPreview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} />{games.map((game) => (
@@ -180,13 +198,23 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><ShowTag show={game.show} color={game.color} label={game.show === 'classic' ? t('classic') : t(`show_${game.show}`)} /><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>
             </div>
           </div>
         </Link>
+        {game.illustration === 'hexagon' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
+            <div className="grid grid-cols-3 gap-2">
+              <Link href="/hexagon?mode=solo#play" className={MODE_BUTTON}><Brain size={15} className="text-[#c8932f]" /><span className="text-sm font-black">{t('modeHexSolo')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHexSoloDesc')}</span></Link>
+              <Link href="/hexagon?mode=challenge#play" className={MODE_BUTTON}><Sparkles size={15} className="text-[#c8932f]" /><span className="text-sm font-black">{t('modeHexChallenge')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHexChallengeDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/hexagon/room/${await prepareHexagonRoom()}`)} className={`${MODE_BASE} border-[#e8b04a]/50 bg-[#fbf2dc] hover:border-[#e8b04a]`}><UsersRound size={15} className="text-[#c8932f]" /><span className="text-sm font-black">{t('modeHexFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHexFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
         {game.illustration === 'piggyBank' && (
           <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>

@@ -66,7 +66,8 @@
     "replayPartial": "Recorded from when this browser joined",
     "unofficialNotice": "PUZZLTHINK is an unofficial fan site, not affiliated with any broadcaster or producer. Show names and trademarks belong to their owners.",
     "myCerts": "My clear certificates",
-    "myCertsEmpty": "Beat a Hard AI (or a Hard Sudoku) to get a numbered clear certificate."
+    "myCertsEmpty": "Beat a Hard AI (or a Hard Sudoku) to get a numbered clear certificate.",
+    "hexagon": "Hexagon"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -267,7 +268,15 @@
     "modePiggyAi": "4-player vs AI",
     "modePiggyAiDesc": "Easy · Normal · Hard",
     "modePiggyFriend": "With friends",
-    "modePiggyFriendDesc": "2–4, AI fills seats"
+    "modePiggyFriendDesc": "2–4, AI fills seats",
+    "hexagonDescription": "Memorize 19 numbers in 30 seconds, then find every line of three whose sum is the target.",
+    "hexagonMeta": "Solo 10 rounds · 10-min challenge · 2–4 friends",
+    "modeHexSolo": "Solo",
+    "modeHexSoloDesc": "10 rounds",
+    "modeHexChallenge": "10-min",
+    "modeHexChallengeDesc": "Best score",
+    "modeHexFriend": "Friends",
+    "modeHexFriendDesc": "2–4 · buzzer"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -1870,6 +1879,22 @@
           "Others may doubt within 10 seconds: a wrong answer gives the doubter +1 and the answerer −1; a right one costs the doubter 1. First to 5 points ends the game."
         ],
         "origin": "A web adaptation of the Piggy Bank prison match from Netflix's The Devil's Plan: Dead Again. Coin drops are shown only briefly and never logged — it's all memory."
+      },
+      "hexagon": {
+        "tagline": "Memorize 19 numbers, then name the lines of three that add up to the target by their letters.",
+        "players": "1 player or 2–4 friends",
+        "pace": "1–2 min per round · 10 rounds or a 10-min challenge",
+        "level": "Memory + mental math (random boards · the 10 broadcast boards)",
+        "solo": "10 rounds · 10-min challenge · broadcast boards",
+        "friend": "2–4 players, buzz then declare within 10 s, +1 right / −1 wrong, link or 4-digit code",
+        "ai": "10 rounds · 10-min challenge",
+        "rules": [
+          "19 hexagons sit in rows of 3, 4, 5, 4 and 3. The front of each shows a number, the back a letter from A to S.",
+          "Each round the numbers are shown for 30 seconds, then the board flips to its letters and the target number appears.",
+          "Name a straight line of three neighbouring tiles (across or along a diagonal) whose numbers add up to the target. Right +1, wrong −1.",
+          "Repeating an answer already given is wrong too, and given answers are not marked, so remember them. A round ends when every answer is out or after 90 seconds without one."
+        ],
+        "origin": "Based on Hexagon, the second game of the final of Netflix's The Devil's Plan season 1. Boards and targets are generated at random and every answer is computed; the ten boards from the broadcast are included."
       }
     },
     "keywords": [
@@ -1945,7 +1970,10 @@
     "short_roomThree": "1:1:1",
     "aiFour": "4 players · with 3 AI",
     "roomFour": "Create a room (2–4)",
-    "short_roomFour": "2–4"
+    "short_roomFour": "2–4",
+    "hexSolo": "Solo (10 rounds)",
+    "hexChallenge": "10-minute challenge (scored)",
+    "hexRoom": "Create a friend room (2–4)"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -3632,5 +3660,233 @@
     "pageSub": "Cleared {date} · {total} players so far",
     "challenge": "Try {label} yourself",
     "note": "Numbers follow the order in which signed-in players first won on Hard. Certificates show only the nickname. PUZZLTHINK is an unofficial fan site, not affiliated with any broadcaster or producer."
+  },
+  "Hexagon": {
+    "metaTitle": "Hexagon — The Devil's Plan final memory game online",
+    "metaDescription": "Play Hexagon from the final of The Devil's Plan season 1. Memorize 19 numbers in 30 seconds and find the lines of three that hit the target. Solo 10 rounds, a 10-minute challenge, 2–4 player buzzer rooms and the ten broadcast boards.",
+    "keywords": [
+      "Hexagon game",
+      "The Devil's Plan Hexagon",
+      "Devil's Plan final",
+      "memory game",
+      "mental math game",
+      "헥사곤"
+    ],
+    "title": "Hexagon",
+    "subtitle": "HEXAGON · MEMORY & SUM",
+    "restart": "Start over",
+    "mode_solo": "Solo",
+    "mode_challenge": "10-min challenge",
+    "soloTitle": "Ten rounds. How many points?",
+    "soloDesc": "Ten rounds, like the show. Memorize the numbers for 30 seconds; when the board flips, find the lines of three that make the target. Right +1, wrong −1.",
+    "challengeTitle": "How many points in 10 minutes?",
+    "challengeDesc": "New boards keep coming. Flip early once you have memorized one to save time. When the 10 minutes are up, your score (right − wrong) is recorded.",
+    "sourceRandom": "Random boards",
+    "sourceBroadcast": "The 10 broadcast boards",
+    "startSolo": "Start 10 rounds",
+    "startChallenge": "Start the challenge",
+    "bestScore": "Best: {n} pts",
+    "timeUp": "TIME UP",
+    "gameOver": "GAME OVER",
+    "summaryScore": "{n} pts",
+    "statFound": "Found",
+    "statWrong": "Wrong",
+    "statRounds": "Rounds",
+    "targetShort": "target {n}",
+    "again": "Play again",
+    "broadcastKicker": "BROADCAST · ROUND {n}",
+    "roundKicker": "ROUND {n} / {total}",
+    "challengeKicker": "CHALLENGE · #{n}",
+    "memorizeHeading": "Memorize the numbers",
+    "recallHeading": "Pick three in a line that make the target",
+    "allFound": "You found every answer!",
+    "roundOver": "Round over — {found} of {total} found",
+    "scoreNow": "{n} pts",
+    "memorizeLeft": "Flips in {s}s",
+    "idleLeft": "The round ends after {s}s without a declaration",
+    "memorized": "Got it — flip now",
+    "pickHint": "Tap three tiles",
+    "declare": "Declare",
+    "clear": "Clear",
+    "endRound": "End round",
+    "keysHint": "Keyboard: letters pick tiles · Enter declares · Backspace clears",
+    "notLine": "Those three are not in a line",
+    "dupWrong": "{line} — already given (−1)",
+    "declWrong": "{line} — wrong (−1)",
+    "declRight": "{line} — right! (+1)",
+    "revealLegend": "Green: found · Yellow: missed · {wrong} wrong this round",
+    "nextRound": "Next round",
+    "seeResult": "See results",
+    "session": "This game",
+    "noRoundsYet": "No rounds finished yet.",
+    "historyLine": "target {target} · {found} of {total}",
+    "wrongN": "{n} wrong",
+    "quickRules": "Key rules",
+    "quick1": "The 19 tiles (rows of 3-4-5-4-3) show their numbers for 30 seconds, then flip to letters.",
+    "quick2": "Three tiles in a straight line (across or diagonal) that add up to the target are an answer. A board has 27 lines.",
+    "quick3": "Right +1, wrong −1. Repeating an answer is −1 too, so remember what you found.",
+    "quick4": "The round ends when every answer is found or after 90 seconds without a declaration; then the answers are shown."
+  },
+  "HexagonOnline": {
+    "metaTitle": "Hexagon with friends",
+    "metaDescription": "Play a Hexagon buzzer match with 2–4 friends by invite link or 4-digit code.",
+    "guest": "Guest",
+    "me": "me",
+    "emptySeat": "Empty seat",
+    "shareText": "Let's play a Hexagon buzzer match on PUZZLTHINK!",
+    "unconfigured": "The realtime server is not set up yet.",
+    "connectionError": "Could not reach the realtime server. Please reload.",
+    "roomNotFound": "Room not found. Check that the host is online.",
+    "hostOffline": "The host disconnected. The game continues when they are back.",
+    "back": "Back to Hexagon",
+    "connecting": "Connecting to the room…",
+    "lobbyTitle": "Waiting for friends (2–4)",
+    "finished": "Final standings",
+    "roundKicker": "ROUND {n} / {total}",
+    "overtimeKicker": "OVERTIME {n}",
+    "yourBuzz": "Buzzed! Pick three tiles and declare within 10 seconds",
+    "buzzing": "{player} is declaring…",
+    "buzzLeft": "{player} · {s}s",
+    "idleLeft": "The round ends after {s}s without a buzz",
+    "inviteTitle": "Invite",
+    "inviteDesc": "Send the link or the 4-digit code. Up to 4 players.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "roundCount": "Rounds",
+    "rounds": "{n} rounds",
+    "memoTime": "Memorize time",
+    "seconds": "{n}s",
+    "hostSets": "The host picks the settings.",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "start": "Start with {n}",
+    "needPlayers": "You can start once 2 or more are here",
+    "roomFull": "All seats are taken. You are watching.",
+    "waitingHost": "Waiting for the host to start.",
+    "someoneAnswering": "Someone is declaring",
+    "buzzer": "Buzzer",
+    "spaceHint": "Press the space bar to buzz",
+    "notLineWarn": "Not a line — declaring this counts as wrong",
+    "memoNote": "Once the tiles flip, buzz to declare.",
+    "lastRight": "{player} · {line} right! +1",
+    "lastWrong": "{player} · {line} wrong −1",
+    "lastDup": "{player} · {line} already given −1",
+    "lastTime": "{player} · out of time −1",
+    "nextSoon": "The next round starts in a moment.",
+    "spectating": "You are watching",
+    "points": "{n} pts",
+    "tieRule": "A tie for first plays up to 3 overtime rounds; if still tied, first place is shared.",
+    "rematch": "Play again with new boards",
+    "rematchWait": "The host can start again.",
+    "players": "Players",
+    "rulesTitle": "Room rules",
+    "r1": "Everyone sees the same board. Memorize while the numbers show; the target appears when it flips.",
+    "r2": "Know one? Buzz and pick three tiles within 10 seconds. Right +1; wrong, out of time or already given −1.",
+    "r3": "Declared answers are not marked on the board. Remember who found what.",
+    "r4": "A round ends when every answer is out or after 90 seconds without a buzz. Most points wins.",
+    "joined": "{name} joined",
+    "left": "{name} left"
+  },
+  "HexagonTutorial": {
+    "s1Title": "Memorize 19 numbers",
+    "s1Desc": "19 hexagons sit in rows of 3-4-5-4-3. When a round starts, the numbers show for 30 seconds.",
+    "s2Title": "Flip, then the target",
+    "s2Desc": "After 30 seconds the board flips to its letters (A–S) and the round's target number appears.",
+    "s3Title": "Three in a line = target",
+    "s3Desc": "Broadcast round 1 (target 5): Q-R-S (1+1+3) and A-D-H (1+2+2) are right. H-I-J (2+5+2=9) is wrong.",
+    "s4Title": "Declare by letters",
+    "s4Desc": "Tap three tiles and declare. Right +1, wrong −1. Repeating an answer is −1 too, so remember what was found.",
+    "s5Title": "Round over, answers shown",
+    "s5Desc": "A round ends when everything is found or after 90 seconds without a declaration. Green was found, yellow was missed (K-O-R).",
+    "s6Title": "10-min challenge and friends",
+    "s6Desc": "The challenge deals boards for 10 minutes. With friends, 2–4 players buzz and declare within 10 seconds."
+  },
+  "HexagonGuide": {
+    "eyebrow": "HEXAGON GUIDE",
+    "title": "Hexagon — The Devil's Plan final, and how to hold 19 numbers",
+    "intro": "Hexagon was the second game of the final of Netflix's The Devil's Plan season 1. You memorize the numbers on 19 hexagons for 30 seconds; then the board flips to its letters and you name the straight lines of three whose numbers add up to the target. On the show no round was ever fully solved. On PUZZLTHINK you can play random boards or the ten boards from the broadcast.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "The board is 19 hexagons in rows of 3, 4, 5, 4 and 3. Fronts show numbers, backs show the letters A to S.",
+      "Each round the fronts are shown for 30 seconds, then the board flips and the target number appears.",
+      "Three neighbouring tiles in a straight line, across or along either diagonal, whose numbers add up to the target are an answer. A board has 27 such lines.",
+      "Right is +1, wrong is −1. Repeating an answer already given, or (with friends) not declaring within 10 seconds of buzzing, is wrong too.",
+      "Declared answers are not marked on the board, and the number of answers is not revealed.",
+      "A round ends when every answer is out or after 90 seconds without a declaration, then the answers are shown. Solo is 10 rounds; the challenge runs for 10 minutes."
+    ],
+    "specialTitle": "Easy to get wrong",
+    "special": [
+      {
+        "title": "No bends",
+        "body": "The three tiles must run straight in one direction. Three touching tiles that bend at the middle are not a line."
+      },
+      {
+        "title": "Order does not matter",
+        "body": "Q-R-S and S-R-Q are the same answer; tiles are judged whatever order you tap them in."
+      },
+      {
+        "title": "Remember what was given",
+        "body": "Nothing stays marked, so repeating an earlier answer costs a point. Memorize the declared answers as well as the numbers."
+      },
+      {
+        "title": "There are only a few answers",
+        "body": "On the show each round had 1–6 answers; random boards here have 2–5. If you are not sure, staying quiet is a strategy."
+      }
+    ],
+    "strategyTitle": "Tips — how you memorize decides it",
+    "strategyIntro": "In the final, memory and composure mattered more than arithmetic. Common approaches:",
+    "strategies": [
+      {
+        "tag": "Rows",
+        "title": "Chunk the rows",
+        "body": "Remember rows as chunks like '163' and '2456', the way you would a phone number. 19 tiles fit in 30 seconds more easily."
+      },
+      {
+        "tag": "Sums",
+        "title": "Pre-add some lines",
+        "body": "You cannot add all 27 lines, but knowing the sums of the 9 across-lines lets you call some answers as soon as the target shows."
+      },
+      {
+        "tag": "Centre",
+        "title": "The centre tile J is in 6 lines",
+        "body": "The middle tile is used by the most lines. Make sure of the central numbers before the edges."
+      },
+      {
+        "tag": "Safety",
+        "title": "A wrong answer erases a right one",
+        "body": "With +1 and −1, a half-sure guess loses on average. The show's analysis that avoiding wrong calls matters most was right."
+      },
+      {
+        "tag": "Speed",
+        "title": "Easy ones first",
+        "body": "With friends, whoever buzzes first takes the answer. Found one sure line? Buzz right away."
+      },
+      {
+        "tag": "Practice",
+        "title": "Warm up on the broadcast boards",
+        "body": "Pick 'The 10 broadcast boards' in Solo to play the same boards as the final."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Hexagon?",
+        "a": "On the PUZZLTHINK Hexagon page, in any desktop or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "Are the boards from the show included?",
+        "a": "Yes. Choose 'The 10 broadcast boards' in Solo to get rounds 1–10 of the final with their targets."
+      },
+      {
+        "q": "How do I play with friends?",
+        "a": "Create a friend room and send the link or 4-digit code; 2–4 players can play a buzzer match."
+      },
+      {
+        "q": "Which tiles count as a line?",
+        "a": "Only three tiles running straight across a row or along one of the two diagonals. The board has 27 of them."
+      }
+    ],
+    "disclaimer": "Hexagon is PUZZLTHINK's web version of a game shown on TV and is not affiliated with the broadcaster or producers."
   }
 }

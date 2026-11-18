@@ -8,6 +8,7 @@ import { useRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
 import { useRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { useBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
 import { useNemoRoom } from '@/hooks/useNemoRoom';
+import { prepareHexagonRoom, useHexagonRoom } from '@/hooks/useHexagonRoom';
 import { useLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { useBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 import { useBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
@@ -42,6 +43,11 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  hexagon: {
+    path: '/hexagon', solo: true,
+    ai: [{ label: 'hexSolo', query: 'mode=solo' }, { label: 'hexChallenge', query: 'mode=challenge' }],
+    rooms: [{ label: 'hexRoom', create: prepareHexagonRoom, openMin: 2, play: 'mode=solo' }], useRoom: useHexagonRoom,
+  },
   piggyBank: { path: '/piggy-bank', ai: [{ label: 'aiFour' }], rooms: [{ label: 'roomFour', create: preparePiggyRoom, openMin: 1 }], useRoom: usePiggyRoom },
   nemoCount: {
     path: '/nemo-count', solo: true,
