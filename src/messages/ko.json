@@ -67,7 +67,10 @@
     "unofficialNotice": "PUZZLTHINK는 방송사·제작사와 관계없는 비공식 팬 사이트예요. 프로그램 이름과 상표는 각 권리자에게 있어요.",
     "myCerts": "내 클리어 인증서",
     "myCertsEmpty": "AI 어려움(스도쿠는 어려움)에서 이기면 몇 번째 클리어인지 적힌 인증서가 생겨요.",
-    "hexagon": "헥사곤"
+    "hexagon": "헥사곤",
+    "shareHallRank": "{game} 명예의 전당 {rank}위 달성! 🏆 너도 올라와 봐",
+    "shareOpenRank": "{game} 오픈 대전 랭킹 {rank}위! 덤벼 봐",
+    "shareNow": "공유하기"
   },
   "BlindGomoku": {
     "metaTitle": "블라인드 오목 — 데블스플랜 그 게임 룰 + 기억력 오목 한판",
@@ -2692,7 +2695,36 @@
       "타깃 넘버 게임",
       "두뇌 게임",
       "두뇌 서바이벌 게임"
-    ]
+    ],
+    "quickDuel": "⚡ {n}문제 도전장 만들기",
+    "quickDuelHint": "{n}문제를 풀고, 그 문제 그대로 친구에게 보내요. 누가 더 많이, 더 빨리 맞힐까?",
+    "duelKicker": "도전장",
+    "duelTitle": "{name}님의 도전장",
+    "duelDesc": "{level} {n}문제, 보낸 사람이 푼 문제와 똑같아요. 더 많이 맞히거나, 같으면 더 빨리 풀면 이겨요.",
+    "duelRecord": "{name}님 기록 {correct}/{n} · {time}",
+    "duelTakers": "지금까지 {n}명 도전",
+    "duelStart": "같은 문제로 도전하기",
+    "yourName": "내 이름",
+    "namePlaceholder": "이름 (최대 16자)",
+    "progress": "{n}/{total}",
+    "summaryOf": "{total}문제 중 {n}개 정답",
+    "sendDuel": "이 문제 그대로 친구에게 도전장 보내기",
+    "sendDuelHint": "방금 푼 {n}문제를 친구가 똑같이 풀어요. 도전한 사람은 모두 도전장 랭킹에 올라가요.",
+    "makeDuel": "도전장 만들기",
+    "creating": "도전장 만드는 중…",
+    "duelReady": "도전장이 만들어졌어요! 친구에게 보내 보세요 👇",
+    "shareDuelText": "네모 세기 도전장! {level} {n}문제, 내 기록 {correct}개 · {time}. 이길 수 있어?",
+    "duelWin": "{name}님을 이겼어요! 🎉",
+    "duelLose": "아깝다! {name}님이 한 수 위예요",
+    "duelPlace": "도전한 {total}명 중 {rank}위",
+    "duelBoard": "도전장 랭킹",
+    "duelSaving": "기록 저장 중…",
+    "shareResultText": "{name}님의 네모 세기 도전장에서 {total}명 중 {rank}위! 너도 도전해봐",
+    "duelRetry": "다시 도전하기",
+    "duelMetaTitle": "{name}님의 네모 세기 도전장 — {correct}/{n} · {time}, 이길 수 있어?",
+    "duelMetaDesc": "{level} {n}문제, 똑같은 문제로 붙어요. 더 많이, 더 빨리 맞히면 승리! 지금까지 {total}명 도전.",
+    "duelNotFound": "도전장을 찾을 수 없어요",
+    "runDone": "FINISHED"
   },
   "NemoOnline": {
     "metaTitle": "네모 세기 대결 들어와! 🟦 초대장이 왔어요",
@@ -3949,5 +3981,33 @@
       }
     ],
     "disclaimer": "헥사곤은 방송에 소개된 게임 방식을 바탕으로 PUZZLTHINK가 웹용으로 다시 만든 것으로, 방송사·제작사와 관련이 없습니다."
+  },
+  "Ranking": {
+    "metaTitle": "{game} 랭킹 — 명예의 전당·오픈 대전 순위",
+    "metaDescription": "{game} 명예의 전당과 오픈 대전 랭킹을 확인하고, 나도 도전해서 이름을 올려 보세요. 가입 없이 바로 플레이.",
+    "title": "{game} 랭킹",
+    "intro": "{game}에서 가장 잘하는 사람들이에요. 지금 도전해서 여기에 이름을 올려 보세요!",
+    "challenge": "{game} 도전하기",
+    "myRecords": "내 기록 보기",
+    "hallTitle": "명예의 전당 (AI 대전)",
+    "hallDesc": "AI 보통·어려움 승리 수 기준, 5승부터 올라요.",
+    "hallDescSudoku": "완성한 퍼즐 수 기준, 5개부터 올라요.",
+    "openTitle": "오픈 대전 랭킹",
+    "openDesc": "다른 사람과의 오픈 대전 승수 기준, 3승부터 올라요.",
+    "nemoTitle": "30분 챌린지 · {level}",
+    "nemoDesc": "30분 동안 맞힌 개수 기준 (같으면 평균 시간이 빠른 순).",
+    "level_easy": "쉬움",
+    "level_normal": "보통",
+    "level_hard": "어려움",
+    "wins": "{w}승 / {g}판",
+    "wld": "{w}승 {l}패 {d}무",
+    "nemoStat": "{n}개 · 평균 {avg}",
+    "empty": "아직 아무도 없어요. 첫 번째 주인공이 되어 보세요!",
+    "emptyOpen": "아직 3승 이상인 사람이 없어요. 오픈 대전에서 먼저 3승 해 보세요!",
+    "shareTitle": "랭킹 공유하기",
+    "shareDesc": "친구에게 보내서 누가 먼저 이름을 올리는지 겨뤄 보세요.",
+    "shareText": "{game} 랭킹 여기 있음. 너 여기 올라갈 수 있어?",
+    "otherGames": "다른 게임 랭킹",
+    "viewRanking": "🏆 {game} 랭킹 보기"
   }
 }

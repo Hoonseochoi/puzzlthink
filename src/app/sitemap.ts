@@ -10,6 +10,7 @@ const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekl
   ...GAME_PATHS.map((path) => ({ path, priority: 0.9, changeFrequency: 'weekly' as const })),
   { path: '/games', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/records', priority: 0.5, changeFrequency: 'daily' },
+  ...GAME_PATHS.map((path) => ({ path: `/ranking/${path === '/play' ? 'sudoku' : path.slice(1)}`, priority: 0.6, changeFrequency: 'daily' as const })),
   { path: '/about', priority: 0.3, changeFrequency: 'monthly' },
   { path: '/contact', priority: 0.3, changeFrequency: 'yearly' },
   { path: '/privacy-policy', priority: 0.2, changeFrequency: 'yearly' },

@@ -67,7 +67,10 @@
     "unofficialNotice": "PUZZLTHINK is an unofficial fan site, not affiliated with any broadcaster or producer. Show names and trademarks belong to their owners.",
     "myCerts": "My clear certificates",
     "myCertsEmpty": "Beat a Hard AI (or a Hard Sudoku) to get a numbered clear certificate.",
-    "hexagon": "Hexagon"
+    "hexagon": "Hexagon",
+    "shareHallRank": "#{rank} in the {game} Hall of Fame! 🏆 Your move",
+    "shareOpenRank": "#{rank} in the {game} open-match ranking! Come at me",
+    "shareNow": "Share"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -2640,7 +2643,36 @@
       "target number puzzle",
       "brain teaser",
       "brain game online"
-    ]
+    ],
+    "quickDuel": "⚡ Make a {n}-board challenge",
+    "quickDuelHint": "Play {n} boards, then send the very same boards to a friend. Who gets more, faster?",
+    "duelKicker": "CHALLENGE",
+    "duelTitle": "{name} challenges you",
+    "duelDesc": "{level}, {n} boards — exactly the ones the sender played. Get more right, or the same number faster, to win.",
+    "duelRecord": "{name}: {correct}/{n} · {time}",
+    "duelTakers": "{n} players so far",
+    "duelStart": "Take the challenge",
+    "yourName": "Your name",
+    "namePlaceholder": "Name (up to 16)",
+    "progress": "{n}/{total}",
+    "summaryOf": "{n} of {total} right",
+    "sendDuel": "Send these exact boards as a challenge",
+    "sendDuelHint": "A friend plays the same {n} boards. Everyone who takes it goes on the challenge's board.",
+    "makeDuel": "Make the challenge",
+    "creating": "Making it…",
+    "duelReady": "Your challenge is ready — send it 👇",
+    "shareDuelText": "Nemo Count challenge! {level}, {n} boards: I got {correct} in {time}. Can you beat it?",
+    "duelWin": "You beat {name}! 🎉",
+    "duelLose": "So close! {name} wins this one",
+    "duelPlace": "#{rank} of {total} challengers",
+    "duelBoard": "Challenge board",
+    "duelSaving": "Saving your run…",
+    "shareResultText": "#{rank} of {total} on {name}'s Nemo Count challenge — your turn!",
+    "duelRetry": "Try again",
+    "duelMetaTitle": "{name}'s Nemo Count challenge — {correct}/{n} in {time}. Can you beat it?",
+    "duelMetaDesc": "{level}, {n} boards, the same for everyone. More right or faster wins! {total} players so far.",
+    "duelNotFound": "Challenge not found",
+    "runDone": "FINISHED"
   },
   "NemoOnline": {
     "metaTitle": "Nemo Count with friends",
@@ -3888,5 +3920,33 @@
       }
     ],
     "disclaimer": "Hexagon is PUZZLTHINK's web version of a game shown on TV and is not affiliated with the broadcaster or producers."
+  },
+  "Ranking": {
+    "metaTitle": "{game} Ranking — Hall of Fame & open matches",
+    "metaDescription": "See the {game} Hall of Fame and open-match ranking, then play and get your name on it. No sign-up needed.",
+    "title": "{game} Ranking",
+    "intro": "The best {game} players on PUZZLTHINK. Play now and put your name here!",
+    "challenge": "Play {game}",
+    "myRecords": "My records",
+    "hallTitle": "Hall of Fame (vs AI)",
+    "hallDesc": "Wins against Normal or Hard AI; listed from 5 wins.",
+    "hallDescSudoku": "Puzzles solved; listed from 5.",
+    "openTitle": "Open-match ranking",
+    "openDesc": "Wins in open matches against other players; listed from 3 wins.",
+    "nemoTitle": "30-minute challenge · {level}",
+    "nemoDesc": "Boards solved in 30 minutes (ties: faster average).",
+    "level_easy": "Easy",
+    "level_normal": "Normal",
+    "level_hard": "Hard",
+    "wins": "{w}W / {g}",
+    "wld": "{w}W {l}L {d}D",
+    "nemoStat": "{n} · avg {avg}",
+    "empty": "No one yet — be the first!",
+    "emptyOpen": "No one has 3 open-match wins yet. Be the first!",
+    "shareTitle": "Share this ranking",
+    "shareDesc": "Send it to friends and see who gets on the board first.",
+    "shareText": "Here's the {game} ranking. Think you can make it?",
+    "otherGames": "Other rankings",
+    "viewRanking": "🏆 {game} ranking"
   }
 }
