@@ -77,7 +77,13 @@ function reveal(state: IndianPokerRoom, winner: PokerSide | 'draw', reason: 'sho
   const pot = state.bets[0] + state.bets[1] + state.carry;
   const chips = [...state.chips] as [number, number];
   let carry = 0;
-  if (winner === 'draw') carry = pot;
+  if (winner === 'draw' && chips.every((stack) => stack > 0)) carry = pot;
+  else if (winner === 'draw') {
+    // An all-in tie cannot carry into a hand where one player has no chips to bet.
+    // Split the tied pot so the match can continue without creating a zero-bet deadlock.
+    chips[0] += pot / 2;
+    chips[1] += pot / 2;
+  }
   else chips[winner] += pot;
   const round: PokerRound = { cards: state.cards, first: state.first, bets: state.bets, winner, reason, tenPenalty, pot };
   return { ...state, phase: 'reveal', chips, carry, rounds: [...state.rounds, round], deadline: Date.now() + POKER_REVEAL_MS };
@@ -136,14 +142,15 @@ export function reduceIndianPokerRoom(state: IndianPokerRoom, action: IndianPoke
       next = bet(state, seat, action.total);
       break;
     case 'fold':
-      if (state.phase !== 'playing' || (seat !== 0 && seat !== 1) || state.ai[seat] || state.turn !== seat) break;
+      if (state.phase !== 'playing' || (seat !== 0 && seat !== 1) || state.ai[seat] || state.turn !== seat || !state.opened || state.bets[pokerOther(seat)] <= state.bets[seat]) break;
       next = fold(state, seat);
       break;
     case 'ai': {
       if (!isHost || state.phase !== 'playing' || !state.ai[state.turn]) break;
       const me = state.turn;
+      const handsInDeck = Math.max(0, (state.deckPos - 2) / 2);
       const choice = choosePokerAiAction({
-        opponentCard: state.cards[pokerOther(me)], usedCards: [...state.rounds.flatMap((round) => round.cards), state.cards[pokerOther(me)]],
+        opponentCard: state.cards[pokerOther(me)], usedCards: [...state.rounds.slice(-handsInDeck).flatMap((round) => round.cards), state.cards[pokerOther(me)]],
         chips: state.chips, bets: state.bets, carry: state.carry, me, level: state.aiLevel, canCheck: state.opened,
       });
       next = choice.t === 'fold' ? fold(state, me) : bet(state, me, choice.total);

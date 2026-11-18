@@ -50,7 +50,7 @@ export default function IndianPokerGame() {
             <div title={t('tooltips.table')}><PokerTable cards={state.cards} names={[t('you'), t('ai')]} reveal={reveal} bets={state.bets} chips={state.chips} carry={state.carry} /></div>
             {myTurn && <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
               {uniqueTargets.map((total) => <button key={total} title={t(total === current && state.opened ? 'tooltips.call' : total === max ? 'tooltips.allIn' : 'tooltips.bet')} onClick={() => dispatch({ t: 'bet', total })} className={`${total === current && state.opened ? BTN_ACCENT : BTN} py-3 text-xs`}>{total === current && state.opened ? t('call', { n: toCall }) : total === max ? t('allIn', { n: total - state.bets[0] }) : t('bet', { n: total })}</button>)}
-              <button title={t('tooltips.fold')} onClick={() => dispatch({ t: 'fold' })} className={`${BTN} py-3 text-xs text-[#ff9aa4]`}>{t('fold')}</button>
+              {state.opened && toCall > 0 && <button title={t('tooltips.fold')} onClick={() => dispatch({ t: 'fold' })} className={`${BTN} py-3 text-xs text-[#ff9aa4]`}>{t('fold')}</button>}
             </div>}
             {state.phase === 'finished' && <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{t('again')}</button>}
           </div>

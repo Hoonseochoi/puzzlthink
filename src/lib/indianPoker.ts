@@ -89,7 +89,6 @@ export function choosePokerAiAction(args: {
   // overfold good odds or push too many chips into a bad visible card.
   if (!sound) {
     if (toCall > 0 && rand() < .55) return rand() < .55 ? { t: 'fold' } : { t: 'bet', total: Math.min(max, callTotal) };
-    if (!canCheck && rand() < .28) return { t: 'fold' };
     const reckless = Math.min(max, Math.max(1, callTotal + Math.max(1, Math.round((max - callTotal) * .65))));
     return { t: 'bet', total: reckless };
   }
@@ -99,7 +98,6 @@ export function choosePokerAiAction(args: {
   const tenPenaltyRisk = tenChance * Math.min(10, chips[me]) / Math.max(10, pot + toCall);
   const foldLine = potOdds + stackPressure * .17 - rivalPressure - tenPenaltyRisk;
   if (toCall > 0 && !bluff && estimate < foldLine) return { t: 'fold' };
-  if (!canCheck && !bluff && estimate < .18 - tenPenaltyRisk) return { t: 'fold' };
   if (!canCheck && estimate < .58 && !bluff) return { t: 'bet', total: 1 };
   if (toCall > 0 && (estimate < .62 || callTotal >= max) && !bluff) return { t: 'bet', total: Math.min(max, callTotal) };
 
