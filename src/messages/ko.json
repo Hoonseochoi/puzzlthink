@@ -1722,7 +1722,9 @@
     "close": "닫기",
     "iosStep1a": "1. 아래 ",
     "iosStep1b": " 공유 버튼을 누르고",
-    "iosStep2": "2. '홈 화면에 추가'를 선택하세요"
+    "iosStep2": "2. '홈 화면에 추가'를 선택하세요",
+    "afterGameTitle": "한 판 더 할 땐 앱으로 바로! 📲",
+    "afterGameDesc": "홈 화면에 설치하면 다음엔 한 번에 열려요 · 무료"
   },
   "Games": {
     "metaTitle": "게임 소개 — 데블스 플랜·더 지니어스 게임 규칙 한눈에 | PUZZLTHINK",

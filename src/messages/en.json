@@ -1682,7 +1682,9 @@
     "close": "Close",
     "iosStep1a": "1. Tap the ",
     "iosStep1b": " Share button below",
-    "iosStep2": "2. Choose 'Add to Home Screen'"
+    "iosStep2": "2. Choose 'Add to Home Screen'",
+    "afterGameTitle": "Next round, straight from your home screen 📲",
+    "afterGameDesc": "Install it and it opens in one tap next time · free"
   },
   "Games": {
     "metaTitle": "All games — rules of The Devil's Plan and The Genius games | PUZZLTHINK",
