@@ -13,20 +13,27 @@ interface BeforeInstallPromptEvent extends Event {
 type Mode = 'prompt' | 'ios' | 'kakao' | null;
 
 const DISMISS_KEY = 'puzzlthink:install-dismissed';
-const DISMISS_DAYS = 7;
-// Shown at most twice per browser: once on the first visit (top bar), once after the first finished game.
+const COOLDOWN_MS = 10 * 3600_000; // closing it, or seeing the after-game card, rests it for 10 hours
+// The top bar shows once (first visit); the after-game card at most once every 10 hours.
 const SHOWN_KEY = 'puzzlthink:install-shown';
+const GAME_AT_KEY = 'puzzlthink:install-game-at';
+const gameCardRested = () => { try { return Date.now() - Number(localStorage.getItem(GAME_AT_KEY) || 0) >= COOLDOWN_MS; } catch { return false; } };
 export const GAME_FINISHED_EVENT = 'puzzlthink:game-finished';
 type Spot = 'top' | 'game';
 const shownSpots = (): Spot[] => { try { return JSON.parse(localStorage.getItem(SHOWN_KEY) || '[]'); } catch { return []; } };
-const markShown = (spot: Spot) => { try { localStorage.setItem(SHOWN_KEY, JSON.stringify([...new Set([...shownSpots(), spot])])); } catch { /* private mode */ } };
+const markShown = (spot: Spot) => {
+  try {
+    if (spot === 'game') localStorage.setItem(GAME_AT_KEY, String(Date.now()));
+    else localStorage.setItem(SHOWN_KEY, JSON.stringify([...new Set([...shownSpots(), spot])]));
+  } catch { /* private mode */ }
+};
 // Same pages the global header hides on: never cover a game in progress.
 const HIDE_ON = ['/play', '/wallgo', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
 
 function dismissedRecently() {
   try {
     const at = Number(localStorage.getItem(DISMISS_KEY));
-    return at > 0 && Date.now() - at < DISMISS_DAYS * 864e5;
+    return at > 0 && Date.now() - at < COOLDOWN_MS;
   } catch { return false; }
 }
 
@@ -69,7 +76,7 @@ export default function InstallBanner() {
     // After the first finished game: a small card at the bottom, once, after the result has landed.
     let later: number | undefined;
     const onFinished = () => {
-      if (shownSpots().includes('game')) return;
+      if (!gameCardRested()) return;
       window.clearTimeout(later);
       later = window.setTimeout(() => setSpot('game'), 2500);
     };
