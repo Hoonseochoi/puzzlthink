@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Download, Share, X } from 'lucide-react';
 import { usePathname } from '@/i18n/routing';
+import { getSupabase } from '@/lib/supabase';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -37,6 +38,14 @@ function dismissedRecently() {
   } catch { return false; }
 }
 
+type AppEvent = 'shown_top' | 'shown_game' | 'click' | 'accepted' | 'installed' | 'open';
+const platform = () => (/Android/i.test(navigator.userAgent) ? 'android' : /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent)) ? 'ios' : 'desktop');
+/** Daily counts for the install funnel and for opens of the installed app (no personal data). */
+function trackApp(event: AppEvent) {
+  try { getSupabase()?.rpc('count_app_event', { p_event: event, p_platform: platform() }).then(() => {}); } catch { /* optional */ }
+}
+const OPEN_DAY_KEY = 'puzzlthink:app-open-day';
+
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches
     || (navigator as Navigator & { standalone?: boolean }).standalone === true;
@@ -54,9 +63,15 @@ export default function InstallBanner() {
   useEffect(() => {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 
+    // Installed-app opens, once per device per day (iOS has no install event, so this is how we see its installs).
+    const day = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
+    try { if (isStandalone() && localStorage.getItem(OPEN_DAY_KEY) !== day) { localStorage.setItem(OPEN_DAY_KEY, day); trackApp('open'); } } catch { /* private mode */ }
+    const onAnyInstall = () => trackApp('installed');
+    window.addEventListener('appinstalled', onAnyInstall);
+
     const ua = navigator.userAgent;
     const mobile = /Android|iPhone|iPad|iPod/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
-    if (!mobile || isStandalone() || dismissedRecently()) return;
+    if (!mobile || isStandalone() || dismissedRecently()) return () => window.removeEventListener('appinstalled', onAnyInstall);
 
     const onPrompt = (e: Event) => { e.preventDefault(); setDeferred(e as BeforeInstallPromptEvent); setMode('prompt'); };
     const onInstalled = () => setMode(null);
@@ -85,6 +100,7 @@ export default function InstallBanner() {
     return () => {
       window.clearTimeout(timer); window.clearTimeout(later);
       window.removeEventListener(GAME_FINISHED_EVENT, onFinished);
+      window.removeEventListener('appinstalled', onAnyInstall);
       window.removeEventListener('beforeinstallprompt', onPrompt);
       window.removeEventListener('appinstalled', onInstalled);
     };
@@ -93,7 +109,7 @@ export default function InstallBanner() {
   const onGamePage = HIDE_ON.some((segment) => pathname.includes(segment));
   const visible = !!mode && (spot === 'game' || (spot === 'top' && !onGamePage));
   // Count it as shown the moment it appears (a reload doesn't bring it back).
-  useEffect(() => { if (visible && spot) markShown(spot); }, [visible, spot]);
+  useEffect(() => { if (visible && spot) { markShown(spot); trackApp(spot === 'top' ? 'shown_top' : 'shown_game'); } }, [visible, spot]);
   if (!visible) return null;
 
   const dismiss = () => {
@@ -102,11 +118,12 @@ export default function InstallBanner() {
   };
 
   const install = async () => {
+    trackApp('click');
     if (mode === 'prompt' && deferred) {
       await deferred.prompt();
       const { outcome } = await deferred.userChoice;
       setDeferred(null);
-      if (outcome === 'accepted') setMode(null); else dismiss();
+      if (outcome === 'accepted') { trackApp('accepted'); setMode(null); } else dismiss();
     } else if (mode === 'kakao') {
       window.location.href = `kakaotalk://web/openExternal?url=${encodeURIComponent(window.location.href)}`;
     } else if (mode === 'ios') {
