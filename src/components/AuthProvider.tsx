@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { User } from '@supabase/supabase-js';
 import { getSupabase } from '@/lib/supabase';
 import { flushPendingGame } from '@/lib/stats';
+import { takeSignupSource } from '@/lib/signupSource';
 
 type AuthState = {
   user: User | null;
@@ -98,6 +99,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const load = (tries: number) => supabase.from('profiles').select('nickname, nickname_set, created_at').maybeSingle().then(({ data, error }) => {
       if (!alive) return;
       if (!data && tries > 0) { window.setTimeout(() => load(tries - 1), 1200); return; }
+      // A brand-new member: note which sign-in button brought them (the server keeps only the first).
+      const source = takeSignupSource();
+      if (data?.created_at && Date.now() - new Date(data.created_at as string).getTime() < 30 * 60 * 1000) {
+        supabase.rpc('set_signup_source', { p_source: source?.source ?? 'other', p_path: source?.path ?? null }).then(() => {});
+      }
       const nickname = (data?.nickname as string | null) ?? displayName(user).slice(0, 16) ?? null;
       // Before the nickname migration there is no nickname_set column: treat as chosen (no prompt).
       const existing = !!data?.created_at && new Date(data.created_at as string).getTime() < NICKNAMES_LAUNCHED;

@@ -124,7 +124,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
             {!signedIn && (
               <div className="mt-4 flex flex-col items-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-3 text-center sm:flex-row sm:justify-between sm:text-left">
                 <p className="flex items-center gap-1.5 break-keep text-xs font-bold text-black/60"><LogIn size={14} className="shrink-0" />{tg('openLogin')}</p>
-                <AuthButton />
+                <AuthButton source="home_open" />
               </div>
             )}
 

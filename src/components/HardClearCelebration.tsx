@@ -58,7 +58,7 @@ export default function HardClearCelebration() {
           <div className="mt-5 rounded-[16px] border border-[#d9b25f]/30 bg-[#d9b25f]/[0.07] p-4">
             <p className="text-3xl font-black text-[#ffe3a1]">#???</p>
             <p className="mt-2 text-xs leading-5 text-white/65">{t('signInPrompt')}</p>
-            <div className="mt-3 flex justify-center"><AuthButton full /></div>
+            <div className="mt-3 flex justify-center"><AuthButton full source="hard_clear" /></div>
           </div>
         )}
         <button type="button" onClick={close} className="mt-4 w-full rounded-[12px] border border-white/15 bg-white/5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10">{t('close')}</button>

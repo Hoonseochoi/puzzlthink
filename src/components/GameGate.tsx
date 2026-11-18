@@ -192,7 +192,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
               {!signedIn && (
                 <div className={`mt-4 flex flex-col items-center gap-2 rounded-md border px-3 py-3 text-center sm:flex-row sm:justify-between sm:text-left ${dark ? 'border-(--accent)/30 bg-(--accent)/[.06]' : 'border-black/10 bg-white'}`}>
                   <p className={`break-keep text-xs font-bold leading-5 ${muted}`}>{t('openLogin')}</p>
-                  <AuthButton />
+                  <AuthButton source="game_open" />
                 </div>
               )}
               <div className={`mt-4 grid gap-2 ${modes.rooms.length > 1 ? 'sm:grid-cols-2' : ''}`}>
