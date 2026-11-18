@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Check, Clock3, Flag, GraduationCap, Infinity as InfinityIcon, ListChecks, RotateCcw, SkipForward, Timer, Trophy, X } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Check, Clock3, Flag, GraduationCap, Infinity as InfinityIcon, ListChecks, RotateCcw, Send, SkipForward, Swords, Timer, Trophy, X, Zap } from 'lucide-react';
+import { useAuth } from '@/components/AuthProvider';
+import ShareButtons from '@/components/ShareButtons';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
-import { CHALLENGE_MS, NEMO_DIFFICULTIES, type NemoDifficulty, type NemoProblem, formatMs, generateProblem, tutorialProblems } from '@/lib/nemoCount';
+import { CHALLENGE_MS, NEMO_DIFFICULTIES, type NemoDifficulty, type NemoProblem, formatMs, generateProblem, rng, tutorialProblems } from '@/lib/nemoCount';
+import { type Duel, QUICK_DUEL_COUNT, beats, createDuel, duelImagePath, duelPath, duelTime, getDuel, newSeed, submitDuel } from '@/lib/nemoDuel';
 import { reportGame } from '@/lib/stats';
 import { CoffeeNudge } from '@/components/SupportLink';
 import { AnswerInput, NEMO_ACCENT, NEMO_INK, NemoBoardView, SolutionReplay, TargetPlate } from './NemoParts';
@@ -17,6 +20,8 @@ type Mode = 'challenge' | 'practice' | 'tutorial';
 type Attempt = { problem: NemoProblem; given: number | null; correct: boolean; ms: number };
 type Verdict = { correct: boolean; given: number | null; ms: number } | null;
 const BEST_KEY = 'puzzlthink_nemo_best'; // best challenge score per difficulty
+const GUEST_NAME_KEY = 'puzzlthink_guest_name';
+const totalMs = (list: Attempt[]) => list.reduce((s, a) => s + a.ms, 0);
 
 const readMode = (): Mode => {
   if (typeof window === 'undefined') return 'challenge';
@@ -25,10 +30,22 @@ const readMode = (): Mode => {
 };
 const readBest = (): Partial<Record<NemoDifficulty, number>> => { try { return JSON.parse(localStorage.getItem(BEST_KEY) || '{}'); } catch { return {}; } };
 
-export default function NemoGame() {
+/** `duel`: opened from a 도전장 link — the same boards the sender played, then a shared leaderboard. */
+export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | null } = {}) {
   const t = useTranslations('NemoCount');
-  const [mode, setMode] = useState<Mode>(readMode);
-  const [difficulty, setDifficulty] = useState<NemoDifficulty>('normal');
+  const locale = useLocale();
+  const { nickname } = useAuth();
+  const [duel, setDuel] = useState<Duel | null>(initialDuel);
+  const [mode, setMode] = useState<Mode>(() => (initialDuel ? 'challenge' : readMode()));
+  const [difficulty, setDifficulty] = useState<NemoDifficulty>(initialDuel?.difficulty ?? 'normal');
+  const [limit, setLimit] = useState<number | null>(null); // a fixed number of boards (도전장); null = the 30-minute challenge
+  const [seed, setSeed] = useState(0); // the challenge's boards come from this seed, so they can be sent as they were
+  const randRef = useRef<(() => number) | null>(null);
+  const [guestName, setGuestName] = useState('');
+  const [shareId, setShareId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [place, setPlace] = useState<{ rank: number; board: Duel } | null>(null);
+  const playerName = (nickname || guestName).trim().slice(0, 16);
   const [problem, setProblem] = useState<NemoProblem | null>(null);
   const [tutorialIndex, setTutorialIndex] = useState(0);
   const [startedAt, setStartedAt] = useState(0); // when the current problem appeared
@@ -44,33 +61,55 @@ export default function NemoGame() {
   const runRef = useRef(0); // bumps on every restart so stale timers do nothing
 
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 200); return () => window.clearInterval(timer); }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- the remembered guest name lives in this browser
+  useEffect(() => { try { setGuestName(localStorage.getItem(GUEST_NAME_KEY) ?? ''); } catch { /* optional */ } }, []);
+  const changeGuestName = (value: string) => { setGuestName(value); try { localStorage.setItem(GUEST_NAME_KEY, value.trim().slice(0, 16)); } catch { /* optional */ } };
 
   const newProblem = (m: Mode = mode, d: NemoDifficulty = difficulty, tutorial = tutorialIndex) => {
-    setProblem(m === 'tutorial' ? tutorialProblems()[tutorial % 2] : generateProblem(d));
+    setProblem(m === 'tutorial' ? tutorialProblems()[tutorial % 2] : m === 'challenge' && randRef.current ? generateProblem(d, randRef.current) : generateProblem(d));
     setStartedAt(Date.now()); setVerdict(null); setWrongTries(0); setShowSolution(false);
   };
 
   // Switching mode or difficulty starts over.
   const restart = (m: Mode, d: NemoDifficulty) => {
     runRef.current += 1;
-    setMode(m); setDifficulty(d); setAttempts([]); setSummary(null); setChallengeEnd(0); setTutorialIndex(0); setFlash(null);
+    if (duel && (m !== 'challenge' || d !== duel.difficulty)) setDuel(null); // leaving the 도전장 for normal play
+    setMode(m); setDifficulty(d); setAttempts([]); setSummary(null); setChallengeEnd(0); setTutorialIndex(0); setFlash(null); setLimit(null); setShareId(null); setPlace(null);
     const url = new URL(window.location.href); url.searchParams.set('mode', m); window.history.replaceState(null, '', url);
     if (m === 'challenge') setProblem(null); else newProblem(m, d, 0);
   };
 
   // First problem for practice/tutorial; the challenge waits for its start button.
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- the first board is random, so it is made on the client
+   
   useEffect(() => { if (mode !== 'challenge') newProblem(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const startChallenge = () => {
+  // `count`: a fixed number of boards (quick 도전장). A 도전장 link always plays its own seed and count.
+  const startChallenge = (count: number | null = null) => {
     runRef.current += 1;
-    setAttempts([]); setSummary(null); setChallengeEnd(Date.now() + CHALLENGE_MS); newProblem('challenge', difficulty);
+    const s = duel ? duel.seed : newSeed();
+    const d = duel ? duel.difficulty : difficulty;
+    const n = duel ? duel.count : count;
+    randRef.current = rng(s);
+    setSeed(s); setLimit(n); setShareId(null); setPlace(null); setDifficulty(d);
+    setAttempts([]); setSummary(null); setChallengeEnd(Date.now() + (n ? 2 * 3600_000 : CHALLENGE_MS)); newProblem('challenge', d);
+  };
+  // After each board of a challenge: the next one, or the end once a fixed set is done.
+  const nextChallengeBoard = (list: Attempt[]) => {
+    setAttempts(list);
+    if (limit && list.length >= limit) finishChallenge(list); else newProblem('challenge', difficulty);
   };
 
   const finishChallenge = (list: Attempt[]) => {
     setChallengeEnd(0); setSummary(list); setProblem(null);
     const correct = list.filter((a) => a.correct);
     const score = correct.length;
+    if (duel) {
+      submitDuel(duel.id, playerName || 'Guest', score, Math.max(totalMs(list), list.length * 1000)).then(async (rank) => {
+        const board = await getDuel(duel.id);
+        if (rank && board) setPlace({ rank, board });
+      });
+    }
+    if (limit !== null) return; // only the 30-minute challenge counts for records and the challenge ranking
     if (score > (best[difficulty] ?? -1)) { const next = { ...best, [difficulty]: score }; setBest(next); try { localStorage.setItem(BEST_KEY, JSON.stringify(next)); } catch { /* optional */ } }
     reportGame(`nemo_count-solo-${Date.now()}`, 'nemo_count', 'solo', score > 0 ? 'win' : 'loss', {
       difficulty, correct: score, attempted: list.length,
@@ -82,7 +121,7 @@ export default function NemoGame() {
   // The 30 minutes run out.
   const remaining = challengeEnd ? Math.max(0, challengeEnd - now) : 0;
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- ends the challenge when its clock reaches zero
+     
     if (challengeEnd && remaining === 0) finishChallenge(attempts);
   }, [challengeEnd, remaining]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -97,9 +136,7 @@ export default function NemoGame() {
     window.setTimeout(() => { if (runRef.current === run) setFlash(null); }, 650);
     if (mode === 'challenge') {
       // One try per problem, like the show: right or wrong, the next board comes up.
-      const list = [...attempts, { problem, given: value, correct, ms }];
-      setAttempts(list);
-      newProblem('challenge', difficulty);
+      nextChallengeBoard([...attempts, { problem, given: value, correct, ms }]);
       return;
     }
     if (correct) { setVerdict({ correct: true, given: value, ms }); setAttempts((list) => [...list, { problem, given: value, correct: true, ms }]); }
@@ -126,10 +163,26 @@ export default function NemoGame() {
   const pass = () => {
     if (!problem) return;
     const ms = Date.now() - startedAt;
+    if (mode === 'challenge') { nextChallengeBoard([...attempts, { problem, given: null, correct: false, ms }]); return; }
     setAttempts((list) => [...list, { problem, given: null, correct: false, ms }]);
     if (mode === 'tutorial') { nextPractice(); return; }
     newProblem(mode, difficulty);
   };
+
+  // Turns the boards I just played into a 도전장 link (first 30 at most), with my run on its board.
+  const sendDuel = async () => {
+    if (!summary?.length || !playerName || creating) return;
+    const list = summary.slice(0, 30);
+    setCreating(true);
+    const id = await createDuel(seed, difficulty, list.length, playerName, list.filter((a) => a.correct).length, Math.max(totalMs(list), list.length * 1000));
+    setCreating(false); setShareId(id);
+  };
+  const nameField = !nickname && (
+    <label className="block text-left">
+      <span className="text-[10px] font-black tracking-widest text-white/40">{t('yourName')}</span>
+      <input value={guestName} onChange={(e) => changeGuestName(e.target.value)} maxLength={16} placeholder={t('namePlaceholder')} className="mt-1 w-full rounded-md border border-white/15 bg-black/40 px-3 py-2.5 text-sm font-bold text-white outline-none focus:border-(--accent)" />
+    </label>
+  );
 
   const correctList = attempts.filter((a) => a.correct);
   const avgMs = correctList.length ? correctList.reduce((s, a) => s + a.ms, 0) / correctList.length : 0;
@@ -159,30 +212,85 @@ export default function NemoGame() {
           {mode !== 'tutorial' && (
             <div className="-mt-2 mb-4 flex items-center gap-1.5 lg:hidden">
               <span className="shrink-0 text-[10px] font-black tracking-widest text-white/40">{t('difficulty')}</span>
-              {NEMO_DIFFICULTIES.map((d) => <button key={d} type="button" disabled={!!challengeEnd} onClick={() => restart(mode, d)} className={`flex-1 py-1.5 text-[11px] ${seg(difficulty === d)} disabled:opacity-40`}>{t(`level_${d}`)}</button>)}
+              {NEMO_DIFFICULTIES.map((d) => <button key={d} type="button" disabled={!!challengeEnd || !!duel} onClick={() => restart(mode, d)} className={`flex-1 py-1.5 text-[11px] ${seg(difficulty === d)} disabled:opacity-40`}>{t(`level_${d}`)}</button>)}
             </div>
           )}
 
-          {mode === 'challenge' && !challengeEnd && !summary && (
+          {mode === 'challenge' && !challengeEnd && !summary && duel && (
+            <div className="mx-auto max-w-md py-8 text-center">
+              <Swords size={36} className="mx-auto text-(--accent)" />
+              <p className={`${KICKER} mt-3`}>{t('duelKicker')}</p>
+              <h1 className="mt-1 text-2xl font-black">{t('duelTitle', { name: duel.creator })}</h1>
+              <p className="mt-2 break-keep text-sm leading-6 text-white/60">{t('duelDesc', { level: t(`level_${duel.difficulty}`), n: duel.count })}</p>
+              {duel.creator_run && <p className="mt-4 inline-block rounded-full bg-(--accent)/15 px-4 py-1.5 text-sm font-black text-(--accent)">{t('duelRecord', { name: duel.creator, correct: duel.creator_run.correct, n: duel.count, time: duelTime(duel.creator_run.ms) })}</p>}
+              <p className="mt-2 text-xs text-white/40">{t('duelTakers', { n: duel.total })}</p>
+              <div className="mt-5 space-y-3">{nameField}
+                <button type="button" onClick={() => startChallenge()} disabled={!playerName} className={`${BTN_ACCENT} w-full py-3.5 text-sm disabled:opacity-40`}><Swords size={16} />{t('duelStart')}</button>
+              </div>
+            </div>
+          )}
+
+          {mode === 'challenge' && !challengeEnd && !summary && !duel && (
             <div className="mx-auto max-w-md py-10 text-center">
               <Timer size={36} className="mx-auto text-(--accent)" />
               <h1 className="mt-4 text-2xl font-black">{t('challengeTitle')}</h1>
               <p className="mt-2 break-keep text-sm leading-6 text-white/55">{t('challengeDesc')}</p>
               <p className="mt-4 text-xs font-bold text-white/40">{t('bestScore', { level: t(`level_${difficulty}`), n: best[difficulty] ?? 0 })}</p>
-              <button type="button" onClick={startChallenge} className={`${BTN_ACCENT} mt-6 w-full py-3.5 text-sm`}><Timer size={16} />{t('startChallenge')}</button>
+              <button type="button" onClick={() => startChallenge()} className={`${BTN_ACCENT} mt-6 w-full py-3.5 text-sm`}><Timer size={16} />{t('startChallenge')}</button>
+              <button type="button" onClick={() => startChallenge(QUICK_DUEL_COUNT)} className={`${BTN} mt-2 w-full py-3 text-sm`}><Zap size={15} />{t('quickDuel', { n: QUICK_DUEL_COUNT })}</button>
+              <p className="mt-2 break-keep text-[11px] leading-5 text-white/40">{t('quickDuelHint', { n: QUICK_DUEL_COUNT })}</p>
             </div>
           )}
 
           {summary && (
             <div className="mx-auto max-w-lg py-6">
-              <div className="text-center"><Trophy size={34} className="mx-auto text-[#ffcf3f]" /><p className={`${KICKER} mt-3`}>{t('timeUp')}</p><h1 className="mt-1 text-3xl font-black">{t('summaryScore', { n: summary.filter((a) => a.correct).length })}</h1></div>
+              <div className="text-center"><Trophy size={34} className="mx-auto text-[#ffcf3f]" /><p className={`${KICKER} mt-3`}>{limit ? t('runDone') : t('timeUp')}</p><h1 className="mt-1 text-3xl font-black">{limit ? t('summaryOf', { n: summary.filter((a) => a.correct).length, total: summary.length }) : t('summaryScore', { n: summary.filter((a) => a.correct).length })}</h1>{limit && <p className="mt-1 font-mono text-sm text-white/55">{duelTime(totalMs(summary))}</p>}</div>
               <div className="mt-5 grid grid-cols-3 gap-2 text-center">
                 {[[t('statAttempted'), String(summary.length)], [t('statAccuracy'), summary.length ? `${Math.round((summary.filter((a) => a.correct).length / summary.length) * 100)}%` : '—'], [t('statAvg'), summary.some((a) => a.correct) ? formatMs(summary.filter((a) => a.correct).reduce((s, a) => s + a.ms, 0) / summary.filter((a) => a.correct).length) : '—']].map(([label, value]) => (
                   <div key={label} className="rounded-[10px] border border-white/10 bg-black/40 p-3"><p className="text-[10px] font-black tracking-widest text-white/35">{label}</p><p className="mt-1 font-mono text-xl font-black">{value}</p></div>
                 ))}
               </div>
-              <p className="mt-3 text-center text-xs text-white/40">{t('bestScore', { level: t(`level_${difficulty}`), n: best[difficulty] ?? 0 })}</p>
-              <button type="button" onClick={startChallenge} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{t('again')}</button>
+              {limit === null && <p className="mt-3 text-center text-xs text-white/40">{t('bestScore', { level: t(`level_${difficulty}`), n: best[difficulty] ?? 0 })}</p>}
+
+              {duel ? (
+                <section className="mt-5 rounded-[14px] border border-(--accent)/30 bg-(--accent)/[.06] p-4">
+                  {duel.creator_run && (() => {
+                    const mine = { correct: summary.filter((a) => a.correct).length, ms: totalMs(summary) };
+                    return <p className="text-center text-lg font-black">{beats(mine, duel.creator_run) ? t('duelWin', { name: duel.creator }) : t('duelLose', { name: duel.creator })}</p>;
+                  })()}
+                  {place ? (
+                    <>
+                      <p className="mt-1 text-center text-sm font-bold text-(--accent)">{t('duelPlace', { rank: place.rank, total: place.board.total })}</p>
+                      <p className={`${PANEL_TITLE} mt-4`}>{t('duelBoard')}</p>
+                      <ol className="mt-2 space-y-1">{place.board.runs.slice(0, 10).map((r, i) => (
+                        <li key={i} className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs ${i + 1 === place.rank ? 'bg-(--accent)/20 font-black' : 'bg-black/25'}`}>
+                          <span className="w-5 font-mono text-white/50">{i + 1}</span><span className="min-w-0 flex-1 truncate">{r.name}</span>
+                          <span className="font-mono">{r.correct}/{duel.count}</span><span className="w-14 text-right font-mono text-white/55">{duelTime(r.ms)}</span>
+                        </li>
+                      ))}</ol>
+                      <div className="mt-4"><ShareButtons path={duelPath(locale, duel.id)} imagePath={duelImagePath(duel.id, locale)} fileName={`nemo-duel-${duel.id}.png`}
+                        text={t('shareResultText', { name: duel.creator, rank: place.rank, total: place.board.total })} /></div>
+                    </>
+                  ) : <p className="mt-2 text-center text-xs text-white/45">{t('duelSaving')}</p>}
+                </section>
+              ) : summary.length > 0 && (
+                <section className="mt-5 rounded-[14px] border border-(--accent)/30 bg-(--accent)/[.06] p-4 text-center">
+                  <p className="flex items-center justify-center gap-1.5 text-sm font-black"><Send size={15} className="text-(--accent)" />{t('sendDuel')}</p>
+                  <p className="mt-1 break-keep text-[11px] leading-5 text-white/50">{t('sendDuelHint', { n: Math.min(summary.length, 30) })}</p>
+                  {shareId ? (
+                    <div className="mt-3 space-y-2">
+                      <p className="text-xs font-bold text-(--accent)">{t('duelReady')}</p>
+                      <ShareButtons path={duelPath(locale, shareId)} imagePath={duelImagePath(shareId, locale)} fileName={`nemo-duel-${shareId}.png`}
+                        text={t('shareDuelText', { level: t(`level_${difficulty}`), n: Math.min(summary.length, 30), correct: summary.slice(0, 30).filter((a) => a.correct).length, time: duelTime(totalMs(summary.slice(0, 30))) })} />
+                    </div>
+                  ) : (
+                    <div className="mt-3 space-y-2">{nameField}
+                      <button type="button" onClick={sendDuel} disabled={!playerName || creating} className={`${BTN_ACCENT} w-full py-3 disabled:opacity-40`}><Swords size={15} />{creating ? t('creating') : t('makeDuel')}</button>
+                    </div>
+                  )}
+                </section>
+              )}
+              <button type="button" onClick={() => startChallenge(duel ? null : limit)} className={`${BTN} mt-4 w-full py-3`}><RotateCcw size={14} />{duel ? t('duelRetry') : t('again')}</button>
               <CoffeeNudge className="mt-4" />
             </div>
           )}
@@ -195,7 +303,9 @@ export default function NemoGame() {
                   <h1 className="mt-1 break-keep text-base font-extrabold leading-6 text-[#eef1f7] sm:text-lg">{heading}</h1>
                   <p className="mt-2 flex items-center gap-3 font-mono text-xs text-white/55">
                     <span className="flex items-center gap-1"><Clock3 size={13} />{formatMs(elapsed)}</span>
-                    {mode === 'challenge' && <span className={`flex items-center gap-1 font-black ${remaining < 60_000 ? 'text-[#ff7b71]' : 'text-(--accent)'}`}><Timer size={13} />{clock(remaining)}</span>}
+                    {mode === 'challenge' && (limit
+                      ? <span className="flex items-center gap-1 font-black text-(--accent)"><Swords size={13} />{t('progress', { n: attempts.length + 1, total: limit })} · {duelTime(totalMs(attempts) + elapsed)}</span>
+                      : <span className={`flex items-center gap-1 font-black ${remaining < 60_000 ? 'text-[#ff7b71]' : 'text-(--accent)'}`}><Timer size={13} />{clock(remaining)}</span>)}
                   </p>
                 </div>
                 <TargetPlate target={problem.target} />
@@ -211,7 +321,7 @@ export default function NemoGame() {
                   <div className="flex gap-2">
                     <button type="button" onClick={pass} className={`flex-1 py-2.5 ${BTN}`}><SkipForward size={14} />{t('skip')}</button>
                     {mode !== 'challenge' && <button type="button" onClick={reveal} className={`flex-1 py-2.5 ${BTN}`}><Flag size={14} />{t('reveal')}</button>}
-                    {mode === 'challenge' && <button type="button" onClick={() => finishChallenge(attempts)} className={`py-2.5 ${BTN} text-white/45`}>{t('endNow')}</button>}
+                    {mode === 'challenge' && !limit && <button type="button" onClick={() => finishChallenge(attempts)} className={`py-2.5 ${BTN} text-white/45`}>{t('endNow')}</button>}
                   </div>
                 )}
                 {verdict && (
@@ -231,7 +341,7 @@ export default function NemoGame() {
             <section className={`hidden lg:block ${PANEL}`}>
               <p className={PANEL_TITLE}>{t('difficulty')}</p>
               <div className="mt-3 grid grid-cols-3 gap-1.5">
-                {NEMO_DIFFICULTIES.map((d) => <button key={d} type="button" disabled={!!challengeEnd} onClick={() => restart(mode, d)} className={`py-2.5 ${seg(difficulty === d)} disabled:opacity-40`}>{t(`level_${d}`)}</button>)}
+                {NEMO_DIFFICULTIES.map((d) => <button key={d} type="button" disabled={!!challengeEnd || !!duel} onClick={() => restart(mode, d)} className={`py-2.5 ${seg(difficulty === d)} disabled:opacity-40`}>{t(`level_${d}`)}</button>)}
               </div>
               <p className="mt-2 text-[10px] leading-4 text-white/40">{t(`levelHint_${difficulty}`)}</p>
             </section>

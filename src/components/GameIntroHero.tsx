@@ -1,10 +1,12 @@
 import { getTranslations } from 'next-intl/server';
-import type { GameId } from '@/lib/gameCatalog';
+import { GAMES, type GameId } from '@/lib/gameCatalog';
+import { Link } from '@/i18n/routing';
 
 /** Top of a game's entry screen: name, tagline, key facts and core rules, from the games overview copy. */
 export default async function GameIntroHero({ locale, id, tone = 'dark' }: { locale: string; id: GameId; tone?: 'dark' | 'light' }) {
   const t = await getTranslations({ locale, namespace: 'Games' });
   const tc = await getTranslations({ locale, namespace: 'Common' });
+  const tr = await getTranslations({ locale, namespace: 'Ranking' });
   const key = `games.${id}` as const;
   const rules = t.raw(`${key}.rules`) as string[];
   const dark = tone === 'dark';
@@ -42,6 +44,7 @@ export default async function GameIntroHero({ locale, id, tone = 'dark' }: { loc
           ))}
         </ol>
         <p className={`mt-4 border-t pt-3 text-xs leading-6 ${dark ? 'border-white/10 text-white/45' : 'border-black/10 text-black/45'}`}><b className="font-black">{t('origin')}</b> · {t(`${key}.origin`)}</p>
+        {(() => { const href = GAMES.find((g) => g.id === id)?.href; return href && <Link href={`/ranking/${href === '/play' ? 'sudoku' : href.slice(1)}`} className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-(--accent)/40 bg-(--accent)/10 px-3 py-1.5 text-xs font-black text-(--accent) hover:bg-(--accent)/20">{tr('viewRanking', { game: tc(id) })}</Link>; })()}
         <p className={`mt-1 text-[10px] leading-5 ${dark ? 'text-white/30' : 'text-black/35'}`}>{tc('unofficialNotice')}</p>
       </div>
     </div>
