@@ -4,7 +4,7 @@ import { HARD_CLEAR_EVENT, type HardClearDetail, isHardClear } from './hardClear
 
 export type GameId = 'wallgo' | 'janggi' | 'heavy13' | 'sudoku' | 'russian_roulette' | 'russian_janggi' | 'blind_gomoku' | 'laser_janggi' | 'nemo_count' | 'black_white' | 'black_white_2' | 'piggy_bank' | 'hexagon';
 /** Wins needed before a player can appear in the Hall of Fame (same number as the SQL function). */
-export const HALL_MIN_WINS = 5;
+export const HALL_MIN_WINS = 1;
 export const HALL_RANK_EVENT = 'puzzlthink:hall-rank';
 export type HallRankDetail = { game: GameId; rank: number; delayMs: number };
 export type GameMode = 'ai' | 'friend' | 'solo';
