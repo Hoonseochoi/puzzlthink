@@ -76,6 +76,10 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
 
   const open = (rooms ?? []).filter((room) => room.game in GAME_MODES && room.players < room.capacity);
   const count = rooms === null ? null : open.length;
+  const playingByGame = ROOM_GAMES.flatMap((game) => {
+    const roomCount = open.filter((room) => room.game === game.id).length;
+    return roomCount > 0 ? [{ ...game, roomCount }] : [];
+  });
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-[24px] border border-black/10 bg-[#17201e] p-4 text-white shadow-[0_18px_50px_rgba(30,38,36,0.18)] sm:rounded-[32px] sm:p-7">
@@ -98,6 +102,20 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
         <div className="shrink-0 text-right">
           <p className="font-mono text-3xl font-black text-[#ffd36e] sm:text-4xl">{count ?? '–'}</p>
           <p className="text-[10px] font-bold text-white/45">{t('openNow')}</p>
+        </div>
+      </div>
+
+      <div className="relative mt-3 rounded-2xl border border-white/10 bg-white/[.04] px-3 py-2.5" aria-live="polite">
+        <p className="text-[10px] font-black tracking-[0.14em] text-white/40">{t('playingNow')}</p>
+        <div className="mt-1.5 flex min-h-6 flex-wrap items-center gap-1.5">
+          {rooms === null ? <span className="text-xs font-bold text-white/35">{t('playingLoading')}</span>
+            : playingByGame.length === 0 ? <span className="text-xs font-bold text-white/35">{t('playingEmpty')}</span>
+              : playingByGame.map((game) => (
+                <span key={game.id} className="inline-flex items-center gap-1.5 rounded-full bg-white/[.08] px-2.5 py-1 text-[11px] font-bold text-white/80">
+                  <i className="h-1.5 w-1.5 rounded-full" style={{ background: game.color }} />
+                  {tc(game.id)} <strong className="font-black text-[#ffd36e]">{t('gameCount', { n: game.roomCount })}</strong>
+                </span>
+              ))}
         </div>
       </div>
 
