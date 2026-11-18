@@ -70,7 +70,8 @@
     "hexagon": "Hexagon",
     "shareHallRank": "#{rank} in the {game} Hall of Fame! 🏆 Your move",
     "shareOpenRank": "#{rank} in the {game} open-match ranking! Come at me",
-    "shareNow": "Share"
+    "shareNow": "Share",
+    "celebrationSupport": "🏆 Congrats! PUZZLTHINK is made by one person. If you enjoyed this, a coffee keeps it going ☕"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",

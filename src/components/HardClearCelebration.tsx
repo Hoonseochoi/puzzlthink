@@ -7,6 +7,7 @@ import { Link } from '@/i18n/routing';
 import { HARD_CLEAR_EVENT, type HardClearDetail, certImagePath, clearLabel } from '@/lib/hardClear';
 import AuthButton from './AuthButton';
 import CertShare from './CertShare';
+import { CelebrationSupport } from './SupportLink';
 import { Fireworks } from './HallCelebration';
 
 /** "N번째로 어려움 클리어!" popup with the certificate, share and save buttons. Signed out: a sign-in prompt for the number. */
@@ -52,6 +53,7 @@ export default function HardClearCelebration() {
             </div>
             <p className="mt-3 text-[11px] text-[#ffe3a1]/80">{t('popupNudge')}</p>
             <div className="mt-3"><CertShare id={shown.id!} text={t('shareText', { n: shown.no!, label })} /></div>
+            <CelebrationSupport place="hard_clear" />
             <Link href={`/cert/${shown.id}`} onClick={close} className="mt-3 inline-block text-xs font-bold text-white/55 underline-offset-4 hover:text-white hover:underline">{t('openPage')}</Link>
           </>
         ) : (

@@ -70,7 +70,8 @@
     "hexagon": "헥사곤",
     "shareHallRank": "{game} 명예의 전당 {rank}위 달성! 🏆 너도 올라와 봐",
     "shareOpenRank": "{game} 오픈 대전 랭킹 {rank}위! 덤벼 봐",
-    "shareNow": "공유하기"
+    "shareNow": "공유하기",
+    "celebrationSupport": "🏆 축하해요! PUZZLTHINK는 혼자 만들고 있어요. 즐거웠다면 커피 한 잔으로 응원해 주세요 ☕"
   },
   "BlindGomoku": {
     "metaTitle": "블라인드 오목 — 데블스플랜 그 게임 룰 + 기억력 오목 한판",
