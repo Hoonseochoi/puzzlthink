@@ -7,7 +7,7 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number };
 
-type Href = '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
   wallgo: { ko: '벽바둑', en: 'Wallgo', href: '/wallgo', color: '#ff6b4a' },
   heavy13: { ko: '무거운 13', en: 'Heavy 13', href: '/heavy13', color: '#c9a061' },
@@ -19,6 +19,7 @@ export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; co
   nemo_count: { ko: '네모 세기', en: 'Nemo Count', href: '/nemo-count', color: '#7d86a8' },
   black_white: { ko: '흑과 백', en: 'Black & White', href: '/black-white', color: '#9a9aa6' },
   black_white_2: { ko: '흑과 백 II', en: 'Black & White II', href: '/black-white-2', color: '#ef3340' },
+  hexagon: { ko: '헥사곤', en: 'Hexagon', href: '/hexagon', color: '#e8b04a' },
   piggy_bank: { ko: '돼지 저금통', en: 'Piggy Bank', href: '/piggy-bank', color: '#e0a91c' },
   sudoku: { ko: '스도쿠', en: 'Sudoku', href: '/play', color: '#4b7bff' },
 };

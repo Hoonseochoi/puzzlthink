@@ -6,7 +6,7 @@ import type { GameId as StatsId } from './stats';
 
 /** Records name each game differently from the catalog. */
 export const STATS_ID: Record<CatalogId, StatsId> = {
-  piggyBank: 'piggy_bank', nemoCount: 'nemo_count', blackWhite: 'black_white', blackWhite2: 'black_white_2', laserJanggi: 'laser_janggi', blindGomoku: 'blind_gomoku',
+  hexagon: 'hexagon', piggyBank: 'piggy_bank', nemoCount: 'nemo_count', blackWhite: 'black_white', blackWhite2: 'black_white_2', laserJanggi: 'laser_janggi', blindGomoku: 'blind_gomoku',
   wallgo: 'wallgo', russianRoulette: 'russian_roulette', heavy13: 'heavy13', janggi: 'janggi', russianJanggi: 'russian_janggi', sudoku: 'sudoku',
 };
 
