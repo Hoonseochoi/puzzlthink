@@ -9,6 +9,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import GlobalHeader from '@/components/GlobalHeader';
 import { AuthProvider } from '@/components/AuthProvider';
 import HallCelebration from '@/components/HallCelebration';
+import HardClearCelebration from '@/components/HardClearCelebration';
 import OpenResultCelebration from '@/components/OpenResultCelebration';
 import NicknamePrompt from '@/components/NicknamePrompt';
 import GlobalFooter from '@/components/GlobalFooter';
@@ -75,6 +76,7 @@ export default async function LocaleLayout({
           {children}
           <GlobalFooter />
           <HallCelebration />
+          <HardClearCelebration />
           <OpenResultCelebration />
           <NicknamePrompt />
           <OnlineCount />

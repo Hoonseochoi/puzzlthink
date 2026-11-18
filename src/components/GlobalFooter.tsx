@@ -14,7 +14,7 @@ export default function GlobalFooter() {
   return (
     <footer className="border-t border-black/[0.07] bg-[#f3f0e8]">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-center sm:flex-row sm:text-left">
-        <div><p className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</p><p className="mt-1 text-[11px] text-black/40">{t('tagline')}</p><p className="mt-1 text-[11px] text-black/45">{t('contactPartnership')} · <a href="mailto:contact@puzzlthink.com" className="font-bold hover:text-black">contact@puzzlthink.com</a></p></div>
+        <div><p className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</p><p className="mt-1 text-[11px] text-black/40">{t('tagline')}</p><p className="mt-1 max-w-sm text-[10px] leading-4 text-black/35">{t('unofficialNotice')}</p><p className="mt-1 text-[11px] text-black/45">{t('contactPartnership')} · <a href="mailto:contact@puzzlthink.com" className="font-bold hover:text-black">contact@puzzlthink.com</a></p></div>
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
           <Link href="/piggy-bank" className="hover:text-black">{t('piggyBank')}</Link>
           <Link href="/nemo-count" className="hover:text-black">{t('nemoCount')}</Link>

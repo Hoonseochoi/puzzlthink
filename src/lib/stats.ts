@@ -1,5 +1,6 @@
 // Player records stored in Supabase (only for signed-in players) plus an anonymous play counter. All calls fail quietly.
 import { getSupabase } from './supabase';
+import { HARD_CLEAR_EVENT, type HardClearDetail, isHardClear } from './hardClear';
 
 export type GameId = 'wallgo' | 'janggi' | 'heavy13' | 'sudoku' | 'russian_roulette' | 'russian_janggi' | 'blind_gomoku' | 'laser_janggi' | 'nemo_count' | 'black_white' | 'black_white_2' | 'piggy_bank';
 /** Wins needed before a player can appear in the Hall of Fame (same number as the SQL function). */
@@ -53,6 +54,13 @@ async function insertResult(supabase: Supabase, userId: string, game: GameId, mo
   const before = counts ? await myHallRank(supabase, game) : null;
   const { error } = await supabase.from('game_results').insert({ id: crypto.randomUUID(), user_id: userId, game, mode, result, detail });
   if (error) return false;
+  // First hard clear in this game: a numbered certificate ("N번째 클리어").
+  if (isHardClear(game, mode, result, detail)) {
+    supabase.rpc('claim_hard_clear', { p_game: game }).then(({ data }) => {
+      const row = Array.isArray(data) ? (data[0] as { id: string; clear_no: number; is_new: boolean } | undefined) : undefined;
+      if (row?.is_new) window.dispatchEvent(new CustomEvent<HardClearDetail>(HARD_CLEAR_EVENT, { detail: { game, id: row.id, no: row.clear_no, delayMs: delayMs + 300 } }));
+    });
+  }
   if (counts) {
     const after = await myHallRank(supabase, game);
     if (after !== null && (before === null || after < before)) {
@@ -81,6 +89,8 @@ export async function reportGame(key: string, game: GameId, mode: GameMode, resu
   const { data } = await supabase.auth.getSession();
   const user = data.session?.user;
   if (!user) {
+    // Signed out: show the certificate teaser now; signing in from it saves this game and gives the number.
+    if (isHardClear(game, mode, result, detail)) window.dispatchEvent(new CustomEvent<HardClearDetail>(HARD_CLEAR_EVENT, { detail: { game, delayMs: (opts.revealDelayMs ?? 900) + 300 } }));
     try { sessionStorage.setItem(PENDING_KEY, JSON.stringify({ key, game, mode, result, detail } satisfies Pending)); } catch { /* storage optional */ }
     return;
   }
