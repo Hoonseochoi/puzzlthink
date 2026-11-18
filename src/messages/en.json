@@ -1472,7 +1472,7 @@
     "intro": "Manage your nickname and browse your AI and open-match records separately for every game.",
     "setupNeeded": "The records server is not set up yet. Please check back shortly.",
     "hallTitle": "Hall of Fame",
-    "hallDesc": "Top 3 by wins against AI (puzzles solved for Sudoku, rounds survived for Russian Roulette). You need at least 5 wins to be ranked; ties go to whoever needed fewer games.",
+    "hallDesc": "Top 3 by wins against Normal or Hard AI (puzzles solved for Sudoku, rounds survived for Russian Roulette). You need at least 5 wins to be ranked; ties go to whoever needed fewer games.",
     "emptySpot": "Open spot",
     "winsCount": "{n} wins",
     "solvedCount": "{n} solved",
