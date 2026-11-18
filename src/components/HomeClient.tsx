@@ -15,6 +15,8 @@ import { prepareBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
 import LaserPiece from './laserJanggi/LaserPiece';
 import { prepareNemoRoom } from '@/hooks/useNemoRoom';
 import { prepareHexagonRoom } from '@/hooks/useHexagonRoom';
+import { prepareGyulhapRoom } from '@/hooks/useGyulhapRoom';
+import { prepareIndianPokerRoom } from '@/hooks/useIndianPokerRoom';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
@@ -220,6 +222,26 @@ export default function HomeClient() {
             </div>
           </div>
         </Link>
+        {game.illustration === 'gyulhap' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <Link href="/gyulhap?mode=challenge10#play" className={MODE_BUTTON}><Sparkles size={15} className="text-[#c89c14]" /><span className="text-sm font-black">{t('modeGyul10')}</span><span className="text-[10px] font-bold text-black/45">{t('modeGyul10Desc')}</span></Link>
+              <Link href="/gyulhap?mode=challenge5#play" className={MODE_BUTTON}><Sparkles size={15} className="text-[#c89c14]" /><span className="text-sm font-black">{t('modeGyul5')}</span><span className="text-[10px] font-bold text-black/45">{t('modeGyul5Desc')}</span></Link>
+              <Link href="/gyulhap?mode=practice#play" className={MODE_BUTTON}><Brain size={15} className="text-[#c89c14]" /><span className="text-sm font-black">{t('modeGyulPractice')}</span><span className="text-[10px] font-bold text-black/45">{t('modeGyulPracticeDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/gyulhap/room/${await prepareGyulhapRoom()}`)} className={`${MODE_BASE} border-[#ffcf3f]/55 bg-[#fff8dc] hover:border-[#c89c14]`}><UsersRound size={15} className="text-[#c89c14]" /><span className="text-sm font-black">{t('modeGyulFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeGyulFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
+        {game.illustration === 'indianPoker' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/indian-poker#play" className={MODE_BUTTON}><Bot size={15} className="text-[#b78b25]" /><span className="text-sm font-black">{t('modeIndianAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeIndianAiDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/indian-poker/room/${await prepareIndianPokerRoom()}`)} className={`${MODE_BASE} border-[#e6b94f]/55 bg-[#fff7df] hover:border-[#b78b25]`}><UsersRound size={15} className="text-[#b78b25]" /><span className="text-sm font-black">{t('modeIndianFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeIndianFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
         {game.illustration === 'hexagon' && (
           <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
