@@ -21,6 +21,8 @@ import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, HEADING, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, seg } from '../ui/gameUi';
 import Heavy13Result from './Heavy13Result';
 import Heavy13Table from './Heavy13Table';
+import { ReplayControls, ReplayHeader } from '../ui/ReplayBar';
+import { useH13Replay } from './useH13Replay';
 import Heavy13Tutorial from './Heavy13Tutorial';
 import { H_ROOT_STYLE, SAND, SHARD_TINT } from './theme';
 
@@ -69,6 +71,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
     : !state && waitedLong ? to('roomNotFound') : state && !me?.isHost && !hostOnline ? to('hostOffline') : null;
   // Even the host's own screen shows only what every player may see.
   const view = state ? redactH13(state) : null;
+  const replay = useH13Replay(view);
   const playerCount = view?.playerCount ?? 7;
   const fillAi = view?.fillAi ?? true;
   const readyToStart = fillAi || humans === playerCount;
@@ -145,12 +148,16 @@ export default function Heavy13RoomView({ code }: { code: string }) {
       ) : (
         <main className="relative z-10 mx-auto w-full max-w-[1000px] px-3 py-3 sm:px-4 sm:py-5 lg:px-6 lg:py-8">
           <section className={STAGE}>
-            <Heavy13Table room={view} mySeat={mySeat} onAction={dispatch} online />
+            {replay.frame ? <>
+              <ReplayHeader player={replay.player} onClose={replay.close} />
+              <Heavy13Table room={replay.frame} mySeat={null} onAction={() => {}} online />
+              <ReplayControls player={replay.player} onShowResult={replay.close} />
+            </> : <Heavy13Table room={view} mySeat={mySeat} onAction={dispatch} online />}
           </section>
         </main>
       )}
       {showTutorial && <Heavy13Tutorial onClose={() => setShowTutorial(false)} />}
-      {view?.phase === 'finished' && <Heavy13Result room={view} mySeat={mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={to('rematchWait')} exitPath="/heavy13" />}
+      {view?.phase === 'finished' && !replay.frame && <Heavy13Result room={view} mySeat={mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={to('rematchWait')} exitPath="/heavy13" onReplay={replay.canReplay ? replay.open : undefined} />}
     </div>
   );
 }

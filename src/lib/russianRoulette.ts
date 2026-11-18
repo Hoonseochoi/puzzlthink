@@ -13,7 +13,7 @@ export type RRManipEntry =
 export type RRLog =
   | { k: 'round'; round: number; start: number }
   | { k: 'publicInspect'; seat: number; pair: number }
-  | { k: 'privateInspect'; seat: number }
+  | { k: 'privateInspect'; seat: number; pair?: number } // pair: kept secret until the shots
   | { k: 'rotate'; seat: number; steps: 1 | 2 }
   | { k: 'manipulateFund'; seat: number }
   | { k: 'manipulate'; seat: number; pair: number }
@@ -59,7 +59,8 @@ export const RR_COST: Record<RRActionKind, number> = {
 const orderFrom = (start: number) => Array.from({ length: RR_PLAYERS }, (_, i) => (start + i) % RR_PLAYERS);
 const pairCells = (pair: number) => [pair, (pair + 1) % RR_CHAMBERS] as const;
 const validPair = (pair: number | undefined): pair is number => Number.isInteger(pair) && pair! >= 0 && pair! < RR_CHAMBERS;
-const pushLog = (log: RRLog[], entry: RRLog) => [entry, ...log].slice(0, 60);
+const LOG_MAX = 300; // the whole game, for the replay after the shots
+const pushLog = (log: RRLog[], entry: RRLog) => [entry, ...log].slice(0, LOG_MAX);
 
 function loadChambers(random: () => number) {
   const first = Math.floor(random() * RR_CHAMBERS);
@@ -120,7 +121,7 @@ function resolveShots(game: RussianRoulette): RussianRoulette {
     chamber = (chamber + 1) % RR_CHAMBERS;
   }
   const fireLogs: RRLog[] = shots.map((shot) => ({ k: 'fire', seat: shot.target, fired: shot.fired, chamber: shot.chamber }));
-  return { ...game, phase: 'finished', hits, shots, log: [...fireLogs.reverse(), ...game.log].slice(0, 60) };
+  return { ...game, phase: 'finished', hits, shots, log: [...fireLogs.reverse(), ...game.log].slice(0, LOG_MAX) };
 }
 
 function advance(game: RussianRoulette): RussianRoulette {
@@ -150,7 +151,7 @@ export function applyRRAction(game: RussianRoulette, seat: number, action: RRAct
   } else if (action.kind === 'privateInspect') {
     const privateIntel = game.privateIntel.map((intel) => [...intel]);
     for (const cell of pairCells(action.pair)) privateIntel[seat][cell] = game.chambers[cell];
-    next = { ...next, privateIntel, log: pushLog(game.log, { k: 'privateInspect', seat }) };
+    next = { ...next, privateIntel, log: pushLog(game.log, { k: 'privateInspect', seat, pair: action.pair }) };
   } else if (action.kind === 'rotate1' || action.kind === 'rotate2') {
     const steps = action.kind === 'rotate1' ? 1 : 2;
     const rotations = (game.rotations ?? Array(RR_PLAYERS).fill(0)).map((value, i) => i === seat ? value + steps : value);

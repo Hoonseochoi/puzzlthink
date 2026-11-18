@@ -5,9 +5,10 @@ import { Bot } from 'lucide-react';
 import { ranking } from '@/lib/heavy13';
 import type { H13Room } from '@/lib/heavy13Room';
 import ResultActions from '../ResultActions';
+import { ReplayButton } from '../ui/ReplayBar';
 import { KICKER, MODAL, MODAL_BACKDROP, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 
-export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel, exitPath }: { room: H13Room; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; exitPath: string }) {
+export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel, exitPath, onReplay }: { room: H13Room; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; exitPath: string; onReplay?: () => void }) {
   const t = useTranslations('Heavy13');
   const order = ranking(room.game);
   const players = room.game.players;
@@ -30,6 +31,7 @@ export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel, exi
             </li>
           ))}
         </ol>
+        {onReplay && <ReplayButton onClick={onReplay} />}
         <ResultActions onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/heavy13" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
       </div>
     </div>

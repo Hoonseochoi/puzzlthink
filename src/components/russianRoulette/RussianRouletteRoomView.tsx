@@ -18,6 +18,7 @@ import RoomAlerts from '../RoomAlerts';
 import RoomEmotes from '@/components/RoomEmotes';
 import RussianRouletteResult from './RussianRouletteResult';
 import RussianRouletteTable from './RussianRouletteTable';
+import RouletteReplay from './RouletteReplay';
 import RussianRouletteTutorial from './RussianRouletteTutorial';
 import { RR_ACCENT, RR_ROOT_STYLE, RR_SHARD_TINT } from './theme';
 
@@ -29,6 +30,9 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
   const locale = useLocale();
   const [defaultName] = useState(() => `${to('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useRussianRouletteRoom(code, defaultName);
+  const [replaying, setReplaying] = useState(false);
+  if (replaying && state?.phase !== 'finished') setReplaying(false); // a rematch closes the replay
+  const showReplay = replaying && state?.phase === 'finished';
   const [shareUrl, setShareUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -91,8 +95,8 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
           <section className={NOTE}><p className={PANEL_TITLE}>{t('quickRules')}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{[1, 2, 3, 4].map((n) => <li key={n} className="flex gap-3"><span className="font-mono text-(--accent)">0{n}</span><span>{t(`quick${n}`)}</span></li>)}</ol></section>
         </aside>
       </main>
-        : <main className="relative z-10 mx-auto w-full max-w-[1240px] px-3 py-4 sm:px-5 lg:py-7"><RussianRouletteTable room={state} mySeat={mySeat} onAction={dispatch} online /></main>}
+        : <main className="relative z-10 mx-auto w-full max-w-[1240px] px-3 py-4 sm:px-5 lg:py-7">{showReplay && <RouletteReplay game={state.game} name={(seat) => state.seats[seat]?.name ?? `P${seat + 1}`} open={showReplay} onClose={() => setReplaying(false)} />}<div className={showReplay ? 'hidden' : ''}><RussianRouletteTable room={state} mySeat={mySeat} onAction={dispatch} online /></div></main>}
     {showTutorial && <RussianRouletteTutorial onClose={() => setShowTutorial(false)} />}
-    {state?.phase === 'finished' && <RussianRouletteResult room={state} mySeat={mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={to('rematchWait')} />}
+    {state?.phase === 'finished' && <RussianRouletteResult room={state} mySeat={mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={to('rematchWait')} onReplay={() => setReplaying(true)} hidden={showReplay} />}
   </div>;
 }

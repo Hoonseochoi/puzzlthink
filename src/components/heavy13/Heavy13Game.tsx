@@ -17,6 +17,8 @@ import { BTN, BTN_ACCENT, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, seg } fr
 import Heavy13Result from './Heavy13Result';
 import Heavy13Table from './Heavy13Table';
 import Heavy13Tutorial from './Heavy13Tutorial';
+import { ReplayControls, ReplayHeader } from '../ui/ReplayBar';
+import { useH13Replay } from './useH13Replay';
 import { H_ROOT_STYLE, SHARD_TINT } from './theme';
 
 const LEVELS: AiLevel[] = ['easy', 'normal', 'hard'];
@@ -29,6 +31,7 @@ export default function Heavy13Game() {
   const { state, dispatch, reset } = useLocalRoom(H13_ROOM, create);
   const [showTutorial, setShowTutorial] = useState(false);
   const mySeat = 0;
+  const replay = useH13Replay(state);
 
   // Report a finished game once, when the room moves into "finished".
   const prevPhase = useRef<string | null>(null);
@@ -56,7 +59,11 @@ export default function Heavy13Game() {
       </GameHeader>
       <main className={MAIN}>
         <section className={`min-w-0 ${STAGE}`}>
-          {state && <Heavy13Table room={state} mySeat={0} onAction={dispatch} online={false} />}
+          {replay.frame ? <>
+            <ReplayHeader player={replay.player} onClose={replay.close} />
+            <Heavy13Table room={replay.frame} mySeat={null} onAction={() => {}} online={false} />
+            <ReplayControls player={replay.player} onShowResult={replay.close} />
+          </> : state && <Heavy13Table room={state} mySeat={0} onAction={dispatch} online={false} />}
         </section>
         <aside className="flex flex-col gap-4">
           <section className={PANEL}>
@@ -70,7 +77,7 @@ export default function Heavy13Game() {
           </section>
         </aside>
       </main>
-      {state?.phase === 'finished' && <Heavy13Result room={state} mySeat={0} onAgain={reset} exitPath="/" />}
+      {state?.phase === 'finished' && !replay.frame && <Heavy13Result room={state} mySeat={0} onAgain={reset} exitPath="/" onReplay={replay.canReplay ? replay.open : undefined} />}
       {showTutorial && <Heavy13Tutorial onClose={closeTutorial} />}
     </div>
   );

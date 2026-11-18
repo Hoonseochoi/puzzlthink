@@ -6,13 +6,15 @@ import { ChevronDown, LockKeyhole } from 'lucide-react';
 import { RR_MANIPULATE_AT } from '@/lib/russianRoulette';
 import type { RussianRouletteRoom } from '@/lib/russianRouletteRoom';
 import ResultActions from '../ResultActions';
+import { ReplayButton } from '../ui/ReplayBar';
 import RouletteCharacter from './RouletteCharacter';
 import { russianRouletteFiringDuration } from './firing';
 import { KICKER, RESULT_PRIMARY, STEEL_TEXT, WELL } from '../ui/gameUi';
 import { RR_MODAL } from './theme';
 
-export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLabel, exitPath = '/' }: {
-  room: RussianRouletteRoom; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; exitPath?: string;
+export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLabel, exitPath = '/', onReplay, hidden = false }: {
+  room: RussianRouletteRoom; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; exitPath?: string; onReplay?: () => void;
+  hidden?: boolean; // stays mounted behind the replay, so the firing wait doesn't start again
 }) {
   const t = useTranslations('RussianRoulette');
   const shots = room.game.shots;
@@ -29,7 +31,7 @@ export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLa
     return () => window.clearTimeout(timer);
   }, [shots.length]);
 
-  if (!ready) return null;
+  if (!ready || hidden) return null;
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
       <div className={`${RR_MODAL} max-w-2xl overflow-hidden p-5 text-white sm:p-6`}>
@@ -57,6 +59,7 @@ export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLa
             </li>)}
           </ol>}
         </div>
+        {onReplay && <ReplayButton onClick={onReplay} className="!mt-4" />}
         <ResultActions onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-roulette" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
       </div>
     </div>
