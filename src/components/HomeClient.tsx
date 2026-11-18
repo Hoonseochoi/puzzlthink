@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Bot, Brain, Crosshair, Grid3X3, Sparkles, UsersRound } from 'lucide-react';
+import { ArrowRight, Bot, Brain, Crosshair, Flame, Grid3X3, Sparkles, UsersRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
@@ -170,11 +170,11 @@ export default function HomeClient() {
   const t = useTranslations('Home');
   const tc = useTranslations('Common');
   const router = useRouter();
-  // Order: the hot Devil's Plan 3 games first, then the rest (헥사곤, made at a supporter's request, right after them). `show` is the programme each game is from.
+  // Order: 무거운 13 (HYPE) first, then the other hot Devil's Plan 3 games, then the rest (헥사곤, made at a supporter's request, right after them). `show` is the programme each game is from.
   const games = [
+    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', show: 'dp3', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13', hype: true },
     { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', show: 'dp3', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
     { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', show: 'dp3', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
-    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', show: 'dp3', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
     { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', show: 'dp3', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', show: 'dp3', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'HEXAGON', display: tc('hexagon'), description: t('hexagonDescription'), href: '/hexagon', show: 'dp1', meta: t('hexagonMeta'), color: '#e8b04a', illustration: 'hexagon', sponsor: true },
@@ -194,9 +194,9 @@ export default function HomeClient() {
       blindGomoku: <BlindGomokuPreview />, wallgo: <WallGoPreview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} />{games.map((game) => (
-      <div key={game.title} className="group relative flex flex-col overflow-hidden rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4 shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px] sm:p-5 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_70px_rgba(30,38,36,0.14)] sm:p-7">
+      <div key={game.title} className={`group relative flex flex-col overflow-hidden rounded-[24px] border bg-[#f9f7f1] ${'hype' in game ? 'hype-card border-[#ff6a3d]/45' : 'border-black/10'} p-4 shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px] sm:p-5 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_70px_rgba(30,38,36,0.14)] sm:p-7`}>
         <Link href={game.href} className="block flex-1">
-          <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><ShowTag show={game.show} color={game.color} label={game.show === 'classic' ? t('classic') : t(`show_${game.show}`)} />{'sponsor' in game && <span className="rounded-full border border-[#e8b04a]/60 bg-[#fbf2dc] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#9a6a12]">♥ {t('sponsorTag')}</span>}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
+          <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><ShowTag show={game.show} color={game.color} label={game.show === 'classic' ? t('classic') : t(`show_${game.show}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'sponsor' in game && <span className="rounded-full border border-[#e8b04a]/60 bg-[#fbf2dc] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#9a6a12]">♥ {t('sponsorTag')}</span>}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
