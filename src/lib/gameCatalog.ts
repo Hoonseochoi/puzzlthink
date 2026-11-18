@@ -12,9 +12,9 @@ export interface CatalogGame {
 }
 
 export const GAMES: readonly CatalogGame[] = [
-  { id: 'hexagon', href: '/hexagon', color: '#e8b04a', hasGuide: true },
   { id: 'piggyBank', href: '/piggy-bank', color: '#e0a91c', hasGuide: true },
   { id: 'nemoCount', href: '/nemo-count', color: '#7d86a8', hasGuide: true },
+  { id: 'hexagon', href: '/hexagon', color: '#e8b04a', hasGuide: true },
   { id: 'blackWhite', href: '/black-white', color: '#2b2b31', hasGuide: true },
   { id: 'blackWhite2', href: '/black-white-2', color: '#ef3340', hasGuide: true },
   { id: 'laserJanggi', href: '/laser-janggi', color: '#28b9d7', hasGuide: true },

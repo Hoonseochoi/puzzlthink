@@ -286,7 +286,8 @@
     "modeHexChallenge": "10분 챌린지",
     "modeHexChallengeDesc": "최고 점수 기록",
     "modeHexFriend": "친구와 하기",
-    "modeHexFriendDesc": "2~4명 · 버저"
+    "modeHexFriendDesc": "2~4명 · 버저",
+    "sponsorTag": "후원 요청"
   },
   "WallGo": {
     "metaTitle": "벽바둑 — 데블스플랜3 벽바둑 룰 정리 + AI·친구랑 바로 두기",
