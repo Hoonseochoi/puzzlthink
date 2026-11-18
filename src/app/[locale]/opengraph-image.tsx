@@ -8,8 +8,8 @@ export const generateStaticParams = () => [{ locale: 'ko' }, { locale: 'en' }];
 export const alt = 'PUZZLTHINK';
 
 const COPY = {
-  ko: { line1: '데블스 플랜·더 지니어스', line2: '그 게임을 친구들과', sub: '네모 세기 · 무거운 13 · 벽바둑 · 레이저 장기 · 십이장기 — 가입 없이 바로', tag: '무료 브라우저 두뇌 게임' },
-  en: { line1: "The Devil's Plan & The Genius", line2: 'games, with your friends', sub: 'Nemo Count · Heavy 13 · Wall Go · Laser Janggi · 12 Janggi — no sign-up', tag: 'Free brain games in your browser' },
+  ko: { line1: '추리·전략·심리전', line2: '친구들과 바로 한판', sub: '네모 세기 · 무거운 13 · 벽바둑 · 레이저 장기 · 십이장기 — 가입 없이 바로', tag: '무료 브라우저 두뇌 게임' },
+  en: { line1: 'Strategy, deduction & bluffing', line2: 'solo or with friends', sub: 'Nemo Count · Heavy 13 · Wall Go · Laser Janggi · 12 Janggi — no sign-up', tag: 'Free brain games in your browser' },
 };
 
 export default async function Image({ params }: { params: Promise<{ locale: string }> }) {

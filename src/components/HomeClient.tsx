@@ -173,11 +173,8 @@ function IndianPokerPreview() {
   return <div className="flex w-full items-center justify-center gap-2 rounded-xl border-[3px] border-[#17201e] bg-[#174a3d] py-4 shadow-xl sm:w-[66%] sm:gap-4 sm:border-4 sm:py-8"><span className="flex h-20 w-14 items-center justify-center rounded-lg bg-[#fffaf0] text-3xl font-black shadow-lg sm:h-36 sm:w-24 sm:text-6xl">?</span><span className="font-mono text-xs font-black text-[#e6b94f] sm:text-xl">VS</span><span className="flex h-20 w-14 items-center justify-center rounded-lg bg-[#fffaf0] text-3xl font-black shadow-lg sm:h-36 sm:w-24 sm:text-6xl">8</span></div>;
 }
 
-/** Programme tag on each card. Devil's Plan 3 (on air now) gets a dark plate with glowing red letters. */
-function ShowTag({ show, color, label }: { show: string; color: string; label: string }) {
-  if (show === 'dp3') {
-    return <span className="dp3-tag rounded-full border border-[#ff2d55]/60 bg-[#0b0a10] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#ff5c7a]">{label}</span>;
-  }
+/** Neutral genre tag for each game card. */
+function GameTag({ color, label }: { color: string; label: string }) {
   return <span className="rounded-full px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white" style={{ background: color }}>{label}</span>;
 }
 
@@ -185,23 +182,23 @@ export default function HomeClient() {
   const t = useTranslations('Home');
   const tc = useTranslations('Common');
   const router = useRouter();
-  // Order: 무거운 13 (HYPE) first, then the other Devil's Plan 3 games, new releases, and the rest. `show` is the programme each game is from.
+  // Order: 무거운 13 (HYPE) first, then featured games, new releases, and the rest.
   const games = [
-    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', show: 'dp3', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13', hype: true },
-    { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', show: 'dp3', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
-    { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', show: 'dp3', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
-    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', show: 'dp3', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
-    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', show: 'dp3', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
-    { title: 'GYUL! HAP!', display: tc('gyulhap'), description: t('gyulhapDescription'), href: '/gyulhap', show: 'genius1', meta: t('gyulhapMeta'), color: '#ffcf3f', illustration: 'gyulhap', new: true },
-    { title: 'INDIAN POKER', display: tc('indianPoker'), description: t('indianPokerDescription'), href: '/indian-poker', show: 'genius1', meta: t('indianPokerMeta'), color: '#e6b94f', illustration: 'indianPoker', new: true },
-    { title: 'HEXAGON', display: tc('hexagon'), description: t('hexagonDescription'), href: '/hexagon', show: 'dp1', meta: t('hexagonMeta'), color: '#e8b04a', illustration: 'hexagon', sponsor: true },
-    { title: 'BLACK & WHITE', display: tc('blackWhite'), description: t('blackWhiteDescription'), href: '/black-white', show: 'genius2', meta: t('blackWhiteMeta'), color: '#2b2b31', illustration: 'blackWhite' },
-    { title: 'BLACK & WHITE II', display: tc('blackWhite2'), description: t('blackWhite2Description'), href: '/black-white-2', show: 'genius3', meta: t('blackWhite2Meta'), color: '#ef3340', illustration: 'blackWhite2' },
-    { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', show: 'genius2', meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
-    { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', show: 'society2', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
-    { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', show: 'dp1', meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
-    { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', show: 'genius34', meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
-    { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', show: 'classic', meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
+    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13', hype: true },
+    { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', tag: 'brainSurvival', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
+    { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', tag: 'brainSurvival', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
+    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', tag: 'brainSurvival', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
+    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
+    { title: 'GYUL! HAP!', display: tc('gyulhap'), description: t('gyulhapDescription'), href: '/gyulhap', tag: 'observationBluff', meta: t('gyulhapMeta'), color: '#ffcf3f', illustration: 'gyulhap', new: true },
+    { title: 'INDIAN POKER', display: tc('indianPoker'), description: t('indianPokerDescription'), href: '/indian-poker', tag: 'observationBluff', meta: t('indianPokerMeta'), color: '#e6b94f', illustration: 'indianPoker', new: true },
+    { title: 'HEXAGON', display: tc('hexagon'), description: t('hexagonDescription'), href: '/hexagon', tag: 'memoryDeduction', meta: t('hexagonMeta'), color: '#e8b04a', illustration: 'hexagon', sponsor: true },
+    { title: 'BLACK & WHITE', display: tc('blackWhite'), description: t('blackWhiteDescription'), href: '/black-white', tag: 'strategyBluff', meta: t('blackWhiteMeta'), color: '#2b2b31', illustration: 'blackWhite' },
+    { title: 'BLACK & WHITE II', display: tc('blackWhite2'), description: t('blackWhite2Description'), href: '/black-white-2', tag: 'pointStrategy', meta: t('blackWhite2Meta'), color: '#ef3340', illustration: 'blackWhite2' },
+    { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', tag: 'strategyBluff', meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
+    { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', tag: 'spatialStrategy', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
+    { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', tag: 'memoryDeduction', meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
+    { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', tag: 'miniStrategy', meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
+    { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', tag: 'classic', meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
   ] as const;
 
   return <main className="min-h-screen bg-[#f3f0e8] text-[#17201e]"><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
@@ -213,7 +210,7 @@ export default function HomeClient() {
     }} />{games.map((game) => (
       <div key={game.title} className={`group relative flex flex-col overflow-hidden rounded-[24px] border bg-[#f9f7f1] ${'hype' in game ? 'hype-card border-[#ff6a3d]/45' : 'border-black/10'} p-4 shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px] sm:p-5 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_70px_rgba(30,38,36,0.14)] sm:p-7`}>
         <Link href={game.href} className="block flex-1">
-          <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><ShowTag show={game.show} color={game.color} label={game.show === 'classic' ? t('classic') : t(`show_${game.show}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}{'sponsor' in game && <span className="rounded-full border border-[#e8b04a]/60 bg-[#fbf2dc] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#9a6a12]">♥ {t('sponsorTag')}</span>}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
+          <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}{'sponsor' in game && <span className="rounded-full border border-[#e8b04a]/60 bg-[#fbf2dc] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#9a6a12]">♥ {t('sponsorTag')}</span>}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
