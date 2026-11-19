@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { DoorOpen, Loader2, LogIn, MessageCircle, Plus, RefreshCw, Sparkles, Swords, X } from 'lucide-react';
+import { DoorOpen, Loader2, LogIn, MessageCircle, Plus, RefreshCw, Sparkles, Swords, UsersRound, X } from 'lucide-react';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { type OpenRoomAnyRow, listAllOpenRooms, saveTitle } from '@/lib/openRooms';
 import AuthButton from './AuthButton';
@@ -195,6 +195,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
                           <p className="truncate text-[11px] font-black" style={{ color: colorOf(room.game) }}>{tc(game)}{variants.length > 1 && variants[room.variant] ? ` · ${tg(`short_${variants[room.variant].label}`)}` : ''}</p>
                           <p className="truncate text-sm font-black">{room.title || tg('openHost', { name: room.host })}</p>
                         </div>
+                        <span className="flex shrink-0 items-center gap-1 font-mono text-xs font-black text-black/55" title={tg('openSeats')}><UsersRound size={13} />{room.players}/{room.capacity}</span>
                         <button type="button" disabled={!signedIn} onClick={() => go(game, room.code, room.variant)} className="rounded-full bg-[#17201e] px-3.5 py-2 text-xs font-black text-white disabled:opacity-35">{tg('openJoin')}</button>
                       </div>
                     );
