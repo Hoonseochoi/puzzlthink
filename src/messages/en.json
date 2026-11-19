@@ -406,7 +406,8 @@
       "The Devil's Plan Wall Go",
       "Devil's Plan game",
       "territory strategy game",
-      "board game online"
+      "board game online",
+      "wallgo 2"
     ],
     "roundDuel": "ROUND 02 · 1:1",
     "twoPlayers": "2 players",
@@ -456,7 +457,13 @@
     "v2Tutorial3Desc": "In round 1, each player may once knock down a wall on their path and pass through. Tiles you can only reach by breaking a wall are shown in red.",
     "v2Tutorial4Desc": "The game ends the moment every piece is walled off. Add up the tiles of the areas your pieces are in; the most wins, and on a tie the bigger single area ranks higher.",
     "v2ModeThreeDesc": "Square + round · wall break",
-    "v2ModeTwoDesc": "4 pieces · round fixed"
+    "v2ModeTwoDesc": "4 pieces · round fixed",
+    "seriesNextKicker": "NEW · SEQUEL",
+    "seriesNextTitle": "Wallgo II — the prison match episode 10 game",
+    "seriesNextDesc": "Square pieces go straight, round pieces turn, and ties go to the bigger room. Play Wallgo II now.",
+    "seriesPrevKicker": "ORIGINAL",
+    "seriesPrevTitle": "Wallgo — the first one from The Devil's Plan 3",
+    "seriesPrevDesc": "Move 0–2 tiles with any piece, staying put allowed. Play the original vs AI or friends."
   },
   "Sudoku": {
     "metaTitle": "Free online Sudoku — puzzles and how to solve them",
