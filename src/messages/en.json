@@ -4650,5 +4650,13 @@
     ],
     "youWinForfeit": "Everyone else gave up — you win!",
     "winnerForfeit": "{name} outlasted everyone and wins"
+  },
+  "Live": {
+    "slitherClaim": "{name} claimed a new Slitherlink board · {time}",
+    "slitherTake": "{name} took {other}’s board!",
+    "slitherTakeAnon": "{name} took a Slitherlink board!",
+    "openWin": "{name} won a {game} open match",
+    "hallRank": "{name} reached #{rank} in the {game} Hall of Fame",
+    "hardClear": "{name} is clear #{n} of {game} on Hard!"
   }
 }

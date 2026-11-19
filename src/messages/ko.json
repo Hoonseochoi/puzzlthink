@@ -230,8 +230,8 @@
     "modeAiDesc": "난이도 3단계",
     "modeFriendJanggi": "1:1",
     "modeFriendJanggiDesc": "링크·초대코드",
-    "visitToday": "오늘",
-    "visitTotal": "전체",
+    "visitToday": "TODAY",
+    "visitTotal": "TOTAL",
     "heavy13Description": "받침대 합이 13을 넘기면 벌점! 4~7명이 하는 눈치 싸움.",
     "heavy13Meta": "AI 대전 · 친구 초대 · 빈자리 AI",
     "modeHeavyAi": "AI 대전",
@@ -4714,5 +4714,13 @@
     ],
     "youWinForfeit": "다른 사람이 모두 포기해서 내가 이겼어요!",
     "winnerForfeit": "{name}님이 끝까지 남아 이겼어요"
+  },
+  "Live": {
+    "slitherClaim": "{name}님이 슬리더링크 새 맵을 차지했어요 · {time}",
+    "slitherTake": "{name}님이 {other}님의 맵을 뺏었어요!",
+    "slitherTakeAnon": "{name}님이 슬리더링크 맵을 뺏었어요!",
+    "openWin": "{name}님이 {game} 오픈대전에서 이겼어요",
+    "hallRank": "{name}님이 {game} 명예의 전당 {rank}위에 올랐어요",
+    "hardClear": "{name}님이 {game} 어려움을 {n}번째로 클리어!"
   }
 }

@@ -2,8 +2,8 @@
 import { CERT_GAMES } from './hardClear';
 import type { GameId } from './stats';
 
-export type HallRow = { game: GameId; rank: number; nickname: string; avatar_url: string | null; wins: number; games: number };
-export type OpenRow = { rank: number; nickname: string | null; wins: number; losses: number; draws: number };
+export type HallRow = { game: GameId; rank: number; nickname: string; avatar_url: string | null; wins: number; games: number; prev_rank?: number | null };
+export type OpenRow = { rank: number; nickname: string | null; wins: number; losses: number; draws: number; prev_rank?: number | null };
 export type NemoRow = { rank: number; nickname: string; correct: number; avg_ms: number | null };
 export type GameRanking = { game: GameId; hall: HallRow[]; open: OpenRow[]; nemo: Record<'hard' | 'normal' | 'easy', NemoRow[]> | null };
 

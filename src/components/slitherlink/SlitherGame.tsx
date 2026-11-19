@@ -7,6 +7,7 @@ import AuthButton from '@/components/AuthButton';
 import { useAuth } from '@/components/AuthProvider';
 import BugReport from '@/components/BugReport';
 import ShareButtons from '@/components/ShareButtons';
+import RankMove from '@/components/RankMove';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
@@ -247,7 +248,7 @@ export default function SlitherGame() {
         : ranking.length === 0 ? <p className="mt-3 text-xs text-white/45">{t('rankingEmpty')}</p>
           : <ol className="mt-3 space-y-1">{ranking.map((row) => (
             <li key={`${row.rank}-${row.nickname}`} className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs ${row.is_me ? 'bg-(--accent)/20 font-black' : 'bg-black/25'}`}>
-              <span className="w-7 font-mono text-white/50">#{row.rank}</span><span className="min-w-0 flex-1 truncate">{row.nickname}</span><span className="font-mono">{t('mapsCount', { n: row.maps })}</span>
+              <span className="w-7 font-mono text-white/50">#{row.rank}</span><span className="min-w-0 flex-1 truncate">{row.nickname}</span><span className="font-mono">{t('mapsCount', { n: row.maps })}</span><RankMove rank={row.rank} prev={row.prev_rank} dark />
               {row.board && !row.is_me && <button type="button" disabled={row.tried} onClick={() => openBoard(row.board!)} title={t('tryBoard', { name: row.nickname })} className="ml-1 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-black text-(--accent) ring-1 ring-(--accent)/40 hover:bg-(--accent)/15 disabled:opacity-30">{row.tried ? t('boardTried') : t('rankTry')}</button>}
             </li>
           ))}</ol>}

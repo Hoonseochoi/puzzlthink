@@ -15,6 +15,7 @@ import NicknamePrompt from '@/components/NicknamePrompt';
 import GlobalFooter from '@/components/GlobalFooter';
 import InstallBanner from '@/components/InstallBanner';
 import OnlineCount from '@/components/OnlineCount';
+import LiveIsland from '@/components/LiveIsland';
 import { routing } from '@/i18n/routing';
 import { GA_ID } from '@/lib/analytics';
 import '../globals.css';
@@ -73,6 +74,7 @@ export default async function LocaleLayout({
           <OpenResultCelebration />
           <NicknamePrompt />
           <OnlineCount />
+          <LiveIsland />
           </AuthProvider>
         </NextIntlClientProvider>
         <Analytics />

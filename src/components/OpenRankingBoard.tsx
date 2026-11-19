@@ -6,6 +6,7 @@ import { Swords } from 'lucide-react';
 import { type GameId, type RankRow, type TopRow, fetchOpenTop, myOpenPlace } from '@/lib/stats';
 import { useAuth } from './AuthProvider';
 import { GAME_LABEL } from './HallCelebration';
+import RankMove from './RankMove';
 
 const GAMES: { id: GameId; color: string }[] = [
   { id: 'slitherlink', color: '#8f7cff' }, { id: 'gyulhap', color: '#ffcf3f' }, { id: 'indian_poker', color: '#e6b94f' },
@@ -59,7 +60,7 @@ export default function OpenRankingBoard() {
                   return (
                     <li key={index} className={`flex items-center gap-2 rounded-xl px-2.5 py-2 ${row ? 'bg-white' : 'border border-dashed border-black/10'}`}>
                       <span className="w-6 text-center text-sm font-black">{MEDALS[index] ?? index + 1}</span>
-                      {row ? <><span className="min-w-0 flex-1 truncate text-xs font-extrabold">{row.nickname ?? 'Player'}</span><span className="shrink-0 font-mono text-[10px] font-black text-black/50">{wl(row)}</span></> : <span className="text-[10px] text-black/30">{t('empty')}</span>}
+                      {row ? <><span className="min-w-0 flex-1 truncate text-xs font-extrabold">{row.nickname ?? 'Player'}</span><span className="shrink-0 font-mono text-[10px] font-black text-black/50">{wl(row)}</span><RankMove rank={row.rank} prev={row.prev_rank} /></> : <span className="text-[10px] text-black/30">{t('empty')}</span>}
                     </li>
                   );
                 })}

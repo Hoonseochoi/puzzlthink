@@ -5,7 +5,7 @@ export type SlitherRun = { run: string; challenge: string; seed: number; dots: n
 /** `rank`/`total`/`maps`: my place by boards owned after a clear. */
 export type FinishResult = { ok: boolean; ms: number; rank: number | null; total: number | null; maps?: number | null };
 /** Ranked by boards owned (맵 수집). `board`: one of their boards to try. */
-export type RankRow = { rank: number; nickname: string; maps: number; is_me: boolean; board: string | null; board_ms: number | null; tried: boolean };
+export type RankRow = { rank: number; nickname: string; maps: number; is_me: boolean; board: string | null; board_ms: number | null; tried: boolean; prev_rank?: number | null };
 export type BoardRow = { id: string; holder: string; holder_ms: number; first_name: string; attempts: number; takeovers: number; published_at: string; tried: boolean; mine?: boolean };
 
 async function call<T>(name: string, args: Record<string, unknown> = {}): Promise<{ data: T | null; error: string | null }> {
