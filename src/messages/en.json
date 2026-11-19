@@ -303,7 +303,7 @@
     "modeHexFriend": "Friends",
     "modeHexFriendDesc": "2–4 · buzzer",
     "hypeTag": "most played",
-    "slitherlinkDescription": "Join the dots into one loop. Each number tells how many of its sides the line runs along.",
+    "slitherlinkDescription": "The loop puzzle from the show, as it was. Join the dots into one loop that matches every number.",
     "slitherlinkMeta": "Random-board challenge · take boards · practice"
   },
   "WallGo": {
@@ -1966,7 +1966,7 @@
           "Cells without a number can have any number of sides used.",
           "Mark sides you know are empty with ✕ so you do not lose track."
         ],
-        "origin": "Inspired by a line-drawing puzzle from a TV brain-survival show; every board is generated with exactly one answer."
+        "origin": "The line puzzle played on the show, brought to the web: the same 11×11 board, with random boards that each have exactly one answer."
       }
     },
     "keywords": [

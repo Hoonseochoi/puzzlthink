@@ -24,6 +24,7 @@ import VisitCounter from './VisitCounter';
 import { Pedestal } from './piggyBank/PiggyParts';
 import { preparePiggyRoom } from '@/hooks/usePiggyRoom';
 import OpenMatchCard from './OpenMatchCard';
+import { SHOW_BOARD } from '@/lib/slitherShowBoard';
 
 const MODE_BASE = 'flex flex-col items-center gap-0.5 rounded-2xl border px-2 py-2.5 text-center transition hover:-translate-y-0.5 sm:gap-1 sm:py-3';
 const MODE_BUTTON = `${MODE_BASE} border-black/10 bg-white/70 hover:border-black/25 hover:bg-white`;
@@ -91,14 +92,14 @@ function HexagonPreview() {
 }
 
 function SlitherPreview() {
-  // A corner of the dotted board with part of the loop drawn.
-  const n = 5;
-  const clues: [number, number, number][] = [[0, 2, 3], [0, 3, 3], [1, 0, 1], [1, 1, 0], [2, 3, 3], [3, 0, 2], [3, 2, 1], [2, 1, 0]];
-  return <svg viewBox={`0 0 ${n} ${n}`} className="w-full rounded-xl border-[3px] border-[#17201e] bg-[#eceeff] shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:shadow-2xl">
-    <path d="M0.5 0.5H2.5V1.5H3.5V0.5H4.5V2.5H3.5V3.5H4.5V4.5H1.5V3.5H0.5Z" fill="none" stroke="#2c1f78" strokeWidth={0.09} strokeLinejoin="round" />
-    {clues.map(([r, c, v]) => <text key={`${r}-${c}`} x={c + 1} y={r + 1.04} textAnchor="middle" dominantBaseline="middle" fontSize={0.55} fontFamily="Georgia, serif" fontWeight={600} fill="#5b45c9">{v}</text>)}
-    {Array.from({ length: n * n }, (_, i) => <circle key={i} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.08} fill="#5b45c9" />)}
-  </svg>;
+  // The board from the show: lilac screen in a dark stone frame, violet dots and serif numbers.
+  const n = 11;
+  return <div className="w-full rounded-xl bg-gradient-to-br from-[#4a4652] via-[#2f2c36] to-[#46424e] p-1.5 shadow-xl sm:w-[66%] sm:rounded-2xl sm:p-3 sm:shadow-2xl">
+    <svg viewBox={`0 0 ${n} ${n}`} className="block w-full rounded-[3px] bg-[#e9ebff] shadow-[inset_0_0_12px_rgba(91,69,201,.25)]">
+      {SHOW_BOARD.flatMap((row, r) => [...row].map((ch, c) => ch === '.' ? null : <text key={`${r}-${c}`} x={c + 1} y={r + 1.06} textAnchor="middle" dominantBaseline="middle" fontSize={0.62} fontFamily="Georgia, 'Times New Roman', serif" fill="#5b45c9">{ch}</text>))}
+      {Array.from({ length: n * n }, (_, i) => <circle key={i} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.085} fill="#5b45c9" />)}
+    </svg>
+  </div>;
 }
 
 function NemoCountPreview() {
