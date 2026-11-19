@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Award, Bot, Clock3, Crown, DoorOpen, Gamepad2, Medal, Trophy } from 'lucide-react';
+import { Award, Bot, Clock3, Crown, DoorOpen, Flame, Gamepad2, Medal, Trophy } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfFame, fetchMyRecords, isNicknameTaken, saveProfile } from '@/lib/stats';
 import { clearLabel } from '@/lib/hardClear';
@@ -11,6 +11,8 @@ import AuthButton from './AuthButton';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
 import OpenRankingBoard from './OpenRankingBoard';
 import RankMove from './RankMove';
+import ChallengeRecords from './ChallengeRecords';
+import { byGameOrder } from './recordOrder';
 
 const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'gyulhap', href: '/gyulhap', color: '#ffcf3f' },
@@ -32,6 +34,8 @@ const GAMES: { id: GameId; href: string; color: string }[] = [
 /** Common message key for each game's name. */
 const GAME_LABEL: Record<GameId, string> = { slitherlink: 'slitherlink', gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
+/** Solo challenges have their own tab (they never appear in the AI Hall of Fame). */
+const CHALLENGE_GAMES = new Set<GameId>(['slitherlink', 'gyulhap', 'nemo_count', 'hexagon']);
 
 function formatDuration(seconds: number, t: (k: string, v?: Record<string, number>) => string) {
   const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60);
@@ -57,7 +61,7 @@ export default function RecordsClient() {
   const [showInHall, setShowInHall] = useState(true);
   const [saved, setSaved] = useState(false);
   const [nameTaken, setNameTaken] = useState(false);
-  const [recordView, setRecordView] = useState<'ai' | 'open'>('ai');
+  const [recordView, setRecordView] = useState<'ai' | 'open' | 'challenge'>('ai');
   const [certs, setCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
   const locale = useLocale();
 
@@ -112,7 +116,9 @@ export default function RecordsClient() {
     return n ? `${Math.round((rec.win / n) * 100)}%` : '—';
   };
   const recordCards = (view: 'ai' | 'open') => {
-    const games = view === 'open' ? GAMES.filter((game) => game.id !== 'sudoku') : GAMES;
+    const pool = view === 'open' ? GAMES.filter((game) => game.id !== 'sudoku') : GAMES.filter((game) => !CHALLENGE_GAMES.has(game.id));
+    const recordOf = (id: GameId) => (view === 'open' ? byGame[id].open : id === 'sudoku' ? byGame[id].solo : byGame[id].ai);
+    const games = byGameOrder(pool, (g) => g.id, (g) => { const r = recordOf(g.id); return r.win + r.loss + r.draw > 0; });
     return (
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {games.map((game) => {
@@ -195,9 +201,10 @@ export default function RecordsClient() {
         </section>
 
         <div className="mt-10 rounded-[22px] border border-black/10 bg-[#e9e5dc] p-1.5" role="tablist" aria-label={t('recordTabsLabel')}>
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-3 gap-1.5">
             <button type="button" role="tab" aria-selected={recordView === 'ai'} onClick={() => setRecordView('ai')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'ai' ? 'bg-[#17201e] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><Bot size={16} />{t('aiTab')}</button>
             <button type="button" role="tab" aria-selected={recordView === 'open'} onClick={() => setRecordView('open')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'open' ? 'bg-[#ff4d5e] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><DoorOpen size={16} />{t('openTab')}</button>
+            <button type="button" role="tab" aria-selected={recordView === 'challenge'} onClick={() => setRecordView('challenge')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'challenge' ? 'bg-[#8f7cff] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><Flame size={16} />{t('challengeTab')}</button>
           </div>
         </div>
 
@@ -207,7 +214,7 @@ export default function RecordsClient() {
               <h2 className="flex items-center gap-2 text-xl font-black"><Trophy size={20} className="text-[#e8a33c]" />{t('hallTitle')}</h2>
               <p className="mt-1 text-xs text-black/45">{t('hallDesc')}</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {GAMES.map((game) => {
+                {byGameOrder(GAMES.filter((g) => !CHALLENGE_GAMES.has(g.id)), (g) => g.id, (g) => hall.some((e) => e.game === g.id)).map((game) => {
                   const top = hall.filter((entry) => entry.game === game.id).sort((a, b) => a.rank - b.rank);
                   return (
                     <section key={game.id} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4">
@@ -234,6 +241,8 @@ export default function RecordsClient() {
               {user ? recordCards('ai') : <p className="mt-4 rounded-[24px] border border-black/10 bg-[#f9f7f1] p-5 text-sm text-black/55">{t('loginPrompt')}</p>}
             </section>
           </>
+        ) : recordView === 'challenge' ? (
+          <ChallengeRecords results={results} signedIn={!!user} />
         ) : (
           <>
             <OpenRankingBoard />
