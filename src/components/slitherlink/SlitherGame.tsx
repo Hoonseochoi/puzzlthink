@@ -73,7 +73,7 @@ export default function SlitherGame() {
   const [result, setResult] = useState<FinishResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ranking, setRanking] = useState<RankRow[] | null>(null);
-  const [me, setMe] = useState<{ rank: number; ms: number; total: number } | null>(null);
+  const [me, setMe] = useState<{ rank: number; maps: number; total: number } | null>(null);
   const [boards, setBoards] = useState<BoardRow[] | null>(null);
   const [listTick, setListTick] = useState(0);
   const [focus, setFocus] = useState<BoardRow | null>(null); // one board picked from a link or the ranking
@@ -242,12 +242,12 @@ export default function SlitherGame() {
   const rankingPanel = (
     <section className={PANEL}>
       <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('rankingTitle')}</p><Trophy size={14} className="text-(--accent)" /></div>
-      {me && <p className="mt-2 rounded-md bg-(--accent)/15 px-2.5 py-1.5 text-xs font-black text-(--accent)">{t('myRank', { rank: me.rank, total: me.total, time: time(me.ms) })}</p>}
+      {me && <p className="mt-2 rounded-md bg-(--accent)/15 px-2.5 py-1.5 text-xs font-black text-(--accent)">{t('myRank', { rank: me.rank, total: me.total, n: me.maps })}</p>}
       {ranking === null ? <p className="mt-3 flex items-center gap-2 text-xs text-white/45"><Loader2 size={13} className="animate-spin" />{t('loading')}</p>
         : ranking.length === 0 ? <p className="mt-3 text-xs text-white/45">{t('rankingEmpty')}</p>
           : <ol className="mt-3 space-y-1">{ranking.map((row) => (
             <li key={`${row.rank}-${row.nickname}`} className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs ${row.is_me ? 'bg-(--accent)/20 font-black' : 'bg-black/25'}`}>
-              <span className="w-7 font-mono text-white/50">#{row.rank}</span><span className="min-w-0 flex-1 truncate">{row.nickname}</span><span className="font-mono">{time(row.ms)}</span>
+              <span className="w-7 font-mono text-white/50">#{row.rank}</span><span className="min-w-0 flex-1 truncate">{row.nickname}</span><span className="font-mono">{t('mapsCount', { n: row.maps })}</span>
               {row.board && !row.is_me && <button type="button" disabled={row.tried} onClick={() => openBoard(row.board!)} title={t('tryBoard', { name: row.nickname })} className="ml-1 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-black text-(--accent) ring-1 ring-(--accent)/40 hover:bg-(--accent)/15 disabled:opacity-30">{row.tried ? t('boardTried') : t('rankTry')}</button>}
             </li>
           ))}</ol>}
@@ -376,7 +376,7 @@ export default function SlitherGame() {
                   {phase === 'solved' && mode !== 'practice' && (!result ? <p className="flex items-center justify-center gap-2 text-sm text-white/60"><Loader2 size={14} className="animate-spin" />{t('saving')}</p> : <>
                     <p className="flex items-center justify-center gap-2 text-2xl font-black">{result.ok ? <Check size={24} className="text-[#7ee2ae]" /> : <X size={24} className="text-[#ff8f8f]" />}
                       {result.ok ? (mode === 'beat' ? t('beatWin') : t('solvedTitle', { time: time(result.ms) })) : t('tooSlow')}</p>
-                    {result.ok && mode === 'challenge' && result.rank && <p className="mt-2 inline-block rounded-full bg-(--accent)/15 px-4 py-1.5 text-sm font-black text-(--accent)">{t('rankNow', { rank: result.rank, total: result.total ?? result.rank })}</p>}
+                    {result.ok && result.rank && <p className="mt-2 inline-block rounded-full bg-(--accent)/15 px-4 py-1.5 text-sm font-black text-(--accent)">{t('rankNow', { rank: result.rank, total: result.total ?? result.rank, n: result.maps ?? 1 })}</p>}
                     {result.ok && <p className="mt-3 flex items-center justify-center gap-1.5 text-base font-black text-[#ffcf3f]"><Crown size={17} />{t('ownerNow', { name: myName })}</p>}
                     <p className="mt-2 break-keep text-xs text-white/50">{result.ok ? (mode === 'beat' ? t('beatWinDesc', { time: time(result.ms) }) : t('publishedDesc')) : t('tooSlowDesc', { time: time(result.ms) })}</p>
                     {result.ok && run && (
