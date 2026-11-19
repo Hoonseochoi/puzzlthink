@@ -1,0 +1,3 @@
+
+[functions.slither-finish]
+verify_jwt = false
