@@ -54,9 +54,9 @@ export default function LiveIsland() {
 
   if (!current) return null;
   const game = current.game ? tc(GAME_LABEL[current.game] ?? 'slitherlink') : '';
-  const time = current.value ? `${Math.floor(current.value / 60000)}:${String(Math.floor((current.value % 60000) / 1000)).padStart(2, '0')}` : '';
+  const time = current.kind === 'slither_claim' && current.value ? `${Math.floor(current.value / 60000)}:${String(Math.floor((current.value % 60000) / 1000)).padStart(2, '0')}` : '';
   const text = current.kind === 'slither_claim' ? t('slitherClaim', { name: current.name, time })
-    : current.kind === 'slither_take' ? (current.other ? t('slitherTake', { name: current.name, other: current.other }) : t('slitherTakeAnon', { name: current.name }))
+    : current.kind === 'slither_take' ? (current.other ? ((current.value ?? 0) >= 2 ? t('slitherTakeN', { name: current.name, other: current.other, n: current.value ?? 2 }) : t('slitherTake', { name: current.name, other: current.other })) : t('slitherTakeAnon', { name: current.name }))
       : current.kind === 'open_win' ? t('openWin', { name: current.name, game })
         : current.kind === 'hall_rank' ? t('hallRank', { name: current.name, game, rank: current.value ?? 1 })
           : t('hardClear', { name: current.name, game, n: current.value ?? 1 });
