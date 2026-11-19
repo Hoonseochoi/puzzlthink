@@ -195,14 +195,14 @@ export default function HomeClient() {
   const t = useTranslations('Home');
   const tc = useTranslations('Common');
   const router = useRouter();
-  // Order: 무거운 13 (HYPE) first, then featured games, new releases, and the rest.
+  // Order: 벽바둑 (HYPE, most played) first, then featured games, new releases, and the rest.
   const games = [
-    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13', hype: true },
+    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo', hype: true },
+    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', new: true },
     { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', tag: 'brainSurvival', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
     { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', tag: 'brainSurvival', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
     { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', tag: 'brainSurvival', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
-    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'GYUL! HAP!', display: tc('gyulhap'), description: t('gyulhapDescription'), href: '/gyulhap', tag: 'observationBluff', meta: t('gyulhapMeta'), color: '#ffcf3f', illustration: 'gyulhap', new: true },
     { title: 'INDIAN POKER', display: tc('indianPoker'), description: t('indianPokerDescription'), href: '/indian-poker', tag: 'observationBluff', meta: t('indianPokerMeta'), color: '#e6b94f', illustration: 'indianPoker', new: true },
     { title: 'HEXAGON', display: tc('hexagon'), description: t('hexagonDescription'), href: '/hexagon', tag: 'memoryDeduction', meta: t('hexagonMeta'), color: '#e8b04a', illustration: 'hexagon' },
