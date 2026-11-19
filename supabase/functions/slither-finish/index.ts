@@ -2,6 +2,7 @@
 // the run's seed, replays the moves (replay.ts) and only then records the clear through slither_finish_checked (service role only).
 // A replay that does not end on the answer is not a clear. A clear that looks solved elsewhere and copied in
 // (no ✕ marks, almost no erasing, or faster than a person can solve it) is kept off the records.
+// Deployed with verify_jwt = false: the gateway check only knows the legacy keys, so the user is checked here (auth.getUser).
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { checkRun } from './replay.ts';
 
@@ -10,13 +11,18 @@ const CORS = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
+/** The new secret key (SUPABASE_SECRET_KEYS), or the legacy service_role key while it still works. */
+const secretKey = () => {
+  try { const keys = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') ?? '{}'); if (keys.default) return keys.default as string; } catch { /* fall back */ }
+  return Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+};
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
 
-  const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
+  const admin = createClient(Deno.env.get('SUPABASE_URL')!, secretKey(), { auth: { persistSession: false } });
   const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '');
   const { data: auth } = await admin.auth.getUser(token);
   const user = auth?.user;
