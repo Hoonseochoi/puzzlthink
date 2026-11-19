@@ -2130,6 +2130,7 @@
     "openEmpty": "No open rooms right now. Start one!",
     "openHost": "{name}'s room",
     "openFull": "Full",
+    "openSeats": "Players in room",
     "openJoin": "Join",
     "openTitleLabel": "Room title",
     "openTitlePlaceholder": "Room title (optional) · e.g. Beginners welcome",

@@ -2175,6 +2175,7 @@
     "openEmpty": "지금 열린 공개방이 없어요. 하나 만들어 보세요!",
     "openHost": "{name}님의 방",
     "openFull": "가득 참",
+    "openSeats": "참가 인원",
     "openJoin": "참가",
     "openTitleLabel": "방 제목",
     "openTitlePlaceholder": "방 제목 (선택) · 예: 초보 환영, 한 판만 빠르게",
