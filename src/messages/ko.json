@@ -2176,6 +2176,8 @@
     "openHost": "{name}님의 방",
     "openFull": "가득 참",
     "openJoin": "참가",
+    "openTitleLabel": "방 제목",
+    "openTitlePlaceholder": "방 제목 (선택) · 예: 초보 환영, 한 판만 빠르게",
     "openCreate": "공개방 만들기",
     "openCreateFor": "공개방 만들기 · {label}",
     "openLogin": "공개방은 로그인한 사람끼리만 만들고 참가할 수 있어요. 서로의 전적이 기록돼요.",
@@ -3683,6 +3685,25 @@
     ],
     "disclaimer": "흑과 백 II는 방송에 소개된 게임 방식에서 착안해 PUZZLTHINK가 웹용으로 다시 만든 것으로, 방송사·제작사와 관련이 없습니다."
   },
+  "RoomChat": {
+    "title": "채팅",
+    "notSaved": "이 방에서만 보이고 어디에도 저장되지 않아요",
+    "open": "채팅 열기",
+    "close": "닫기",
+    "turnOff": "채팅 끄기",
+    "turnOn": "채팅 켜기",
+    "offDesc": "채팅을 껐어요. 다른 사람의 메시지가 보이지 않아요.",
+    "empty": "아직 메시지가 없어요. 먼저 인사해 보세요!",
+    "placeholder": "메시지 입력 (100자)",
+    "send": "보내기",
+    "mute": "{name} 차단",
+    "mutedHere": "차단한 사람 {n}명의 메시지를 숨겼어요",
+    "mutedSome": "차단한 사람이 있어요",
+    "unmuteAll": "모두 해제",
+    "block_fast": "너무 빨라요. 잠깐 쉬었다 보내 주세요.",
+    "block_burst": "메시지를 너무 많이 보냈어요. 몇 초 뒤에 다시 보내 주세요.",
+    "block_repeat": "같은 말을 계속 보낼 수 없어요."
+  },
   "OpenRoom": {
     "guest": "게스트",
     "close": "닫기",
@@ -3713,6 +3734,8 @@
     "editTitle": "방 제목 바꾸기"
   },
   "OpenMatch": {
+    "stepTitle": "방 이름 정하기 (선택)",
+    "stepGame": "게임 고르면 바로 방이 열려요",
     "title": "오픈 대전",
     "desc": "아무나 들어올 수 있는 공개방이에요. 방을 만들고 기다리는 동안 혼자 플레이하다가, 사람이 모이면 바로 대결하세요.",
     "openNow": "지금 열린 방",

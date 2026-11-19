@@ -6,7 +6,6 @@ import { BellRing, Check, Copy, Crown, Loader2, Lock, RotateCcw, Share2, Swords,
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
-import RoomEmotes from '@/components/RoomEmotes';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
@@ -35,7 +34,7 @@ export default function HexagonRoomView({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useHexagonRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useHexagonRoom(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -119,7 +118,7 @@ export default function HexagonRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={{ ...accentVars(HEX_ACCENT, HEX_INK), backgroundImage: fog('200, 150, 60') }}>
       <Shards tint="#3a2f1a" />
-      <RoomAlerts alerts={alerts} accent={HEX_ACCENT} joinText={(n) => t('joined', { name: n })} leaveText={(n) => t('left', { name: n })} /><RoomEmotes peers={peers} onEmote={emote} />
+      <RoomAlerts alerts={alerts} accent={HEX_ACCENT} joinText={(n) => t('joined', { name: n })} leaveText={(n) => t('left', { name: n })} />
       <GameHeader backHref="/hexagon" backLabel={tc('hexagon')} title={th('title')} titleClass="font-black" subtitle={`ONLINE · ${seated}/${HEX_MAX_PLAYERS} · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
@@ -250,7 +249,7 @@ export default function HexagonRoomView({ code }: { code: string }) {
                   if (!seat && phase !== 'lobby') return null;
                   const buzzing = state.buzz?.seat === i;
                   return (
-                    <div key={i} className={`${playerRow(buzzing)} ${seat ? '' : 'opacity-40'}`}>
+                    <div key={i} data-chat-seat={seat?.id} className={`${playerRow(buzzing)} ${seat ? '' : 'opacity-40'}`}>
                       <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md font-mono text-sm font-black ${buzzing ? 'bg-[#e5484d] text-white' : 'bg-white/10 text-white/60'}`}>{buzzing ? <BellRing size={15} /> : i + 1}</span>
                       <div className="min-w-0 flex-1"><p className="flex items-center gap-1.5 truncate text-sm font-extrabold">{seat ? name(i) : t('emptySeat')}{seat?.id === me?.id ? ` (${t('me')})` : ''}{i === 0 && <Crown size={12} className="shrink-0 text-[#f2c14e]" />}</p></div>
                       {phase !== 'lobby' && seat && <span className={`font-mono text-lg font-black ${state.scores[i] < 0 ? 'text-[#ff9b94]' : 'text-(--accent)'}`}>{state.scores[i]}</span>}

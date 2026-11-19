@@ -197,8 +197,7 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
             {seats.slice(0, capacity).map((seat, i) => {
               const ai = state.ai?.[i];
               return (
-                <li key={i} className={`relative flex flex-wrap items-center gap-x-2 gap-y-0.5 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/10 bg-white/[.04]' : 'border-dashed border-white/10 text-white/30'}`}>
-                  {seat && <EmoteBubble peer={peerOf(seat.id)} now={now} />}
+                <li key={i} data-chat-seat={seat?.id} className={`relative flex flex-wrap items-center gap-x-2 gap-y-0.5 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/10 bg-white/[.04]' : 'border-dashed border-white/10 text-white/30'}`}>
                   <span className={`h-2 w-2 shrink-0 rounded-full ${seat && !ai ? 'bg-[#3ddc97]' : 'bg-white/15'}`} />
                   <span className="min-w-0 flex-1 truncate text-sm font-bold">{seat ? seat.name : t('emptySeat')}{seat?.id === me?.id ? ` (${t('me')})` : ''}</span>
                   {seat && seat.id !== me?.id && (() => {

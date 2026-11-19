@@ -6,7 +6,6 @@ import { Bot, Check, Copy, Crown, Loader2, Play, Share2, Users, WifiOff } from '
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
-import RoomEmotes from '@/components/RoomEmotes';
 import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, INPUT, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
@@ -25,7 +24,7 @@ const LEVELS: { id: PbLevel; label: string }[] = [{ id: 'easy', label: 'AI 쉬�
 export default function PiggyBankRoomView({ code }: { code: string }) {
   const locale = useLocale();
   const [defaultName] = useState(() => `게스트 ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = usePiggyRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = usePiggyRoom(code, defaultName);
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
   const [shareUrl, setShareUrl] = useState('');
   const [copied, setCopied] = useState(false);
@@ -62,7 +61,7 @@ export default function PiggyBankRoomView({ code }: { code: string }) {
 
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#2a1d00'), backgroundImage: fog('90, 110, 210') }}>
-      <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => `${name} 님이 들어왔어요`} leaveText={(name) => `${name} 님이 나갔어요`} /><RoomEmotes peers={peers} onEmote={emote} />
+      <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => `${name} 님이 들어왔어요`} leaveText={(name) => `${name} 님이 나갔어요`} />
       <GameHeader backHref="/piggy-bank" backLabel="돼지 저금통" title="돼지 저금통" subtitle={`ONLINE · ${code}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
@@ -111,7 +110,7 @@ export default function PiggyBankRoomView({ code }: { code: string }) {
               <div className="mb-3 flex items-center justify-between"><h2 className={PANEL_TITLE}>플레이어</h2><span className={CHIP}><Users size={12} />{seated}/4</span></div>
               <ul className="space-y-2">
                 {state.seats.map((s, i) => (
-                  <li key={i} className={`flex items-center gap-2 rounded-[10px] border px-3 py-2.5 text-sm ${s ? 'border-white/10 bg-white/[.04]' : 'border-dashed border-white/10 text-white/35'}`}>
+                  <li key={i} data-chat-seat={s?.id} className={`flex items-center gap-2 rounded-[10px] border px-3 py-2.5 text-sm ${s ? 'border-white/10 bg-white/[.04]' : 'border-dashed border-white/10 text-white/35'}`}>
                     {s ? <span className={`h-2 w-2 rounded-full ${online.has(s.id) ? 'bg-[#3ddc97]' : 'bg-white/25'}`} /> : <Bot size={13} />}
                     <span className="flex-1 truncate font-bold">{s ? `${s.name}${s.id === me?.id ? ' (나)' : ''}` : '빈자리 → AI'}</span>
                     {i === 0 && s && <Crown size={13} className="text-[#f2c14e]" />}
@@ -123,7 +122,7 @@ export default function PiggyBankRoomView({ code }: { code: string }) {
         </main>
       ) : (
         <main className={MAIN}>
-          <PiggyTable s={state.game} me={mySeat} onAct={onAct} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} />
+          <PiggyTable s={state.game} me={mySeat} seatIds={state.seats.map((seat) => seat?.id)} onAct={onAct} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} />
           <PiggyAside s={state.game} me={mySeat} onAct={onAct} />
         </main>
       )}

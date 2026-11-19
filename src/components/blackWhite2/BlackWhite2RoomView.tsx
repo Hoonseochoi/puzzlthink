@@ -6,7 +6,6 @@ import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, RotateCcw, Share2
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
-import RoomEmotes from '@/components/RoomEmotes';
 import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
@@ -26,7 +25,7 @@ export default function BlackWhite2RoomView({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useBlackWhite2Room(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useBlackWhite2Room(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -90,7 +89,7 @@ export default function BlackWhite2RoomView({ code }: { code: string }) {
 
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#ffffff'), backgroundImage: fog('150, 18, 30') }}>
-      <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
+      <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader backHref="/black-white-2" backLabel={tc('blackWhite2')} title={tb('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}
       {!state ? (
@@ -120,7 +119,7 @@ export default function BlackWhite2RoomView({ code }: { code: string }) {
             )}
           </section>
           <aside className="flex flex-col gap-4">
-            <section className={PANEL}><div className="mb-3 flex items-center justify-between"><h2 className={PANEL_TITLE}>{t('players')}</h2><span className={CHIP}><Users size={12} />{state.seats.filter(Boolean).length}/2</span></div><div className="space-y-2">{([0, 1] as BW2Side[]).map((seat) => { const occupant = state.seats[seat]; return <div key={seat} className={`${playerRow(!!playing && toPlay === seat)} ${occupant ? '' : 'opacity-50'}`}><BW2Card color={seat === 0 ? 'black' : 'white'} size="sm" /><div className="min-w-0 flex-1"><div className="flex items-center gap-1.5"><p className="truncate text-sm font-extrabold">{seatName(seat)}{occupant?.id === me?.id ? ` (${t('me')})` : ''}</p>{seat === 0 && <Crown size={12} className="shrink-0 text-[#f2c14e]" />}{occupant && <span className={`h-1.5 w-1.5 rounded-full ${online.has(occupant.id) ? 'bg-[#3ddc97]' : 'bg-white/25'}`} />}</div><p className="text-[11px] text-white/45">{state.phase === 'lobby' ? occupant ? t('ready') : t('waiting') : t('scoreLine', { n: bw2ScoresOf(rounds)[seat] })}</p></div></div>; })}</div></section>
+            <section className={PANEL}><div className="mb-3 flex items-center justify-between"><h2 className={PANEL_TITLE}>{t('players')}</h2><span className={CHIP}><Users size={12} />{state.seats.filter(Boolean).length}/2</span></div><div className="space-y-2">{([0, 1] as BW2Side[]).map((seat) => { const occupant = state.seats[seat]; return <div key={seat} data-chat-seat={occupant?.id} className={`${playerRow(!!playing && toPlay === seat)} ${occupant ? '' : 'opacity-50'}`}><BW2Card color={seat === 0 ? 'black' : 'white'} size="sm" /><div className="min-w-0 flex-1"><div className="flex items-center gap-1.5"><p className="truncate text-sm font-extrabold">{seatName(seat)}{occupant?.id === me?.id ? ` (${t('me')})` : ''}</p>{seat === 0 && <Crown size={12} className="shrink-0 text-[#f2c14e]" />}{occupant && <span className={`h-1.5 w-1.5 rounded-full ${online.has(occupant.id) ? 'bg-[#3ddc97]' : 'bg-white/25'}`} />}</div><p className="text-[11px] text-white/45">{state.phase === 'lobby' ? occupant ? t('ready') : t('waiting') : t('scoreLine', { n: bw2ScoresOf(rounds)[seat] })}</p></div></div>; })}</div></section>
             {playing && mySeat !== null && <BW2GaugePanel names={names} me={view} bank={state.bank} gauges={state.gauges} />}
             {playing && mySeat !== null && <BW2RoundLog rounds={rounds} me={view} />}
             <section className={NOTE}><h2 className={PANEL_TITLE}>{tb('quickRules')}</h2><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{(t.raw('quick') as string[]).map((rule, index) => <li key={rule} className="flex gap-3"><span className="font-mono text-[#ef3340]">0{index + 1}</span><span className="break-keep">{rule}</span></li>)}</ol></section>

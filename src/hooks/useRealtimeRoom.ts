@@ -7,6 +7,7 @@ import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
 import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypto';
 import { setRoomOpen, setRoomOpponents } from '@/lib/stats';
 import { isOpenRoom } from '@/lib/openRooms';
+import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatPeers } from '@/lib/roomChat';
 
 /**
  * Host-authoritative room over Supabase Realtime (broadcast + presence).
@@ -108,6 +109,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   }), []);
 
   const lastChange = useRef(0);
+  const emoteRef = useRef<((text: string) => void) | null>(null); // for the chat drawer's quick reactions
   // Encrypted per-seat secrets (only used when the engine defines privateFor).
   const keysRef = useRef<Promise<{ privateKey: CryptoKey; pub: string }> | null>(null);
   const peerPubs = useRef(new Map<string, string>()); // peer id -> public key
@@ -198,6 +200,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       const hostMeta = Object.entries(presence).find(([, metas]) => metas.some((meta) => meta.host));
       if (hostMeta?.[1][0]?.pub) peerPubs.current.set('__host__', hostMeta[1][0].pub);
       setPeers(list);
+      setChatPeers(chatToken, list);
       setHostOnline(Object.values(presence).some((metas) => metas.some((meta) => meta.host)));
       if (meRef.current?.isHost && stateRef.current) {
         const next = engine.syncSeats(stateRef.current, list);
@@ -226,6 +229,35 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       if (meRef.current?.isHost && stateRef.current) { channel.send({ type: 'broadcast', event: 'state', payload: engine.redact ? engine.redact(stateRef.current) : stateRef.current }); sendSecrets(stateRef.current); }
     });
 
+    // Chat: broadcast only, never stored. Each sender is flood-checked on both ends.
+    const chatLogs = new Map<string, { at: number; text: string }[]>();
+    const logChat = (from: string, at: number, text: string) => chatLogs.set(from, [...(chatLogs.get(from) ?? []), { at, text }].slice(-8));
+    const chatToken = openChat(id, (raw): ChatBlock | null => {
+      const text = cleanChat(raw);
+      const self = meRef.current;
+      if (!text || !self) return null;
+      const at = Date.now();
+      const block = floodCheck(chatLogs.get(self.id) ?? [], at, text);
+      if (block) return block;
+      logChat(self.id, at, text);
+      const message = { from: self.id, uid: uidRef.current, name: self.name, text };
+      channel.send({ type: 'broadcast', event: 'chat', payload: message });
+      pushChat(chatToken, { ...message, key: `${self.id}-${at}`, at, mine: true });
+      return null;
+    }, (text) => emoteRef.current?.(text));
+    channel.on('broadcast', { event: 'chat' }, ({ payload }) => {
+      const from = typeof payload?.from === 'string' ? payload.from : '';
+      const text = typeof payload?.text === 'string' ? cleanChat(payload.text) : '';
+      if (!from || !text || from === meRef.current?.id) return;
+      const at = Date.now();
+      // Received 'repeat' is let through (the sender already blocks it); speed limits are not.
+      const block = floodCheck(chatLogs.get(from) ?? [], at, text, true);
+      if (block === 'fast' || block === 'burst') return;
+      logChat(from, at, text);
+      const name = typeof payload.name === 'string' ? payload.name.slice(0, 16) : '';
+      pushChat(chatToken, { key: `${from}-${at}`, from, uid: typeof payload.uid === 'string' ? payload.uid : undefined, name, text, at, mine: false });
+    });
+
     channel.subscribe(async (result) => {
       if (result === 'SUBSCRIBED') {
         setStatus('online');
@@ -237,7 +269,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       } else if (result === 'CHANNEL_ERROR' || result === 'TIMED_OUT') setStatus('error');
     });
 
-    return () => { channelRef.current = null; supabase.removeChannel(channel); };
+    return () => { channelRef.current = null; closeChat(chatToken); supabase.removeChannel(channel); };
   }, [engine, code, defaultName, apply, commit, sendSecrets, showGuestView, keyFor, presenceMeta]);
 
   // The host enforces the turn limit for everyone.
@@ -269,6 +301,8 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     lastEmote.current = now;
     channelRef.current?.track({ ...presenceMeta(identity), emote: text.slice(0, 4), emoteAt: now });
   }, [presenceMeta]);
+
+  useEffect(() => { emoteRef.current = emote; }, [emote]);
 
   const rename = useCallback((name: string) => {
     const identity = meRef.current;

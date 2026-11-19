@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Clock3, Copy, Crown, Flag, Info, Loader2, RotateCcw, Share2, Swords, Users, WifiOff } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import RoomEmotes from '@/components/RoomEmotes';
 import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
@@ -23,7 +22,7 @@ export default function GyulhapRoomView({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useGyulhapRoom(code, defaultName);
+  const { status, state, hostOnline, me, mySeat, dispatch, rename } = useGyulhapRoom(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const [selection, setSelection] = useState<{ key: string; picks: number[] }>({ key: '', picks: [] });
   const [name, setName] = useState('');
@@ -57,7 +56,7 @@ export default function GyulhapRoomView({ code }: { code: string }) {
   const canStart = activeCount >= 2;
 
   return <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('255,207,63') }}>
-    <RoomEmotes peers={peers} onEmote={emote} />
+    
     <GameHeader backHref="/gyulhap" backLabel={tc('gyulhap')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 2–4 · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}>
@@ -72,7 +71,7 @@ export default function GyulhapRoomView({ code }: { code: string }) {
           {state.phase === 'finished' && (me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3`}><RotateCcw size={14} />{t('rematch')}</button> : <p className="text-center text-xs text-white/45">{t('rematchWait')}</p>)}
         </div>}
       </section>
-      <aside className="flex flex-col gap-4"><section className={PANEL}><div className="mb-3 flex items-center justify-between"><p className={PANEL_TITLE}>{t('players')}</p><span className={CHIP}><Users size={12} />{activeCount}/4</span></div>{Array.from({ length: state.phase === 'lobby' ? 4 : state.playerCount }, (_, seat) => <div key={seat} className={`${playerRow(state.turn === seat && state.phase === 'playing')} mb-2`}><span className="h-3 w-3 rounded-full" style={{ background: COLORS[seat] }} /><span className="min-w-0 flex-1 truncate text-sm font-black">{seatName(seat)}</span>{seat === 0 && <Crown size={12} className="text-[#f2c14e]" />}</div>)}</section>
+      <aside className="flex flex-col gap-4"><section className={PANEL}><div className="mb-3 flex items-center justify-between"><p className={PANEL_TITLE}>{t('players')}</p><span className={CHIP}><Users size={12} />{activeCount}/4</span></div>{Array.from({ length: state.phase === 'lobby' ? 4 : state.playerCount }, (_, seat) => <div key={seat} data-chat-seat={state.seats[seat]?.id} className={`${playerRow(state.turn === seat && state.phase === 'playing')} mb-2`}><span className="h-3 w-3 rounded-full" style={{ background: COLORS[seat] }} /><span className="min-w-0 flex-1 truncate text-sm font-black">{seatName(seat)}</span>{seat === 0 && <Crown size={12} className="text-[#f2c14e]" />}</div>)}</section>
         {me?.isHost && state.phase !== 'playing' && <section className={PANEL}><p className={PANEL_TITLE}>{t('turnTime')}</p><div className="mt-3 grid grid-cols-3 gap-1.5">{GYUL_TURN_OPTIONS.map((sec) => <button key={sec} onClick={() => dispatch({ t: 'config', turnSec: sec })} className={`py-2 ${seg(state.turnSec === sec)}`}>{sec}s</button>)}</div></section>}
         <section className={PANEL}><p className="flex items-center gap-1.5 text-[10px] font-black tracking-[.16em] text-white/35"><Info size={12} />{tg('tooltipsTitle')}</p><ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(tg.raw('roomTips') as string[]).map((tip) => <li key={tip}>· {tip}</li>)}</ul></section>
         <section className={NOTE}><p className={PANEL_TITLE}>{tg('quickRules')}</p><ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(tg.raw('quick') as string[]).map((rule) => <li key={rule}>· {rule}</li>)}</ul></section>

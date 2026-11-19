@@ -29,7 +29,7 @@ function describe(e: PbEvent | null, s: PbState) {
   }
 }
 
-export function PiggyTable({ s, me: seat, onAct, onAgain }: { s: PbState; me: number | null; onAct: (a: PbAction) => void; onAgain?: () => void }) {
+export function PiggyTable({ s, me: seat, onAct, onAgain, seatIds }: { s: PbState; me: number | null; onAct: (a: PbAction) => void; onAgain?: () => void; seatIds?: (string | undefined)[] }) {
   const me = seat ?? 0;
   const spectator = seat === null;
   const [now, setNow] = useState(() => Date.now());
@@ -101,7 +101,7 @@ export function PiggyTable({ s, me: seat, onAct, onAgain }: { s: PbState; me: nu
               const buzz = !!event && event.k === 'doubt' && event.seat === seat;
               const active = s.turn === seat && s.phase !== 'finished';
               return (
-                <div key={seat} className={`relative flex flex-col items-center ${cls}`}>
+                <div key={seat} data-chat-seat={seatIds?.[seat]} className={`relative flex flex-col items-center ${cls}`}>
                   <div className={`mb-1 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black ${active ? 'bg-[#ffd84a] text-[#2a1d00]' : 'bg-black/40 text-white/80'}`}>
                     {active && <span className="rounded-full bg-[#ff3b5c] px-1.5 text-[9px] text-white">차례</span>}
                     <span className="max-w-[72px] truncate">{p.name}</span>

@@ -6,7 +6,7 @@ import { BookOpen, Bot, DoorOpen, KeyRound, Link2, Loader2, Play, RefreshCw, Use
 import { useRouter } from '@/i18n/routing';
 import type { GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
-import { type OpenRoomRow, listOpenRooms } from '@/lib/openRooms';
+import { type OpenRoomRow, listOpenRooms, saveTitle } from '@/lib/openRooms';
 import OpenRoomPanel from './OpenRoomPanel';
 import OpenPracticeShell from './OpenPractice';
 import AuthButton from './AuthButton';
@@ -43,6 +43,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   const [openRoom, setOpenRoom] = useState<{ code: string; variant: number } | null>(null);
   const [openRooms, setOpenRooms] = useState<OpenRoomRow[] | null>(null);
   const [listTick, setListTick] = useState(0);
+  const [roomTitle, setRoomTitle] = useState(''); // title for the open room about to be created
   const { user, configured } = useAuth();
   const signedIn = !!user || !configured; // open rooms need an account so results are kept for both sides
 
@@ -80,6 +81,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     setCreating(label);
     try {
       const code = await modes.rooms[variant].create();
+      if (roomTitle.trim()) saveTitle(code, roomTitle.trim());
       setCreating(null);
       enterOpenRoom(code, variant);
     } catch { setCreating(null); }
@@ -194,13 +196,22 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                   <AuthButton source="game_open" />
                 </div>
               )}
-              <div className={`mt-4 grid gap-2 ${modes.rooms.length > 1 ? 'sm:grid-cols-2' : ''}`}>
-                {modes.rooms.map((room, variant) => (
-                  <button key={room.label} type="button" disabled={creating !== null || !signedIn} onClick={() => createOpenRoom(variant)} className={secondary}>
-                    {creating === `open-${variant}` ? <Loader2 size={15} className="animate-spin" /> : <DoorOpen size={15} />}
-                    {creating === `open-${variant}` ? t('creating') : modes.rooms.length > 1 ? t('openCreateFor', { label: t(`short_${room.label}`) }) : t('openCreate')}
-                  </button>
-                ))}
+              {/* Name the room and create it on one line (games with several room types get one button each). */}
+              <div className={`mt-4 flex flex-col gap-2 ${modes.rooms.length > 1 ? '' : 'sm:flex-row'}`}>
+                <input
+                  value={roomTitle} maxLength={30} onChange={(event) => setRoomTitle(event.target.value)} disabled={!signedIn}
+                  onKeyDown={(event) => { if (event.key === 'Enter' && modes.rooms.length === 1 && creating === null && signedIn) createOpenRoom(0); }}
+                  placeholder={t('openTitlePlaceholder')} aria-label={t('openTitleLabel')}
+                  className={`min-w-0 flex-1 rounded-md border px-3 py-2.5 text-sm font-bold outline-none focus:border-(--accent) disabled:opacity-40 ${dark ? 'border-white/15 bg-black/30 text-white placeholder:text-white/35' : 'border-black/15 bg-white placeholder:text-black/35'}`}
+                />
+                <div className={`grid gap-2 ${modes.rooms.length > 1 ? 'grid-cols-2' : 'sm:shrink-0'}`}>
+                  {modes.rooms.map((room, variant) => (
+                    <button key={room.label} type="button" disabled={creating !== null || !signedIn} onClick={() => createOpenRoom(variant)} className={`${secondary} whitespace-nowrap`}>
+                      {creating === `open-${variant}` ? <Loader2 size={15} className="animate-spin" /> : <DoorOpen size={15} />}
+                      {creating === `open-${variant}` ? t('creating') : modes.rooms.length > 1 ? t('openCreateFor', { label: t(`short_${room.label}`) }) : t('openCreate')}
+                    </button>
+                  ))}
+                </div>
               </div>
             </section>
           )}

@@ -15,7 +15,6 @@ import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, WELL, seg } from '../ui/gameUi';
 import AwayBanner from '../ui/AwayBanner';
 import RoomAlerts from '../RoomAlerts';
-import RoomEmotes from '@/components/RoomEmotes';
 import RussianRouletteResult from './RussianRouletteResult';
 import RussianRouletteTable from './RussianRouletteTable';
 import RouletteReplay from './RouletteReplay';
@@ -29,7 +28,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
   const to = useTranslations('RussianRouletteOnline');
   const locale = useLocale();
   const [defaultName] = useState(() => `${to('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useRussianRouletteRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useRussianRouletteRoom(code, defaultName);
   const [replaying, setReplaying] = useState(false);
   if (replaying && state?.phase !== 'finished') setReplaying(false); // a rematch closes the replay
   const showReplay = replaying && state?.phase === 'finished';
@@ -63,7 +62,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
 
   return <div className={SHELL} style={RR_ROOT_STYLE}>
     <WallGoShards tint={RR_SHARD_TINT} />
-    <RoomAlerts alerts={alerts} accent={RR_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
+    <RoomAlerts alerts={alerts} accent={RR_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
     <GameHeader backHref="/russian-roulette" backLabel={t('title')} title={t('title')} subtitle={<span className="font-mono">ONLINE · {code.toUpperCase()}</span>}>
       <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
       <BugReport /><LanguageSwitcher compact dark />
@@ -81,7 +80,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
             <div className="mt-3 rounded-md border border-white/10 bg-[#0b0b0e] p-3"><p className="text-[9px] font-black tracking-widest text-white/25">INVITE CODE</p><p className="mt-1 font-mono text-3xl font-black uppercase tracking-[.25em] text-(--accent)">{code}</p></div>
             <div className="mt-2 grid grid-cols-2 gap-2"><button onClick={copyLink} className={`py-2.5 ${BTN}`}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? to('copied') : to('copy')}</button><button onClick={shareLink} className={`py-2.5 ${BTN_ACCENT}`}><Share2 size={14} />{to('share')}</button></div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{state.seats.map((seat, i) => <div key={i} className={`flex min-w-0 items-center gap-2 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/15 bg-white/[.04]' : 'border-dashed border-white/10 text-white/30'}`}>{seat ? <UserRound size={13} /> : <Bot size={13} />}<span className="min-w-0 flex-1 truncate text-[11px] font-bold">{seat ? seat.id === me?.id ? `${seat.name} (${t('you')})` : seat.name : to('aiSeat')}</span>{i === 0 && <Crown size={10} className="text-[#f2c14e]" />}{seat && <i className={`h-1.5 w-1.5 rounded-full ${online.has(seat.id) ? 'bg-[#3ddc97]' : 'bg-white/20'}`} />}</div>)}</div>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{state.seats.map((seat, i) => <div key={i} data-chat-seat={seat?.id} className={`flex min-w-0 items-center gap-2 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/15 bg-white/[.04]' : 'border-dashed border-white/10 text-white/30'}`}>{seat ? <UserRound size={13} /> : <Bot size={13} />}<span className="min-w-0 flex-1 truncate text-[11px] font-bold">{seat ? seat.id === me?.id ? `${seat.name} (${t('you')})` : seat.name : to('aiSeat')}</span>{i === 0 && <Crown size={10} className="text-[#f2c14e]" />}{seat && <i className={`h-1.5 w-1.5 rounded-full ${online.has(seat.id) ? 'bg-[#3ddc97]' : 'bg-white/20'}`} />}</div>)}</div>
           <form onSubmit={(event) => { event.preventDefault(); rename(nameDraft); setNameDraft(''); }} className="mt-4 flex gap-2"><input value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} maxLength={16} placeholder={me?.name ?? ''} aria-label={to('nickname')} className={INPUT} /><button className={`px-4 ${BTN}`}>{to('rename')}</button></form>
           {me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`mt-4 w-full py-3.5 text-sm ${BTN_ACCENT}`}>{humans < 6 ? to('startWithAi', { n: 6 - humans }) : to('start')}</button> : <p className="mt-4 text-center text-sm text-white/40">{mySeat === null ? to('roomFull') : to('waitingHost')}</p>}
         </section>

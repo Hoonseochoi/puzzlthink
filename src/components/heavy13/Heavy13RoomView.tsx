@@ -11,7 +11,6 @@ import { H13_PLAYER_OPTIONS, H13_TURN_OPTIONS, redactH13 } from '@/lib/heavy13Ro
 import { useHeavy13Room } from '@/hooks/useHeavy13Room';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
-import RoomEmotes from '@/components/RoomEmotes';
 import AwayBanner from '../ui/AwayBanner';
 import { reportGame } from '@/lib/stats';
 import { ranking } from '@/lib/heavy13';
@@ -33,7 +32,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
   const to = useTranslations('Heavy13Online');
   const locale = useLocale();
   const [defaultName] = useState(() => `${to('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useHeavy13Room(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useHeavy13Room(code, defaultName);
   const [shareUrl, setShareUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -80,7 +79,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={H_ROOT_STYLE}>
       <WallGoShards tint={SHARD_TINT} />
-      <RoomAlerts alerts={alerts} accent={SAND} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
+      <RoomAlerts alerts={alerts} accent={SAND} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
       <GameHeader backHref="/heavy13" backLabel={t('title')} title={t('title')} subtitle={`ONLINE · ${code.toUpperCase()}`}>
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
         <BugReport /><LanguageSwitcher compact dark />
@@ -109,7 +108,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
             </div>
             <div className={`grid gap-2 ${playerCount === 4 ? 'grid-cols-2 sm:grid-cols-4' : playerCount <= 6 ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'}`}>
               {view.seats.slice(0, playerCount).map((seat, i) => (
-                <div key={i} className={`flex items-center gap-2 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/15 bg-white/[0.04]' : 'border-dashed border-white/15 bg-transparent text-white/40'}`}>
+                <div key={i} data-chat-seat={seat?.id} className={`flex items-center gap-2 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/15 bg-white/[0.04]' : 'border-dashed border-white/15 bg-transparent text-white/40'}`}>
                   {seat ? <UserRound size={14} /> : fillAi ? <Bot size={14} /> : <UserRound size={14} className="opacity-40" />}
                   <span className="min-w-0 flex-1 truncate text-xs font-bold">{seat ? (seat.id === me?.id ? `${seat.name} (${t('you')})` : seat.name) : fillAi ? to('aiSeat') : to('friendSeat')}</span>
                   {i === 0 && <Crown size={11} className="text-[#f2c14e]" />}
