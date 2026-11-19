@@ -3,7 +3,9 @@ import { getSupabase } from './supabase';
 
 export type SlitherRun = { run: string; challenge: string; seed: number; dots: number; limit_ms?: number; holder?: string };
 /** `rank`/`total`/`maps`: my place by boards owned after a clear. */
-export type FinishResult = { ok: boolean; ms: number; rank: number | null; total: number | null; maps?: number | null };
+export type FinishResult = { ok: boolean; ms: number; rank: number | null; total: number | null; maps?: number | null; flagged?: boolean };
+/** One move for the server replay: edge changes, or a hint taken at (r, c). */
+export type ReplayStep = { c: [number, number][] } | { h: [number, number] };
 /** Ranked by boards owned (맵 수집). `board`: one of their boards to try. */
 export type RankRow = { rank: number; nickname: string; maps: number; is_me: boolean; board: string | null; board_ms: number | null; tried: boolean; prev_rank?: number | null };
 export type BoardRow = { id: string; holder: string; holder_ms: number; first_name: string; attempts: number; takeovers: number; published_at: string; tried: boolean; mine?: boolean };
@@ -17,7 +19,15 @@ async function call<T>(name: string, args: Record<string, unknown> = {}): Promis
 
 export const startNew = () => call<SlitherRun>('slither_start_new');
 export const startBeat = (id: string) => call<SlitherRun>('slither_start_beat', { p_challenge: id });
+/** Ends a run without a clear (give up, time up, leaving). */
 export const finishRun = (run: string, cleared: boolean, hints: number) => call<FinishResult>('slither_finish', { p_run: run, p_cleared: cleared, p_hints: hints });
+/** A clear: the server replays every move on its own copy of the board before it counts. */
+export async function finishCleared(run: string, steps: ReplayStep[]): Promise<{ data: FinishResult | null; error: string | null }> {
+  const supabase = getSupabase();
+  if (!supabase) return { data: null, error: 'offline' };
+  const { data, error } = await supabase.functions.invoke('slither-finish', { body: { run, steps } });
+  return { data: error ? null : (data as FinishResult), error: error ? error.message : null };
+}
 export const fetchRanking = (limit = 10) => call<RankRow[]>('slither_ranking', { p_limit: limit });
 export const fetchMe = () => call<{ rank: number; maps: number; total: number }[]>('slither_me');
 export const fetchBoard = (id: string) => call<BoardRow[]>('slither_board', { p_id: id });
