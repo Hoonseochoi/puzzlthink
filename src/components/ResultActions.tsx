@@ -8,6 +8,7 @@ import { useRouter } from '@/i18n/routing';
 import { displayName, useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
 import { clearPendingGame } from '@/lib/stats';
+import { CoffeeNudge } from './SupportLink';
 
 /** "Keep this on record?" card with Google sign-in, shown on result screens to signed-out players. */
 function RecordPrompt() {
@@ -96,6 +97,7 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
           </button>
         </div>
       </div>
+      <CoffeeNudge className="mt-4" />
     </>
   );
 }
