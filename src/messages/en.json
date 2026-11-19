@@ -3624,6 +3624,25 @@
     ],
     "disclaimer": "Black & White II is PUZZLTHINK's web adaptation of a game format shown on TV and is not affiliated with the broadcaster or producers."
   },
+  "RoomChat": {
+    "title": "Chat",
+    "notSaved": "Only visible in this room, never saved",
+    "open": "Open chat",
+    "close": "Close",
+    "turnOff": "Turn off",
+    "turnOn": "Turn on",
+    "offDesc": "Chat is off. You won't see anyone's messages.",
+    "empty": "No messages yet. Say hi!",
+    "placeholder": "Message (100 chars)",
+    "send": "Send",
+    "mute": "Mute {name}",
+    "mutedHere": "Hiding messages from {n} muted player(s)",
+    "mutedSome": "You have muted players",
+    "unmuteAll": "Unmute all",
+    "block_fast": "Too fast. Wait a moment before sending.",
+    "block_burst": "Too many messages. Try again in a few seconds.",
+    "block_repeat": "You can't send the same message again and again."
+  },
   "OpenRoom": {
     "guest": "Guest",
     "close": "Close",
