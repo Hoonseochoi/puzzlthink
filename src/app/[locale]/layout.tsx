@@ -17,6 +17,7 @@ import LiveIsland from '@/components/LiveIsland';
 import { routing } from '@/i18n/routing';
 import { GA_ID } from '@/lib/analytics';
 import '../globals.css';
+import { ADSENSE_CLIENT } from '@/lib/adsense';
 
 // Search-console ownership tags. These codes are public (they sit in the page HTML); an env var overrides.
 const GOOGLE_VERIFY = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
@@ -60,6 +61,12 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      {ADSENSE_CLIENT && (
+        <head>
+          <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
+          <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`} crossOrigin="anonymous" />
+        </head>
+      )}
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#f3f0e8] font-sans text-[#17201e] antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
