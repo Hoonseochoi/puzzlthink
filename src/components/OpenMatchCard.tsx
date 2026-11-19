@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { DoorOpen, Loader2, LogIn, Plus, RefreshCw, Swords, X } from 'lucide-react';
+import { DoorOpen, Loader2, LogIn, MessageCircle, Plus, RefreshCw, Sparkles, Swords, X } from 'lucide-react';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { type OpenRoomAnyRow, listAllOpenRooms, saveTitle } from '@/lib/openRooms';
 import AuthButton from './AuthButton';
@@ -55,7 +55,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   const { user, configured } = useAuth();
   const signedIn = !!user || !configured;
   const [rooms, setRooms] = useState<OpenRoomAnyRow[] | null>(null);
-  const [dialog, setDialog] = useState<'join' | 'create' | null>(null);
+  const [dialog, setDialog] = useState<'join' | 'create' | 'patch' | null>(null);
   const [creating, setCreating] = useState<string | null>(null);
   const [title, setTitle] = useState(''); // room title, set before picking the game
   const [tick, setTick] = useState(0);
@@ -101,7 +101,14 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
 
       <div className="relative mt-4 flex items-end justify-between gap-3 sm:mt-6">
         <div className="min-w-0">
-          <h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{t('title')}</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{t('title')}</h2>
+            {/* Latest update: tap for the patch notes. */}
+            <button type="button" onClick={() => setDialog('patch')} className="relative inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#3ddc97] to-[#2bb8ff] px-2.5 py-1 text-[10px] font-black tracking-[0.12em] text-[#06231a] shadow-[0_0_16px_rgba(61,220,151,.45)] transition hover:brightness-110 active:scale-95">
+              <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ff4d5e] opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-[#ff4d5e]" /></span>
+              <Sparkles size={11} />PATCH
+            </button>
+          </div>
           <p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-white/60 sm:mt-2 sm:text-sm sm:leading-6">{t('desc')}</p>
         </div>
         <div className="shrink-0 text-right">
@@ -137,13 +144,30 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
         <div role="dialog" aria-modal="true" className="fixed inset-0 z-[60] flex items-end justify-center bg-black/55 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setDialog(null)}>
           <section onClick={(event) => event.stopPropagation()} className="max-h-[86svh] w-full max-w-lg overflow-y-auto rounded-t-[24px] bg-[#f9f7f1] p-5 text-[#17201e] shadow-2xl sm:rounded-[24px] sm:p-6">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="flex items-center gap-2 text-lg font-black">{dialog === 'join' ? <DoorOpen size={18} /> : <Swords size={18} />}{dialog === 'join' ? t('joinTitle') : t('createTitle')}</h3>
+              <h3 className="flex items-center gap-2 text-lg font-black">{dialog === 'join' ? <DoorOpen size={18} /> : dialog === 'patch' ? <Sparkles size={18} /> : <Swords size={18} />}{dialog === 'join' ? t('joinTitle') : dialog === 'patch' ? t('patchTitle') : t('createTitle')}</h3>
               <div className="flex items-center gap-1">
                 {dialog === 'join' && <button type="button" onClick={() => setTick((n) => n + 1)} className="rounded-md p-2 text-black/40 hover:text-black" aria-label={tg('openRefresh')}><RefreshCw size={15} /></button>}
                 <button type="button" onClick={() => setDialog(null)} className="rounded-md p-2 text-black/40 hover:text-black" aria-label={t('close')}><X size={16} /></button>
               </div>
             </div>
 
+            {dialog === 'patch' ? (
+              <>
+                <p className="mt-1 text-[11px] font-bold text-black/40">{t('patchDate')}</p>
+                <ul className="mt-4 space-y-2.5">
+                  {(['chat', 'bubble', 'safe', 'title'] as const).map((key, i) => (
+                    <li key={key} className="flex gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3">
+                      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white">{i === 0 ? <MessageCircle size={14} /> : <span className="font-mono text-[11px] font-black">{i + 1}</span>}</span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-black">{t(`patch_${key}`)}</p>
+                        <p className="mt-0.5 break-keep text-xs leading-5 text-black/55">{t(`patch_${key}Desc`)}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <button type="button" onClick={() => setDialog('create')} className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#17201e] py-3 text-sm font-black text-white"><Plus size={15} />{t('patchTry')}</button>
+              </>
+            ) : <>
             {!signedIn && (
               <div className="mt-4 flex flex-col items-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-3 text-center sm:flex-row sm:justify-between sm:text-left">
                 <p className="flex items-center gap-1.5 break-keep text-xs font-bold text-black/60"><LogIn size={14} className="shrink-0" />{tg('openLogin')}</p>
@@ -205,6 +229,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
               </>
             )}
             <p className="mt-4 break-keep text-center text-[11px] leading-5 text-black/45">{t('note')}</p>
+            </>}
           </section>
         </div>
       )}

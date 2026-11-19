@@ -3673,6 +3673,17 @@
     "editTitle": "Edit room title"
   },
   "OpenMatch": {
+    "patchTitle": "What's new",
+    "patchDate": "Update · Nov 20, 2026",
+    "patch_chat": "Chat in open rooms",
+    "patch_chatDesc": "Talk in the lobby and during the game. Open and close it from the Chat tab on the right edge; new messages show a count on the tab. Works in friend rooms too.",
+    "patch_bubble": "Speech bubbles",
+    "patch_bubbleDesc": "Messages and quick reactions pop up as a bubble over the sender's player box.",
+    "patch_safe": "Flood control · mute · chat off",
+    "patch_safeDesc": "Sending too fast or repeating yourself is blocked. Mute anyone, or turn chat off. Chat is never saved.",
+    "patch_title": "Name your room first",
+    "patch_titleDesc": "In Create room, name the room, then pick a game: the open room opens with that name.",
+    "patchTry": "Create a room",
     "stepTitle": "Name the room (optional)",
     "stepGame": "Pick a game to open the room",
     "title": "Open Match",
