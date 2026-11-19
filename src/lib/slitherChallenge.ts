@@ -3,7 +3,9 @@ import { getSupabase } from './supabase';
 
 export type SlitherRun = { run: string; challenge: string; seed: number; dots: number; limit_ms?: number; holder?: string };
 /** `rank`/`total`/`maps`: my place by boards owned after a clear. */
-export type FinishResult = { ok: boolean; ms: number; rank: number | null; total: number | null; maps?: number | null; flagged?: boolean };
+export type FinishResult = { ok: boolean; ms: number; rank: number | null; total: number | null; maps?: number | null; flagged?: boolean; rival?: string | null; took_n?: number | null; lost_n?: number | null };
+/** A player I have traded boards with: how often I took theirs, and they took mine. */
+export type RivalRow = { nickname: string; took: number; lost: number; last_at: string };
 /** One move for the server replay: edge changes, or a hint taken at (r, c). */
 export type ReplayStep = { c: [number, number][] } | { h: [number, number] };
 /** Ranked by boards owned (맵 수집). `board`: one of their boards to try. */
@@ -29,6 +31,7 @@ export async function finishCleared(run: string, steps: ReplayStep[]): Promise<{
   return { data: error ? null : (data as FinishResult), error: error ? error.message : null };
 }
 export const fetchRanking = (limit = 10) => call<RankRow[]>('slither_ranking', { p_limit: limit });
+export const fetchRivals = (limit = 5) => call<RivalRow[]>('slither_rivals', { p_limit: limit });
 export const fetchMe = () => call<{ rank: number; maps: number; total: number }[]>('slither_me');
 export const fetchBoard = (id: string) => call<BoardRow[]>('slither_board', { p_id: id });
 /** Link that opens one board ready to play ("○○님의 맵 해보기"). */

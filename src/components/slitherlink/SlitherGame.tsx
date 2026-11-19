@@ -16,7 +16,7 @@ import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accent
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { CoffeeNudge } from '@/components/SupportLink';
 import { SLITHER_SIZES, type Mark, type SlitherSize, type Puzzle, formatClock, generatePuzzle, hintEdges, isSolved, loopOrder, newSeed } from '@/lib/slitherlink';
-import { type BoardRow, type FinishResult, type RankRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, finishCleared, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
+import { type BoardRow, type FinishResult, type RankRow, type RivalRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, fetchRivals, finishCleared, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
 import { reportGame } from '@/lib/stats';
 import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool } from './SlitherBoard';
 
@@ -76,6 +76,7 @@ export default function SlitherGame() {
   const [ranking, setRanking] = useState<RankRow[] | null>(null);
   const [me, setMe] = useState<{ rank: number; maps: number; total: number } | null>(null);
   const [boards, setBoards] = useState<BoardRow[] | null>(null);
+  const [rivals, setRivals] = useState<RivalRow[]>([]);
   const [listTick, setListTick] = useState(0);
   const [focus, setFocus] = useState<BoardRow | null>(null); // one board picked from a link or the ranking
   const timers = useRef<number[]>([]);
@@ -153,6 +154,7 @@ export default function SlitherGame() {
     fetchRanking(10).then(({ data }) => { if (alive) setRanking(data ?? []); });
     if (mode === 'beat') fetchBoards(40).then(({ data }) => { if (alive) setBoards(data ?? []); });
     if (user) fetchMe().then(({ data }) => { if (alive) setMe(data?.[0] ?? null); });
+    if (user) fetchRivals(5).then(({ data }) => { if (alive) setRivals(data ?? []); });
     return () => { alive = false; };
   }, [mode, user, listTick]);
 
@@ -384,6 +386,10 @@ export default function SlitherGame() {
                       {result.ok ? (mode === 'beat' ? t('beatWin') : t('solvedTitle', { time: time(result.ms) })) : result.flagged ? t('flaggedTitle') : t('tooSlow')}</p>
                     {result.ok && result.rank && <p className="mt-2 inline-block rounded-full bg-(--accent)/15 px-4 py-1.5 text-sm font-black text-(--accent)">{t('rankNow', { rank: result.rank, total: result.total ?? result.rank, n: result.maps ?? 1 })}</p>}
                     {result.ok && <p className="mt-3 flex items-center justify-center gap-1.5 text-base font-black text-[#ffcf3f]"><Crown size={17} />{t('ownerNow', { name: myName })}</p>}
+                    {result.ok && result.rival && result.took_n ? (
+                      <p className="mt-2 inline-flex flex-wrap items-center justify-center gap-x-1.5 rounded-full bg-[#ff6b5a]/15 px-4 py-1.5 text-sm font-black text-[#ff9a8c]"><Swords size={15} />
+                        {t('rivalTook', { name: result.rival, n: result.took_n })}{result.lost_n ? <span className="font-bold text-white/55">· {t('rivalLost', { name: result.rival, n: result.lost_n })}</span> : null}</p>
+                    ) : null}
                     <p className="mt-2 break-keep text-xs text-white/50">{result.ok ? (mode === 'beat' ? t('beatWinDesc', { time: time(result.ms) }) : t('publishedDesc')) : result.flagged ? t('flaggedDesc') : t('tooSlowDesc', { time: time(result.ms) })}</p>
                     {result.ok && run && (
                       <div className="mt-4 rounded-[14px] border border-(--accent)/30 bg-(--accent)/[.06] p-3">
@@ -415,6 +421,17 @@ export default function SlitherGame() {
 
         <aside className="flex flex-col gap-4">
           {mode !== 'practice' && rankingPanel}
+          {mode !== 'practice' && rivals.length > 0 && (
+            <section className={PANEL}>
+              <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('rivalsTitle')}</p><Swords size={14} className="text-[#ff9a8c]" /></div>
+              <ol className="mt-3 space-y-1">{rivals.map((row) => (
+                <li key={row.nickname + row.last_at} className="flex items-center gap-2 rounded-md bg-black/25 px-2.5 py-1.5 text-xs">
+                  <span className="min-w-0 flex-1 truncate font-bold">{row.nickname}</span>
+                  <span className="shrink-0 font-mono text-[11px]"><span className="text-[#7ee2ae]">{t('rivalTookShort', { n: row.took })}</span><span className="text-white/30"> · </span><span className="text-[#ff9a8c]">{t('rivalLostShort', { n: row.lost })}</span></span>
+                </li>
+              ))}</ol>
+            </section>
+          )}
           {mode === 'practice' && puzzle && (
             <section className={PANEL}>
               <p className={PANEL_TITLE}>{t('board')}</p>
