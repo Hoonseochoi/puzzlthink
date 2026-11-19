@@ -196,19 +196,22 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                   <AuthButton source="game_open" />
                 </div>
               )}
-              <input
-                value={roomTitle} maxLength={30} onChange={(event) => setRoomTitle(event.target.value)} disabled={!signedIn}
-                onKeyDown={(event) => { if (event.key === 'Enter' && modes.rooms.length === 1 && creating === null && signedIn) createOpenRoom(0); }}
-                placeholder={t('openTitlePlaceholder')} aria-label={t('openTitleLabel')}
-                className={`mt-4 w-full rounded-md border px-3 py-2.5 text-sm font-bold outline-none focus:border-(--accent) disabled:opacity-40 ${dark ? 'border-white/15 bg-black/30 text-white placeholder:text-white/35' : 'border-black/15 bg-white placeholder:text-black/35'}`}
-              />
-              <div className={`mt-2 grid gap-2 ${modes.rooms.length > 1 ? 'sm:grid-cols-2' : ''}`}>
-                {modes.rooms.map((room, variant) => (
-                  <button key={room.label} type="button" disabled={creating !== null || !signedIn} onClick={() => createOpenRoom(variant)} className={secondary}>
-                    {creating === `open-${variant}` ? <Loader2 size={15} className="animate-spin" /> : <DoorOpen size={15} />}
-                    {creating === `open-${variant}` ? t('creating') : modes.rooms.length > 1 ? t('openCreateFor', { label: t(`short_${room.label}`) }) : t('openCreate')}
-                  </button>
-                ))}
+              {/* Name the room and create it on one line (games with several room types get one button each). */}
+              <div className={`mt-4 flex flex-col gap-2 ${modes.rooms.length > 1 ? '' : 'sm:flex-row'}`}>
+                <input
+                  value={roomTitle} maxLength={30} onChange={(event) => setRoomTitle(event.target.value)} disabled={!signedIn}
+                  onKeyDown={(event) => { if (event.key === 'Enter' && modes.rooms.length === 1 && creating === null && signedIn) createOpenRoom(0); }}
+                  placeholder={t('openTitlePlaceholder')} aria-label={t('openTitleLabel')}
+                  className={`min-w-0 flex-1 rounded-md border px-3 py-2.5 text-sm font-bold outline-none focus:border-(--accent) disabled:opacity-40 ${dark ? 'border-white/15 bg-black/30 text-white placeholder:text-white/35' : 'border-black/15 bg-white placeholder:text-black/35'}`}
+                />
+                <div className={`grid gap-2 ${modes.rooms.length > 1 ? 'grid-cols-2' : 'sm:shrink-0'}`}>
+                  {modes.rooms.map((room, variant) => (
+                    <button key={room.label} type="button" disabled={creating !== null || !signedIn} onClick={() => createOpenRoom(variant)} className={`${secondary} whitespace-nowrap`}>
+                      {creating === `open-${variant}` ? <Loader2 size={15} className="animate-spin" /> : <DoorOpen size={15} />}
+                      {creating === `open-${variant}` ? t('creating') : modes.rooms.length > 1 ? t('openCreateFor', { label: t(`short_${room.label}`) }) : t('openCreate')}
+                    </button>
+                  ))}
+                </div>
               </div>
             </section>
           )}

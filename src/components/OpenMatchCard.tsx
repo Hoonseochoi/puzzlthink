@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { useLocale, useTranslations } from 'next-intl';
 import { DoorOpen, Loader2, LogIn, Plus, RefreshCw, Swords, X } from 'lucide-react';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
-import { type OpenRoomAnyRow, listAllOpenRooms } from '@/lib/openRooms';
+import { type OpenRoomAnyRow, listAllOpenRooms, saveTitle } from '@/lib/openRooms';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import { GAME_MODES, openRoomHref } from './gameModes';
@@ -57,6 +57,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   const [rooms, setRooms] = useState<OpenRoomAnyRow[] | null>(null);
   const [dialog, setDialog] = useState<'join' | 'create' | null>(null);
   const [creating, setCreating] = useState<string | null>(null);
+  const [title, setTitle] = useState(''); // room title, set before picking the game
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -71,7 +72,11 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   const go = (game: GameId, code: string, variant: number) => { window.location.assign(new URL(`/${locale}${openRoomHref(game, code, variant)}`, window.location.origin)); };
   const create = async (game: GameId, variant: number) => {
     setCreating(`${game}-${variant}`);
-    try { go(game, await GAME_MODES[game].rooms[variant].create(), variant); } catch { setCreating(null); }
+    try {
+      const code = await GAME_MODES[game].rooms[variant].create();
+      if (title.trim()) saveTitle(code, title.trim());
+      go(game, code, variant);
+    } catch { setCreating(null); }
   };
 
   const open = (rooms ?? []).filter((room) => room.game in GAME_MODES && room.players < room.capacity);
@@ -172,7 +177,15 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
                   })}
               </div>
             ) : (
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              <>
+              {/* Name the room first, then pick the game: picking it opens the room. */}
+              <label className="mt-4 block">
+                <span className="mb-1.5 flex items-center gap-1.5 text-[11px] font-black text-black/50"><b className="flex h-4 w-4 items-center justify-center rounded-full bg-[#17201e] text-[9px] text-white">1</b>{t('stepTitle')}</span>
+                <input value={title} maxLength={30} onChange={(event) => setTitle(event.target.value)} disabled={!signedIn || creating !== null}
+                  placeholder={tg('openTitlePlaceholder')} className="w-full rounded-2xl border border-black/15 bg-white px-3.5 py-3 text-sm font-bold outline-none placeholder:text-black/35 focus:border-[#17201e] disabled:opacity-40" />
+              </label>
+              <p className="mb-1.5 mt-4 flex items-center gap-1.5 text-[11px] font-black text-black/50"><b className="flex h-4 w-4 items-center justify-center rounded-full bg-[#17201e] text-[9px] text-white">2</b>{t('stepGame')}</p>
+              <div className="grid grid-cols-2 gap-2">
                 {ROOM_GAMES.flatMap((game) => GAME_MODES[game.id].rooms.map((room, variant) => {
                   const key = `${game.id}-${variant}`;
                   const many = GAME_MODES[game.id].rooms.length > 1;
@@ -189,6 +202,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
                   );
                 }))}
               </div>
+              </>
             )}
             <p className="mt-4 break-keep text-center text-[11px] leading-5 text-black/45">{t('note')}</p>
           </section>
