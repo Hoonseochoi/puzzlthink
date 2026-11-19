@@ -304,7 +304,13 @@
     "modeHexFriendDesc": "2–4 · buzzer",
     "hypeTag": "most played",
     "slitherlinkDescription": "The loop puzzle from the show, as it was. Join the dots into one loop that matches every number.",
-    "slitherlinkMeta": "Random-board challenge · take boards · practice"
+    "slitherlinkMeta": "Random-board challenge · take boards · practice",
+    "modeSlitherNew": "Challenge",
+    "modeSlitherNewDesc": "Claim a new board",
+    "modeSlitherBeat": "Take boards",
+    "modeSlitherBeatDesc": "Beat others’ boards",
+    "modeSlitherPractice": "Practice",
+    "modeSlitherPracticeDesc": "9×9–11×11"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
