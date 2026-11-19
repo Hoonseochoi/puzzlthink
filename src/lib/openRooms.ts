@@ -33,6 +33,19 @@ export async function listOpenRooms(game: string): Promise<OpenRoomRow[]> {
 
 export type OpenRoomAnyRow = OpenRoomRow & { game: string };
 
+/** Friend rooms with two or more people right now (each host pings once a minute). Null when it could not be read. */
+export async function countFriendRooms(): Promise<number | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('friend_rooms_live');
+  return error || typeof data !== 'number' ? null : data;
+}
+
+/** Host side: this friend room is in use (counted on the home card for 2½ minutes). */
+export function pingFriendRoom(room: string) {
+  getSupabase()?.rpc('friend_room_ping', { p_room: room }).then(() => {});
+}
+
 /** Open rooms of every game (home page card). Null when the list could not be read. */
 export async function listAllOpenRooms(): Promise<OpenRoomAnyRow[] | null> {
   const supabase = getSupabase();
