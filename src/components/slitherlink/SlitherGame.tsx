@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Check, Clock3, Crown, Eraser, Flag, History, Infinity as InfinityIcon, Lightbulb, Loader2, PenLine, RefreshCw, RotateCcw, SkipForward, Swords, Timer, Trash2, Trophy, X } from 'lucide-react';
 import AuthButton from '@/components/AuthButton';
 import { useAuth } from '@/components/AuthProvider';
 import BugReport from '@/components/BugReport';
+import ShareButtons from '@/components/ShareButtons';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
@@ -14,7 +15,7 @@ import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accent
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { CoffeeNudge } from '@/components/SupportLink';
 import { SLITHER_SIZES, type Mark, type SlitherSize, type Puzzle, formatClock, generatePuzzle, hintEdges, isSolved, loopOrder, newSeed } from '@/lib/slitherlink';
-import { type BoardRow, type FinishResult, type RankRow, type SlitherRun, countPractice, fetchBoards, fetchMe, fetchRanking, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
+import { type BoardRow, type FinishResult, type RankRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
 import { reportGame } from '@/lib/stats';
 import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool } from './SlitherBoard';
 
@@ -34,6 +35,9 @@ function frameAt(edgeCount: number, steps: Step[], at: number) {
   return { marks, locked };
 }
 
+/** Wall-clock time for the run timer (kept outside the component: it is only read in event handlers). */
+const clockNow = () => Date.now();
+
 const readMode = (): Mode => {
   const m = new URLSearchParams(window.location.search).get('mode');
   return m === 'practice' || m === 'beat' ? m : 'challenge';
@@ -47,7 +51,8 @@ const readMode = (): Mode => {
  */
 export default function SlitherGame() {
   const t = useTranslations('Slitherlink');
-  const { user, ready, configured } = useAuth();
+  const locale = useLocale();
+  const { user, ready, configured, nickname } = useAuth();
   const [mode, setMode] = useState<Mode>('challenge');
   const [size, setSize] = useState<SlitherSize>(9);
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
@@ -71,6 +76,7 @@ export default function SlitherGame() {
   const [me, setMe] = useState<{ rank: number; ms: number; total: number } | null>(null);
   const [boards, setBoards] = useState<BoardRow[] | null>(null);
   const [listTick, setListTick] = useState(0);
+  const [focus, setFocus] = useState<BoardRow | null>(null); // one board picked from a link or the ranking
   const timers = useRef<number[]>([]);
   // Several pointer moves can arrive before React re-renders, so changes build on the latest marks.
   const marksRef = useRef<Mark[]>([]);
@@ -88,7 +94,7 @@ export default function SlitherGame() {
     const p = generatePuzzle(dots, seed);
     setPuzzle(p);
     setBoard(new Array<Mark>(p.solution.length).fill(0)); setLocked(new Set()); setSteps([]);
-    setTool('pen'); setPhaseNow('play'); setStartedAt(Date.now()); setNow(Date.now()); setEndMs(0);
+    setTool('pen'); setPhaseNow('play'); const at = clockNow(); setStartedAt(at); setNow(at); setEndMs(0);
     hintsRef.current = 0; setHints(0); setFlashArea(null); setRevealed(0); setReplaying(false); setConfirmClear(false); setResult(null); setError(null);
   };
 
@@ -107,7 +113,7 @@ export default function SlitherGame() {
 
   const switchMode = (m: Mode) => {
     abandon(); clearTimers();
-    setMode(m); setReplaying(false); setResult(null); setError(null);
+    setMode(m); setReplaying(false); setResult(null); setError(null); setFocus(null);
     const url = new URL(window.location.href); url.searchParams.set('mode', m); window.history.replaceState(null, '', url);
     if (m === 'practice') {
       let s: SlitherSize = 9;
@@ -116,8 +122,19 @@ export default function SlitherGame() {
     } else { setPuzzle(null); setPhaseNow('lobby'); setListTick((n) => n + 1); }
   };
 
-  // Mode from the URL once mounted (practice boards are random, so they are made in the browser).
-  useEffect(() => { switchMode(readMode()); }, []); // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect -- once, on mount
+  /** Opens one board's card ("○○님의 맵 해보기") in the 기존 챌린지 tab. */
+  const openBoard = (id: string) => {
+    if (mode !== 'beat' || phaseRef.current !== 'lobby') switchMode('beat');
+    fetchBoard(id).then(({ data }) => { setFocus(data?.[0] ?? null); if (!data?.[0]) setError(t('errStart')); });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Mode (and a shared board) from the URL once mounted (practice boards are random, so they are made in the browser).
+  useEffect(() => {
+    switchMode(readMode()); // eslint-disable-line react-hooks/set-state-in-effect -- read once from the URL
+    const board = new URLSearchParams(window.location.search).get('board');
+    if (board && /^[0-9a-f]{10}$/.test(board)) fetchBoard(board).then(({ data }) => setFocus(data?.[0] ?? null));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- once, on mount
   useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 250); return () => window.clearInterval(id); }, []);
   useEffect(() => () => clearTimers(), []);
   // Leaving the page mid-challenge ends the run as given up.
@@ -214,6 +231,7 @@ export default function SlitherGame() {
 
   const time = (ms: number) => { const s = Math.round(ms / 1000); return t('minSec', { m: Math.floor(s / 60), s: s % 60 }); };
   const signedIn = !!user;
+  const myName = nickname || 'Player';
   const playing = phase === 'play' || phase === 'solved' || phase === 'reveal' || phase === 'gaveUp' || phase === 'failed';
   const done = phase === 'solved' || phase === 'gaveUp' || phase === 'failed';
   const lines = marks.filter((m) => m === 1).length;
@@ -230,6 +248,7 @@ export default function SlitherGame() {
           : <ol className="mt-3 space-y-1">{ranking.map((row) => (
             <li key={`${row.rank}-${row.nickname}`} className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs ${row.is_me ? 'bg-(--accent)/20 font-black' : 'bg-black/25'}`}>
               <span className="w-7 font-mono text-white/50">#{row.rank}</span><span className="min-w-0 flex-1 truncate">{row.nickname}</span><span className="font-mono">{time(row.ms)}</span>
+              {row.board && !row.is_me && <button type="button" disabled={row.tried} onClick={() => openBoard(row.board!)} title={t('tryBoard', { name: row.nickname })} className="ml-1 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-black text-(--accent) ring-1 ring-(--accent)/40 hover:bg-(--accent)/15 disabled:opacity-30">{row.tried ? t('boardTried') : t('rankTry')}</button>}
             </li>
           ))}</ol>}
     </section>
@@ -269,6 +288,18 @@ export default function SlitherGame() {
                   {phase === 'starting' ? <Loader2 size={16} className="animate-spin" /> : <Timer size={16} />}{t('newStart')}
                 </button>
               ) : null}
+              {mode === 'beat' && focus && (
+                <div className="mt-5 rounded-[16px] border border-[#ffcf3f]/40 bg-gradient-to-b from-[#ffcf3f]/12 to-transparent p-5">
+                  <Crown size={26} className="mx-auto text-[#ffcf3f]" />
+                  <p className="mt-2 text-xl font-black">{t('boardHolder', { name: focus.holder })}</p>
+                  <p className="mt-1 text-sm text-white/60">{t('focusLimit', { time: time(focus.holder_ms) })}</p>
+                  <p className="mt-1 text-[11px] text-white/40">{t('boardMeta', { tries: focus.attempts, wins: focus.takeovers })}</p>
+                  <button type="button" disabled={focus.tried || focus.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', focus.id)} className={`${BTN_ACCENT} mt-4 w-full py-3.5 text-sm disabled:opacity-40`}>
+                    {phase === 'starting' ? <Loader2 size={16} className="animate-spin" /> : <Swords size={16} />}
+                    {focus.mine ? t('focusMine') : focus.tried ? t('boardTried') : t('tryBoard', { name: focus.holder })}
+                  </button>
+                </div>
+              )}
               {mode === 'beat' && (
                 <div className="mt-5 text-left">
                   <div className="mb-2 flex items-center justify-between"><p className={PANEL_TITLE}>{t('boardsTitle')}</p><button type="button" onClick={() => setListTick((n) => n + 1)} aria-label={t('refresh')} className="rounded-md p-1.5 text-white/45 hover:text-(--accent)"><RefreshCw size={14} /></button></div>
@@ -346,7 +377,14 @@ export default function SlitherGame() {
                     <p className="flex items-center justify-center gap-2 text-2xl font-black">{result.ok ? <Check size={24} className="text-[#7ee2ae]" /> : <X size={24} className="text-[#ff8f8f]" />}
                       {result.ok ? (mode === 'beat' ? t('beatWin') : t('solvedTitle', { time: time(result.ms) })) : t('tooSlow')}</p>
                     {result.ok && mode === 'challenge' && result.rank && <p className="mt-2 inline-block rounded-full bg-(--accent)/15 px-4 py-1.5 text-sm font-black text-(--accent)">{t('rankNow', { rank: result.rank, total: result.total ?? result.rank })}</p>}
+                    {result.ok && <p className="mt-3 flex items-center justify-center gap-1.5 text-base font-black text-[#ffcf3f]"><Crown size={17} />{t('ownerNow', { name: myName })}</p>}
                     <p className="mt-2 break-keep text-xs text-white/50">{result.ok ? (mode === 'beat' ? t('beatWinDesc', { time: time(result.ms) }) : t('publishedDesc')) : t('tooSlowDesc', { time: time(result.ms) })}</p>
+                    {result.ok && run && (
+                      <div className="mt-4 rounded-[14px] border border-(--accent)/30 bg-(--accent)/[.06] p-3">
+                        <p className="text-xs font-black">{t('shareBoardTitle')}</p>
+                        <div className="mt-2"><ShareButtons path={boardPath(locale, run.challenge)} text={t('shareBoardText', { name: myName, time: time(result.ms) })} /></div>
+                      </div>
+                    )}
                   </>)}
                   {phase === 'failed' && <>
                     <p className="text-lg font-black">{timeUp || (limitMs !== null && endMs >= limitMs) ? t('timeUp') : t('gaveUpBeat')}</p>
