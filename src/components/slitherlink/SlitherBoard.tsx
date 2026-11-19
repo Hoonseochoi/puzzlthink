@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef } from 'react';
-import { type Mark, type Puzzle, cellCount, edgeAt, geometry, hEdge, vEdge } from '@/lib/oneStroke';
+import { type Mark, type Puzzle, edgeAt, geometry, hEdge, vEdge } from '@/lib/slitherlink';
 
 export type Tool = 'pen' | 'eraser' | 'marker' | 'hint';
-export const STROKE_ACCENT = '#8f7cff';
-export const STROKE_INK = '#ffffff';
+export const SLITHER_ACCENT = '#8f7cff';
+export const SLITHER_INK = '#ffffff';
 
 /** Board look, after the show: pale lilac screen, violet dots and serif numbers. */
 const BG = '#eceeff';
@@ -21,10 +21,9 @@ type Point = { x: number; y: number };
  * The dotted board. Drag from dot to dot to draw (or erase / mark with the chosen tool); tap between two dots to toggle.
  * With the hint tool, a tap picks the 3×3-dot area around it. `onEdges` gets [edge, value] pairs from one gesture step.
  */
-export default function OneStrokeBoard({ puzzle, marks, tool, locked, onEdges, onHint, showOverflow = false, solutionUpTo = null, dimLines = false, readOnly = false, flashArea = null }: {
+export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onHint, solutionUpTo = null, dimLines = false, readOnly = false, flashArea = null }: {
   puzzle: Puzzle; marks: Mark[]; tool: Tool; locked?: ReadonlySet<number>;
   onEdges?: (changes: [number, Mark][]) => void; onHint?: (r: number, c: number) => void;
-  showOverflow?: boolean;
   /** Give-up animation: the first N edges of the answer (in loop order) drawn over the board. */
   solutionUpTo?: number[] | null;
   dimLines?: boolean; readOnly?: boolean;
@@ -127,8 +126,7 @@ export default function OneStrokeBoard({ puzzle, marks, tool, locked, onEdges, o
       {puzzle.clues.map((v, cell) => {
         if (v < 0) return null;
         const r = Math.floor(cell / puzzle.cols), c = cell % puzzle.cols;
-        const over = showOverflow && cellCount(g, marks, cell) > v;
-        return <text key={`n${cell}`} x={c + 1} y={r + 1.03} textAnchor="middle" dominantBaseline="middle" fontSize={0.56} fontFamily="Georgia, 'Times New Roman', serif" fontWeight={600} fill={over ? '#e5484d' : NUM}>{v}</text>;
+        return <text key={`n${cell}`} x={c + 1} y={r + 1.03} textAnchor="middle" dominantBaseline="middle" fontSize={0.56} fontFamily="Georgia, 'Times New Roman', serif" fontWeight={600} fill={NUM}>{v}</text>;
       })}
       {marks.map((m, edge) => m === 1 ? lineFor(edge, locked?.has(edge) ? HINT : LINE, 0.1, `l${edge}`, dimLines ? 0.25 : 1) : null)}
       {marks.map((m, edge) => m === 2 ? crossFor(edge, `x${edge}`, locked?.has(edge) ? HINT : '#8a83b8') : null)}

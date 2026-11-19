@@ -5,11 +5,11 @@ export const size = OG_SIZE;
 export const contentType = 'image/png';
 export const dynamic = 'force-static';
 export const generateStaticParams = () => [{ locale: 'ko' }, { locale: 'en' }];
-export const alt = 'PUZZLTHINK One Stroke';
+export const alt = 'PUZZLTHINK Slitherlink';
 
 const COPY = {
-  ko: { kicker: 'TV 두뇌 퍼즐', title: '규칙 한붓그리기', sub: '숫자만큼 선이 지나가는 고리 하나를 그려라', modes: ['9×9 · 10×10 · 11×11 연습', '힌트 · 포기하면 정답 · 복기'] },
-  en: { kicker: 'TV brain puzzle', title: 'One Stroke', sub: 'Draw one loop that matches every number', modes: ['9×9 · 10×10 · 11×11 practice', 'Hints · reveal · replay'] },
+  ko: { kicker: 'TV 두뇌 퍼즐', title: '슬리더링크', sub: '숫자만큼 선이 지나가는 고리 하나를 그려라', modes: ['9×9 · 10×10 · 11×11 연습', '힌트 · 포기하면 정답 · 복기'] },
+  en: { kicker: 'TV brain puzzle', title: 'Slitherlink', sub: 'Draw one loop that matches every number', modes: ['9×9 · 10×10 · 11×11 practice', 'Hints · reveal · replay'] },
 };
 
 // The loop and numbers from the home card, drawn larger.

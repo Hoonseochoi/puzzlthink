@@ -2,7 +2,7 @@
 const KEY = 'puzzlthink_signup_source';
 const FRESH_MS = 30 * 60 * 1000;
 
-export type SignupSource = 'header' | 'header_menu' | 'result' | 'open_room' | 'game_open' | 'home_open' | 'hard_clear' | 'records' | 'other';
+export type SignupSource = 'header' | 'header_menu' | 'result' | 'open_room' | 'game_open' | 'home_open' | 'hard_clear' | 'records' | 'slitherlink' | 'other';
 
 /** Remembers the button the player is about to sign in with (survives the Google redirect). */
 export function markSignupSource(source: SignupSource) {

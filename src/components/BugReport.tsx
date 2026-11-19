@@ -21,7 +21,7 @@ const GAMES: { path: string; id: string; label: string }[] = [
   { path: '/black-white', id: 'black_white', label: 'blackWhite' },
   { path: '/laser-janggi', id: 'laser_janggi', label: 'laserJanggi' },
   { path: '/nemo-count', id: 'nemo_count', label: 'nemoCount' },
-  { path: '/one-stroke', id: 'one_stroke', label: 'oneStroke' },
+  { path: '/slitherlink', id: 'slitherlink', label: 'slitherlink' },
   { path: '/play', id: 'sudoku', label: 'sudoku' },
 ];
 const CATEGORIES = ['bug', 'rule', 'display', 'online', 'other'] as const;

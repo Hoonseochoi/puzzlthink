@@ -1,11 +1,11 @@
-// 규칙 한붓그리기: draw one closed loop along the dotted grid so every number counts the loop's sides around it.
+// 슬리더링크: draw one closed loop along the dotted grid so every number counts the loop's sides around it.
 // Puzzles come from a seed (same seed → same board), so a board can be shared, raced on or replayed.
 import { rng } from './nemoCount';
 
 export { rng };
 /** Practice sizes, counted in dots per side (11 = the show's board). */
-export const ONE_STROKE_SIZES = [9, 10, 11] as const;
-export type OneStrokeSize = (typeof ONE_STROKE_SIZES)[number];
+export const SLITHER_SIZES = [9, 10, 11] as const;
+export type SlitherSize = (typeof SLITHER_SIZES)[number];
 
 /** Edge state while playing: 0 empty, 1 line, 2 marked ✕. */
 export type Mark = 0 | 1 | 2;
