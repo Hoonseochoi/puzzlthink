@@ -14,7 +14,7 @@
     "newGame": "New game",
     "rules": "How to play",
     "tagline": "Small games for long thoughts.",
-    "hobbyOperationNotice": "PUZZLTHINK is a personal hobby project, and its operating costs are paid by the developer. Google AdSense ads are shown to help cover the growing server costs, and a voluntary support link is also available, with no reward or service benefit in return. The service may be changed, suspended or discontinued due to the developer's personal circumstances.",
+    "hobbyOperationNotice": "PUZZLTHINK is a personal hobby project, and its operating costs are paid by the developer. There are currently no ads or plans for separate monetization. A voluntary support link is available for anyone who would like to help, with no reward or service benefit in return. The service may be changed, suspended or discontinued due to the developer's personal circumstances.",
     "about": "About",
     "contact": "Contact",
     "janggi": "12 Janggi",
@@ -581,8 +581,8 @@
         "body": "The service’s design, code, graphics and game implementations belong to PUZZLTHINK. TV show names used to describe the games belong to their owners; PUZZLTHINK is an unofficial project not affiliated with any broadcaster."
       },
       {
-        "title": "5. Advertising and voluntary support",
-        "body": "The service may show third-party ads such as Google AdSense; advertisers are responsible for their ads.\nThe footer links to an external page where you may make voluntary support with no reward or service benefit. Every game and feature remains equally free whether or not you support the project."
+        "title": "5. Voluntary support",
+        "body": "The footer links to an external page where you may make voluntary support with no reward or service benefit. Every game and feature remains equally free whether or not you support the project."
       },
       {
         "title": "6. Disclaimer",
@@ -614,7 +614,7 @@
       },
       {
         "title": "How we operate",
-        "body": "All games are free, and game records are stored only in your browser. Running costs may be covered by advertising revenue."
+        "body": "PUZZLTHINK is a personal hobby project run by one developer. Every game and feature is free, with no advertising or paid products. Voluntary support through the footer provides no reward or service benefit."
       },
       {
         "title": "Who runs it",
@@ -635,7 +635,7 @@
       },
       {
         "title": "Partnerships & collaboration",
-        "body": "Game partnerships, content or streaming collaborations, advertising and sponsorship, and event proposals are all welcome at contact@puzzlthink.com. Put [Partnership] in the subject and include your company or channel, the proposal, timing and how to reach you."
+        "body": "Game partnerships, content or streaming collaborations, and event proposals are welcome at contact@puzzlthink.com. Put [Partnership] in the subject and include your company or channel, the proposal, timing and how to reach you."
       },
       {
         "title": "Reporting bugs",
