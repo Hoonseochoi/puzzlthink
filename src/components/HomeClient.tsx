@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Bot, Brain, Crosshair, Flame, Grid3X3, Sparkles, UsersRound } from 'lucide-react';
+import { ArrowRight, Bot, Brain, Crosshair, Flame, Grid3X3, Sparkles, Swords, Timer, UsersRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
@@ -249,6 +249,16 @@ export default function HomeClient() {
             <div className="grid grid-cols-2 gap-2">
               <Link href="/indian-poker#play" className={MODE_BUTTON}><Bot size={15} className="text-[#b78b25]" /><span className="text-sm font-black">{t('modeIndianAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeIndianAiDesc')}</span></Link>
               <button type="button" onClick={async () => router.push(`/indian-poker/room/${await prepareIndianPokerRoom()}`)} className={`${MODE_BASE} border-[#e6b94f]/55 bg-[#fff7df] hover:border-[#b78b25]`}><UsersRound size={15} className="text-[#b78b25]" /><span className="text-sm font-black">{t('modeIndianFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeIndianFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
+        {game.illustration === 'slitherlink' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
+            <div className="grid grid-cols-3 gap-2">
+              <Link href="/slitherlink?mode=challenge#play" className={`${MODE_BASE} border-[#8f7cff]/50 bg-[#f1eeff] hover:border-[#6b55e0]`}><Timer size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherNew')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherNewDesc')}</span></Link>
+              <Link href="/slitherlink?mode=beat#play" className={MODE_BUTTON}><Swords size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherBeat')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherBeatDesc')}</span></Link>
+              <Link href="/slitherlink?mode=practice#play" className={MODE_BUTTON}><Brain size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherPractice')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherPracticeDesc')}</span></Link>
             </div>
           </div>
         )}

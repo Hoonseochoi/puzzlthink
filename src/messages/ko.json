@@ -311,7 +311,13 @@
     "modeHexFriendDesc": "2~4명 · 버저",
     "hypeTag": "지금 가장 인기",
     "slitherlinkDescription": "유배지에서 하던 게임 그대로! 숫자만큼만 선이 지나가게 점과 점을 이어 고리 하나를 완성하세요.",
-    "slitherlinkMeta": "랜덤 맵 챌린지 · 맵 뺏기 · 연습"
+    "slitherlinkMeta": "랜덤 맵 챌린지 · 맵 뺏기 · 연습",
+    "modeSlitherNew": "챌린지하기",
+    "modeSlitherNewDesc": "새 맵 깨고 차지",
+    "modeSlitherBeat": "맵 뺏기",
+    "modeSlitherBeatDesc": "남의 맵 도전",
+    "modeSlitherPractice": "연습하기",
+    "modeSlitherPracticeDesc": "9×9~11×11"
   },
   "WallGo": {
     "metaTitle": "벽바둑 — 데블스플랜3 벽바둑 룰 정리 + AI·친구랑 바로 두기",
