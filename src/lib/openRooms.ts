@@ -33,17 +33,28 @@ export async function listOpenRooms(game: string): Promise<OpenRoomRow[]> {
 
 export type OpenRoomAnyRow = OpenRoomRow & { game: string };
 
-/** Friend rooms with two or more people right now (each host pings once a minute). Null when it could not be read. */
-export async function countFriendRooms(): Promise<number | null> {
+/** Room channel prefix → game. */
+export const CHANNEL_GAME: Record<string, CatalogId> = {
+  'wallgo-room': 'wallgo', 'wallgo2-room': 'wallgo2', 'slither-room': 'slitherlink', 'gyulhap-room': 'gyulhap', 'indian-poker-room': 'indianPoker',
+  'hexagon-room': 'hexagon', 'piggy-bank-room': 'piggyBank', 'nemo-count-room': 'nemoCount', 'black-white-room': 'blackWhite', 'black-white-2-room': 'blackWhite2',
+  'laser-janggi-room': 'laserJanggi', 'blind-gomoku-room': 'blindGomoku', 'russian-roulette-room': 'russianRoulette', 'heavy13-room': 'heavy13',
+  'janggi-room': 'janggi', 'russian-janggi-room': 'russianJanggi',
+};
+export type LiveRoomRow = { game: CatalogId; open: number; friend: number };
+
+/** Matches in progress right now, per game (open and friend). Null when it could not be read. */
+export async function listLiveRooms(): Promise<LiveRoomRow[] | null> {
   const supabase = getSupabase();
   if (!supabase) return null;
-  const { data, error } = await supabase.rpc('friend_rooms_live');
-  return error || typeof data !== 'number' ? null : data;
+  const { data, error } = await supabase.rpc('live_rooms');
+  if (error || !Array.isArray(data)) return null;
+  return (data as { channel: string; open_n: number; friend_n: number }[])
+    .flatMap((row) => (CHANNEL_GAME[row.channel] ? [{ game: CHANNEL_GAME[row.channel], open: row.open_n, friend: row.friend_n }] : []));
 }
 
-/** Host side: this friend room is in use (counted on the home card for 2½ minutes). */
-export function pingFriendRoom(room: string) {
-  getSupabase()?.rpc('friend_room_ping', { p_room: room }).then(() => {});
+/** Host side: a match is going on in this room (counted on the home card for 2½ minutes). */
+export function pingLiveRoom(room: string, open: boolean) {
+  getSupabase()?.rpc('friend_room_ping', { p_room: room, p_open: open }).then(() => {});
 }
 
 /** Open rooms of every game (home page card). Null when the list could not be read. */
