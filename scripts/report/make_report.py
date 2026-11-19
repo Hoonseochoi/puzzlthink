@@ -3,6 +3,7 @@
 Run (from anywhere):
   GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/application_default_credentials.json \
   ~/.local/bin/uvx --python 3.12 --from analytics-mcp python -I scripts/report/make_report.py   (or: scripts/report/report.sh)
+  Add --day YYYY-MM-DD (or --day yesterday) for a finished day instead of today so far.
 
 Data: Supabase admin_report() (aggregates only, guarded by ~/.config/puzzlthink/report_token),
 Google Analytics (property 525486998) and Search Console (sc-domain:puzzlthink.com) via the
@@ -12,6 +13,7 @@ import datetime as dt
 import html
 import json
 import os
+import sys
 import urllib.request
 
 HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "reports")
@@ -24,7 +26,8 @@ KST = dt.timezone(dt.timedelta(hours=9))
 GAME_KO = {"wallgo": "벽바둑", "heavy13": "무거운 13", "janggi": "십이장기", "russian_janggi": "러시아장기",
            "russian_roulette": "러시안 룰렛", "blind_gomoku": "블라인드 오목", "laser_janggi": "레이저 장기",
            "nemo_count": "네모 세기", "black_white": "흑과 백", "black_white_2": "흑과 백 II", "piggy_bank": "돼지 저금통",
-           "hexagon": "헥사곤", "sudoku": "스도쿠"}
+           "hexagon": "헥사곤", "sudoku": "스도쿠",
+           "wallgo2": "벽바둑 II", "slitherlink": "슬리더링크", "gyulhap": "결합", "indian_poker": "인디언 포커"}
 MODE_KO = {"ai": "AI", "friend": "친구", "solo": "혼자"}
 SOURCE_KO = {"header": "상단 헤더", "header_menu": "모바일 메뉴", "result": "게임 결과 화면", "open_room": "오픈 대전 대기방",
              "game_open": "게임 페이지 오픈 대전", "home_open": "홈 오픈 대전 카드", "hard_clear": "어려움 클리어 팝업",
@@ -44,16 +47,25 @@ def env():
     return out
 
 
-def site_data():
+def pick_day():
+    """The day to report: --day YYYY-MM-DD / --day yesterday, else today (KST)."""
+    today = dt.datetime.now(KST).date()
+    if "--day" in sys.argv:
+        arg = sys.argv[sys.argv.index("--day") + 1]
+        return today - dt.timedelta(days=1) if arg == "yesterday" else dt.date.fromisoformat(arg)
+    return today
+
+
+def site_data(day):
     e = env()
     url = e["NEXT_PUBLIC_SUPABASE_URL"] + "/rest/v1/rpc/admin_report"
     key = e.get("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY") or e.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
-    body = json.dumps({"p_token": open(TOKEN_FILE).read().strip()}).encode()
+    body = json.dumps({"p_token": open(TOKEN_FILE).read().strip(), "p_day": str(day)}).encode()
     req = urllib.request.Request(url, data=body, headers={"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json"})
     return json.load(urllib.request.urlopen(req, timeout=30))
 
 
-def ga_data():
+def ga_data(day):
     from google.analytics.data_v1beta import BetaAnalyticsDataClient
     from google.analytics.data_v1beta.types import DateRange, Dimension, Metric, OrderBy, RunReportRequest, RunRealtimeReportRequest
     c = BetaAnalyticsDataClient()
@@ -64,17 +76,19 @@ def ga_data():
                                           dimensions=[Dimension(name=d) for d in dims], metrics=[Metric(name=m) for m in mets], order_bys=ob, limit=limit))
         return [[v.value for v in row.dimension_values] + [v.value for v in row.metric_values] for row in r.rows]
 
-    rt = c.run_realtime_report(RunRealtimeReportRequest(property=GA_PROPERTY, metrics=[Metric(name="activeUsers")]))
-    hours = {d: {int(h): int(s) for h, s in run(["hour"], ["sessions"], d, d, 24)} for d in ("today", "yesterday")}
+    d0, d1, d13 = str(day), str(day - dt.timedelta(days=1)), str(day - dt.timedelta(days=13))
+    live = day == dt.datetime.now(KST).date()
+    rt = c.run_realtime_report(RunRealtimeReportRequest(property=GA_PROPERTY, metrics=[Metric(name="activeUsers")])) if live else None
+    hours = {k: {int(h): int(s) for h, s in run(["hour"], ["sessions"], d, d, 24)} for k, d in (("today", d0), ("yesterday", d1))}
     return {
-        "realtime": int(rt.rows[0].metric_values[0].value) if rt.rows else 0,
-        "today": run([], ["activeUsers", "sessions", "screenPageViews"]),
-        "yesterday": run([], ["activeUsers", "sessions", "screenPageViews"], "yesterday", "yesterday"),
-        "daily": run(["date"], ["activeUsers"], "13daysAgo", "today", 20, order_dim="date"),
+        "realtime": (int(rt.rows[0].metric_values[0].value) if rt.rows else 0) if rt else None,
+        "today": run([], ["activeUsers", "sessions", "screenPageViews"], d0, d0),
+        "yesterday": run([], ["activeUsers", "sessions", "screenPageViews"], d1, d1),
+        "daily": run(["date"], ["activeUsers"], d13, d0, 20, order_dim="date"),
         "hours": hours,
-        "sources": run(["sessionSource"], ["sessions"], "today", "today", 10),
-        "countries": run(["country"], ["activeUsers"], "today", "today", 6),
-        "devices": run(["deviceCategory"], ["activeUsers"]),
+        "sources": run(["sessionSource"], ["sessions"], d0, d0, 10),
+        "countries": run(["country"], ["activeUsers"], d0, d0, 6),
+        "devices": run(["deviceCategory"], ["activeUsers"], d0, d0),
     }
 
 
@@ -181,9 +195,11 @@ def table(headers, rows):
 
 # ---------------------------------------------------------------- page
 
-def build(site, ga, gsc):
+def build(site, ga, gsc, day):
     now = site.get("generated_at", dt.datetime.now(KST).strftime("%Y-%m-%d %H:%M"))
-    today = dt.datetime.now(KST).date()
+    today = day
+    live = day == dt.datetime.now(KST).date()
+    T, Y = ("오늘", "어제") if live else (f"{day.month}/{day.day}", "전날")  # labels for the day and the one before
     visits = site.get("visits", [])
     v_today = next((x["n"] for x in visits if x["day"] == str(today)), 0)
     v_yest = next((x["n"] for x in visits if x["day"] == str(today - dt.timedelta(days=1))), 0)
@@ -192,9 +208,10 @@ def build(site, ga, gsc):
     ga_ok = "error" not in ga
     ga_today = int(ga["today"][0][0]) if ga_ok and ga["today"] else 0
 
-    tiles = [("오늘 방문자", fmt(v_today), f"어제 {fmt(v_yest)}"), ("오늘 플레이", fmt(plays_today), "판"),
-             ("전체 회원", fmt(site.get("members", 0)), f"오늘 +{signups_today}"),
-             ("GA 오늘 사용자", fmt(ga_today) if ga_ok else "—", f"지금 접속 {ga['realtime']}명 (30분)" if ga_ok else "GA 연결 안 됨")]
+    rt_note = (f"지금 접속 {ga['realtime']}명 (30분)" if live else f"{Y} {fmt(int(ga['yesterday'][0][0]) if ga['yesterday'] else 0)}") if ga_ok else "GA 연결 안 됨"
+    tiles = [(f"{T} 방문자", fmt(v_today), f"{Y} {fmt(v_yest)}"), (f"{T} 플레이", fmt(plays_today), "판"),
+             ("전체 회원", fmt(site.get("members", 0)), f"{T} +{signups_today}"),
+             (f"GA {T} 사용자", fmt(ga_today) if ga_ok else "—", rt_note)]
     tiles_html = "".join(f'<div class="tile"><p class="k">{k}</p><p class="v">{v}</p><p class="s">{s}</p></div>' for k, v, s in tiles)
 
     sections = []
@@ -202,21 +219,21 @@ def build(site, ga, gsc):
     def sec(title, desc, body):
         sections.append(f'<section><h2>{title}</h2><p class="desc">{desc}</p>{body}</section>')
 
-    vis_items = [(x["day"][5:].replace("-", "/"), x["n"]) for x in visits[-14:]]
-    sec("방문자 추이", "PUZZLTHINK 자체 집계 (같은 날 같은 브라우저는 1명). 오늘은 진행 중이에요.", vbar(vis_items, "명") + table(["날짜", "방문자"], vis_items))
+    vis_items = [(x["day"][5:].replace("-", "/"), x["n"]) for x in visits if x["day"] <= str(day)][-14:]
+    sec("방문자 추이", "PUZZLTHINK 자체 집계 (같은 날 같은 브라우저는 1명)." + (" 오늘은 진행 중이에요." if live else ""), vbar(vis_items, "명") + table(["날짜", "방문자"], vis_items))
 
     if ga_ok:
         hours_t, hours_y = ga["hours"]["today"], ga["hours"]["yesterday"]
         t_vals = [hours_t.get(h, 0) for h in range(24)]
         # GA processes today with a lag: stop today's line at the last hour that has data (not a fake drop to 0).
-        now_h = max([h for h in range(24) if hours_t.get(h, 0) > 0] or [0])
+        now_h = max([h for h in range(24) if hours_t.get(h, 0) > 0] or [0]) if live else 23
         y_vals = [hours_y.get(h, 0) for h in range(24)]
-        sec("시간대별 세션 (GA) — 오늘 vs 어제", f"GA는 오늘 데이터를 몇 시간 늦게 처리해요. 오늘 선은 처리된 {now_h}시까지예요.",
-            '<p class="legend"><i class="sw s1"></i>오늘 <i class="sw s2"></i>어제</p>'
-            + lines([("오늘", t_vals, "s1"), ("어제", y_vals, "s2")], [str(h) for h in range(24)], cut=now_h + 1)
-            + table(["시", "오늘", "어제"], [(h, t_vals[h], y_vals[h]) for h in range(24)]))
+        sec(f"시간대별 세션 (GA) — {T} vs {Y}", f"GA는 오늘 데이터를 몇 시간 늦게 처리해요. 오늘 선은 처리된 {now_h}시까지예요." if live else "하루 전체 (0–23시).",
+            f'<p class="legend"><i class="sw s1"></i>{T} <i class="sw s2"></i>{Y}</p>'
+            + lines([(T, t_vals, "s1"), (Y, y_vals, "s2")], [str(h) for h in range(24)], cut=now_h + 1)
+            + table(["시", T, Y], [(h, t_vals[h], y_vals[h]) for h in range(24)]))
         src = [(r[0], int(r[1])) for r in ga["sources"]]
-        sec("오늘 유입 경로 (GA)", "세션 기준. (direct)는 주소 입력·카톡 등 출처가 안 찍힌 방문이에요.", hbar(src, "세션") + table(["경로", "세션"], src))
+        sec(f"{T} 유입 경로 (GA)", "세션 기준. (direct)는 주소 입력·카톡 등 출처가 안 찍힌 방문이에요.", hbar(src, "세션") + table(["경로", "세션"], src))
     else:
         sec("GA", "구글 애널리틱스를 불러오지 못했어요.", f'<p class="empty">{esc(ga["error"])}</p>')
 
@@ -224,10 +241,10 @@ def build(site, ga, gsc):
     for x in site.get("plays_today", []):
         games[x["game"]] = games.get(x["game"], 0) + x["n"]
     g_items = sorted(((GAME_KO.get(k, k), v) for k, v in games.items()), key=lambda t: -t[1])
-    sec("오늘 게임별 플레이", "AI·친구·혼자 플레이를 합친 판 수예요.", hbar(g_items, "판")
+    sec(f"{T} 게임별 플레이", "AI·친구·혼자 플레이를 합친 판 수예요.", hbar(g_items, "판")
         + table(["게임", "방식", "판"], [(GAME_KO.get(x["game"], x["game"]), MODE_KO.get(x["mode"], x["mode"]), x["n"]) for x in site.get("plays_today", [])]))
 
-    su = [(x["day"][5:].replace("-", "/"), x["n"]) for x in site.get("signups_daily", [])[-14:]]
+    su = [(x["day"][5:].replace("-", "/"), x["n"]) for x in site.get("signups_daily", []) if x["day"] <= str(day)][-14:]
     sec("가입자 추이", "날짜별 새 회원 수예요.", vbar(su, "명") + table(["날짜", "가입"], su))
 
     src_items = [(SOURCE_KO.get(x["source"], x["source"]), x["n"]) for x in site.get("signup_sources", [])]
@@ -245,21 +262,22 @@ def build(site, ga, gsc):
     for x in site.get("app", []):
         app[x["event"]] = app.get(x["event"], 0) + x["n"]
     feats = [
-        ("오픈 대전", f'누적 {fmt(o.get("games", 0))}판 · 참여 {fmt(o.get("players", 0))}명 · 오늘 {fmt(o.get("today", 0))}판'),
+        ("오픈 대전", f'누적 {fmt(o.get("games", 0))}판 · 참여 {fmt(o.get("players", 0))}명 · {T} {fmt(o.get("today", 0))}판'),
         ("명예의 전당", " · ".join(f'{GAME_KO.get(x["game"], x["game"])} {x["n"]}명' for x in site.get("hall", [])[:6]) or "—"),
         ("어려움 클리어 인증서", " · ".join(f'{GAME_KO.get(x["game"], x["game"])} {x["n"]}' for x in site.get("certs", [])) or "—"),
         ("네모 세기 도전장", f'만든 도전장 {fmt(d.get("made", 0))}개 · 도전 {fmt(d.get("runs", 0))}회'),
         ("후원 클릭", " · ".join(f'{SUPPORT_KO.get(x["place"], x["place"])} {x["n"]}' for x in site.get("support", [])) or "아직 없음"),
-        ("앱 설치", f'설치 안내 노출 {fmt(app.get("shown_top", 0) + app.get("shown_game", 0))} · 설치 클릭 {fmt(app.get("click", 0))} · 설치 완료 {fmt(app.get("installed", 0))} · 오늘 앱으로 연 기기 {fmt(site.get("app_today_opens", 0))}'),
+        ("앱 설치", f'설치 안내 노출 {fmt(app.get("shown_top", 0) + app.get("shown_game", 0))} · 설치 클릭 {fmt(app.get("click", 0))} · 설치 완료 {fmt(app.get("installed", 0))} · {T} 앱으로 연 기기 {fmt(site.get("app_today_opens", 0))}'),
     ]
     sec("기능별 현황", "새로 만든 기능들이 얼마나 쓰이는지 (누적).",
         '<table class="plain">' + "".join(f"<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>" for k, v in feats) + "</table>")
 
     if ga_ok:
         extra = [("국가", ", ".join(f"{r[0]} {r[1]}" for r in ga["countries"])), ("기기", ", ".join(f"{r[0]} {r[1]}" for r in ga["devices"]))]
-        sec("오늘 방문자 특징 (GA)", "사용자 수 기준.", '<table class="plain">' + "".join(f"<tr><th>{k}</th><td>{esc(v)}</td></tr>" for k, v in extra) + "</table>")
+        sec(f"{T} 방문자 특징 (GA)", "사용자 수 기준.", '<table class="plain">' + "".join(f"<tr><th>{k}</th><td>{esc(v)}</td></tr>" for k, v in extra) + "</table>")
 
-    return PAGE.replace("{{NOW}}", esc(now)).replace("{{TILES}}", tiles_html).replace("{{SECTIONS}}", "".join(sections))
+    when = esc(now) + " (한국 시간) 기준" if live else f"{day.year}년 {day.month}월 {day.day}일 하루 · {esc(now)} 생성"
+    return PAGE.replace("{{NOW}}", when).replace("{{TILES}}", tiles_html).replace("{{SECTIONS}}", "".join(sections))
 
 
 PAGE = """<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -295,7 +313,7 @@ th{color:var(--text-secondary);font-weight:700;white-space:nowrap}table.plain td
 #tip{position:fixed;pointer-events:none;background:var(--text-primary);color:var(--surface-1);font-size:12px;font-weight:700;padding:6px 9px;border-radius:8px;opacity:0;transition:opacity .1s;z-index:9}
 .foot{margin-top:22px;font-size:11px;color:var(--text-muted);line-height:1.6}
 </style></head><body><div class="viz-root"><div class="wrap">
-<p class="kicker">PUZZLTHINK REPORT</p><h1>현황 보고서</h1><p class="sub">{{NOW}} (한국 시간) 기준</p>
+<p class="kicker">PUZZLTHINK REPORT</p><h1>현황 보고서</h1><p class="sub">{{NOW}}</p>
 <div class="tiles">{{TILES}}</div>{{SECTIONS}}
 <p class="foot">방문자·플레이·회원·기능 현황: PUZZLTHINK 데이터베이스 · 유입·국가·기기·시간대: 구글 애널리틱스 · 검색어: 구글 서치 콘솔.<br>
 GA와 사이트 자체 방문자 수는 세는 방식이 달라서 다를 수 있어요 (GA는 광고 차단기를 쓰는 사람을 못 세요).</p>
@@ -308,12 +326,14 @@ el.addEventListener('mouseleave',()=>tip.style.opacity=0);el.addEventListener('t
 
 
 if __name__ == "__main__":
-    site = site_data()
-    ga = safe(ga_data)
+    day = pick_day()
+    site = site_data(day)
+    ga = safe(lambda: ga_data(day))
     gsc = safe(gsc_data)
-    stamp = dt.datetime.now(KST).strftime("%Y%m%d-%H%M")
+    live = day == dt.datetime.now(KST).date()
+    stamp = dt.datetime.now(KST).strftime("%Y%m%d-%H%M") if live else day.strftime("%Y%m%d") + "-day"
     os.makedirs(HERE, exist_ok=True)
     path = os.path.abspath(os.path.join(HERE, f"puzzlthink-report-{stamp}.html"))
     with open(path, "w") as f:
-        f.write(build(site, ga, gsc))
+        f.write(build(site, ga, gsc, day))
     print(path)
