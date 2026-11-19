@@ -10,12 +10,13 @@ export type GameRanking = { game: GameId; hall: HallRow[]; open: OpenRow[]; nemo
 /** URL slug of a game (same as its page path; Sudoku lives at /play). */
 export const rankSlug = (game: GameId) => (CERT_GAMES[game].href === '/play' ? 'sudoku' : CERT_GAMES[game].href.slice(1));
 export const gameFromSlug = (slug: string): GameId | null =>
-  (Object.keys(CERT_GAMES) as GameId[]).find((g) => rankSlug(g) === slug) ?? null;
+  (Object.keys(CERT_GAMES) as GameId[]).find((g) => rankSlug(g) === slug && (hasHall(g) || hasOpen(g))) ?? null;
 export const rankPath = (locale: string, game: GameId) => `/${locale}/ranking/${rankSlug(game)}`;
 export const rankImagePath = (game: GameId, locale: string) => `/api/ranking/${rankSlug(game)}?l=${locale === 'en' ? 'en' : 'ko'}`;
 /** Games ranked by wins against AI (네모 세기 and 결합 use solo challenges instead). */
-export const hasHall = (game: GameId) => game !== 'nemo_count' && game !== 'gyulhap';
-export const hasOpen = (game: GameId) => game !== 'sudoku';
+export const hasHall = (game: GameId) => game !== 'nemo_count' && game !== 'gyulhap' && game !== 'one_stroke';
+/** 규칙 한붓그리기 has no ranking yet (its challenge comes later). */
+export const hasOpen = (game: GameId) => game !== 'sudoku' && game !== 'one_stroke';
 
 async function rpc<T>(name: string, body: Record<string, unknown>): Promise<T | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

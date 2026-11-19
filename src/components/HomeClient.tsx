@@ -90,6 +90,17 @@ function HexagonPreview() {
   </div>;
 }
 
+function OneStrokePreview() {
+  // A corner of the dotted board with part of the loop drawn.
+  const n = 5;
+  const clues: [number, number, number][] = [[0, 2, 3], [0, 3, 3], [1, 0, 1], [1, 1, 0], [2, 3, 3], [3, 0, 2], [3, 2, 1], [2, 1, 0]];
+  return <svg viewBox={`0 0 ${n} ${n}`} className="w-full rounded-xl border-[3px] border-[#17201e] bg-[#eceeff] shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:shadow-2xl">
+    <path d="M0.5 0.5H2.5V1.5H3.5V0.5H4.5V2.5H3.5V3.5H4.5V4.5H1.5V3.5H0.5Z" fill="none" stroke="#2c1f78" strokeWidth={0.09} strokeLinejoin="round" />
+    {clues.map(([r, c, v]) => <text key={`${r}-${c}`} x={c + 1} y={r + 1.04} textAnchor="middle" dominantBaseline="middle" fontSize={0.55} fontFamily="Georgia, serif" fontWeight={600} fill="#5b45c9">{v}</text>)}
+    {Array.from({ length: n * n }, (_, i) => <circle key={i} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.08} fill="#5b45c9" />)}
+  </svg>;
+}
+
 function NemoCountPreview() {
   // A 3×3 corner of the broadcast board with one rectangle that makes the target picked out.
   const cells = [1, 8, 6, 3, 5, 2, 7, 4, 9];
@@ -185,6 +196,7 @@ export default function HomeClient() {
   // Order: 무거운 13 (HYPE) first, then featured games, new releases, and the rest.
   const games = [
     { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13', hype: true },
+    { title: 'ONE STROKE', display: tc('oneStroke'), description: t('oneStrokeDescription'), href: '/one-stroke', tag: 'brainSurvival', meta: t('oneStrokeMeta'), color: '#8f7cff', illustration: 'oneStroke', new: true },
     { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', tag: 'brainSurvival', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
     { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', tag: 'brainSurvival', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
     { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', tag: 'brainSurvival', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
@@ -212,7 +224,7 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'oneStroke' ? <OneStrokePreview /> : game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>

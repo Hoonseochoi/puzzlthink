@@ -7,8 +7,9 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number };
 
-type Href = '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/one-stroke' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
+  one_stroke: { ko: '규칙 한붓그리기', en: 'One Stroke', href: '/one-stroke', color: '#8f7cff' },
   gyulhap: { ko: '결합', en: 'Gyul! Hap!', href: '/gyulhap', color: '#ffcf3f' },
   indian_poker: { ko: '인디언 포커', en: 'Indian Poker', href: '/indian-poker', color: '#e6b94f' },
   wallgo: { ko: '벽바둑', en: 'Wallgo', href: '/wallgo', color: '#ff6b4a' },
