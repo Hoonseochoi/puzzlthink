@@ -17,6 +17,7 @@ import { prepareNemoRoom } from '@/hooks/useNemoRoom';
 import { prepareHexagonRoom } from '@/hooks/useHexagonRoom';
 import { prepareGyulhapRoom } from '@/hooks/useGyulhapRoom';
 import { prepareIndianPokerRoom } from '@/hooks/useIndianPokerRoom';
+import { prepareSlitherRoom } from '@/hooks/useSlitherRoom';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
@@ -217,7 +218,7 @@ export default function HomeClient() {
   return <main className="min-h-screen bg-[#f3f0e8] text-[#17201e]"><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
     <div className="mx-auto max-w-3xl text-center"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/50 backdrop-blur"><Sparkles size={12} className="text-[#ff6b4a]" /> {t('eyebrow')}</div><h1 className="text-balance break-keep text-[2.4rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-7xl sm:leading-[0.98]">{t('title1')}<br />{t('title2')}</h1><p className="mx-auto mt-4 max-w-xl break-keep text-sm leading-6 text-black/55 sm:mt-6 sm:text-base sm:leading-7">{t('description1')}<br className="hidden sm:block" /> {t('description2')}</p><VisitCounter /></div>
     <div className="mt-8 grid gap-3 sm:mt-12 sm:gap-5 md:grid-cols-2"><OpenMatchCard previews={{
-      gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerPreview />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerPreview />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, wallgo: <WallGoPreview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} />{games.map((game) => (
@@ -255,10 +256,11 @@ export default function HomeClient() {
         {game.illustration === 'slitherlink' && (
           <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
             <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <Link href="/slitherlink?mode=challenge#play" className={`${MODE_BASE} border-[#8f7cff]/50 bg-[#f1eeff] hover:border-[#6b55e0]`}><Timer size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherNew')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherNewDesc')}</span></Link>
               <Link href="/slitherlink?mode=beat#play" className={MODE_BUTTON}><Swords size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherBeat')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherBeatDesc')}</span></Link>
               <Link href="/slitherlink?mode=practice#play" className={MODE_BUTTON}><Brain size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherPractice')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherPracticeDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/slitherlink/room/${await prepareSlitherRoom()}`)} className={`${MODE_BASE} border-[#8f7cff]/50 bg-[#f1eeff] hover:border-[#6b55e0]`}><UsersRound size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherFriendDesc')}</span></button>
             </div>
           </div>
         )}

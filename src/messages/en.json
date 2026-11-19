@@ -304,13 +304,15 @@
     "modeHexFriendDesc": "2–4 · buzzer",
     "hypeTag": "most played",
     "slitherlinkDescription": "The loop puzzle from the show, as it was. Join the dots into one loop that matches every number.",
-    "slitherlinkMeta": "Random-board challenge · take boards · practice",
+    "slitherlinkMeta": "Challenge · take boards · 2–4 friends",
     "modeSlitherNew": "Challenge",
     "modeSlitherNewDesc": "Claim a new board",
     "modeSlitherBeat": "Take boards",
     "modeSlitherBeatDesc": "Beat others’ boards",
     "modeSlitherPractice": "Practice",
-    "modeSlitherPracticeDesc": "9×9–11×11"
+    "modeSlitherPracticeDesc": "9×9–11×11",
+    "modeSlitherFriend": "With friends",
+    "modeSlitherFriendDesc": "2–4 speed race"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -1960,11 +1962,11 @@
       },
       "slitherlink": {
         "tagline": "A logic puzzle: join the dots into one unbroken loop that runs along exactly as many sides as each number says.",
-        "players": "1 player (rooms coming soon)",
+        "players": "1 player, or 2–4 friends",
         "pace": "5–40 minutes a board",
         "level": "9×9 · 10×10 · 11×11 dot boards (random)",
         "solo": "New challenge (ranked) · beat a board · practice",
-        "friend": "Coming soon",
+        "friend": "2–4 race on the same board · first loop wins · link or 4-digit code",
         "ai": "New challenge (ranked) · beat a board · practice",
         "rules": [
           "Join neighbouring dots into a single closed loop with no branches or loose ends.",
@@ -2058,7 +2060,9 @@
     "gyulRoom": "Create a friend room (2–4)",
     "slitherNew": "New challenge (claim a board)",
     "slitherBeat": "Beat a board",
-    "slitherPractice": "Practice (9×9 · 10×10 · 11×11)"
+    "slitherPractice": "Practice (9×9 · 10×10 · 11×11)",
+    "slitherRoom": "Create a room (2–4)",
+    "short_slitherRoom": "2–4"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -4600,5 +4604,51 @@
       }
     ],
     "disclaimer": "PUZZLTHINK is an unofficial fan project, not affiliated with any broadcaster; the puzzles follow a public puzzle genre."
+  },
+  "SlitherOnline": {
+    "metaTitle": "Race me at Slitherlink? 🔗 You’re invited",
+    "metaDescription": "Everyone solves the same board at once; the first complete loop wins. Open the link to join.",
+    "guest": "Guest",
+    "connecting": "Connecting to the room…",
+    "connectionError": "Could not connect. Please refresh.",
+    "hostOffline": "The host stepped away. The game continues when they are back.",
+    "emptySeat": "Empty",
+    "me": "me",
+    "lobbyTitle": "Waiting for friends",
+    "inviteTitle": "Invite",
+    "copy": "Copy link",
+    "copied": "Copied!",
+    "share": "Share",
+    "rename": "Rename",
+    "startCount": "Start with {n}",
+    "startLocked": "Start once 2 or more are here",
+    "startHint": "Everyone solves the same board at once. First to finish wins.",
+    "roomFull": "The room is full (4 max).",
+    "waitingHost": "Waiting for the host to start…",
+    "race": "Finish the loop first!",
+    "youWin": "You finished first! 🎉",
+    "winnerIs": "{name} finished first",
+    "noWinner": "Everyone gave up",
+    "gaveUpWatching": "You gave up. Watch the others",
+    "giveUpConfirm": "Give up? You can’t continue this board.",
+    "showAnswer": "Show answer",
+    "hideAnswer": "Show my lines",
+    "rematch": "Another board",
+    "rematchWait": "Waiting for the host to start another…",
+    "watching": "Watching this round.",
+    "players": "Players",
+    "out": "Out",
+    "linesN": "{n} lines",
+    "boardSize": "Board size",
+    "boardSizeHint": "11×11 is the show’s size.",
+    "rulesTitle": "Room rules",
+    "rules": [
+      "Everyone solves the same random board at once.",
+      "The first correct loop wins right away.",
+      "One hint each; you only see how many lines others have drawn.",
+      "If everyone else gives up, the last player wins."
+    ],
+    "youWinForfeit": "Everyone else gave up — you win!",
+    "winnerForfeit": "{name} outlasted everyone and wins"
   }
 }
