@@ -2050,7 +2050,7 @@
     "gyulChallenge5": "5-minute challenge (scored)",
     "gyulPractice": "Untimed practice",
     "gyulRoom": "Create a friend room (2–4)",
-    "slitherNew": "New challenge (ranked)",
+    "slitherNew": "New challenge (claim a board)",
     "slitherBeat": "Beat a board",
     "slitherPractice": "Practice (9×9 · 10×10 · 11×11)"
   },
@@ -4473,9 +4473,9 @@
     "mode_beat": "Beat a board",
     "mode_practice": "Practice",
     "newTitle": "New challenge",
-    "newDesc": "A fresh random 11×11 board (the show’s size) every time. Your time goes on the ranking and the board joins the list for others to beat. One hint.",
+    "newDesc": "A fresh random 11×11 board (the show’s size) every time. Clear it and you own it; the more boards you own, the higher you rank. One hint.",
     "beatTitle": "Beat a board",
-    "beatDesc": "Play a board someone else cleared, within the current holder’s time. Beat it and the board is yours.",
+    "beatDesc": "Clear someone’s board within their time to take it from them. They lose one board.",
     "needSignIn": "Sign in to play challenges. Your times and ranking are kept on your account.",
     "newStart": "Start a new board",
     "errTried": "You already tried this board. Each board gets one try.",
@@ -4496,18 +4496,18 @@
     "saving": "Saving your time…",
     "beatWin": "Board taken!",
     "tooSlow": "Not counted",
-    "rankNow": "Now #{rank} of {total}",
+    "rankNow": "You own {n} · now #{rank} of {total}",
     "beatWinDesc": "Cleared in {time}. The board has a new owner!",
-    "publishedDesc": "Others can now try your board. If someone beats your time, they take it.",
+    "publishedDesc": "If someone beats your time on this board, they take it. Fast clears are harder to steal.",
     "tooSlowDesc": "It took {time}, over the time limit, so it was not recorded.",
     "timeUp": "Time’s up!",
     "gaveUpBeat": "You gave up",
     "failedBeatDesc": "This board can’t be tried again. Pick another one.",
     "newAgain": "Another new board",
     "otherBoards": "Pick another board",
-    "rankingTitle": "Challenge ranking",
-    "myRank": "You: #{rank} of {total} · {time}",
-    "rankingEmpty": "No times yet. Be the first!",
+    "rankingTitle": "Board collection",
+    "myRank": "You own {n} · #{rank} of {total}",
+    "rankingEmpty": "No owners yet. Clear a new challenge to take the first board!",
     "minSec": "{m}m {s}s",
     "tryBoard": "Try {name}’s board",
     "rankTry": "Try board",
@@ -4515,7 +4515,8 @@
     "focusMine": "This is your board",
     "ownerNow": "This is now {name}’s board!",
     "shareBoardTitle": "Send your board to a friend",
-    "shareBoardText": "Can you clear {name}’s Slitherlink board in {time}? Beat it and it’s yours!"
+    "shareBoardText": "Can you clear {name}’s Slitherlink board in {time}? Beat it and it’s yours!",
+    "mapsCount": "{n} boards"
   },
   "SlitherlinkGuide": {
     "eyebrow": "SLITHERLINK GUIDE",
@@ -4588,8 +4589,8 @@
         "a": "11 dots a side, 10×10 cells: the same size as the board on the show."
       },
       {
-        "q": "How do challenges work?",
-        "a": "A new challenge is a fresh random 11×11 board, ranked by time. Cleared boards go on a list; beat the holder’s time and the board is yours. One try per board."
+        "q": "How do challenges and the ranking work?",
+        "a": "A new challenge is a fresh random 11×11 board; clear it and you own it. Anyone who clears it within the owner’s time takes it. The ranking counts the boards you own. One try per board."
       }
     ],
     "disclaimer": "PUZZLTHINK is an unofficial fan project, not affiliated with any broadcaster; the puzzles follow a public puzzle genre."
