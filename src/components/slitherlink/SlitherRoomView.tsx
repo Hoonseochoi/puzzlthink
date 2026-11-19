@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Check, Clock3, Copy, Crown, Eraser, Eye, Flag, Lightbulb, Loader2, PenLine, RotateCcw, Share2, Swords, Trash2, Users, WifiOff, X } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import RoomEmotes from '@/components/RoomEmotes';
 import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg } from '@/components/ui/gameUi';
@@ -28,7 +27,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useSlitherRoom(code, defaultName);
+  const { status, state, hostOnline, me, mySeat, dispatch, rename } = useSlitherRoom(code, defaultName);
   const [now, setNow] = useState(0);
   const [name, setName] = useState('');
   const [copied, setCopied] = useState(false);
@@ -106,7 +105,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
   const tools: [Tool, typeof PenLine, string][] = [['pen', PenLine, ts('toolPen')], ['eraser', Eraser, ts('toolEraser')], ['marker', X, ts('toolMarker')]];
 
   return <div className={SHELL} style={{ ...accentVars(SLITHER_ACCENT, SLITHER_INK), backgroundImage: fog('120, 100, 220') }}>
-    <RoomEmotes peers={peers} onEmote={emote} />
+    
     <GameHeader backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · 2–4 · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}>
@@ -156,7 +155,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
           {Array.from({ length: state.phase === 'lobby' ? 4 : state.playerCount }, (_, seat) => {
             const solved = state.phase !== 'lobby' ? state.solvedMs[seat] : null;
             const out = state.phase !== 'lobby' && state.gaveUp[seat];
-            return <div key={seat} className={`${playerRow(state.winners.includes(seat))} mb-2`}>
+            return <div key={seat} data-chat-seat={state.seats[seat]?.id} className={`${playerRow(state.winners.includes(seat))} mb-2`}>
               <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: COLORS[seat] }} />
               <span className="min-w-0 flex-1 truncate text-sm font-black">{seatName(seat)}{mySeat === seat ? ` (${t('me')})` : ''}</span>
               {seat === 0 && <Crown size={12} className="text-[#f2c14e]" />}

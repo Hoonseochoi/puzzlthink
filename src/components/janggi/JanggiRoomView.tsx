@@ -11,7 +11,6 @@ import { TURN_OPTIONS } from '@/lib/janggiRoom';
 import { useJanggiRoom } from '@/hooks/useJanggiRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from '../RoomAlerts';
-import RoomEmotes from '@/components/RoomEmotes';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiPiece from './JanggiPiece';
@@ -30,7 +29,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useJanggiRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useJanggiRoom(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -90,7 +89,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={{ ...accentVars(GOLD, '#1a1408'), backgroundImage: JANGGI_FOG }}>
       <WallGoShards tint="#4a3812" />
-      <RoomAlerts alerts={alerts} accent={GOLD} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
+      <RoomAlerts alerts={alerts} accent={GOLD} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader backHref="/janggi" backLabel={tc('janggi')} title="十二將棋" titleClass={hanjaFont.className} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
@@ -176,7 +175,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
                   const active = state.phase === 'playing' && game.turn === seat;
                   const occupant = state.seats[seat];
                   return (
-                    <div key={seat} className={`${playerRow(active)} ${occupant ? '' : 'opacity-50'}`}>
+                    <div key={seat} data-chat-seat={occupant?.id} className={`${playerRow(active)} ${occupant ? '' : 'opacity-50'}`}>
                       <JanggiPiece type="wang" owner={seat as Side} showReading={false} className="h-10 w-10 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">

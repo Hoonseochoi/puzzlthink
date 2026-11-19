@@ -7,7 +7,7 @@ import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
 import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypto';
 import { setRoomOpen, setRoomOpponents } from '@/lib/stats';
 import { isOpenRoom } from '@/lib/openRooms';
-import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat } from '@/lib/roomChat';
+import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatPeers } from '@/lib/roomChat';
 
 /**
  * Host-authoritative room over Supabase Realtime (broadcast + presence).
@@ -109,6 +109,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   }), []);
 
   const lastChange = useRef(0);
+  const emoteRef = useRef<((text: string) => void) | null>(null); // for the chat drawer's quick reactions
   // Encrypted per-seat secrets (only used when the engine defines privateFor).
   const keysRef = useRef<Promise<{ privateKey: CryptoKey; pub: string }> | null>(null);
   const peerPubs = useRef(new Map<string, string>()); // peer id -> public key
@@ -199,6 +200,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       const hostMeta = Object.entries(presence).find(([, metas]) => metas.some((meta) => meta.host));
       if (hostMeta?.[1][0]?.pub) peerPubs.current.set('__host__', hostMeta[1][0].pub);
       setPeers(list);
+      setChatPeers(chatToken, list);
       setHostOnline(Object.values(presence).some((metas) => metas.some((meta) => meta.host)));
       if (meRef.current?.isHost && stateRef.current) {
         const next = engine.syncSeats(stateRef.current, list);
@@ -242,7 +244,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       channel.send({ type: 'broadcast', event: 'chat', payload: message });
       pushChat(chatToken, { ...message, key: `${self.id}-${at}`, at, mine: true });
       return null;
-    });
+    }, (text) => emoteRef.current?.(text));
     channel.on('broadcast', { event: 'chat' }, ({ payload }) => {
       const from = typeof payload?.from === 'string' ? payload.from : '';
       const text = typeof payload?.text === 'string' ? cleanChat(payload.text) : '';
@@ -299,6 +301,8 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     lastEmote.current = now;
     channelRef.current?.track({ ...presenceMeta(identity), emote: text.slice(0, 4), emoteAt: now });
   }, [presenceMeta]);
+
+  useEffect(() => { emoteRef.current = emote; }, [emote]);
 
   const rename = useCallback((name: string) => {
     const identity = meRef.current;

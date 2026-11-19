@@ -6,7 +6,6 @@ import { Check, Clock3, Copy, Crown, Eye, EyeOff, Flag, Loader2, Lock, RotateCcw
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
-import RoomEmotes from '@/components/RoomEmotes';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import InviteCode from '@/components/ui/InviteCode';
@@ -29,7 +28,7 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
   const tc = useTranslations('Common');
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useBlindGomokuRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useBlindGomokuRoom(code, defaultName);
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -118,7 +117,7 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('190, 132, 35') }}>
       <Shards />
-      <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} /><RoomEmotes peers={peers} onEmote={emote} />
+      <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader backHref="/blind-gomoku" backLabel={tc('blindGomoku')} title={tb('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
@@ -197,7 +196,7 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
                   const occupant = state.seats[seat];
                   const owner = ownerOf(state, seat);
                   return (
-                    <div key={seat} className={`${playerRow(state.phase === 'playing' && toMove === seat)} ${occupant ? '' : 'opacity-50'}`}>
+                    <div key={seat} data-chat-seat={occupant?.id} className={`${playerRow(state.phase === 'playing' && toMove === seat)} ${occupant ? '' : 'opacity-50'}`}>
                       <div className="h-10 w-10 shrink-0"><BlindStone color={seat === 0 ? '#ef4957' : '#4e87ed'} owner={owner} revealed={state.phase !== 'lobby'} /></div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">

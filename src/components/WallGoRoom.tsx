@@ -15,7 +15,6 @@ import { ReplayButton, ReplayControls, ReplayHeader } from './ui/ReplayBar';
 import { accentVars } from './ui/gameUi';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from './RoomAlerts';
-import RoomEmotes from '@/components/RoomEmotes';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
@@ -37,7 +36,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   // The page always renders one variant, so the same hook runs on every render.
   const useRoom = v2 ? useWallGo2Room : useWallGoRoom;
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useRoom(code, defaultName);
   const [placeKind, setPlaceKind] = useState<PieceKind>('circle');
   const [selectedPieceId, setSelectedPieceId] = useState<string | null>(null);
   const [pendingBreak, setPendingBreak] = useState<string | null>(null); // wall picked to knock down before moving
@@ -140,7 +139,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
     <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ ...accentVars('#e0283a'), backgroundImage: FOG }}>
       <Shards />
       <RoomAlerts alerts={alerts} accent="#ff4d5e" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-      <RoomEmotes peers={peers} onEmote={emote} />
+      
       <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Link href={PATH} className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">{tc(GAME)}</span></Link>
@@ -233,7 +232,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
                   const player = index as PlayerId;
                   const active = state.current === player && (state.phase === 'placement' || state.phase === 'playing');
                   return (
-                    <div key={index} className={`flex items-center gap-3 rounded-[10px] border p-3 ${active ? 'border-[#e0283a]/50 bg-white/[0.04] shadow-[inset_0_0_20px_rgba(224,40,58,.08)]' : 'border-transparent'} ${seat ? '' : 'opacity-50'}`}>
+                    <div key={index} data-chat-seat={seat?.id} className={`flex items-center gap-3 rounded-[10px] border p-3 ${active ? 'border-[#e0283a]/50 bg-white/[0.04] shadow-[inset_0_0_20px_rgba(224,40,58,.08)]' : 'border-transparent'} ${seat ? '' : 'opacity-50'}`}>
                       <WallGoCharacter player={player} className="h-10 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">

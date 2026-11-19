@@ -13,7 +13,8 @@ const REPEAT_LIMIT = 3; // the same text three times in a row
 export type ChatMessage = { key: string; from: string; uid?: string; name: string; text: string; at: number; mine: boolean };
 export type ChatBlock = 'fast' | 'burst' | 'repeat';
 
-type Room = { token: number; messages: ChatMessage[]; send: (text: string) => ChatBlock | null; myId: string };
+export type ChatPeer = { id: string; name: string; emote?: string; emoteAt?: number };
+type Room = { token: number; messages: ChatMessage[]; send: (text: string) => ChatBlock | null; emote: (text: string) => void; myId: string; peers: ChatPeer[] };
 let room: Room | null = null;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((fn) => fn());
@@ -23,9 +24,9 @@ export const chatSnapshot = () => room;
 
 /** Called by the room hook when it connects; returns a token used to update or leave. */
 let nextToken = 1;
-export function openChat(myId: string, send: (text: string) => ChatBlock | null) {
+export function openChat(myId: string, send: (text: string) => ChatBlock | null, emote: (text: string) => void) {
   const token = nextToken++;
-  room = { token, messages: [], send, myId };
+  room = { token, messages: [], send, emote, myId, peers: [] };
   emit();
   return token;
 }
@@ -37,6 +38,13 @@ export function closeChat(token: number) {
 export function pushChat(token: number, message: ChatMessage) {
   if (room?.token !== token) return;
   room = { ...room, messages: [...room.messages, message].slice(-CHAT_KEEP) };
+  emit();
+}
+
+/** Who is in the room (for names and quick reactions). */
+export function setChatPeers(token: number, peers: ChatPeer[]) {
+  if (room?.token !== token) return;
+  room = { ...room, peers };
   emit();
 }
 
