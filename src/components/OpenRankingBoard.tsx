@@ -7,6 +7,7 @@ import { type GameId, type RankRow, type TopRow, fetchOpenTop, myOpenPlace } fro
 import { useAuth } from './AuthProvider';
 import { GAME_LABEL } from './HallCelebration';
 import RankMove from './RankMove';
+import { byGameOrder } from './recordOrder';
 
 const GAMES: { id: GameId; color: string }[] = [
   { id: 'slitherlink', color: '#8f7cff' }, { id: 'gyulhap', color: '#ffcf3f' }, { id: 'indian_poker', color: '#e6b94f' },
@@ -44,7 +45,7 @@ export default function OpenRankingBoard() {
       <p className="mt-1 text-xs text-black/45">{t('desc')}</p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {GAMES.map((game) => {
+        {byGameOrder(GAMES, (g) => g.id, (g) => (rankings[g.id]?.top.length ?? 0) > 0).map((game) => {
           const ranking = rankings[game.id];
           const me = ranking?.near.find((row) => row.is_me);
           return (
