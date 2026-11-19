@@ -4661,6 +4661,8 @@
     "giveUpChallenge": "포기하기",
     "saving": "기록 저장 중…",
     "beatWin": "도장깨기 성공!",
+    "flaggedTitle": "기록 미인정",
+    "flaggedDesc": "이번 판은 직접 푼 풀이로 확인되지 않아 기록에 남지 않았어요.",
     "tooSlow": "아깝게 기록 인정 실패",
     "rankNow": "보유 맵 {n}개 · 현재 #{rank} / {total}명",
     "beatWinDesc": "{time} 만에 깼어요. 이 맵의 주인이 바뀌었어요!",

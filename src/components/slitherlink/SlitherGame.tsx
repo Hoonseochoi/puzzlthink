@@ -16,12 +16,12 @@ import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accent
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { CoffeeNudge } from '@/components/SupportLink';
 import { SLITHER_SIZES, type Mark, type SlitherSize, type Puzzle, formatClock, generatePuzzle, hintEdges, isSolved, loopOrder, newSeed } from '@/lib/slitherlink';
-import { type BoardRow, type FinishResult, type RankRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
+import { type BoardRow, type FinishResult, type RankRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, finishCleared, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
 import { reportGame } from '@/lib/stats';
 import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool } from './SlitherBoard';
 
 type Mode = 'challenge' | 'beat' | 'practice';
-type Step = { changes: [number, Mark][]; hint?: boolean };
+type Step = { changes: [number, Mark][]; hint?: boolean; at?: [number, number] };
 type Phase = 'lobby' | 'starting' | 'play' | 'solved' | 'reveal' | 'gaveUp' | 'failed';
 const MODES: Mode[] = ['challenge', 'beat', 'practice'];
 const SIZE_KEY = 'puzzlthink_slither_size';
@@ -84,6 +84,7 @@ export default function SlitherGame() {
   const phaseRef = useRef<Phase>('lobby');
   const hintsRef = useRef(0);
   const runRef = useRef<SlitherRun | null>(null);
+  const stepsRef = useRef<Step[]>([]); // every move this run, for the server's replay
   const setBoard = (next: Mark[]) => { marksRef.current = next; setMarks(next); };
   const setPhaseNow = (next: Phase) => { phaseRef.current = next; setPhase(next); };
 
@@ -94,7 +95,7 @@ export default function SlitherGame() {
     clearTimers();
     const p = generatePuzzle(dots, seed);
     setPuzzle(p);
-    setBoard(new Array<Mark>(p.solution.length).fill(0)); setLocked(new Set()); setSteps([]);
+    setBoard(new Array<Mark>(p.solution.length).fill(0)); setLocked(new Set()); setSteps([]); stepsRef.current = [];
     setTool('pen'); setPhaseNow('play'); const at = clockNow(); setStartedAt(at); setNow(at); setEndMs(0);
     hintsRef.current = 0; setHints(0); setFlashArea(null); setRevealed(0); setReplaying(false); setConfirmClear(false); setResult(null); setError(null);
   };
@@ -166,19 +167,23 @@ export default function SlitherGame() {
   const endRun = async (cleared: boolean) => {
     const r = runRef.current;
     if (!r) return;
-    const { data } = await finishRun(r.run, cleared, hintsRef.current);
+    const { data } = cleared
+      ? await finishCleared(r.run, stepsRef.current.map((st) => (st.hint && st.at ? { h: st.at } : { c: st.changes })))
+      : await finishRun(r.run, false, hintsRef.current);
     runRef.current = null;
     setResult(data ?? { ok: false, ms: Date.now() - startedAt, rank: null, total: null });
     if (data) reportGame(`slitherlink-${r.run}`, 'slitherlink', 'solo', data.ok ? 'win' : 'loss', { kind: mode === 'beat' ? 'beat' : 'new', ms: data.ms, hints: hintsRef.current });
     setListTick((n) => n + 1);
   };
 
-  const apply = (changes: [number, Mark][], hint = false) => {
+  const apply = (changes: [number, Mark][], hint = false, at?: [number, number]) => {
     if (!puzzle || phaseRef.current !== 'play') return;
     const next = [...marksRef.current];
     for (const [e, v] of changes) next[e] = v;
     setBoard(next);
-    setSteps((list) => [...list, { changes, hint }]);
+    const step: Step = { changes, hint, at };
+    stepsRef.current = [...stepsRef.current, step];
+    setSteps(stepsRef.current);
     if (isSolved(puzzle, next)) {
       setPhaseNow('solved'); setEndMs(Date.now() - startedAt);
       if (mode === 'practice') countPractice(); else endRun(true);
@@ -195,7 +200,7 @@ export default function SlitherGame() {
     setTool('pen');
     setFlashArea({ r, c });
     timers.current.push(window.setTimeout(() => setFlashArea(null), 1400));
-    apply(changes, true);
+    apply(changes, true, [r, c]);
   };
 
   const clearAll = () => {
@@ -376,10 +381,10 @@ export default function SlitherGame() {
                   </>}
                   {phase === 'solved' && mode !== 'practice' && (!result ? <p className="flex items-center justify-center gap-2 text-sm text-white/60"><Loader2 size={14} className="animate-spin" />{t('saving')}</p> : <>
                     <p className="flex items-center justify-center gap-2 text-2xl font-black">{result.ok ? <Check size={24} className="text-[#7ee2ae]" /> : <X size={24} className="text-[#ff8f8f]" />}
-                      {result.ok ? (mode === 'beat' ? t('beatWin') : t('solvedTitle', { time: time(result.ms) })) : t('tooSlow')}</p>
+                      {result.ok ? (mode === 'beat' ? t('beatWin') : t('solvedTitle', { time: time(result.ms) })) : result.flagged ? t('flaggedTitle') : t('tooSlow')}</p>
                     {result.ok && result.rank && <p className="mt-2 inline-block rounded-full bg-(--accent)/15 px-4 py-1.5 text-sm font-black text-(--accent)">{t('rankNow', { rank: result.rank, total: result.total ?? result.rank, n: result.maps ?? 1 })}</p>}
                     {result.ok && <p className="mt-3 flex items-center justify-center gap-1.5 text-base font-black text-[#ffcf3f]"><Crown size={17} />{t('ownerNow', { name: myName })}</p>}
-                    <p className="mt-2 break-keep text-xs text-white/50">{result.ok ? (mode === 'beat' ? t('beatWinDesc', { time: time(result.ms) }) : t('publishedDesc')) : t('tooSlowDesc', { time: time(result.ms) })}</p>
+                    <p className="mt-2 break-keep text-xs text-white/50">{result.ok ? (mode === 'beat' ? t('beatWinDesc', { time: time(result.ms) }) : t('publishedDesc')) : result.flagged ? t('flaggedDesc') : t('tooSlowDesc', { time: time(result.ms) })}</p>
                     {result.ok && run && (
                       <div className="mt-4 rounded-[14px] border border-(--accent)/30 bg-(--accent)/[.06] p-3">
                         <p className="text-xs font-black">{t('shareBoardTitle')}</p>
