@@ -10,6 +10,7 @@ import { getSupabase } from '@/lib/supabase';
 import AuthButton from './AuthButton';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
 import OpenRankingBoard from './OpenRankingBoard';
+import RankMove from './RankMove';
 
 const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'gyulhap', href: '/gyulhap', color: '#ffcf3f' },
@@ -217,7 +218,7 @@ export default function RecordsClient() {
                           return (
                             <li key={index} className={`flex items-center gap-2.5 rounded-2xl px-2.5 py-2 ${entry ? 'bg-white' : 'border border-dashed border-black/10'}`}>
                               <span className="w-6 text-center text-lg">{MEDALS[index]}</span>
-                              {entry ? <><Avatar src={entry.avatar_url} name={entry.nickname} size={28} /><span className="min-w-0 flex-1 truncate text-xs font-extrabold">{entry.nickname}</span><span className="shrink-0 font-mono text-[11px] font-black text-black/55">{t(game.id === 'sudoku' ? 'solvedCount' : 'winsCount', { n: entry.wins })}</span></> : <span className="text-[11px] text-black/30">{t('emptySpot')}</span>}
+                              {entry ? <><Avatar src={entry.avatar_url} name={entry.nickname} size={28} /><span className="min-w-0 flex-1 truncate text-xs font-extrabold">{entry.nickname}</span><span className="shrink-0 font-mono text-[11px] font-black text-black/55">{t(game.id === 'sudoku' ? 'solvedCount' : 'winsCount', { n: entry.wins })}</span><RankMove rank={entry.rank} prev={entry.prev_rank} /></> : <span className="text-[11px] text-black/30">{t('emptySpot')}</span>}
                             </li>
                           );
                         })}

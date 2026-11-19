@@ -9,6 +9,7 @@ import { formatMs } from '@/lib/nemoCount';
 import { type GameRanking, fetchGameRanking, gameFromSlug, hasHall, hasOpen, rankImagePath, rankPath, rankSlug } from '@/lib/rankings';
 import { pageMetadata } from '@/lib/seo';
 import type { GameId } from '@/lib/stats';
+import RankMove from '@/components/RankMove';
 
 type Params = { params: Promise<{ locale: string; game: string }> };
 const MEDAL = ['🥇', '🥈', '🥉'];
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return { ...base, openGraph: { ...base.openGraph, images: [image] }, twitter: { ...base.twitter, images: [image.url] } };
 }
 
-function Board({ title, desc, icon, empty, rows }: { title: string; desc: string; icon: React.ReactNode; empty: string; rows: { rank: number; name: string; stat: string }[] }) {
+function Board({ title, desc, icon, empty, rows }: { title: string; desc: string; icon: React.ReactNode; empty: string; rows: { rank: number; name: string; stat: string; prev?: number | null }[] }) {
   return (
     <section className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-5">
       <h2 className="flex items-center gap-2 text-lg font-black">{icon}{title}</h2>
@@ -36,6 +37,7 @@ function Board({ title, desc, icon, empty, rows }: { title: string; desc: string
               <span className="w-7 text-center font-mono">{MEDAL[r.rank - 1] ?? r.rank}</span>
               <span className="min-w-0 flex-1 truncate">{r.name}</span>
               <span className="font-mono text-xs text-black/60">{r.stat}</span>
+              <RankMove rank={r.rank} prev={r.prev} />
             </li>
           ))}
         </ol>
@@ -67,7 +69,7 @@ export default async function RankingPage({ params }: Params) {
         <div className="mt-8 grid gap-4">
           {hasHall(game) && (
             <Board title={t('hallTitle')} desc={game === 'sudoku' ? t('hallDescSudoku') : t('hallDesc')} icon={<Crown size={18} className="text-[#e8a33c]" />} empty={t('empty')}
-              rows={r.hall.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('wins', { w: x.wins, g: x.games }) }))} />
+              rows={r.hall.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('wins', { w: x.wins, g: x.games }), prev: x.prev_rank }))} />
           )}
           {r.nemo && (['hard', 'normal', 'easy'] as const).map((d) => (
             <Board key={d} title={t('nemoTitle', { level: t(`level_${d}`) })} desc={t('nemoDesc')} icon={<Timer size={18} className="text-[#5b6b9a]" />} empty={t('empty')}
@@ -75,7 +77,7 @@ export default async function RankingPage({ params }: Params) {
           ))}
           {hasOpen(game) && (
             <Board title={t('openTitle')} desc={t('openDesc')} icon={<DoorOpen size={18} className="text-[#ff4d5e]" />} empty={t('emptyOpen')}
-              rows={r.open.map((x) => ({ rank: x.rank, name: x.nickname ?? 'Player', stat: t('wld', { w: x.wins, l: x.losses, d: x.draws }) }))} />
+              rows={r.open.map((x) => ({ rank: x.rank, name: x.nickname ?? 'Player', stat: t('wld', { w: x.wins, l: x.losses, d: x.draws }), prev: x.prev_rank }))} />
           )}
         </div>
 

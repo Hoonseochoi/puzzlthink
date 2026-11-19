@@ -11,7 +11,7 @@ export type GameMode = 'ai' | 'friend' | 'solo';
 export type GameResult = 'win' | 'loss' | 'draw';
 export type ResultRow = { game: GameId; mode: GameMode; result: GameResult; detail: Record<string, unknown>; played_at: string };
 export type Profile = { nickname: string | null; full_name: string | null; avatar_url: string | null; show_in_hall: boolean; created_at: string; last_seen_at: string | null; total_seconds: number };
-export type HallEntry = { game: GameId; rank: number; nickname: string; avatar_url: string | null; wins: number; games: number };
+export type HallEntry = { game: GameId; rank: number; nickname: string; avatar_url: string | null; wins: number; games: number; prev_rank?: number | null };
 
 const reported = new Set<string>();
 
@@ -131,7 +131,7 @@ export async function myOpenPlace(game: GameId): Promise<{ rank: number | null; 
   return { rank: near.find((row) => row.is_me)?.rank ?? null, near };
 }
 
-export type TopRow = { rank: number; nickname: string | null; avatar_url: string | null; wins: number; losses: number; draws: number };
+export type TopRow = { rank: number; nickname: string | null; avatar_url: string | null; wins: number; losses: number; draws: number; prev_rank?: number | null };
 export async function fetchOpenTop(game: GameId, limit = 5): Promise<TopRow[] | null> {
   const supabase = getSupabase();
   if (!supabase) return null;
