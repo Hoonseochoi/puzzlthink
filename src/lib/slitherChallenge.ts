@@ -3,8 +3,8 @@ import { getSupabase } from './supabase';
 
 export type SlitherRun = { run: string; challenge: string; seed: number; dots: number; limit_ms?: number; holder?: string };
 export type FinishResult = { ok: boolean; ms: number; rank: number | null; total: number | null };
-export type RankRow = { rank: number; nickname: string; ms: number; is_me: boolean };
-export type BoardRow = { id: string; holder: string; holder_ms: number; first_name: string; attempts: number; takeovers: number; published_at: string; tried: boolean };
+export type RankRow = { rank: number; nickname: string; ms: number; is_me: boolean; board: string | null; board_ms: number | null; tried: boolean };
+export type BoardRow = { id: string; holder: string; holder_ms: number; first_name: string; attempts: number; takeovers: number; published_at: string; tried: boolean; mine?: boolean };
 
 async function call<T>(name: string, args: Record<string, unknown> = {}): Promise<{ data: T | null; error: string | null }> {
   const supabase = getSupabase();
@@ -18,6 +18,9 @@ export const startBeat = (id: string) => call<SlitherRun>('slither_start_beat', 
 export const finishRun = (run: string, cleared: boolean, hints: number) => call<FinishResult>('slither_finish', { p_run: run, p_cleared: cleared, p_hints: hints });
 export const fetchRanking = (limit = 10) => call<RankRow[]>('slither_ranking', { p_limit: limit });
 export const fetchMe = () => call<{ rank: number; ms: number; total: number }[]>('slither_me');
+export const fetchBoard = (id: string) => call<BoardRow[]>('slither_board', { p_id: id });
+/** Link that opens one board ready to play ("○○님의 맵 해보기"). */
+export const boardPath = (locale: string, id: string) => `/${locale}/slitherlink?mode=beat&board=${id}#play`;
 export const fetchBoards = (limit = 30) => call<BoardRow[]>('slither_challenges_list', { p_limit: limit });
 
 /** Counts a finished practice board (no record). */
