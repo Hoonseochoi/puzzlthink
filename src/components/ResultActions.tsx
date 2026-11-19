@@ -9,6 +9,7 @@ import { displayName, useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
 import { clearPendingGame } from '@/lib/stats';
 import { CoffeeNudge } from './SupportLink';
+import AdSlot from './AdSlot';
 
 /** "Keep this on record?" card with Google sign-in, shown on result screens to signed-out players. */
 function RecordPrompt() {
@@ -98,6 +99,8 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
         </div>
       </div>
       <CoffeeNudge className="mt-4" />
+      {/* Below the buttons so a late-loading ad never shifts them under the player's finger. */}
+      <AdSlot placement="result" tone="dark" compact className="mt-5 border-t border-white/10 pt-4" />
     </>
   );
 }

@@ -3,6 +3,7 @@ import type { PieceType } from '@/lib/janggi';
 import JanggiDiagram, { JanggiMoveChart, type JanggiDiagramSpec } from './JanggiDiagram';
 import JanggiPiece from './JanggiPiece';
 import { hanjaFont } from './theme';
+import AdSlot from '@/components/AdSlot';
 
 type Item = { title: string; body: string; tag?: string };
 type Faq = { q: string; a: string };
@@ -34,6 +35,7 @@ export default async function JanggiGuide({ locale }: { locale: string }) {
 
   return (
     <section id="guide" className="relative z-10 border-t border-white/10 bg-[#0a0c10] px-5 py-16 text-[#eceff4]">
+      <AdSlot placement="inline" tone="dark" className="mx-auto mb-12 max-w-3xl" />
       <article className="mx-auto max-w-4xl">
         <span className="text-[10px] font-black tracking-[0.2em] text-[#e8c170]">{t('eyebrow')}</span>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">{t('title')}</h1>

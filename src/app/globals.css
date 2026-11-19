@@ -59,3 +59,6 @@ button:disabled { cursor: default; }
   .hype-tag::after, .hype-flame { animation: none; }
   .h13-pass-pop { animation: none; }
 }
+
+/* AdSense: collapse a unit (and its label) when Google has no ad to show. */
+.ad-slot:has(ins.adsbygoogle[data-ad-status="unfilled"]) { display: none; }
