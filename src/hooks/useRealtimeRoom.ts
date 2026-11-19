@@ -6,7 +6,7 @@ import { getSupabase } from '@/lib/supabase';
 import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
 import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypto';
 import { setRoomOpen, setRoomOpponents } from '@/lib/stats';
-import { isOpenRoom } from '@/lib/openRooms';
+import { isOpenRoom, pingFriendRoom } from '@/lib/openRooms';
 import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatPeers } from '@/lib/roomChat';
 
 /**
@@ -327,6 +327,16 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     setRoomOpen(isOpenRoom(code));
     return () => { setRoomOpponents([]); setRoomOpen(false); };
   }, [code]);
+
+  // 친구 대전 count on the home card: the host pings once a minute while two or more people are here (open rooms are listed on their own).
+  const together = !!me?.isHost && status === 'online' && peers.length >= 2 && !isOpenRoom(code);
+  useEffect(() => {
+    if (!together) return;
+    const room = `${engine.channel}-${code}`;
+    pingFriendRoom(room);
+    const timer = window.setInterval(() => pingFriendRoom(room), 60_000);
+    return () => window.clearInterval(timer);
+  }, [together, engine.channel, code]);
 
   const mySeat = state && me ? seatOf(state, me.id) : null;
   return { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote };
