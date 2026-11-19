@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, Trophy, X } from 'lucide-react';
 import { usePathname, Link } from '@/i18n/routing';
 import { GAMES } from '@/lib/gameCatalog';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -45,6 +45,8 @@ export default function GlobalHeader() {
           <GamesMenu variant="cta" align="right" />
         </div>
 
+        {/* Phones / installed app: 기록실 one tap away, beside the menu button. */}
+        <Link href="/records" onClick={closeMenu} className="ml-auto mr-1 flex items-center gap-1.5 rounded-xl border border-black/10 bg-white/70 px-3 py-1.5 text-xs font-extrabold text-black/75 transition hover:bg-white md:hidden"><Trophy size={14} className="text-[#e8a33c]" />{t('records')}</Link>
         <button type="button" aria-label={t('menu')} aria-expanded={open} onClick={() => setOpen((value) => !value)} className="rounded-xl p-2 transition hover:bg-white md:hidden">{open ? <X size={20} /> : <Menu size={20} />}</button>
       </div>
 
