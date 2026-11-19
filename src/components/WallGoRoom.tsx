@@ -6,9 +6,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, Check, Clock3, Copy, Crown, Eye, Loader2, Lock, Play, Share2, Users, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
-import { MODES, type Direction, type PlayerId, getBreakOptions, getMoveOptions, getTerritory } from '@/lib/wallgo';
+import { type Direction, type PieceKind, type PlayerId, type Variant, getBreakOptions, getMoveOptions, getTerritory, kindsToPlace, modesOf } from '@/lib/wallgo';
 import type { LogEntry } from '@/lib/wallgoRoom';
-import { useWallGoRoom } from '@/hooks/useWallGoRoom';
+import { useWallGo2Room, useWallGoRoom } from '@/hooks/useWallGoRoom';
+import { KindPicker } from './WallGoGame';
 import { useGameCounter, useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
 import { ReplayButton, ReplayControls, ReplayHeader } from './ui/ReplayBar';
 import { accentVars } from './ui/gameUi';
@@ -20,17 +21,24 @@ import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
 import ResultActions from './ResultActions';
 import WallGoScoreStrip from './WallGoScoreStrip';
-import WallGoCharacter from './WallGoCharacter';
+import WallGoCharacter, { WallGoVariant } from './WallGoCharacter';
 import Shards from './WallGoShards';
 import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
 
-export default function WallGoRoom({ code }: { code: string }) {
+export default function WallGoRoom({ code, variant = 1 }: { code: string; variant?: Variant }) {
   const t = useTranslations('WallGoOnline');
   const tw = useTranslations('WallGo');
   const tc = useTranslations('Common');
   const locale = useLocale();
+  const v2 = variant === 2;
+  const GAME = v2 ? 'wallgo2' : 'wallgo';
+  const PATH = v2 ? '/wallgo-2' : '/wallgo';
+  const tv = (key: string) => (v2 && tw.has(`v2${key[0].toUpperCase()}${key.slice(1)}`) ? tw(`v2${key[0].toUpperCase()}${key.slice(1)}`) : tw(key));
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useWallGoRoom(code, defaultName);
+  // The page always renders one variant, so the same hook runs on every render.
+  const useRoom = v2 ? useWallGo2Room : useWallGoRoom;
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote } = useRoom(code, defaultName);
+  const [placeKind, setPlaceKind] = useState<PieceKind>('circle');
   const [selectedPieceId, setSelectedPieceId] = useState<string | null>(null);
   const [pendingBreak, setPendingBreak] = useState<string | null>(null); // wall picked to knock down before moving
   const [now, setNow] = useState(() => Date.now());
@@ -55,7 +63,7 @@ export default function WallGoRoom({ code }: { code: string }) {
   useEffect(() => {
     const phase = state?.phase ?? null;
     if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
-      reportGame(`wallgo-friend-${crypto.randomUUID()}`, 'wallgo', 'friend', (state.winners ?? [state.winner]).includes(mySeat) ? ((state.winners?.length ?? 1) > 1 ? 'draw' : 'win') : 'loss', { players: state.seats.length });
+      reportGame(`${GAME}-friend-${crypto.randomUUID()}`, GAME, 'friend', (state.winners ?? [state.winner]).includes(mySeat) ? ((state.winners?.length ?? 1) > 1 ? 'draw' : 'win') : 'loss', { players: state.seats.length });
     }
     prevPhase.current = phase;
   });
@@ -64,11 +72,11 @@ export default function WallGoRoom({ code }: { code: string }) {
     const timer = window.setInterval(() => setNow(Date.now()), 500);
     const slow = window.setTimeout(() => setWaitedLong(true), 6000);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the share link needs window.location
-    setShareUrl(`${window.location.origin}/${locale}/wallgo/room/${code}`);
+    setShareUrl(`${window.location.origin}/${locale}${PATH}/room/${code}`);
     return () => { window.clearInterval(timer); window.clearTimeout(slow); };
-  }, [code, locale]);
+  }, [code, locale, PATH]);
 
-  const mode = state ? MODES[state.mode] : null;
+  const mode = state ? modesOf(state.variant ?? variant)[state.mode] : null;
   const walls = useMemo(() => new Set(state?.walls ?? []), [state?.walls]);
   const scoring = state?.phase === 'playing' || state?.phase === 'finished';
   // Territory only means something once every piece is on the board.
@@ -78,13 +86,19 @@ export default function WallGoRoom({ code }: { code: string }) {
   const myTurn = !!state && mySeat !== null && state.current === mySeat && (state.phase === 'placement' || state.phase === 'playing');
   const myMoves = useMemo(() => (
     state && mode && myTurn && state.phase === 'playing' && state.step === 'move'
-      ? getMoveOptions(state.pieces, walls, mySeat!, mode.wallBreak && state.breaks[mySeat!]) : []
+      ? getMoveOptions(state.pieces, walls, mySeat!, mode.wallBreak && state.breaks[mySeat!], mode.variant) : []
   ), [state, mode, myTurn, walls, mySeat]);
   const selectedPiece = state?.pieces.find((piece) => piece.id === selectedPieceId);
   // Walls next to the selected piece that it may knock down (3-player, once per game).
-  const breakOptions = selectedPiece && mode?.wallBreak && state?.breaks[mySeat!] ? getBreakOptions(walls, selectedPiece).filter((option) => myMoves.some((move) => move.pieceId === selectedPiece.id && move.brokenWall === option.key)) : [];
+  const breakOptions = !v2 && selectedPiece && mode?.wallBreak && state?.breaks[mySeat!] ? getBreakOptions(walls, selectedPiece).filter((option) => myMoves.some((move) => move.pieceId === selectedPiece.id && move.brokenWall === option.key)) : [];
   const activeBreak = breakOptions.some((option) => option.key === pendingBreak) ? pendingBreak : null;
-  const selectedMoves = selectedPieceId ? myMoves.filter((move) => move.pieceId === selectedPieceId && (move.brokenWall ?? null) === activeBreak) : [];
+  const selectedMoves = !selectedPieceId ? [] : v2
+    ? myMoves.filter((move) => move.pieceId === selectedPieceId)
+      .sort((a, b) => Number(!!a.brokenWall) - Number(!!b.brokenWall))
+      .filter((move, i, list) => list.findIndex((other) => other.to.row === move.to.row && other.to.col === move.to.col) === i)
+    : myMoves.filter((move) => move.pieceId === selectedPieceId && (move.brokenWall ?? null) === activeBreak);
+  const myKindsLeft = state && mode && mySeat !== null && state.phase === 'placement' ? kindsToPlace(mode, state.pieces, mySeat) : [];
+  const myKind: PieceKind | undefined = myKindsLeft.length ? (myKindsLeft.includes(placeKind) ? placeKind : myKindsLeft[0]) : undefined;
   const winners = state?.winners?.length ? state.winners : state?.winner !== null && state?.winner !== undefined ? [state.winner] : [];
   const online = new Set(peers.map((peer) => peer.id));
   const names = state ? state.seats.map((seat, i) => seat ? (seat.id === me?.id ? `${seat.name} (${t('me')})` : seat.name) : t('emptySeat', { n: i + 1 })) : [];
@@ -93,7 +107,7 @@ export default function WallGoRoom({ code }: { code: string }) {
 
   const handleCellClick = (row: number, col: number) => {
     if (!state || !myTurn) return;
-    if (state.phase === 'placement') { dispatch({ t: 'place', row, col }); return; }
+    if (state.phase === 'placement') { dispatch({ t: 'place', row, col, ...(myKind ? { kind: myKind } : {}) }); return; }
     if (state.step !== 'move') return;
     const piece = state.pieces.find((item) => item.row === row && item.col === col);
     const move = selectedMoves.find((option) => option.to.row === row && option.to.col === col);
@@ -122,15 +136,16 @@ export default function WallGoRoom({ code }: { code: string }) {
     : !state && waitedLong ? t('roomNotFound') : state && !me?.isHost && !hostOnline ? t('hostOffline') : null;
 
   return (
+    <WallGoVariant.Provider value={variant}>
     <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ ...accentVars('#e0283a'), backgroundImage: FOG }}>
       <Shards />
       <RoomAlerts alerts={alerts} accent="#ff4d5e" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <RoomEmotes peers={peers} onEmote={emote} />
       <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          <Link href="/wallgo" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">{tc('wallgo')}</span></Link>
+          <Link href={PATH} className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">{tc(GAME)}</span></Link>
           <span className="h-5 w-px bg-white/15" />
-          <strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc('wallgo') : 'WALLGO'}</strong>
+          <strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc(GAME) : v2 ? 'WALLGO II' : 'WALLGO'}</strong>
           <span className="hidden text-[9px] font-bold tracking-[0.16em] text-[#ff4d5e]/70 sm:inline">ONLINE · {mode ? `${mode.id === 'two' ? '1:1' : '1:1:1'} · ` : ''}{code.toUpperCase()}</span>
         </div>
         <BugReport /><LanguageSwitcher compact dark />
@@ -141,7 +156,7 @@ export default function WallGoRoom({ code }: { code: string }) {
       {!state ? (
         <main className="relative z-10 flex min-h-[60vh] items-center justify-center px-4">
           {!notice && <p className="flex items-center gap-2 text-sm text-white/50"><Loader2 size={16} className="animate-spin" />{t('connecting')}</p>}
-          {notice && <Link href="/wallgo" className="rounded-md bg-[#e0283a] px-4 py-2.5 text-sm font-bold text-white">{t('backToGame')}</Link>}
+          {notice && <Link href={PATH} className="rounded-md bg-[#e0283a] px-4 py-2.5 text-sm font-bold text-white">{t('backToGame')}</Link>}
         </main>
       ) : (
         <main className="relative z-10 mx-auto grid w-full max-w-[1180px] gap-4 px-3 py-3 sm:gap-6 sm:px-4 sm:py-5 lg:grid-cols-[minmax(0,760px)_320px] lg:px-6 lg:py-8">
@@ -197,6 +212,7 @@ export default function WallGoRoom({ code }: { code: string }) {
                 <ReplayControls player={replay} onShowResult={() => setReplaying(false)} />
               </> : <>
                 <WallGoScoreStrip players={mode?.players ?? [0, 1, 2]} current={state.current} active={state.phase === 'placement' || state.phase === 'playing'} names={state.seats.map((seat, i) => seat?.name ?? t('emptySeat', { n: i + 1 }))} scores={territory.scores} pieces={(mode?.players ?? []).map((p) => state.pieces.filter((piece) => piece.player === p).length)} total={(mode?.totalPieces ?? 6) / (mode?.players.length ?? 3)} breaks={mode?.wallBreak ? state.breaks : null} unit={tw('unitTiles')} />
+                {v2 && myTurn && state.phase === 'placement' && myKindsLeft.length > 0 && <KindPicker left={myKindsLeft} value={myKind!} onChange={setPlaceKind} label={tw('v2PlaceKind')} names={{ square: tw('v2Square'), circle: tw('v2Circle') }} />}
                 <WallGoBoard
                   pieces={state.pieces} walls={walls} cellOwners={territory.cellOwners} selectedPieceId={selectedPieceId} moves={selectedMoves}
                   wallPieceId={myTurn && state.step === 'wall' ? state.moved : null} playerNames={names} interactivePlayer={mySeat}
@@ -235,7 +251,7 @@ export default function WallGoRoom({ code }: { code: string }) {
             </section>
             <section className="rounded-[14px] border border-[#e0283a]/30 bg-black/60 p-5">
               <h2 className={PANEL_TITLE}>{tw('howToPlay')}</h2>
-              <ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{(mode?.id === 'two' ? ['duelRule1', 'rule1', 'rule2', 'duelRule3'] : ['rule1', 'rule2', 'rule3']).map((key, index) => <li key={key} className="flex gap-3"><span className="font-mono text-[#ff4d5e]">0{index + 1}</span><span>{tw(key)}</span></li>)}</ol>
+              <ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{(mode?.id === 'two' ? ['duelRule1', 'rule1', 'rule2', 'duelRule3'] : ['rule1', 'rule2', 'rule3']).map((key, index) => <li key={key} className="flex gap-3"><span className="font-mono text-[#ff4d5e]">0{index + 1}</span><span>{tv(key)}</span></li>)}</ol>
             </section>
             <section className={`min-h-[142px] ${PANEL}`}>
               <h2 className={`mb-3 ${PANEL_TITLE}`}>{tw('matchLog')}</h2>
@@ -253,10 +269,11 @@ export default function WallGoRoom({ code }: { code: string }) {
             <h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winners.length > 1 ? tw('coWin', { players: winners.map((p) => plainName(p)).join(' · ') }) : state.winner === mySeat ? tw('youWin') : t('winnerTitle', { player: plainName(state.winner) })}</h2>
             <p className="mt-2 text-sm text-white/50">{tw('finalScore', { score: territory.scores[state.winner], largest: territory.largest[state.winner] })}</p>
             {frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} />}
-            <ResultActions onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath="/wallgo" exitPath="/wallgo" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
+            <ResultActions onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath={PATH} exitPath={PATH} primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
           </div>
         </div>
       )}
     </div>
+    </WallGoVariant.Provider>
   );
 }

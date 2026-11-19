@@ -4,12 +4,22 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { BrickWall, Move, Sparkles, Trophy } from 'lucide-react';
-import WallGoCharacter from './WallGoCharacter';
+import WallGoCharacter, { WallGoVariant } from './WallGoCharacter';
+import type { Variant } from '@/lib/wallgo';
 import InlineSteps from './ui/InlineSteps';
 
 const icons = [Sparkles, Move, BrickWall, Trophy];
 
-function Visual({ step }: { step: number }) {
+/** 벽바둑 II, step 2: the square piece goes straight, the round piece may turn once. */
+function MovesV2() {
+  return <div className="flex h-36 w-60 items-center justify-center gap-6 rounded-md border border-white/10 bg-[#17181e]">
+    <div className="flex flex-col items-center gap-2"><div className="flex items-center gap-1"><WallGoCharacter player={0} kind="square" className="h-10" /><span className="text-xl text-[#c9cfdc]">→→</span></div><span className="text-[10px] font-bold text-white/45">1–2</span></div>
+    <div className="flex flex-col items-center gap-2"><div className="grid grid-cols-2 items-center gap-1"><WallGoCharacter player={0} kind="circle" className="h-10" /><span className="text-xl text-[#c9cfdc]">→</span><span /><span className="text-xl text-[#c9cfdc]">↓</span></div><span className="text-[10px] font-bold text-white/45">1 + 1</span></div>
+  </div>;
+}
+
+function Visual({ step, variant = 1 }: { step: number; variant?: Variant }) {
+  if (variant === 2 && step === 1) return <MovesV2 />;
   return step === 0 ? (
     <div className="relative grid h-36 w-36 grid-cols-3 overflow-hidden rounded-md border-2 border-[#8d95a8] bg-[#17181e]">{Array.from({ length: 9 }).map((_, i) => <span key={i} className="relative border-b border-r border-[#2a2c35]">{i === 1 && <WallGoCharacter player={0} className="absolute inset-[20%]" />}{i === 6 && <WallGoCharacter player={1} className="absolute inset-[20%]" />}{i === 8 && <WallGoCharacter player={2} className="absolute inset-[20%]" />}{[3,4].includes(i) && <i className="absolute -bottom-1 left-0 z-10 h-1.5 w-full bg-gradient-to-b from-[#f1f4fa] to-[#7d8597]" />}</span>)}</div>
   ) : step === 1 ? (
@@ -21,12 +31,13 @@ function Visual({ step }: { step: number }) {
   );
 }
 
-export default function WallGoTutorial({ onClose }: { onClose: () => void }) {
-  const t = useTranslations('WallGo');
+export default function WallGoTutorial({ onClose, variant = 1 }: { onClose: () => void; variant?: Variant }) {
+  const tw = useTranslations('WallGo');
+  const t = (key: string) => (variant === 2 && tw.has(`v2${key[0].toUpperCase()}${key.slice(1)}`) ? tw(`v2${key[0].toUpperCase()}${key.slice(1)}`) : tw(key));
   const [step, setStep] = useState(0);
   const Icon = icons[step];
 
-  const visual = <Visual step={step} />;
+  const visual = <WallGoVariant.Provider value={variant}><Visual step={step} variant={variant} /></WallGoVariant.Provider>;
 
   return <AnimatePresence><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md"><motion.div key={step} initial={{ y: 14, scale: .96, opacity: 0 }} animate={{ y: 0, scale: 1, opacity: 1 }} className="flex min-h-[540px] w-full max-w-md flex-col rounded-[16px] border border-white/10 bg-[#121217] p-7 text-[#e6e9f0] shadow-[0_0_80px_rgba(224,40,58,.2)] sm:p-9">
     <div className="flex items-center justify-between"><span className="rounded-md bg-[#e0283a] px-3 py-1 text-[9px] font-black tracking-[0.18em] text-white">{t(`tutorial${step + 1}Label`)}</span><Icon size={18} className="text-white/30" /></div>
@@ -36,7 +47,8 @@ export default function WallGoTutorial({ onClose }: { onClose: () => void }) {
 }
 
 /** The same tutorial laid out on the page (entry screen). */
-export function WallGoTutorialSteps() {
-  const t = useTranslations('WallGo');
-  return <InlineSteps steps={icons.map((_, step) => ({ label: t(`tutorial${step + 1}Label`), title: t(`tutorial${step + 1}Title`), desc: t(`tutorial${step + 1}Desc`), visual: <Visual step={step} /> }))} />;
+export function WallGoTutorialSteps({ variant = 1 }: { variant?: Variant }) {
+  const tw = useTranslations('WallGo');
+  const t = (key: string) => (variant === 2 && tw.has(`v2${key[0].toUpperCase()}${key.slice(1)}`) ? tw(`v2${key[0].toUpperCase()}${key.slice(1)}`) : tw(key));
+  return <InlineSteps steps={icons.map((_, step) => ({ label: t(`tutorial${step + 1}Label`), title: t(`tutorial${step + 1}Title`), desc: t(`tutorial${step + 1}Desc`), visual: <WallGoVariant.Provider value={variant}><Visual step={step} variant={variant} /></WallGoVariant.Provider> }))} />;
 }

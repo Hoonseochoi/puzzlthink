@@ -3,7 +3,7 @@
 import { ArrowRight, Bot, Brain, Crosshair, Flame, Grid3X3, Sparkles, Swords, Timer, UsersRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
-import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
+import { prepareHostedRoom, prepareWallGo2Room } from '@/hooks/useWallGoRoom';
 import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
 import { prepareHeavy13Room } from '@/hooks/useHeavy13Room';
 import { prepareRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
@@ -42,6 +42,20 @@ function WallGoPreview() {
       {[8, 17].includes(index) && <i className="absolute -bottom-1 left-0 z-10 h-2 w-full rounded-full bg-[#17201e]" />}
       {index === 7 && <MiniFace color="#ff6b4a" />}{index === 18 && <MiniFace color="#4b7bff" shape="square" />}{index === 21 && <MiniFace color="#12a594" shape="hex" />}
     </span>)}
+  </div>;
+}
+
+/** 벽바둑 II as on the broadcast: coral 7×7 board in a grey frame, a square and a round piece per player. */
+function WallGo2Preview() {
+  const pieces = new Map<number, [string, 'circle' | 'square']>([[8, ['#e2474f', 'square']], [12, ['#e2474f', 'circle']], [30, ['#2b9fd8', 'square']], [36, ['#2b9fd8', 'circle']], [16, ['#e0ab2c', 'circle']], [40, ['#e0ab2c', 'square']]]);
+  return <div className="relative aspect-square w-full rounded-xl bg-[#6e7179] p-[7%] shadow-xl sm:w-[62%] sm:rounded-2xl sm:shadow-2xl">
+    <div className="grid h-full w-full grid-cols-7 overflow-hidden rounded-[4px] bg-[#e79b8a] ring-2 ring-[#f3c6ba]">
+      {Array.from({ length: 49 }).map((_, index) => <span key={index} className="relative border-b border-r border-[#c97b6b]">
+        {[9, 23, 31].includes(index) && <i className="absolute -right-[3px] top-0 z-10 h-full w-[5px] rounded-full bg-[#2f3136]" />}
+        {[15, 24, 38].includes(index) && <i className="absolute -bottom-[3px] left-0 z-10 h-[5px] w-full rounded-full bg-[#2f3136]" />}
+        {pieces.has(index) && <b className={`absolute inset-[14%] shadow-md ring-1 ring-white/70 ${pieces.get(index)![1] === 'circle' ? 'rounded-full' : 'rounded-[22%]'}`} style={{ background: pieces.get(index)![0] }} />}
+      </span>)}
+    </div>
   </div>;
 }
 
@@ -198,6 +212,7 @@ export default function HomeClient() {
   // Order: 벽바둑 (HYPE, most played) first, then featured games, new releases, and the rest.
   const games = [
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo', hype: true },
+    { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
     { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', new: true },
     { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', tag: 'brainSurvival', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
@@ -219,14 +234,14 @@ export default function HomeClient() {
     <div className="mx-auto max-w-3xl text-center"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/50 backdrop-blur"><Sparkles size={12} className="text-[#ff6b4a]" /> {t('eyebrow')}</div><h1 className="text-balance break-keep text-[2.4rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-7xl sm:leading-[0.98]">{t('title1')}<br />{t('title2')}</h1><p className="mx-auto mt-4 max-w-xl break-keep text-sm leading-6 text-black/55 sm:mt-6 sm:text-base sm:leading-7">{t('description1')}<br className="hidden sm:block" /> {t('description2')}</p><VisitCounter /></div>
     <div className="mt-8 grid gap-3 sm:mt-12 sm:gap-5 md:grid-cols-2"><OpenMatchCard previews={{
       slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerPreview />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
-      blindGomoku: <BlindGomokuPreview />, wallgo: <WallGoPreview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
+      blindGomoku: <BlindGomokuPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} />{games.map((game) => (
       <div key={game.title} className={`group relative flex flex-col overflow-hidden rounded-[24px] border bg-[#f9f7f1] ${'hype' in game ? 'hype-card border-[#ff6a3d]/45' : 'border-black/10'} p-4 shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px] sm:p-5 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_70px_rgba(30,38,36,0.14)] sm:p-7`}>
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'slitherlink' ? <SlitherPreview /> : game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'slitherlink' ? <SlitherPreview /> : game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'wallgo2' ? <WallGo2Preview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>
@@ -371,6 +386,16 @@ export default function HomeClient() {
               <Link href={{ pathname: '/wallgo', query: { mode: 'three' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeThreeAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeThreeAiDesc')}</span></Link>
               <Link href={{ pathname: '/wallgo', query: { mode: 'two' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#4b7bff]" /><span className="text-sm font-black">{t('modeTwoAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeTwoAiDesc')}</span></Link>
               <button type="button" onClick={async () => router.push(`/wallgo/room/${await prepareHostedRoom('two')}`)} className={`${MODE_BASE} border-[#ff6b4a]/40 bg-[#fff0eb] hover:border-[#ff6b4a]`}><UsersRound size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeFriendDesc')}</span></button>
+            </div>
+          </div>
+        )}
+        {game.illustration === 'wallgo2' && (
+          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
+            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
+            <div className="grid grid-cols-3 gap-2">
+              <Link href={{ pathname: '/wallgo-2', query: { mode: 'three' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeThreeAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeThreeAiDesc')}</span></Link>
+              <Link href={{ pathname: '/wallgo-2', query: { mode: 'two' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#4b7bff]" /><span className="text-sm font-black">{t('modeTwoAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeTwoAiDesc')}</span></Link>
+              <button type="button" onClick={async () => router.push(`/wallgo-2/room/${await prepareWallGo2Room('two')}`)} className={`${MODE_BASE} border-[#ff6b4a]/40 bg-[#fff0eb] hover:border-[#ff6b4a]`}><UsersRound size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeFriendDesc')}</span></button>
             </div>
           </div>
         )}

@@ -1,10 +1,10 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
-export type GameId = 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
+export type GameId = 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 
 export interface CatalogGame {
   id: GameId;
   /** Route of the playable page. */
-  href: '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+  href: '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
   /** Accent color, matching the home page cards. */
   color: string;
   /** Whether the game page renders a long-form guide below the board (anchored at #guide). */
@@ -12,6 +12,7 @@ export interface CatalogGame {
 }
 
 export const GAMES: readonly CatalogGame[] = [
+  { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true },
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
   { id: 'piggyBank', href: '/piggy-bank', color: '#e0a91c', hasGuide: true },
   { id: 'nemoCount', href: '/nemo-count', color: '#7d86a8', hasGuide: true },

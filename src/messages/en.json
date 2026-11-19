@@ -78,7 +78,8 @@
     "supportCta": "Support PUZZLTHINK",
     "supportNote": "Support only pays for servers and gives no perks. Every game stays free either way.",
     "supportDismiss": "Hide for today",
-    "slitherlink": "Slitherlink"
+    "slitherlink": "Slitherlink",
+    "wallgo2": "Wallgo II"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -318,7 +319,9 @@
     "modeSlitherPractice": "Practice",
     "modeSlitherPracticeDesc": "9×9–11×11",
     "modeSlitherFriend": "With friends",
-    "modeSlitherFriendDesc": "2–4 speed race"
+    "modeSlitherFriendDesc": "2–4 speed race",
+    "wallgo2Description": "The game from prison match episode 10! Square pieces go straight, round pieces turn.",
+    "wallgo2Meta": "vs AI · live with friends"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -423,7 +426,37 @@
     "logStayed": "Stayed put. Build a wall beside your character.",
     "logCoWinners": "{players} share the win!",
     "coWin": "{players} share the win",
-    "breakWallLabel": "break wall"
+    "breakWallLabel": "break wall",
+    "v2MetaTitle": "Wallgo II — The Devil's Plan 3 prison match rules + play vs AI or friends",
+    "v2MetaDescription": "The game from prison match episode 10! Square pieces go straight, round pieces turn — build walls and claim the most ground. Learn Wallgo II in a minute and play free vs AI or friends.",
+    "v2Keywords": [
+      "wallgo 2",
+      "wallgo II",
+      "wall go 2",
+      "devil's plan wallgo 2",
+      "prison match",
+      "wallgo 2 rules",
+      "wallgo 2 online"
+    ],
+    "v2Square": "Square piece",
+    "v2Circle": "Round piece",
+    "v2PlaceKind": "Piece to place",
+    "v2TieBreak": "Tied on total tiles — the bigger single area decided it",
+    "v2Rule1": "Move one piece. A square piece goes 1–2 tiles in one direction; a round piece goes 1 tile and may then turn left or right for 1 more. Staying put is not allowed.",
+    "v2Rule2": "Build a wall on one side of the piece you just moved.",
+    "v2Rule3": "When every piece is walled off, the game ends. The most tiles wins; on a tie, the bigger single area ranks higher.",
+    "v2DuelRule1": "Each player has 2 square and 2 round pieces. The round pieces start on fixed tiles; you place the two square pieces.",
+    "v2DuelRule3": "No wall break in round 2. When the spaces are split, the larger territory wins.",
+    "v2DuelHint": "2 square · 2 round (round on fixed tiles) · no wall break",
+    "v2BreakAvailableHint": "1 wall break — knock down one wall on your path and pass through (red tiles)",
+    "v2Tutorial1Title": "Wall off the largest territory",
+    "v2Tutorial1Desc": "Each player has one square piece and one round piece. Move them and build walls to split the three players apart.",
+    "v2Tutorial2Title": "Squares go straight, rounds turn",
+    "v2Tutorial2Desc": "A square piece moves 1–2 tiles in one direction; a round piece moves 1 tile, then may turn left or right for 1 more. No staying put, and no passing through pieces or walls. Then build a wall beside that piece.",
+    "v2Tutorial3Desc": "In round 1, each player may once knock down a wall on their path and pass through. Tiles you can only reach by breaking a wall are shown in red.",
+    "v2Tutorial4Desc": "The game ends the moment every piece is walled off. Add up the tiles of the areas your pieces are in; the most wins, and on a tie the bigger single area ranks higher.",
+    "v2ModeThreeDesc": "Square + round · wall break",
+    "v2ModeTwoDesc": "4 pieces · round fixed"
   },
   "Sudoku": {
     "metaTitle": "Free online Sudoku — puzzles and how to solve them",
@@ -792,7 +825,9 @@
     "joined": "{name} joined",
     "left": "{name} left",
     "startLockedHint": "The start button unlocks when every seat is filled",
-    "startReady": "Everyone is here! Start the game"
+    "startReady": "Everyone is here! Start the game",
+    "v2MetaTitle": "Up for a round of Wallgo II? 🧱",
+    "v2MetaDescription": "You're invited. Let's play Wallgo II on PUZZLTHINK!"
   },
   "Janggi": {
     "metaTitle": "12 Janggi online — The Genius 3·4 mini chess vs AI or friends",
@@ -2005,6 +2040,22 @@
           "Mark sides you know are empty with ✕ so you do not lose track."
         ],
         "origin": "The line puzzle played on the show, brought to the web: the same 11×11 board, with random boards that each have exactly one answer."
+      },
+      "wallgo2": {
+        "tagline": "The game from The Devil's Plan 3 prison match, episode 10! Build walls with square and round pieces and claim the most ground.",
+        "players": "2–3 (3-player · 1:1)",
+        "pace": "90 s per turn",
+        "level": "AI easy · normal · hard",
+        "ai": "3-player (2 AI) · 1:1 (1 AI)",
+        "friend": "1:1 · 1:1:1, link or 4-digit code",
+        "rules": [
+          "7×7 board. Round 1 (3 players): one square and one round piece each. Round 2 (1:1): 2 square + 2 round, the round ones on fixed tiles.",
+          "Players place in turn order, then the second piece in reverse order.",
+          "On your turn, move one piece (square: 1–2 tiles straight; round: 1 tile, may turn for 1 more) and build a wall beside it. No staying put.",
+          "In round 1 only, each player may once break a wall on their path.",
+          "When every piece is separated, the most tiles wins; ties go to the bigger single area."
+        ],
+        "origin": "The follow-up to Wallgo from The Devil's Plan 3 prison match, episode 10. Both round 1 (3 players) and round 2 (1:1) are here."
       }
     },
     "keywords": [
@@ -4688,5 +4739,85 @@
     "openWin": "{name} won a {game} open match",
     "hallRank": "{name} reached #{rank} in the {game} Hall of Fame",
     "hardClear": "{name} is clear #{n} of {game} on Hard!"
+  },
+  "WallGo2Guide": {
+    "eyebrow": "WALLGO II GUIDE",
+    "title": "Wallgo II — splitting the board with square and round pieces",
+    "intro": "Wallgo II from The Devil's Plan 3 prison match, episode 10. As in Wallgo you move pieces and build walls to claim the largest territory, but there are now two kinds of piece and no staying put, so every move counts. Play 3-player or 1:1 vs AI, invite friends with a link or 4-digit code, or open a public room, and replay the game afterwards.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Build walls on a 7×7 board to make your territory the largest.",
+      "Round 1 is a 3-player game. Each player gets one square and one round piece. In turn order each player places one of them on an empty tile; the second pieces go down in reverse order.",
+      "A square piece moves 1–2 tiles in one direction. A round piece moves 1 tile and may then turn left or right for 1 more tile.",
+      "On your turn you have 90 seconds to move a piece and then build a wall. You cannot move onto another piece or through a wall.",
+      "In round 1 only, each player may once knock down a wall on the path and move through it.",
+      "After moving, build a wall on one side of that piece. A side that already has a wall cannot take another; if time runs out a wall goes on a random side.",
+      "The game ends the moment every player's pieces are walled apart, even if someone never used their wall break.",
+      "Add up the tiles of the areas your pieces are in; the most wins. On a tie, the bigger single area ranks higher.",
+      "Round 2 is 1:1. The player with more territory in round 1 goes first. Each starts with 2 square and 2 round pieces, the round ones on fixed tiles. There is no wall break."
+    ],
+    "specialTitle": "Easy to get wrong",
+    "special": [
+      {
+        "title": "No staying put",
+        "body": "Unlike Wallgo, you must move. A piece with nowhere to go cannot be picked, and if neither of your pieces can move, your turn is skipped."
+      },
+      {
+        "title": "Round pieces cannot go 2 straight",
+        "body": "A round piece moves 1 tile and may only turn, so it ends up 1 tile away or diagonally. Two straight tiles is a square-piece move."
+      },
+      {
+        "title": "Wall break is on the path",
+        "body": "You may break any one wall on the path you take, not just one next to the piece. Tiles you can only reach by breaking are shown in red."
+      },
+      {
+        "title": "Ties go to the big room",
+        "body": "If two players have the same total, the size of their largest single area decides. One big room beats several small ones."
+      }
+    ],
+    "strategyTitle": "Tips — play to each piece's strength",
+    "strategyIntro": "Square pieces reach far to cut off a lane; round pieces turn corners to slip out of tight spots.",
+    "strategies": [
+      {
+        "tag": "Setup",
+        "title": "Round piece near the centre",
+        "body": "Round pieces can turn, so they are hard to trap. Near the centre they can break out in any direction."
+      },
+      {
+        "tag": "Attack",
+        "title": "Cut lanes with the square",
+        "body": "A square piece can travel two tiles straight and wall off a lane in one turn."
+      },
+      {
+        "tag": "Resource",
+        "title": "Save the break for an escape",
+        "body": "You get one break. It is worth most when your piece is about to be shut in a small room and can punch through to a bigger one."
+      },
+      {
+        "tag": "Finish",
+        "title": "Guard one big room",
+        "body": "Ties are settled by the largest area, so keeping one big room is safer than splitting into many."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "How is it different from Wallgo?",
+        "a": "There are square and round pieces that move differently, no staying put, the wall break works on the path, and ties are settled by the largest area."
+      },
+      {
+        "q": "Can I play alone?",
+        "a": "Yes. Play 3-player against 2 AI or 1:1 against 1 AI, on easy, normal or hard."
+      },
+      {
+        "q": "How do I play with friends?",
+        "a": "Create a room under Play with friends and send the link or 4-digit code. You can also open a public room in Open match."
+      },
+      {
+        "q": "Where do the round pieces start in round 2?",
+        "a": "Each player's two round pieces start on fixed tiles facing each other diagonally; you only place the two square pieces."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project, not affiliated with Netflix or The Devil's Plan. Screens and AI are our own, built from the game's rules."
   }
 }
