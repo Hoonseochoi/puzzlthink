@@ -8,6 +8,7 @@ import { GAMES } from '@/lib/gameCatalog';
 import LanguageSwitcher from './LanguageSwitcher';
 import AuthButton from './AuthButton';
 import GamesMenu from './GamesMenu';
+import { HeaderSupportButton, SupportBanner } from './SupportLink';
 
 const HIDE_ON = ['/play', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
 const NAV_LINK = 'rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black';
@@ -28,6 +29,7 @@ export default function GlobalHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/[0.07] bg-[#f3f0e8]/90 backdrop-blur-xl">
+      <SupportBanner />
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link href="/" className="flex items-center gap-2.5" onClick={closeMenu}>
           <span className="grid h-8 w-8 grid-cols-2 gap-0.5 rounded-[10px] bg-[#17201e] p-2"><i className="rounded-sm bg-[#ff6b4a]" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-[#f2c14e]" /></span>
@@ -40,6 +42,7 @@ export default function GlobalHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <HeaderSupportButton />
           <LanguageSwitcher compact />
           <AuthButton source="header" />
           <GamesMenu variant="cta" align="right" />
@@ -68,7 +71,7 @@ export default function GlobalHeader() {
               </ul>
             )}
             {links.map((item) => <Link key={item.href} href={item.href} onClick={closeMenu} className={MOBILE_LINK}>{item.label}</Link>)}
-            <div className="mt-2 flex flex-col gap-2 border-t border-black/[0.07] pt-3"><AuthButton full source="header_menu" /><LanguageSwitcher /></div>
+            <div className="mt-2 flex flex-col gap-2 border-t border-black/[0.07] pt-3"><HeaderSupportButton full /><AuthButton full source="header_menu" /><LanguageSwitcher /></div>
           </nav>
         </div>
       )}

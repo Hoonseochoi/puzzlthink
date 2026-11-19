@@ -72,6 +72,12 @@
     "shareNow": "Share",
     "coffeeNudge": "Enjoyed it? Buy the developer a coffee ☕",
     "celebrationSupport": "🏆 Congrats! PUZZLTHINK is a one-person hobby project. If you enjoyed this, a coffee keeps it going ☕",
+    "supportBannerTitle": "The servers are full — the site may have to close",
+    "supportBannerBody": "Players have surged and over 10,000 games are being played. Server costs are now too much for one person running this as a hobby, so voluntary support is open. Please chip in toward more servers to keep the games running!",
+    "supportBannerShort": "Servers are full and the site may close · Help us add servers",
+    "supportCta": "Support PUZZLTHINK",
+    "supportNote": "Support only pays for servers and gives no perks. Every game stays free either way.",
+    "supportDismiss": "Hide for today",
     "slitherlink": "Slitherlink"
   },
   "BlindGomoku": {
