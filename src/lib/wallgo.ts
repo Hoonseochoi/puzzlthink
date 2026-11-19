@@ -4,13 +4,16 @@ export type PlayerId = 0 | 1 | 2;
 export type Direction = 'up' | 'right' | 'down' | 'left';
 export type AiDifficulty = 'easy' | 'normal' | 'hard';
 export type Position = { row: number; col: number };
-export type Piece = Position & { id: string; player: PlayerId };
+/** 벽바둑 II gives every player a square piece (straight 1–2) and a round piece (1, then may turn 90° for 1 more). */
+export type PieceKind = 'square' | 'circle';
+export type Piece = Position & { id: string; player: PlayerId; kind?: PieceKind };
+export type Variant = 1 | 2;
 export type MoveOption = {
   pieceId: string;
   from: Position;
   to: Position;
   distance: 0 | 1 | 2; // 0 = stay put and build a wall where the piece stands
-  brokenWall?: string; // 3-player only: a wall next to the piece, knocked down before it moves
+  brokenWall?: string; // 3-player only: a wall knocked down by this move (I: next to the piece; II: on the path)
 };
 export type TerritoryResult = {
   scores: [number, number, number];
@@ -26,11 +29,13 @@ export type GameMode = {
   totalPieces: number;
   fixedPieces: Piece[];
   wallBreak: boolean;
+  /** 1 = 벽바둑, 2 = 벽바둑 II (piece kinds, no staying put, wall break on the path, ties broken by the largest single area). */
+  variant: Variant;
 };
 
 // Round 1 (3 players, 2 pieces each, one wall break) and round 2 (1:1, 4 pieces each with 2 fixed, no wall break).
 export const MODES: Record<ModeId, GameMode> = {
-  three: { id: 'three', players: [0, 1, 2], totalPieces: 6, fixedPieces: [], wallBreak: true },
+  three: { id: 'three', players: [0, 1, 2], totalPieces: 6, fixedPieces: [], wallBreak: true, variant: 1 },
   two: {
     id: 'two',
     players: [0, 1],
@@ -42,9 +47,40 @@ export const MODES: Record<ModeId, GameMode> = {
       { id: '1-f1', player: 1, row: 5, col: 1 },
     ],
     wallBreak: false,
+    variant: 1,
   },
 };
 
+// 벽바둑 II (감옥매치 10화). Round 1: 3 players, one square + one round piece each, one wall break each.
+// Round 2: 1:1, two square + two round pieces each; the round pieces start on fixed squares; no wall break.
+export const MODES2: Record<ModeId, GameMode> = {
+  three: { id: 'three', players: [0, 1, 2], totalPieces: 6, fixedPieces: [], wallBreak: true, variant: 2 },
+  two: {
+    id: 'two',
+    players: [0, 1],
+    totalPieces: 8,
+    fixedPieces: [
+      { id: '0-f0', player: 0, row: 1, col: 1, kind: 'circle' },
+      { id: '0-f1', player: 0, row: 5, col: 5, kind: 'circle' },
+      { id: '1-f0', player: 1, row: 1, col: 5, kind: 'circle' },
+      { id: '1-f1', player: 1, row: 5, col: 1, kind: 'circle' },
+    ],
+    wallBreak: false,
+    variant: 2,
+  },
+};
+
+export const modesOf = (variant: Variant = 1) => (variant === 2 ? MODES2 : MODES);
+
+/** Kinds `player` still has to place (벽바둑 II). Round 1: one of each; round 2: the two square pieces. */
+export function kindsToPlace(mode: GameMode, pieces: Piece[], player: PlayerId): PieceKind[] {
+  if (mode.variant !== 2) return [];
+  const mine = pieces.filter((piece) => piece.player === player);
+  const want: PieceKind[] = mode.id === 'two' ? ['square', 'square', 'circle', 'circle'] : ['square', 'circle'];
+  const left = [...want];
+  for (const piece of mine) { const i = left.indexOf(piece.kind ?? 'square'); if (i >= 0) left.splice(i, 1); }
+  return left;
+}
 export function placementOrder(mode: GameMode, first: PlayerId): PlayerId[] {
   if (mode.id === 'three') return [0, 1, 2, 2, 1, 0];
   const second: PlayerId = first === 0 ? 1 : 0;
@@ -102,7 +138,8 @@ export function getBreakOptions(walls: Set<string>, piece: Position) {
  * A piece that cannot step even one square cannot stay and build either.
  * With `canBreakWall`, the piece may first knock down one wall next to it and then move as normal.
  */
-export function getMoveOptions(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean): MoveOption[] {
+export function getMoveOptions(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean, variant: Variant = 1): MoveOption[] {
+  if (variant === 2) return getMoveOptions2(pieces, walls, player, canBreakWall);
   const options: MoveOption[] = [];
   const directions = Object.keys(DIRECTIONS) as Direction[];
   for (const piece of pieces.filter((item) => item.player === player)) {
@@ -122,6 +159,47 @@ export function getMoveOptions(pieces: Piece[], walls: Set<string>, player: Play
         const movedPieces = pieces.map((item) => (item.id === piece.id ? { ...item, ...to } : item));
         if (getWallOptions(movedPieces, open, piece.id).length > 0) options.push({ pieceId: piece.id, from, to, distance, brokenWall });
       }
+    }
+  }
+  return options;
+}
+
+const TURNS: Record<Direction, Direction[]> = { up: ['left', 'right'], down: ['left', 'right'], left: ['up', 'down'], right: ['up', 'down'] };
+
+/**
+ * 벽바둑 II moves. A square piece goes 1–2 squares in one straight line; a round piece goes 1 square and may then
+ * turn left or right for 1 more. The piece must move (no staying put), never onto or through another piece,
+ * and must end where it can still build a wall. With `canBreakWall` (round 1, once per game) the path may cross
+ * exactly one wall, which is knocked down. The board edge is not a wall.
+ */
+function getMoveOptions2(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean): MoveOption[] {
+  const options: MoveOption[] = [];
+  const seen = new Set<string>();
+  for (const piece of pieces.filter((item) => item.player === player)) {
+    const from = { row: piece.row, col: piece.col };
+    const paths: { cells: Position[]; dirs: Direction[] }[] = [];
+    for (const d of Object.keys(DIRECTIONS) as Direction[]) {
+      const one = neighbor(from, d);
+      paths.push({ cells: [one], dirs: [d] });
+      const seconds = piece.kind === 'circle' ? TURNS[d] : [d];
+      for (const d2 of seconds) paths.push({ cells: [one, neighbor(one, d2)], dirs: [d, d2] });
+    }
+    for (const path of paths) {
+      let at = from, crossed: string | undefined, ok = true;
+      for (const cell of path.cells) {
+        if (!isInside(cell) || isOccupied(pieces, cell, piece.id)) { ok = false; break; }
+        const key = edgeKey(at, cell);
+        if (walls.has(key)) { if (!canBreakWall || crossed) { ok = false; break; } crossed = key; }
+        at = cell;
+      }
+      if (!ok) continue;
+      const to = path.cells[path.cells.length - 1];
+      const id = `${piece.id}|${positionKey(to)}|${crossed ?? ''}`;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const open = crossed ? new Set([...walls].filter((key) => key !== crossed)) : walls;
+      const movedPieces = pieces.map((item) => (item.id === piece.id ? { ...item, ...to } : item));
+      if (getWallOptions(movedPieces, open, piece.id).length > 0) options.push({ pieceId: piece.id, from, to, distance: path.cells.length as 1 | 2, brokenWall: crossed });
     }
   }
   return options;
@@ -208,14 +286,21 @@ export function getTerritory(pieces: Piece[], walls: Set<string>, totalPieces = 
 
 /** True when no player in the mode has a legal move (the game cannot progress). */
 export function noOneCanMove(pieces: Piece[], walls: Set<string>, mode: GameMode, breaks: boolean[]) {
-  return mode.players.every((player) => getMoveOptions(pieces, walls, player, mode.wallBreak && breaks[player]).length === 0);
+  return mode.players.every((player) => getMoveOptions(pieces, walls, player, mode.wallBreak && breaks[player], mode.variant).length === 0);
 }
 
 /** Everyone with the most squares — a tie is a shared win. */
-export function getWinners(territory: TerritoryResult, players: PlayerId[] = [0, 1, 2]): PlayerId[] {
+export function getWinners(territory: TerritoryResult, players: PlayerId[] = [0, 1, 2], tiebreakLargest = false): PlayerId[] {
   const best = Math.max(...players.map((player) => territory.scores[player]));
-  return players.filter((player) => territory.scores[player] === best);
+  const top = players.filter((player) => territory.scores[player] === best);
+  if (!tiebreakLargest || top.length < 2) return top;
+  // 벽바둑 II: on equal totals, the bigger single area ranks higher.
+  const bestLargest = Math.max(...top.map((player) => territory.largest[player]));
+  return top.filter((player) => territory.largest[player] === bestLargest);
 }
+
+/** Winners under the mode's rules (벽바둑 II breaks ties by the largest single area). */
+export const modeWinners = (territory: TerritoryResult, mode: GameMode) => getWinners(territory, mode.players, mode.variant === 2);
 
 /** One of the winners (the first in seat order), for code that needs a single player. */
 export function getWinner(territory: TerritoryResult, players: PlayerId[] = [0, 1, 2]): PlayerId {
@@ -290,7 +375,7 @@ function trappedPenalty(pieces: Piece[], walls: Set<string>, player: PlayerId) {
 export function evaluatePosition(pieces: Piece[], walls: Set<string>, player: PlayerId, mode: GameMode): number {
   const territory = getTerritory(pieces, walls, mode.totalPieces);
   if (territory.separated) {
-    const winners = getWinners(territory, mode.players);
+    const winners = modeWinners(territory, mode);
     const margin = territory.scores[player] - Math.max(...mode.players.filter((p) => p !== player).map((p) => territory.scores[p]));
     return (!winners.includes(player) ? -10_000 : winners.length === 1 ? 10_000 : 5_000) + margin;
   }
@@ -304,7 +389,7 @@ export function evaluatePosition(pieces: Piece[], walls: Set<string>, player: Pl
 
 function candidates(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean, mode: GameMode): Candidate[] {
   const result: Candidate[] = [];
-  for (const move of getMoveOptions(pieces, walls, player, canBreakWall)) {
+  for (const move of getMoveOptions(pieces, walls, player, canBreakWall, mode.variant)) {
     const moved = applyMove(pieces, walls, move);
     for (const option of getWallOptions(moved.pieces, moved.walls, move.pieceId)) {
       const nextWalls = new Set(moved.walls).add(option.key);
@@ -330,6 +415,13 @@ export function chooseBotPlacement(pieces: Piece[], player: PlayerId, difficulty
   });
   scored.sort((a, b) => b.value - a.value);
   return scored[0]?.position ?? { row: 3, col: 3 };
+}
+
+/** Which kind a bot places next (벽바둑 II): the round piece first on an open board, it is the more flexible one. */
+export function chooseBotKind(mode: GameMode, pieces: Piece[], player: PlayerId): PieceKind | undefined {
+  const left = kindsToPlace(mode, pieces, player);
+  if (!left.length) return undefined;
+  return left.includes('circle') && Math.random() < 0.6 ? 'circle' : left[0];
 }
 
 export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: PlayerId, canBreakWall: boolean, difficulty: AiDifficulty = 'normal', mode: GameMode = MODES.three) {

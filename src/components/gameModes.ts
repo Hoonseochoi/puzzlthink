@@ -16,7 +16,7 @@ import { preparePiggyRoom, usePiggyRoom } from '@/hooks/usePiggyRoom';
 import { prepareGyulhapRoom, useGyulhapRoom } from '@/hooks/useGyulhapRoom';
 import { prepareIndianPokerRoom, useIndianPokerRoom } from '@/hooks/useIndianPokerRoom';
 import { prepareSlitherRoom, useSlitherRoom } from '@/hooks/useSlitherRoom';
-import { prepareHostedRoom } from '@/hooks/useWallGoRoom';
+import { prepareHostedRoom, prepareWallGo2Room, useWallGo2Room } from '@/hooks/useWallGoRoom';
 import { prepareHeavy13Room } from '@/hooks/useHeavy13Room';
 import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
 import { prepareRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
@@ -47,6 +47,12 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  wallgo2: {
+    path: '/wallgo-2',
+    ai: [{ label: 'aiThree', query: 'mode=three' }, { label: 'aiTwo', query: 'mode=two' }],
+    rooms: [{ label: 'roomTwo', create: () => prepareWallGo2Room('two'), play: 'mode=two' }, { label: 'roomThree', create: () => prepareWallGo2Room('three'), play: 'mode=three' }],
+    useRoom: useWallGo2Room,
+  },
   slitherlink: {
     path: '/slitherlink', solo: true, ai: [{ label: 'slitherNew', query: 'mode=challenge' }, { label: 'slitherBeat', query: 'mode=beat' }, { label: 'slitherPractice', query: 'mode=practice' }],
     rooms: [{ label: 'slitherRoom', create: prepareSlitherRoom, openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useSlitherRoom,
