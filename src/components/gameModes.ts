@@ -46,6 +46,7 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  slitherlink: { path: '/slitherlink', solo: true, ai: [{ label: 'slitherNew', query: 'mode=challenge' }, { label: 'slitherBeat', query: 'mode=beat' }, { label: 'slitherPractice', query: 'mode=practice' }], rooms: [] },
   gyulhap: {
     path: '/gyulhap', solo: true,
     ai: [{ label: 'gyulChallenge10', query: 'mode=challenge10' }, { label: 'gyulChallenge5', query: 'mode=challenge5' }, { label: 'gyulPractice', query: 'mode=practice' }],

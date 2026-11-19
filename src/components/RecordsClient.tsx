@@ -29,7 +29,7 @@ const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'sudoku', href: '/play', color: '#4b7bff' },
 ];
 /** Common message key for each game's name. */
-const GAME_LABEL: Record<GameId, string> = { gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
+const GAME_LABEL: Record<GameId, string> = { slitherlink: 'slitherlink', gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 function formatDuration(seconds: number, t: (k: string, v?: Record<string, number>) => string) {

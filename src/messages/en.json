@@ -71,7 +71,8 @@
     "shareOpenRank": "#{rank} in the {game} open-match ranking! Come at me",
     "shareNow": "Share",
     "coffeeNudge": "Enjoyed it? Buy the developer a coffee ☕",
-    "celebrationSupport": "🏆 Congrats! PUZZLTHINK is a one-person hobby project. If you enjoyed this, a coffee keeps it going ☕"
+    "celebrationSupport": "🏆 Congrats! PUZZLTHINK is a one-person hobby project. If you enjoyed this, a coffee keeps it going ☕",
+    "slitherlink": "Slitherlink"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -301,7 +302,9 @@
     "modeHexChallengeDesc": "Best score",
     "modeHexFriend": "Friends",
     "modeHexFriendDesc": "2–4 · buzzer",
-    "hypeTag": "most played"
+    "hypeTag": "most played",
+    "slitherlinkDescription": "The loop puzzle from the show, as it was. Join the dots into one loop that matches every number.",
+    "slitherlinkMeta": "Random-board challenge · take boards · practice"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -1948,6 +1951,22 @@
           "Repeating an answer already given is wrong too, and given answers are not marked, so remember them. A round ends when every answer is out or after 90 seconds without one."
         ],
         "origin": "Based on Hexagon, the second game of the final of Netflix's The Devil's Plan season 1. Boards and targets are generated at random and every answer is computed; the ten boards from the broadcast are included."
+      },
+      "slitherlink": {
+        "tagline": "A logic puzzle: join the dots into one unbroken loop that runs along exactly as many sides as each number says.",
+        "players": "1 player (rooms coming soon)",
+        "pace": "5–40 minutes a board",
+        "level": "9×9 · 10×10 · 11×11 dot boards (random)",
+        "solo": "New challenge (ranked) · beat a board · practice",
+        "friend": "Coming soon",
+        "ai": "New challenge (ranked) · beat a board · practice",
+        "rules": [
+          "Join neighbouring dots into a single closed loop with no branches or loose ends.",
+          "A number in a cell is how many of its four sides the loop runs along. 0 means none.",
+          "Cells without a number can have any number of sides used.",
+          "Mark sides you know are empty with ✕ so you do not lose track."
+        ],
+        "origin": "The line puzzle played on the show, brought to the web: the same 11×11 board, with random boards that each have exactly one answer."
       }
     },
     "keywords": [
@@ -2030,7 +2049,10 @@
     "gyulChallenge10": "10-minute challenge (scored)",
     "gyulChallenge5": "5-minute challenge (scored)",
     "gyulPractice": "Untimed practice",
-    "gyulRoom": "Create a friend room (2–4)"
+    "gyulRoom": "Create a friend room (2–4)",
+    "slitherNew": "New challenge (ranked)",
+    "slitherBeat": "Beat a board",
+    "slitherPractice": "Practice (9×9 · 10×10 · 11×11)"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -4402,5 +4424,167 @@
     "shareText": "Here's the {game} ranking. Think you can make it?",
     "otherGames": "Other rankings",
     "viewRanking": "🏆 {game} ranking"
+  },
+  "Slitherlink": {
+    "metaTitle": "Slitherlink — draw the loop the numbers ask for",
+    "metaDescription": "Join the dots into one loop that matches every number. Endless boards from 9×9 to 11×11 with hints, answer reveal and replay. Free.",
+    "keywords": [
+      "slitherlink",
+      "slitherlink online",
+      "loop puzzle",
+      "logic puzzle",
+      "brain puzzle"
+    ],
+    "title": "Slitherlink",
+    "subtitle": "SLITHERLINK",
+    "newBoard": "New board",
+    "practiceKicker": "Practice · {size}",
+    "hintsUsed": "Hints {n}",
+    "toolPen": "Pen",
+    "toolEraser": "Eraser",
+    "toolMarker": "Marker ✕",
+    "toolClear": "Clear all",
+    "clearConfirm": "Tap again",
+    "hint": "Hint (3×3 area)",
+    "hintPick": "Tap an area",
+    "hintHelp": "Tap the board: the answer for the 3×3 dots around that spot is filled in.",
+    "help_pen": "Drag from dot to dot to draw. Tap a line to remove it.",
+    "help_eraser": "Drag or tap over lines and ✕ marks to erase them.",
+    "help_marker": "Tap between two dots to mark ✕ where the loop does not go.",
+    "giveUp": "Give up and show the answer",
+    "revealing": "Drawing the answer…",
+    "gaveUpTitle": "This was the loop",
+    "solvedTitle": "Solved in {time}!",
+    "solvedDesc": "{size} · {hints} hints used",
+    "replay": "Replay my lines",
+    "replayCaption": "Your lines, in the order you drew them",
+    "next": "Next board",
+    "board": "This board",
+    "statSize": "Size",
+    "statLines": "Lines",
+    "statHints": "Hints",
+    "sizeHint": "11×11 is the size used on the show. Start at 9×9 and work up.",
+    "quickRules": "Quick rules",
+    "quick1": "Draw one closed loop through the dots. No branches, no loose ends.",
+    "quick2": "Number = how many of the cell’s four sides the loop uses.",
+    "quick3": "A 0 has no line around it; a 3 has lines on three sides.",
+    "quick4": "You are not told what is right or wrong while solving; the board is checked the moment the loop is complete.",
+    "mode_challenge": "New challenge",
+    "mode_beat": "Beat a board",
+    "mode_practice": "Practice",
+    "newTitle": "New challenge",
+    "newDesc": "A fresh random 11×11 board (the show’s size) every time. Your time goes on the ranking and the board joins the list for others to beat. One hint.",
+    "beatTitle": "Beat a board",
+    "beatDesc": "Play a board someone else cleared, within the current holder’s time. Beat it and the board is yours.",
+    "needSignIn": "Sign in to play challenges. Your times and ranking are kept on your account.",
+    "newStart": "Start a new board",
+    "errTried": "You already tried this board. Each board gets one try.",
+    "errStart": "Could not start. Please try again shortly.",
+    "boardsTitle": "Boards",
+    "refresh": "Refresh",
+    "loading": "Loading…",
+    "boardsEmpty": "No boards yet. Clear a new challenge to post the first one!",
+    "boardHolder": "{name}’s board",
+    "boardMeta": "{tries} tries · taken {wins} times",
+    "boardTried": "Tried",
+    "boardGo": "Play",
+    "beatRule": "One try per board. Running out of time or giving up uses it.",
+    "newKicker": "New challenge · 11×11",
+    "beatKicker": "Beat · {name}’s board",
+    "hintsLeft": "{n} hint left",
+    "giveUpChallenge": "Give up",
+    "saving": "Saving your time…",
+    "beatWin": "Board taken!",
+    "tooSlow": "Not counted",
+    "rankNow": "Now #{rank} of {total}",
+    "beatWinDesc": "Cleared in {time}. This board is yours now!",
+    "publishedDesc": "This board is now on the list. If someone beats your time on it, they take it.",
+    "tooSlowDesc": "It took {time}, over the time limit, so it was not recorded.",
+    "timeUp": "Time’s up!",
+    "gaveUpBeat": "You gave up",
+    "failedBeatDesc": "This board can’t be tried again. Pick another one.",
+    "newAgain": "Another new board",
+    "otherBoards": "Pick another board",
+    "rankingTitle": "Challenge ranking",
+    "myRank": "You: #{rank} of {total} · {time}",
+    "rankingEmpty": "No times yet. Be the first!",
+    "minSec": "{m}m {s}s"
+  },
+  "SlitherlinkGuide": {
+    "eyebrow": "SLITHERLINK GUIDE",
+    "title": "Slitherlink — how to draw the loop",
+    "intro": "Slitherlink is a logic puzzle played on a grid of dots: draw a single unbroken loop. A number in a cell says how many of its four sides the loop runs along. PUZZLTHINK makes a fresh board with exactly one answer every time.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Only neighbouring dots can be joined, across or down. No diagonals.",
+      "All lines must join into one closed loop: no branches (three lines at a dot) and no loose ends.",
+      "A numbered cell has exactly that many of its sides on the loop.",
+      "Cells without a number have no limit.",
+      "Practice offers 9×9, 10×10 and 11×11 (show size) dot boards, with unlimited hints."
+    ],
+    "specialTitle": "Tools",
+    "special": [
+      {
+        "title": "Pen",
+        "body": "Drag from one dot to the next to draw. Starting a drag on a line erases instead. Tapping between two dots also draws or removes a line."
+      },
+      {
+        "title": "Eraser · Clear all",
+        "body": "Drag or tap with the eraser to remove lines and ✕ marks. Clear all needs two taps, and lines from hints stay."
+      },
+      {
+        "title": "Marker ✕",
+        "body": "Leave a small ✕ on sides you know are empty. It does not affect the answer; it is a note for yourself."
+      },
+      {
+        "title": "Hint · Give up · Replay",
+        "body": "Press hint, then tap the board: the answer for the 3×3 dots around it is filled in. Giving up draws the answer loop, and you can replay your own lines step by step."
+      }
+    ],
+    "strategyTitle": "Tips",
+    "strategyIntro": "Fill in what is certain first and the rest follows.",
+    "strategies": [
+      {
+        "title": "Start with 0s",
+        "tag": "Start",
+        "body": "Mark all four sides of a 0 with ✕. A 3 next to a 0 uses its other three sides."
+      },
+      {
+        "title": "3s and 1s in corners",
+        "tag": "Corner",
+        "body": "A 3 in a corner uses both outer sides; a 1 in a corner uses neither."
+      },
+      {
+        "title": "Two 3s side by side",
+        "tag": "Pattern",
+        "body": "Two adjacent 3s use the side between them and both far sides."
+      },
+      {
+        "title": "Zero or two lines per dot",
+        "tag": "Joining",
+        "body": "A line that enters a dot must leave it. If only one way out is left, the line goes there."
+      },
+      {
+        "title": "No small loops",
+        "tag": "Loop",
+        "body": "Joining two ends of the same line closes a loop. If other lines remain, that side must stay empty."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Can a board have more than one answer?",
+        "a": "No. Each board is checked by computer to have exactly one answer."
+      },
+      {
+        "q": "What is 11×11?",
+        "a": "11 dots a side, 10×10 cells: the same size as the board on the show."
+      },
+      {
+        "q": "How do challenges work?",
+        "a": "A new challenge is a fresh random 11×11 board, ranked by time. Cleared boards go on a list; beat the holder’s time and the board is yours. One try per board."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project, not affiliated with any broadcaster; the puzzles follow a public puzzle genre."
   }
 }
