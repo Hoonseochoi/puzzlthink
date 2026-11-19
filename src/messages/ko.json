@@ -311,13 +311,15 @@
     "modeHexFriendDesc": "2~4명 · 버저",
     "hypeTag": "지금 가장 인기",
     "slitherlinkDescription": "유배지에서 하던 게임 그대로! 숫자만큼만 선이 지나가게 점과 점을 이어 고리 하나를 완성하세요.",
-    "slitherlinkMeta": "랜덤 맵 챌린지 · 맵 뺏기 · 연습",
+    "slitherlinkMeta": "챌린지 · 맵 뺏기 · 친구 2~4명",
     "modeSlitherNew": "챌린지하기",
     "modeSlitherNewDesc": "새 맵 깨고 차지",
     "modeSlitherBeat": "맵 뺏기",
     "modeSlitherBeatDesc": "남의 맵 도전",
     "modeSlitherPractice": "연습하기",
-    "modeSlitherPracticeDesc": "9×9~11×11"
+    "modeSlitherPracticeDesc": "9×9~11×11",
+    "modeSlitherFriend": "친구랑 하기",
+    "modeSlitherFriendDesc": "2~4명 스피드 대결"
   },
   "WallGo": {
     "metaTitle": "벽바둑 — 데블스플랜3 벽바둑 룰 정리 + AI·친구랑 바로 두기",
@@ -2000,11 +2002,11 @@
       },
       "slitherlink": {
         "tagline": "유배지에서 하던 게임 그대로! 숫자가 말하는 만큼만 선이 지나가도록, 점과 점을 이어 끊김 없는 고리 하나를 완성하는 논리 퍼즐.",
-        "players": "1명 (친구전 준비 중)",
+        "players": "1명 또는 친구 2~4명",
         "pace": "한 판 5~40분",
         "level": "9×9 · 10×10 · 11×11 점판 (무작위 문제)",
         "solo": "새로운 챌린지(랭킹) · 기존 챌린지 깨기 · 크기별 연습",
-        "friend": "준비 중",
+        "friend": "2~4명이 같은 맵 동시에 풀기 · 먼저 완성하면 승리 · 링크·4자리 초대코드",
         "ai": "새로운 챌린지(랭킹) · 기존 챌린지 깨기 · 크기별 연습",
         "rules": [
           "점과 점 사이를 선으로 이어, 갈림길이나 끊긴 곳 없이 하나로 닫힌 고리를 그립니다.",
@@ -2099,7 +2101,9 @@
     "gyulRoom": "친구 방 만들기 (2~4명)",
     "slitherNew": "새로운 챌린지 (맵 차지하기)",
     "slitherBeat": "기존 챌린지 깨기",
-    "slitherPractice": "연습하기 (9×9 · 10×10 · 11×11)"
+    "slitherPractice": "연습하기 (9×9 · 10×10 · 11×11)",
+    "slitherRoom": "친구 방 만들기 (2~4명)",
+    "short_slitherRoom": "2~4명"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -4664,5 +4668,51 @@
       }
     ],
     "disclaimer": "PUZZLTHINK는 방송사와 관계없는 개인 팬 프로젝트이며, 퍼즐은 공개된 퍼즐 장르의 규칙으로 직접 만들었습니다."
+  },
+  "SlitherOnline": {
+    "metaTitle": "슬리더링크 같이 풀래? 🔗 초대장이 왔어요",
+    "metaDescription": "같은 맵을 동시에 풀어서 먼저 고리를 완성하면 승리! 링크만 열면 바로 들어와요.",
+    "guest": "손님",
+    "connecting": "방에 연결하는 중…",
+    "connectionError": "연결에 실패했어요. 새로고침해 주세요.",
+    "hostOffline": "방장이 잠시 나갔어요. 돌아오면 이어서 진행돼요.",
+    "emptySeat": "빈자리",
+    "me": "나",
+    "lobbyTitle": "친구를 기다리는 중",
+    "inviteTitle": "초대하기",
+    "copy": "링크 복사",
+    "copied": "복사됨!",
+    "share": "공유",
+    "rename": "이름 변경",
+    "startCount": "{n}명으로 시작",
+    "startLocked": "2명 이상 모이면 시작할 수 있어요",
+    "startHint": "모두 같은 맵을 동시에 풀어요. 먼저 완성한 사람이 이겨요.",
+    "roomFull": "방이 가득 찼어요 (최대 4명).",
+    "waitingHost": "방장이 시작하기를 기다리는 중…",
+    "race": "먼저 고리를 완성하세요!",
+    "youWin": "내가 먼저 완성했어요! 🎉",
+    "winnerIs": "{name}님이 먼저 완성했어요",
+    "noWinner": "모두 포기했어요",
+    "gaveUpWatching": "포기했어요. 다른 사람의 진행을 지켜봐요",
+    "giveUpConfirm": "포기할까요? 이번 판에서는 다시 풀 수 없어요.",
+    "showAnswer": "정답 보기",
+    "hideAnswer": "내 선 보기",
+    "rematch": "새 맵으로 한 판 더",
+    "rematchWait": "방장이 새 판을 시작하기를 기다리는 중…",
+    "watching": "이번 판을 지켜보는 중이에요.",
+    "players": "참가자",
+    "out": "포기",
+    "linesN": "선 {n}개",
+    "boardSize": "맵 크기",
+    "boardSizeHint": "11×11이 방송과 같은 크기예요.",
+    "rulesTitle": "친구전 규칙",
+    "rules": [
+      "모두 같은 랜덤 맵을 동시에 풀어요.",
+      "먼저 정답 고리를 완성한 사람이 바로 이겨요.",
+      "힌트는 1인 1번, 다른 사람의 선은 보이지 않고 그은 선 개수만 보여요.",
+      "나머지가 모두 포기하면 남은 사람이 이겨요."
+    ],
+    "youWinForfeit": "다른 사람이 모두 포기해서 내가 이겼어요!",
+    "winnerForfeit": "{name}님이 끝까지 남아 이겼어요"
   }
 }

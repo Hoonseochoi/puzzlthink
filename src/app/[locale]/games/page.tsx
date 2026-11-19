@@ -57,7 +57,7 @@ export default async function GamesPage({ params }: { params: Promise<{ locale: 
           {GAMES.map((game) => {
             const key = `games.${game.id}` as const;
             const rules = t.raw(`${key}.rules`) as string[];
-            const solo = game.id === 'sudoku' || game.id === 'blindGomoku' || game.id === 'slitherlink';
+            const solo = game.id === 'sudoku' || game.id === 'blindGomoku';
             return (
               <article key={game.id} id={game.id} className="scroll-mt-24 overflow-hidden rounded-[24px] border border-black/10 bg-[#f9f7f1] shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px]">
                 <div className="h-1.5" style={{ background: game.color }} />
@@ -80,7 +80,7 @@ export default async function GamesPage({ params }: { params: Promise<{ locale: 
                     <div className="rounded-2xl border border-black/[0.07] bg-white/60 px-3.5 py-3">
                       <dt className="text-[10px] font-black tracking-[0.14em] text-black/40">{t('modes')}</dt>
                       <dd className="mt-1 flex flex-col gap-1 text-[13px] font-bold leading-5">
-                        {game.id === 'nemoCount' || game.id === 'hexagon' || game.id === 'gyulhap' ? (
+                        {game.id === 'nemoCount' || game.id === 'hexagon' || game.id === 'gyulhap' || game.id === 'slitherlink' ? (
                           <>
                             <span className="flex gap-1.5"><UserRound size={14} className="mt-0.5 shrink-0" style={{ color: game.color }} /><span className="break-keep">{t('modeSolo')} · {t(`${key}.solo`)}</span></span>
                             <span className="flex gap-1.5"><UsersRound size={14} className="mt-0.5 shrink-0" style={{ color: game.color }} /><span className="break-keep">{t('modeFriend')} · {t(`${key}.friend`)}</span></span>
