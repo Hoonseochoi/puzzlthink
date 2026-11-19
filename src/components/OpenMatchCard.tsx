@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { useLocale, useTranslations } from 'next-intl';
 import { DoorOpen, Loader2, LogIn, MessageCircle, Plus, RefreshCw, Sparkles, Swords, UsersRound, X } from 'lucide-react';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
-import { type OpenRoomAnyRow, countFriendRooms, listAllOpenRooms, saveTitle } from '@/lib/openRooms';
+import { type LiveRoomRow, type OpenRoomAnyRow, listAllOpenRooms, listLiveRooms, saveTitle } from '@/lib/openRooms';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import { GAME_MODES, openRoomHref } from './gameModes';
@@ -55,7 +55,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   const { user, configured } = useAuth();
   const signedIn = !!user || !configured;
   const [rooms, setRooms] = useState<OpenRoomAnyRow[] | null>(null);
-  const [friendRooms, setFriendRooms] = useState<number | null>(null);
+  const [live, setLive] = useState<LiveRoomRow[] | null>(null); // matches in progress
   const [dialog, setDialog] = useState<'join' | 'create' | 'patch' | null>(null);
   const [creating, setCreating] = useState<string | null>(null);
   const [title, setTitle] = useState(''); // room title, set before picking the game
@@ -66,7 +66,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
     const load = () => {
       if (document.visibilityState !== 'visible') return;
       listAllOpenRooms().then((rows) => { if (alive) setRooms(rows ?? []); });
-      countFriendRooms().then((n) => { if (alive) setFriendRooms(n); });
+      listLiveRooms().then((rows) => { if (alive) setLive(rows); });
     };
     load();
     const timer = window.setInterval(load, dialog === 'join' ? 8_000 : 20_000);
@@ -86,10 +86,13 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
 
   const open = (rooms ?? []).filter((room) => room.game in GAME_MODES && room.players < room.capacity);
   const count = rooms === null ? null : open.length;
+  // 지금 열린 방 = rooms waiting for players; 지금 플레이 중 = matches under way (open and friend), per game.
   const playingByGame = ROOM_GAMES.flatMap((game) => {
-    const roomCount = open.filter((room) => room.game === game.id).length;
+    const roomCount = (live ?? []).filter((row) => row.game === game.id).reduce((sum, row) => sum + row.open + row.friend, 0);
     return roomCount > 0 ? [{ ...game, roomCount }] : [];
-  });
+  }).sort((a, b) => b.roomCount - a.roomCount);
+  const liveOpen = (live ?? []).reduce((sum, row) => sum + row.open, 0);
+  const liveFriend = (live ?? []).reduce((sum, row) => sum + row.friend, 0);
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-[24px] border border-black/10 bg-[#17201e] p-4 text-white shadow-[0_18px_50px_rgba(30,38,36,0.18)] sm:rounded-[32px] sm:p-7">
@@ -125,12 +128,12 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
       <div className="relative mt-3 rounded-2xl border border-white/10 bg-white/[.04] px-3 py-2.5" aria-live="polite">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[10px] font-black tracking-[0.14em] text-white/40">{t('playingNow')}</p>
-          {friendRooms !== null && friendRooms > 0 && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-white/60"><Swords size={12} className="text-[#ffd36e]" />{t('friendRooms', { n: friendRooms })}</span>
+          {liveOpen + liveFriend > 0 && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-white/60"><Swords size={12} className="text-[#ffd36e]" />{t('liveSplit', { open: liveOpen, friend: liveFriend })}</span>
           )}
         </div>
         <div className="mt-1.5 flex min-h-6 flex-wrap items-center gap-1.5">
-          {rooms === null ? <span className="text-xs font-bold text-white/35">{t('playingLoading')}</span>
+          {live === null ? <span className="text-xs font-bold text-white/35">{t('playingLoading')}</span>
             : playingByGame.length === 0 ? <span className="text-xs font-bold text-white/35">{t('playingEmpty')}</span>
               : playingByGame.map((game) => (
                 <span key={game.id} className="inline-flex items-center gap-1.5 rounded-full bg-white/[.08] px-2.5 py-1 text-[11px] font-bold text-white/80">
