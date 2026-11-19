@@ -2131,6 +2131,8 @@
     "openHost": "{name}'s room",
     "openFull": "Full",
     "openJoin": "Join",
+    "openTitleLabel": "Room title",
+    "openTitlePlaceholder": "Room title (optional) · e.g. Beginners welcome",
     "openCreate": "Create an open room",
     "openCreateFor": "Open room · {label}",
     "openLogin": "Open rooms are for signed-in players only, so both sides keep their record.",

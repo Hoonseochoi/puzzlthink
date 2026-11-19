@@ -2176,6 +2176,8 @@
     "openHost": "{name}님의 방",
     "openFull": "가득 참",
     "openJoin": "참가",
+    "openTitleLabel": "방 제목",
+    "openTitlePlaceholder": "방 제목 (선택) · 예: 초보 환영, 한 판만 빠르게",
     "openCreate": "공개방 만들기",
     "openCreateFor": "공개방 만들기 · {label}",
     "openLogin": "공개방은 로그인한 사람끼리만 만들고 참가할 수 있어요. 서로의 전적이 기록돼요.",
