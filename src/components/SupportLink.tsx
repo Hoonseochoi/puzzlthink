@@ -8,7 +8,7 @@ import { Coffee, Heart, ServerCrash, X } from 'lucide-react';
 /** Voluntary support goes through CTEE: supporters see only "PUZZLTHINK", never the developer's name or account. */
 export const SUPPORT_URL = 'https://ctee.kr/place/puzzlthink/donation';
 
-type SupportPlace = 'footer' | 'result' | 'hall' | 'open_rank' | 'hard_clear' | 'banner' | 'header';
+type SupportPlace = 'footer' | 'result' | 'hall' | 'open_rank' | 'hard_clear' | 'banner' | 'header' | 'letter';
 /** Counts clicks by place and page so we can measure whether each quiet link is useful. */
 export function trackSupportClick(place: SupportPlace = 'footer') {
   try {
