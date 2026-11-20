@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
   const user = auth?.user;
   if (!user) return json({ error: 'sign_in' }, 401);
 
-  let body: { run?: unknown; steps?: unknown };
+  let body: { run?: unknown; steps?: unknown; away?: unknown };
   try { body = await req.json(); } catch { return json({ error: 'bad_body' }, 400); }
   const runId = typeof body.run === 'string' ? body.run : '';
   if (!runId || !Array.isArray(body.steps)) return json({ error: 'bad_body' }, 400);
@@ -45,6 +45,10 @@ Deno.serve(async (req) => {
   });
   if (error) return json({ error: error.message }, 400);
   // Keep the moves and the suspicion signals with the run, for review (never fails the request).
-  await admin.from('slither_runs').update({ signals: check.signals, steps: body.steps }).eq('id', runId).then(() => {}, () => {});
+  // `away`: [from, to] ms spans the browser reported off the board (hidden tab, another app).
+  const spans = (Array.isArray(body.away) ? body.away : []).slice(0, 500)
+    .filter((x): x is [number, number] => Array.isArray(x) && x.length === 2 && x.every((n) => typeof n === 'number' && Number.isFinite(n)) && x[1] >= x[0]);
+  const away = { n: spans.length, ms: spans.reduce((s, [a, b]) => s + (b - a), 0), spans };
+  await admin.from('slither_runs').update({ signals: { ...check.signals, away }, steps: body.steps }).eq('id', runId).then(() => {}, () => {});
   return json(data);
 });
