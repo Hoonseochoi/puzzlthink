@@ -42,3 +42,6 @@ next-env.d.ts
 
 # generated status reports (scripts/report)
 /reports/
+/dist/
+.vinext/
+.cloudflare/
