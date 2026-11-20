@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import GoogleAnalyticsTag from '@/components/GoogleAnalyticsTag';
 import GlobalHeader from '@/components/GlobalHeader';
 import { AuthProvider } from '@/components/AuthProvider';
 import HallCelebration from '@/components/HallCelebration';
@@ -85,7 +85,7 @@ export default async function LocaleLayout({
           </AuthProvider>
         </NextIntlClientProvider>
       </body>
-      {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+      {GA_ID && <GoogleAnalyticsTag gaId={GA_ID} />}
     </html>
   );
 }
