@@ -8,6 +8,7 @@ import { CERT_GAMES } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
 import { GAME_LABEL } from './HallCelebration';
 import { useAuth } from './AuthProvider';
+import { Stone } from './StoneAvatar';
 
 type Row = { rank: number; nickname: string; avatar_url: string | null; pieces: number; per_game: Partial<Record<GameId, number>>; last_win: string; is_me: boolean | null; prev_rank: number | null };
 
@@ -48,12 +49,6 @@ function RankChange({ row, className = '' }: { row: Row; className?: string }) {
     : <span title={t('rankDown', { n: -d })} className={`shrink-0 font-mono text-[10px] font-black text-[#3b82f6] ${className}`}>▼{-d}</span>;
 }
 
-function Avatar({ src, name, size }: { src: string | null; name: string; size: number }) {
-  return src
-    // eslint-disable-next-line @next/next/no-img-element -- remote avatars of any host
-    ? <img src={src} alt="" width={size} height={size} referrerPolicy="no-referrer" className="shrink-0 rounded-full object-cover" style={{ width: size, height: size }} />
-    : <span className="flex shrink-0 items-center justify-center rounded-full bg-[#17201e] font-black text-white" style={{ width: size, height: size, fontSize: size * 0.4 }}>{name.slice(0, 1).toUpperCase()}</span>;
-}
 
 /** Wins per game behind a player's pieces, most first. */
 function GameWins({ row }: { row: Row }) {
@@ -121,7 +116,7 @@ export default function CompetitionBoard() {
               return (
                 <button key={place} type="button" onClick={() => toggle(row.rank)} aria-expanded={open === row.rank} className="group flex min-w-0 flex-col items-center text-center">
                   <span className="mb-1 text-2xl sm:text-3xl">{['🥇', '🥈', '🥉'][place - 1]}</span>
-                  <span className={`rounded-full p-0.5 ${place === 1 ? 'bg-[#ffd45c] shadow-[0_0_24px_rgba(255,196,60,.6)]' : 'bg-white'} ${row.is_me ? 'ring-2 ring-[#ff6b4a]' : ''}`}><Avatar src={row.avatar_url} name={row.nickname} size={place === 1 ? 64 : 50} /></span>
+                  <span className={`rounded-full ${place === 1 ? 'drop-shadow-[0_0_14px_rgba(255,196,60,.7)]' : ''} ${row.is_me ? 'ring-2 ring-[#ff6b4a] ring-offset-2' : ''}`}><Stone name={row.nickname} pieceRank={row.rank} size={place === 1 ? 64 : 50} /></span>
                   <span className="mt-1.5 w-full truncate px-1 text-xs font-black sm:text-sm">{row.nickname}</span>
                   <PieceCount n={row.pieces} size={13} className="mt-0.5 text-sm sm:text-base" />
                   <RankChange row={row} className="mt-1" />
@@ -158,7 +153,7 @@ function RankRow({ row, open, onToggle }: { row: Row; open: boolean; onToggle: (
     <li className={`overflow-hidden rounded-2xl border ${row.is_me ? 'border-[#ff6b4a]/50 bg-[#fff0eb]' : 'border-black/10 bg-[#f9f7f1]'}`}>
       <button type="button" onClick={onToggle} aria-expanded={open} className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-white/60">
         <span className="flex w-8 shrink-0 flex-col items-center gap-0.5"><span className="font-mono text-sm font-black leading-none text-black/45">{row.rank}</span><RankChange row={row} /></span>
-        <Avatar src={row.avatar_url} name={row.nickname} size={30} />
+        <Stone name={row.nickname} pieceRank={row.rank} size={30} />
         <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{row.nickname}{row.is_me && <span className="ml-1.5 rounded-full bg-[#ff6b4a] px-1.5 py-0.5 text-[9px] font-black text-white">{t('me')}</span>}</span>
         <PieceCount n={row.pieces} size={13} className="text-sm" />
         <ChevronDown size={15} className={`shrink-0 text-black/35 transition ${open ? 'rotate-180' : ''}`} />
