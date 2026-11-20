@@ -29,6 +29,6 @@ jobs:
       - name: Smoke test
         run: |
           for p in /ko /en /ko/wallgo /ko/records; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "https://puzzlthink.chlgnstj1.workers.dev$p")
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://puzzlthink.fanmadefree.workers.dev$p")
             echo "$p $code"; [ "$code" = 200 ] || exit 1
           done
