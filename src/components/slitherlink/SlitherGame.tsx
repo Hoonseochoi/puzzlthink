@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, Clock3, Crown, Eraser, Flag, History, Infinity as InfinityIcon, Lightbulb, Loader2, PenLine, RefreshCw, RotateCcw, SkipForward, Swords, Timer, Trash2, Trophy, X } from 'lucide-react';
+import { Check, ChevronDown, Clock3, Crown, Eraser, Flag, History, Infinity as InfinityIcon, Lightbulb, Loader2, PenLine, RefreshCw, RotateCcw, SkipForward, Swords, Timer, Trash2, Trophy, X } from 'lucide-react';
 import AuthButton from '@/components/AuthButton';
 import { useAuth } from '@/components/AuthProvider';
 import BugReport from '@/components/BugReport';
@@ -18,6 +18,7 @@ import { CoffeeNudge } from '@/components/SupportLink';
 import { SLITHER_SIZES, type Mark, type SlitherSize, type Puzzle, formatClock, generatePuzzle, hintEdges, isSolved, loopOrder, newSeed } from '@/lib/slitherlink';
 import { type BoardRow, type FinishResult, type RankRow, type RivalRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, fetchRivals, finishCleared, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
 import { reportGame } from '@/lib/stats';
+import SlitherHistory from './SlitherHistory';
 import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool } from './SlitherBoard';
 
 type Mode = 'challenge' | 'beat' | 'practice';
@@ -78,6 +79,7 @@ export default function SlitherGame() {
   const [boards, setBoards] = useState<BoardRow[] | null>(null);
   const [rivals, setRivals] = useState<RivalRow[]>([]);
   const [listTick, setListTick] = useState(0);
+  const [historyOf, setHistoryOf] = useState<string | null>(null); // board whose owner history is open in the list
   const [focus, setFocus] = useState<BoardRow | null>(null); // one board picked from a link or the ranking
   const timers = useRef<number[]>([]);
   // Several pointer moves can arrive before React re-renders, so changes build on the latest marks.
@@ -302,6 +304,7 @@ export default function SlitherGame() {
                   <p className="mt-2 text-xl font-black">{t('boardHolder', { name: focus.holder })}</p>
                   <p className="mt-1 text-sm text-white/60">{t('focusLimit', { time: time(focus.holder_ms) })}</p>
                   <p className="mt-1 text-[11px] text-white/40">{t('boardMeta', { tries: focus.attempts, wins: focus.takeovers })}</p>
+                  <div className="mt-3 text-left"><p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-white/40">{t('historyTitle')}</p><SlitherHistory id={focus.id} /></div>
                   <button type="button" disabled={focus.tried || focus.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', focus.id)} className={`${BTN_ACCENT} mt-4 w-full py-3.5 text-sm disabled:opacity-40`}>
                     {phase === 'starting' ? <Loader2 size={16} className="animate-spin" /> : <Swords size={16} />}
                     {focus.mine ? t('focusMine') : focus.tried ? t('boardTried') : t('tryBoard', { name: focus.holder })}
@@ -314,13 +317,18 @@ export default function SlitherGame() {
                   {boards === null ? <p className="flex items-center gap-2 text-xs text-white/45"><Loader2 size={13} className="animate-spin" />{t('loading')}</p>
                     : boards.length === 0 ? <p className="rounded-md border border-dashed border-white/15 px-3 py-4 text-center text-xs text-white/45">{t('boardsEmpty')}</p>
                       : <ul className="space-y-1.5">{boards.map((b) => (
-                        <li key={b.id} className="flex items-center gap-3 rounded-md border border-white/10 bg-black/30 px-3 py-2.5">
-                          <Crown size={15} className="shrink-0 text-[#ffcf3f]" />
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-black">{t('boardHolder', { name: b.holder })} · <span className="font-mono text-(--accent)">{time(b.holder_ms)}</span></p>
-                            <p className="truncate text-[11px] text-white/45">{t('boardMeta', { tries: b.attempts, wins: b.takeovers })}</p>
+                        <li key={b.id} className="rounded-md border border-white/10 bg-black/30">
+                          <div className="flex items-center gap-3 px-3 py-2.5">
+                            <button type="button" onClick={() => setHistoryOf((cur) => (cur === b.id ? null : b.id))} aria-expanded={historyOf === b.id} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                              <Crown size={15} className="shrink-0 text-[#ffcf3f]" />
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate text-sm font-black">{t('boardHolder', { name: b.holder })} · <span className="font-mono text-(--accent)">{time(b.holder_ms)}</span></span>
+                                <span className="flex items-center gap-1 truncate text-[11px] text-white/45">{t('boardMeta', { tries: b.attempts, wins: b.takeovers })}<ChevronDown size={11} className={`shrink-0 transition ${historyOf === b.id ? 'rotate-180' : ''}`} /></span>
+                              </span>
+                            </button>
+                            <button type="button" disabled={b.tried || !signedIn || phase === 'starting'} onClick={() => startRun('beat', b.id)} className={`${BTN_ACCENT} shrink-0 !px-3 !py-1.5 disabled:opacity-40`}>{b.tried ? t('boardTried') : t('boardGo')}</button>
                           </div>
-                          <button type="button" disabled={b.tried || !signedIn || phase === 'starting'} onClick={() => startRun('beat', b.id)} className={`${BTN_ACCENT} shrink-0 !px-3 !py-1.5 disabled:opacity-40`}>{b.tried ? t('boardTried') : t('boardGo')}</button>
+                          {historyOf === b.id && <div className="border-t border-white/10 px-2.5 py-2"><SlitherHistory id={b.id} /></div>}
                         </li>
                       ))}</ul>}
                   <p className="mt-2 text-[11px] leading-5 text-white/40">{t('beatRule')}</p>
