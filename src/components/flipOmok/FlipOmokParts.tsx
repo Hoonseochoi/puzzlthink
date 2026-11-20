@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Sparkles } from 'lucide-react';
-import { SIZE, coordinateLabel, isFlipped, isGap, other, owner, play, type Board, type Cell, type Line, type Player } from '@/lib/flipOmok';
+import { SIZE, coordinateLabel, isFlipped, isGap, other, owner, play, type Board, type Cell, type Line, type Player, voidFive } from '@/lib/flipOmok';
 
 export const FLIP_ACCENT = '#67e8ff';
 export const FLIP_INK = '#06202a';
@@ -65,7 +65,7 @@ export function FlipOmokBoard({ board, last, flipped, flipKey, win, turn, intera
 }) {
   const t = useTranslations('FlipOmok');
   const [hover, setHover] = useState<number | null>(null);
-  const [toast, setToast] = useState<{ n: number; who: Player; key: number } | null>(null);
+  const [toast, setToast] = useState<{ n: number; who: Player; key: number; void: boolean } | null>(null);
   const seen = useRef(flipKey);
 
   // "N개 뒤집기!" for every move that flipped something.
@@ -74,8 +74,9 @@ export function FlipOmokBoard({ board, last, flipped, flipKey, win, turn, intera
     seen.current = flipKey;
     if (!flipped.length || last === null) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- a toast per move, keyed by the move
-    setToast({ n: flipped.length, who: owner(board[last]) as Player, key: flipKey });
-    const timer = window.setTimeout(() => setToast(null), 1400);
+    const isVoid = voidFive(board, last, flipped);
+    setToast({ n: flipped.length, who: owner(board[last]) as Player, key: flipKey, void: isVoid });
+    const timer = window.setTimeout(() => setToast(null), isVoid ? 2400 : 1400);
     return () => window.clearTimeout(timer);
   }, [flipKey, flipped, last, board]);
 
@@ -116,7 +117,7 @@ export function FlipOmokBoard({ board, last, flipped, flipKey, win, turn, intera
           <line x1={pos(win.start % SIZE)} y1={pos(Math.floor(win.start / SIZE))} x2={pos(win.end % SIZE)} y2={pos(Math.floor(win.end / SIZE))} stroke="#fff" strokeWidth=".4" strokeLinecap="round" />
         </g></svg>}
         {toast && <div key={toast.key} className="flip-omok-toast pointer-events-none absolute left-1/2 top-[44%] z-30 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/20 bg-black/75 px-5 py-2.5 text-lg font-black text-white shadow-2xl sm:text-2xl">
-          <Sparkles size={18} className="mr-1.5 inline" style={{ color: STONE_HEX[toast.who] }} />{t('flipToast', { n: toast.n })}
+          <Sparkles size={18} className="mr-1.5 inline" style={{ color: STONE_HEX[toast.who] }} />{t('flipToast', { n: toast.n })}{toast.void && <span className="ml-2 text-sm text-[#ffd166] sm:text-base">{t('voidFiveToast')}</span>}
         </div>}
         {overlay}
       </div>

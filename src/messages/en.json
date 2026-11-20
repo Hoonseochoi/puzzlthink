@@ -2116,7 +2116,7 @@
           "Take turns placing one stone on a 15×15 board, red first.",
           "Close a straight run of enemy stones between two of yours and they all flip to your colour (8 directions, any length).",
           "★ Placing between enemy stones is safe — only the mover flips!",
-          "Exactly five in a row wins. Six or more does not count.",
+          "Exactly five in a row wins. Six or more, or a five that includes a stone just flipped, does not count.",
           "Double threes are forbidden for both sides (marked ✕), unless the move makes five."
         ],
         "origin": "An original rule set made by the PUZZLTHINK developer, mixing Omok with Othello (Reversi). It keeps the usual Omok rules: exactly five wins, no double threes.",
@@ -5219,6 +5219,7 @@
     "resultKicker": "RESULT",
     "moveKicker": "MOVE {n}",
     "flipToast": "{n} flipped!",
+    "voidFiveToast": "· a five by flipping doesn’t win",
     "previewHint": "Placing here flips {n}",
     "mode": "Mode",
     "modes": {
@@ -5236,7 +5237,7 @@
       "Players take turns placing one stone on a 15×15 board, red first.",
       "Close a straight run of enemy stones between two of yours and they all flip to your colour (8 directions, any length). Flipped stones keep the other colour as their eyes.",
       "★ Placing between two enemy stones is safe: only the player who moves flips.",
-      "Exactly five in a row wins. Six or more does not count.",
+      "Exactly five in a row wins. Six or more does not count, and neither does a five that includes a stone flipped by that move.",
       "Double threes (two open threes at once) are forbidden for both sides — you can’t play on a ✕. A move that makes five is always fine."
     ],
     "lastMove": "Last move: {name} {at}",
@@ -5264,10 +5265,10 @@
     ],
     "tipsTitle": "Tips",
     "tips": [
-      "An open three (empty on both ends) is hard to stop. Block right next to it and they close behind your blocker to flip it into five; block one point away and the other end becomes an open four. Cut it off at two.",
-      "Block with your back to your own stone or the board edge. If they can’t place behind your blocker, it can’t flip.",
+      "Block an open three right next to it. Even if your blocker flips, a five made by that flip doesn’t win. Block one point away and the other end becomes an open four.",
+      "Flipped stones count for their new owner from the next move on. If one of yours flips, check that line again. Block with your own stone or the edge behind you and it can’t flip at all.",
       "An enemy stone at the end of your line is a chance: close it from the far side and the blocked line gets longer.",
-      "Your five can include flipped stones: look for a move that flips your way into five.",
+      "A move that flips its way into five doesn’t win. Flip your way into a four, then complete it with a placed stone next turn.",
       "Six doesn’t win. Turning their five-to-be into a six is also a defence.",
       "No double threes for you either. Avoid the ✕ and build four-three shapes instead."
     ],
@@ -5281,7 +5282,7 @@
     "safeBody": "Only the player who moves flips. Your stone placed between two enemy stones stays yours — cutting into the middle of their line is a solid defence.",
     "gapHint": "Between enemy stones, but safe — it won’t flip",
     "lossTipTitle": "Try blocking like this",
-    "lossTip": "Blocking their open three right next to it lets them flip your blocker into five. Cut lines off at two, and block with your own stone or the edge behind you."
+    "lossTip": "Block their open three right next to it: a five made by flipping doesn’t win on that move. If your blocker flips, block that line’s end once more."
   },
   "FlipOmokOnline": {
     "metaTitle": "Up for Flip Omok? 🔴🔵 You’re invited",
@@ -5349,11 +5350,11 @@
     "s3Title": "Eyes tell the story",
     "s3Desc": "Placed stones have white eyes; flipped stones keep the other colour’s eyes, so you can see where stones changed hands.",
     "s4Title": "Exactly five wins",
-    "s4Desc": "Five of your colour in a row wins, flipped stones included. Six or more does not count.",
+    "s4Desc": "Five of your colour in a row wins. Stones flipped earlier count, but a five that includes a stone flipped by that move does not. Six or more does not count either.",
     "s5Title": "No double threes",
     "s5Desc": "A move that makes two open threes at once is forbidden for both sides and shows as ✕. A move that makes five is always fine.",
-    "s6Title": "Careful when blocking",
-    "s6Desc": "Block right next to their line and they can place behind it — your blocker flips. Block one point away instead.",
+    "s6Title": "Blocking up close is fine",
+    "s6Desc": "You can block right next to their line. If they close behind and flip your blocker, a five made by that move doesn’t win. The flipped stone does count for them from the next move.",
     "safeLabel": "KEY RULE",
     "sSafeTitle": "Stepping in between is safe",
     "sSafeDesc": "Only the player who moves flips. A stone you place between two enemy stones stays yours — cut into the middle of their line."
@@ -5367,7 +5368,7 @@
       "Red (first) and blue take turns placing one stone on the points of a 15×15 board.",
       "When your new stone and another of your stones close a straight run of enemy stones, every stone in that run flips to your colour. All 8 directions count, at any length.",
       "★ Only the player who moves flips. A stone placed between two enemy stones stays yours, so cutting into their line is a solid defence.",
-      "Exactly five of your colour in a row wins, flipped stones included. Six or more does not.",
+      "Exactly five of your colour in a row wins. Stones flipped earlier count, but a five that includes a stone flipped by that move does not. Six or more does not win.",
       "Double threes (two open threes at once) are forbidden for both sides, unless the move completes five.",
       "A full board is a draw. Friend games have a turn clock (15, 30 or 60s); a move is made for you when it runs out, and three in a row lose."
     ],
@@ -5378,8 +5379,8 @@
         "body": "If one move closes runs in several directions, all of them flip together."
       },
       {
-        "title": "Five by flipping",
-        "body": "The five can be made by flips: the moment five of your colour line up, you win."
+        "title": "No five by flipping",
+        "body": "If a flip lines up five of your colour, it doesn’t win when a stone flipped by that move is in the five. Flipped stones count as yours from the next move."
       },
       {
         "title": "Flipped stones can flip back",
@@ -5395,8 +5396,8 @@
     "strategies": [
       {
         "tag": "Defence",
-        "title": "Block one point away",
-        "body": "A blocker right next to their line flips as soon as they close the far side. Leave a gap, or block where nothing can close behind."
+        "title": "Block close, then check",
+        "body": "A blocker right next to their line can flip, but a five made by that flip doesn’t win. Once flipped it counts for them from the next move, so block that line’s end again. Block with your own stone or the edge behind you and it can’t flip."
       },
       {
         "tag": "Attack",
