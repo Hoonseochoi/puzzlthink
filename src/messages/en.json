@@ -5153,5 +5153,22 @@
     "rule": "1 hard-AI win in any game = 1 piece · up to 30 per game",
     "cta": "Go for the podium",
     "emptySpot": "Open spot"
+  },
+  "DevLetter": {
+    "arrived": "A letter from the developer",
+    "read": "Read",
+    "openLabel": "Open the developer's letter",
+    "title": "A letter from the developer",
+    "close": "Close",
+    "hello": "Hi, I'm the developer of PUZZLTHINK! 👋",
+    "closedTitle": "Why the site was down",
+    "closedBody": "With more than 3,000 visitors and over 7,000 games a day, we went past the server's limit, so the site stopped for a while. I've moved to a bigger server and it's back. Thank you for waiting.",
+    "hobbyTitle": "PUZZLTHINK is a personal hobby project",
+    "hobbyBody": "It's built and run by one ordinary office worker after hours, and I pay every cost myself, servers included. So things can be slow or rough at times, and when traffic spikes the server may close because of the cost.",
+    "promise": "As a huge Devil's Plan 3 fan and brain-survival nerd myself, I'll keep it running at least until The Devil's Plan ends!",
+    "supportTitle": "Voluntary support",
+    "supportBody": "If you've enjoyed it, a little support now and then helps. It all goes to server costs. Support is taken through ctee.",
+    "supportCta": "Support the developer",
+    "bye": "Enjoy, and thank you! 💛"
   }
 }
