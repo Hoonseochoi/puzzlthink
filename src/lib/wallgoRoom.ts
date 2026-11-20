@@ -50,6 +50,8 @@ export type RoomState = {
   winners?: PlayerId[]; // everyone tied for the most squares
   turn: number;
   log: LogEntry[];
+  /** The board just before this turn's move, so the mover can take it back until the wall is placed. */
+  undo?: { pieces: Piece[]; walls: string[]; breaks: boolean[]; log: LogEntry[] } | null;
 };
 
 export type RoomAction =
@@ -57,6 +59,7 @@ export type RoomAction =
   | { t: 'place'; row: number; col: number; kind?: PieceKind }
   | { t: 'move'; pieceId: string; row: number; col: number; breakWall?: string }
   | { t: 'wall'; direction: Direction }
+  | { t: 'undo' }
   | { t: 'timeout' };
 
 
@@ -139,7 +142,7 @@ function giveTurn(state: RoomState, candidate: PlayerId): RoomState {
 function endTurn(state: RoomState, actor: PlayerId): RoomState {
   const mode = modeOf(state);
   const territory = getTerritory(state.pieces, new Set(state.walls), mode.totalPieces);
-  const base = { ...state, step: 'move' as const, moved: null, deadline: Date.now() + TURN_MS };
+  const base = { ...state, step: 'move' as const, moved: null, undo: null, deadline: Date.now() + TURN_MS };
   if (territory.separated) {
     const winners = modeWinners(territory, mode);
     return withLog({ ...base, phase: 'finished', winner: winners[0], winners }, ...winners.map((s) => ({ k: 'onLogWinner', s })));
@@ -157,7 +160,7 @@ function move(state: RoomState, player: PlayerId, pieceId: string, to: Position,
   const moved = applyMove(state.pieces, walls, option);
   const breaks = option.brokenWall ? state.breaks.map((value, i) => (i === player ? false : value)) : state.breaks;
   return withLog(
-    { ...state, pieces: moved.pieces, walls: [...moved.walls], breaks, step: 'wall', moved: pieceId },
+    { ...state, pieces: moved.pieces, walls: [...moved.walls], breaks, step: 'wall', moved: pieceId, undo: { pieces: state.pieces, walls: state.walls, breaks: state.breaks, log: state.log } },
     { k: option.brokenWall ? 'onLogBreak' : 'onLogMoved', s: player, cell: cellName(to) },
   );
 }
@@ -170,6 +173,13 @@ function wall(state: RoomState, player: PlayerId, direction: Direction): RoomSta
   const piece = state.pieces.find((item) => item.id === state.moved)!;
   walls.add(option.key);
   return endTurn(withLog({ ...state, walls: [...walls] }, { k: 'onLogWall', s: player, cell: cellName(piece), dir: direction }), player);
+}
+
+/** Takes back this turn's move (before its wall), so the mover can pick another piece or square. */
+function undoMove(state: RoomState): RoomState | null {
+  if (!state.undo) return null;
+  const { pieces, walls, breaks, log } = state.undo;
+  return { ...state, pieces, walls, breaks, log, step: 'move', moved: null, undo: null };
 }
 
 function timeout(state: RoomState): RoomState | null {
@@ -208,6 +218,7 @@ export function reduceRoom(state: RoomState, action: RoomAction, player: PlayerI
     if (action.t === 'place' && state.phase === 'placement') next = place(state, player, { row: action.row, col: action.col }, action.kind);
     if (action.t === 'move' && state.phase === 'playing' && state.step === 'move') next = move(state, player, action.pieceId, { row: action.row, col: action.col }, action.breakWall);
     if (action.t === 'wall' && state.phase === 'playing' && state.step === 'wall') next = wall(state, player, action.direction);
+    if (action.t === 'undo' && state.phase === 'playing' && state.step === 'wall') next = undoMove(state);
   }
   return next ? bump(next) : null;
 }

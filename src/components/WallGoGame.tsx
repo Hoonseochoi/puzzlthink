@@ -76,6 +76,8 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
   const [winner, setWinner] = useState<PlayerId | null>(null);
   const [winners, setWinners] = useState<PlayerId[]>([]); // a tie for most squares is a shared win
   const [pendingBreak, setPendingBreak] = useState<string | null>(null); // wall picked to knock down before moving
+  // The board just before my move, so I can take the move back (tap another piece) until the wall goes down.
+  const [undoMove, setUndoMove] = useState<{ pieces: Piece[]; walls: Set<string>; breaks: [boolean, boolean, boolean]; history: string[] } | null>(null);
   const [history, setHistory] = useState<string[]>(() => [t('logFirst')]);
   const [turnNumber, setTurnNumber] = useState(1);
   const [difficulty, setDifficulty] = useState<AiDifficulty>('normal');
@@ -139,7 +141,7 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
     setModeId(nextModeId); setOrder(nextOrder);
     setDifficulty(nextDifficulty); setPieces(nextMode.fixedPieces); setWalls(new Set()); setPlacementIndex(0); setPhase('placement');
     setCurrentPlayer(nextOrder[0]); setTurnStep('move'); setSelectedPieceId(null); setMovedPieceId(null);
-    setBreakAvailable([true, true, true]); setSeconds(90); setWinner(null); setWinners([]); setPendingBreak(null);
+    setBreakAvailable([true, true, true]); setSeconds(90); setWinner(null); setWinners([]); setPendingBreak(null); setUndoMove(null);
     setHistory(nextModeId === 'two' ? [t('logDraw', { player: playerNames[first] })] : [t('logFirst')]); setTurnNumber(1);
   };
 
@@ -162,7 +164,7 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
   const finishOrAdvance = (nextPieces: Piece[], nextWalls: Set<string>, actingPlayer: PlayerId, log: string) => {
     const nextTerritory = getTerritory(nextPieces, nextWalls, mode.totalPieces);
     setPieces(nextPieces); setWalls(nextWalls); addLog(log);
-    setSelectedPieceId(null); setMovedPieceId(null); setTurnStep('move'); setSeconds(90); setPendingBreak(null);
+    setSelectedPieceId(null); setMovedPieceId(null); setTurnStep('move'); setSeconds(90); setPendingBreak(null); setUndoMove(null);
     if (nextTerritory.separated || noOneCanMove(nextPieces, nextWalls, mode, breakAvailable)) {
       const result = modeWinners(nextTerritory, mode);
       setWinner(result[0]); setWinners(result); setPhase('finished'); saveRecord(result, nextTerritory);
@@ -268,13 +270,22 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
       const nextPieces: Piece[] = [...pieces, { id: `0-${count}`, player: 0, row, col, ...(humanKind ? { kind: humanKind } : {}) }];
       addLog(t('logPlaced', { player: playerNames[0], cell: `${String.fromCharCode(65 + col)}${row + 1}` })); advancePlacement(nextPieces); return;
     }
-    if (phase !== 'playing' || currentPlayer !== 0 || turnStep !== 'move') return;
+    if (phase !== 'playing' || currentPlayer !== 0) return;
     const clickedPiece = pieces.find((piece) => piece.row === row && piece.col === col);
+    // Before the wall goes down, tapping one of my pieces takes the move back and picks that piece instead.
+    if (turnStep === 'wall') {
+      if (clickedPiece?.player !== 0 || !undoMove) return;
+      const before = undoMove.pieces.find((piece) => piece.row === row && piece.col === col)?.id ?? clickedPiece.id;
+      setPieces(undoMove.pieces); setWalls(undoMove.walls); setBreakAvailable(undoMove.breaks); setHistory(undoMove.history);
+      setUndoMove(null); setMovedPieceId(null); setTurnStep('move'); setSelectedPieceId(before); setPendingBreak(null);
+      return;
+    }
     const move = selectedMoves.find((option) => option.to.row === row && option.to.col === col);
     // Tapping another of my pieces selects it; tapping the selected piece again means "stay here".
     if (clickedPiece?.player === 0 && !(move && clickedPiece.id === selectedPieceId)) { setSelectedPieceId(clickedPiece.id); setPendingBreak(null); return; }
     if (!move) return;
     const moved = applyMove(pieces, walls, move);
+    setUndoMove({ pieces, walls, breaks: breakAvailable, history });
     setPieces(moved.pieces); setWalls(moved.walls); setMovedPieceId(move.pieceId); setSelectedPieceId(null); setPendingBreak(null); setTurnStep('wall');
     if (move.brokenWall) { setBreakAvailable((available) => [false, available[1], available[2]]); addLog(t('logBreakUsed')); }
     addLog(t(move.distance === 0 ? 'logStayed' : 'logMoved'));
