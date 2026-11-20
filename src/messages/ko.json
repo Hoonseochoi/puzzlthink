@@ -2190,7 +2190,9 @@
       "보드게임 규칙",
       "두뇌 게임 모음",
       "친구랑 하는 웹게임"
-    ]
+    ],
+    "firstTime": "{game} 처음이라면?",
+    "firstTimeCta": "공략 보기"
   },
   "BugReport": {
     "button": "오류 제보",
