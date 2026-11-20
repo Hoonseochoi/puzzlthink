@@ -220,22 +220,22 @@ export default function HomeClient() {
   const t = useTranslations('Home');
   const tc = useTranslations('Common');
   const podiums = useHallPodiums();
-  // Order: the newest game first (NEW), then by total plays; 벽바둑 II sits right under 벽바둑. 뒤집기 오목 stays last while its rules settle.
+  // Order: by plays (2026-11-20); 벽바둑 II sits right under 벽바둑. 뒤집기 오목 stays last while its rules settle. HYPE = the most played.
   const games = [
-    { title: "NINE MEN'S MORRIS", display: tc('nineMensMorris'), description: t('nineMensMorrisDescription'), href: '/nine-mens-morris', tag: 'spatialStrategy', meta: t('nineMensMorrisMeta'), color: '#3ec9d6', illustration: 'morris', new: true },
-    { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', tag: 'spatialStrategy', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
-    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
-    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo', hype: true },
+    { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true },
+    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
+    { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', tag: 'spatialStrategy', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
     { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', tag: 'miniStrategy', meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
-    { title: 'BLACK & WHITE', display: tc('blackWhite'), description: t('blackWhiteDescription'), href: '/black-white', tag: 'strategyBluff', meta: t('blackWhiteMeta'), color: '#2b2b31', illustration: 'blackWhite' },
-    { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink' },
+    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
     { title: 'INDIAN POKER', display: tc('indianPoker'), description: t('indianPokerDescription'), href: '/indian-poker', tag: 'observationBluff', meta: t('indianPokerMeta'), color: '#e6b94f', illustration: 'indianPoker' },
+    { title: 'BLACK & WHITE', display: tc('blackWhite'), description: t('blackWhiteDescription'), href: '/black-white', tag: 'strategyBluff', meta: t('blackWhiteMeta'), color: '#2b2b31', illustration: 'blackWhite' },
     { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', tag: 'memoryDeduction', meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
-    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', tag: 'brainSurvival', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
     { title: 'BLACK & WHITE II', display: tc('blackWhite2'), description: t('blackWhite2Description'), href: '/black-white-2', tag: 'pointStrategy', meta: t('blackWhite2Meta'), color: '#ef3340', illustration: 'blackWhite2' },
-    { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', tag: 'brainSurvival', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
+    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', tag: 'brainSurvival', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
     { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', tag: 'classic', meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
+    { title: "NINE MEN'S MORRIS", display: tc('nineMensMorris'), description: t('nineMensMorrisDescription'), href: '/nine-mens-morris', tag: 'spatialStrategy', meta: t('nineMensMorrisMeta'), color: '#3ec9d6', illustration: 'morris', new: true },
+    { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', tag: 'brainSurvival', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
     { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', tag: 'strategyBluff', meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
     { title: 'GYUL! HAP!', display: tc('gyulhap'), description: t('gyulhapDescription'), href: '/gyulhap', tag: 'observationBluff', meta: t('gyulhapMeta'), color: '#ffcf3f', illustration: 'gyulhap' },
     { title: 'HEXAGON', display: tc('hexagon'), description: t('hexagonDescription'), href: '/hexagon', tag: 'memoryDeduction', meta: t('hexagonMeta'), color: '#e8b04a', illustration: 'hexagon' },
