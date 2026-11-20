@@ -8,7 +8,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
 import { SIZE, chooseMove, coordinateLabel, emptyBoard, isFull, other, play, type Board, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
 
-const ACCENT = '#5fd3a6';
+const ACCENT = '#67e8ff';
 type Mode = 'ai' | 'local';
 interface Snapshot { board: Board; turn: Player; last: number | null; flipped: number[] }
 
@@ -16,10 +16,32 @@ const MARGIN = 4.2;
 const pos = (v: number) => MARGIN + v * ((100 - MARGIN * 2) / (SIZE - 1));
 const STARS = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
 
-function Stone({ p, latest, flip }: { p: Player; latest: boolean; flip: boolean }) {
-  return <span className={`relative block h-full w-full rounded-full ${flip ? 'flip-omok-flip' : ''} ${p === 1 ? 'shadow-[0_3px_7px_rgba(0,0,0,.6)]' : 'shadow-[0_3px_7px_rgba(0,0,0,.35)]'}`}
-    style={{ background: p === 1 ? 'radial-gradient(circle at 35% 30%, #5a5f69, #0a0b0e 70%)' : 'radial-gradient(circle at 35% 30%, #ffffff, #c9ced8 80%)' }}>
-    {latest && <span className={`absolute left-1/2 top-1/2 h-[30%] w-[30%] -translate-x-1/2 -translate-y-1/2 rounded-full ${p === 1 ? 'bg-[#5fd3a6]' : 'bg-[#e0553f]'}`} />}
+/** Player colours: two neon characters. */
+export const STONE_HEX: Record<Player, string> = { 1: '#ff4d6d', 2: '#3fb8ff' };
+
+/** One face of a character stone: glossy colour body with two eyes (squinting while it is being flipped). */
+function Face({ p, dizzy = false, back = false }: { p: Player; dizzy?: boolean; back?: boolean }) {
+  const hex = STONE_HEX[p];
+  return <span className={`absolute inset-0 rounded-full border border-white/25 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`}
+    style={{ background: `radial-gradient(circle at 34% 28%, color-mix(in srgb, ${hex} 55%, white) 0%, ${hex} 48%, color-mix(in srgb, ${hex} 60%, black) 100%)`, boxShadow: `0 4px 10px rgba(0,0,0,.6), 0 0 10px ${hex}88` }}>
+    {dizzy ? <>
+      <span className="absolute left-[24%] top-[34%] text-[0.5em] font-black leading-none text-white">&gt;</span>
+      <span className="absolute right-[24%] top-[34%] text-[0.5em] font-black leading-none text-white">&lt;</span>
+    </> : <>
+      <span className="absolute left-[29%] top-[33%] h-[17%] w-[12%] rounded-full bg-white/95" />
+      <span className="absolute right-[29%] top-[33%] h-[17%] w-[12%] rounded-full bg-white/95" />
+    </>}
+  </span>;
+}
+
+/** A stone; when `flip` is set it spins over from the opponent's colour to its own. */
+function Stone({ p, latest, flip, delay = 0 }: { p: Player; latest: boolean; flip: boolean; delay?: number }) {
+  return <span className={`relative block h-full w-full [container-type:size] ${latest ? 'scale-110' : ''} transition-transform`} style={{ fontSize: '100cqw' }}>
+    <span className={`relative block h-full w-full [transform-style:preserve-3d] ${flip ? 'flip-omok-turn' : ''}`} style={flip ? { animationDelay: `${delay}ms` } : undefined}>
+      <Face p={p} />
+      {flip && <Face p={other(p)} dizzy back />}
+    </span>
+    {latest && <span className="pointer-events-none absolute -inset-[14%] rounded-full border-2 border-[#ffd76b] shadow-[0_0_10px_#ffd76b]" />}
   </span>;
 }
 
@@ -93,7 +115,7 @@ export default function FlipOmokGame() {
   const previewSet = new Set(preview);
 
   return (
-    <div className={SHELL} style={{ ...accentVars(ACCENT, '#06261a'), backgroundImage: fog('60, 190, 140') }}>
+    <div className={SHELL} style={{ ...accentVars(ACCENT, '#06202a'), backgroundImage: fog('63, 184, 255') }}>
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
         <LanguageSwitcher compact dark />
         <button type="button" onClick={undo} disabled={!history.length || aiTurn} className={`${BTN} disabled:opacity-35`}><Undo2 size={14} /><span className="hidden sm:inline">{t('undo')}</span></button>
@@ -108,20 +130,20 @@ export default function FlipOmokGame() {
               <h1 className="mt-1 text-base font-extrabold tracking-tight text-[#eef1f7] sm:text-xl">{status}</h1>
             </div>
             <div className="flex items-center gap-2 font-mono text-xs font-black">
-              <span className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 ${turn === 1 && !over ? 'border-[#5fd3a6]/60 bg-[#5fd3a6]/10' : 'border-white/10 bg-black/40'}`}><i className="h-3 w-3 rounded-full bg-[#111]" />{count(1)}</span>
-              <span className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 ${turn === 2 && !over ? 'border-[#5fd3a6]/60 bg-[#5fd3a6]/10' : 'border-white/10 bg-black/40'}`}><i className="h-3 w-3 rounded-full bg-[#eef0f4]" />{count(2)}</span>
+              <span className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 ${turn === 1 && !over ? 'border-[#67e8ff]/60 bg-[#67e8ff]/10' : 'border-white/10 bg-black/40'}`}><i className="h-3 w-3 rounded-full" style={{ background: STONE_HEX[1], boxShadow: `0 0 6px ${STONE_HEX[1]}` }} />{count(1)}</span>
+              <span className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 ${turn === 2 && !over ? 'border-[#67e8ff]/60 bg-[#67e8ff]/10' : 'border-white/10 bg-black/40'}`}><i className="h-3 w-3 rounded-full" style={{ background: STONE_HEX[2], boxShadow: `0 0 6px ${STONE_HEX[2]}` }} />{count(2)}</span>
             </div>
           </div>
 
-          <div className="relative mx-auto aspect-square w-full max-w-[700px] rounded-[10px] p-[3px] shadow-[0_24px_60px_rgba(0,0,0,.7)]" style={{ background: 'linear-gradient(135deg,#5fd3a6,#2b2f37 45%,#e0553f)' }}>
-            <div className="relative h-full w-full overflow-hidden rounded-[8px]" style={{ background: 'radial-gradient(circle at 50% 40%, #e9c98d, #c99a57 75%)' }} onMouseLeave={() => setHover(null)}>
+          <div className="relative mx-auto aspect-square w-full max-w-[700px] rounded-[10px] bg-gradient-to-br from-[#ff4d6d] via-[#26313f] to-[#3fb8ff] p-[3px] shadow-[0_24px_60px_rgba(0,0,0,.78),0_0_30px_rgba(63,184,255,.14)]">
+            <div className="relative h-full w-full overflow-hidden rounded-[7px] border border-[#67e8ff]/20 bg-[#080c12] shadow-[inset_0_0_55px_rgba(0,0,0,.9),inset_0_0_24px_rgba(71,213,255,.08)]" style={{ backgroundImage: 'radial-gradient(circle at 50% 45%, rgba(72,213,255,.09), transparent 50%), linear-gradient(145deg,#0c121a,#06080d)' }} onMouseLeave={() => setHover(null)}>
               <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden>
                 {Array.from({ length: SIZE }, (_, i) => <g key={i}>
-                  <line x1={pos(i)} y1={pos(0)} x2={pos(i)} y2={pos(SIZE - 1)} stroke="#5b3d1c" strokeOpacity=".55" strokeWidth=".22" />
-                  <line x1={pos(0)} y1={pos(i)} x2={pos(SIZE - 1)} y2={pos(i)} stroke="#5b3d1c" strokeOpacity=".55" strokeWidth=".22" />
+                  <line x1={pos(i)} y1={pos(0)} x2={pos(i)} y2={pos(SIZE - 1)} stroke="#67e8ff" strokeOpacity=".3" strokeWidth=".22" />
+                  <line x1={pos(0)} y1={pos(i)} x2={pos(SIZE - 1)} y2={pos(i)} stroke="#67e8ff" strokeOpacity=".3" strokeWidth=".22" />
                 </g>)}
-                {STARS.map(([r, c]) => <circle key={`${r}${c}`} cx={pos(c)} cy={pos(r)} r=".7" fill="#5b3d1c" fillOpacity=".7" />)}
-                {win && <line x1={pos(win.start % SIZE)} y1={pos(Math.floor(win.start / SIZE))} x2={pos(win.end % SIZE)} y2={pos(Math.floor(win.end / SIZE))} stroke="#e0553f" strokeWidth="1.2" strokeLinecap="round" />}
+                {STARS.map(([r, c]) => <circle key={`${r}${c}`} cx={pos(c)} cy={pos(r)} r=".65" fill="#b8f6ff" style={{ filter: 'drop-shadow(0 0 1.2px #56ddff)' }} />)}
+                
               </svg>
               {board.map((cell, at) => {
                 const r = Math.floor(at / SIZE), c = at % SIZE;
@@ -131,20 +153,24 @@ export default function FlipOmokGame() {
                     onClick={() => place(at)} onMouseEnter={() => setHover(at)}
                     className={`absolute z-10 h-[6.2%] w-[6.2%] -translate-x-1/2 -translate-y-1/2 rounded-full outline-none [perspective:300px] ${canPlace ? 'cursor-pointer' : ''}`}
                     style={{ left: `${pos(c)}%`, top: `${pos(r)}%` }}>
-                    {cell ? <span className={`relative block h-full w-full ${previewSet.has(at) ? 'opacity-55 ring-2 ring-[#e0553f] rounded-full' : ''}`}>
+                    {cell ? <span className={`relative block h-full w-full ${previewSet.has(at) ? 'opacity-55 rounded-full ring-2 ring-[#ffd76b] animate-pulse' : ''}`}>
                       {/* key changes on a flip so the animation replays */}
-                      <Stone key={`${cell}-${flippedSet.has(at) ? history.length : 0}`} p={cell as Player} latest={at === last} flip={flippedSet.has(at)} />
+                      <Stone key={`${cell}-${flippedSet.has(at) ? history.length : 0}`} p={cell as Player} latest={at === last} flip={flippedSet.has(at)} delay={last === null ? 0 : (Math.max(Math.abs(r - Math.floor(last / SIZE)), Math.abs(c - (last % SIZE))) - 1) * 110} />
                     </span>
-                      : hover === at && canPlace ? <span className="block h-full w-full rounded-full opacity-45" style={{ background: turn === 1 ? '#111' : '#fff' }} /> : null}
+                      : hover === at && canPlace ? <span className="block h-full w-full rounded-full opacity-45 shadow-[0_0_12px_currentColor]" style={{ background: STONE_HEX[turn], color: STONE_HEX[turn] }} /> : null}
                   </button>
                 );
               })}
+              {win && <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 z-20 h-full w-full" aria-hidden><g className="flip-omok-win">
+                  <line x1={pos(win.start % SIZE)} y1={pos(Math.floor(win.start / SIZE))} x2={pos(win.end % SIZE)} y2={pos(Math.floor(win.end / SIZE))} stroke={STONE_HEX[win.owner]} strokeWidth="1.6" strokeLinecap="round" style={{ filter: `drop-shadow(0 0 2px ${STONE_HEX[win.owner]})` }} />
+                  <line x1={pos(win.start % SIZE)} y1={pos(Math.floor(win.start / SIZE))} x2={pos(win.end % SIZE)} y2={pos(Math.floor(win.end / SIZE))} stroke="#fff" strokeWidth=".4" strokeLinecap="round" />
+                </g></svg>}
               {toast && <div key={toast.key} className="flip-omok-toast pointer-events-none absolute left-1/2 top-[44%] z-30 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/20 bg-black/75 px-5 py-2.5 text-lg font-black text-white shadow-2xl sm:text-2xl">
-                <Sparkles size={18} className="mr-1.5 inline text-[#5fd3a6]" />{t('flipToast', { n: toast.n })}
+                <Sparkles size={18} className="mr-1.5 inline" style={{ color: STONE_HEX[toast.who] }} />{t('flipToast', { n: toast.n })}
               </div>}
             </div>
           </div>
-          {preview.length > 0 && <p className="mt-2 text-center text-[11px] font-bold text-[#ffb3a5]">{t('previewHint', { n: preview.length })}</p>}
+          {preview.length > 0 && <p className="mt-2 text-center text-[11px] font-bold text-[#ffd76b]">{t('previewHint', { n: preview.length })}</p>}
           {over && <div className="mt-4 flex justify-center"><button type="button" onClick={() => reset()} className={`${BTN_ACCENT} px-6 py-3 text-sm`}><RotateCcw size={15} />{t('again')}</button></div>}
         </section>
 
@@ -152,12 +178,12 @@ export default function FlipOmokGame() {
           <section className={PANEL}>
             <p className={PANEL_TITLE}>{t('mode')}</p>
             <div className="mt-3 grid grid-cols-2 gap-1.5">
-              {(['ai', 'local'] as Mode[]).map((m) => <button key={m} type="button" onClick={() => reset(m)} className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2.5 text-xs font-black transition ${mode === m ? 'bg-[#5fd3a6] text-[#06261a]' : 'border border-white/10 bg-white/[.03] text-white/50 hover:text-white'}`}>{m === 'ai' ? <Bot size={14} /> : <Users size={14} />}{t(`modes.${m}`)}</button>)}
+              {(['ai', 'local'] as Mode[]).map((m) => <button key={m} type="button" onClick={() => reset(m)} className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2.5 text-xs font-black transition ${mode === m ? 'bg-[#67e8ff] text-[#06202a]' : 'border border-white/10 bg-white/[.03] text-white/50 hover:text-white'}`}>{m === 'ai' ? <Bot size={14} /> : <Users size={14} />}{t(`modes.${m}`)}</button>)}
             </div>
             {mode === 'ai' && <>
               <p className={`${PANEL_TITLE} mt-4`}>{t('difficulty')}</p>
               <div className="mt-2 grid grid-cols-3 gap-1.5">
-                {(['easy', 'normal', 'hard'] as FlipDifficulty[]).map((d) => <button key={d} type="button" disabled={started} onClick={() => setDifficulty(d)} className={`rounded-md px-2 py-2 text-xs font-black transition ${difficulty === d ? 'bg-[#5fd3a6] text-[#06261a]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{t(`levels.${d}`)}</button>)}
+                {(['easy', 'normal', 'hard'] as FlipDifficulty[]).map((d) => <button key={d} type="button" disabled={started} onClick={() => setDifficulty(d)} className={`rounded-md px-2 py-2 text-xs font-black transition ${difficulty === d ? 'bg-[#67e8ff] text-[#06202a]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{t(`levels.${d}`)}</button>)}
               </div>
               {started && <p className="mt-2 text-[10px] text-white/35">{t('difficultyLocked')}</p>}
             </>}
@@ -166,11 +192,11 @@ export default function FlipOmokGame() {
           <section className={PANEL}>
             <p className={PANEL_TITLE}>{t('rulesTitle')}</p>
             <ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">
-              {(t.raw('rules') as string[]).map((rule) => <li key={rule} className="flex gap-2.5 break-keep"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-[#5fd3a6]" />{rule}</li>)}
+              {(t.raw('rules') as string[]).map((rule) => <li key={rule} className="flex gap-2.5 break-keep"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-[#67e8ff]" />{rule}</li>)}
             </ul>
           </section>
 
-          <section className="rounded-[14px] border border-[#5fd3a6]/30 bg-[#5fd3a6]/[.07] p-4">
+          <section className="rounded-[14px] border border-[#67e8ff]/30 bg-[#67e8ff]/[.07] p-4">
             <p className={PANEL_TITLE}>{t('devTitle')}</p>
             <p className="mt-2 break-keep text-xs leading-5 text-white/55">{t('devNote')}</p>
           </section>

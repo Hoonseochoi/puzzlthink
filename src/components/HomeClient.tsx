@@ -50,13 +50,22 @@ function MorrisPreview() {
   return <div className="w-full sm:w-[62%]"><MorrisBoard board={MORRIS_SHOWCASE} labels={false} className="!max-w-none !rounded-xl border-[3px] border-[#17201e] sm:!rounded-2xl sm:border-4" /></div>;
 }
 
-/** 뒤집기 오목: a wooden 5×5 corner where a white stone is turning black. */
+/** 뒤집기 오목: the neon board with red and blue characters, one of them flipping over. */
+function FlipFace({ hex, back = false }: { hex: string; back?: boolean }) {
+  return <i className={`absolute inset-0 rounded-full [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`} style={{ background: `radial-gradient(circle at 34% 28%, color-mix(in srgb, ${hex} 55%, white), ${hex} 48%, color-mix(in srgb, ${hex} 60%, black))`, boxShadow: `0 0 8px ${hex}99` }}>
+    <b className="absolute left-[29%] top-[33%] h-[17%] w-[12%] rounded-full bg-white" /><b className="absolute right-[29%] top-[33%] h-[17%] w-[12%] rounded-full bg-white" />
+  </i>;
+}
 function FlipOmokPreview() {
-  const stones = new Map<number, [string, boolean]>([[6, ['#111', false]], [7, ['#f2f3f6', false]], [8, ['#111', true]], [12, ['#111', false]], [13, ['#111', false]], [16, ['#f2f3f6', false]], [18, ['#f2f3f6', false]]]);
-  return <div className="relative grid aspect-square w-full grid-cols-5 overflow-hidden rounded-xl border-[3px] border-[#17201e] p-2 shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:p-3 sm:shadow-2xl" style={{ background: 'radial-gradient(circle at 50% 40%, #e9c98d, #c99a57 75%)' }}>
-    <div className="absolute inset-[12%]" style={{ backgroundImage: 'linear-gradient(to right, transparent 49%, rgba(91,61,28,.5) 49%, rgba(91,61,28,.5) 51%, transparent 51%), linear-gradient(to bottom, transparent 49%, rgba(91,61,28,.5) 49%, rgba(91,61,28,.5) 51%, transparent 51%)', backgroundSize: '25% 25%' }} />
-    {Array.from({ length: 25 }, (_, index) => <span key={index} className="relative z-10 flex items-center justify-center">{stones.has(index) && <i className={`h-[78%] w-[78%] rounded-full shadow-md ${stones.get(index)![1] ? 'flip-omok-flip ring-2 ring-[#5fd3a6] [animation-iteration-count:infinite] [animation-duration:2.2s]' : ''}`} style={{ background: stones.get(index)![0] }} />}</span>)}
-    <span className="absolute right-2 top-2 z-20 rounded-full bg-[#17201e] px-2 py-1 text-[7px] font-black tracking-wider text-[#5fd3a6] sm:right-3 sm:top-3 sm:text-[9px]">FLIP!</span>
+  const R = '#ff4d6d', B = '#3fb8ff';
+  const stones = new Map<number, string>([[6, R], [7, B], [12, R], [13, R], [16, B], [18, B], [11, B]]);
+  return <div className="relative grid aspect-square w-full grid-cols-5 overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#080c12] p-2 shadow-xl ring-1 ring-[#67e8ff]/30 sm:w-[62%] sm:rounded-2xl sm:border-4 sm:p-3 sm:shadow-2xl">
+    <div className="absolute inset-[12%]" style={{ backgroundImage: 'linear-gradient(to right, transparent 49%, rgba(103,232,255,.35) 49%, rgba(103,232,255,.35) 51%, transparent 51%), linear-gradient(to bottom, transparent 49%, rgba(103,232,255,.35) 49%, rgba(103,232,255,.35) 51%, transparent 51%)', backgroundSize: '25% 25%' }} />
+    {Array.from({ length: 25 }, (_, index) => <span key={index} className="relative z-10 flex items-center justify-center [perspective:200px]">
+      {index === 8 ? <span className="flip-omok-loop relative h-[80%] w-[80%] [transform-style:preserve-3d]"><FlipFace hex={B} /><FlipFace hex={R} back /></span>
+        : stones.has(index) && <span className="relative h-[80%] w-[80%]"><FlipFace hex={stones.get(index)!} /></span>}
+    </span>)}
+    <span className="absolute right-2 top-2 z-20 rounded-full bg-[#17201e] px-2 py-1 text-[7px] font-black tracking-wider text-[#67e8ff] sm:right-3 sm:top-3 sm:text-[9px]">FLIP!</span>
   </div>;
 }
 

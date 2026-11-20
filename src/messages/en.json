@@ -5190,8 +5190,8 @@
     "newGame": "New game",
     "again": "Play again",
     "you": "You",
-    "black": "Black",
-    "white": "White",
+    "black": "Red",
+    "white": "Blue",
     "wins": "{name} wins!",
     "draw": "Draw",
     "aiThinking": "MIRA is thinking…",
@@ -5214,7 +5214,7 @@
     "difficultyLocked": "Change difficulty in a new game.",
     "rulesTitle": "Rules",
     "rules": [
-      "Players take turns placing one stone on a 15×15 board, black first.",
+      "Players take turns placing one stone on a 15×15 board, red first.",
       "Close a straight run of enemy stones between two of yours and every stone in it flips to your colour — any of 8 directions, any length.",
       "Only the player who moves flips. Stepping in between two enemy stones is safe.",
       "After placing and flipping, five or more of your colour in a row wins."
