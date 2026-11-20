@@ -1,5 +1,5 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
-// Order: the newest game first, then by how often each is played (벽바둑 II right after 벽바둑).
+// Order: the newest game first, then by how often each is played (벽바둑 II right after 벽바둑). 뒤집기 오목 stays last while its rules settle.
 export type GameId = 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 
 export interface CatalogGame {
@@ -13,7 +13,6 @@ export interface CatalogGame {
 }
 
 export const GAMES: readonly CatalogGame[] = [
-  { id: 'flipOmok', href: '/flip-omok', color: '#3fb8ff', hasGuide: true },
   { id: 'nineMensMorris', href: '/nine-mens-morris', color: '#3ec9d6', hasGuide: true },
   { id: 'russianJanggi', href: '/russian-janggi', color: '#e2283c', hasGuide: true },
   { id: 'heavy13', href: '/heavy13', color: '#c9a061', hasGuide: true },
@@ -32,4 +31,5 @@ export const GAMES: readonly CatalogGame[] = [
   { id: 'gyulhap', href: '/gyulhap', color: '#ffcf3f', hasGuide: true },
   { id: 'hexagon', href: '/hexagon', color: '#e8b04a', hasGuide: true },
   { id: 'piggyBank', href: '/piggy-bank', color: '#e0a91c', hasGuide: true },
+  { id: 'flipOmok', href: '/flip-omok', color: '#3fb8ff', hasGuide: true },
 ];

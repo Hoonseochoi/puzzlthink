@@ -1,7 +1,8 @@
 // 뒤집기 오목 (PUZZLTHINK original): 오목 on a 15×15 board, plus the 오셀로 sandwich, under the usual 오목 rules.
 // - Placing a stone flips every straight run of enemy stones it closes off against one of your own stones
 //   (all eight directions, any length). Only the mover flips. Flipped stones keep the other colour's eyes.
-// - Exactly five in a row wins; six or more (장목) does not.
+// - Exactly five in a row wins; six or more (장목) does not. A five that includes a stone flipped by that very move
+//   doesn't win (so a blocker that gets flipped can't hand over the game).
 // - 쌍삼 is forbidden for both sides: a move may not make two open threes at once, unless it makes five.
 
 export const SIZE = 15;
@@ -54,24 +55,32 @@ function runAt(board: Board, at: number, p: Player, dr: number, dc: number) {
   return { len: s + e + 1, start: idx(r0 - dr * s, c0 - dc * s), end: idx(r0 + dr * e, c0 + dc * e) };
 }
 
-/** An exact five of `p` through `at` (six or more doesn't count). */
-function fiveThrough(board: Board, at: number, p: Player): Line | null {
+/** An exact five of `p` through `at` (six or more doesn't count) with none of the `fresh` (just-flipped) stones in it. */
+function fiveThrough(board: Board, at: number, p: Player, fresh: ReadonlySet<number> = new Set()): Line | null {
   for (const [dr, dc] of LINE_DIRS) {
     const run = runAt(board, at, p, dr, dc);
-    if (run.len === 5) return { start: run.start, end: run.end, owner: p };
+    if (run.len !== 5) continue;
+    let clean = true;
+    for (let k = 0, i = run.start; k < 5; k++, i += dr * SIZE + dc) if (fresh.has(i)) { clean = false; break; }
+    if (clean) return { start: run.start, end: run.end, owner: p };
   }
   return null;
 }
 
-/** Place and flip, then check for an exact five through any changed stone. Doesn't check 쌍삼; see `isForbidden`. */
+/** Place and flip, then check for an exact five through the placed stone; a five that needs this move's flips doesn't count. Doesn't check 쌍삼; see `isForbidden`. */
 export function play(board: Board, at: number, p: Player): MoveResult {
   const flipped = flipsFor(board, at, p);
   const next = board.slice();
   next[at] = p;
   for (const f of flipped) next[f] = (p === 1 ? 3 : 4);
-  let win: Line | null = null;
-  for (const cell of [at, ...flipped]) { win = fiveThrough(next, cell, p); if (win) break; }
-  return { board: next, flipped, win };
+  return { board: next, flipped, win: fiveThrough(next, at, p, new Set(flipped)) };
+}
+
+/** After a move at `at` that flipped `flipped`: it lined up five, but only thanks to those flips, so it doesn't win. */
+export function voidFive(board: Board, at: number, flipped: number[]): boolean {
+  const p = owner(board[at]);
+  if (!p || !flipped.length) return false;
+  return fiveThrough(board, at, p) !== null && fiveThrough(board, at, p, new Set(flipped)) === null;
 }
 
 /** Whether one more stone of `p` at the empty point `e` makes an open four (exactly four, both ends empty) through `e`. */
