@@ -1630,7 +1630,16 @@
     "chBest": "Best",
     "chNone": "No record yet",
     "mySlither": "{n} boards cleared · best {time}",
-    "myNemo": "Easy {e} · Normal {n} · Hard {h}"
+    "myNemo": "Easy {e} · Normal {n} · Hard {h}",
+    "competitionTab": "Piece Race",
+    "competitionTitle": "Piece Race",
+    "competitionDesc": "One board for every game: how many times you have beaten the hard AI. Each game gives at most 30 pieces, so climbing takes more than one game. On equal pieces, whoever got there first is ahead. Tap a name to see pieces by game.",
+    "pieceRule": "1 hard-AI win = 1 piece · up to 30 per game",
+    "competitionLoading": "Loading the ranking…",
+    "competitionEmpty": "Nobody has beaten the hard AI yet. Take the first piece!",
+    "competitionNotYet": "No pieces yet. Beat the hard AI in any game to join the ranking.",
+    "piecesOf": "{name}: {n} pieces",
+    "me": "me"
   },
   "RussianJanggi": {
     "metaTitle": "Russian Janggi online — The Society Game 2 stacking tic-tac-toe",
@@ -5128,5 +5137,13 @@
       }
     ],
     "disclaimer": "Nine Men's Morris is a traditional board game. PUZZLTHINK rebuilt it for the web after the show's rules; it is not affiliated with the broadcaster or producers."
+  },
+  "PieceRace": {
+    "badge": "OPEN",
+    "title": "Piece Race is open — now it is you vs you",
+    "desc": "Every win against the hard AI earns one piece, up to 30 per game — the more games you conquer, the higher you climb. Collect the most and stand on the podium in Records.",
+    "rule": "1 hard-AI win in any game = 1 piece · up to 30 per game",
+    "cta": "Go for the podium",
+    "emptySpot": "Open spot"
   }
 }
