@@ -9,6 +9,7 @@ import { clearLabel } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
 import AuthButton from './AuthButton';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
+import StoneAvatar from './StoneAvatar';
 import OpenRankingBoard from './OpenRankingBoard';
 import RankMove from './RankMove';
 import ChallengeRecords from './ChallengeRecords';
@@ -45,11 +46,8 @@ function formatDuration(seconds: number, t: (k: string, v?: Record<string, numbe
   return h ? t('hoursMinutes', { h, m }) : t('minutes', { m });
 }
 
-function Avatar({ src, name, size = 40 }: { src?: string | null; name: string; size?: number }) {
-  return src
-    // eslint-disable-next-line @next/next/no-img-element -- external Google avatar
-    ? <img src={src} alt="" referrerPolicy="no-referrer" className="shrink-0 rounded-full object-cover" style={{ width: size, height: size }} />
-    : <span className="flex shrink-0 items-center justify-center rounded-full bg-[#17201e] font-black text-white" style={{ width: size, height: size, fontSize: size * 0.4 }}>{name.slice(0, 1) || '?'}</span>;
+function Avatar({ name, size = 40 }: { src?: string | null; name: string; size?: number }) {
+  return <StoneAvatar name={name} size={size} />;
 }
 
 export default function RecordsClient() {

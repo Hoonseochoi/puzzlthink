@@ -6,6 +6,7 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { getSupabase } from '@/lib/supabase';
 import { Piece, PieceCount } from './CompetitionBoard';
+import { Stone } from './StoneAvatar';
 
 type Top = { rank: number; nickname: string; pieces: number };
 
@@ -49,7 +50,7 @@ export default function PieceRaceBanner() {
             const block = place === 1 ? 'h-16 from-[#ffd45c] to-[#e8a33c]' : place === 2 ? 'h-11 from-[#e7e9ee] to-[#9aa0ab]' : 'h-8 from-[#f0c39a] to-[#b9783f]';
             return (
               <div key={place} className="flex min-w-0 flex-col items-center text-center">
-                <span className="text-lg">{['🥇', '🥈', '🥉'][place - 1]}</span>
+                {row ? <Stone name={row.nickname} pieceRank={place} size={place === 1 ? 34 : 28} /> : <span className="text-lg">{['🥇', '🥈', '🥉'][place - 1]}</span>}
                 <span className="w-full truncate px-0.5 text-[11px] font-black">{row?.nickname ?? t('emptySpot')}</span>
                 {row ? <PieceCount n={row.pieces} size={10} className="text-[11px] [&>span:nth-child(2)]:text-white/40" /> : <span className="text-[11px] text-white/35">—</span>}
                 <span className={`mt-1 flex w-full items-start justify-center rounded-t-xl bg-gradient-to-b pt-1 text-lg font-black text-white/90 ${block}`}>{place}</span>
