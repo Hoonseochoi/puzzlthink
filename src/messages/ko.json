@@ -5279,8 +5279,7 @@
     },
     "difficulty": "난이도",
     "levels": {
-      "easy": "쉬움",
-      "normal": "보통",
+      "normal": "중간",
       "hard": "어려움"
     },
     "difficultyLocked": "난이도는 새 게임에서 바꿀 수 있어요.",

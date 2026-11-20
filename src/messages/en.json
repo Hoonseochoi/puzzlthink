@@ -5207,8 +5207,7 @@
     },
     "difficulty": "Difficulty",
     "levels": {
-      "easy": "Easy",
-      "normal": "Normal",
+      "normal": "Medium",
       "hard": "Hard"
     },
     "difficultyLocked": "Change difficulty in a new game.",

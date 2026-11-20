@@ -86,7 +86,7 @@ export default function FlipOmokGame() {
 
   useEffect(() => {
     if (!aiTurn) return;
-    const timer = window.setTimeout(() => apply(chooseMove(board, 2, difficulty), 2), 520);
+    const timer = window.setTimeout(() => apply(chooseMove(board, 2, difficulty), 2), difficulty === 'hard' ? 120 : 520); // 어려움 spends its own time thinking
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiTurn, board]);
@@ -188,8 +188,8 @@ export default function FlipOmokGame() {
             </div>
             {mode === 'ai' && <>
               <p className={`${PANEL_TITLE} mt-4`}>{t('difficulty')}</p>
-              <div className="mt-2 grid grid-cols-3 gap-1.5">
-                {(['easy', 'normal', 'hard'] as FlipDifficulty[]).map((d) => <button key={d} type="button" disabled={started} onClick={() => setDifficulty(d)} className={`rounded-md px-2 py-2 text-xs font-black transition ${difficulty === d ? 'bg-[#67e8ff] text-[#06202a]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{t(`levels.${d}`)}</button>)}
+              <div className="mt-2 grid grid-cols-2 gap-1.5">
+                {(['normal', 'hard'] as FlipDifficulty[]).map((d) => <button key={d} type="button" disabled={started} onClick={() => setDifficulty(d)} className={`rounded-md px-2 py-2 text-xs font-black transition ${difficulty === d ? 'bg-[#67e8ff] text-[#06202a]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{t(`levels.${d}`)}</button>)}
               </div>
               {started && <p className="mt-2 text-[10px] text-white/35">{t('difficultyLocked')}</p>}
             </>}

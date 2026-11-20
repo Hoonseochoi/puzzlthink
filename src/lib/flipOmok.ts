@@ -9,7 +9,7 @@ export const SIZE = 15;
 export type Cell = 0 | 1 | 2 | 3 | 4;
 export type Player = 1 | 2;
 export type Board = Cell[];
-export type FlipDifficulty = 'easy' | 'normal' | 'hard';
+export type FlipDifficulty = 'normal' | 'hard';
 
 export interface Line { start: number; end: number; owner: Player }
 export interface MoveResult { board: Board; flipped: number[]; win: Line | null }
@@ -159,41 +159,136 @@ function winningReply(board: Board, p: Player): number | null {
   return null;
 }
 
-export function chooseMove(board: Board, me: Player, difficulty: FlipDifficulty = 'normal'): number {
+/** 중간: one move of lookahead with a little randomness — solid, but it can be out-read. */
+function normalMove(board: Board, me: Player, moves: number[]): number {
   const foe = other(me);
-  const moves = candidates(board).filter((m) => !isForbidden(board, m, me));
-  if (!moves.length) return board.findIndex((v, i) => !v && !isForbidden(board, i, me));
-  // 1. Win now.
-  for (const m of moves) if (play(board, m, me).win) return m;
-  const noise = difficulty === 'easy' ? 900 : difficulty === 'normal' ? 60 : 4;
   const ranked = moves.map((m) => {
     const res = play(board, m, me);
-    return { m, res, score: evaluate(res.board, me) + res.flipped.length * 40 + Math.random() * noise };
+    return { m, res, score: evaluate(res.board, me) + res.flipped.length * 40 + Math.random() * 60 };
   }).sort((a, b) => b.score - a.score);
-  if (difficulty === 'easy') return ranked[0].m;
-  // 2. Normal / hard: skip moves after which the opponent wins at once (if a safe one exists).
-  const depth = difficulty === 'hard' ? 20 : 8;
   let best = ranked[0].m, bestScore = -Infinity, checked = 0;
   for (const { m, res, score } of ranked) {
-    // Past the depth, keep looking only until one safe move turns up.
-    if (checked >= depth && bestScore > -Infinity) break;
+    // Look at the best eight; past that keep looking only until one safe move turns up.
+    if (checked >= 8 && bestScore > -Infinity) break;
     checked++;
     if (winningReply(res.board, foe) !== null) continue;
-    let s = score;
-    {
-      // Look one reply ahead (this is what spots a block that would just get flipped):
-      // assume the opponent answers with their best-looking move.
-      let worst = Infinity;
-      for (const r of candidates(res.board)) {
-        const reply = play(res.board, r, foe);
-        const v = evaluate(reply.board, me) - reply.flipped.length * 40;
-        if (v < worst) worst = v;
-      }
-      s = worst;
+    // Assume the opponent answers with their best-looking move (this spots a block that would just get flipped).
+    let worst = Infinity;
+    for (const r of candidates(res.board)) {
+      const reply = play(res.board, r, foe);
+      const v = evaluate(reply.board, me) - reply.flipped.length * 40;
+      if (v < worst) worst = v;
     }
-    if (s > bestScore) { bestScore = s; best = m; }
+    void score;
+    if (worst > bestScore) { bestScore = worst; best = m; }
   }
   return best;
+}
+
+// ---- 어려움: alpha-beta search ----
+
+// The windows each point belongs to, so a move only re-scores the lines it touches.
+const WINDOWS_OF: number[][] = Array.from({ length: SIZE * SIZE }, () => []);
+WINDOWS.forEach((w, k) => { for (const i of w) WINDOWS_OF[i].push(k); });
+const SEARCH_SCORE = [0, 2, 24, 260, 6000, 0];
+const WIN = 1e9;
+
+/** Window value from red's side: + for red-only windows, − for blue-only ones. */
+function windowValue(board: Board, k: number): number {
+  let red = 0, blue = 0;
+  for (const i of WINDOWS[k]) { const o = owner(board[i]); if (o === 1) red++; else if (o === 2) blue++; }
+  if (red && !blue) return SEARCH_SCORE[red];
+  if (blue && !red) return -SEARCH_SCORE[blue];
+  return 0;
+}
+
+function totalValue(board: Board): number {
+  let v = 0;
+  for (let k = 0; k < WINDOWS.length; k++) v += windowValue(board, k);
+  return v;
+}
+
+/** Change in red-side value when `before` becomes `after` at the given points. */
+function deltaValue(before: Board, after: Board, changed: number[]): number {
+  const seen = new Set<number>();
+  for (const c of changed) for (const k of WINDOWS_OF[c]) seen.add(k);
+  let d = 0;
+  for (const k of seen) d += windowValue(after, k) - windowValue(before, k);
+  return d;
+}
+
+interface Child { m: number; res: MoveResult; value: number; order: number }
+
+/** Legal moves for `p`, best-looking first, cut to `width` (wins always kept first). */
+function orderedMoves(board: Board, value: number, p: Player, width: number): Child[] {
+  const sign = p === 1 ? 1 : -1, foe = other(p);
+  const out: Child[] = [];
+  for (const m of candidates(board)) {
+    const res = play(board, m, p);
+    const v = value + deltaValue(board, res.board, [m, ...res.flipped]);
+    // Order by my gain plus how much the same point would have been worth to the opponent (blocking).
+    const theirs = play(board, m, foe);
+    const block = -sign * deltaValue(board, theirs.board, [m, ...theirs.flipped]); // ≥ 0: what the point is worth to them
+    // My five first, then the point where the opponent would make five, then the rest.
+    out.push({ m, res, value: v, order: res.win ? 2e12 : theirs.win ? 1e12 : sign * (v - value) + block * 0.9 });
+  }
+  out.sort((a, b) => b.order - a.order);
+  const legal: Child[] = [];
+  for (const ch of out) {
+    if (ch.res.win || !isForbidden(board, ch.m, p)) legal.push(ch);
+    if (legal.length >= width) break;
+  }
+  return legal;
+}
+
+/** Negamax with alpha-beta; scores are from the side to move. */
+function negamax(board: Board, value: number, p: Player, depth: number, alpha: number, beta: number, deadline: number, ply: number): number {
+  const sign = p === 1 ? 1 : -1;
+  if (depth === 0 || Date.now() > deadline) return sign * value;
+  const moves = orderedMoves(board, value, p, depth >= 3 ? 10 : 8);
+  if (!moves.length) return 0;
+  let best = -Infinity;
+  for (const ch of moves) {
+    const score = ch.res.win ? WIN - ply : -negamax(ch.res.board, ch.value, other(p), depth - 1, -beta, -alpha, deadline, ply + 1);
+    if (score > best) best = score;
+    if (best > alpha) alpha = best;
+    if (alpha >= beta) break;
+  }
+  return best;
+}
+
+/** 어려움: iterative deepening (2 → 4 → 6 plies) inside a time budget, best move of the deepest finished pass. */
+function hardMove(board: Board, me: Player, budgetMs = 800): number {
+  const deadline = Date.now() + budgetMs;
+  const value = totalValue(board);
+  const root = orderedMoves(board, value, me, 14);
+  if (!root.length) return candidates(board)[0];
+  const win = root.find((ch) => ch.res.win);
+  if (win) return win.m;
+  let best = root[0].m;
+  for (let depth = 2; depth <= 6; depth += 2) {
+    let alpha = -Infinity, bestHere = root[0].m, finished = true;
+    const scored: { ch: Child; score: number }[] = [];
+    for (const ch of root) {
+      const score = -negamax(ch.res.board, ch.value, other(me), depth - 1, -Infinity, -alpha, deadline, 1);
+      if (Date.now() > deadline) { finished = false; break; }
+      scored.push({ ch, score });
+      if (score > alpha) { alpha = score; bestHere = ch.m; }
+    }
+    if (!finished) break;
+    best = bestHere;
+    if (alpha >= WIN - 10) break; // a forced win was found
+    // Search the best lines first next time.
+    root.sort((a, b) => (scored.find((x) => x.ch === b)?.score ?? -Infinity) - (scored.find((x) => x.ch === a)?.score ?? -Infinity));
+  }
+  return best;
+}
+
+export function chooseMove(board: Board, me: Player, difficulty: FlipDifficulty = 'normal'): number {
+  const moves = candidates(board).filter((m) => !isForbidden(board, m, me));
+  if (!moves.length) return board.findIndex((v, i) => !v && !isForbidden(board, i, me));
+  for (const m of moves) if (play(board, m, me).win) return m;
+  return difficulty === 'hard' ? hardMove(board, me) : normalMove(board, me, moves);
 }
 
 export function coordinateLabel(at: number) {
