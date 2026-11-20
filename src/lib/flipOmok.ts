@@ -38,6 +38,13 @@ export function flipsFor(board: Board, at: number, p: Player): number[] {
   return out;
 }
 
+/** Whether an empty point sits between enemy stones in some line (placing there is still safe: only the mover flips). */
+export function isGap(board: Board, at: number, p: Player): boolean {
+  const r0 = Math.floor(at / SIZE), c0 = at % SIZE, foe = other(p);
+  return LINE_DIRS.some(([dr, dc]) => inside(r0 - dr, c0 - dc) && inside(r0 + dr, c0 + dc)
+    && owner(board[idx(r0 - dr, c0 - dc)]) === foe && owner(board[idx(r0 + dr, c0 + dc)]) === foe);
+}
+
 /** Length of p's run through `at` along (dr, dc), and its two ends. */
 function runAt(board: Board, at: number, p: Player, dr: number, dc: number) {
   const r0 = Math.floor(at / SIZE), c0 = at % SIZE;

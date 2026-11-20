@@ -2113,6 +2113,7 @@
         "rules": [
           "Take turns placing one stone on a 15×15 board, red first.",
           "Close a straight run of enemy stones between two of yours and they all flip to your colour (8 directions, any length).",
+          "★ Placing between enemy stones is safe — only the mover flips!",
           "Exactly five in a row wins. Six or more does not count.",
           "Double threes are forbidden for both sides (marked ✕), unless the move makes five."
         ],
@@ -5232,6 +5233,7 @@
     "rules": [
       "Players take turns placing one stone on a 15×15 board, red first.",
       "Close a straight run of enemy stones between two of yours and they all flip to your colour (8 directions, any length). Flipped stones keep the other colour as their eyes.",
+      "★ Placing between two enemy stones is safe: only the player who moves flips.",
       "Exactly five in a row wins. Six or more does not count.",
       "Double threes (two open threes at once) are forbidden for both sides — you can’t play on a ✕. A move that makes five is always fine."
     ],
@@ -5253,6 +5255,7 @@
     "legend": [
       "White eyes = a stone its owner placed",
       "Other-colour eyes = a flipped stone (a blue with red eyes used to be red)",
+      "Green note while hovering = between enemy stones, but safe",
       "Gold ring = the stone just placed",
       "✕ = double three, you can’t play there",
       "Hover a point to see which stones would flip (they blink yellow)"
@@ -5270,7 +5273,10 @@
     "resignConfirm": "Resign this game?",
     "resigned": "{name} resigned",
     "viewBoard": "View board",
-    "replayMove": "Move {n} · {name} {at}"
+    "replayMove": "Move {n} · {name} {at}",
+    "safeTitle": "Stepping in between is safe!",
+    "safeBody": "Only the player who moves flips. Your stone placed between two enemy stones stays yours — cutting into the middle of their line is a solid defence.",
+    "gapHint": "Between enemy stones, but safe — it won’t flip"
   },
   "FlipOmokOnline": {
     "metaTitle": "Up for Flip Omok? 🔴🔵 You’re invited",
@@ -5342,7 +5348,10 @@
     "s5Title": "No double threes",
     "s5Desc": "A move that makes two open threes at once is forbidden for both sides and shows as ✕. A move that makes five is always fine.",
     "s6Title": "Careful when blocking",
-    "s6Desc": "Block right next to their line and they can place behind it — your blocker flips. Block one point away instead."
+    "s6Desc": "Block right next to their line and they can place behind it — your blocker flips. Block one point away instead.",
+    "safeLabel": "KEY RULE",
+    "sSafeTitle": "Stepping in between is safe",
+    "sSafeDesc": "Only the player who moves flips. A stone you place between two enemy stones stays yours — cut into the middle of their line."
   },
   "FlipOmokGuide": {
     "eyebrow": "FLIP OMOK GUIDE",
@@ -5352,7 +5361,7 @@
     "rules": [
       "Red (first) and blue take turns placing one stone on the points of a 15×15 board.",
       "When your new stone and another of your stones close a straight run of enemy stones, every stone in that run flips to your colour. All 8 directions count, at any length.",
-      "Only the player who moves flips. Placing between two enemy stones is safe.",
+      "★ Only the player who moves flips. A stone placed between two enemy stones stays yours, so cutting into their line is a solid defence.",
       "Exactly five of your colour in a row wins, flipped stones included. Six or more does not.",
       "Double threes (two open threes at once) are forbidden for both sides, unless the move completes five.",
       "A full board is a draw. Friend games have a turn clock (15, 30 or 60s); a move is made for you when it runs out, and three in a row lose."

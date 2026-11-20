@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Sparkles } from 'lucide-react';
-import { SIZE, coordinateLabel, isFlipped, other, owner, play, type Board, type Cell, type Line, type Player } from '@/lib/flipOmok';
+import { SIZE, coordinateLabel, isFlipped, isGap, other, owner, play, type Board, type Cell, type Line, type Player } from '@/lib/flipOmok';
 
 export const FLIP_ACCENT = '#67e8ff';
 export const FLIP_INK = '#06202a';
@@ -81,6 +81,7 @@ export function FlipOmokBoard({ board, last, flipped, flipKey, win, turn, intera
 
   const preview = interactive && hover !== null && !board[hover] && !banned.has(hover) ? play(board, hover, turn).flipped : [];
   const previewSet = new Set(preview);
+  const gap = interactive && hover !== null && !board[hover] && !banned.has(hover) && isGap(board, hover, turn);
   const flippedSet = new Set(flipped);
 
   return <>
@@ -120,7 +121,11 @@ export function FlipOmokBoard({ board, last, flipped, flipKey, win, turn, intera
         {overlay}
       </div>
     </div>
-    <p className={`mt-2 min-h-4 text-center text-[11px] font-bold text-[#ffd76b] ${preview.length ? '' : 'invisible'}`}>{t('previewHint', { n: preview.length })}</p>
+    <p className={`mt-2 min-h-4 text-center text-[11px] font-bold ${preview.length || gap ? '' : 'invisible'}`}>
+      {preview.length > 0 && <span className="text-[#ffd76b]">{t('previewHint', { n: preview.length })}</span>}
+      {preview.length > 0 && gap && <span className="text-white/30"> · </span>}
+      {gap && <span className="text-[#7dffc4]">{t('gapHint')}</span>}
+    </p>
   </>;
 }
 

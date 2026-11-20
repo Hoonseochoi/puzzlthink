@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Bot, Eye, Flag, Info, Lightbulb, RotateCcw, Trophy, Undo2, Users, X } from 'lucide-react';
+import { Bot, Eye, Flag, Info, Lightbulb, RotateCcw, ShieldCheck, Trophy, Undo2, Users, X } from 'lucide-react';
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { ReplayButton, ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import BugReport from '@/components/BugReport';
@@ -24,6 +24,15 @@ export function FlipTips() {
     <ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">
       {(t.raw('tips') as string[]).map((tip) => <li key={tip} className="flex gap-2.5 break-keep"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-(--accent)" />{tip}</li>)}
     </ul>
+  </section>;
+}
+
+/** The rule people miss: stepping between two enemy stones is safe. */
+export function SafeGapCallout() {
+  const t = useTranslations('FlipOmok');
+  return <section className="rounded-[14px] border border-[#7dffc4]/40 bg-[#7dffc4]/[.07] p-4">
+    <p className="flex items-center gap-1.5 text-[11px] font-black text-[#7dffc4]"><ShieldCheck size={14} />{t('safeTitle')}</p>
+    <p className="mt-1.5 break-keep text-xs leading-5 text-white/65">{t('safeBody')}</p>
   </section>;
 }
 
@@ -179,6 +188,7 @@ export default function FlipOmokGame() {
             </>}
           </section>
 
+          <SafeGapCallout />
           <section className={PANEL}>
             <p className={PANEL_TITLE}>{t('rulesTitle')}</p>
             <ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">

@@ -10,6 +10,7 @@ export function FlipOmokTutorialSteps() {
   const steps = [
     { title: t('s1Title'), desc: t('s1Desc'), visual: <MiniBoard rows={['.....', '..R..', '..BR.', '.....']} ring={[2, 3]} /> },
     { title: t('s2Title'), desc: t('s2Desc'), visual: <MiniBoard rows={['......', '.RrrR.', '......']} flip={[[1, 2], [1, 3]]} ring={[1, 4]} /> },
+    { label: t('safeLabel'), title: t('sSafeTitle'), desc: t('sSafeDesc'), visual: <MiniBoard rows={['.......', '.RBR...', '...RBR.', '.......']} ring={[1, 2]} /> },
     { title: t('s3Title'), desc: t('s3Desc'), visual: <MiniBoard rows={['.....', '.RrB.', '.bBR.', '.....']} /> },
     { title: t('s4Title'), desc: t('s4Desc'), visual: <MiniBoard rows={['.RRRRR.', '.......', 'RRRRRR.']} line={[[0, 1], [0, 5]]} /> },
     { title: t('s5Title'), desc: t('s5Desc'), visual: <MiniBoard rows={['.....', '...R.', '...R.', '.RRx.', '.....']} /> },

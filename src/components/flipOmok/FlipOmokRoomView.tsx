@@ -18,7 +18,7 @@ import { Link } from '@/i18n/routing';
 import { coordinateLabel, emptyBoard, forbiddenPoints, owner, type Player } from '@/lib/flipOmok';
 import { FLIP_TURN_OPTIONS, colorOf, seatToMove } from '@/lib/flipOmokRoom';
 import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, MiniBoard } from './FlipOmokParts';
-import { FlipLegend, FlipTips } from './FlipOmokGame';
+import { FlipLegend, FlipTips, SafeGapCallout } from './FlipOmokGame';
 
 export default function FlipOmokRoomView({ code }: { code: string }) {
   const t = useTranslations('FlipOmokOnline');
@@ -209,6 +209,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
               </div>
               {state.phase !== 'lobby' && <p className="mt-3 text-[11px] text-white/40">{t('turnTimeInfo', { n: state.turnSec })}{myColor !== null ? ` · ${t('youAre', { color: colorName(myColor) })}` : ''}</p>}
             </section>
+            <SafeGapCallout />
             <FlipLegend />
             <FlipTips />
             {playing && mySeat !== null && (
