@@ -336,8 +336,7 @@
     "modeMorrisAi": "AI 1:1",
     "modeMorrisAiDesc": "난이도 3단계",
     "modeMorrisFriend": "친구 1:1",
-    "modeMorrisFriendDesc": "링크·초대코드",
-    "backupAddress": "접속이 잘 안 되면 임시 주소로 들어와 주세요:"
+    "modeMorrisFriendDesc": "링크·초대코드"
   },
   "WallGo": {
     "metaTitle": "벽바둑 — 데블스플랜3 벽바둑 룰 정리 + AI·친구랑 바로 두기",

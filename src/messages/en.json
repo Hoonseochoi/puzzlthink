@@ -329,8 +329,7 @@
     "modeMorrisAi": "AI 1:1",
     "modeMorrisAiDesc": "3 levels",
     "modeMorrisFriend": "Friend 1:1",
-    "modeMorrisFriendDesc": "Link · invite code",
-    "backupAddress": "Site not loading? Use the backup address:"
+    "modeMorrisFriendDesc": "Link · invite code"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
