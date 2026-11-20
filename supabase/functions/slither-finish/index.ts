@@ -1,8 +1,8 @@
 // 슬리더링크 challenge clear check. The browser sends every move it made; this function rebuilds the board from
 // the run's seed, replays the moves (replay.ts) and only then records the clear through slither_finish_checked (service role only).
-// A replay that does not end on the answer is not a clear. Under 20 minutes, a clear with 10 or fewer erases or with
-// 3+ exits from the board (another tab or app) is voided. Softer suspicions (no ✕, under 2 minutes, ✕ bursts, clean
-// streaks after a wipe) only go into the run's signals for review: the clear counts.
+// A replay that does not end on the answer is not a clear. Under 20 minutes, a clear with 3+ exits from the board
+// (another tab or app) is voided. Suspicions (10 or fewer erases, no ✕, under 2 minutes, ✕ bursts, clean streaks)
+// only go into the run's signals for review: the clear counts.
 // Deployed with verify_jwt = false: the gateway check only knows the legacy keys, so the user is checked here (auth.getUser).
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { AWAY_MIN_MS, checkRun } from './replay.ts';
