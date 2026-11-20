@@ -333,7 +333,7 @@
     "modeMorrisFriendDesc": "Link · invite code",
     "tag_devOriginal": "Dev's original",
     "flipOmokDescription": "Omok meets Othello: sandwich enemy stones to flip them yours. No double threes, exactly five wins.",
-    "flipOmokMeta": "AI · 2 players on one device · preview"
+    "flipOmokMeta": "AI · friend 1:1 · original"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -2104,6 +2104,21 @@
           "When every piece is separated, the most tiles wins; ties go to the bigger single area."
         ],
         "origin": "The follow-up to Wallgo from The Devil's Plan 3 prison match, episode 10. Both round 1 (3 players) and round 2 (1:1) are here."
+      },
+      "flipOmok": {
+        "tagline": "A PUZZLTHINK original: Omok meets Othello. Sandwich enemy stones to flip them, and make exactly five first.",
+        "players": "2 (vs AI or a friend, 1:1)",
+        "pace": "No clock vs AI · 15–60s turns with friends",
+        "level": "AI: Medium · Hard",
+        "rules": [
+          "Take turns placing one stone on a 15×15 board, red first.",
+          "Close a straight run of enemy stones between two of yours and they all flip to your colour (8 directions, any length).",
+          "Exactly five in a row wins. Six or more does not count.",
+          "Double threes are forbidden for both sides (marked ✕), unless the move makes five."
+        ],
+        "origin": "An original rule set made by the PUZZLTHINK developer, mixing Omok with Othello (Reversi). It keeps the usual Omok rules: exactly five wins, no double threes.",
+        "ai": "Medium · Hard",
+        "friend": "1:1 by link or 4-digit code, 15–60s turns"
       }
     },
     "keywords": [
@@ -5177,15 +5192,17 @@
     "bye": "Enjoy, and thank you! 💛"
   },
   "FlipOmok": {
-    "metaTitle": "Flip Omok — Omok meets Othello, a PUZZLTHINK original",
-    "metaDescription": "Omok where sandwiched stones flip. First to five in a row wins.",
+    "metaTitle": "Flip Omok — Omok meets Othello, an original board game",
+    "metaDescription": "Omok where sandwiched stones flip! Exactly-five and no-double-three rules, vs AI or a friend. Free, no sign-up.",
     "keywords": [
       "flip omok",
       "gomoku variant",
-      "othello gomoku"
+      "othello gomoku",
+      "original board game",
+      "online omok"
     ],
     "title": "FLIP OMOK",
-    "subtitle": "DEV'S ORIGINAL · PREVIEW",
+    "subtitle": "DEV ORIGINAL",
     "undo": "Undo",
     "newGame": "New game",
     "again": "Play again",
@@ -5218,9 +5235,184 @@
       "Exactly five in a row wins. Six or more does not count.",
       "Double threes (two open threes at once) are forbidden for both sides — you can’t play on a ✕. A move that makes five is always fine."
     ],
-    "devTitle": "Dev's original · preview",
-    "devNote": "A rule set made here at PUZZLTHINK. It's an early preview, so there are no records, rankings or online rooms yet.",
     "lastMove": "Last move: {name} {at}",
-    "banned": "Double three — not allowed"
+    "banned": "Double three — not allowed",
+    "undoTip": "Take back the last move (vs AI: your move and its reply)",
+    "newGameTip": "Clear the board and start over",
+    "countTip": "Red and blue stones on the board now (flipped ones included)",
+    "modeTips": {
+      "ai": "1:1 vs MIRA, you play red (first)",
+      "local": "Two players taking turns on one device"
+    },
+    "levelTips": {
+      "normal": "Looks one reply ahead. Makes mistakes.",
+      "hard": "Reads several moves ahead, flips included."
+    },
+    "movesPlayed": "{n} moves",
+    "legendTitle": "Reading the board",
+    "legend": [
+      "White eyes = a stone its owner placed",
+      "Other-colour eyes = a flipped stone (a blue with red eyes used to be red)",
+      "Gold ring = the stone just placed",
+      "✕ = double three, you can’t play there",
+      "Hover a point to see which stones would flip (they blink yellow)"
+    ],
+    "tipsTitle": "Tips",
+    "tips": [
+      "Blocking right next to their line can backfire: they place on the far side and your blocker flips. Block one point away, or where nothing can close behind it.",
+      "An enemy stone at the end of your line is a chance: close it from the far side and the blocked line gets longer.",
+      "Your five can include flipped stones: look for a move that flips your way into five.",
+      "Six doesn’t win. Turning their five-to-be into a six is also a defence.",
+      "No double threes for you either. Avoid the ✕ and build four-three shapes instead."
+    ]
+  },
+  "FlipOmokOnline": {
+    "metaTitle": "Up for Flip Omok? 🔴🔵 You’re invited",
+    "metaDescription": "Tap the link for a 1:1 game of Omok where sandwiched stones flip. Free, no sign-up.",
+    "guest": "Guest",
+    "me": "me",
+    "emptySeat": "Empty seat",
+    "host": "Host",
+    "ready": "Ready",
+    "waiting": "Waiting for a friend",
+    "connecting": "Connecting to the room…",
+    "unconfigured": "The realtime server isn’t set up yet.",
+    "connectionError": "Couldn’t reach the realtime server. Please reload.",
+    "roomNotFound": "Room not found. Check that the host is online.",
+    "hostOffline": "The host disconnected. The game continues when they’re back.",
+    "back": "Back to Flip Omok",
+    "lobbyTitle": "Waiting for a friend",
+    "inviteTitle": "Invite link",
+    "inviteDesc": "Send the link or the 4-digit code. Your friend takes the other seat on arrival.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "shareText": "Let’s play Flip Omok on PUZZLTHINK!",
+    "turnTime": "Turn time",
+    "seconds": "{n}s",
+    "hostSetsTime": "The host sets the turn time.",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "start": "Start the game",
+    "startLocked": "Waiting for a friend",
+    "startReady": "Your friend is here! Start the game",
+    "startLockedHint": "The start button lights up when your friend joins",
+    "roomFull": "The seats are full. You’re watching.",
+    "waitingHost": "Waiting for the host to start.",
+    "players": "Players",
+    "turnTimeInfo": "{n}s turns · a move is made for you when time runs out; three in a row loses",
+    "yourTurn": "Your turn",
+    "waitingFor": "{player} to move",
+    "youWin": "You win!",
+    "youLose": "You lose",
+    "winner": "{player} wins",
+    "reason": {
+      "five": "five in a row",
+      "resign": "resigned",
+      "timeout": "three timeouts",
+      "full": "board full"
+    },
+    "rematch": "Rematch (swap colours)",
+    "rematchWait": "The host can start a rematch.",
+    "spectating": "Watching",
+    "joined": "{name} joined",
+    "left": "{name} left",
+    "youAre": "You are {color}",
+    "stones": "{n} stones",
+    "lastMove": "Last move: {player} {at}",
+    "firstHint": "Red moves first.",
+    "resign": "Resign",
+    "resignConfirm": "Resign this game?"
+  },
+  "FlipOmokTutorial": {
+    "s1Title": "One stone each turn",
+    "s1Desc": "Red first, players take turns placing a stone on an empty point. The stone just placed gets a gold ring.",
+    "s2Title": "Sandwich to flip",
+    "s2Desc": "Close a straight run of enemy stones between two of yours and they all turn your colour — across, down or diagonal, any length.",
+    "s3Title": "Eyes tell the story",
+    "s3Desc": "Placed stones have white eyes; flipped stones keep the other colour’s eyes, so you can see where stones changed hands.",
+    "s4Title": "Exactly five wins",
+    "s4Desc": "Five of your colour in a row wins, flipped stones included. Six or more does not count.",
+    "s5Title": "No double threes",
+    "s5Desc": "A move that makes two open threes at once is forbidden for both sides and shows as ✕. A move that makes five is always fine.",
+    "s6Title": "Careful when blocking",
+    "s6Desc": "Block right next to their line and they can place behind it — your blocker flips. Block one point away instead."
+  },
+  "FlipOmokGuide": {
+    "eyebrow": "FLIP OMOK GUIDE",
+    "title": "Flip Omok — sandwich, flip, make exactly five",
+    "intro": "Flip Omok is an original board game by the PUZZLTHINK developer: Omok with Othello’s flip. You still race to five in a row, but any enemy stones you close between two of yours flip to your colour. A line you thought was blocked can turn over in one move, and a blocker can end up in your opponent’s line. Play MIRA (Medium or Hard) or a friend by link or 4-digit code.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Red (first) and blue take turns placing one stone on the points of a 15×15 board.",
+      "When your new stone and another of your stones close a straight run of enemy stones, every stone in that run flips to your colour. All 8 directions count, at any length.",
+      "Only the player who moves flips. Placing between two enemy stones is safe.",
+      "Exactly five of your colour in a row wins, flipped stones included. Six or more does not.",
+      "Double threes (two open threes at once) are forbidden for both sides, unless the move completes five.",
+      "A full board is a draw. Friend games have a turn clock (15, 30 or 60s); a move is made for you when it runs out, and three in a row lose."
+    ],
+    "specialTitle": "Tricky cases",
+    "special": [
+      {
+        "title": "Several directions at once",
+        "body": "If one move closes runs in several directions, all of them flip together."
+      },
+      {
+        "title": "Five by flipping",
+        "body": "The five can be made by flips: the moment five of your colour line up, you win."
+      },
+      {
+        "title": "Flipped stones can flip back",
+        "body": "A flipped stone can be sandwiched again. Its eye colour just marks that it has been flipped before."
+      },
+      {
+        "title": "Six doesn’t count",
+        "body": "Six or more in a row, flipped or not, isn’t a win — you can even defend by turning their five into six."
+      }
+    ],
+    "strategyTitle": "Strategy",
+    "strategyIntro": "Seeing what can be sandwiched matters as much as Omok skill.",
+    "strategies": [
+      {
+        "tag": "Defence",
+        "title": "Block one point away",
+        "body": "A blocker right next to their line flips as soon as they close the far side. Leave a gap, or block where nothing can close behind."
+      },
+      {
+        "tag": "Attack",
+        "title": "Revive a blocked line",
+        "body": "A single enemy stone capping your line is an opening: place beyond it and it becomes yours, extending the line."
+      },
+      {
+        "tag": "Attack",
+        "title": "Double threats by flipping",
+        "body": "A move that flips and makes a new four at once is hard to answer — even Hard MIRA struggles with it."
+      },
+      {
+        "tag": "Rules",
+        "title": "Use the ✕",
+        "body": "A ✕ point is somewhere your opponent can’t block. Steer your attack through it."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Do you pass when you can’t flip, like Othello?",
+        "a": "No. Any empty point is legal, flip or not — except a double-three (✕) point."
+      },
+      {
+        "q": "Why red and blue instead of black and white?",
+        "a": "So flipped stones can show the other colour in their eyes: a blue stone with red eyes used to be red."
+      },
+      {
+        "q": "Are restrictions black-only, like Renju?",
+        "a": "No. The double-three ban and the six-doesn’t-count rule apply to both sides."
+      },
+      {
+        "q": "Are results recorded?",
+        "a": "Yes. AI and friend games go to your records."
+      }
+    ],
+    "disclaimer": "Flip Omok is an original game with rules made by PUZZLTHINK."
   }
 }

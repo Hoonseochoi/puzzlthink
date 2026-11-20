@@ -1,51 +1,39 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Bot, RotateCcw, Sparkles, Undo2, Users } from 'lucide-react';
+import { Bot, Info, Lightbulb, RotateCcw, Trophy, Undo2, Users } from 'lucide-react';
+import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
-import { SIZE, chooseMove, coordinateLabel, emptyBoard, forbiddenPoints, isFlipped, isFull, other, owner, play, type Board, type Cell, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
+import { reportGame } from '@/lib/stats';
+import { chooseMove, coordinateLabel, emptyBoard, forbiddenPoints, isFull, other, owner, play, type Board, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
+import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard } from './FlipOmokParts';
 
-const ACCENT = '#67e8ff';
 type Mode = 'ai' | 'local';
 interface Snapshot { board: Board; turn: Player; last: number | null; flipped: number[] }
 
-const MARGIN = 4.2;
-const pos = (v: number) => MARGIN + v * ((100 - MARGIN * 2) / (SIZE - 1));
-const STARS = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
-
-/** Player colours: two neon characters. */
-export const STONE_HEX: Record<Player, string> = { 1: '#ff4d6d', 2: '#3fb8ff' };
-
-/** One face of a character stone: glossy colour body with two eyes (squinting while it is being flipped). */
-/** Eyes: white on a stone its owner placed, the other side's colour on a stone that was flipped over to them. */
-function Face({ p, marked = false, dizzy = false, back = false }: { p: Player; marked?: boolean; dizzy?: boolean; back?: boolean }) {
-  const hex = STONE_HEX[p];
-  const eye = marked ? STONE_HEX[other(p)] : 'rgba(255,255,255,.95)';
-  return <span className={`absolute inset-0 rounded-full border border-white/25 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`}
-    style={{ background: `radial-gradient(circle at 34% 28%, color-mix(in srgb, ${hex} 55%, white) 0%, ${hex} 48%, color-mix(in srgb, ${hex} 60%, black) 100%)`, boxShadow: `0 4px 10px rgba(0,0,0,.6), 0 0 10px ${hex}88` }}>
-    {dizzy ? <>
-      <span className="absolute left-[24%] top-[34%] text-[0.5em] font-black leading-none" style={{ color: eye }}>&gt;</span>
-      <span className="absolute right-[24%] top-[34%] text-[0.5em] font-black leading-none" style={{ color: eye }}>&lt;</span>
-    </> : <>
-      <span className="absolute left-[29%] top-[33%] h-[17%] w-[12%] rounded-full" style={{ background: eye, boxShadow: marked ? '0 0 0 1px rgba(255,255,255,.85)' : undefined }} />
-      <span className="absolute right-[29%] top-[33%] h-[17%] w-[12%] rounded-full" style={{ background: eye, boxShadow: marked ? '0 0 0 1px rgba(255,255,255,.85)' : undefined }} />
-    </>}
-  </span>;
+/** Tips and tooltips shared by the solo game and the friend room. */
+export function FlipTips() {
+  const t = useTranslations('FlipOmok');
+  return <section className={PANEL}>
+    <p className={`${PANEL_TITLE} flex items-center gap-1.5`}><Lightbulb size={12} className="text-(--accent)" />{t('tipsTitle')}</p>
+    <ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">
+      {(t.raw('tips') as string[]).map((tip) => <li key={tip} className="flex gap-2.5 break-keep"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-(--accent)" />{tip}</li>)}
+    </ul>
+  </section>;
 }
 
-/** A stone; when `flip` is set it spins over from the opponent's colour to its own. */
-function Stone({ cell, latest, flip, delay = 0 }: { cell: Cell; latest: boolean; flip: boolean; delay?: number }) {
-  const p = owner(cell) as Player;
-  return <span className={`relative block h-full w-full [container-type:size] ${latest ? 'scale-110' : ''} transition-transform`} style={{ fontSize: '100cqw' }}>
-    <span className={`relative block h-full w-full [transform-style:preserve-3d] ${flip ? 'flip-omok-turn' : ''}`} style={flip ? { animationDelay: `${delay}ms` } : undefined}>
-      <Face p={p} marked={isFlipped(cell)} />
-      {flip && <Face p={other(p)} dizzy back />}
-    </span>
-    {latest && <span className="pointer-events-none absolute -inset-[14%] rounded-full border-2 border-[#ffd76b] shadow-[0_0_10px_#ffd76b]" />}
-  </span>;
+/** Legend for what's on the board: eye colours, ✕, the gold ring. */
+export function FlipLegend() {
+  const t = useTranslations('FlipOmok');
+  return <section className={PANEL}>
+    <p className={`${PANEL_TITLE} flex items-center gap-1.5`}><Info size={12} className="text-(--accent)" />{t('legendTitle')}</p>
+    <ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">
+      {(t.raw('legend') as string[]).map((item) => <li key={item} className="break-keep">{item}</li>)}
+    </ul>
+  </section>;
 }
 
 export default function FlipOmokGame() {
@@ -59,9 +47,7 @@ export default function FlipOmokGame() {
   const [win, setWin] = useState<Line | null>(null);
   const [draw, setDraw] = useState(false);
   const [history, setHistory] = useState<Snapshot[]>([]);
-  const [hover, setHover] = useState<number | null>(null);
-  const [toast, setToast] = useState<{ n: number; who: Player; key: number } | null>(null);
-  const toastKey = useRef(0);
+  const [gameNo, setGameNo] = useState(0);
 
   const over = !!win || draw;
   const aiTurn = mode === 'ai' && turn === 2 && !over;
@@ -73,10 +59,13 @@ export default function FlipOmokGame() {
     setBoard(res.board);
     setLast(at);
     setFlipped(res.flipped);
-    if (res.flipped.length) { toastKey.current += 1; setToast({ n: res.flipped.length, who: p, key: toastKey.current }); }
     if (res.win) setWin(res.win);
     else if (isFull(res.board)) setDraw(true);
     else setTurn(other(p));
+    if ((res.win || isFull(res.board)) && mode === 'ai') {
+      reportGame(`flip_omok-ai-${gameNo}-${history.length + 1}`, 'flip_omok', 'ai', !res.win ? 'draw' : res.win.owner === 1 ? 'win' : 'loss',
+        { difficulty, moves: history.length + 1 });
+    }
   };
 
   const place = (at: number) => {
@@ -91,14 +80,8 @@ export default function FlipOmokGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiTurn, board]);
 
-  useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 1400);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
-
   const reset = (nextMode = mode) => {
-    setMode(nextMode); setBoard(emptyBoard()); setTurn(1); setLast(null); setFlipped([]); setWin(null); setDraw(false); setHistory([]); setToast(null);
+    setMode(nextMode); setBoard(emptyBoard()); setTurn(1); setLast(null); setFlipped([]); setWin(null); setDraw(false); setHistory([]); setGameNo((n) => n + 1);
   };
 
   // Against MIRA, undo takes back the AI's reply too.
@@ -113,99 +96,66 @@ export default function FlipOmokGame() {
   const name = (p: Player) => mode === 'ai' ? (p === 1 ? t('you') : 'MIRA') : (p === 1 ? t('black') : t('white'));
   const count = (p: Player) => board.filter((c) => owner(c) === p).length;
   const status = win ? t('wins', { name: name(win.owner) }) : draw ? t('draw') : aiTurn ? t('aiThinking') : t('turnOf', { name: name(turn) });
-  const preview = hover !== null && !board[hover] && !over && !aiTurn ? play(board, hover, turn).flipped : [];
-  const flippedSet = new Set(flipped);
-  const previewSet = new Set(preview);
   // 쌍삼 points for whoever moves now (hidden while the AI thinks).
   const banned = useMemo(() => new Set(over || aiTurn ? [] : forbiddenPoints(board, turn)), [board, turn, over, aiTurn]);
 
+  const result = over && <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[1px]">
+    <div className="w-full max-w-[300px] rounded-[16px] border border-(--accent)/40 bg-[#0e1316]/95 p-5 text-center shadow-[0_0_60px_rgba(103,232,255,.25)]">
+      <Trophy className="mx-auto text-(--accent)" size={28} />
+      <p className={`${KICKER} mt-3`}>RESULT</p>
+      <h2 className="mt-1 text-xl font-black">{status}</h2>
+      <p className="mt-2 text-xs text-white/50">{t('movesPlayed', { n: history.length })}</p>
+      <button type="button" onClick={() => reset()} className={`${BTN_ACCENT} mt-4 w-full py-3`}><RotateCcw size={14} />{t('again')}</button>
+    </div>
+  </div>;
+
   return (
-    <div className={SHELL} style={{ ...accentVars(ACCENT, '#06202a'), backgroundImage: fog('63, 184, 255') }}>
-      <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
-        <LanguageSwitcher compact dark />
-        <button type="button" onClick={undo} disabled={!history.length || aiTurn} className={`${BTN} disabled:opacity-35`}><Undo2 size={14} /><span className="hidden sm:inline">{t('undo')}</span></button>
-        <button type="button" onClick={() => reset()} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
+    <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
+      <GameHeader backHref="/flip-omok" backLabel={t('title')} title={t('title')} subtitle={t('subtitle')}>
+        <BugReport /><LanguageSwitcher compact dark />
+        <button type="button" title={t('undoTip')} onClick={undo} disabled={!history.length || aiTurn} className={`${BTN} disabled:opacity-35`}><Undo2 size={14} /><span className="hidden sm:inline">{t('undo')}</span></button>
+        <button type="button" title={t('newGameTip')} onClick={() => reset()} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 
       <main className={MAIN}>
-        <section className={STAGE} id="play">
+        <section className={STAGE}>
           <div className="mb-3 flex items-end justify-between gap-3 px-1 sm:mb-4 sm:px-2">
             <div>
               <p className={KICKER}>{over ? t('resultKicker') : t('moveKicker', { n: history.length + 1 })}</p>
               <h1 className="mt-1 text-base font-extrabold tracking-tight text-[#eef1f7] sm:text-xl">{status}</h1>
             </div>
-            <div className="flex items-center gap-2 font-mono text-xs font-black">
-              <span className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 ${turn === 1 && !over ? 'border-[#67e8ff]/60 bg-[#67e8ff]/10' : 'border-white/10 bg-black/40'}`}><i className="h-3 w-3 rounded-full" style={{ background: STONE_HEX[1], boxShadow: `0 0 6px ${STONE_HEX[1]}` }} />{count(1)}</span>
-              <span className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 ${turn === 2 && !over ? 'border-[#67e8ff]/60 bg-[#67e8ff]/10' : 'border-white/10 bg-black/40'}`}><i className="h-3 w-3 rounded-full" style={{ background: STONE_HEX[2], boxShadow: `0 0 6px ${STONE_HEX[2]}` }} />{count(2)}</span>
+            <div className="flex items-center gap-2 font-mono text-xs font-black" title={t('countTip')}>
+              {([1, 2] as Player[]).map((p) => <span key={p} className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 ${turn === p && !over ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-white/10 bg-black/40'}`}><Dot p={p} />{count(p)}</span>)}
             </div>
           </div>
 
-          <div className="relative mx-auto aspect-square w-full max-w-[700px] rounded-[10px] bg-gradient-to-br from-[#ff4d6d] via-[#26313f] to-[#3fb8ff] p-[3px] shadow-[0_24px_60px_rgba(0,0,0,.78),0_0_30px_rgba(63,184,255,.14)]">
-            <div className="relative h-full w-full overflow-hidden rounded-[7px] border border-[#67e8ff]/20 bg-[#080c12] shadow-[inset_0_0_55px_rgba(0,0,0,.9),inset_0_0_24px_rgba(71,213,255,.08)]" style={{ backgroundImage: 'radial-gradient(circle at 50% 45%, rgba(72,213,255,.09), transparent 50%), linear-gradient(145deg,#0c121a,#06080d)' }} onMouseLeave={() => setHover(null)}>
-              <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden>
-                {Array.from({ length: SIZE }, (_, i) => <g key={i}>
-                  <line x1={pos(i)} y1={pos(0)} x2={pos(i)} y2={pos(SIZE - 1)} stroke="#67e8ff" strokeOpacity=".3" strokeWidth=".22" />
-                  <line x1={pos(0)} y1={pos(i)} x2={pos(SIZE - 1)} y2={pos(i)} stroke="#67e8ff" strokeOpacity=".3" strokeWidth=".22" />
-                </g>)}
-                {STARS.map(([r, c]) => <circle key={`${r}${c}`} cx={pos(c)} cy={pos(r)} r=".65" fill="#b8f6ff" style={{ filter: 'drop-shadow(0 0 1.2px #56ddff)' }} />)}
-                
-              </svg>
-              {board.map((cell, at) => {
-                const r = Math.floor(at / SIZE), c = at % SIZE;
-                const canPlace = !cell && !over && !aiTurn && !banned.has(at);
-                return (
-                  <button key={at} type="button" disabled={!canPlace} aria-label={coordinateLabel(at)}
-                    onClick={() => place(at)} onMouseEnter={() => setHover(at)}
-                    className={`absolute z-10 h-[6.2%] w-[6.2%] -translate-x-1/2 -translate-y-1/2 rounded-full outline-none [perspective:300px] ${canPlace ? 'cursor-pointer' : ''}`}
-                    style={{ left: `${pos(c)}%`, top: `${pos(r)}%` }}>
-                    {cell ? <span className={`relative block h-full w-full ${previewSet.has(at) ? 'opacity-55 rounded-full ring-2 ring-[#ffd76b] animate-pulse' : ''}`}>
-                      {/* key changes on a flip so the animation replays */}
-                      <Stone key={`${cell}-${flippedSet.has(at) ? history.length : 0}`} cell={cell} latest={at === last} flip={flippedSet.has(at)} delay={last === null ? 0 : (Math.max(Math.abs(r - Math.floor(last / SIZE)), Math.abs(c - (last % SIZE))) - 1) * 110} />
-                    </span>
-                      : banned.has(at) ? <svg viewBox="0 0 10 10" className="h-full w-full p-[22%]" aria-hidden><title>{t('banned')}</title><path d="M1 1L9 9M9 1L1 9" stroke="#ff4d6d" strokeOpacity=".75" strokeWidth="1.6" strokeLinecap="round" /></svg>
-                      : hover === at && canPlace ? <span className="block h-full w-full rounded-full opacity-45 shadow-[0_0_12px_currentColor]" style={{ background: STONE_HEX[turn], color: STONE_HEX[turn] }} /> : null}
-                  </button>
-                );
-              })}
-              {win && <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 z-20 h-full w-full" aria-hidden><g className="flip-omok-win">
-                  <line x1={pos(win.start % SIZE)} y1={pos(Math.floor(win.start / SIZE))} x2={pos(win.end % SIZE)} y2={pos(Math.floor(win.end / SIZE))} stroke={STONE_HEX[win.owner]} strokeWidth="1.6" strokeLinecap="round" style={{ filter: `drop-shadow(0 0 2px ${STONE_HEX[win.owner]})` }} />
-                  <line x1={pos(win.start % SIZE)} y1={pos(Math.floor(win.start / SIZE))} x2={pos(win.end % SIZE)} y2={pos(Math.floor(win.end / SIZE))} stroke="#fff" strokeWidth=".4" strokeLinecap="round" />
-                </g></svg>}
-              {toast && <div key={toast.key} className="flip-omok-toast pointer-events-none absolute left-1/2 top-[44%] z-30 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/20 bg-black/75 px-5 py-2.5 text-lg font-black text-white shadow-2xl sm:text-2xl">
-                <Sparkles size={18} className="mr-1.5 inline" style={{ color: STONE_HEX[toast.who] }} />{t('flipToast', { n: toast.n })}
-              </div>}
-            </div>
-          </div>
-          {preview.length > 0 && <p className="mt-2 text-center text-[11px] font-bold text-[#ffd76b]">{t('previewHint', { n: preview.length })}</p>}
-          {over && <div className="mt-4 flex justify-center"><button type="button" onClick={() => reset()} className={`${BTN_ACCENT} px-6 py-3 text-sm`}><RotateCcw size={15} />{t('again')}</button></div>}
+          <FlipOmokBoard board={board} last={last} flipped={flipped} flipKey={history.length} win={win} turn={turn}
+            interactive={!over && !aiTurn} banned={banned} onPlace={place} overlay={result} />
         </section>
 
         <aside className="flex flex-col gap-4">
           <section className={PANEL}>
             <p className={PANEL_TITLE}>{t('mode')}</p>
             <div className="mt-3 grid grid-cols-2 gap-1.5">
-              {(['ai', 'local'] as Mode[]).map((m) => <button key={m} type="button" onClick={() => reset(m)} className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2.5 text-xs font-black transition ${mode === m ? 'bg-[#67e8ff] text-[#06202a]' : 'border border-white/10 bg-white/[.03] text-white/50 hover:text-white'}`}>{m === 'ai' ? <Bot size={14} /> : <Users size={14} />}{t(`modes.${m}`)}</button>)}
+              {(['ai', 'local'] as Mode[]).map((m) => <button key={m} type="button" title={t(`modeTips.${m}`)} onClick={() => reset(m)} className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2.5 text-xs font-black transition ${mode === m ? 'bg-(--accent) text-(--accent-ink)' : 'border border-white/10 bg-white/[.03] text-white/50 hover:text-white'}`}>{m === 'ai' ? <Bot size={14} /> : <Users size={14} />}{t(`modes.${m}`)}</button>)}
             </div>
             {mode === 'ai' && <>
               <p className={`${PANEL_TITLE} mt-4`}>{t('difficulty')}</p>
               <div className="mt-2 grid grid-cols-2 gap-1.5">
-                {(['normal', 'hard'] as FlipDifficulty[]).map((d) => <button key={d} type="button" disabled={started} onClick={() => setDifficulty(d)} className={`rounded-md px-2 py-2 text-xs font-black transition ${difficulty === d ? 'bg-[#67e8ff] text-[#06202a]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{t(`levels.${d}`)}</button>)}
+                {(['normal', 'hard'] as FlipDifficulty[]).map((d) => <button key={d} type="button" title={t(`levelTips.${d}`)} disabled={started} onClick={() => setDifficulty(d)} className={`rounded-md px-2 py-2 text-xs font-black transition ${difficulty === d ? 'bg-(--accent) text-(--accent-ink)' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{t(`levels.${d}`)}</button>)}
               </div>
-              {started && <p className="mt-2 text-[10px] text-white/35">{t('difficultyLocked')}</p>}
+              <p className="mt-2 text-[10px] leading-4 text-white/35">{started ? t('difficultyLocked') : t(`levelTips.${difficulty}`)}</p>
             </>}
           </section>
 
           <section className={PANEL}>
             <p className={PANEL_TITLE}>{t('rulesTitle')}</p>
             <ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">
-              {(t.raw('rules') as string[]).map((rule) => <li key={rule} className="flex gap-2.5 break-keep"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-[#67e8ff]" />{rule}</li>)}
+              {(t.raw('rules') as string[]).map((rule) => <li key={rule} className="flex gap-2.5 break-keep"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-(--accent)" />{rule}</li>)}
             </ul>
           </section>
-
-          <section className="rounded-[14px] border border-[#67e8ff]/30 bg-[#67e8ff]/[.07] p-4">
-            <p className={PANEL_TITLE}>{t('devTitle')}</p>
-            <p className="mt-2 break-keep text-xs leading-5 text-white/55">{t('devNote')}</p>
-          </section>
+          <FlipLegend />
+          <FlipTips />
           {last !== null && <p className="text-center text-[11px] text-white/35">{t('lastMove', { name: name(owner(board[last]) as Player), at: coordinateLabel(last) })}</p>}
         </aside>
       </main>
