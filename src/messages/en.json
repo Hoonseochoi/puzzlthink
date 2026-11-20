@@ -5264,7 +5264,13 @@
       "Your five can include flipped stones: look for a move that flips your way into five.",
       "Six doesn’t win. Turning their five-to-be into a six is also a defence.",
       "No double threes for you either. Avoid the ✕ and build four-three shapes instead."
-    ]
+    ],
+    "resign": "Resign",
+    "resignTip": "Give up this game (counts as a loss vs AI)",
+    "resignConfirm": "Resign this game?",
+    "resigned": "{name} resigned",
+    "viewBoard": "View board",
+    "replayMove": "Move {n} · {name} {at}"
   },
   "FlipOmokOnline": {
     "metaTitle": "Up for Flip Omok? 🔴🔵 You’re invited",
