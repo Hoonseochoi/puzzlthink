@@ -13,6 +13,7 @@ import PieceRaceBanner from './PieceRaceBanner';
 import DevLetter from './DevLetter';
 import { Pedestal } from './piggyBank/PiggyParts';
 import OpenMatchCard from './OpenMatchCard';
+import { HallPodium, useHallPodiums } from './HallPodium';
 import { SHOW_BOARD } from '@/lib/slitherShowBoard';
 
 function MiniFace({ color, shape = 'circle' }: { color: string; shape?: 'circle' | 'square' | 'hex' }) {
@@ -218,6 +219,7 @@ function GameTag({ color, label }: { color: string; label: string }) {
 export default function HomeClient() {
   const t = useTranslations('Home');
   const tc = useTranslations('Common');
+  const podiums = useHallPodiums();
   // Order: the newest game first (NEW), then by total plays; 벽바둑 II sits right under 벽바둑.
   const games = [
     { title: 'FLIP OMOK', display: tc('flipOmok'), description: t('flipOmokDescription'), href: '/flip-omok', tag: 'devOriginal', meta: t('flipOmokMeta'), color: '#2f9e78', illustration: 'flipOmok' },
@@ -252,7 +254,7 @@ export default function HomeClient() {
     }} />{games.map((game) => (
       <div key={game.title} className={`group relative flex flex-col overflow-hidden rounded-[24px] border bg-[#f9f7f1] ${'hype' in game ? 'hype-card border-[#ff6a3d]/45' : 'border-black/10'} p-4 shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px] sm:p-5 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_70px_rgba(30,38,36,0.14)] sm:p-7`}>
         <Link href={game.href} className="block flex-1">
-          <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
+          <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}</span>{podiums?.get(game.href)?.length ? <HallPodium entries={podiums.get(game.href)!} label={t('podiumLabel', { game: game.display })} wins={(n) => t('podiumWins', { n })} /> : <span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span>}</div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'flipOmok' ? <FlipOmokPreview /> : game.illustration === 'morris' ? <MorrisPreview /> : game.illustration === 'slitherlink' ? <SlitherPreview /> : game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'wallgo2' ? <WallGo2Preview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
