@@ -17,7 +17,7 @@ export const POKER_START_CHIPS = 20;
 export const POKER_DECK = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 export const pokerOther = (side: PokerSide): PokerSide => (side === 0 ? 1 : 0);
 /** Design targets, not guaranteed match results: cards and opponent choices still add variance. */
-export const POKER_AI_TARGET = { easy: 30, normal: 60, hard: 90 } satisfies Record<PokerDifficulty, number>;
+export const POKER_AI_TARGET = { easy: 20, normal: 50, hard: 75 } satisfies Record<PokerDifficulty, number>;
 
 export function shufflePokerDeck(rand: () => number = Math.random) {
   const deck = [...POKER_DECK];
@@ -63,9 +63,11 @@ export function choosePokerAiAction(args: {
     if (index >= 0) counted.splice(index, 1);
   }
   const profile = {
-    easy: { quality: .30, count: .15, noise: .28, bluff: .24, aggression: .25 },
-    normal: { quality: .60, count: .70, noise: .13, bluff: .14, aggression: .45 },
-    hard: { quality: .90, count: 1, noise: .045, bluff: .09, aggression: .65 },
+    // read: how much the opponent's betting moves the AI's guess about its own (unseen) card.
+    // Tuned from play data: hard was beaten about half the time (65% on a first try), so it now reads bets.
+    easy: { quality: .30, count: .15, noise: .28, bluff: .24, aggression: .25, read: 0 },
+    normal: { quality: .66, count: .75, noise: .12, bluff: .14, aggression: .45, read: .25 },
+    hard: { quality: .96, count: 1, noise: .03, bluff: .11, aggression: .65, read: .6 },
   }[level];
   const rawEquity = (deck: readonly number[]) => deck.length
     ? (deck.filter((n) => n > opponentCard).length + deck.filter((n) => n === opponentCard).length * .5) / deck.length
@@ -81,7 +83,11 @@ export function choosePokerAiAction(args: {
   const potOdds = toCall / Math.max(1, pot + toCall);
   const stackPressure = chips[me] ? toCall / chips[me] : 1;
   const rivalPressure = chips[them] <= 6 ? .06 : 0;
-  const estimate = equity + (rand() - .5) * profile.noise;
+  // The opponent sees the AI's card: a big raise hints that card is low, a meek check that it is high.
+  // People bluff too, so the hint only nudges the estimate (capped), and only as far as the level reads.
+  const pressure = toCall / Math.max(2, pot - toCall);
+  const hint = toCall > 0 ? -Math.min(.22, pressure * .18) : canCheck && bets[them] === bets[me] && pot > 2 ? .04 : 0;
+  const estimate = equity + hint * profile.read + (rand() - .5) * profile.noise;
   const bluff = rand() < profile.bluff * (opponentCard <= 4 ? 1.35 : .55);
   const sound = rand() < profile.quality;
 

@@ -64,7 +64,7 @@ function GameWins({ row }: { row: Row }) {
 
 /**
  * 피스 경쟁전: everyone on one board. Each win against the hard AI (any game) is one piece, at most 30 per game
- * (the server caps it); most pieces first,
+ * (the server caps it; 러시안 룰렛 and 인디언 포커 do not count); most pieces first,
  * a tie goes to whoever got there first. The top three stand on a podium; tap anyone to see their wins by game.
  */
 export default function CompetitionBoard() {

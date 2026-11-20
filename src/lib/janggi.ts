@@ -271,9 +271,11 @@ export function chooseAiAction(state: JanggiState, difficulty: Difficulty = 'nor
   // The repetition ban is checked here at the root only; the search below looks at piece rules.
   const actions = playableActions(state);
   if (!actions.length) return null;
-  const maxDepth = difficulty === 'easy' ? 1 : difficulty === 'normal' ? 3 : 7;
-  const noise = difficulty === 'easy' ? 2.5 : difficulty === 'normal' ? 0.6 : 0.05;
-  const deadline = Date.now() + (difficulty === 'hard' ? 900 : 400);
+  // Tuned from play data toward ~80% / 50% / 25% human wins: normal reads one more ply with less noise,
+  // hard stops at five plies with a little noise (it was close to unbeatable at seven).
+  const maxDepth = difficulty === 'easy' ? 1 : difficulty === 'normal' ? 4 : 5;
+  const noise = difficulty === 'easy' ? 2.5 : difficulty === 'normal' ? 0.35 : 0.2;
+  const deadline = Date.now() + (difficulty === 'hard' ? 700 : 450);
   let scored: { action: Action; value: number }[] = actions.map((action) => ({ action, value: 0 }));
   for (let depth = 1; depth <= maxDepth; depth += 1) {
     const round = order(state, actions.slice()).map((action) => ({ action, value: -negamax(applyAction(state, action), depth - 1, -Infinity, Infinity, deadline) }));
