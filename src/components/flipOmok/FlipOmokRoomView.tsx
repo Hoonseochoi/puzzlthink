@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, RotateCcw, Share2, Swords, Trophy, Users, WifiOff } from 'lucide-react';
+import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, RotateCcw, Share2, Swords, Trophy, Users, WifiOff, X } from 'lucide-react';
+import { useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
+import { ReplayButton, ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
@@ -21,6 +23,9 @@ import { FlipLegend, FlipTips } from './FlipOmokGame';
 export default function FlipOmokRoomView({ code }: { code: string }) {
   const t = useTranslations('FlipOmokOnline');
   const tf = useTranslations('FlipOmok');
+  const tc = useTranslations('Common');
+  const [replaying, setReplaying] = useState(false);
+  const [hideResult, setHideResult] = useState<string | null>(null); // sid whose result popup was closed
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useFlipOmokRoom(code, defaultName);
@@ -50,6 +55,12 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
   const toMove = state ? seatToMove(state) : 0;
   const myTurn = !!state && playing && mySeat === toMove;
   const board = state?.board ?? emptyBoard();
+  // 복기: positions seen in this browser during the current game.
+  const frames = useReplayFrames(state && state.phase !== 'lobby' ? state.sid : null, state && state.phase !== 'lobby' ? { board: state.board, last: state.last, flipped: state.flipped } : null, String(state?.moves ?? 0));
+  const finished = state?.phase === 'finished';
+  const replay = useReplayPlayer(Math.max(0, frames.length - 1), replaying && finished, 900);
+  const frame = replaying && finished ? frames[replay.at] : null;
+  const resultOpen = finished && hideResult !== state?.sid && !frame;
   const banned = useMemo(() => new Set(state && myTurn ? forbiddenPoints(state.board, state.turn) : []), [state, myTurn]);
 
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
@@ -78,9 +89,10 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
   const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? resultText()
     : myTurn ? t('yourTurn') : t('waitingFor', { player: seatName(toMove) });
 
-  const result = state?.phase === 'finished' && (
+  const result = resultOpen && state && (
     <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[1px]">
-      <div className="w-full max-w-[320px] rounded-[16px] border border-(--accent)/40 bg-[#0e1316]/95 p-5 text-center shadow-[0_0_60px_rgba(103,232,255,.25)]">
+      <div className="relative w-full max-w-[320px] rounded-[16px] border border-(--accent)/40 bg-[#0e1316]/95 p-5 text-center shadow-[0_0_60px_rgba(103,232,255,.25)]">
+        <button type="button" onClick={() => setHideResult(state.sid)} aria-label={tf('viewBoard')} title={tf('viewBoard')} className="absolute right-2 top-2 rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white"><X size={15} /></button>
         <Trophy className="mx-auto text-(--accent)" size={28} />
         <p className={`${KICKER} mt-3`}>RESULT</p>
         <h2 className="mt-1 text-xl font-black">{resultText()}</h2>
@@ -88,6 +100,8 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
         {me?.isHost
           ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-4 w-full py-3`}><RotateCcw size={14} />{t('rematch')}</button>
           : <p className="mt-3 text-[11px] text-white/45">{t('rematchWait')}</p>}
+        {frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} className="!mt-2" />}
+        <button type="button" onClick={() => setHideResult(state.sid)} className={`${BTN} mt-2 w-full py-2.5`}><Eye size={14} />{tf('viewBoard')}</button>
       </div>
     </div>
   );
@@ -152,8 +166,17 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
               </div>
             ) : (
               <>
-                <FlipOmokBoard board={board} last={state.last} flipped={state.flipped} flipKey={state.moves} win={state.win} turn={state.turn}
-                  interactive={myTurn} banned={banned} onPlace={(at) => dispatch({ t: 'move', at })} overlay={result} />
+                {frame && <ReplayHeader player={replay} caption={replay.at === 0 ? tc('replayStart') : t('lastMove', { player: colorName(owner(frame.board[frame.last ?? 0]) as Player), at: coordinateLabel(frame.last ?? 0) })} onClose={() => setReplaying(false)} />}
+                {frame
+                  ? <FlipOmokBoard board={frame.board} last={frame.last} flipped={frame.flipped} flipKey={replay.at} win={replay.at === replay.total ? state.win : null} turn={state.turn} interactive={false} banned={new Set()} onPlace={() => {}} />
+                  : <FlipOmokBoard board={board} last={state.last} flipped={state.flipped} flipKey={state.moves} win={state.win} turn={state.turn}
+                    interactive={myTurn} banned={banned} onPlace={(at) => dispatch({ t: 'move', at })} overlay={result} />}
+                {frame && <ReplayControls player={replay} onShowResult={() => { setReplaying(false); setHideResult(null); }} />}
+                {finished && !frame && !resultOpen && <div className="mx-auto mt-2 flex max-w-[440px] flex-wrap items-center justify-center gap-2">
+                  <button type="button" onClick={() => setHideResult(null)} className={`${BTN} py-2.5`}><Trophy size={14} />{tc('replayShowResult')}</button>
+                  {frames.length > 1 && <button type="button" onClick={() => setReplaying(true)} className={`${BTN} py-2.5`}>{tc('replayOpen')}</button>}
+                  {me?.isHost && <button type="button" onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} py-2.5`}><RotateCcw size={14} />{t('rematch')}</button>}
+                </div>}
                 <p className="px-1 text-[11px] text-white/45">{state.last !== null ? t('lastMove', { player: colorName(owner(board[state.last]) as Player), at: coordinateLabel(state.last) }) : t('firstHint')}</p>
                 {mySeat === null && <p className="mt-2 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
               </>
