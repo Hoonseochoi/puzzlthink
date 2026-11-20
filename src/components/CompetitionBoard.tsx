@@ -9,7 +9,7 @@ import { getSupabase } from '@/lib/supabase';
 import { GAME_LABEL } from './HallCelebration';
 import { useAuth } from './AuthProvider';
 
-type Row = { rank: number; nickname: string; avatar_url: string | null; pieces: number; per_game: Partial<Record<GameId, number>>; last_win: string; is_me: boolean | null };
+type Row = { rank: number; nickname: string; avatar_url: string | null; pieces: number; per_game: Partial<Record<GameId, number>>; last_win: string; is_me: boolean | null; prev_rank: number | null };
 
 /**
  * One piece = one win against the hard AI. Drawn after the gold pieces from The Devil's Plan:
@@ -35,6 +35,17 @@ export function Piece({ size = 18 }: { size?: number }) {
 /** "[piece] ×42", small. */
 export function PieceCount({ n, size = 14, className = '' }: { n: number; size?: number; className?: string }) {
   return <span className={`inline-flex shrink-0 items-center gap-1 font-mono font-black ${className}`}><Piece size={size} /><span className="text-black/35">×</span>{n}</span>;
+}
+
+/** Change since the start of today (KST): red ▲ up, blue ▼ down, NEW for a first appearance, a dash for none. */
+function RankChange({ row, className = '' }: { row: Row; className?: string }) {
+  const t = useTranslations('Records');
+  if (row.prev_rank == null) return <span title={t('rankNew')} className={`shrink-0 rounded-full bg-[#ff6b4a] px-1.5 py-0.5 text-[9px] font-black leading-none text-white ${className}`}>NEW</span>;
+  const d = row.prev_rank - row.rank;
+  if (d === 0) return <span title={t('rankSame')} className={`shrink-0 font-mono text-[10px] font-black text-black/25 ${className}`}>–</span>;
+  return d > 0
+    ? <span title={t('rankUp', { n: d })} className={`shrink-0 font-mono text-[10px] font-black text-[#e5484d] ${className}`}>▲{d}</span>
+    : <span title={t('rankDown', { n: -d })} className={`shrink-0 font-mono text-[10px] font-black text-[#3b82f6] ${className}`}>▼{-d}</span>;
 }
 
 function Avatar({ src, name, size }: { src: string | null; name: string; size: number }) {
@@ -93,6 +104,7 @@ export default function CompetitionBoard() {
       <h2 className="flex items-center gap-2 text-xl font-black"><Swords size={20} className="text-[#e8a33c]" />{t('competitionTitle')}</h2>
       <p className="mt-1 break-keep text-xs leading-5 text-black/45">{t('competitionDesc')}</p>
       <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#e8a33c]/40 bg-[#fff6e2] px-3 py-1 text-[11px] font-bold text-[#8a5a12]"><Piece size={12} />{t('pieceRule')}</p>
+      <p className="mt-1.5 text-[10px] font-bold text-black/35">{t('rankChangeHint')}</p>
 
       {rows === null ? (
         <p className="mt-6 text-sm text-black/40">{t('competitionLoading')}</p>
@@ -112,6 +124,7 @@ export default function CompetitionBoard() {
                   <span className={`rounded-full p-0.5 ${place === 1 ? 'bg-[#ffd45c] shadow-[0_0_24px_rgba(255,196,60,.6)]' : 'bg-white'} ${row.is_me ? 'ring-2 ring-[#ff6b4a]' : ''}`}><Avatar src={row.avatar_url} name={row.nickname} size={place === 1 ? 64 : 50} /></span>
                   <span className="mt-1.5 w-full truncate px-1 text-xs font-black sm:text-sm">{row.nickname}</span>
                   <PieceCount n={row.pieces} size={13} className="mt-0.5 text-sm sm:text-base" />
+                  <RankChange row={row} className="mt-1" />
                   <span className={`mt-2 flex w-full items-start justify-center rounded-t-2xl pt-2 font-black text-white/90 shadow-[inset_0_2px_0_rgba(255,255,255,.4)] transition group-hover:brightness-105 ${block}`}><span className="text-3xl sm:text-4xl" style={{ textShadow: '0 2px 0 rgba(0,0,0,.18)' }}>{place}</span></span>
                 </button>
               );
@@ -144,7 +157,7 @@ function RankRow({ row, open, onToggle }: { row: Row; open: boolean; onToggle: (
   return (
     <li className={`overflow-hidden rounded-2xl border ${row.is_me ? 'border-[#ff6b4a]/50 bg-[#fff0eb]' : 'border-black/10 bg-[#f9f7f1]'}`}>
       <button type="button" onClick={onToggle} aria-expanded={open} className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-white/60">
-        <span className="w-8 shrink-0 text-center font-mono text-sm font-black text-black/45">{row.rank}</span>
+        <span className="flex w-8 shrink-0 flex-col items-center gap-0.5"><span className="font-mono text-sm font-black leading-none text-black/45">{row.rank}</span><RankChange row={row} /></span>
         <Avatar src={row.avatar_url} name={row.nickname} size={30} />
         <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{row.nickname}{row.is_me && <span className="ml-1.5 rounded-full bg-[#ff6b4a] px-1.5 py-0.5 text-[9px] font-black text-white">{t('me')}</span>}</span>
         <PieceCount n={row.pieces} size={13} className="text-sm" />
