@@ -1,25 +1,10 @@
 "use client";
 
-import { ArrowRight, Bot, Brain, Crosshair, Flame, Grid3X3, Sparkles, Swords, Timer, UsersRound } from 'lucide-react';
+import { ArrowRight, Bot, Brain, Flame, Grid3X3, Sparkles, UsersRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Link, useRouter } from '@/i18n/routing';
-import { prepareHostedRoom, prepareWallGo2Room } from '@/hooks/useWallGoRoom';
-import { prepareJanggiRoom } from '@/hooks/useJanggiRoom';
-import { prepareHeavy13Room } from '@/hooks/useHeavy13Room';
-import { prepareRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
-import { prepareRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
-import { prepareBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
-import { prepareMorrisRoom } from '@/hooks/useMorrisRoom';
+import { Link } from '@/i18n/routing';
 import { MorrisBoard } from './morris/MorrisParts';
-import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
-import { prepareBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
-import { prepareBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
 import LaserPiece from './laserJanggi/LaserPiece';
-import { prepareNemoRoom } from '@/hooks/useNemoRoom';
-import { prepareHexagonRoom } from '@/hooks/useHexagonRoom';
-import { prepareGyulhapRoom } from '@/hooks/useGyulhapRoom';
-import { prepareIndianPokerRoom } from '@/hooks/useIndianPokerRoom';
-import { prepareSlitherRoom } from '@/hooks/useSlitherRoom';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
@@ -27,12 +12,8 @@ import VisitCounter from './VisitCounter';
 import PieceRaceBanner from './PieceRaceBanner';
 import DevLetter from './DevLetter';
 import { Pedestal } from './piggyBank/PiggyParts';
-import { preparePiggyRoom } from '@/hooks/usePiggyRoom';
 import OpenMatchCard from './OpenMatchCard';
 import { SHOW_BOARD } from '@/lib/slitherShowBoard';
-
-const MODE_BASE = 'flex flex-col items-center gap-0.5 rounded-2xl border px-2 py-2.5 text-center transition hover:-translate-y-0.5 sm:gap-1 sm:py-3';
-const MODE_BUTTON = `${MODE_BASE} border-black/10 bg-white/70 hover:border-black/25 hover:bg-white`;
 
 function MiniFace({ color, shape = 'circle' }: { color: string; shape?: 'circle' | 'square' | 'hex' }) {
   const shapeClass = shape === 'circle' ? 'rounded-full' : shape === 'square' ? 'rounded-[35%]' : '[clip-path:polygon(25%_5%,75%_5%,100%_50%,75%_95%,25%_95%,0_50%)]';
@@ -218,7 +199,6 @@ function GameTag({ color, label }: { color: string; label: string }) {
 export default function HomeClient() {
   const t = useTranslations('Home');
   const tc = useTranslations('Common');
-  const router = useRouter();
   // Order: the newest game first (NEW), then by total plays; 벽바둑 II sits right under 벽바둑.
   const games = [
     { title: "NINE MEN'S MORRIS", display: tc('nineMensMorris'), description: t('nineMensMorrisDescription'), href: '/nine-mens-morris', tag: 'spatialStrategy', meta: t('nineMensMorrisMeta'), color: '#3ec9d6', illustration: 'morris', new: true },
@@ -261,166 +241,6 @@ export default function HomeClient() {
             </div>
           </div>
         </Link>
-        {game.illustration === 'gyulhap' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Link href="/gyulhap?mode=challenge10#play" className={MODE_BUTTON}><Sparkles size={15} className="text-[#c89c14]" /><span className="text-sm font-black">{t('modeGyul10')}</span><span className="text-[10px] font-bold text-black/45">{t('modeGyul10Desc')}</span></Link>
-              <Link href="/gyulhap?mode=challenge5#play" className={MODE_BUTTON}><Sparkles size={15} className="text-[#c89c14]" /><span className="text-sm font-black">{t('modeGyul5')}</span><span className="text-[10px] font-bold text-black/45">{t('modeGyul5Desc')}</span></Link>
-              <Link href="/gyulhap?mode=practice#play" className={MODE_BUTTON}><Brain size={15} className="text-[#c89c14]" /><span className="text-sm font-black">{t('modeGyulPractice')}</span><span className="text-[10px] font-bold text-black/45">{t('modeGyulPracticeDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/gyulhap/room/${await prepareGyulhapRoom()}`)} className={`${MODE_BASE} border-[#ffcf3f]/55 bg-[#fff8dc] hover:border-[#c89c14]`}><UsersRound size={15} className="text-[#c89c14]" /><span className="text-sm font-black">{t('modeGyulFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeGyulFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'indianPoker' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/indian-poker#play" className={MODE_BUTTON}><Bot size={15} className="text-[#b78b25]" /><span className="text-sm font-black">{t('modeIndianAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeIndianAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/indian-poker/room/${await prepareIndianPokerRoom()}`)} className={`${MODE_BASE} border-[#e6b94f]/55 bg-[#fff7df] hover:border-[#b78b25]`}><UsersRound size={15} className="text-[#b78b25]" /><span className="text-sm font-black">{t('modeIndianFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeIndianFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'slitherlink' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Link href="/slitherlink?mode=challenge#play" className={`${MODE_BASE} border-[#8f7cff]/50 bg-[#f1eeff] hover:border-[#6b55e0]`}><Timer size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherNew')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherNewDesc')}</span></Link>
-              <Link href="/slitherlink?mode=beat#play" className={MODE_BUTTON}><Swords size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherBeat')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherBeatDesc')}</span></Link>
-              <Link href="/slitherlink?mode=practice#play" className={MODE_BUTTON}><Brain size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherPractice')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherPracticeDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/slitherlink/room/${await prepareSlitherRoom()}`)} className={`${MODE_BASE} border-[#8f7cff]/50 bg-[#f1eeff] hover:border-[#6b55e0]`}><UsersRound size={15} className="text-[#6b55e0]" /><span className="text-sm font-black">{t('modeSlitherFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeSlitherFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'hexagon' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-3 gap-2">
-              <Link href="/hexagon?mode=solo#play" className={MODE_BUTTON}><Brain size={15} className="text-[#c8932f]" /><span className="text-sm font-black">{t('modeHexSolo')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHexSoloDesc')}</span></Link>
-              <Link href="/hexagon?mode=challenge#play" className={MODE_BUTTON}><Sparkles size={15} className="text-[#c8932f]" /><span className="text-sm font-black">{t('modeHexChallenge')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHexChallengeDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/hexagon/room/${await prepareHexagonRoom()}`)} className={`${MODE_BASE} border-[#e8b04a]/50 bg-[#fbf2dc] hover:border-[#e8b04a]`}><UsersRound size={15} className="text-[#c8932f]" /><span className="text-sm font-black">{t('modeHexFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHexFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'piggyBank' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/piggy-bank" className={MODE_BUTTON}><Bot size={15} className="text-[#e0a91c]" /><span className="text-sm font-black">{t('modePiggyAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modePiggyAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/piggy-bank/room/${await preparePiggyRoom()}`)} className={`${MODE_BASE} border-[#e0a91c]/45 bg-[#fdf4dc] hover:border-[#e0a91c]`}><UsersRound size={15} className="text-[#e0a91c]" /><span className="text-sm font-black">{t('modePiggyFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modePiggyFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'nemoCount' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/nemo-count" className={MODE_BUTTON}><Brain size={15} className="text-[#7d86a8]" /><span className="text-sm font-black">{t('modeNemoSolo')}</span><span className="text-[10px] font-bold text-black/45">{t('modeNemoSoloDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/nemo-count/room/${await prepareNemoRoom()}`)} className={`${MODE_BASE} border-[#7d86a8]/45 bg-[#eef0f7] hover:border-[#7d86a8]`}><UsersRound size={15} className="text-[#7d86a8]" /><span className="text-sm font-black">{t('modeNemoFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeNemoFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'blackWhite' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/black-white" className={MODE_BUTTON}><Bot size={15} className="text-[#2b2b31]" /><span className="text-sm font-black">{t('modeBwAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBwAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/black-white/room/${await prepareBlackWhiteRoom()}`)} className={`${MODE_BASE} border-[#2b2b31]/35 bg-[#ecebe8] hover:border-[#2b2b31]`}><UsersRound size={15} className="text-[#2b2b31]" /><span className="text-sm font-black">{t('modeBwFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBwFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'blackWhite2' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/black-white-2" className={MODE_BUTTON}><Bot size={15} className="text-[#ef3340]" /><span className="text-sm font-black">{t('modeBw2Ai')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBw2AiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/black-white-2/room/${await prepareBlackWhite2Room()}`)} className={`${MODE_BASE} border-[#ef3340]/35 bg-[#fdecee] hover:border-[#ef3340]`}><UsersRound size={15} className="text-[#ef3340]" /><span className="text-sm font-black">{t('modeBw2Friend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBw2FriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'laserJanggi' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/laser-janggi" className={MODE_BUTTON}><Bot size={15} className="text-[#28b9d7]" /><span className="text-sm font-black">{t('modeLaserAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeLaserAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/laser-janggi/room/${await prepareLaserJanggiRoom()}`)} className={`${MODE_BASE} border-[#28b9d7]/45 bg-[#e8f8fb] hover:border-[#28b9d7]`}><UsersRound size={15} className="text-[#28b9d7]" /><span className="text-sm font-black">{t('modeLaserFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeLaserFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'morris' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/nine-mens-morris" className={MODE_BUTTON}><Bot size={15} className="text-[#2a9eab]" /><span className="text-sm font-black">{t('modeMorrisAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeMorrisAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/nine-mens-morris/room/${await prepareMorrisRoom()}`)} className={`${MODE_BASE} border-[#3ec9d6]/50 bg-[#e6f8fa] hover:border-[#2a9eab]`}><UsersRound size={15} className="text-[#2a9eab]" /><span className="text-sm font-black">{t('modeMorrisFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeMorrisFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'blindGomoku' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/blind-gomoku" className={MODE_BUTTON}><Bot size={15} className="text-[#d39b2f]" /><span className="text-sm font-black">{t('modeBlindAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBlindAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/blind-gomoku/room/${await prepareBlindGomokuRoom()}`)} className={`${MODE_BASE} border-[#d39b2f]/45 bg-[#fdf4e2] hover:border-[#d39b2f]`}><UsersRound size={15} className="text-[#d39b2f]" /><span className="text-sm font-black">{t('modeBlindFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeBlindFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'heavy13' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/heavy13" className={MODE_BUTTON}><Bot size={15} className="text-[#c9a061]" /><span className="text-sm font-black">{t('modeHeavyAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHeavyAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/heavy13/room/${await prepareHeavy13Room()}`)} className={`${MODE_BASE} border-[#c9a061]/50 bg-[#fbf3e4] hover:border-[#c9a061]`}><UsersRound size={15} className="text-[#c9a061]" /><span className="text-sm font-black">{t('modeHeavyFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeHeavyFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'roulette' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/russian-roulette" className={MODE_BUTTON}><Crosshair size={15} className="text-[#238ca8]" /><span className="text-sm font-black">{t('modeRouletteAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRouletteAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/russian-roulette/room/${await prepareRussianRouletteRoom()}`)} className={`${MODE_BASE} border-[#238ca8]/45 bg-[#e9f7fa] hover:border-[#238ca8]`}><UsersRound size={15} className="text-[#238ca8]" /><span className="text-sm font-black">{t('modeRouletteFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRouletteFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'rjanggi' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/russian-janggi" className={MODE_BUTTON}><Bot size={15} className="text-[#e2283c]" /><span className="text-sm font-black">{t('modeRjAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRjAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/russian-janggi/room/${await prepareRussianJanggiRoom()}`)} className={`${MODE_BASE} border-[#e2283c]/35 bg-[#fdecee] hover:border-[#e2283c]`}><UsersRound size={15} className="text-[#e2283c]" /><span className="text-sm font-black">{t('modeRjFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeRjFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'janggi' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/janggi" className={MODE_BUTTON}><Bot size={15} className="text-[#e8a33c]" /><span className="text-sm font-black">{t('modeAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/janggi/room/${await prepareJanggiRoom()}`)} className={`${MODE_BASE} border-[#e8a33c]/40 bg-[#fff6e5] hover:border-[#e8a33c]`}><UsersRound size={15} className="text-[#e8a33c]" /><span className="text-sm font-black">{t('modeFriendJanggi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeFriendJanggiDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'wallgo' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-3 gap-2">
-              <Link href={{ pathname: '/wallgo', query: { mode: 'three' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeThreeAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeThreeAiDesc')}</span></Link>
-              <Link href={{ pathname: '/wallgo', query: { mode: 'two' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#4b7bff]" /><span className="text-sm font-black">{t('modeTwoAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeTwoAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/wallgo/room/${await prepareHostedRoom('two')}`)} className={`${MODE_BASE} border-[#ff6b4a]/40 bg-[#fff0eb] hover:border-[#ff6b4a]`}><UsersRound size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
-        {game.illustration === 'wallgo2' && (
-          <div className="mt-4 border-t border-black/[0.07] pt-3 sm:mt-5 sm:pt-4">
-            <p className="mb-2 text-[10px] font-black tracking-[0.16em] text-black/35 sm:mb-2.5">{t('modeTitle')}</p>
-            <div className="grid grid-cols-3 gap-2">
-              <Link href={{ pathname: '/wallgo-2', query: { mode: 'three' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeThreeAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeThreeAiDesc')}</span></Link>
-              <Link href={{ pathname: '/wallgo-2', query: { mode: 'two' } }} className={MODE_BUTTON}><Bot size={15} className="text-[#4b7bff]" /><span className="text-sm font-black">{t('modeTwoAi')}</span><span className="text-[10px] font-bold text-black/45">{t('modeTwoAiDesc')}</span></Link>
-              <button type="button" onClick={async () => router.push(`/wallgo-2/room/${await prepareWallGo2Room('two')}`)} className={`${MODE_BASE} border-[#ff6b4a]/40 bg-[#fff0eb] hover:border-[#ff6b4a]`}><UsersRound size={15} className="text-[#ff6b4a]" /><span className="text-sm font-black">{t('modeFriend')}</span><span className="text-[10px] font-bold text-black/45">{t('modeFriendDesc')}</span></button>
-            </div>
-          </div>
-        )}
       </div>
     ))}</div>
     <div className="mt-8 grid gap-3 sm:grid-cols-3"><div className="flex items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/40 p-4"><Grid3X3 size={18} /><div><p className="text-xs font-extrabold">{t('clearRules')}</p><p className="text-[11px] text-black/40">{t('clearRulesDesc')}</p></div></div><div className="flex items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/40 p-4"><Bot size={18} /><div><p className="text-xs font-extrabold">{t('instantPlay')}</p><p className="text-[11px] text-black/40">{t('instantPlayDesc')}</p></div></div><div className="flex items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/40 p-4"><UsersRound size={18} /><div><p className="text-xs font-extrabold">{t('growing')}</p><p className="text-[11px] text-black/40">{t('growingDesc')}</p></div></div></div>
