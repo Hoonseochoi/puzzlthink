@@ -9,6 +9,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, timer } from '@/components/ui/gameUi';
 import { type GyulCard, type Hap, allHaps, dealGyulCards, hapKey, isHap, remainingHaps } from '@/lib/gyulhap';
 import { reportGame } from '@/lib/stats';
+import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
 import { GyulBoard, GyulScore } from './GyulhapParts';
 
 const ACCENT = '#ffcf3f';
@@ -39,10 +40,12 @@ export default function GyulhapGame() {
   const [finished, setFinished] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const reported = useRef(false);
+  const [voided, setVoided] = useState(false); // left the board too often: this run isn't ranked
 
   useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 200); return () => window.clearInterval(id); }, []);
 
   const timeLeft = endsAt ? Math.max(0, endsAt - now) : 0;
+  const { exits: exitCount, warn: exitWarn } = useBoardExits(mode !== 'practice' && endsAt > 0 && !finished);
   const answers = allHaps(cards);
   const nextBoard = useCallback(() => {
     setCards(dealGyulCards()); setFound([]); setSelected([]); setRevealed(false); setGaveUp(false); setAnswerFocus(null); setRound((n) => n + 1);
@@ -59,10 +62,12 @@ export default function GyulhapGame() {
   useEffect(() => {
     if (!finished || mode === 'practice' || reported.current) return;
     reported.current = true;
+    const exits = exitDetail(exitCount());
+    setVoided('voided' in exits);
     reportGame(`gyulhap-solo-${startedAt}`, 'gyulhap', 'solo', score > 0 ? 'win' : 'loss', {
-      mode, score, rounds: round, durationMs: Date.now() - startedAt,
+      ...exits, mode, score, rounds: round, durationMs: Date.now() - startedAt,
     });
-  }, [finished, mode, score, round, startedAt]);
+  }, [finished, mode, score, round, startedAt, exitCount]);
 
   const flash = (key: NonNullable<Notice>['key']) => setNotice({ key, at: Date.now() });
   const toggle = (index: number) => setSelected((old) => old.includes(index) ? old.filter((n) => n !== index) : old.length < 3 ? [...old, index] : old);
@@ -89,12 +94,13 @@ export default function GyulhapGame() {
   const restart = () => {
     const at = Date.now();
     setCards(dealGyulCards()); setFound([]); setSelected([]); setScore(0); setRound(1); setNotice(null); setRevealed(false); setGaveUp(false); setAnswerFocus(null);
-    setStartedAt(at); setEndsAt(DURATION[mode] ? at + DURATION[mode] : 0); setFinished(false); reported.current = false;
+    setStartedAt(at); setEndsAt(DURATION[mode] ? at + DURATION[mode] : 0); setFinished(false); setVoided(false); reported.current = false;
   };
   const noticeOn = notice && now - notice.at < 1800;
 
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('255, 207, 63') }}>
+      <BoardExitToast warn={exitWarn} />
       <GameHeader backHref="/gyulhap" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
@@ -118,6 +124,7 @@ export default function GyulhapGame() {
               <button type="button" title={t('tooltips.gyeol')} onClick={callGyeol} className={`${BTN} py-3 text-sm`}>{t('gyeol')}</button>
               {mode === 'practice' ? <button type="button" onClick={() => revealAnswers(false)} className={`${BTN} py-3 text-sm`}><Eye size={14} />{t('answerCheck')}</button> : <button type="button" onClick={() => revealAnswers(true)} className={`${BTN} py-3 text-sm text-[#ffb2aa]`}><Flag size={14} />{t('giveUp')}</button>}
             </div> : finished ? <button type="button" onClick={restart} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{t('again')}</button> : null}
+            {mode !== 'practice' && (finished ? voided && <BoardExitRule voided /> : <BoardExitRule />)}
           </div>
         </section>
         <aside className="flex flex-col gap-4">

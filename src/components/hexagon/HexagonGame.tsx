@@ -10,6 +10,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { CHALLENGE_MS, IDLE_MS, MEMORIZE_MS, ROUNDS, type HexRound, broadcastRounds, generateRound, lineOf } from '@/lib/hexagon';
 import { reportGame } from '@/lib/stats';
+import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
 import { HEX_ACCENT, HEX_INK, HexBoardView, type TileMark, TargetPlate, TimeBar, revealMarks, togglePick, useLetterKeys } from './HexParts';
 
 type Mode = 'solo' | 'challenge';
@@ -37,6 +38,8 @@ export default function HexagonGame() {
   const [pick, setPick] = useState('');
   const [played, setPlayed] = useState<Played[]>([]);
   const [challengeEnd, setChallengeEnd] = useState(0);
+  const [voided, setVoided] = useState(false); // left the board too often: this challenge isn't ranked
+  const { exits: exitCount, warn: exitWarn } = useBoardExits(mode === 'challenge' && challengeEnd > 0);
   const [flash, setFlash] = useState<Flash>(null);
   const [focus, setFocus] = useState<string | null>(null); // answer screen: one line picked out
   const [best, setBest] = useState(readBest);
@@ -54,7 +57,7 @@ export default function HexagonGame() {
 
   const start = (m: Mode = mode, s: Source = source) => {
     const rounds = m === 'solo' && s === 'broadcast' ? broadcastRounds() : m === 'solo' ? Array.from({ length: ROUNDS }, () => generateRound()) : [];
-    setPlan(rounds); setPlayed([]); reported.current = '';
+    setPlan(rounds); setPlayed([]); setVoided(false); reported.current = '';
     setChallengeEnd(m === 'challenge' ? Date.now() + CHALLENGE_MS : 0);
     beginRound(m === 'solo' ? rounds[0] : generateRound(), 0);
   };
@@ -71,12 +74,14 @@ export default function HexagonGame() {
     reported.current = key;
     const total = list.reduce((s, p) => s + p.found.length - p.wrong, 0);
     const foundN = list.reduce((s, p) => s + p.found.length, 0);
-    if (mode === 'challenge' && total > best) { setBest(total); try { localStorage.setItem(BEST_KEY, String(total)); } catch { /* optional */ } }
+    const exits = mode === 'challenge' ? exitDetail(exitCount()) : {};
+    setVoided('voided' in exits);
+    if (mode === 'challenge' && total > best && !('voided' in exits)) { setBest(total); try { localStorage.setItem(BEST_KEY, String(total)); } catch { /* optional */ } }
     reportGame(`hexagon-solo-${Date.now()}`, 'hexagon', 'solo', total > 0 ? 'win' : 'loss', {
-      mode, source: mode === 'solo' ? source : 'random', score: total, found: foundN, wrong: list.reduce((s, p) => s + p.wrong, 0),
+      ...exits, mode, source: mode === 'solo' ? source : 'random', score: total, found: foundN, wrong: list.reduce((s, p) => s + p.wrong, 0),
       answers: list.reduce((s, p) => s + p.round.answers.length, 0), rounds: list.length,
     });
-  }, [mode, source, best]);
+  }, [mode, source, best, exitCount]);
 
   const toReveal = useCallback(() => {
     if (!round) return;
@@ -142,6 +147,7 @@ export default function HexagonGame() {
   return (
     <div className={SHELL} style={{ ...accentVars(HEX_ACCENT, HEX_INK), backgroundImage: fog('200, 150, 60') }}>
       <Shards tint="#3a2f1a" />
+      <BoardExitToast warn={exitWarn} />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
         <BugReport /><LanguageSwitcher compact dark />
         {phase !== 'intro' && <button type="button" onClick={() => switchMode(mode)} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('restart')}</span></button>}
@@ -168,11 +174,13 @@ export default function HexagonGame() {
               )}
               {mode === 'challenge' && <p className="mt-4 text-xs font-bold text-white/40">{t('bestScore', { n: best })}</p>}
               <button type="button" onClick={() => start()} className={`${BTN_ACCENT} mt-6 w-full py-3.5 text-sm`}><Hexagon size={16} />{t(mode === 'solo' ? 'startSolo' : 'startChallenge')}</button>
+              {mode === 'challenge' && <BoardExitRule />}
             </div>
           )}
 
           {phase === 'summary' && (
             <div className="mx-auto max-w-lg py-6">
+              {voided && <BoardExitRule voided />}
               <div className="text-center"><Trophy size={34} className="mx-auto text-[#ffcf3f]" /><p className={`${KICKER} mt-3`}>{mode === 'challenge' ? t('timeUp') : t('gameOver')}</p><h1 className="mt-1 text-3xl font-black">{t('summaryScore', { n: score })}</h1></div>
               <div className="mt-5 grid grid-cols-3 gap-2 text-center">
                 {[[t('statFound'), `${totals.found}/${totals.answers}`], [t('statWrong'), String(totals.wrong)], [t('statRounds'), String(played.length)]].map(([label, value]) => (
