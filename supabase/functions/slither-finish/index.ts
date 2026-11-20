@@ -1,7 +1,8 @@
 // 슬리더링크 challenge clear check. The browser sends every move it made; this function rebuilds the board from
 // the run's seed, replays the moves (replay.ts) and only then records the clear through slither_finish_checked (service role only).
 // A replay that does not end on the answer is not a clear. A clear that looks solved elsewhere and copied in
-// (no ✕ marks, almost no erasing, or faster than a person can solve it) is kept off the records.
+// (no ✕ marks with little erasing, almost no erasing, or faster than a person can solve it) is kept off the records,
+// unless the run took 20 minutes or more. Suspicion signals (✕ bursts, clean streaks after a wipe) are stored with the run.
 // Deployed with verify_jwt = false: the gateway check only knows the legacy keys, so the user is checked here (auth.getUser).
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { checkRun } from './replay.ts';
@@ -43,5 +44,7 @@ Deno.serve(async (req) => {
     p_run: runId, p_user: user.id, p_cleared: check.cleared, p_hints: check.hints, p_flag: check.flag, p_marks: check.markMoves, p_erases: check.eraseMoves,
   });
   if (error) return json({ error: error.message }, 400);
+  // Keep the moves and the suspicion signals with the run, for review (never fails the request).
+  await admin.from('slither_runs').update({ signals: check.signals, steps: body.steps }).eq('id', runId).then(() => {}, () => {});
   return json(data);
 });

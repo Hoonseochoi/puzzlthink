@@ -22,7 +22,7 @@ import SlitherHistory from './SlitherHistory';
 import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool } from './SlitherBoard';
 
 type Mode = 'challenge' | 'beat' | 'practice';
-type Step = { changes: [number, Mark][]; hint?: boolean; at?: [number, number] };
+type Step = { changes: [number, Mark][]; hint?: boolean; at?: [number, number]; t?: number };
 type Phase = 'lobby' | 'starting' | 'play' | 'solved' | 'reveal' | 'gaveUp' | 'failed';
 const MODES: Mode[] = ['challenge', 'beat', 'practice'];
 const SIZE_KEY = 'puzzlthink_slither_size';
@@ -179,7 +179,7 @@ export default function SlitherGame() {
     const r = runRef.current;
     if (!r) return;
     const { data } = cleared
-      ? await finishCleared(r.run, stepsRef.current.map((st) => (st.hint && st.at ? { h: st.at } : { c: st.changes })))
+      ? await finishCleared(r.run, stepsRef.current.map((st) => (st.hint && st.at ? { h: st.at, t: st.t } : { c: st.changes, t: st.t })))
       : await finishRun(r.run, false, hintsRef.current);
     runRef.current = null;
     setResult(data ?? { ok: false, ms: Date.now() - startedAt, rank: null, total: null });
@@ -192,7 +192,7 @@ export default function SlitherGame() {
     const next = [...marksRef.current];
     for (const [e, v] of changes) next[e] = v;
     setBoard(next);
-    const step: Step = { changes, hint, at };
+    const step: Step = { changes, hint, at, t: Date.now() - startedAt };
     stepsRef.current = [...stepsRef.current, step];
     setSteps(stepsRef.current);
     if (isSolved(puzzle, next)) {

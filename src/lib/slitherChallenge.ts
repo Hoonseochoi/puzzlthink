@@ -7,7 +7,8 @@ export type FinishResult = { ok: boolean; ms: number; rank: number | null; total
 /** A player I have traded boards with: how often I took theirs, and they took mine. */
 export type RivalRow = { nickname: string; took: number; lost: number; last_at: string };
 /** One move for the server replay: edge changes, or a hint taken at (r, c). */
-export type ReplayStep = { c: [number, number][] } | { h: [number, number] };
+/** One move (`c`) or hint (`h`), with `t` = ms since the run started. */
+export type ReplayStep = ({ c: [number, number][] } | { h: [number, number] }) & { t?: number };
 /** Ranked by boards owned (맵 수집). `board`: one of their boards to try. */
 export type RankRow = { rank: number; nickname: string; maps: number; is_me: boolean; board: string | null; board_ms: number | null; tried: boolean; prev_rank?: number | null };
 export type BoardRow = { id: string; holder: string; holder_ms: number; first_name: string; attempts: number; takeovers: number; published_at: string; tried: boolean; mine?: boolean };
