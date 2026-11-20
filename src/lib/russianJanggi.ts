@@ -283,8 +283,15 @@ export function chooseAiAction(state: RJState, difficulty: Difficulty): Action {
     }
     return pick(moves);
   }
-  const scored = difficulty === 'hard' ? rootScores(state, 700, 12) : rootScores(state, 150, 2);
-  const noise = difficulty === 'hard' ? 0.5 : 7;
+  // Tuned from play data toward ~50% / 25% human wins (it was 18% / 11%): shallower search, more noise,
+  // and normal sometimes plays any move that does not lose at once.
+  if (difficulty === 'normal' && Math.random() < 0.22) {
+    const safe = rootScores(state, 60, 1).filter((x) => x.value > -900);
+    if (safe.length) return pick(safe).action;
+  }
+  // Hard now plays about like the old normal (which people beat ~20% of the time), a touch noisier.
+  const scored = difficulty === 'hard' ? rootScores(state, 300, 2) : rootScores(state, 120, 2);
+  const noise = difficulty === 'hard' ? 9 : 12;
   const ranked = scored.map((x) => ({ ...x, value: x.value + (Math.abs(x.value) >= 900 ? 0 : Math.random() * noise) })).sort((a, b) => b.value - a.value);
   return ranked[0].action;
 }

@@ -156,7 +156,7 @@ export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor
   }
 
   const histories = possibleHistories(rounds, me);
-  const samples = level === 'hard' ? 360 : 90;
+  const samples = level === 'hard' ? 700 : 60;
   const scores = new Map<number, number>(myHand.map((t) => [t, 0]));
   for (let s = 0; s < samples; s += 1) {
     const history = histories.length ? pick(histories, rand) : [];
@@ -182,8 +182,10 @@ export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor
       scores.set(t, scores.get(t)! + playOut(rs, first, me, hands, rand));
     }
   }
-  // Softmax over win rates, so the AI is hard to read: sharper on hard, looser on normal.
-  const temp = level === 'hard' ? 0.035 : 0.09;
+  // Softmax over win rates, so the AI is hard to read. Play data showed people beat the old, sharper hard
+  // more often than normal (66% vs 51% for the same players): a near-fixed choice gets learned and exploited.
+  // Hard now mixes more on top of a more accurate estimate; normal estimates more roughly.
+  const temp = level === 'hard' ? 0.08 : 0.11;
   const entries = [...scores.entries()].map(([t, v]) => [t, v / samples] as const);
   const top = Math.max(...entries.map(([, v]) => v));
   const weights = entries.map(([t, v]) => [t, Math.exp((v - top) / temp)] as const);

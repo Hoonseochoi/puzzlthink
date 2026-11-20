@@ -224,6 +224,8 @@ function playOut(state: Heavy13): Heavy13 {
 export function placementDecision(state: Heavy13, seat: number, level: AiLevel = 'normal'): { t: 'pass' } | { t: 'place'; color?: Color } {
   const sub = state.subs[seat]!;
   if (level === 'easy') return sub.chip === 'w' ? { t: 'place', color: pick([...COLORS]) } : { t: 'place' };
+  // Normal skips the look-ahead now and then: places on the stand that looks best, never passes.
+  if (level === 'normal' && Math.random() < NORMAL_SLIP) return sub.chip === 'w' ? { t: 'place', color: bestStand(state.stands, sub.card) } : { t: 'place' };
   const before = state.players[seat].penalty;
   const preferred = bestStand(state.stands, sub.card);
   const colors = sub.chip === 'w' ? [preferred, ...COLORS.filter((c) => c !== preferred)] : [sub.chip];
@@ -283,8 +285,10 @@ function optionValues(state: Heavy13, seat: number, model: Mixed[], sims: number
 
 // sims: samples per option for the opponent forecast; finalSims: for the AI's own choice;
 // temp: how spread the forecast is; finalTemp: how sharply the AI takes its best option.
+/** How often the normal AI skips its look-ahead (tuned from play data toward ~35% human first places). */
+const NORMAL_SLIP = 0.3;
 const LEVELS = {
-  normal: { sims: 14, finalSims: 30, temp: 0.3, finalTemp: 0.05 },
+  normal: { sims: 10, finalSims: 16, temp: 0.3, finalTemp: 0.12 },
   hard: { sims: 24, finalSims: 70, temp: 0.25, finalTemp: 0.03 },
 };
 
@@ -304,6 +308,8 @@ export function planSubmissions(state: Heavy13, seats: number[], level: AiLevel 
   });
   const forecast: Mixed[] = uniform.map((m, s) => ({ options: m.options, weights: softmax(optionValues(state, s, uniform, cfg.sims), cfg.temp) }));
   return seats.map((seat) => {
+    // Normal plays a random card and chip some of the time, so it is clearly easier than hard.
+    if (level === 'normal' && Math.random() < NORMAL_SLIP) return pick(forecast[seat].options);
     const values = optionValues(state, seat, forecast, cfg.finalSims);
     return sample({ options: forecast[seat].options, weights: softmax(values, cfg.finalTemp) });
   });

@@ -5,9 +5,10 @@ export type StoneColor = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purpl
 export type GomokuDifficulty = 'easy' | 'normal' | 'hard';
 
 export const DIFFICULTY_MEMORY: Record<GomokuDifficulty, number> = {
-  easy: 5,
-  normal: 15,
-  hard: Number.POSITIVE_INFINITY,
+  // Tuned from play data toward ~80% / 50% / 25% human wins (normal was 22%, hard 8%).
+  easy: 3,
+  normal: 8,
+  hard: 24,
 };
 
 export interface GomokuMove {
