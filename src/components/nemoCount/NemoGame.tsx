@@ -13,6 +13,7 @@ import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accent
 import { CHALLENGE_MS, NEMO_DIFFICULTIES, type NemoDifficulty, type NemoProblem, formatMs, generateProblem, rng, tutorialProblems } from '@/lib/nemoCount';
 import { type Duel, QUICK_DUEL_COUNT, beats, createDuel, duelImagePath, duelPath, duelTime, getDuel, newSeed, submitDuel } from '@/lib/nemoDuel';
 import { reportGame } from '@/lib/stats';
+import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
 import { AnswerInput, NEMO_ACCENT, NEMO_INK, NemoBoardView, SolutionReplay, TargetPlate } from './NemoParts';
 
 type Mode = 'challenge' | 'practice' | 'tutorial';
@@ -49,6 +50,8 @@ export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | n
   const [tutorialIndex, setTutorialIndex] = useState(0);
   const [startedAt, setStartedAt] = useState(0); // when the current problem appeared
   const [challengeEnd, setChallengeEnd] = useState(0); // 0 = challenge not running
+  const [voided, setVoided] = useState(false); // left the board too often: the 30-minute run isn't ranked
+  const { exits: exitCount, warn: exitWarn } = useBoardExits(mode === 'challenge' && challengeEnd > 0 && limit === null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [verdict, setVerdict] = useState<Verdict>(null); // practice/tutorial: result for the current problem
   const [wrongTries, setWrongTries] = useState(0);
@@ -90,7 +93,7 @@ export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | n
     const n = duel ? duel.count : count;
     randRef.current = rng(s);
     setSeed(s); setLimit(n); setShareId(null); setPlace(null); setDifficulty(d);
-    setAttempts([]); setSummary(null); setChallengeEnd(Date.now() + (n ? 2 * 3600_000 : CHALLENGE_MS)); newProblem('challenge', d);
+    setAttempts([]); setSummary(null); setVoided(false); setChallengeEnd(Date.now() + (n ? 2 * 3600_000 : CHALLENGE_MS)); newProblem('challenge', d);
   };
   // After each board of a challenge: the next one, or the end once a fixed set is done.
   const nextChallengeBoard = (list: Attempt[]) => {
@@ -110,8 +113,10 @@ export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | n
     }
     if (limit !== null) return; // only the 30-minute challenge counts for records and the challenge ranking
     if (score > (best[difficulty] ?? -1)) { const next = { ...best, [difficulty]: score }; setBest(next); try { localStorage.setItem(BEST_KEY, JSON.stringify(next)); } catch { /* optional */ } }
+    const exits = exitDetail(exitCount());
+    setVoided('voided' in exits);
     reportGame(`nemo_count-solo-${Date.now()}`, 'nemo_count', 'solo', score > 0 ? 'win' : 'loss', {
-      difficulty, correct: score, attempted: list.length,
+      ...exits, difficulty, correct: score, attempted: list.length,
       avgMs: score ? Math.round(correct.reduce((s, a) => s + a.ms, 0) / score) : null,
       fastestMs: score ? Math.min(...correct.map((a) => a.ms)) : null,
     });
@@ -191,6 +196,8 @@ export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | n
     : mode === 'tutorial' ? t(`tutorialHint${tutorialIndex}`) : wrongTries ? t('tryAgain') : t('howMany');
 
   return (
+    <>
+    <BoardExitToast warn={exitWarn} />
     <div className={SHELL} style={{ ...accentVars(NEMO_ACCENT, NEMO_INK), backgroundImage: fog('120, 130, 160') }}>
       <Shards tint="#2a2f45" />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
@@ -238,11 +245,13 @@ export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | n
               <button type="button" onClick={() => startChallenge()} className={`${BTN_ACCENT} mt-6 w-full py-3.5 text-sm`}><Timer size={16} />{t('startChallenge')}</button>
               <button type="button" onClick={() => startChallenge(QUICK_DUEL_COUNT)} className={`${BTN} mt-2 w-full py-3 text-sm`}><Zap size={15} />{t('quickDuel', { n: QUICK_DUEL_COUNT })}</button>
               <p className="mt-2 break-keep text-[11px] leading-5 text-white/40">{t('quickDuelHint', { n: QUICK_DUEL_COUNT })}</p>
+              <BoardExitRule />
             </div>
           )}
 
           {summary && (
             <div className="mx-auto max-w-lg py-6">
+              {voided && <BoardExitRule voided />}
               <div className="text-center"><Trophy size={34} className="mx-auto text-[#ffcf3f]" /><p className={`${KICKER} mt-3`}>{limit ? t('runDone') : t('timeUp')}</p><h1 className="mt-1 text-3xl font-black">{limit ? t('summaryOf', { n: summary.filter((a) => a.correct).length, total: summary.length }) : t('summaryScore', { n: summary.filter((a) => a.correct).length })}</h1>{limit && <p className="mt-1 font-mono text-sm text-white/55">{duelTime(totalMs(summary))}</p>}</div>
               <div className="mt-5 grid grid-cols-3 gap-2 text-center">
                 {[[t('statAttempted'), String(summary.length)], [t('statAccuracy'), summary.length ? `${Math.round((summary.filter((a) => a.correct).length / summary.length) * 100)}%` : '—'], [t('statAvg'), summary.some((a) => a.correct) ? formatMs(summary.filter((a) => a.correct).reduce((s, a) => s + a.ms, 0) / summary.filter((a) => a.correct).length) : '—']].map(([label, value]) => (
@@ -366,5 +375,6 @@ export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | n
         </aside>
       </main>
     </div>
+    </>
   );
 }

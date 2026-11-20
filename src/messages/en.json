@@ -5443,5 +5443,11 @@
       }
     ],
     "disclaimer": "Flip Omok is an original game with rules made by PUZZLTHINK."
+  },
+  "BoardExit": {
+    "rule": "Leaving for another tab or app {n} or more times during a challenge voids the record.",
+    "warn": "You left the board ({n}/{max}). {max} times and the run won’t count.",
+    "void": "You left the board 3 or more times; this challenge won’t count.",
+    "voided": "You left for another tab or app {n} or more times, so this score isn’t ranked."
   }
 }
