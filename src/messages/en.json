@@ -332,7 +332,7 @@
     "modeMorrisFriend": "Friend 1:1",
     "modeMorrisFriendDesc": "Link · invite code",
     "tag_devOriginal": "Dev's original",
-    "flipOmokDescription": "Omok meets Othello: sandwich one or two enemy stones to flip them yours. Break their lines and build your five.",
+    "flipOmokDescription": "Omok meets Othello: sandwich enemy stones to flip them yours. No double threes, exactly five wins.",
     "flipOmokMeta": "AI · 2 players on one device · preview"
   },
   "WallGo": {
@@ -5215,12 +5215,13 @@
     "rulesTitle": "Rules",
     "rules": [
       "Players take turns placing one stone on a 15×15 board, red first.",
-      "Close 1–2 enemy stones in a straight line between two of yours and they flip to your colour (8 directions). A run of 3 or more is too heavy to flip.",
-      "The stone your opponent just placed (gold ring) can't be flipped on your very next move, so a block always holds for a turn.",
-      "Flipped stones keep the other colour as their eyes. Five of your colour in a row wins — but a five may hold at most one flipped stone."
+      "Close a straight run of enemy stones between two of yours and they all flip to your colour (8 directions, any length). Flipped stones keep the other colour as their eyes.",
+      "Exactly five in a row wins. Six or more does not count.",
+      "Double threes (two open threes at once) are forbidden for both sides — you can’t play on a ✕. A move that makes five is always fine."
     ],
     "devTitle": "Dev's original · preview",
     "devNote": "A rule set made here at PUZZLTHINK. It's an early preview, so there are no records, rankings or online rooms yet.",
-    "lastMove": "Last move: {name} {at}"
+    "lastMove": "Last move: {name} {at}",
+    "banned": "Double three — not allowed"
   }
 }

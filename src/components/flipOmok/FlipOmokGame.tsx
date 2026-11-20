@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Bot, RotateCcw, Sparkles, Undo2, Users } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
-import { SIZE, chooseMove, coordinateLabel, emptyBoard, isFlipped, isFull, other, owner, play, type Board, type Cell, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
+import { SIZE, chooseMove, coordinateLabel, emptyBoard, forbiddenPoints, isFlipped, isFull, other, owner, play, type Board, type Cell, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
 
 const ACCENT = '#67e8ff';
 type Mode = 'ai' | 'local';
@@ -68,7 +68,7 @@ export default function FlipOmokGame() {
   const started = history.length > 0;
 
   const apply = (at: number, p: Player) => {
-    const res = play(board, at, p, last);
+    const res = play(board, at, p);
     setHistory((h) => [...h, { board, turn, last, flipped }]);
     setBoard(res.board);
     setLast(at);
@@ -86,7 +86,7 @@ export default function FlipOmokGame() {
 
   useEffect(() => {
     if (!aiTurn) return;
-    const timer = window.setTimeout(() => apply(chooseMove(board, 2, difficulty, last), 2), 520);
+    const timer = window.setTimeout(() => apply(chooseMove(board, 2, difficulty), 2), 520);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiTurn, board]);
@@ -113,9 +113,11 @@ export default function FlipOmokGame() {
   const name = (p: Player) => mode === 'ai' ? (p === 1 ? t('you') : 'MIRA') : (p === 1 ? t('black') : t('white'));
   const count = (p: Player) => board.filter((c) => owner(c) === p).length;
   const status = win ? t('wins', { name: name(win.owner) }) : draw ? t('draw') : aiTurn ? t('aiThinking') : t('turnOf', { name: name(turn) });
-  const preview = hover !== null && !board[hover] && !over && !aiTurn ? play(board, hover, turn, last).flipped : [];
+  const preview = hover !== null && !board[hover] && !over && !aiTurn ? play(board, hover, turn).flipped : [];
   const flippedSet = new Set(flipped);
   const previewSet = new Set(preview);
+  // 쌍삼 points for whoever moves now (hidden while the AI thinks).
+  const banned = useMemo(() => new Set(over || aiTurn ? [] : forbiddenPoints(board, turn)), [board, turn, over, aiTurn]);
 
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#06202a'), backgroundImage: fog('63, 184, 255') }}>
@@ -150,7 +152,7 @@ export default function FlipOmokGame() {
               </svg>
               {board.map((cell, at) => {
                 const r = Math.floor(at / SIZE), c = at % SIZE;
-                const canPlace = !cell && !over && !aiTurn;
+                const canPlace = !cell && !over && !aiTurn && !banned.has(at);
                 return (
                   <button key={at} type="button" disabled={!canPlace} aria-label={coordinateLabel(at)}
                     onClick={() => place(at)} onMouseEnter={() => setHover(at)}
@@ -160,6 +162,7 @@ export default function FlipOmokGame() {
                       {/* key changes on a flip so the animation replays */}
                       <Stone key={`${cell}-${flippedSet.has(at) ? history.length : 0}`} cell={cell} latest={at === last} flip={flippedSet.has(at)} delay={last === null ? 0 : (Math.max(Math.abs(r - Math.floor(last / SIZE)), Math.abs(c - (last % SIZE))) - 1) * 110} />
                     </span>
+                      : banned.has(at) ? <svg viewBox="0 0 10 10" className="h-full w-full p-[22%]" aria-hidden><title>{t('banned')}</title><path d="M1 1L9 9M9 1L1 9" stroke="#ff4d6d" strokeOpacity=".75" strokeWidth="1.6" strokeLinecap="round" /></svg>
                       : hover === at && canPlace ? <span className="block h-full w-full rounded-full opacity-45 shadow-[0_0_12px_currentColor]" style={{ background: STONE_HEX[turn], color: STONE_HEX[turn] }} /> : null}
                   </button>
                 );
