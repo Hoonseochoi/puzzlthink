@@ -36,6 +36,9 @@ export const fetchMe = () => call<{ rank: number; maps: number; total: number }[
 export const fetchBoard = (id: string) => call<BoardRow[]>('slither_board', { p_id: id });
 /** Link that opens one board ready to play ("○○님의 맵 해보기"). */
 export const boardPath = (locale: string, id: string) => `/${locale}/slitherlink?mode=beat&board=${id}#play`;
+/** One clear in a board's life: the first (NEW) and every takeover after, oldest first. */
+export type HistoryRow = { nth: number; kind: 'new' | 'beat'; nickname: string; ms: number; at: string; is_me: boolean };
+export const fetchHistory = (id: string) => call<HistoryRow[]>('slither_history', { p_id: id });
 export const fetchBoards = (limit = 30) => call<BoardRow[]>('slither_challenges_list', { p_limit: limit });
 
 /** Counts a finished practice board (no record). */
