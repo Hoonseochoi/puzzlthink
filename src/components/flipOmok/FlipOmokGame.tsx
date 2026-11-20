@@ -6,7 +6,7 @@ import { Bot, RotateCcw, Sparkles, Undo2, Users } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
-import { SIZE, chooseMove, coordinateLabel, emptyBoard, isFull, other, play, type Board, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
+import { SIZE, chooseMove, coordinateLabel, emptyBoard, isFlipped, isFull, other, owner, play, type Board, type Cell, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
 
 const ACCENT = '#67e8ff';
 type Mode = 'ai' | 'local';
@@ -20,25 +20,28 @@ const STARS = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
 export const STONE_HEX: Record<Player, string> = { 1: '#ff4d6d', 2: '#3fb8ff' };
 
 /** One face of a character stone: glossy colour body with two eyes (squinting while it is being flipped). */
-function Face({ p, dizzy = false, back = false }: { p: Player; dizzy?: boolean; back?: boolean }) {
+/** Eyes: white on a stone its owner placed, the other side's colour on a stone that was flipped over to them. */
+function Face({ p, marked = false, dizzy = false, back = false }: { p: Player; marked?: boolean; dizzy?: boolean; back?: boolean }) {
   const hex = STONE_HEX[p];
+  const eye = marked ? STONE_HEX[other(p)] : 'rgba(255,255,255,.95)';
   return <span className={`absolute inset-0 rounded-full border border-white/25 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`}
     style={{ background: `radial-gradient(circle at 34% 28%, color-mix(in srgb, ${hex} 55%, white) 0%, ${hex} 48%, color-mix(in srgb, ${hex} 60%, black) 100%)`, boxShadow: `0 4px 10px rgba(0,0,0,.6), 0 0 10px ${hex}88` }}>
     {dizzy ? <>
-      <span className="absolute left-[24%] top-[34%] text-[0.5em] font-black leading-none text-white">&gt;</span>
-      <span className="absolute right-[24%] top-[34%] text-[0.5em] font-black leading-none text-white">&lt;</span>
+      <span className="absolute left-[24%] top-[34%] text-[0.5em] font-black leading-none" style={{ color: eye }}>&gt;</span>
+      <span className="absolute right-[24%] top-[34%] text-[0.5em] font-black leading-none" style={{ color: eye }}>&lt;</span>
     </> : <>
-      <span className="absolute left-[29%] top-[33%] h-[17%] w-[12%] rounded-full bg-white/95" />
-      <span className="absolute right-[29%] top-[33%] h-[17%] w-[12%] rounded-full bg-white/95" />
+      <span className="absolute left-[29%] top-[33%] h-[17%] w-[12%] rounded-full" style={{ background: eye, boxShadow: marked ? '0 0 0 1px rgba(255,255,255,.85)' : undefined }} />
+      <span className="absolute right-[29%] top-[33%] h-[17%] w-[12%] rounded-full" style={{ background: eye, boxShadow: marked ? '0 0 0 1px rgba(255,255,255,.85)' : undefined }} />
     </>}
   </span>;
 }
 
 /** A stone; when `flip` is set it spins over from the opponent's colour to its own. */
-function Stone({ p, latest, flip, delay = 0 }: { p: Player; latest: boolean; flip: boolean; delay?: number }) {
+function Stone({ cell, latest, flip, delay = 0 }: { cell: Cell; latest: boolean; flip: boolean; delay?: number }) {
+  const p = owner(cell) as Player;
   return <span className={`relative block h-full w-full [container-type:size] ${latest ? 'scale-110' : ''} transition-transform`} style={{ fontSize: '100cqw' }}>
     <span className={`relative block h-full w-full [transform-style:preserve-3d] ${flip ? 'flip-omok-turn' : ''}`} style={flip ? { animationDelay: `${delay}ms` } : undefined}>
-      <Face p={p} />
+      <Face p={p} marked={isFlipped(cell)} />
       {flip && <Face p={other(p)} dizzy back />}
     </span>
     {latest && <span className="pointer-events-none absolute -inset-[14%] rounded-full border-2 border-[#ffd76b] shadow-[0_0_10px_#ffd76b]" />}
@@ -65,7 +68,7 @@ export default function FlipOmokGame() {
   const started = history.length > 0;
 
   const apply = (at: number, p: Player) => {
-    const res = play(board, at, p);
+    const res = play(board, at, p, last);
     setHistory((h) => [...h, { board, turn, last, flipped }]);
     setBoard(res.board);
     setLast(at);
@@ -83,7 +86,7 @@ export default function FlipOmokGame() {
 
   useEffect(() => {
     if (!aiTurn) return;
-    const timer = window.setTimeout(() => apply(chooseMove(board, 2, difficulty), 2), 520);
+    const timer = window.setTimeout(() => apply(chooseMove(board, 2, difficulty, last), 2), 520);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiTurn, board]);
@@ -108,9 +111,9 @@ export default function FlipOmokGame() {
   };
 
   const name = (p: Player) => mode === 'ai' ? (p === 1 ? t('you') : 'MIRA') : (p === 1 ? t('black') : t('white'));
-  const count = (p: Player) => board.filter((c) => c === p).length;
+  const count = (p: Player) => board.filter((c) => owner(c) === p).length;
   const status = win ? t('wins', { name: name(win.owner) }) : draw ? t('draw') : aiTurn ? t('aiThinking') : t('turnOf', { name: name(turn) });
-  const preview = hover !== null && !board[hover] && !over && !aiTurn ? play(board, hover, turn).flipped : [];
+  const preview = hover !== null && !board[hover] && !over && !aiTurn ? play(board, hover, turn, last).flipped : [];
   const flippedSet = new Set(flipped);
   const previewSet = new Set(preview);
 
@@ -155,7 +158,7 @@ export default function FlipOmokGame() {
                     style={{ left: `${pos(c)}%`, top: `${pos(r)}%` }}>
                     {cell ? <span className={`relative block h-full w-full ${previewSet.has(at) ? 'opacity-55 rounded-full ring-2 ring-[#ffd76b] animate-pulse' : ''}`}>
                       {/* key changes on a flip so the animation replays */}
-                      <Stone key={`${cell}-${flippedSet.has(at) ? history.length : 0}`} p={cell as Player} latest={at === last} flip={flippedSet.has(at)} delay={last === null ? 0 : (Math.max(Math.abs(r - Math.floor(last / SIZE)), Math.abs(c - (last % SIZE))) - 1) * 110} />
+                      <Stone key={`${cell}-${flippedSet.has(at) ? history.length : 0}`} cell={cell} latest={at === last} flip={flippedSet.has(at)} delay={last === null ? 0 : (Math.max(Math.abs(r - Math.floor(last / SIZE)), Math.abs(c - (last % SIZE))) - 1) * 110} />
                     </span>
                       : hover === at && canPlace ? <span className="block h-full w-full rounded-full opacity-45 shadow-[0_0_12px_currentColor]" style={{ background: STONE_HEX[turn], color: STONE_HEX[turn] }} /> : null}
                   </button>
@@ -200,7 +203,7 @@ export default function FlipOmokGame() {
             <p className={PANEL_TITLE}>{t('devTitle')}</p>
             <p className="mt-2 break-keep text-xs leading-5 text-white/55">{t('devNote')}</p>
           </section>
-          {last !== null && <p className="text-center text-[11px] text-white/35">{t('lastMove', { name: name(board[last] as Player), at: coordinateLabel(last) })}</p>}
+          {last !== null && <p className="text-center text-[11px] text-white/35">{t('lastMove', { name: name(owner(board[last]) as Player), at: coordinateLabel(last) })}</p>}
         </aside>
       </main>
     </div>
