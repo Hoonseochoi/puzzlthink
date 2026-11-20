@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Award, Bot, Clock3, Crown, DoorOpen, Flame, Gamepad2, Medal, Trophy } from 'lucide-react';
+import { Award, Bot, Clock3, Crown, DoorOpen, Flame, Gamepad2, Medal, Swords, Trophy } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfFame, fetchMyRecords, isNicknameTaken, saveProfile } from '@/lib/stats';
 import { clearLabel } from '@/lib/hardClear';
@@ -12,6 +12,7 @@ import { avatarUrl, displayName, useAuth } from './AuthProvider';
 import OpenRankingBoard from './OpenRankingBoard';
 import RankMove from './RankMove';
 import ChallengeRecords from './ChallengeRecords';
+import CompetitionBoard from './CompetitionBoard';
 import { byGameOrder } from './recordOrder';
 
 const GAMES: { id: GameId; href: string; color: string }[] = [
@@ -63,10 +64,16 @@ export default function RecordsClient() {
   const [showInHall, setShowInHall] = useState(true);
   const [saved, setSaved] = useState(false);
   const [nameTaken, setNameTaken] = useState(false);
-  const [recordView, setRecordView] = useState<'ai' | 'open' | 'challenge'>('ai');
+  const [recordView, setRecordView] = useState<'ai' | 'open' | 'challenge' | 'competition'>('ai');
   const [certs, setCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
   const locale = useLocale();
 
+  // Links can open a tab directly (the home 피스 경쟁전 banner goes to #competition).
+  useEffect(() => {
+    const tab = window.location.hash.slice(1);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the hash is only readable in the browser
+    if (tab === 'competition' || tab === 'open' || tab === 'challenge') setRecordView(tab);
+  }, []);
   useEffect(() => { fetchHallOfFame().then(({ entries, error }) => { setHall(entries); if (error) setLoadError(error); }); }, []);
   useEffect(() => {
     if (!user) return;
@@ -202,11 +209,12 @@ export default function RecordsClient() {
           )}
         </section>
 
-        <div className="mt-10 rounded-[22px] border border-black/10 bg-[#e9e5dc] p-1.5" role="tablist" aria-label={t('recordTabsLabel')}>
-          <div className="grid grid-cols-3 gap-1.5">
+        <div id="competition" className="mt-10 scroll-mt-24 rounded-[22px] border border-black/10 bg-[#e9e5dc] p-1.5" role="tablist" aria-label={t('recordTabsLabel')}>
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
             <button type="button" role="tab" aria-selected={recordView === 'ai'} onClick={() => setRecordView('ai')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'ai' ? 'bg-[#17201e] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><Bot size={16} />{t('aiTab')}</button>
             <button type="button" role="tab" aria-selected={recordView === 'open'} onClick={() => setRecordView('open')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'open' ? 'bg-[#ff4d5e] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><DoorOpen size={16} />{t('openTab')}</button>
             <button type="button" role="tab" aria-selected={recordView === 'challenge'} onClick={() => setRecordView('challenge')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'challenge' ? 'bg-[#8f7cff] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><Flame size={16} />{t('challengeTab')}</button>
+            <button type="button" role="tab" aria-selected={recordView === 'competition'} onClick={() => setRecordView('competition')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'competition' ? 'bg-[#e8a33c] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><Swords size={16} />{t('competitionTab')}</button>
           </div>
         </div>
 
@@ -243,6 +251,8 @@ export default function RecordsClient() {
               {user ? recordCards('ai') : <p className="mt-4 rounded-[24px] border border-black/10 bg-[#f9f7f1] p-5 text-sm text-black/55">{t('loginPrompt')}</p>}
             </section>
           </>
+        ) : recordView === 'competition' ? (
+          <CompetitionBoard />
         ) : recordView === 'challenge' ? (
           <ChallengeRecords results={results} signedIn={!!user} />
         ) : (
