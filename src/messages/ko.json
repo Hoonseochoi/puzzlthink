@@ -80,7 +80,8 @@
     "supportDismiss": "오늘 하루 닫기",
     "slitherlink": "슬리더링크",
     "wallgo2": "벽바둑 II",
-    "nineMensMorris": "나인 멘스 모리스"
+    "nineMensMorris": "나인 멘스 모리스",
+    "backupAddress": "접속이 안 될 때 임시 주소"
   },
   "BlindGomoku": {
     "metaTitle": "블라인드 오목 — 데블스플랜 그 게임 룰 + 기억력 오목 한판",
@@ -335,7 +336,8 @@
     "modeMorrisAi": "AI 1:1",
     "modeMorrisAiDesc": "난이도 3단계",
     "modeMorrisFriend": "친구 1:1",
-    "modeMorrisFriendDesc": "링크·초대코드"
+    "modeMorrisFriendDesc": "링크·초대코드",
+    "backupAddress": "접속이 잘 안 되면 임시 주소로 들어와 주세요:"
   },
   "WallGo": {
     "metaTitle": "벽바둑 — 데블스플랜3 벽바둑 룰 정리 + AI·친구랑 바로 두기",

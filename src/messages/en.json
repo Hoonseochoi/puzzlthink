@@ -80,7 +80,8 @@
     "supportDismiss": "Hide for today",
     "slitherlink": "Slitherlink",
     "wallgo2": "Wallgo II",
-    "nineMensMorris": "Nine Men's Morris"
+    "nineMensMorris": "Nine Men's Morris",
+    "backupAddress": "Backup address if the site won't open"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -328,7 +329,8 @@
     "modeMorrisAi": "AI 1:1",
     "modeMorrisAiDesc": "3 levels",
     "modeMorrisFriend": "Friend 1:1",
-    "modeMorrisFriendDesc": "Link · invite code"
+    "modeMorrisFriendDesc": "Link · invite code",
+    "backupAddress": "Site not loading? Use the backup address:"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
