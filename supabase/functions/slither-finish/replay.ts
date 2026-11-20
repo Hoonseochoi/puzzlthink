@@ -1,13 +1,15 @@
 // Server replay of a 슬리더링크 challenge run: rebuilds the board from its seed and plays the browser's moves on it.
 import { generatePuzzle, hintEdges, isSolved } from './slitherlink.ts';
 
-/** Rules for a clear that counts. */
-export const MIN_MARK_MOVES = 1; // at least one ✕ placed by the player
-export const MIN_ERASE_MOVES = 10; // lines taken back at least this often (fewer: 15 of the first 97 clears, all from 4 players)
-export const MANY_ERASES = 10; // this much erasing shows a real solve even without any ✕
-export const MIN_MS = 120_000; // 11×11 under 2 minutes is not a human solve
-export const TRUSTED_MS = 20 * 60_000; // a run this long is not flagged at all
-// Suspicion signals: recorded with the run for review, they don't block the record (yet).
+/** Rules that void a clear (under TRUSTED_MS only). */
+export const MAX_FEW_ERASES = 10; // 10 or fewer lines taken back: 15 of the first 97 clears, all from 4 of 41 players
+export const AWAY_LIMIT = 3; // left the board (another tab or app) this many times, each for AWAY_MIN_MS or longer
+export const AWAY_MIN_MS = 2_000;
+export const TRUSTED_MS = 20 * 60_000; // a run this long is never voided
+// Suspicion signals: recorded with the run for review, they don't block the record.
+export const MIN_MARK_MOVES = 1; // no ✕ at all …
+export const MANY_ERASES = 10; // … with little erasing
+export const MIN_MS = 120_000; // 11×11 under 2 minutes
 export const WIPE_EDGES = 8; // one step clearing this many edges = a wipe (전체 지우기)
 export const BURST_MARKS = 30; // ✕ placed back to back, with no line between and no pause
 export const BURST_GAP_MS = 2_000; // a longer gap between ✕ steps is a pause
@@ -23,13 +25,16 @@ export type Signals = {
   cleanShare: number; cleanAfterWipe: number | null;
   /** Time of the last wipe and of the whole run (client clock), when step times are known. */
   lastWipeMs: number | null; endMs: number | null;
-  suspects: ('mark_burst' | 'wipe_clean' | 'clean_streak')[];
+  suspects: ('no_marks' | 'too_fast' | 'mark_burst' | 'wipe_clean' | 'clean_streak')[];
 };
-export type Check = { cleared: boolean; hints: number; markMoves: number; eraseMoves: number; flag: 'no_marks' | 'few_erases' | 'too_fast' | null; signals: Signals };
+export type Check = { cleared: boolean; hints: number; markMoves: number; eraseMoves: number; flag: 'few_erases' | 'left_board' | null; signals: Signals };
 const isInt = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v);
 
-/** `steps`: `{ c: [[edge, 0|1|2], …] }` for a move, `{ h: [r, c] }` for a hint, each with an optional `t` (ms since the start, client clock). `tookMs`: run time measured on the server. */
-export function checkRun(dots: number, seed: number, steps: unknown[], tookMs: number): Check {
+/**
+ * `steps`: `{ c: [[edge, 0|1|2], …] }` for a move, `{ h: [r, c] }` for a hint, each with an optional `t` (ms since the start, client clock).
+ * `tookMs`: run time measured on the server. `awayCount`: times the player left the board for AWAY_MIN_MS or longer.
+ */
+export function checkRun(dots: number, seed: number, steps: unknown[], tookMs: number, awayCount = 0): Check {
   const puzzle = generatePuzzle(dots, seed);
   const marks = new Array<number>(puzzle.solution.length).fill(0);
   const locked = new Set<number>();
@@ -81,12 +86,13 @@ export function checkRun(dots: number, seed: number, steps: unknown[], tookMs: n
   }
   const cleared = valid && isSolved(puzzle, marks);
   const flag = !cleared || tookMs >= TRUSTED_MS ? null
-    : markMoves < MIN_MARK_MOVES && eraseMoves < MANY_ERASES ? 'no_marks'
-      : eraseMoves < MIN_ERASE_MOVES ? 'few_erases'
-        : tookMs < MIN_MS ? 'too_fast' : null;
+    : eraseMoves <= MAX_FEW_ERASES ? 'few_erases'
+      : awayCount >= AWAY_LIMIT ? 'left_board' : null;
   const share = (n: number) => Math.round((n / Math.max(1, loopLen)) * 100) / 100;
   const cleanShare = share(bestClean), cleanAfterWipe = wipes ? share(bestAfterWipe) : null;
   const suspects: Signals['suspects'] = [];
+  if (cleared && markMoves < MIN_MARK_MOVES && eraseMoves < MANY_ERASES) suspects.push('no_marks');
+  if (cleared && tookMs < MIN_MS) suspects.push('too_fast');
   if (markBurst >= BURST_MARKS) suspects.push('mark_burst');
   if (cleanAfterWipe !== null && cleanAfterWipe >= CLEAN_SHARE) suspects.push('wipe_clean');
   if (cleanShare >= CLEAN_SHARE) suspects.push('clean_streak');

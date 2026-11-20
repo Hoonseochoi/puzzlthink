@@ -3,7 +3,7 @@ import { getSupabase } from './supabase';
 
 export type SlitherRun = { run: string; challenge: string; seed: number; dots: number; limit_ms?: number; holder?: string };
 /** `rank`/`total`/`maps`: my place by boards owned after a clear. */
-export type FinishResult = { ok: boolean; ms: number; rank: number | null; total: number | null; maps?: number | null; flagged?: boolean; rival?: string | null; took_n?: number | null; lost_n?: number | null };
+export type FinishResult = { ok: boolean; ms: number; rank: number | null; total: number | null; maps?: number | null; flagged?: boolean; flag?: string | null; rival?: string | null; took_n?: number | null; lost_n?: number | null };
 /** A player I have traded boards with: how often I took theirs, and they took mine. */
 export type RivalRow = { nickname: string; took: number; lost: number; last_at: string };
 /** One move for the server replay: edge changes, or a hint taken at (r, c). */
