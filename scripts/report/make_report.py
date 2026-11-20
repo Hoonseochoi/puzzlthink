@@ -26,7 +26,7 @@ KST = dt.timezone(dt.timedelta(hours=9))
 GAME_KO = {"wallgo": "벽바둑", "heavy13": "무거운 13", "janggi": "십이장기", "russian_janggi": "러시아장기",
            "russian_roulette": "러시안 룰렛", "blind_gomoku": "블라인드 오목", "laser_janggi": "레이저 장기",
            "nemo_count": "네모 세기", "black_white": "흑과 백", "black_white_2": "흑과 백 II", "piggy_bank": "돼지 저금통",
-           "hexagon": "헥사곤", "sudoku": "스도쿠",
+           "hexagon": "헥사곤", "nine_mens_morris": "나인 멘스 모리스", "sudoku": "스도쿠",
            "wallgo2": "벽바둑 II", "slitherlink": "슬리더링크", "gyulhap": "결합", "indian_poker": "인디언 포커"}
 MODE_KO = {"ai": "AI", "friend": "친구", "solo": "혼자"}
 SOURCE_KO = {"header": "상단 헤더", "header_menu": "모바일 메뉴", "result": "게임 결과 화면", "open_room": "오픈 대전 대기방",

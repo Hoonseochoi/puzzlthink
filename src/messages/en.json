@@ -79,7 +79,8 @@
     "supportNote": "Support only pays for servers and gives no perks. Every game stays free either way.",
     "supportDismiss": "Hide for today",
     "slitherlink": "Slitherlink",
-    "wallgo2": "Wallgo II"
+    "wallgo2": "Wallgo II",
+    "nineMensMorris": "Nine Men's Morris"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -321,7 +322,13 @@
     "modeSlitherFriend": "With friends",
     "modeSlitherFriendDesc": "2–4 speed race",
     "wallgo2Description": "The game from prison match episode 10! Square pieces go straight, round pieces turn.",
-    "wallgo2Meta": "vs AI · live with friends"
+    "wallgo2Meta": "vs AI · live with friends",
+    "nineMensMorrisDescription": "Line up three to take an enemy piece. The board game from The Devil's Plan final.",
+    "nineMensMorrisMeta": "AI or friend 1:1 · best of 3",
+    "modeMorrisAi": "AI 1:1",
+    "modeMorrisAiDesc": "3 levels",
+    "modeMorrisFriend": "Friend 1:1",
+    "modeMorrisFriendDesc": "Link · invite code"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -1806,6 +1813,21 @@
     "unsupported": "Not available",
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
     "games": {
+      "nineMensMorris": {
+        "tagline": "Nine pieces each, 24 points. Line up three to take your opponent's pieces one by one.",
+        "players": "2 (1:1 with the AI or a friend)",
+        "pace": "No limit vs AI · 30–90s turns with friends",
+        "level": "AI levels: easy · normal · hard",
+        "rules": [
+          "Black and white take turns placing nine pieces each on empty points. Nothing moves until all are placed.",
+          "Then each turn, move one piece along a line to a free neighbouring point.",
+          "Three of yours in a straight line (a mill) takes one enemy piece. Pieces in a mill are safe.",
+          "Down to three pieces you may fly anywhere; two pieces or no move loses. Best of three!"
+        ],
+        "origin": "Nine Men's Morris was the first game of the final in Netflix's The Devil's Plan season 1. It is a board game thousands of years old (also called Mill); as on the show, a deadlock with three pieces left ends after ten turns and the side with fewer pieces loses.",
+        "ai": "Easy · normal · hard, best of 3",
+        "friend": "1:1 by link or 4-digit code, 30–90s turns"
+      },
       "gyulhap": {
         "tagline": "Read three attributes, find every Hap, then claim the final Gyul.",
         "players": "Solo or 2–4 friends",
@@ -4870,5 +4892,241 @@
       }
     ],
     "disclaimer": "PUZZLTHINK is an unofficial fan project, not affiliated with Netflix or The Devil's Plan. Screens and AI are our own, built from the game's rules."
+  },
+  "Morris": {
+    "metaTitle": "Nine Men's Morris — play The Devil's Plan final board game free",
+    "metaDescription": "Play Nine Men's Morris from The Devil's Plan season 1 final in your browser. Form mills to take pieces — 1:1 vs AI or a friend, best of three. Free, no sign-up.",
+    "keywords": [
+      "Nine Men's Morris",
+      "Nine Mens Morris online",
+      "The Devil's Plan",
+      "Mill game",
+      "Morris board game"
+    ],
+    "title": "Nine Men's Morris",
+    "subtitle": "NINE MEN'S MORRIS",
+    "rules": "Rules",
+    "newMatch": "New match",
+    "roundKicker": "ROUND {n}",
+    "matchKicker": "MATCH",
+    "stallLeft": "{n} deadlock turns left",
+    "aiThinking": "MIRA is thinking…",
+    "pickPlace": "Pick an empty point to place a piece",
+    "pickPiece": "Pick a piece to move",
+    "pickTarget": "Pick where it goes (a free neighbouring point)",
+    "pickFly": "Three left — you can fly anywhere. Pick a piece",
+    "pickRemove": "Mill! Pick an enemy piece to take",
+    "roundWin": "You won this round!",
+    "roundLoss": "You lost this round",
+    "roundDraw": "This round is a draw",
+    "matchWin": "Match won!",
+    "matchLoss": "Match lost",
+    "matchDraw": "Match drawn",
+    "nextRound": "Next round",
+    "cancel": "Cancel",
+    "lastMove": "{who}: {move}",
+    "firstHint": "Black goes first. Tap a point to place a piece.",
+    "difficulty": "AI level",
+    "level": {
+      "easy": "Easy",
+      "normal": "Normal",
+      "hard": "Hard"
+    },
+    "levelDesc": {
+      "easy": "Slips now and then",
+      "normal": "Looks 3 moves ahead",
+      "hard": "Reads 5+ moves ahead"
+    },
+    "levelLocked": "The level can't change during a match.",
+    "players": "Players",
+    "you": "You",
+    "black": "Black",
+    "white": "White",
+    "draw": "Draw",
+    "phasePlace": "Place",
+    "phaseMove": "Move",
+    "phaseFly": "Fly",
+    "onBoard": "{n} on board",
+    "captured": "{n} taken",
+    "reason": {
+      "pieces": "Only two pieces left",
+      "blocked": "No piece can move",
+      "stall": "10-turn deadlock, fewer pieces loses",
+      "draw": "Equal pieces — draw",
+      "resign": "Resigned",
+      "timeout": "Timed out 3 times"
+    },
+    "quickRules": "Quick rules",
+    "quick1": "Take turns placing nine pieces on empty points; then move one step along the lines.",
+    "quick2": "Three of yours in a straight line = a mill: take one enemy piece (not one inside a mill).",
+    "quick3": "Down to three pieces you can fly to any free point. Two pieces or no move loses.",
+    "quick4": "Best of three, colours swap each round. A 10-turn deadlock with three left: fewer pieces loses.",
+    "resign": "Resign this round",
+    "resignConfirm": "Resign this round?",
+    "rulesKicker": "RULE",
+    "rulesTitle": "Nine Men's Morris rules",
+    "understood": "Got it",
+    "fullRules": [
+      "Put three of your pieces on three points joined by a straight line (a mill) to take your opponent's pieces.",
+      "One player gets nine black pieces, the other nine white. Black goes first.",
+      "Take turns placing one piece on an empty point of the 24. Pieces on the board cannot move until all nine are placed.",
+      "After that, on your turn move one piece to a free point next to it along a line.",
+      "When placing or moving makes a line of three of yours, pick one enemy piece and take it off the board.",
+      "An enemy piece inside a mill cannot be taken. If all of them are in mills, nothing is taken this time.",
+      "Once you are down to three pieces, you may move to any empty point, lines or not (flying).",
+      "Two pieces left, or no piece that can move on your turn, loses the round.",
+      "Once someone is down to three, ten turns each without a capture end the round: fewer pieces loses, equal is a draw.",
+      "Best of three, and black/white swap every round. Friend games have a turn clock: on time out a move is made for you, and three in a row loses the round."
+    ]
+  },
+  "MorrisOnline": {
+    "metaTitle": "Nine Men's Morris with a friend",
+    "metaDescription": "Play 1:1 Nine Men's Morris with a friend who joins by invite link or 4-digit code. Best of three.",
+    "guest": "Guest",
+    "me": "me",
+    "emptySeat": "Empty seat",
+    "host": "Host",
+    "ready": "Joined",
+    "waiting": "Waiting for a friend",
+    "connecting": "Connecting to the room…",
+    "unconfigured": "The realtime server isn't set up yet.",
+    "connectionError": "Couldn't reach the realtime server. Please reload.",
+    "roomNotFound": "Room not found. Check that the host is online.",
+    "hostOffline": "The host disconnected. The game continues when they're back.",
+    "back": "Back to Nine Men's Morris",
+    "lobbyTitle": "Waiting for a friend",
+    "inviteTitle": "Invite link",
+    "inviteDesc": "Send the link or tell them the 4-digit code. They take the other seat as soon as they join.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "shareText": "Let's play Nine Men's Morris on PUZZLTHINK!",
+    "turnTime": "Turn time",
+    "seconds": "{n}s",
+    "hostSetsTime": "The host sets the turn time.",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "start": "Start match (best of 3)",
+    "startLocked": "Waiting for a friend",
+    "startReady": "Your friend is here! Start the game",
+    "startLockedHint": "The start button lights up when your friend joins",
+    "roomFull": "Both seats are taken. You're spectating.",
+    "waitingHost": "Waiting for the host to start.",
+    "players": "Players",
+    "turnTimeInfo": "{n}s per turn · on time out a move is made for you; three in a row loses the round",
+    "waitingFor": "{player}'s turn",
+    "rematch": "Rematch (new colours)",
+    "rematchWait": "The host can start a rematch.",
+    "spectating": "Spectating",
+    "joined": "{name} joined",
+    "left": "{name} left",
+    "youAre": "you are {color}",
+    "roundWinner": "{player} wins the round",
+    "matchWinner": "{player} wins the match!",
+    "nextIn": "Next round in {n}s (colours swap)",
+    "lastMove": "Last move: {move}"
+  },
+  "MorrisTutorial": {
+    "s1Title": "Place on an empty point",
+    "s1Desc": "Black and white take turns placing nine pieces each on the 24 points. Nothing moves until all nine are down.",
+    "s2Title": "Three in a line = a mill",
+    "s2Desc": "Three of yours on a straight line make a mill. The line lights up.",
+    "s3Title": "A mill takes a piece",
+    "s3Desc": "Pick one enemy piece to take off. Pieces inside your opponent's mill are safe.",
+    "s4Title": "Then move one step",
+    "s4Desc": "With all nine placed, move one piece along a line to a free neighbour. Open a mill and close it again to take another piece.",
+    "s5Title": "Three left: fly",
+    "s5Desc": "Down to three pieces, you can fly to any free point. Your last chance to fight back!",
+    "s6Title": "Two left: you lose",
+    "s6Desc": "Two pieces or nowhere to move loses the round. Best of three, colours swap each round."
+  },
+  "MorrisGuide": {
+    "eyebrow": "NINE MEN'S MORRIS GUIDE",
+    "title": "Nine Men's Morris — mill, take, fly",
+    "intro": "Nine Men's Morris is a board game from Roman times that drew new fans as the first game of the final in Netflix's The Devil's Plan season 1. Each player places and moves nine pieces on 24 points joined by three nested squares, taking an enemy piece with every line of three. The rules are short, but the fight for points while placing and the reading while moving run deep. Play it on PUZZLTHINK against the AI or with a friend by invite link or 4-digit code, best of three.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "The board has 24 points joined by lines. Black and white have nine pieces each; black goes first.",
+      "Placing: take turns putting one piece on an empty point. Pieces cannot move until all nine are placed.",
+      "Moving: after that, each turn move one piece one step along a line to a free neighbouring point.",
+      "Mills: three of yours on a straight line take one enemy piece. Pieces in your opponent's mills cannot be taken.",
+      "Flying: once placing is over and you are down to three pieces, you may move to any empty point.",
+      "Losing: two pieces left, or no piece that can move on your turn, loses the round.",
+      "Deadlock: once someone has three pieces, ten turns without a capture end the round; fewer pieces loses, equal is a draw.",
+      "Best of three, colours swap every round. Friend games have a 30/60/90s turn clock with an automatic move on time out."
+    ],
+    "specialTitle": "Tricky moments",
+    "special": [
+      {
+        "title": "Two mills at once",
+        "body": "Even when one move closes two mills, you take only one piece."
+      },
+      {
+        "title": "Every enemy piece in a mill",
+        "body": "As on the show, pieces in a mill are safe — if all of them are, this mill takes nothing."
+      },
+      {
+        "title": "Boxed in after placing",
+        "body": "You can't get stuck while placing, but if all your pieces are blocked once placing ends, you lose on your first moving turn."
+      },
+      {
+        "title": "Flying needs exactly three",
+        "body": "You fly only after placing, with exactly three pieces on the board. A flying opponent can block your mill point from anywhere."
+      }
+    ],
+    "strategyTitle": "Tips — points and running mills",
+    "strategyIntro": "Games are won by taking good points while placing and by running mills while moving.",
+    "strategies": [
+      {
+        "tag": "Placing",
+        "title": "Take the junctions",
+        "body": "Points with four neighbours (D6, B4, F4, D2) are the most flexible once moving starts. Take them before rushing a mill."
+      },
+      {
+        "tag": "Placing",
+        "title": "Don't get boxed in",
+        "body": "If nothing can move when placing ends, you lose. Don't crowd your pieces into corners surrounded by enemy pieces."
+      },
+      {
+        "tag": "Moving",
+        "title": "Run a mill",
+        "body": "Step one piece out of a mill and back in on your next turn to take a piece every time — as long as your opponent cannot fill the gap."
+      },
+      {
+        "tag": "Moving",
+        "title": "Double mill",
+        "body": "Set up a piece that closes one mill or the other every time it moves, and there is no defence."
+      },
+      {
+        "tag": "Defence",
+        "title": "Block two-in-a-row",
+        "body": "Two enemy pieces on a line with the third point free is a mill next turn. Block it, especially while placing."
+      },
+      {
+        "tag": "Endgame",
+        "title": "Fly to block",
+        "body": "With three pieces you can block a mill point anywhere. But with the ten-turn deadlock rule, time isn't on your side if you have fewer pieces."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play Nine Men's Morris?",
+        "a": "On PUZZLTHINK's Nine Men's Morris page, in any PC or mobile browser, with no sign-up or install."
+      },
+      {
+        "q": "How do I play with a friend?",
+        "a": "Create a room with 'Play with a friend' to get an invite link and a 4-digit code. Your friend opens the link or enters the code."
+      },
+      {
+        "q": "Are these the Devil's Plan rules?",
+        "a": "Yes: nine pieces, pieces in mills are safe, fly with three, lose with two, a 10-turn deadlock with three left goes to the side with more pieces, best of three. Instead of piece benefits, colours swap each round."
+      },
+      {
+        "q": "How strong is the AI?",
+        "a": "Easy slips now and then, normal looks three moves ahead, hard five or more. Beat hard to earn a hard-clear certificate."
+      }
+    ],
+    "disclaimer": "Nine Men's Morris is a traditional board game. PUZZLTHINK rebuilt it for the web after the show's rules; it is not affiliated with the broadcaster or producers."
   }
 }
