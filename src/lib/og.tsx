@@ -97,3 +97,103 @@ export function GameOgCard({ kicker, title, sub, modes, accent, glow, art }: {
 
 /** Text that a card draws, for loading just those glyphs. */
 export const ogText = (c: { kicker: string; title: string; sub: string; modes: string[] }, extra = '') => `PUZZLTHINK puzzlthink.com${c.kicker}${c.title}${c.sub}${c.modes.join('')}${extra}`;
+
+// ---------- trending cards (벽바둑 · 벽바둑 II · 슬리더링크) ----------
+
+/**
+ * Link-preview card for the games people are coming for right now: show tag + "요즘 인기" badge, big title,
+ * one short hook line, and a bright "무료 · 바로 플레이" chip first so it reads as playable at a glance.
+ */
+export function TrendOgCard({ kicker, hot, title, sub, modes, accent, glow, art }: {
+  kicker: string; hot: string; title: string; sub: string; modes: string[]; accent: string; glow: string; art: React.ReactNode;
+}) {
+  return (
+    <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', background: '#0a0b0f', backgroundImage: `radial-gradient(ellipse 60% 75% at 82% 50%, ${glow}, rgba(10,11,15,0) 72%), radial-gradient(ellipse 50% 40% at 10% 0%, rgba(255,255,255,0.06), rgba(10,11,15,0) 70%)`, fontFamily: 'Noto Sans KR', color: '#f2f4f8', padding: '48px 56px 48px 64px', gap: 36 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', padding: '8px 16px', borderRadius: 999, border: '2px solid rgba(255,77,94,0.75)', fontSize: 22, fontWeight: 900, color: '#ff6b7a' }}>{kicker}</div>
+          <div style={{ display: 'flex', padding: '8px 14px', borderRadius: 999, background: '#ffcc33', fontSize: 22, fontWeight: 900, color: '#241a00' }}>{hot}</div>
+        </div>
+        <div style={{ display: 'flex', fontSize: 112, fontWeight: 900, letterSpacing: -4, marginTop: 14, lineHeight: 1.08 }}>{title}</div>
+        <div style={{ display: 'flex', fontSize: 32, fontWeight: 900, marginTop: 6, color: 'rgba(242,244,248,0.86)', letterSpacing: -0.5 }}>{sub}</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 30 }}>
+          {modes.map((m, i) => <div key={m} style={{ display: 'flex', padding: '10px 18px', borderRadius: 12, fontSize: 22, fontWeight: 900, background: i === 0 ? accent : 'rgba(255,255,255,0.09)', color: i === 0 ? '#ffffff' : '#e6e9ef', border: i === 0 ? 'none' : '1px solid rgba(255,255,255,0.14)' }}>{m}</div>)}
+        </div>
+        <div style={{ display: 'flex', fontSize: 22, fontWeight: 400, color: 'rgba(242,244,248,0.45)', marginTop: 30 }}>PUZZLTHINK · puzzlthink.com</div>
+      </div>
+      <div style={{ display: 'flex' }}>{art}</div>
+    </div>
+  );
+}
+
+export const trendText = (c: { kicker: string; hot: string; title: string; sub: string; modes: string[] }) => `PUZZLTHINK puzzlthink.com${c.kicker}${c.hot}${c.title}${c.sub}${c.modes.join('')}`;
+
+type WgPiece = { r: number; c: number; p: 0 | 1 | 2; shape?: 'circle' | 'square' };
+const WG_COLOR = ['#e0283a', '#6f86b8', '#a3a9b5'];
+const WG_TINT = ['rgba(224,40,58,0.30)', 'rgba(111,134,184,0.32)', 'rgba(163,169,181,0.22)'];
+
+/**
+ * A 벽바둑 game in progress: two corners already walled off and tinted as someone's ground, pieces with the
+ * eyes, a few loose walls. `variant` 2 draws 벽바둑 II's square and round pieces.
+ */
+export function WallGoBoardArt({ size = 440, variant = 1 }: { size?: number; variant?: 1 | 2 }) {
+  const n = 7, cell = size / n;
+  const owned: [number, number, 0 | 1][] = [];
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) owned.push([r, c, 0]);
+  for (let r = 4; r < 7; r++) for (let c = 4; c < 7; c++) owned.push([r, c, 1]);
+  // [row, col, dir]: 'v' = wall on the left edge of (row, col); 'h' = wall on the top edge.
+  const walls: [number, number, 'h' | 'v'][] = [
+    [0, 3, 'v'], [1, 3, 'v'], [2, 3, 'v'], [3, 0, 'h'], [3, 1, 'h'], [3, 2, 'h'],
+    [4, 4, 'v'], [5, 4, 'v'], [6, 4, 'v'], [4, 4, 'h'], [4, 5, 'h'], [4, 6, 'h'],
+    [2, 5, 'h'], [3, 2, 'v'], [1, 5, 'v'],
+  ];
+  const pieces: WgPiece[] = variant === 2
+    ? [{ r: 1, c: 1, p: 0, shape: 'square' }, { r: 2, c: 0, p: 0, shape: 'circle' }, { r: 5, c: 5, p: 1, shape: 'square' }, { r: 4, c: 6, p: 1, shape: 'circle' }, { r: 3, c: 4, p: 2, shape: 'square' }, { r: 1, c: 4, p: 2, shape: 'circle' }]
+    : [{ r: 1, c: 1, p: 0 }, { r: 2, c: 0, p: 0 }, { r: 5, c: 5, p: 1 }, { r: 4, c: 6, p: 1 }, { r: 3, c: 4, p: 2 }, { r: 1, c: 4, p: 2 }];
+  return (
+    <div style={{ display: 'flex', padding: 14, borderRadius: 18, background: 'linear-gradient(135deg, #3a3d47, #1c1e24 55%, #33363f)', boxShadow: '0 30px 60px rgba(0,0,0,0.55)' }}>
+      <div style={{ display: 'flex', position: 'relative', width: size, height: size, background: '#15161b' }}>
+        {owned.map(([r, c, p]) => <div key={`o${r}${c}`} style={{ position: 'absolute', left: cell * c, top: cell * r, width: cell, height: cell, background: WG_TINT[p] }} />)}
+        {Array.from({ length: n - 1 }).map((_, i) => <div key={`v${i}`} style={{ position: 'absolute', left: cell * (i + 1), top: 0, width: 1, height: size, background: 'rgba(255,255,255,0.09)' }} />)}
+        {Array.from({ length: n - 1 }).map((_, i) => <div key={`h${i}`} style={{ position: 'absolute', top: cell * (i + 1), left: 0, height: 1, width: size, background: 'rgba(255,255,255,0.09)' }} />)}
+        {walls.map(([r, c, d]) => <div key={`w${r}${c}${d}`} style={{ position: 'absolute', left: d === 'v' ? cell * c - 5 : cell * c + 2, top: d === 'v' ? cell * r + 2 : cell * r - 5, width: d === 'v' ? 10 : cell - 4, height: d === 'v' ? cell - 4 : 10, borderRadius: 4, background: '#f1f3f7', boxShadow: '0 0 10px rgba(255,255,255,0.35)' }} />)}
+        {pieces.map(({ r, c, p, shape = 'circle' }) => (
+          <div key={`p${r}${c}`} style={{ position: 'absolute', left: cell * c + cell * 0.15, top: cell * r + cell * 0.15, width: cell * 0.7, height: cell * 0.7, borderRadius: shape === 'square' ? cell * 0.14 : 999, background: WG_COLOR[p], boxShadow: '0 6px 12px rgba(0,0,0,0.45)', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: cell * 0.1 }}>
+            <div style={{ width: cell * 0.1, height: cell * 0.22, borderRadius: 99, background: '#fff' }} />
+            <div style={{ width: cell * 0.1, height: cell * 0.22, borderRadius: 99, background: '#fff' }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// A 7×7-cell board with one answer (generatePuzzle(8, 42)); the loop is drawn most of the way round.
+const SL_CLUES = ['.23..31', '2210..2', '.1..1..', '23322.1', '2......', '3..13..', '..3.310'];
+// Loop edges in drawing order: [horizontal ? 1 : 0, row, col] (dot coordinates).
+const SL_LOOP: [number, number, number][] = [[1,0,0],[1,0,1],[1,0,2],[0,0,3],[1,1,2],[1,1,1],[0,1,1],[0,2,1],[0,3,1],[1,4,1],[0,3,2],[1,3,2],[0,3,3],[1,4,3],[1,4,4],[0,3,5],[0,2,5],[0,1,5],[0,0,5],[1,0,5],[0,0,6],[0,1,6],[1,2,6],[0,2,7],[0,3,7],[0,4,7],[1,5,6],[1,5,5],[1,5,4],[0,5,4],[1,6,4],[0,6,5],[1,7,4],[1,7,3],[0,6,3],[1,6,2],[0,6,2],[1,7,1],[1,7,0],[0,6,0],[1,6,0],[0,5,1],[1,5,0],[0,4,0],[0,3,0],[0,2,0],[0,1,0],[0,0,0]];
+
+/** Slitherlink board with the loop being drawn: lilac screen, violet dots and numbers, a bright pink line. */
+export function SlitherBoardArt({ size = 430, drawn = 38 }: { size?: number; drawn?: number }) {
+  const cells = 7, pad = size * 0.06, step = (size - pad * 2) / cells;
+  const at = (v: number) => pad + v * step;
+  const line = SL_LOOP.slice(0, drawn);
+  const tip = (() => {
+    const [h, r, c] = line[line.length - 1], [h2, r2, c2] = SL_LOOP[drawn % SL_LOOP.length];
+    const a = h ? [[r, c], [r, c + 1]] : [[r, c], [r + 1, c]];
+    const b = h2 ? [[r2, c2], [r2, c2 + 1]] : [[r2, c2], [r2 + 1, c2]];
+    return a.find(([y, x]) => b.some(([y2, x2]) => y === y2 && x === x2)) ?? a[1];
+  })();
+  return (
+    <div style={{ display: 'flex', padding: 14, borderRadius: 18, background: 'linear-gradient(135deg, #4a4652, #2a2731 55%, #46424e)', boxShadow: '0 30px 60px rgba(0,0,0,0.55)' }}>
+      <div style={{ display: 'flex', position: 'relative', width: size, height: size, background: '#ecebff' }}>
+        {SL_CLUES.flatMap((row, r) => [...row].map((ch, c) => ch === '.' ? null : (
+          <div key={`n${r}${c}`} style={{ display: 'flex', position: 'absolute', left: at(c), top: at(r), width: step, height: step, alignItems: 'center', justifyContent: 'center', fontSize: step * 0.56, fontWeight: 900, color: '#4b37b8' }}>{ch}</div>
+        )))}
+        {line.map(([h, r, c], i) => <div key={`l${i}`} style={{ position: 'absolute', left: at(c) - 4, top: at(r) - 4, width: h ? step + 8 : 8, height: h ? 8 : step + 8, borderRadius: 6, background: '#ff3d7f', boxShadow: '0 0 10px rgba(255,61,127,0.55)' }} />)}
+        {Array.from({ length: (cells + 1) ** 2 }, (_, i) => <div key={`d${i}`} style={{ position: 'absolute', left: at(i % (cells + 1)) - 5, top: at(Math.floor(i / (cells + 1))) - 5, width: 10, height: 10, borderRadius: 10, background: '#4b37b8' }} />)}
+        <div style={{ position: 'absolute', left: at(tip[1]) - 13, top: at(tip[0]) - 13, width: 26, height: 26, borderRadius: 26, background: '#ffffff', border: '6px solid #ff3d7f', boxShadow: '0 0 18px rgba(255,61,127,0.9)' }} />
+      </div>
+    </div>
+  );
+}
