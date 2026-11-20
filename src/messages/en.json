@@ -81,7 +81,8 @@
     "slitherlink": "Slitherlink",
     "wallgo2": "Wallgo II",
     "nineMensMorris": "Nine Men's Morris",
-    "backupAddress": "Backup address if the site won't open"
+    "backupAddress": "Backup address if the site won't open",
+    "flipOmok": "Flip Omok"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -329,7 +330,10 @@
     "modeMorrisAi": "AI 1:1",
     "modeMorrisAiDesc": "3 levels",
     "modeMorrisFriend": "Friend 1:1",
-    "modeMorrisFriendDesc": "Link · invite code"
+    "modeMorrisFriendDesc": "Link · invite code",
+    "tag_devOriginal": "Dev's original",
+    "flipOmokDescription": "Omok meets Othello: sandwich enemy stones to flip them yours. Even a finished four can turn over in one move.",
+    "flipOmokMeta": "AI · 2 players on one device · preview"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -5171,5 +5175,52 @@
     "supportBody": "If you've enjoyed it, a little support now and then helps. It all goes to server costs. Support is taken through ctee.",
     "supportCta": "Support the developer",
     "bye": "Enjoy, and thank you! 💛"
+  },
+  "FlipOmok": {
+    "metaTitle": "Flip Omok — Omok meets Othello, a PUZZLTHINK original",
+    "metaDescription": "Omok where sandwiched stones flip. First to five in a row wins.",
+    "keywords": [
+      "flip omok",
+      "gomoku variant",
+      "othello gomoku"
+    ],
+    "title": "FLIP OMOK",
+    "subtitle": "DEV'S ORIGINAL · PREVIEW",
+    "undo": "Undo",
+    "newGame": "New game",
+    "again": "Play again",
+    "you": "You",
+    "black": "Black",
+    "white": "White",
+    "wins": "{name} wins!",
+    "draw": "Draw",
+    "aiThinking": "MIRA is thinking…",
+    "turnOf": "{name}'s turn",
+    "resultKicker": "RESULT",
+    "moveKicker": "MOVE {n}",
+    "flipToast": "{n} flipped!",
+    "previewHint": "Placing here flips {n}",
+    "mode": "Mode",
+    "modes": {
+      "ai": "vs AI",
+      "local": "2 players"
+    },
+    "difficulty": "Difficulty",
+    "levels": {
+      "easy": "Easy",
+      "normal": "Normal",
+      "hard": "Hard"
+    },
+    "difficultyLocked": "Change difficulty in a new game.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Players take turns placing one stone on a 15×15 board, black first.",
+      "Close a straight run of enemy stones between two of yours and every stone in it flips to your colour — any of 8 directions, any length.",
+      "Only the player who moves flips. Stepping in between two enemy stones is safe.",
+      "After placing and flipping, five or more of your colour in a row wins."
+    ],
+    "devTitle": "Dev's original · preview",
+    "devNote": "A rule set made here at PUZZLTHINK. It's an early preview, so there are no records, rankings or online rooms yet.",
+    "lastMove": "Last move: {name} {at}"
   }
 }
