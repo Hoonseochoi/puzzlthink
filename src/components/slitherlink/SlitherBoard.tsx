@@ -18,7 +18,8 @@ const SOLUTION = '#e0a21c';
 type Point = { x: number; y: number };
 
 /**
- * The dotted board. Drag from dot to dot to draw (or erase / mark with the chosen tool); tap between two dots to toggle.
+ * The dotted board. Drag from dot to dot to draw (or erase / mark with the chosen tool); tap between two dots to toggle
+ * (with the pen a tap marks ✕, or clears a line or ✕).
  * With the hint tool, a tap picks the 3×3-dot area around it. `onEdges` gets [edge, value] pairs from one gesture step.
  */
 export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onHint, solutionUpTo = null, dimLines = false, readOnly = false, flashArea = null }: {
@@ -97,7 +98,8 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
     if (tool === 'hint') { onHint?.(Math.round(p.y) - 1, Math.round(p.x) - 1); return; }
     const edge = nearEdge(p);
     if (edge < 0 || locked?.has(edge)) return;
-    const value = valueFor(edge);
+    // With the pen, a tap is for ✕ (lines are drawn by dragging): empty → ✕, and a line or ✕ clears.
+    const value: Mark = tool === 'pen' ? (marks[edge] ? 0 : 2) : valueFor(edge);
     if (value !== marks[edge]) onEdges?.([[edge, value]]);
   };
 

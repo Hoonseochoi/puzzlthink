@@ -4641,7 +4641,7 @@
     "hint": "Hint (3×3 area)",
     "hintPick": "Tap an area",
     "hintHelp": "Tap the board: the answer for the 3×3 dots around that spot is filled in.",
-    "help_pen": "Drag from dot to dot to draw. Tap a line to remove it.",
+    "help_pen": "Drag from dot to dot to draw. Tap between two dots to mark ✕; tap a line or ✕ to clear it.",
     "help_eraser": "Drag or tap over lines and ✕ marks to erase them.",
     "help_marker": "Tap between two dots to mark ✕ where the loop does not go.",
     "giveUp": "Give up and show the answer",
@@ -4737,7 +4737,7 @@
     "special": [
       {
         "title": "Pen",
-        "body": "Drag from one dot to the next to draw. Starting a drag on a line erases instead. Tapping between two dots also draws or removes a line."
+        "body": "Drag from one dot to the next to draw. Starting a drag on a line erases instead. With the pen, tapping between two dots marks ✕, and tapping a line or ✕ clears it."
       },
       {
         "title": "Eraser · Clear all",
