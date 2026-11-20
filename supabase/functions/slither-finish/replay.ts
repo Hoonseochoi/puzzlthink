@@ -4,6 +4,7 @@ import { generatePuzzle, hintEdges, isSolved } from './slitherlink.ts';
 /** Rules for a clear that counts. */
 export const MIN_MARK_MOVES = 1; // at least one ✕ placed by the player
 export const MIN_ERASE_MOVES = 3; // lines taken back at least this often
+export const MANY_ERASES = 10; // this much erasing shows a real solve even without any ✕
 export const MIN_MS = 120_000; // 11×11 under 2 minutes is not a human solve
 export const MAX_HINTS = 1;
 export const MAX_STEPS = 5000;
@@ -40,7 +41,7 @@ export function checkRun(dots: number, seed: number, steps: unknown[], tookMs: n
   }
   const cleared = valid && isSolved(puzzle, marks);
   const flag = !cleared ? null
-    : markMoves < MIN_MARK_MOVES ? 'no_marks'
+    : markMoves < MIN_MARK_MOVES && eraseMoves < MANY_ERASES ? 'no_marks'
       : eraseMoves < MIN_ERASE_MOVES ? 'few_erases'
         : tookMs < MIN_MS ? 'too_fast' : null;
   return { cleared, hints, markMoves, eraseMoves, flag };
