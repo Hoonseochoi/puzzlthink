@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { usePathname, Link } from '@/i18n/routing';
 import SupportLink from './SupportLink';
+import { BACKUP_HOST, BACKUP_URL } from '@/lib/backupSite';
 
 const HIDE_ON = ['/play', '/nine-mens-morris', '/gyulhap', '/indian-poker', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
 
@@ -19,6 +20,7 @@ export default function GlobalFooter() {
           <p className="mt-1 text-[11px] text-black/40">{t('tagline')}</p>
           <p className="mt-3 text-[11px] leading-5 text-black/50">{t('hobbyOperationNotice')}</p>
           <p className="mt-2 max-w-sm text-[10px] leading-4 text-black/35">{t('unofficialNotice')}</p>
+          <p className="mt-1 text-[11px] text-black/45">{t('backupAddress')} · <a href={BACKUP_URL} className="font-bold hover:text-black">{BACKUP_HOST}</a></p>
           <p className="mt-1 text-[11px] text-black/45">{t('contactPartnership')} · <a href="mailto:contact@puzzlthink.com" className="font-bold hover:text-black">contact@puzzlthink.com</a></p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
