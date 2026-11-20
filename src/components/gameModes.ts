@@ -7,6 +7,7 @@ import { useJanggiRoom } from '@/hooks/useJanggiRoom';
 import { useRussianRouletteRoom } from '@/hooks/useRussianRouletteRoom';
 import { useRussianJanggiRoom } from '@/hooks/useRussianJanggiRoom';
 import { useBlindGomokuRoom } from '@/hooks/useBlindGomokuRoom';
+import { prepareMorrisRoom, useMorrisRoom } from '@/hooks/useMorrisRoom';
 import { useNemoRoom } from '@/hooks/useNemoRoom';
 import { prepareHexagonRoom, useHexagonRoom } from '@/hooks/useHexagonRoom';
 import { useLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
@@ -47,6 +48,7 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  nineMensMorris: { path: '/nine-mens-morris', ai: [{ label: 'aiTwo' }], rooms: [{ label: 'roomTwo', create: prepareMorrisRoom }], useRoom: useMorrisRoom },
   wallgo2: {
     path: '/wallgo-2',
     ai: [{ label: 'aiThree', query: 'mode=three' }, { label: 'aiTwo', query: 'mode=two' }],

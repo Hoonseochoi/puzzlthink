@@ -7,8 +7,9 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number };
 
-type Href = '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
+  nine_mens_morris: { ko: '나인 멘스 모리스', en: "Nine Men's Morris", href: '/nine-mens-morris', color: '#3ec9d6' },
   wallgo2: { ko: '벽바둑 II', en: 'Wallgo II', href: '/wallgo-2', color: '#e0283a' },
   slitherlink: { ko: '슬리더링크', en: 'Slitherlink', href: '/slitherlink', color: '#8f7cff' },
   gyulhap: { ko: '결합', en: 'Gyul! Hap!', href: '/gyulhap', color: '#ffcf3f' },
