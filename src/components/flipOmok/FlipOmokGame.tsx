@@ -27,6 +27,15 @@ export function FlipTips() {
   </section>;
 }
 
+/** Shown in the result popup after a loss: how to stop the open three. */
+export function LossTip() {
+  const t = useTranslations('FlipOmok');
+  return <div className="mt-3 rounded-[10px] border border-(--accent)/30 bg-(--accent)/[.07] p-3 text-left">
+    <p className="flex items-center gap-1.5 text-[11px] font-black text-(--accent)"><Lightbulb size={12} />{t('lossTipTitle')}</p>
+    <p className="mt-1 break-keep text-[11px] leading-[1.6] text-white/65">{t('lossTip')}</p>
+  </div>;
+}
+
 /** The rule people miss: stepping between two enemy stones is safe. */
 export function SafeGapCallout() {
   const t = useTranslations('FlipOmok');
@@ -126,6 +135,8 @@ export default function FlipOmokGame() {
   // 쌍삼 points for whoever moves now (hidden while the AI thinks).
   const banned = useMemo(() => new Set(over || aiTurn ? [] : forbiddenPoints(board, turn)), [board, turn, over, aiTurn]);
 
+  // AI game: the human lost; two players on one device: someone lost.
+  const lost = mode === 'ai' ? (win?.owner === 2 || resigned) : !!win || resigned;
   const result = over && showResult && !frame && <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/50 p-4 backdrop-blur-[1px]">
     <div className="relative w-full max-w-[300px] rounded-[16px] border border-(--accent)/40 bg-[#0e1316]/95 p-5 text-center shadow-[0_0_60px_rgba(103,232,255,.25)]">
       <button type="button" onClick={() => setShowResult(false)} aria-label={t('viewBoard')} title={t('viewBoard')} className="absolute right-2 top-2 rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white"><X size={15} /></button>
@@ -133,6 +144,7 @@ export default function FlipOmokGame() {
       <p className={`${KICKER} mt-3`}>RESULT</p>
       <h2 className="mt-1 text-2xl font-black">{status}</h2>
       <p className="mt-2 text-xs text-white/50">{t('movesPlayed', { n: history.length })}</p>
+      {lost && <LossTip />}
       <button type="button" onClick={() => reset()} className={`${BTN_ACCENT} mt-4 w-full py-3`}><RotateCcw size={14} />{t('again')}</button>
       {frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} className="!mt-2" />}
       <button type="button" onClick={() => setShowResult(false)} className={`${BTN} mt-2 w-full py-2.5`}><Eye size={14} />{t('viewBoard')}</button>
