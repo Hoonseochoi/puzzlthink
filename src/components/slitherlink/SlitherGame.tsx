@@ -28,6 +28,9 @@ const MODES: Mode[] = ['challenge', 'beat', 'practice'];
 const SIZE_KEY = 'puzzlthink_slither_size';
 const REVEAL_MS = 2600;
 const CHALLENGE_HINTS = 1;
+// Leaving the board (another tab or app) for this long counts as an exit; AWAY_LIMIT exits void a challenge clear under 20 minutes.
+const AWAY_MIN_MS = 2000;
+const AWAY_LIMIT = 3;
 
 /** Replays the steps up to `at`: the marks then, and which edges hints had fixed. */
 function frameAt(edgeCount: number, steps: Step[], at: number) {
@@ -89,6 +92,7 @@ export default function SlitherGame() {
   const runRef = useRef<SlitherRun | null>(null);
   // Time spent away from the board during a run (another tab or app), sent with a clear for review.
   const awayRef = useRef<{ spans: [number, number][]; since: number | null }>({ spans: [], since: null });
+  const [awayWarn, setAwayWarn] = useState<number | null>(null); // "보드를 벗어났어요 (n/3)" after each counted exit
   const stepsRef = useRef<Step[]>([]); // every move this run, for the server's replay
   const setBoard = (next: Mark[]) => { marksRef.current = next; setMarks(next); };
   const setPhaseNow = (next: Phase) => { phaseRef.current = next; setPhase(next); };
@@ -151,7 +155,14 @@ export default function SlitherGame() {
     const back = () => {
       const a = awayRef.current;
       if (a.since === null) return;
-      if (runRef.current) a.spans.push([a.since, Date.now()]);
+      if (runRef.current) {
+        a.spans.push([a.since, Date.now()]);
+        const n = a.spans.filter(([from, to]) => to - from >= AWAY_MIN_MS).length;
+        if (Date.now() - a.since >= AWAY_MIN_MS) {
+          setAwayWarn(n);
+          timers.current.push(window.setTimeout(() => setAwayWarn(null), 4000));
+        }
+      }
       a.since = null;
     };
     const onVisibility = () => (document.hidden ? away() : back());
@@ -313,6 +324,7 @@ export default function SlitherGame() {
               <h1 className="mt-3 text-2xl font-black">{t(mode === 'challenge' ? 'newTitle' : 'beatTitle')}</h1>
               <p className="mt-2 break-keep text-sm leading-6 text-white/55">{t(mode === 'challenge' ? 'newDesc' : 'beatDesc')}</p>
               {error && <p className="mt-3 text-xs font-bold text-[#ff8f8f]">{error}</p>}
+              <p className="mt-3 break-keep text-[11px] leading-5 text-white/40">{t('awayRule', { n: AWAY_LIMIT })}</p>
               {ready && configured && !signedIn ? (
                 <div className="mt-5 rounded-[14px] border border-(--accent)/30 bg-(--accent)/[.06] p-4">
                   <p className="break-keep text-xs font-bold leading-5 text-white/65">{t('needSignIn')}</p>
@@ -381,6 +393,9 @@ export default function SlitherGame() {
 
               {replaying && <ReplayHeader player={player} caption={t('replayCaption')} onClose={() => setReplaying(false)} />}
 
+              {awayWarn !== null && <div className="pointer-events-none fixed left-1/2 top-20 z-50 -translate-x-1/2 rounded-full border border-[#ff8f8f]/50 bg-black/85 px-4 py-2 text-xs font-black text-[#ffb3b3] shadow-2xl">
+                {awayWarn >= AWAY_LIMIT ? t('awayVoid') : t('awayWarn', { n: awayWarn, max: AWAY_LIMIT })}
+              </div>}
               <SlitherBoard
                 puzzle={puzzle}
                 marks={frame ? frame.marks : marks}
@@ -423,7 +438,7 @@ export default function SlitherGame() {
                       <p className="mt-2 inline-flex flex-wrap items-center justify-center gap-x-1.5 rounded-full bg-[#ff6b5a]/15 px-4 py-1.5 text-sm font-black text-[#ff9a8c]"><Swords size={15} />
                         {t('rivalTook', { name: result.rival, n: result.took_n })}{result.lost_n ? <span className="font-bold text-white/55">· {t('rivalLost', { name: result.rival, n: result.lost_n })}</span> : null}</p>
                     ) : null}
-                    <p className="mt-2 break-keep text-xs text-white/50">{result.ok ? (mode === 'beat' ? t('beatWinDesc', { time: time(result.ms) }) : t('publishedDesc')) : result.flagged ? t('flaggedDesc') : t('tooSlowDesc', { time: time(result.ms) })}</p>
+                    <p className="mt-2 break-keep text-xs text-white/50">{result.ok ? (mode === 'beat' ? t('beatWinDesc', { time: time(result.ms) }) : t('publishedDesc')) : result.flagged ? (result.flag === 'left_board' ? t('flaggedAway') : t('flaggedDesc')) : t('tooSlowDesc', { time: time(result.ms) })}</p>
                     {result.ok && run && (
                       <div className="mt-4 rounded-[14px] border border-(--accent)/30 bg-(--accent)/[.06] p-3">
                         <p className="text-xs font-black">{t('shareBoardTitle')}</p>
