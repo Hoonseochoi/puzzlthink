@@ -18,7 +18,7 @@ import { Link } from '@/i18n/routing';
 import { coordinateLabel, emptyBoard, forbiddenPoints, owner, type Player } from '@/lib/flipOmok';
 import { FLIP_TURN_OPTIONS, colorOf, seatToMove } from '@/lib/flipOmokRoom';
 import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, MiniBoard } from './FlipOmokParts';
-import { FlipLegend, FlipTips, SafeGapCallout } from './FlipOmokGame';
+import { FlipLegend, FlipTips, LossTip, SafeGapCallout } from './FlipOmokGame';
 
 export default function FlipOmokRoomView({ code }: { code: string }) {
   const t = useTranslations('FlipOmokOnline');
@@ -97,6 +97,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
         <p className={`${KICKER} mt-3`}>RESULT</p>
         <h2 className="mt-1 text-xl font-black">{resultText()}</h2>
         <p className="mt-3 font-mono text-3xl font-black">{state.score[mySeat ?? 0]}<span className="mx-2 text-white/30">:</span>{state.score[1 - (mySeat ?? 0)]}</p>
+        {mySeat !== null && state.winner !== null && state.winner !== 'draw' && state.winner !== mySeat && <LossTip />}
         {me?.isHost
           ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-4 w-full py-3`}><RotateCcw size={14} />{t('rematch')}</button>
           : <p className="mt-3 text-[11px] text-white/45">{t('rematchWait')}</p>}

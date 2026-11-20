@@ -5264,7 +5264,8 @@
     ],
     "tipsTitle": "Tips",
     "tips": [
-      "Blocking right next to their line can backfire: they place on the far side and your blocker flips. Block one point away, or where nothing can close behind it.",
+      "An open three (empty on both ends) is hard to stop. Block right next to it and they close behind your blocker to flip it into five; block one point away and the other end becomes an open four. Cut it off at two.",
+      "Block with your back to your own stone or the board edge. If they can’t place behind your blocker, it can’t flip.",
       "An enemy stone at the end of your line is a chance: close it from the far side and the blocked line gets longer.",
       "Your five can include flipped stones: look for a move that flips your way into five.",
       "Six doesn’t win. Turning their five-to-be into a six is also a defence.",
@@ -5278,7 +5279,9 @@
     "replayMove": "Move {n} · {name} {at}",
     "safeTitle": "Stepping in between is safe!",
     "safeBody": "Only the player who moves flips. Your stone placed between two enemy stones stays yours — cutting into the middle of their line is a solid defence.",
-    "gapHint": "Between enemy stones, but safe — it won’t flip"
+    "gapHint": "Between enemy stones, but safe — it won’t flip",
+    "lossTipTitle": "Try blocking like this",
+    "lossTip": "Blocking their open three right next to it lets them flip your blocker into five. Cut lines off at two, and block with your own stone or the edge behind you."
   },
   "FlipOmokOnline": {
     "metaTitle": "Up for Flip Omok? 🔴🔵 You’re invited",
