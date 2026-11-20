@@ -107,8 +107,9 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
   const handleCellClick = (row: number, col: number) => {
     if (!state || !myTurn) return;
     if (state.phase === 'placement') { dispatch({ t: 'place', row, col, ...(myKind ? { kind: myKind } : {}) }); return; }
-    if (state.step !== 'move') return;
     const piece = state.pieces.find((item) => item.row === row && item.col === col);
+    // Before the wall goes down, tapping one of my pieces takes the move back and picks that piece instead.
+    if (state.step === 'wall') { if (piece?.player === mySeat && state.undo) { dispatch({ t: 'undo' }); setSelectedPieceId(state.undo.pieces.find((item) => item.row === row && item.col === col)?.id ?? piece.id); setPendingBreak(null); } return; }
     const move = selectedMoves.find((option) => option.to.row === row && option.to.col === col);
     // Tapping another of my pieces selects it; tapping the selected piece again means "stay here".
     if (piece?.player === mySeat && !(move && piece.id === selectedPieceId)) { setSelectedPieceId(piece.id); setPendingBreak(null); return; }
