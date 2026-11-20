@@ -1,12 +1,12 @@
 // Server replay of a 슬리더링크 challenge run: rebuilds the board from its seed and plays the browser's moves on it.
 import { generatePuzzle, hintEdges, isSolved } from './slitherlink.ts';
 
-/** Rules that void a clear (under TRUSTED_MS only). */
-export const MAX_FEW_ERASES = 10; // 10 or fewer lines taken back: 15 of the first 97 clears, all from 4 of 41 players
+/** The rule that voids a clear (under TRUSTED_MS only). */
 export const AWAY_LIMIT = 3; // left the board (another tab or app) this many times, each for AWAY_MIN_MS or longer
 export const AWAY_MIN_MS = 2_000;
 export const TRUSTED_MS = 20 * 60_000; // a run this long is never voided
 // Suspicion signals: recorded with the run for review, they don't block the record.
+export const MAX_FEW_ERASES = 10; // 10 or fewer lines taken back (15 of the first 97 clears, 4 of 41 players): may have worked it out first
 export const MIN_MARK_MOVES = 1; // no ✕ at all …
 export const MANY_ERASES = 10; // … with little erasing
 export const MIN_MS = 120_000; // 11×11 under 2 minutes
@@ -25,9 +25,9 @@ export type Signals = {
   cleanShare: number; cleanAfterWipe: number | null;
   /** Time of the last wipe and of the whole run (client clock), when step times are known. */
   lastWipeMs: number | null; endMs: number | null;
-  suspects: ('no_marks' | 'too_fast' | 'mark_burst' | 'wipe_clean' | 'clean_streak')[];
+  suspects: ('few_erases' | 'no_marks' | 'too_fast' | 'mark_burst' | 'wipe_clean' | 'clean_streak')[];
 };
-export type Check = { cleared: boolean; hints: number; markMoves: number; eraseMoves: number; flag: 'few_erases' | 'left_board' | null; signals: Signals };
+export type Check = { cleared: boolean; hints: number; markMoves: number; eraseMoves: number; flag: 'left_board' | null; signals: Signals };
 const isInt = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v);
 
 /**
@@ -85,12 +85,11 @@ export function checkRun(dots: number, seed: number, steps: unknown[], tookMs: n
     if (wipes) bestAfterWipe = Math.max(bestAfterWipe, clean);
   }
   const cleared = valid && isSolved(puzzle, marks);
-  const flag = !cleared || tookMs >= TRUSTED_MS ? null
-    : eraseMoves <= MAX_FEW_ERASES ? 'few_erases'
-      : awayCount >= AWAY_LIMIT ? 'left_board' : null;
+  const flag = !cleared || tookMs >= TRUSTED_MS ? null : awayCount >= AWAY_LIMIT ? 'left_board' : null;
   const share = (n: number) => Math.round((n / Math.max(1, loopLen)) * 100) / 100;
   const cleanShare = share(bestClean), cleanAfterWipe = wipes ? share(bestAfterWipe) : null;
   const suspects: Signals['suspects'] = [];
+  if (cleared && eraseMoves <= MAX_FEW_ERASES) suspects.push('few_erases');
   if (cleared && markMoves < MIN_MARK_MOVES && eraseMoves < MANY_ERASES) suspects.push('no_marks');
   if (cleared && tookMs < MIN_MS) suspects.push('too_fast');
   if (markBurst >= BURST_MARKS) suspects.push('mark_burst');
