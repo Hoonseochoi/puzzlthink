@@ -3,6 +3,9 @@ import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { Link } from '@/i18n/routing';
 import { gameFromSlug } from '@/lib/rankings';
 
+/** Games with a 공략 page: a "처음이라면?" button sits beside the title. */
+const STRATEGY: Partial<Record<GameId, '/slitherlink/guide'>> = { slitherlink: '/slitherlink/guide' };
+
 /** Top of a game's entry screen: name, tagline, key facts and core rules, from the games overview copy. */
 export default async function GameIntroHero({ locale, id, tone = 'dark' }: { locale: string; id: GameId; tone?: 'dark' | 'light' }) {
   const t = await getTranslations({ locale, namespace: 'Games' });
@@ -22,7 +25,15 @@ export default async function GameIntroHero({ locale, id, tone = 'dark' }: { loc
   return (
     <div>
       <p className="font-mono text-[10px] font-bold tracking-[0.2em] text-(--accent)">PUZZLTHINK · GAME</p>
-      <h2 className="mt-2 text-4xl font-black tracking-[-0.05em] sm:text-5xl">{tc(id)}</h2>
+      <div className="mt-2 flex items-start justify-between gap-3">
+        <h2 className="text-4xl font-black tracking-[-0.05em] sm:text-5xl">{tc(id)}</h2>
+        {STRATEGY[id] && (
+          <Link href={STRATEGY[id]} className="group mt-1 flex shrink-0 flex-col items-end rounded-[14px] border border-(--accent)/50 bg-(--accent)/15 px-3.5 py-2 text-right shadow-[0_0_24px_color-mix(in_srgb,var(--accent)_25%,transparent)] transition hover:bg-(--accent)/25">
+            <span className={`text-[11px] font-bold ${dark ? 'text-white/60' : 'text-black/55'}`}>{t('firstTime', { game: tc(id) })}</span>
+            <span className="text-sm font-black text-(--accent)">{t('firstTimeCta')} <span className="inline-block transition group-hover:translate-x-0.5">→</span></span>
+          </Link>
+        )}
+      </div>
       <p className={`mt-3 max-w-2xl break-keep text-sm leading-7 sm:text-base ${muted}`}>{t(`${key}.tagline`)}</p>
 
       <dl className="mt-6 grid grid-cols-1 gap-2 min-[420px]:grid-cols-3">

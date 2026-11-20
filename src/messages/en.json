@@ -2133,7 +2133,9 @@
       "The Genius game rules",
       "brain games collection",
       "browser board games"
-    ]
+    ],
+    "firstTime": "New to {game}?",
+    "firstTimeCta": "Read the guide"
   },
   "BugReport": {
     "button": "Report a bug",
