@@ -3,7 +3,7 @@ import { generatePuzzle, hintEdges, isSolved } from './slitherlink.ts';
 
 /** Rules for a clear that counts. */
 export const MIN_MARK_MOVES = 1; // at least one ✕ placed by the player
-export const MIN_ERASE_MOVES = 3; // lines taken back at least this often
+export const MIN_ERASE_MOVES = 10; // lines taken back at least this often (fewer: 15 of the first 97 clears, all from 4 players)
 export const MANY_ERASES = 10; // this much erasing shows a real solve even without any ✕
 export const MIN_MS = 120_000; // 11×11 under 2 minutes is not a human solve
 export const TRUSTED_MS = 20 * 60_000; // a run this long is not flagged at all

@@ -25,10 +25,11 @@ export const startBeat = (id: string) => call<SlitherRun>('slither_start_beat', 
 /** Ends a run without a clear (give up, time up, leaving). */
 export const finishRun = (run: string, cleared: boolean, hints: number) => call<FinishResult>('slither_finish', { p_run: run, p_cleared: cleared, p_hints: hints });
 /** A clear: the server replays every move on its own copy of the board before it counts. */
-export async function finishCleared(run: string, steps: ReplayStep[]): Promise<{ data: FinishResult | null; error: string | null }> {
+/** `away`: [from, to] ms since the start for each time the player left the board (another tab or app). */
+export async function finishCleared(run: string, steps: ReplayStep[], away: [number, number][] = []): Promise<{ data: FinishResult | null; error: string | null }> {
   const supabase = getSupabase();
   if (!supabase) return { data: null, error: 'offline' };
-  const { data, error } = await supabase.functions.invoke('slither-finish', { body: { run, steps } });
+  const { data, error } = await supabase.functions.invoke('slither-finish', { body: { run, steps, away } });
   return { data: error ? null : (data as FinishResult), error: error ? error.message : null };
 }
 export const fetchRanking = (limit = 10) => call<RankRow[]>('slither_ranking', { p_limit: limit });

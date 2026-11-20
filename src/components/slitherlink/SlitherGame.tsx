@@ -87,6 +87,8 @@ export default function SlitherGame() {
   const phaseRef = useRef<Phase>('lobby');
   const hintsRef = useRef(0);
   const runRef = useRef<SlitherRun | null>(null);
+  // Time spent away from the board during a run (another tab or app), sent with a clear for review.
+  const awayRef = useRef<{ spans: [number, number][]; since: number | null }>({ spans: [], since: null });
   const stepsRef = useRef<Step[]>([]); // every move this run, for the server's replay
   const setBoard = (next: Mark[]) => { marksRef.current = next; setMarks(next); };
   const setPhaseNow = (next: Phase) => { phaseRef.current = next; setPhase(next); };
@@ -100,6 +102,7 @@ export default function SlitherGame() {
     setPuzzle(p);
     setBoard(new Array<Mark>(p.solution.length).fill(0)); setLocked(new Set()); setSteps([]); stepsRef.current = [];
     setTool('pen'); setPhaseNow('play'); const at = clockNow(); setStartedAt(at); setNow(at); setEndMs(0);
+    awayRef.current = { spans: [], since: null };
     hintsRef.current = 0; setHints(0); setFlashArea(null); setRevealed(0); setReplaying(false); setConfirmClear(false); setResult(null); setError(null);
   };
 
@@ -142,6 +145,21 @@ export default function SlitherGame() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- once, on mount
   useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 250); return () => window.clearInterval(id); }, []);
   useEffect(() => () => clearTimers(), []);
+  // Away from the board (tab hidden, or the window lost focus to another app) while a challenge run is on.
+  useEffect(() => {
+    const away = () => { if (runRef.current && phaseRef.current === 'play' && awayRef.current.since === null) awayRef.current.since = Date.now(); };
+    const back = () => {
+      const a = awayRef.current;
+      if (a.since === null) return;
+      if (runRef.current) a.spans.push([a.since, Date.now()]);
+      a.since = null;
+    };
+    const onVisibility = () => (document.hidden ? away() : back());
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', away);
+    window.addEventListener('focus', back);
+    return () => { document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('blur', away); window.removeEventListener('focus', back); };
+  }, []);
   // Leaving the page mid-challenge ends the run as given up.
   useEffect(() => {
     const onLeave = () => { const r = runRef.current; if (r && phaseRef.current === 'play') finishRun(r.run, false, hintsRef.current); };
@@ -179,7 +197,7 @@ export default function SlitherGame() {
     const r = runRef.current;
     if (!r) return;
     const { data } = cleared
-      ? await finishCleared(r.run, stepsRef.current.map((st) => (st.hint && st.at ? { h: st.at, t: st.t } : { c: st.changes, t: st.t })))
+      ? await finishCleared(r.run, stepsRef.current.map((st) => (st.hint && st.at ? { h: st.at, t: st.t } : { c: st.changes, t: st.t })), awayRef.current.spans.map(([a, b]) => [a - startedAt, b - startedAt]))
       : await finishRun(r.run, false, hintsRef.current);
     runRef.current = null;
     setResult(data ?? { ok: false, ms: Date.now() - startedAt, rank: null, total: null });
