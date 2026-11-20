@@ -50,6 +50,25 @@ function MorrisPreview() {
   return <div className="w-full sm:w-[62%]"><MorrisBoard board={MORRIS_SHOWCASE} labels={false} className="!max-w-none !rounded-xl border-[3px] border-[#17201e] sm:!rounded-2xl sm:border-4" /></div>;
 }
 
+/** 뒤집기 오목: the neon board with red and blue characters, one of them flipping over. */
+function FlipFace({ hex, back = false }: { hex: string; back?: boolean }) {
+  return <i className={`absolute inset-0 rounded-full [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`} style={{ background: `radial-gradient(circle at 34% 28%, color-mix(in srgb, ${hex} 55%, white), ${hex} 48%, color-mix(in srgb, ${hex} 60%, black))`, boxShadow: `0 0 8px ${hex}99` }}>
+    <b className="absolute left-[29%] top-[33%] h-[17%] w-[12%] rounded-full bg-white" /><b className="absolute right-[29%] top-[33%] h-[17%] w-[12%] rounded-full bg-white" />
+  </i>;
+}
+function FlipOmokPreview() {
+  const R = '#ff4d6d', B = '#3fb8ff';
+  const stones = new Map<number, string>([[6, R], [7, B], [12, R], [13, R], [16, B], [18, B], [11, B]]);
+  return <div className="relative grid aspect-square w-full grid-cols-5 overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#080c12] p-2 shadow-xl ring-1 ring-[#67e8ff]/30 sm:w-[62%] sm:rounded-2xl sm:border-4 sm:p-3 sm:shadow-2xl">
+    <div className="absolute inset-[12%]" style={{ backgroundImage: 'linear-gradient(to right, transparent 49%, rgba(103,232,255,.35) 49%, rgba(103,232,255,.35) 51%, transparent 51%), linear-gradient(to bottom, transparent 49%, rgba(103,232,255,.35) 49%, rgba(103,232,255,.35) 51%, transparent 51%)', backgroundSize: '25% 25%' }} />
+    {Array.from({ length: 25 }, (_, index) => <span key={index} className="relative z-10 flex items-center justify-center [perspective:200px]">
+      {index === 8 ? <span className="flip-omok-loop relative h-[80%] w-[80%] [transform-style:preserve-3d]"><FlipFace hex={B} /><FlipFace hex={R} back /></span>
+        : stones.has(index) && <span className="relative h-[80%] w-[80%]"><FlipFace hex={stones.get(index)!} /></span>}
+    </span>)}
+    <span className="absolute right-2 top-2 z-20 rounded-full bg-[#17201e] px-2 py-1 text-[7px] font-black tracking-wider text-[#67e8ff] sm:right-3 sm:top-3 sm:text-[9px]">FLIP!</span>
+  </div>;
+}
+
 function BlindGomokuPreview() {
   const stones = new Map<number, string>([[7, '#ef4957'], [8, '#ef4957'], [12, '#4e87ed'], [13, '#f4cf4b'], [17, '#4e87ed'], [18, '#f4cf4b'], [19, '#49bf83']]);
   return <div className="relative grid aspect-square w-full grid-cols-5 overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#080c12] p-2 shadow-xl ring-1 ring-[#67e8ff]/30 sm:w-[62%] sm:rounded-2xl sm:border-4 sm:p-3 sm:shadow-2xl">
@@ -201,6 +220,7 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   // Order: the newest game first (NEW), then by total plays; 벽바둑 II sits right under 벽바둑.
   const games = [
+    { title: 'FLIP OMOK', display: tc('flipOmok'), description: t('flipOmokDescription'), href: '/flip-omok', tag: 'devOriginal', meta: t('flipOmokMeta'), color: '#2f9e78', illustration: 'flipOmok' },
     { title: "NINE MEN'S MORRIS", display: tc('nineMensMorris'), description: t('nineMensMorrisDescription'), href: '/nine-mens-morris', tag: 'spatialStrategy', meta: t('nineMensMorrisMeta'), color: '#3ec9d6', illustration: 'morris', new: true },
     { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', tag: 'spatialStrategy', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
     { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
@@ -234,7 +254,7 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}</span><span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span></div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'morris' ? <MorrisPreview /> : game.illustration === 'slitherlink' ? <SlitherPreview /> : game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'wallgo2' ? <WallGo2Preview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'flipOmok' ? <FlipOmokPreview /> : game.illustration === 'morris' ? <MorrisPreview /> : game.illustration === 'slitherlink' ? <SlitherPreview /> : game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'wallgo2' ? <WallGo2Preview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>

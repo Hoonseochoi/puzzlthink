@@ -81,7 +81,8 @@
     "slitherlink": "슬리더링크",
     "wallgo2": "벽바둑 II",
     "nineMensMorris": "나인 멘스 모리스",
-    "backupAddress": "접속이 안 될 때 임시 주소"
+    "backupAddress": "접속이 안 될 때 임시 주소",
+    "flipOmok": "뒤집기 오목"
   },
   "BlindGomoku": {
     "metaTitle": "블라인드 오목 — 데블스플랜 그 게임 룰 + 기억력 오목 한판",
@@ -336,7 +337,10 @@
     "modeMorrisAi": "AI 1:1",
     "modeMorrisAiDesc": "난이도 3단계",
     "modeMorrisFriend": "친구 1:1",
-    "modeMorrisFriendDesc": "링크·초대코드"
+    "modeMorrisFriendDesc": "링크·초대코드",
+    "tag_devOriginal": "개발자 창작",
+    "flipOmokDescription": "오목에 오셀로를 섞었어요. 상대 돌을 끼우면 내 돌로 뒤집혀요. 쌍삼 금지, 딱 5목 승리.",
+    "flipOmokMeta": "AI · 한 기기 2인 · 시험판"
   },
   "WallGo": {
     "metaTitle": "벽바둑 — 데블스플랜3 벽바둑 룰 정리 + AI·친구랑 바로 두기",
@@ -5242,5 +5246,53 @@
     "supportBody": "재밌게 즐기셨다면 가끔 응원해 주세요. 후원금은 서버비에 고스란히 쓰여요. 후원은 크티(ctee) 플랫폼으로 받아요.",
     "supportCta": "개발자 응원하기",
     "bye": "편하게 즐겨 주세요. 감사합니다! 💛"
+  },
+  "FlipOmok": {
+    "metaTitle": "뒤집기 오목 — 오목과 오셀로를 섞은 PUZZLTHINK 창작 게임",
+    "metaDescription": "상대 돌을 끼우면 뒤집히는 오목. 먼저 5목을 만들면 이깁니다.",
+    "keywords": [
+      "뒤집기 오목",
+      "오목 변형",
+      "오셀로 오목",
+      "창작 보드게임"
+    ],
+    "title": "뒤집기 오목",
+    "subtitle": "개발자 창작 · 시험판",
+    "undo": "무르기",
+    "newGame": "새 게임",
+    "again": "한 판 더",
+    "you": "나",
+    "black": "레드",
+    "white": "블루",
+    "wins": "{name} 승리!",
+    "draw": "무승부",
+    "aiThinking": "MIRA가 생각 중…",
+    "turnOf": "{name} 차례",
+    "resultKicker": "RESULT",
+    "moveKicker": "MOVE {n}",
+    "flipToast": "{n}개 뒤집기!",
+    "previewHint": "여기 두면 {n}개가 뒤집혀요",
+    "mode": "모드",
+    "modes": {
+      "ai": "AI 대전",
+      "local": "한 기기 2인"
+    },
+    "difficulty": "난이도",
+    "levels": {
+      "normal": "중간",
+      "hard": "어려움"
+    },
+    "difficultyLocked": "난이도는 새 게임에서 바꿀 수 있어요.",
+    "rulesTitle": "규칙",
+    "rules": [
+      "15×15 판에 레드부터 번갈아 돌을 하나씩 둡니다.",
+      "상대 돌을 내 돌 두 개 사이에 한 줄로 끼우면 끼인 돌이 모두 내 색으로 뒤집혀요(8방향, 길이 상관없음). 뒤집힌 돌은 눈이 상대 색이에요.",
+      "딱 5목이면 승리! 6목 이상(장목)은 인정되지 않아요.",
+      "쌍삼(열린 3을 두 개 동시에 만드는 수)은 양쪽 모두 금지예요. ✕ 자리에는 둘 수 없어요. 5목이 되는 수는 괜찮아요."
+    ],
+    "devTitle": "개발자 창작 · 시험판",
+    "devNote": "PUZZLTHINK에서 직접 만든 규칙이에요. 아직 느낌을 보는 단계라 기록·랭킹·온라인 대전은 없어요. 해보고 의견을 버그 제보로 알려주세요!",
+    "lastMove": "마지막 수: {name} {at}",
+    "banned": "쌍삼 금지"
   }
 }
