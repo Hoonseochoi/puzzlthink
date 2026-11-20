@@ -165,6 +165,13 @@ export default function SlitherGame() {
     const { data, error: err } = kind === 'challenge' ? await startNew() : await startBeat(id!);
     if (!data) { setPhaseNow('lobby'); setError(err?.includes('tried') ? t('errTried') : err?.includes('sign_in') ? t('needSignIn') : t('errStart')); setListTick((n) => n + 1); return; }
     runRef.current = data; setRun(data);
+    // The try is spent the moment the board is handed out: drop its 해보기 everywhere at once, so leaving
+    // (give up, back, reload) never shows it again, even before the lists refresh from the server.
+    if (kind === 'beat' && id) {
+      setBoards((list) => list?.map((b) => (b.id === id ? { ...b, tried: true } : b)) ?? list);
+      setFocus((f) => (f?.id === id ? { ...f, tried: true } : f));
+      setRanking((list) => list?.map((row) => (row.board === id ? { ...row, tried: true } : row)) ?? list);
+    }
     begin(data.dots, data.seed);
   };
 
