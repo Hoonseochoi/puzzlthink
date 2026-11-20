@@ -335,7 +335,11 @@
     "flipOmokDescription": "Omok meets Othello: sandwich enemy stones to flip them yours. No double threes, exactly five wins.",
     "flipOmokMeta": "AI · friend 1:1 · original",
     "podiumLabel": "{game} AI Hall of Fame top 3",
-    "podiumWins": "{n}W"
+    "podiumWins": "{n}W",
+    "podiumChallengeLabel": "{game} challenge top 3",
+    "podiumMaps": "{n} boards",
+    "podiumScore": "{n} pts",
+    "podiumCorrect": "{n} solved"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
