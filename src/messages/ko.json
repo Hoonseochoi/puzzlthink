@@ -340,7 +340,9 @@
     "modeMorrisFriendDesc": "링크·초대코드",
     "tag_devOriginal": "개발자 창작",
     "flipOmokDescription": "오목에 오셀로를 섞었어요. 상대 돌을 끼우면 내 돌로 뒤집혀요. 쌍삼 금지, 딱 5목 승리.",
-    "flipOmokMeta": "AI·친구 1:1 · 개발자 창작"
+    "flipOmokMeta": "AI·친구 1:1 · 개발자 창작",
+    "podiumLabel": "{game} AI전 명예의 전당 1·2·3위",
+    "podiumWins": "{n}승"
   },
   "WallGo": {
     "metaTitle": "벽바둑 — 데블스플랜3 벽바둑 룰 정리 + AI·친구랑 바로 두기",

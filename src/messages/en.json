@@ -333,7 +333,9 @@
     "modeMorrisFriendDesc": "Link · invite code",
     "tag_devOriginal": "Dev's original",
     "flipOmokDescription": "Omok meets Othello: sandwich enemy stones to flip them yours. No double threes, exactly five wins.",
-    "flipOmokMeta": "AI · friend 1:1 · original"
+    "flipOmokMeta": "AI · friend 1:1 · original",
+    "podiumLabel": "{game} AI Hall of Fame top 3",
+    "podiumWins": "{n}W"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
