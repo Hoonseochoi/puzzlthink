@@ -9,8 +9,8 @@ export type RivalRow = { nickname: string; took: number; lost: number; last_at: 
 /** One move for the server replay: edge changes, or a hint taken at (r, c). */
 export type ReplayStep = { c: [number, number][] } | { h: [number, number] };
 /** Ranked by boards owned (맵 수집). `board`: one of their boards to try. */
-export type RankRow = { rank: number; nickname: string; maps: number; is_me: boolean; board: string | null; board_ms: number | null; tried: boolean; prev_rank?: number | null; locked?: boolean };
-export type BoardRow = { id: string; holder: string; holder_ms: number; first_name: string; attempts: number; takeovers: number; published_at: string; tried: boolean; mine?: boolean; locked?: boolean };
+export type RankRow = { rank: number; nickname: string; maps: number; is_me: boolean; board: string | null; board_ms: number | null; tried: boolean; prev_rank?: number | null };
+export type BoardRow = { id: string; holder: string; holder_ms: number; first_name: string; attempts: number; takeovers: number; published_at: string; tried: boolean; mine?: boolean };
 
 async function call<T>(name: string, args: Record<string, unknown> = {}): Promise<{ data: T | null; error: string | null }> {
   const supabase = getSupabase();

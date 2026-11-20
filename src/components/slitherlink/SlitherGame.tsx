@@ -163,7 +163,7 @@ export default function SlitherGame() {
   const startRun = async (kind: 'challenge' | 'beat', id?: string) => {
     setPhaseNow('starting'); setError(null);
     const { data, error: err } = kind === 'challenge' ? await startNew() : await startBeat(id!);
-    if (!data) { setPhaseNow('lobby'); setError(err?.includes('tried') ? t('errTried') : err?.includes('rival_once') ? t('errRivalOnce') : err?.includes('sign_in') ? t('needSignIn') : t('errStart')); setListTick((n) => n + 1); return; }
+    if (!data) { setPhaseNow('lobby'); setError(err?.includes('tried') ? t('errTried') : err?.includes('sign_in') ? t('needSignIn') : t('errStart')); setListTick((n) => n + 1); return; }
     runRef.current = data; setRun(data);
     begin(data.dots, data.seed);
   };
@@ -258,7 +258,7 @@ export default function SlitherGame() {
           : <ol className="mt-3 space-y-1">{ranking.map((row) => (
             <li key={`${row.rank}-${row.nickname}`} className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs ${row.is_me ? 'bg-(--accent)/20 font-black' : 'bg-black/25'}`}>
               <span className="w-7 font-mono text-white/50">#{row.rank}</span><span className="min-w-0 flex-1 truncate">{row.nickname}</span><span className="font-mono">{t('mapsCount', { n: row.maps })}</span><RankMove rank={row.rank} prev={row.prev_rank} dark />
-              {row.board && !row.is_me && <button type="button" disabled={row.tried || row.locked} onClick={() => openBoard(row.board!)} title={t('tryBoard', { name: row.nickname })} className="ml-1 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-black text-(--accent) ring-1 ring-(--accent)/40 hover:bg-(--accent)/15 disabled:opacity-30">{row.tried ? t('boardTried') : row.locked ? t('boardLocked') : t('rankTry')}</button>}
+              {row.board && !row.is_me && <button type="button" disabled={row.tried} onClick={() => openBoard(row.board!)} title={t('tryBoard', { name: row.nickname })} className="ml-1 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-black text-(--accent) ring-1 ring-(--accent)/40 hover:bg-(--accent)/15 disabled:opacity-30">{row.tried ? t('boardTried') : t('rankTry')}</button>}
             </li>
           ))}</ol>}
     </section>
@@ -305,9 +305,9 @@ export default function SlitherGame() {
                   <p className="mt-1 text-sm text-white/60">{t('focusLimit', { time: time(focus.holder_ms) })}</p>
                   <p className="mt-1 text-[11px] text-white/40">{t('boardMeta', { tries: focus.attempts, wins: focus.takeovers })}</p>
                   <div className="mt-3 text-left"><p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-white/40">{t('historyTitle')}</p><SlitherHistory id={focus.id} /></div>
-                  <button type="button" disabled={focus.tried || focus.locked || focus.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', focus.id)} className={`${BTN_ACCENT} mt-4 w-full py-3.5 text-sm disabled:opacity-40`}>
+                  <button type="button" disabled={focus.tried || focus.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', focus.id)} className={`${BTN_ACCENT} mt-4 w-full py-3.5 text-sm disabled:opacity-40`}>
                     {phase === 'starting' ? <Loader2 size={16} className="animate-spin" /> : <Swords size={16} />}
-                    {focus.mine ? t('focusMine') : focus.tried ? t('boardTried') : focus.locked ? t('focusLocked', { name: focus.holder }) : t('tryBoard', { name: focus.holder })}
+                    {focus.mine ? t('focusMine') : focus.tried ? t('boardTried') : t('tryBoard', { name: focus.holder })}
                   </button>
                 </div>
               )}
@@ -326,7 +326,7 @@ export default function SlitherGame() {
                                 <span className="flex items-center gap-1 truncate text-[11px] text-white/45">{t('boardMeta', { tries: b.attempts, wins: b.takeovers })}<ChevronDown size={11} className={`shrink-0 transition ${historyOf === b.id ? 'rotate-180' : ''}`} /></span>
                               </span>
                             </button>
-                            <button type="button" disabled={b.tried || b.locked || !signedIn || phase === 'starting'} onClick={() => startRun('beat', b.id)} className={`${BTN_ACCENT} shrink-0 !px-3 !py-1.5 disabled:opacity-40`}>{b.tried ? t('boardTried') : b.locked ? t('boardLocked') : t('boardGo')}</button>
+                            <button type="button" disabled={b.tried || !signedIn || phase === 'starting'} onClick={() => startRun('beat', b.id)} className={`${BTN_ACCENT} shrink-0 !px-3 !py-1.5 disabled:opacity-40`}>{b.tried ? t('boardTried') : t('boardGo')}</button>
                           </div>
                           {historyOf === b.id && <div className="border-t border-white/10 px-2.5 py-2"><SlitherHistory id={b.id} /></div>}
                         </li>
