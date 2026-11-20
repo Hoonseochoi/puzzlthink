@@ -9,6 +9,7 @@ import { useAuth } from './AuthProvider';
 
 /** Game pages that get the floating "오류 제보" button, with the Common message key for the game's name. */
 const GAMES: { path: string; id: string; label: string }[] = [
+  { path: '/flip-omok', id: 'flip_omok', label: 'flipOmok' },
   { path: '/nine-mens-morris', id: 'nine_mens_morris', label: 'nineMensMorris' },
   { path: '/wallgo-2', id: 'wallgo2', label: 'wallgo2' },
   { path: '/wallgo', id: 'wallgo', label: 'wallgo' },

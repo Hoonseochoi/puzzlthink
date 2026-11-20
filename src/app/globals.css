@@ -81,3 +81,6 @@ button:disabled { cursor: default; }
 @keyframes flip-omok-loop { 0%, 55% { transform: rotateY(0deg); } 75%, 100% { transform: rotateY(180deg); } }
 .flip-omok-loop { animation: flip-omok-loop 2.4s ease-in-out infinite alternate; }
 @media (prefers-reduced-motion: reduce) { .flip-omok-turn, .flip-omok-toast, .flip-omok-win line, .flip-omok-loop { animation: none; } }
+/* 뒤집기 오목 tutorial: a stone that keeps turning over between the two colours. */
+.flip-omok-loop-turn { animation: flip-omok-loop 2.4s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .flip-omok-loop-turn { animation: none; } }

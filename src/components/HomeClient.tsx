@@ -247,7 +247,7 @@ export default function HomeClient() {
     <DevLetter />
     <div className="mt-8 grid gap-3 sm:mt-12 sm:gap-5 md:grid-cols-2"><OpenMatchCard previews={{
       slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerPreview />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
-      blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
+      blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} />{games.map((game) => (
       <div key={game.title} className={`group relative flex flex-col overflow-hidden rounded-[24px] border bg-[#f9f7f1] ${'hype' in game ? 'hype-card border-[#ff6a3d]/45' : 'border-black/10'} p-4 shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px] sm:p-5 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_70px_rgba(30,38,36,0.14)] sm:p-7`}>
