@@ -134,7 +134,7 @@ export function findCompletion(state: Pick<MonorailState, 'tiles'>, orderSeed = 
     ['n', 's', 'w', 'e'], ['s', 'n', 'e', 'w'], ['w', 'n', 's', 'e'], ['e', 's', 'n', 'w'],
     ['n', 'w', 's', 'e'], ['s', 'e', 'n', 'w'], ['w', 's', 'n', 'e'], ['e', 'n', 's', 'w'],
   ];
-  const dirs = baseOrders[Math.abs(orderSeed) % baseOrders.length];
+  const seed = Math.abs(orderSeed);
 
   const walk = (current: Point, previous: Point): boolean => {
     nodes += 1;
@@ -144,7 +144,10 @@ export function findCompletion(state: Pick<MonorailState, 'tiles'>, orderSeed = 
 
     const back = direction(current, previous)!;
     const fixedTile = fixed.get(k);
-    let nextDirs: readonly Direction[] = dirs;
+    // Vary the branch order at every cell, not just once per search. The solver stays
+    // exhaustive, while different seeds expose genuinely different completion routes
+    // for the AI to compare.
+    let nextDirs: readonly Direction[] = baseOrders[(seed + current.r * 11 + current.c * 7 + path.length * 5) % baseOrders.length];
     if (fixedTile) {
       const ports = PORTS[fixedTile.shape];
       if (!ports.includes(back)) nextDirs = [];
@@ -208,41 +211,119 @@ function candidatesFromSolution(state: MonorailState, solution: RailTile[]) {
   return out;
 }
 
-/** A deliberately broad fallback pool, including mistakes, used to keep Normal human-beatable. */
-function frontierMoves(state: MonorailState) {
-  const board = occupied(state), seen = new Set<string>(), moves: MonorailMove[] = [];
-  for (const tile of board.values()) for (const d of Object.keys(DELTA) as Direction[]) {
-    const p = step(tile, d), k = keyOf(p);
-    if (!inside(p) || board.has(k) || seen.has(k)) continue;
-    seen.add(k);
-    for (const shape of SHAPES) moves.push({ tiles: [{ ...p, shape, skin: (p.r * 5 + p.c * 3 + state.moveNo) % 6 }] });
-  }
-  return moves;
-}
-
 export type MonorailAiAction = { t: 'move'; move: MonorailMove } | { t: 'impossible' };
 
-/** Normal follows its best line about half the time; Hard does so four times in five. */
-export function chooseMonorailAction(state: MonorailState, level: MonorailLevel, random = Math.random): MonorailAiAction {
-  const completions = Array.from({ length: level === 'hard' ? 8 : 4 }, (_, i) => findCompletion(state, i)).filter((x): x is NonNullable<typeof x> => !!x);
-  if (!completions.length) return { t: 'impossible' };
-  const unique = new Map<string, MonorailMove>();
-  for (const completion of completions) for (const move of candidatesFromSolution(state, completion.tiles)) {
-    unique.set(move.tiles.map((tile) => `${keyOf(tile)}:${tile.shape}`).sort().join('|'), move);
+const moveKey = (move: MonorailMove) => move.tiles.map((tile) => `${keyOf(tile)}:${tile.shape}`).sort().join('|');
+const completionKey = (tiles: RailTile[]) => tiles.map((tile) => `${keyOf(tile)}:${tile.shape}`).sort().join('|');
+const stateKey = (state: MonorailState) => `${state.turn};${state.tiles.map((tile) => `${keyOf(tile)}:${tile.shape}`).sort().join('|')}`;
+
+type RankedMove = { move: MonorailMove; score: number };
+type SearchConfig = { depth: number; nodes: number; rootSamples: number; innerSamples: number; rootMoves: number; innerMoves: number };
+type SearchContext = SearchConfig & { used: number; cache: Map<string, number> };
+
+/** Samples distinct, exact completion routes. A null first probe proves that Impossible is correct. */
+function completionRoutes(state: MonorailState, count: number, first?: NonNullable<CompletionResult>) {
+  const routes = new Map<string, NonNullable<CompletionResult>>();
+  if (first) routes.set(completionKey(first.tiles), first);
+  for (let seed = 0; seed < count * 2 && routes.size < count; seed += 1) {
+    const completion = findCompletion(state, seed + state.moveNo * 17);
+    if (!completion) break;
+    routes.set(completionKey(completion.tiles), completion);
   }
-  const safe = [...unique.values()].map((move) => {
+  return [...routes.values()];
+}
+
+/**
+ * Every returned move belongs to at least one exact full loop. Unlike the previous
+ * random-frontier fallback, the AI can never hand the opponent a free Impossible win.
+ */
+function preservingMoves(state: MonorailState, first: NonNullable<CompletionResult>, samples: number, limit: number): RankedMove[] {
+  const routes = completionRoutes(state, samples, first);
+  const choices = new Map<string, { move: MonorailMove; votes: number; tempo: number; shortest: number }>();
+  for (const route of routes) for (const move of candidatesFromSolution(state, route.tiles)) {
+    const key = moveKey(move);
+    const remaining = route.tiles.length - state.tiles.length - move.tiles.length;
+    const current = choices.get(key) ?? { move, votes: 0, tempo: 0, shortest: TILE_COUNT };
+    current.votes += 1;
+    current.tempo += remaining % 4 === 0 ? 1 : 0;
+    current.shortest = Math.min(current.shortest, remaining);
+    choices.set(key, current);
+  }
+
+  return [...choices.values()].map(({ move, votes, tempo, shortest }) => {
     const next = playMonorail(state, move)!;
-    const remaining = TILE_COUNT - next.tiles.length;
     const immediate = next.winner === state.turn;
-    // With a fixed route, leaving a multiple of four is the 1–3 tile take-away strategy.
-    const score = (immediate ? 10000 : 0) + (remaining % 4 === 0 ? 900 : 0) + move.tiles.length * 8 + random();
+    // Route consensus avoids brittle plans; leaving 4k tiles is strong in the 1–3 take-away endgame.
+    const score = (immediate ? 1_000_000 : 0) + tempo * 900 + votes * 120 + move.tiles.length * 14 - shortest;
     return { move, score };
-  }).sort((a, b) => b.score - a.score);
-  if (!safe.length) return { t: 'impossible' };
-  const accuracy = level === 'hard' ? 0.9 : 0.52;
-  if (random() < accuracy) return { t: 'move', move: safe[0].move };
-  const broad = frontierMoves(state);
-  return { t: 'move', move: broad[Math.floor(random() * broad.length)] ?? safe[Math.floor(random() * safe.length)].move };
+  }).sort((a, b) => b.score - a.score || moveKey(a.move).localeCompare(moveKey(b.move))).slice(0, limit);
+}
+
+function leafScore(state: MonorailState, first: NonNullable<CompletionResult>, samples: number) {
+  const routes = completionRoutes(state, samples, first);
+  const remainders = routes.map((route) => route.tiles.length - state.tiles.length);
+  const favourable = remainders.filter((left) => left % 4 !== 0).length;
+  const shortest = Math.min(...remainders);
+  return (favourable * 2 - routes.length) * 90 + routes.length * 16 - shortest;
+}
+
+/** Negamax from the player-to-move's view, with an exact Impossible check at every node. */
+function searchPosition(state: MonorailState, depth: number, context: SearchContext): number {
+  context.used += 1;
+  const probe = findCompletion(state, state.moveNo * 29 + depth);
+  if (!probe) return 900_000 - state.moveNo; // Current player wins immediately by declaring Impossible.
+  if (depth <= 0 || context.used >= context.nodes) return leafScore(state, probe, context.used >= context.nodes ? 1 : context.innerSamples);
+
+  const cacheKey = `${stateKey(state)};${depth}`;
+  const cached = context.cache.get(cacheKey);
+  if (cached !== undefined) return cached;
+  const moves = preservingMoves(state, probe, context.innerSamples, context.innerMoves);
+  if (!moves.length) return leafScore(state, probe, context.innerSamples);
+
+  let best = -1_000_000;
+  for (const { move } of moves) {
+    const next = playMonorail(state, move)!;
+    const value = next.winner === state.turn
+      ? 1_000_000 - next.moveNo
+      : -searchPosition(next, depth - 1, context);
+    if (value > best) best = value;
+    if (best > 990_000 || context.used >= context.nodes) break;
+  }
+  context.cache.set(cacheKey, best);
+  return best;
+}
+
+const SEARCH: Record<MonorailLevel, SearchConfig> = {
+  // Medium still sees the opponent's reply, but may choose among several close safe plans.
+  normal: { depth: 2, nodes: 60, rootSamples: 5, innerSamples: 1, rootMoves: 12, innerMoves: 6 },
+  // Hard searches three plies with a wider set of alternative completion routes.
+  hard: { depth: 3, nodes: 240, rootSamples: 10, innerSamples: 2, rootMoves: 20, innerMoves: 8 },
+};
+
+/** Exact Impossible detection plus bounded adversarial look-ahead. All played moves preserve a full loop. */
+export function chooseMonorailAction(state: MonorailState, level: MonorailLevel, random = Math.random): MonorailAiAction {
+  const probe = findCompletion(state, state.moveNo * 31);
+  if (!probe) return { t: 'impossible' };
+  const config = SEARCH[level];
+  const candidates = preservingMoves(state, probe, config.rootSamples, config.rootMoves);
+  if (!candidates.length) {
+    const fallback = candidatesFromSolution(state, probe.tiles)[0];
+    return fallback ? { t: 'move', move: fallback } : { t: 'impossible' };
+  }
+
+  const context: SearchContext = { ...config, used: 0, cache: new Map() };
+  const scored = candidates.map(({ move, score }) => {
+    const next = playMonorail(state, move)!;
+    const lookAhead = next.winner === state.turn
+      ? 1_000_000 - next.moveNo
+      : -searchPosition(next, config.depth - 1, context);
+    return { move, score: lookAhead * 10 + score };
+  }).sort((a, b) => b.score - a.score || moveKey(a.move).localeCompare(moveKey(b.move)));
+
+  if (level === 'hard' || scored.length === 1) return { t: 'move', move: scored[0].move };
+  // Medium varies between the best few searched plans, but never chooses a route-breaking move.
+  const close = scored.filter((item) => item.score >= scored[0].score - 1_200).slice(0, 3);
+  return { t: 'move', move: close[Math.floor(random() * close.length)].move };
 }
 
 export function moveText(move: MonorailMove) {
