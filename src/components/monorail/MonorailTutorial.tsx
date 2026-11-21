@@ -14,12 +14,12 @@ function Mini({ value, pending = [] }: { value: MonorailState; pending?: RailTil
 
 export function MonorailTutorialSteps() {
   const t = useTranslations('MonorailTutorial');
-  const base = [tile(3, 4, 'se'), tile(3, 5, 'sw')];
-  const loop = [tile(4, 3, 'se'), tile(5, 3, 'ne'), tile(5, 4, 'h'), tile(5, 5, 'h'), tile(5, 6, 'nw'), tile(4, 6, 'sw')];
+  const base = [tile(6, 6, 'se'), tile(6, 7, 'sw')];
+  const loop = [tile(7, 5, 'se'), tile(8, 5, 'ne'), tile(8, 6, 'h'), tile(8, 7, 'h'), tile(8, 8, 'nw'), tile(7, 8, 'sw')];
   const steps = [
     { title: t('s1Title'), desc: t('s1Desc'), visual: <Mini value={state([])} /> },
-    { title: t('s2Title'), desc: t('s2Desc'), visual: <Mini value={state(base)} pending={[tile(2, 4, 'se', 3), tile(2, 5, 'sw', 4)]} /> },
-    { title: t('s3Title'), desc: t('s3Desc'), visual: <Mini value={state([...base, tile(2, 4, 'h')])} /> },
+    { title: t('s2Title'), desc: t('s2Desc'), visual: <Mini value={state(base)} pending={[tile(5, 6, 'se', 3), tile(5, 7, 'sw', 4)]} /> },
+    { title: t('s3Title'), desc: t('s3Desc'), visual: <Mini value={state([...base, tile(5, 6, 'h')])} /> },
     { title: t('s4Title'), desc: t('s4Desc'), visual: <Mini value={state(loop)} /> },
     { title: t('s5Title'), desc: t('s5Desc'), visual: <Mini value={state(base, loop)} /> },
   ];

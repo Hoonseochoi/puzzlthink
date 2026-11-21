@@ -1,5 +1,5 @@
 // Host-authoritative 1:1 Monorail room. Open matches use this exact same engine as friend rooms.
-import { type MonorailMove, type MonorailState, type Player, type RailTile, declareImpossible, giveUpChallenge, newMonorail, playMonorail, proveCompletion } from './monorail';
+import { BOARD_SIZE, type MonorailMove, type MonorailState, type Player, type RailTile, declareImpossible, giveUpChallenge, newMonorail, playMonorail, proveCompletion } from './monorail';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
 export const MONORAIL_TURN_OPTIONS = [90, 60, 30] as const;
@@ -10,6 +10,8 @@ export type MonorailRoom = BaseRoom & {
   turnSec: MonorailTurnSeconds;
   first: 0 | 1;
   game: MonorailState;
+  /** Board size the saved coordinates belong to (rooms from the old 9×9 layout are not restored). */
+  board?: number;
 };
 
 export type MonorailRoomAction =
@@ -25,7 +27,7 @@ export type MonorailRoomAction =
 export function createMonorailRoom(host: Peer): MonorailRoom {
   return {
     sid: newSid(), v: 1, seats: [{ id: host.id, name: host.name }, null] as Seat[], phase: 'lobby', deadline: 0,
-    turnSec: 60, first: 0, game: newMonorail(),
+    turnSec: 60, first: 0, game: newMonorail(), board: BOARD_SIZE,
   };
 }
 
@@ -92,5 +94,5 @@ export function reduceMonorailRoom(state: MonorailRoom, action: MonorailRoomActi
 /** Cheap restore guard also rejects stale states with impossible tile counts. */
 export function restorableMonorailRoom(saved: MonorailRoom) {
   return Array.isArray(saved?.seats) && saved.seats.length === 2 && Array.isArray(saved?.game?.tiles)
-    && saved.game.tiles.length <= 16;
+    && saved.game.tiles.length <= 16 && saved.board === BOARD_SIZE;
 }

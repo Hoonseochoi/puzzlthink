@@ -38,10 +38,10 @@ function MonorailPreview() {
   // A loop one tile away from closing: the last curve hovers in place, so the thumbnail shows the goal.
   const T = (r: number, c: number, shape: 'h' | 'v' | 'ne' | 'se' | 'sw' | 'nw', skin: number) => ({ r, c, shape, skin });
   const state = { ...newMonorail(), tiles: [
-    T(4, 3, 'se', 1), T(5, 3, 'v', 2), T(6, 3, 'v', 4), T(7, 3, 'ne', 3), T(7, 4, 'h', 5),
-    T(7, 5, 'h', 0), T(7, 6, 'nw', 2), T(6, 6, 'v', 1), T(5, 6, 'v', 3),
+    T(7, 5, 'se', 1), T(8, 5, 'v', 2), T(9, 5, 'v', 4), T(10, 5, 'ne', 3), T(10, 6, 'h', 5),
+    T(10, 7, 'h', 0), T(10, 8, 'nw', 2), T(9, 8, 'v', 1), T(8, 8, 'v', 3),
   ] };
-  return <div className="w-full sm:w-[66%]"><MonorailBoard state={state} pending={[{ r: 4, c: 6, shape: 'sw', skin: 2 }]} pad={0} minView={4} className="!rounded-xl !border-[3px] !border-[#17201e] !p-[3%] sm:!rounded-2xl sm:!border-4" /></div>;
+  return <div className="w-full sm:w-[66%]"><MonorailBoard state={state} pending={[{ r: 7, c: 8, shape: 'sw', skin: 2 }]} pad={0} minView={4} className="!rounded-xl !border-[3px] !border-[#17201e] !p-[3%] sm:!rounded-2xl sm:!border-4" /></div>;
 }
 
 /** 벽바둑 II as on the broadcast: coral 7×7 board in a grey frame, a square and a round piece per player. */

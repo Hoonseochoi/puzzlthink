@@ -9,11 +9,15 @@ export type RailTile = Point & { shape: RailShape; skin: number };
 export type MonorailMove = { tiles: RailTile[] };
 export type MonorailLevel = 'normal' | 'hard';
 
-export const BOARD_SIZE = 9;
+// The real table has no edge; only the sixteen tiles limit a loop. A loop of at most sixteen rail
+// tiles reaches no further than 6 rows above or below the stations, 6 columns left of them and 7 to the
+// right. A 15×15 grid with the stations at row 7, columns 6–7 holds every such loop, so the board edge
+// can never decide an Impossible call. The camera in MonorailBoard only shows the part in play.
+export const BOARD_SIZE = 15;
 export const TILE_COUNT = 16;
 export const STATIONS: readonly RailTile[] = [
-  { r: 4, c: 4, shape: 'h', skin: 0 },
-  { r: 4, c: 5, shape: 'h', skin: 1 },
+  { r: 7, c: 6, shape: 'h', skin: 0 },
+  { r: 7, c: 7, shape: 'h', skin: 1 },
 ];
 export const SHAPES: readonly RailShape[] = ['h', 'v', 'ne', 'se', 'sw', 'nw'];
 
@@ -116,10 +120,10 @@ export function playMonorail(state: MonorailState, move: MonorailMove): Monorail
 // A finished loop is a self-avoiding path from the left station's outer end to the right station's
 // outer end. The two stations close that path along their touching inner ends. Enumerating such paths
 // makes the Impossible button an actual rules check rather than a heuristic.
-const START: Point = { r: 4, c: 3 };
-const GOAL: Point = { r: 4, c: 6 };
 const LEFT_STATION = STATIONS[0];
 const RIGHT_STATION = STATIONS[1];
+const START: Point = { r: LEFT_STATION.r, c: LEFT_STATION.c - 1 };
+const GOAL: Point = { r: RIGHT_STATION.r, c: RIGHT_STATION.c + 1 };
 const STATION_KEYS = new Set(STATIONS.map(keyOf));
 
 export type CompletionResult = { tiles: RailTile[]; visited: number } | null;
