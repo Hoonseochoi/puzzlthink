@@ -69,7 +69,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
       listLiveRooms().then((rows) => { if (alive) setLive(rows); });
     };
     load();
-    const timer = window.setInterval(load, dialog === 'join' ? 8_000 : 20_000);
+    const timer = window.setInterval(load, dialog === 'join' ? 15_000 : 60_000);
     return () => { alive = false; window.clearInterval(timer); };
   }, [dialog, tick]);
 

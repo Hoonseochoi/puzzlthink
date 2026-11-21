@@ -82,8 +82,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.rpc('touch_profile', { p_full_name: displayName(user) || null, p_avatar_url: avatarUrl(user) || null }).then(() => {});
     // A game finished while signed out (sign-in prompt on the result screen) is saved now.
     flushPendingGame().then((saved) => { if (saved) window.dispatchEvent(new Event('puzzlthink:game-saved')); });
-    const beat = () => { if (document.visibilityState === 'visible') supabase.rpc('track_activity', { p_seconds: 60 }).then(() => {}); };
-    const timer = window.setInterval(beat, 60_000);
+    const beat = () => { if (document.visibilityState === 'visible') supabase.rpc('track_activity', { p_seconds: 120 }).then(() => {}); };
+    const timer = window.setInterval(beat, 120_000); // the server credits at most 120 s per beat
     return () => window.clearInterval(timer);
   }, [user]);
 
