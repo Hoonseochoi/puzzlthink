@@ -4710,6 +4710,11 @@
     "shareTitle": "Share this ranking",
     "shareDesc": "Send it to friends and see who gets on the board first.",
     "shareText": "Here's the {game} ranking. Think you can make it?",
+    "mapsTitle": "Map ranking (challenge)",
+    "mapsDesc": "By maps you hold right now. Clear a new map and it's yours; beat someone's time on theirs to steal it.",
+    "maps": "{n} maps",
+    "emptyMaps": "No map owners yet. Clear one new map and you're #1!",
+    "podiumEmpty": "Be the first on the podium!",
     "otherGames": "Other rankings",
     "viewRanking": "🏆 {game} ranking"
   },

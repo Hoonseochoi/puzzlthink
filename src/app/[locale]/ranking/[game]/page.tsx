@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Crown, DoorOpen, Swords, Timer, Trophy } from 'lucide-react';
+import { Crown, DoorOpen, Map as MapIcon, Swords, Timer, Trophy } from 'lucide-react';
 import ShareButtons from '@/components/ShareButtons';
 import { Link } from '@/i18n/routing';
 import { CERT_GAMES } from '@/lib/hardClear';
@@ -10,6 +10,7 @@ import { type GameRanking, fetchGameRanking, gameFromSlug, hasHall, hasOpen, ran
 import { pageMetadata } from '@/lib/seo';
 import type { GameId } from '@/lib/stats';
 import RankMove from '@/components/RankMove';
+import StoneAvatar from '@/components/StoneAvatar';
 
 type Params = { params: Promise<{ locale: string; game: string }> };
 const MEDAL = ['🥇', '🥈', '🥉'];
@@ -46,6 +47,44 @@ function Board({ title, desc, icon, empty, rows }: { title: string; desc: string
   );
 }
 
+type PodiumRow = { rank: number; name: string; stat: string };
+
+/** The top three on steps, 2nd · 1st · 3rd (empty steps wait for a name). */
+function Podium({ rows, color, title, empty }: { rows: PodiumRow[]; color: string; title: string; empty: string }) {
+  const by = new Map(rows.map((r) => [r.rank, r]));
+  const step: Record<number, string> = {
+    1: 'h-24 sm:h-32 bg-gradient-to-b from-[#ffd45c] to-[#e8a33c]',
+    2: 'h-16 sm:h-24 bg-gradient-to-b from-[#eef0f4] to-[#b9bec8]',
+    3: 'h-12 sm:h-16 bg-gradient-to-b from-[#f0c39a] to-[#c98a55]',
+  };
+  return (
+    <section className="relative mt-8 overflow-hidden rounded-[28px] bg-[#17201e] px-4 pb-0 pt-5 text-white sm:px-8 sm:pt-7" style={{ backgroundImage: `radial-gradient(circle at 50% 0%, ${color}55, transparent 62%)` }}>
+      <p className="flex items-center justify-center gap-1.5 text-[11px] font-black tracking-[0.18em] text-white/60"><Trophy size={13} className="text-[#ffd45c]" />{title}</p>
+      {!rows.length && <p className="mt-1.5 text-center text-xs font-bold text-white/70">{empty}</p>}
+      <div className="mx-auto mt-4 grid max-w-md grid-cols-3 items-end gap-2 sm:gap-4">
+        {[2, 1, 3].map((place) => {
+          const r = by.get(place);
+          return (
+            <div key={place} className="flex min-w-0 flex-col items-center text-center">
+              {r ? <>
+                <span className={place === 1 ? 'drop-shadow-[0_0_16px_rgba(255,196,60,.65)]' : ''}><StoneAvatar name={r.name} size={place === 1 ? 60 : 46} /></span>
+                <span className="mt-1.5 w-full truncate px-1 text-xs font-black sm:text-sm">{r.name}</span>
+                <span className="mt-0.5 text-[11px] font-bold text-white/55">{r.stat}</span>
+              </> : <>
+                <span className={`rounded-full border-2 border-dashed border-white/20 ${place === 1 ? 'h-[60px] w-[60px]' : 'h-[46px] w-[46px]'}`} />
+                <span className="mt-1.5 text-[11px] font-bold text-white/35">?</span>
+              </>}
+              <span className={`mt-2 flex w-full items-start justify-center rounded-t-2xl pt-2 shadow-[inset_0_2px_0_rgba(255,255,255,.45)] ${step[place]}`}>
+                <span className="text-3xl font-black text-white/90 sm:text-4xl" style={{ textShadow: '0 2px 0 rgba(0,0,0,.18)' }}>{place}</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default async function RankingPage({ params }: Params) {
   const { locale, game: slug } = await params;
   setRequestLocale(locale);
@@ -54,6 +93,14 @@ export default async function RankingPage({ params }: Params) {
   const t = await getTranslations({ locale, namespace: 'Ranking' });
   const name = CERT_GAMES[game][locale === 'en' ? 'en' : 'ko'];
   const r: GameRanking = await fetchGameRanking(game);
+  // The podium shows the game's main board: the map ranking, else the Hall of Fame, else the 30-minute challenge, else open matches.
+  const nemoTop = r.nemo && (r.nemo.hard.length ? r.nemo.hard : r.nemo.normal.length ? r.nemo.normal : r.nemo.easy);
+  const top: { title: string; rows: PodiumRow[] } = r.maps
+    ? { title: t('mapsTitle'), rows: r.maps.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('maps', { n: x.score }) })) }
+    : hasHall(game) && r.hall.length ? { title: t('hallTitle'), rows: r.hall.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('wins', { w: x.wins, g: x.games }) })) }
+    : nemoTop ? { title: t('nemoTitle', { level: t(`level_${nemoTop === r.nemo!.hard ? 'hard' : nemoTop === r.nemo!.normal ? 'normal' : 'easy'}`) }), rows: nemoTop.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: `${x.correct}` })) }
+    : hasOpen(game) && r.open.length ? { title: t('openTitle'), rows: r.open.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname ?? 'Player', stat: t('wld', { w: x.wins, l: x.losses, d: x.draws }) })) }
+    : { title: hasHall(game) ? t('hallTitle') : t('openTitle'), rows: [] };
 
   return (
     <main className="min-h-screen bg-[#f3f0e8] px-4 pb-20 pt-10 text-[#17201e] sm:px-5 sm:pt-14">
@@ -66,7 +113,13 @@ export default async function RankingPage({ params }: Params) {
           <Link href="/records" className="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-5 py-3 text-sm font-bold text-black/70">{t('myRecords')}</Link>
         </div>
 
-        <div className="mt-8 grid gap-4">
+        <Podium rows={top.rows} color={CERT_GAMES[game].color} title={top.title} empty={t('podiumEmpty')} />
+
+        <div className="mt-6 grid gap-4">
+          {r.maps && (
+            <Board title={t('mapsTitle')} desc={t('mapsDesc')} icon={<MapIcon size={18} style={{ color: CERT_GAMES[game].color }} />} empty={t('emptyMaps')}
+              rows={r.maps.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('maps', { n: x.score }), prev: x.prev_rank }))} />
+          )}
           {hasHall(game) && (
             <Board title={t('hallTitle')} desc={game === 'sudoku' ? t('hallDescSudoku') : t('hallDesc')} icon={<Crown size={18} className="text-[#e8a33c]" />} empty={t('empty')}
               rows={r.hall.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('wins', { w: x.wins, g: x.games }), prev: x.prev_rank }))} />
@@ -90,7 +143,7 @@ export default async function RankingPage({ params }: Params) {
         <nav className="mt-8">
           <p className="text-[11px] font-black tracking-widest text-black/40">{t('otherGames')}</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            {(Object.keys(CERT_GAMES) as GameId[]).filter((g) => g !== game).map((g) => (
+            {(Object.keys(CERT_GAMES) as GameId[]).filter((g) => g !== game && gameFromSlug(rankSlug(g))).map((g) => (
               <Link key={g} href={`/ranking/${rankSlug(g)}`} className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-bold text-black/65 hover:bg-[#fff8e6]">{CERT_GAMES[g][locale === 'en' ? 'en' : 'ko']}</Link>
             ))}
           </div>
