@@ -10,62 +10,137 @@ import { BTN, BTN_ACCENT, PANEL_TITLE, accentVars, seg } from '@/components/ui/g
 export const MONORAIL_ACCENT = '#f3b64a';
 export const MONORAIL_INK = '#241607';
 
+// Every track runs through the tile centre and leaves through the middle of two edges. Curves are true
+// quarter circles, so neighbouring tiles join seamlessly and the sleeper pattern stays even.
 const TRACK_PATH: Record<RailShape, string> = {
   h: 'M -8 50 L 108 50', v: 'M 50 -8 L 50 108',
-  ne: 'M 50 -8 L 50 20 Q 50 50 80 50 L 108 50',
-  se: 'M 108 50 L 80 50 Q 50 50 50 80 L 50 108',
-  sw: 'M 50 108 L 50 80 Q 50 50 20 50 L -8 50',
-  nw: 'M -8 50 L 20 50 Q 50 50 50 20 L 50 -8',
+  ne: 'M 50 -8 L 50 0 A 50 50 0 0 0 100 50 L 108 50',
+  se: 'M 108 50 L 100 50 A 50 50 0 0 0 50 100 L 50 108',
+  sw: 'M 50 108 L 50 100 A 50 50 0 0 0 0 50 L -8 50',
+  nw: 'M -8 50 L 0 50 A 50 50 0 0 0 50 0 L 50 -8',
 };
 
-const TREE_POS = [
-  ['12%', '14%'], ['80%', '18%'], ['14%', '78%'], ['78%', '76%'], ['22%', '48%'], ['74%', '48%'],
+// Small scenery so that sixteen identical-looking cards still read as different pieces of land.
+// Each entry lists trees/bushes placed in the corners the track never crosses.
+const SCENERY: readonly (readonly [number, number, number])[][] = [
+  [[16, 16, 7], [84, 84, 6]], [[84, 16, 6], [16, 84, 7], [26, 80, 4]], [[18, 18, 5], [28, 12, 4], [82, 82, 7]],
+  [[82, 18, 7], [18, 82, 5]], [[14, 14, 6], [86, 14, 4], [84, 86, 6]], [[20, 82, 7], [80, 20, 5], [88, 88, 4]],
 ];
 
-export function RailCard({ tile, station = false, ghost = false, pending = false, compact = false }: { tile: RailTile; station?: boolean; ghost?: boolean; pending?: boolean; compact?: boolean }) {
-  const skin = Math.abs(tile.skin) % 6;
+function TrackSvg({ shape, station = false }: { shape: RailShape; station?: boolean }) {
+  const d = TRACK_PATH[shape];
   return (
-    <div className={`relative h-full w-full overflow-hidden rounded-[8%] border ${ghost ? 'border-[#ffe08a] opacity-45 saturate-50' : pending ? 'border-[#fff0a8] shadow-[0_0_18px_rgba(255,221,107,.65)]' : 'border-[#143e27]/45'} bg-[#78ad3e] shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)]`}>
-      <div className="absolute inset-0 opacity-35" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%,#d7ef82 0 2%,transparent 3%),linear-gradient(135deg,rgba(255,255,255,.12),transparent 45%)' }} />
-      {!compact && TREE_POS.slice(skin % 3, skin % 3 + 3).map(([left, top], i) => <i key={i} className="absolute h-[8%] w-[8%] rounded-full bg-[#2f692f] shadow-[3px_2px_0_#244d28]" style={{ left, top }} />)}
-      <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden>
-        <path d={TRACK_PATH[tile.shape]} fill="none" stroke="#27302e" strokeWidth="24" />
-        <path d={TRACK_PATH[tile.shape]} fill="none" stroke="#e7e4d6" strokeWidth="15" />
-        <path d={TRACK_PATH[tile.shape]} fill="none" stroke="#59605d" strokeWidth="2.6" strokeDasharray="5 4" />
-        <path d={TRACK_PATH[tile.shape]} fill="none" stroke="#ffffff" strokeOpacity=".48" strokeWidth="1.1" transform="translate(-4 -4)" />
-      </svg>
-      {station && <span className="absolute left-1/2 top-1/2 flex h-[30%] min-h-3 w-[38%] min-w-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[2px] border border-[#5a3510] bg-[#e3a431] shadow-md"><i className="h-[38%] w-[52%] rounded-[1px] bg-[#6b3a18]" /></span>}
-      {ghost && <span className="absolute inset-0 bg-[repeating-linear-gradient(135deg,transparent_0_5px,rgba(255,255,255,.18)_5px_8px)]" />}
+    <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden>
+      <path d={d} fill="none" stroke="#000" strokeOpacity=".18" strokeWidth="34" transform="translate(1.5 2.5)" />
+      <path d={d} fill="none" stroke="#a69a86" strokeWidth="32" />
+      <path d={d} fill="none" stroke="#c4b9a3" strokeWidth="26" />
+      <path d={d} fill="none" stroke="#6b4a2f" strokeWidth="24" strokeDasharray="3.6 4.73" />
+      <path d={d} fill="none" stroke="#e9edf0" strokeWidth="15" />
+      <path d={d} fill="none" stroke="#7d8790" strokeWidth="12" />
+      <path d={d} fill="none" stroke="#c4b9a3" strokeWidth="10" />
+      <path d={d} fill="none" stroke="#6b4a2f" strokeWidth="10" strokeDasharray="3.6 4.73" />
+      {station && <>
+        <rect x="18" y="14" width="64" height="15" rx="2.5" fill="#efb54a" stroke="#6b3c12" strokeWidth="1.6" />
+        <rect x="24" y="17.5" width="52" height="4" rx="1" fill="#7a3f13" opacity=".55" />
+        <path d="M 14 14 L 50 4 L 86 14 Z" fill="#c2412f" stroke="#6b1f14" strokeWidth="1.6" strokeLinejoin="round" />
+        <rect x="18" y="71" width="64" height="9" rx="2" fill="#e8dfc9" stroke="#6b5a3e" strokeWidth="1.2" />
+      </>}
+    </svg>
+  );
+}
+
+export function RailCard({ tile, station = false, ghost = false, pending = false, compact = false, last = false }: {
+  tile: RailTile; station?: boolean; ghost?: boolean; pending?: boolean; compact?: boolean; last?: boolean;
+}) {
+  const skin = Math.abs(tile.skin) % SCENERY.length;
+  const tone = station ? 'from-[#8cc456] to-[#5f9a35]' : skin % 2 ? 'from-[#86c04f] to-[#5b9531]' : 'from-[#7fba4a] to-[#55902e]';
+  const ring = ghost ? 'ring-2 ring-dashed ring-[#ffe08a]/80 opacity-55 saturate-[.35]'
+    : pending ? 'ring-[3px] ring-[#fff0a8] shadow-[0_0_22px_rgba(255,221,107,.7)] -translate-y-[3%]'
+      : last ? 'ring-2 ring-[#ffd36b] shadow-[0_0_16px_rgba(255,200,90,.55)]' : 'ring-1 ring-black/25';
+  return (
+    <div className={`relative h-full w-full overflow-hidden rounded-[10%] bg-gradient-to-br ${tone} shadow-[inset_0_2px_0_rgba(255,255,255,.28),inset_0_-3px_0_rgba(0,0,0,.18),0_3px_6px_rgba(0,0,0,.35)] transition-transform ${ring}`}>
+      <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle,#c9ec7d 0 1px,transparent 1.6px)', backgroundSize: '11% 11%' }} />
+      {!compact && (
+        <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden>
+          {SCENERY[skin].map(([x, y, r], i) => <g key={i}><circle cx={x + 1.2} cy={y + 1.8} r={r} fill="#24481f" opacity=".45" /><circle cx={x} cy={y} r={r} fill="#2f6b2c" /><circle cx={x - r * .3} cy={y - r * .3} r={r * .45} fill="#4f9642" /></g>)}
+        </svg>
+      )}
+      <TrackSvg shape={tile.shape} station={station} />
+      {ghost && <span className="absolute inset-0 bg-[repeating-linear-gradient(135deg,transparent_0_5px,rgba(255,255,255,.2)_5px_8px)]" />}
     </div>
   );
 }
 
-export function MonorailBoard({ state, pending = [], interactive = false, onCell, onPending, className = '' }: {
+type View = { r0: number; c0: number; size: number };
+
+/** The square window of the 9×9 table worth showing: everything in play plus `pad` empty rings around it. */
+function viewOf(points: { r: number; c: number }[], pad: number, min: number): View {
+  const rs = points.map((p) => p.r), cs = points.map((p) => p.c);
+  const r0 = Math.max(0, Math.min(...rs) - pad), r1 = Math.min(BOARD_SIZE - 1, Math.max(...rs) + pad);
+  const c0 = Math.max(0, Math.min(...cs) - pad), c1 = Math.min(BOARD_SIZE - 1, Math.max(...cs) + pad);
+  const size = Math.min(BOARD_SIZE, Math.max(min, r1 - r0 + 1, c1 - c0 + 1));
+  // Centre the shorter side inside the square window, then slide it back onto the table if needed.
+  const fit = (lo: number, hi: number) => Math.max(0, Math.min(BOARD_SIZE - size, lo - Math.floor((size - (hi - lo + 1)) / 2)));
+  return { r0: fit(r0, r1), c0: fit(c0, c1), size };
+}
+
+const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]] as const;
+
+/**
+ * The table. A camera frames the tiles in play (plus room to place more) and glides smoothly as the
+ * layout grows, so tiles stay large instead of floating in the middle of an empty 9×9 grid.
+ * `pad = null` shows the whole table.
+ */
+export function MonorailBoard({ state, pending = [], interactive = false, onCell, onPending, className = '', pad = 2, minView = 5, showLast = true }: {
   state: MonorailState; pending?: RailTile[]; interactive?: boolean;
   onCell?: (r: number, c: number) => void; onPending?: (tile: RailTile) => void; className?: string;
+  pad?: number | null; minView?: number; showLast?: boolean;
 }) {
   const fixed = useMemo(() => new Map([...STATIONS.map((tile) => ({ tile, station: true })), ...state.tiles.map((tile) => ({ tile, station: false }))].map((x) => [keyOf(x.tile), x])), [state.tiles]);
   const draft = useMemo(() => new Map(pending.map((tile) => [keyOf(tile), tile])), [pending]);
   const proof = useMemo(() => new Map((state.proof ?? []).filter((tile) => !fixed.has(keyOf(tile))).map((tile) => [keyOf(tile), tile])), [state.proof, fixed]);
+  const lastKeys = useMemo(() => new Set(showLast && state.winner === null ? (state.last?.tiles ?? []).map(keyOf) : []), [state.last, state.winner, showLast]);
+  const view = useMemo<View>(() => pad === null ? { r0: 0, c0: 0, size: BOARD_SIZE }
+    : viewOf([...STATIONS, ...state.tiles, ...pending, ...(state.proof ?? [])], pad, minView), [pad, minView, state.tiles, state.proof, pending]);
+  // Empty cells next to the layout: where the next tile can go. Shown as soft landing pads on your turn.
+  const frontier = useMemo(() => {
+    const out = new Set<string>();
+    if (!interactive) return out;
+    for (const tile of [...fixed.values()].map((x) => x.tile).concat(pending)) for (const [dr, dc] of DIRS) {
+      const r = tile.r + dr, c = tile.c + dc, k = `${r},${c}`;
+      if (r >= 0 && c >= 0 && r < BOARD_SIZE && c < BOARD_SIZE && !fixed.has(k) && !draft.has(k)) out.add(k);
+    }
+    return out;
+  }, [interactive, fixed, pending, draft]);
+
+  const scale = BOARD_SIZE / view.size;
+  const cell = 100 / BOARD_SIZE;
   return (
-    <div className={`relative mx-auto aspect-square w-full max-w-[720px] overflow-hidden rounded-[18px] border border-[#efc16b]/25 bg-[#4b161d] p-[2.5%] shadow-[0_24px_80px_rgba(0,0,0,.52),inset_0_0_50px_rgba(25,0,7,.6)] ${className}`}>
-      <div className="absolute inset-0 opacity-25" style={{ backgroundImage: 'radial-gradient(circle at 22% 18%,#e17c64 0 1px,transparent 1.5px)', backgroundSize: '17px 17px' }} />
-      <div className="relative grid h-full w-full gap-[2px] sm:gap-[3px]" style={{ gridTemplateColumns: `repeat(${BOARD_SIZE},minmax(0,1fr))` }}>
-        {Array.from({ length: BOARD_SIZE * BOARD_SIZE }, (_, index) => {
-          const r = Math.floor(index / BOARD_SIZE), c = index % BOARD_SIZE, k = `${r},${c}`;
-          const here = fixed.get(k), draftTile = draft.get(k), proofTile = proof.get(k);
-          const canClick = interactive && !here && !proofTile;
-          return (
-            <button key={k} type="button" disabled={!canClick && !draftTile} aria-label={`${String.fromCharCode(65 + c)}${BOARD_SIZE - r}`}
-              onClick={() => draftTile ? onPending?.(draftTile) : onCell?.(r, c)}
-              className={`relative aspect-square min-w-0 rounded-[7%] transition ${here || draftTile || proofTile ? '' : 'border border-white/[.045] bg-black/[.08]'} ${canClick ? 'hover:border-[#f6ca68]/45 hover:bg-[#f6ca68]/10' : ''}`}>
-              {here && <RailCard tile={here.tile} station={here.station} />}
-              {draftTile && <RailCard tile={draftTile} pending />}
-              {proofTile && <RailCard tile={proofTile} ghost />}
-              {!here && !draftTile && !proofTile && <span className="absolute bottom-[8%] right-[8%] font-mono text-[6px] text-white/[.08] sm:text-[8px]">{String.fromCharCode(65 + c)}{BOARD_SIZE - r}</span>}
-            </button>
-          );
-        })}
+    <div className={`relative mx-auto aspect-square w-full max-w-[720px] overflow-hidden rounded-[18px] border border-[#f3b64a]/30 bg-[#16201d] p-[2%] shadow-[0_24px_80px_rgba(0,0,0,.52),inset_0_0_60px_rgba(0,0,0,.55)] ${className}`}>
+      <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(ellipse at 50% 40%,rgba(120,170,120,.16),transparent 70%)' }} />
+      <div className="relative h-full w-full overflow-hidden">
+        <div className="absolute transition-[left,top,width,height] duration-500 ease-out"
+          style={{ width: `${scale * 100}%`, height: `${scale * 100}%`, left: `${-view.c0 * cell * scale}%`, top: `${-view.r0 * cell * scale}%` }}>
+          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px)', backgroundSize: `${cell}% ${cell}%` }} />
+          {Array.from({ length: BOARD_SIZE * BOARD_SIZE }, (_, index) => {
+            const r = Math.floor(index / BOARD_SIZE), c = index % BOARD_SIZE, k = `${r},${c}`;
+            const here = fixed.get(k), draftTile = draft.get(k), proofTile = proof.get(k);
+            const open = frontier.has(k) && !proofTile;
+            const canClick = interactive && !here && !proofTile;
+            if (!here && !draftTile && !proofTile && !canClick) return null;
+            return (
+              <button key={k} type="button" disabled={!canClick && !draftTile} aria-label={`${String.fromCharCode(65 + c)}${BOARD_SIZE - r}`}
+                onClick={() => draftTile ? onPending?.(draftTile) : onCell?.(r, c)}
+                className={`group absolute p-[.45%] ${canClick && !draftTile ? 'cursor-pointer' : ''}`}
+                style={{ left: `${c * cell}%`, top: `${r * cell}%`, width: `${cell}%`, height: `${cell}%` }}>
+                {here && <RailCard tile={here.tile} station={here.station} last={lastKeys.has(k)} />}
+                {draftTile && <RailCard tile={draftTile} pending />}
+                {proofTile && <RailCard tile={proofTile} ghost />}
+                {canClick && !draftTile && <span className={`absolute inset-[6%] rounded-[12%] transition ${open ? 'border-2 border-dashed border-[#f3b64a]/35 bg-[#f3b64a]/[.06] group-hover:border-[#f3b64a]/80 group-hover:bg-[#f3b64a]/15' : 'group-hover:bg-white/[.04]'}`} />}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

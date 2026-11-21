@@ -9,7 +9,7 @@ const tile = (r: number, c: number, shape: RailTile['shape'], skin = 0): RailTil
 const state = (tiles: RailTile[], proof: RailTile[] | null = null): MonorailState => ({ ...newMonorail(), tiles, proof });
 
 function Mini({ value, pending = [] }: { value: MonorailState; pending?: RailTile[] }) {
-  return <div className="w-[190px]"><MonorailBoard state={value} pending={pending} className="!rounded-[10px] !p-[2%]" /></div>;
+  return <div className="w-[190px]"><MonorailBoard state={value} pending={pending} pad={1} minView={4} className="!rounded-[10px] !p-[2%]" /></div>;
 }
 
 export function MonorailTutorialSteps() {
