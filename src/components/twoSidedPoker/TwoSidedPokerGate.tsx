@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Bot, Play } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { Link } from '@/i18n/routing';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN_ACCENT, SHELL, accentVars, fog } from '@/components/ui/gameUi';
 import { TSP_ACCENT, TSP_GLOW_RGB, TSP_INK, tspCopy } from './copy';
@@ -45,6 +46,7 @@ export default function TwoSidedPokerGate({ locale }: { locale: string }) {
               ))}
             </dl>
             <button type="button" onClick={start} className={`${BTN_ACCENT} mt-6 w-full py-4 text-base sm:w-auto sm:px-8`}><Bot size={18} />{t.intro.play}<Play size={14} className="fill-current" /></button>
+            <Link href="/ranking/two-sided-poker" className="mt-3 flex w-fit items-center gap-1.5 rounded-full border border-(--accent)/40 bg-(--accent)/10 px-3 py-1.5 text-xs font-black text-(--accent) hover:bg-(--accent)/20 sm:ml-3 sm:mt-0 sm:inline-flex">{t.intro.ranking}</Link>
           </div>
           <div className="mx-auto flex w-[240px] justify-center sm:w-[300px] md:w-full [&>div]:w-full! [&>div]:rounded-2xl! [&>div]:border-white/10!"><TwoSidedPokerPreview /></div>
         </div>

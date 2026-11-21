@@ -8,11 +8,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const korean = locale !== 'en';
   return pageMetadata({
     locale, path: '/two-sided-poker',
-    title: korean ? '양면포커 - 앞면과 뒷면으로 싸우는 1:1 심리전' : 'Two-Sided Poker - a 1:1 bluffing game of two faces',
+    title: korean ? '양면포커 — 더 지니어스 데스매치, AI와 칩 40개 심리전' : 'Two-Sided Poker — The Genius death match vs AI',
     description: korean
-      ? '카드 한 장, 숫자 두 개. 공개된 앞면과 나만 아는 뒷면 중 승부할 면을 고르고 AI의 숨은 숫자를 추론하는 1:1 포커 심리전.'
-      : 'One card, two numbers. Pick your public front or secret back, read the AI’s hidden number, and bet.',
-    keywords: korean ? ['양면포커', '포커 게임', '블러핑 게임', '심리전 게임', '추론 게임', 'AI 포커'] : ['two-sided poker', 'bluffing game', 'poker mind game', 'deduction game', 'AI poker'],
+      ? '더 지니어스 양면포커 규칙 그대로. 공개된 앞면과 나만 아는 뒷면 중 어느 면에 칩을 걸지, 언제 양면베팅(+10)으로 승부할지 정하세요. 200장 카드 카운팅까지.'
+      : 'The Genius two-sided poker rules: bet your public front or secret back, or both for +10. 40 chips each, 200-card shoe, card counting.',
+    keywords: korean ? ['양면포커', '더 지니어스 양면포커', '양면베팅', '더 지니어스 데스매치', '포커 심리전', 'AI 포커'] : ['two-sided poker', 'The Genius', 'death match game', 'bluffing game', 'AI poker'],
   });
 }
 

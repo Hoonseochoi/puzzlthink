@@ -15,8 +15,8 @@ export const rankPath = (locale: string, game: GameId) => `/${locale}/ranking/${
 export const rankImagePath = (game: GameId, locale: string) => `/api/ranking/${rankSlug(game)}?l=${locale === 'en' ? 'en' : 'ko'}`;
 /** Games ranked by wins against AI (네모 세기 and 결합 use solo challenges instead). */
 export const hasHall = (game: GameId) => game !== 'nemo_count' && game !== 'gyulhap' && game !== 'slitherlink';
-/** 슬리더링크 has no ranking yet (its challenge comes later). */
-export const hasOpen = (game: GameId) => game !== 'sudoku' && game !== 'slitherlink';
+/** 슬리더링크 has no ranking yet (its challenge comes later); 양면포커 has no friend rooms yet. */
+export const hasOpen = (game: GameId) => game !== 'sudoku' && game !== 'slitherlink' && game !== 'two_sided_poker';
 
 async function rpc<T>(name: string, body: Record<string, unknown>): Promise<T | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

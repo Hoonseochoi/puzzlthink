@@ -6,12 +6,9 @@ const BASE_URL = 'https://www.puzzlthink.com';
 const locales = ['ko', 'en'] as const;
 // Game pages come from the catalog, so a new game is listed automatically.
 const GAME_PATHS: string[] = GAMES.map((game) => game.href);
-// Games on the home page that are not in the catalog yet (no rankings), listed without a ranking page.
-const EXTRA_GAME_PATHS = ['/two-sided-poker'];
 const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly' }[] = [
   { path: '', priority: 1, changeFrequency: 'daily' },
   ...GAME_PATHS.map((path) => ({ path, priority: 0.9, changeFrequency: 'weekly' as const })),
-  ...EXTRA_GAME_PATHS.map((path) => ({ path, priority: 0.9, changeFrequency: 'weekly' as const })),
   { path: '/games', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/slitherlink/guide', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/records', priority: 0.5, changeFrequency: 'daily' },

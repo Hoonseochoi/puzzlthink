@@ -7,8 +7,9 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number };
 
-type Href = '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
+  two_sided_poker: { ko: '양면포커', en: 'Two-Sided Poker', href: '/two-sided-poker', color: '#9b87ff' },
   monorail: { ko: '모노레일', en: 'Monorail', href: '/monorail', color: '#f3b64a' },
   flip_omok: { ko: '뒤집기 오목', en: 'Flip Omok', href: '/flip-omok', color: '#3fb8ff' },
   nine_mens_morris: { ko: '나인 멘스 모리스', en: "Nine Men's Morris", href: '/nine-mens-morris', color: '#3ec9d6' },
