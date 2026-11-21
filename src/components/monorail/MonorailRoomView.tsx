@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, RotateCcw, Share2, Swords, Trophy, Users, WifiOff } from 'lucide-react';
+import { Check, Clock3, Copy, Crown, Eye, Flag, History, Loader2, Lock, RotateCcw, Share2, Swords, Trophy, Users, WifiOff, X } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -10,13 +10,17 @@ import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
 import InviteCode from '@/components/ui/InviteCode';
 import GameHeader from '@/components/ui/GameHeader';
+import { ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
+import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { useMonorailRoom } from '@/hooks/useMonorailRoom';
-import { inChallenge, moveText } from '@/lib/monorail';
+import { inChallenge, moveText, newMonorail } from '@/lib/monorail';
 import { MONORAIL_TURN_OPTIONS, colorOf, seatToMove, winnerSeat } from '@/lib/monorailRoom';
 import { reportGame } from '@/lib/stats';
-import { ChallengeBanner, MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, TileDeck, TurnControls, useMonorailDraft } from './MonorailParts';
+import { ChallengeBanner, MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, ResultExtras, TileDeck, TurnControls, monorailFrames, useFrameCaption, useMonorailDraft } from './MonorailParts';
+
+const EMPTY_GAME = newMonorail();
 
 export default function MonorailRoomView({ code }: { code: string }) {
   const t = useTranslations('MonorailOnline');
@@ -31,7 +35,7 @@ export default function MonorailRoomView({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
-  const game = state?.game ?? { tiles: [], turn: 0 as const, winner: null, reason: null, last: null, proof: null, moveNo: 0, challenger: null };
+  const game = state?.game ?? EMPTY_GAME;
   const playing = state?.phase === 'playing';
   const toMove = state ? seatToMove(state) : 0;
   const myTurn = !!state && playing && mySeat === toMove;
@@ -63,6 +67,16 @@ export default function MonorailRoomView({ code }: { code: string }) {
   const challenge = playing && inChallenge(game);
   // The caller is whoever is not answering: the seat opposite the side to move.
   const callerSeat = (1 - toMove) as 0 | 1;
+  // 판 보기 / 복기 after the game. A rematch (new sid) brings the result popup back and ends any replay.
+  const [view, setView] = useState({ sid: '', showResult: true, replaying: false });
+  if (state && view.sid !== state.sid) setView({ sid: state.sid, showResult: true, replaying: false });
+  const finished = state?.phase === 'finished';
+  const frames = useMemo(() => monorailFrames(game), [game]);
+  const replay = useReplayPlayer(frames.length - 1, view.replaying && finished, 1100);
+  const frame = view.replaying && finished ? frames[replay.at] : null;
+  const seatOfColor = (p: 0 | 1) => (state ? (p === 0 ? state.first : 1 - state.first) : p);
+  const caption = useFrameCaption((p) => seatName(seatOfColor(p)));
+  const setResult = (showResult: boolean) => setView((v) => ({ ...v, showResult, replaying: false }));
   const reasonText = !game.reason ? '' : game.reason === 'gave-up' ? `${tm('reason.gave-up')} ${game.proof ? tm('gaveUpPossible') : tm('gaveUpImpossible')}` : tm(`reason.${game.reason}`);
   const notice = status === 'unconfigured' ? t('unconfigured') : status === 'error' ? t('connectionError') : !state && waitedLong ? t('roomNotFound') : state && !me?.isHost && !hostOnline ? t('hostOffline') : null;
   const winner = state ? winnerSeat(state) : null;
@@ -89,9 +103,16 @@ export default function MonorailRoomView({ code }: { code: string }) {
               </div>
             ) : <>
               {challenge && <ChallengeBanner state={game} mine={myTurn} caller={seatName(callerSeat)} answerer={seatName(toMove)} />}
-              <div className="relative"><MonorailBoard state={game} pending={draft.tiles} interactive={myTurn} onCell={draft.add} onPending={draft.remove} />
-                {state.phase === 'finished' && <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[18px] bg-[#19080d]/62 p-5 backdrop-blur-[2px]"><div className="w-full max-w-sm rounded-[18px] border border-[#f3b64a]/45 bg-[#241016]/95 p-6 text-center"><Trophy size={30} className="mx-auto text-[#f3b64a]" /><h2 className="mt-3 text-2xl font-black">{result}</h2><p className="mt-2 text-sm text-white/55">{reasonText}</p>{me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{tm('rematch')}</button> : <p className="mt-4 text-xs text-white/40">{t('rematchWait')}</p>}</div></div>}
+              {frame && <ReplayHeader player={replay} caption={caption(frame)} onClose={() => setView((v) => ({ ...v, replaying: false }))} />}
+              <div className="relative">{frame ? <MonorailBoard state={frame.state} /> : <MonorailBoard state={game} pending={draft.tiles} interactive={myTurn} onCell={draft.add} onPending={draft.remove} />}
+                {finished && view.showResult && !frame && <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[18px] bg-[#19080d]/62 p-5 backdrop-blur-[2px]"><div className="relative w-full max-w-sm rounded-[18px] border border-[#f3b64a]/45 bg-[#241016]/95 p-6 text-center"><button type="button" onClick={() => setResult(false)} aria-label={tm('viewBoard')} title={tm('viewBoard')} className="absolute right-2 top-2 rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white"><X size={15} /></button><Trophy size={30} className="mx-auto text-[#f3b64a]" /><h2 className="mt-3 text-2xl font-black">{result}</h2><p className="mt-2 text-sm text-white/55">{reasonText}</p>{me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{tm('rematch')}</button> : <p className="mt-4 text-xs text-white/40">{t('rematchWait')}</p>}<ResultExtras canReplay={frames.length > 1} onReplay={() => setView((v) => ({ ...v, replaying: true }))} onViewBoard={() => setResult(false)} /></div></div>}
               </div>
+              {frame && <ReplayControls player={replay} onShowResult={() => setResult(true)} />}
+              {finished && !frame && !view.showResult && <div className="mx-auto mt-3 flex max-w-[440px] flex-wrap items-center justify-center gap-2">
+                <button type="button" onClick={() => setResult(true)} className={`${BTN} py-2.5`}><Trophy size={14} />{tc('replayShowResult')}</button>
+                {frames.length > 1 && <button type="button" onClick={() => setView((v) => ({ ...v, replaying: true }))} className={`${BTN} py-2.5`}><History size={14} />{tc('replayOpen')}</button>}
+                {me?.isHost && <button type="button" onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} py-2.5`}><RotateCcw size={14} />{tm('rematch')}</button>}
+              </div>}
               <p className="mt-3 px-1 text-[11px] text-white/40">{game.last ? `${tm('lastMove')}: ${moveText(game.last)}` : tm('firstMove')}</p>
               {mySeat === null && <p className="mt-2 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
             </>}

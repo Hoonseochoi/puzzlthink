@@ -3,9 +3,10 @@
 import { useMemo, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { Check, CornerDownRight, Flag, Minus, Siren, Undo2 } from 'lucide-react';
-import { BOARD_SIZE, SHAPES, STATIONS, TILE_COUNT, inChallenge, isComplete, keyOf, legalMove, validProofTiles, type MonorailMove, type MonorailState, type RailShape, type RailTile } from '@/lib/monorail';
+import { Check, CornerDownRight, Eye, Flag, Minus, Siren, Undo2 } from 'lucide-react';
+import { BOARD_SIZE, SHAPES, STATIONS, TILE_COUNT, inChallenge, isComplete, keyOf, legalMove, moveText, validProofTiles, type LogEntry, type MonorailMove, type MonorailState, type Player, type RailShape, type RailTile } from '@/lib/monorail';
 import { BTN, BTN_ACCENT, PANEL_TITLE, accentVars, seg } from '@/components/ui/gameUi';
+import { ReplayButton } from '@/components/ui/ReplayBar';
 
 export const MONORAIL_ACCENT = '#f3b64a';
 export const MONORAIL_INK = '#241607';
@@ -296,4 +297,48 @@ const shapeDockClass = (on: boolean) => on
 export function TileDeck({ used }: { used: number }) {
   const left = TILE_COUNT - used;
   return <div className="flex items-center gap-3"><div className="relative h-12 w-12 shrink-0">{Array.from({ length: Math.min(5, left) }, (_, i) => <span key={i} className="absolute inset-0" style={{ transform: `translate(${i * 2}px,${-i * 2}px)` }}><RailCard compact tile={{ r: 0, c: 0, shape: i % 2 ? 'se' : 'h', skin: i }} /></span>)}</div><div><p className="font-mono text-2xl font-black text-[#f5cb6b]">{left}</p><p className="text-[10px] font-bold tracking-widest text-white/35">RAIL TILES</p></div></div>;
+}
+
+export type MonorailFrame = { no: number; entry: LogEntry | null; state: MonorailState };
+
+/**
+ * 복기 frames rebuilt from the turn log: frame 0 is the two stations, then one frame per turn. Tiles are
+ * stored in play order, so each frame is a prefix of `tiles`; the turn's own tiles glow as the last move.
+ */
+export function monorailFrames(game: MonorailState): MonorailFrame[] {
+  const log = game.log ?? [];
+  const blank = { ...game, tiles: [], winner: null, reason: null, challenger: null, last: null, proof: null };
+  const frames: MonorailFrame[] = [{ no: 0, entry: null, state: blank }];
+  let used = 0;
+  log.forEach((entry, i) => {
+    const placed = game.tiles.slice(used, used + entry.n);
+    used += entry.n;
+    const final = i === log.length - 1;
+    frames.push({ no: i + 1, entry, state: { ...blank, tiles: game.tiles.slice(0, used), last: placed.length ? { tiles: placed } : null, proof: final && entry.kind === 'give-up' ? game.proof : null } });
+  });
+  return frames;
+}
+
+/** One-line caption for a 복기 frame. */
+export function useFrameCaption(name: (p: Player) => string) {
+  const t = useTranslations('Monorail');
+  const tc = useTranslations('Common');
+  return (frame: MonorailFrame) => {
+    const { entry, no, state } = frame;
+    if (!entry) return tc('replayStart');
+    const who = name(entry.by);
+    if (entry.kind === 'call') return t('replayCall', { n: no, name: who });
+    if (entry.kind === 'give-up') return t('replayGiveUp', { n: no, name: who });
+    const at = state.last ? moveText(state.last) : '';
+    return entry.kind === 'prove' ? t('replayProve', { n: no, name: who, at: entry.n }) : t('replayMove', { n: no, name: who, at });
+  };
+}
+
+/** Result popup actions: replay and "view the board". */
+export function ResultExtras({ canReplay, onReplay, onViewBoard }: { canReplay: boolean; onReplay: () => void; onViewBoard: () => void }) {
+  const t = useTranslations('Monorail');
+  return <>
+    {canReplay && <ReplayButton onClick={onReplay} className="!mt-2" />}
+    <button type="button" onClick={onViewBoard} className={`${BTN} mt-2 w-full py-2.5`}><Eye size={14} />{t('viewBoard')}</button>
+  </>;
 }
