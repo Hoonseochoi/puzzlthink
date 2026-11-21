@@ -36,7 +36,7 @@ export type OpenRoomAnyRow = OpenRoomRow & { game: string };
 
 /** Room channel prefix → game. */
 export const CHANNEL_GAME: Record<string, CatalogId> = {
-  'monorail-room': 'monorail',
+  'two-sided-poker-room': 'twoSidedPoker', 'monorail-room': 'monorail',
   'wallgo-room': 'wallgo', 'wallgo2-room': 'wallgo2', 'slither-room': 'slitherlink', 'gyulhap-room': 'gyulhap', 'indian-poker-room': 'indianPoker',
   'hexagon-room': 'hexagon', 'piggy-bank-room': 'piggyBank', 'nemo-count-room': 'nemoCount', 'black-white-room': 'blackWhite', 'black-white-2-room': 'blackWhite2',
   'laser-janggi-room': 'laserJanggi', 'blind-gomoku-room': 'blindGomoku', 'morris-room': 'nineMensMorris', 'flip-omok-room': 'flipOmok', 'russian-roulette-room': 'russianRoulette', 'heavy13-room': 'heavy13',

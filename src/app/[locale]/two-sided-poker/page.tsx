@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { pageMetadata } from '@/lib/seo';
-import TwoSidedPokerGate from '@/components/twoSidedPoker/TwoSidedPokerGate';
+import GameGate from '@/components/GameGate';
+import GameIntroHero from '@/components/GameIntroHero';
+import { TSP_ACCENT, TSP_INK } from '@/components/twoSidedPoker/copy';
+import TwoSidedPokerGame from '@/components/twoSidedPoker/TwoSidedPokerGame';
+import TwoSidedPokerPreview from '@/components/twoSidedPoker/TwoSidedPokerPreview';
+import { TwoSidedPokerTutorialSteps } from '@/components/twoSidedPoker/TwoSidedPokerTutorial';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -19,5 +24,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function TwoSidedPokerPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <TwoSidedPokerGate locale={locale} />;
+  const hero = (
+    <div className="grid items-center gap-8 md:grid-cols-[1fr_280px]">
+      <GameIntroHero locale={locale} id="twoSidedPoker" />
+      <div className="mx-auto w-[220px] md:w-full [&>div]:w-full! [&>div]:rounded-2xl! [&>div]:border-white/10!"><TwoSidedPokerPreview /></div>
+    </div>
+  );
+  return (
+    <GameGate game="twoSidedPoker" accent={TSP_ACCENT} ink={TSP_INK} hero={hero} tutorial={<TwoSidedPokerTutorialSteps locale={locale} />}>
+      <TwoSidedPokerGame locale={locale} />
+    </GameGate>
+  );
 }

@@ -282,7 +282,7 @@
     "indianPokerDescription": "Never see your own card: read the visible number, the bet, and the bluff.",
     "indianPokerMeta": "AI or friend 1:1 · chip mind game",
     "twoSidedPokerDescription": "A public front, a secret back — which do you bet on? A two-sided win takes +10. A The Genius death match.",
-    "twoSidedPokerMeta": "AI 1:1 · 40-chip survival",
+    "twoSidedPokerMeta": "AI, friend or open 1:1",
     "modeGyul10": "10-minute challenge",
     "modeGyul10Desc": "High-score run",
     "modeGyul5": "5-minute challenge",
@@ -1849,11 +1849,11 @@
     "games": {
       "twoSidedPoker": {
         "tagline": "One card: everyone sees the front, only you see the back. Choose which face to bet on, and when to go two-sided — last one with chips wins.",
-        "players": "2 players (vs AI)",
+        "players": "2 players (AI or friend)",
         "pace": "Until someone is broke · 5–10 min",
         "level": "Easy · Normal · Hard AI",
         "ai": "Three AI levels aiming at about 80%, 50% and 25% player wins",
-        "friend": "Friend matches coming later",
+        "friend": "Friend rooms and open 1v1 matches",
         "rules": [
           "Start with 40 chips and ante 1 each hand. Lose them all and you lose.",
           "50 cards whose two faces differ in parity, four sets (200 cards). Fronts are public, backs only their owner sees.",

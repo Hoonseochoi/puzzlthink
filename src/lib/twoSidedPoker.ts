@@ -282,3 +282,20 @@ export function chooseTspAiAction(state: TspState, me: TspSide, rand: () => numb
   if ((p > 0.78 || bluff) && max > opts.callLevel && rand() < 0.75) return { t: 'bet', face, level: sized(bluff ? 0.7 : 1) };
   return call;
 }
+
+// ---------------------------------------------------------------- views
+
+const swap = <T,>(pair: [T, T]): [T, T] => [pair[1], pair[0]];
+const flip = <T extends TspSide | 'draw' | null>(side: T): T => (side === 0 ? 1 : side === 1 ? 0 : side) as T;
+
+/** The same game seen from `me`: the viewer always sits at side 0 (rooms reuse the AI table this way). */
+export function tspView(state: TspState, me: TspSide): TspState {
+  if (me === 0) return state;
+  return {
+    ...state,
+    chips: swap(state.chips), cards: swap(state.cards), faces: swap(state.faces), levels: swap(state.levels),
+    first: flip(state.first), turn: flip(state.turn), winner: flip(state.winner),
+    log: state.log.map((l) => ({ ...l, side: flip(l.side) })),
+    rounds: state.rounds.map((r) => ({ ...r, cards: swap(r.cards), faces: swap(r.faces), levels: swap(r.levels), delta: swap(r.delta), winner: flip(r.winner) })),
+  };
+}
