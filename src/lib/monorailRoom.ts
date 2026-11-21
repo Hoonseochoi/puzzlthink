@@ -1,5 +1,5 @@
 // Host-authoritative 1:1 Monorail room. Open matches use this exact same engine as friend rooms.
-import { type MonorailMove, type MonorailState, type Player, declareImpossible, newMonorail, playMonorail } from './monorail';
+import { type MonorailMove, type MonorailState, type Player, type RailTile, declareImpossible, giveUpChallenge, newMonorail, playMonorail, proveCompletion } from './monorail';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
 export const MONORAIL_TURN_OPTIONS = [90, 60, 30] as const;
@@ -17,6 +17,8 @@ export type MonorailRoomAction =
   | { t: 'start' }
   | { t: 'move'; move: MonorailMove }
   | { t: 'impossible' }
+  | { t: 'prove'; tiles: RailTile[] }
+  | { t: 'give-up' }
   | { t: 'resign' }
   | { t: 'timeout' };
 
@@ -58,6 +60,19 @@ export function reduceMonorailRoom(state: MonorailRoom, action: MonorailRoomActi
     case 'impossible': {
       if (state.phase !== 'playing' || seat !== seatToMove(state)) break;
       const game = declareImpossible(state.game);
+      if (game) next = after(state, game);
+      break;
+    }
+    // The challenged player (now the side to move) answers an Impossible call; the clock was reset for them.
+    case 'prove': {
+      if (state.phase !== 'playing' || seat !== seatToMove(state) || !Array.isArray(action.tiles)) break;
+      const game = proveCompletion(state.game, action.tiles);
+      if (game) next = after(state, game);
+      break;
+    }
+    case 'give-up': {
+      if (state.phase !== 'playing' || seat !== seatToMove(state)) break;
+      const game = giveUpChallenge(state.game);
       if (game) next = after(state, game);
       break;
     }

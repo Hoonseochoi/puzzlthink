@@ -13,10 +13,10 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { useMonorailRoom } from '@/hooks/useMonorailRoom';
-import { moveText } from '@/lib/monorail';
+import { inChallenge, moveText } from '@/lib/monorail';
 import { MONORAIL_TURN_OPTIONS, colorOf, seatToMove, winnerSeat } from '@/lib/monorailRoom';
 import { reportGame } from '@/lib/stats';
-import { MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, TileDeck, TurnControls, useMonorailDraft } from './MonorailParts';
+import { ChallengeBanner, MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, TileDeck, TurnControls, useMonorailDraft } from './MonorailParts';
 
 export default function MonorailRoomView({ code }: { code: string }) {
   const t = useTranslations('MonorailOnline');
@@ -31,7 +31,7 @@ export default function MonorailRoomView({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
-  const game = state?.game ?? { tiles: [], turn: 0 as const, winner: null, reason: null, last: null, proof: null, moveNo: 0 };
+  const game = state?.game ?? { tiles: [], turn: 0 as const, winner: null, reason: null, last: null, proof: null, moveNo: 0, challenger: null };
   const playing = state?.phase === 'playing';
   const toMove = state ? seatToMove(state) : 0;
   const myTurn = !!state && playing && mySeat === toMove;
@@ -57,10 +57,17 @@ export default function MonorailRoomView({ code }: { code: string }) {
   const copyLink = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* optional */ } };
   const shareLink = async () => { if (navigator.share) { try { await navigator.share({ title: tm('title'), text: t('shareText'), url: shareUrl }); return; } catch { /* cancelled */ } } copyLink(); };
   const commit = () => { if (draft.tiles.length) { dispatch({ t: 'move', move: draft.move }); draft.clear(); } };
+  const impossible = () => { dispatch({ t: 'impossible' }); draft.clear(); };
+  const prove = () => { if (draft.complete) { dispatch({ t: 'prove', tiles: draft.tiles }); draft.clear(); } };
+  const giveUp = () => { if (window.confirm(tm('giveUpConfirm'))) { dispatch({ t: 'give-up' }); draft.clear(); } };
+  const challenge = playing && inChallenge(game);
+  // The caller is whoever is not answering: the seat opposite the side to move.
+  const callerSeat = (1 - toMove) as 0 | 1;
+  const reasonText = !game.reason ? '' : game.reason === 'gave-up' ? `${tm('reason.gave-up')} ${game.proof ? tm('gaveUpPossible') : tm('gaveUpImpossible')}` : tm(`reason.${game.reason}`);
   const notice = status === 'unconfigured' ? t('unconfigured') : status === 'error' ? t('connectionError') : !state && waitedLong ? t('roomNotFound') : state && !me?.isHost && !hostOnline ? t('hostOffline') : null;
   const winner = state ? winnerSeat(state) : null;
   const result = !state || state.phase !== 'finished' || winner === null ? '' : mySeat === null ? t('winner', { name: seatName(winner) }) : winner === mySeat ? tm('youWin') : t('youLose');
-  const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? result : myTurn ? (draft.tiles.length ? tm('pickMore', { n: 3 - draft.tiles.length }) : tm('yourTurn')) : t('waitingFor', { name: seatName(toMove) });
+  const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? result : challenge ? (myTurn ? tm('challengeHeading') : t('waitingFor', { name: seatName(toMove) })) : myTurn ? (draft.tiles.length ? tm('pickMore', { n: 3 - draft.tiles.length }) : tm('yourTurn')) : t('waitingFor', { name: seatName(toMove) });
 
   return (
     <div className={SHELL} style={{ ...accentVars(MONORAIL_ACCENT, MONORAIL_INK), backgroundImage: fog('116, 44, 52') }}>
@@ -81,8 +88,9 @@ export default function MonorailRoomView({ code }: { code: string }) {
                 {me?.isHost ? <div><button disabled={!full} onClick={() => dispatch({ t: 'start' })} className={`w-full py-3.5 ${BTN_ACCENT} disabled:opacity-35`}>{full ? <Swords size={16} /> : <Lock size={15} />}{full ? t('start') : t('startLocked')}</button><p className="mt-2 text-center text-[11px] text-white/40">{full ? t('startReady') : t('startLockedHint')}</p></div> : <p className="text-center text-sm text-white/50">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>}
               </div>
             ) : <>
+              {challenge && <ChallengeBanner state={game} mine={myTurn} caller={seatName(callerSeat)} answerer={seatName(toMove)} />}
               <div className="relative"><MonorailBoard state={game} pending={draft.tiles} interactive={myTurn} onCell={draft.add} onPending={draft.remove} />
-                {state.phase === 'finished' && <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[18px] bg-[#19080d]/62 p-5 backdrop-blur-[2px]"><div className="w-full max-w-sm rounded-[18px] border border-[#f3b64a]/45 bg-[#241016]/95 p-6 text-center"><Trophy size={30} className="mx-auto text-[#f3b64a]" /><h2 className="mt-3 text-2xl font-black">{result}</h2><p className="mt-2 text-sm text-white/55">{game.reason ? tm(`reason.${game.reason}`) : ''}</p>{me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{tm('rematch')}</button> : <p className="mt-4 text-xs text-white/40">{t('rematchWait')}</p>}</div></div>}
+                {state.phase === 'finished' && <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[18px] bg-[#19080d]/62 p-5 backdrop-blur-[2px]"><div className="w-full max-w-sm rounded-[18px] border border-[#f3b64a]/45 bg-[#241016]/95 p-6 text-center"><Trophy size={30} className="mx-auto text-[#f3b64a]" /><h2 className="mt-3 text-2xl font-black">{result}</h2><p className="mt-2 text-sm text-white/55">{reasonText}</p>{me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{tm('rematch')}</button> : <p className="mt-4 text-xs text-white/40">{t('rematchWait')}</p>}</div></div>}
               </div>
               <p className="mt-3 px-1 text-[11px] text-white/40">{game.last ? `${tm('lastMove')}: ${moveText(game.last)}` : tm('firstMove')}</p>
               {mySeat === null && <p className="mt-2 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
@@ -91,13 +99,13 @@ export default function MonorailRoomView({ code }: { code: string }) {
 
           <aside className="flex flex-col gap-4">
             <section className={PANEL}><div className="mb-2 flex items-center justify-between"><h2 className={PANEL_TITLE}>{t('players')}</h2><span className={CHIP}><Users size={12} />{state.seats.filter(Boolean).length}/2</span></div><div className="space-y-2">{[0, 1].map((seat) => { const person = state.seats[seat]; return <div key={seat} data-chat-seat={person?.id} className={`${playerRow(playing && toMove === seat)} ${person ? '' : 'opacity-45'}`}><span className={`flex h-10 w-10 items-center justify-center rounded-full font-mono text-xs font-black ${colorOf(state, seat) === 0 ? 'bg-[#f3b64a] text-[#241607]' : 'bg-[#6d3140] text-[#ffd987]'}`}>{colorOf(state, seat) === 0 ? '1ST' : '2ND'}</span><div className="min-w-0 flex-1"><div className="flex items-center gap-1.5"><p className="truncate text-sm font-black">{person?.id === me?.id ? `${seatName(seat)} (${t('me')})` : seatName(seat)}</p>{seat === 0 && <Crown size={12} className="text-[#f3b64a]" />}{person && <i className={`h-1.5 w-1.5 rounded-full ${online.has(person.id) ? 'bg-[#3ddc97]' : 'bg-white/20'}`} />}</div><p className="text-[10px] text-white/40">{state.phase === 'lobby' ? person ? t('ready') : t('waiting') : colorOf(state, seat) === 0 ? tm('first') : tm('second')}</p></div></div>; })}</div>{state.phase !== 'lobby' && <div className="mt-4 border-t border-white/10 pt-4"><TileDeck used={game.tiles.length} /></div>}</section>
-            {playing && <section className={PANEL}><TurnControls state={game} draft={draft} disabled={!myTurn} onCommit={commit} onImpossible={() => dispatch({ t: 'impossible' })} /></section>}
+            {playing && <section className={`${PANEL} hidden lg:block`}><TurnControls state={game} draft={draft} disabled={!myTurn} onCommit={commit} onImpossible={impossible} onProve={prove} onGiveUp={giveUp} /></section>}
             <section className={NOTE}><h2 className={PANEL_TITLE}>{tm('quickRules')}</h2><ol className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(tm.raw('quickRuleList') as string[]).map((rule, i) => <li key={rule} className="flex gap-2"><span className="font-mono text-[#f3b64a]">0{i + 1}</span><span>{rule}</span></li>)}</ol></section>
             {playing && mySeat !== null && <button onClick={() => { if (window.confirm(tm('resignConfirm'))) dispatch({ t: 'resign' }); }} className={`${BTN} py-2.5 text-white/45`}><Flag size={13} />{tm('resign')}</button>}
           </aside>
         </main>
       )}
-      <MonorailTurnDock active={myTurn} state={game} draft={draft} onCommit={commit} onImpossible={() => dispatch({ t: 'impossible' })} />
+      <MonorailTurnDock active={myTurn} state={game} draft={draft} onCommit={commit} onImpossible={impossible} onProve={prove} onGiveUp={giveUp} />
     </div>
   );
 }

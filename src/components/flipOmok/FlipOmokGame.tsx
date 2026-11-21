@@ -108,7 +108,7 @@ export default function FlipOmokGame() {
     setMode(nextMode); setBoard(emptyBoard()); setTurn(1); setLast(null); setFlipped([]); setWin(null); setDraw(false); setHistory([]); setGameNo((n) => n + 1); setResigned(false); setShowResult(true); setReplaying(false);
   };
 
-  // Against MIRA, undo takes back the AI's reply too.
+  // Against COCO, undo takes back the AI's reply too.
   const undo = () => {
     if (!history.length || aiTurn) return;
     const back = mode === 'ai' && history.length >= 2 && !(win && win.owner === 1) ? 2 : 1;
@@ -117,7 +117,7 @@ export default function FlipOmokGame() {
     setHistory((h) => h.slice(0, h.length - back));
   };
 
-  // 기권: against MIRA it counts as a loss; on one device the side to move gives up.
+  // 기권: against COCO it counts as a loss; on one device the side to move gives up.
   const resign = () => {
     if (over || !history.length || !window.confirm(t('resignConfirm'))) return;
     setResigned(true);
@@ -129,7 +129,7 @@ export default function FlipOmokGame() {
   const replay = useReplayPlayer(frames.length - 1, replaying && over, 900);
   const frame = replaying && over ? frames[replay.at] : null;
 
-  const name = (p: Player) => mode === 'ai' ? (p === 1 ? t('you') : 'MIRA') : (p === 1 ? t('black') : t('white'));
+  const name = (p: Player) => mode === 'ai' ? (p === 1 ? t('you') : 'COCO') : (p === 1 ? t('black') : t('white'));
   const count = (p: Player) => board.filter((c) => owner(c) === p).length;
   const status = win ? t('wins', { name: name(win.owner) }) : resigned ? t('resigned', { name: name(mode === 'ai' ? 1 : turn) }) : draw ? t('draw') : aiTurn ? t('aiThinking') : t('turnOf', { name: name(turn) });
   // 쌍삼 points for whoever moves now (hidden while the AI thinks).

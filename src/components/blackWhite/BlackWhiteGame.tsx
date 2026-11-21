@@ -13,7 +13,7 @@ import { type BWDifficulty, type BWRound, type Side, chooseAiTile, colorOf, isOv
 import { Hand, MemoPad, OpponentTrack, Replay, RoundLog, Scoreboard, Table } from './BWParts';
 
 const ACCENT = '#e9c46a';
-const AI_NAME = 'MIRA';
+const AI_NAME = 'LUNA';
 const FLASH_MS = 1700;
 
 type Lead = { side: Side; tile: number } | null;

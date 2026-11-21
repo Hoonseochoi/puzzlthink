@@ -17,21 +17,26 @@ export const STATIONS: readonly RailTile[] = [
 ];
 export const SHAPES: readonly RailShape[] = ['h', 'v', 'ne', 'se', 'sw', 'nw'];
 
-export type FinishReason = 'loop' | 'impossible-right' | 'impossible-wrong' | 'resign' | 'timeout';
+// 'proved' / 'gave-up' settle an Impossible call the broadcast way: the challenged player must finish the
+// loop with the remaining tiles. 'impossible-right' / 'impossible-wrong' remain for older saved rooms.
+export type FinishReason = 'loop' | 'proved' | 'gave-up' | 'impossible-right' | 'impossible-wrong' | 'resign' | 'timeout';
 export type MonorailState = {
   tiles: RailTile[];
   turn: Player;
   winner: Player | null;
   reason: FinishReason | null;
   last: MonorailMove | null;
-  /** A completion displayed after a wrong Impossible declaration. */
+  /** After a give-up: a completion that existed after all (null when the call was truly right). */
   proof: RailTile[] | null;
   moveNo: number;
+  /** The player who declared Impossible while the opponent is trying to finish the loop. */
+  challenger?: Player | null;
 };
 
 export const newMonorail = (): MonorailState => ({
-  tiles: [], turn: 0, winner: null, reason: null, last: null, proof: null, moveNo: 0,
+  tiles: [], turn: 0, winner: null, reason: null, last: null, proof: null, moveNo: 0, challenger: null,
 });
+export const inChallenge = (state: MonorailState) => state.winner === null && state.challenger != null;
 export const other = (p: Player): Player => (p === 0 ? 1 : 0);
 export const keyOf = ({ r, c }: Point) => `${r},${c}`;
 export const inside = ({ r, c }: Point) => r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE;
@@ -65,7 +70,7 @@ export function occupied(state: MonorailState) {
 /** Placement geometry only. Rail ends deliberately do not have to match during play. */
 export function legalMove(state: MonorailState, move: MonorailMove) {
   const list = move.tiles;
-  if (state.winner !== null || list.length < 1 || list.length > 3 || list.length > TILE_COUNT - state.tiles.length) return false;
+  if (state.winner !== null || state.challenger != null || list.length < 1 || list.length > 3 || list.length > TILE_COUNT - state.tiles.length) return false;
   if (list.some((tile) => !inside(tile) || !SHAPES.includes(tile.shape))) return false;
   const keys = new Set(list.map(keyOf));
   if (keys.size !== list.length) return false;
@@ -190,12 +195,42 @@ export function findCompletion(state: Pick<MonorailState, 'tiles'>, orderSeed = 
   return answer ? { tiles: answer, visited: nodes } : null;
 }
 
-/** Declares Impossible at the beginning of a turn and resolves it with an exhaustive completion check. */
+/**
+ * Declares Impossible at the beginning of a turn. As on the broadcast, the opponent now gets the turn to
+ * finish the loop with the remaining tiles: finishing wins for them, giving up (or time) wins for the caller.
+ */
 export function declareImpossible(state: MonorailState): MonorailState | null {
-  if (state.winner !== null) return null;
+  if (state.winner !== null || state.challenger != null) return null;
+  return { ...state, challenger: state.turn, turn: other(state.turn), proof: null };
+}
+
+/** True when these tiles could legally be laid down as (part of) a completion attempt. */
+export function validProofTiles(state: MonorailState, tiles: RailTile[]) {
+  if (!inChallenge(state) || tiles.length > TILE_COUNT - state.tiles.length) return false;
+  const board = occupied(state), keys = new Set(tiles.map(keyOf));
+  return keys.size === tiles.length && tiles.every((tile) => inside(tile) && SHAPES.includes(tile.shape) && !board.has(keyOf(tile)));
+}
+
+/** The challenged player lays any number of the remaining tiles at once. Null unless they close the loop. */
+export function proveCompletion(state: MonorailState, tiles: RailTile[]): MonorailState | null {
+  if (!tiles.length || !validProofTiles(state, tiles)) return null;
+  const placed = tiles.map((tile, i) => ({ ...tile, skin: Number.isInteger(tile.skin) ? Math.abs(tile.skin) % 6 : (state.tiles.length + i) % 6 }));
+  const next: MonorailState = { ...state, tiles: [...state.tiles, ...placed], last: { tiles: placed }, moveNo: state.moveNo + 1 };
+  return isComplete(next) ? { ...next, winner: state.turn, reason: 'proved' } : null;
+}
+
+/** The challenged player concedes. Shows a completion if one existed, so nobody is left wondering. */
+export function giveUpChallenge(state: MonorailState): MonorailState | null {
+  if (!inChallenge(state)) return null;
+  return { ...state, winner: state.challenger!, reason: 'gave-up', proof: findCompletion(state)?.tiles ?? null };
+}
+
+/** How the AI answers an Impossible call: finish the loop when any completion exists, otherwise concede. */
+export function answerChallenge(state: MonorailState): { t: 'prove'; tiles: RailTile[] } | { t: 'give-up' } {
   const completion = findCompletion(state);
-  if (completion) return { ...state, winner: other(state.turn), reason: 'impossible-wrong', proof: completion.tiles };
-  return { ...state, winner: state.turn, reason: 'impossible-right', proof: null };
+  if (!completion) return { t: 'give-up' };
+  const board = occupied(state);
+  return { t: 'prove', tiles: completion.tiles.filter((tile) => !board.has(keyOf(tile))) };
 }
 
 function candidatesFromSolution(state: MonorailState, solution: RailTile[]) {

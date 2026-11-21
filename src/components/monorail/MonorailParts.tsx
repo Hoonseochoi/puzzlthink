@@ -3,8 +3,8 @@
 import { useMemo, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { CornerDownRight, Minus, Undo2 } from 'lucide-react';
-import { BOARD_SIZE, SHAPES, STATIONS, TILE_COUNT, keyOf, legalMove, type MonorailMove, type MonorailState, type RailShape, type RailTile } from '@/lib/monorail';
+import { Check, CornerDownRight, Flag, Minus, Siren, Undo2 } from 'lucide-react';
+import { BOARD_SIZE, SHAPES, STATIONS, TILE_COUNT, inChallenge, isComplete, keyOf, legalMove, validProofTiles, type MonorailMove, type MonorailState, type RailShape, type RailTile } from '@/lib/monorail';
 import { BTN, BTN_ACCENT, PANEL_TITLE, accentVars, seg } from '@/components/ui/gameUi';
 
 export const MONORAIL_ACCENT = '#f3b64a';
@@ -149,15 +149,22 @@ export function MonorailBoard({ state, pending = [], interactive = false, onCell
 export function useMonorailDraft(state: MonorailState, enabled: boolean) {
   const [shape, setShape] = useState<RailShape>('h');
   const [tiles, setTiles] = useState<RailTile[]>([]);
+  // Answering an Impossible call: any empty cells, up to every remaining tile, no straight-line limit.
+  const proving = inChallenge(state);
+  const limit = proving ? TILE_COUNT - state.tiles.length : 3;
   const add = (r: number, c: number) => {
-    if (!enabled || tiles.length >= 3) return;
+    if (!enabled || tiles.length >= limit) return;
     const next = [...tiles, { r, c, shape, skin: (r * 7 + c * 3 + state.moveNo + tiles.length) % 6 }];
-    if (legalMove(state, { tiles: next })) setTiles(next);
+    if (proving ? validProofTiles(state, next) : legalMove(state, { tiles: next })) setTiles(next);
   };
-  const remove = (tile: RailTile) => setTiles((list) => list.filter((x) => keyOf(x) !== keyOf(tile)));
+  // Tapping a placed draft tile with another face selected turns it into that face; same face removes it.
+  const remove = (tile: RailTile) => setTiles((list) => tile.shape !== shape
+    ? list.map((x) => keyOf(x) === keyOf(tile) ? { ...x, shape } : x)
+    : list.filter((x) => keyOf(x) !== keyOf(tile)));
   const clear = () => setTiles([]);
   const rotate = () => setShape((current) => SHAPES[(SHAPES.indexOf(current) + 1) % SHAPES.length]);
-  return { shape, setShape, tiles, add, remove, clear, rotate, move: { tiles } satisfies MonorailMove };
+  const complete = proving && tiles.length > 0 && isComplete({ tiles: [...state.tiles, ...tiles] });
+  return { shape, setShape, tiles, add, remove, clear, rotate, proving, limit, complete, move: { tiles } satisfies MonorailMove };
 }
 
 export function ShapePicker({ shape, onShape, disabled = false, title = 'TILE FACE' }: { shape: RailShape; onShape: (shape: RailShape) => void; disabled?: boolean; title?: string }) {
@@ -171,21 +178,62 @@ export function ShapePicker({ shape, onShape, disabled = false, title = 'TILE FA
   );
 }
 
-export function TurnControls({ state, draft, disabled, onCommit, onImpossible }: {
-  state: MonorailState; draft: ReturnType<typeof useMonorailDraft>; disabled?: boolean; onCommit: () => void; onImpossible: () => void;
+type Draft = ReturnType<typeof useMonorailDraft>;
+type TurnActions = { onCommit: () => void; onImpossible: () => void; onProve: () => void; onGiveUp: () => void };
+
+const GIVE_UP = 'flex w-full items-center justify-center gap-2 rounded-md border border-[#ff7d75]/35 bg-[#7f2929]/20 px-4 py-2.5 text-xs font-black text-[#ffaaa4] transition hover:bg-[#7f2929]/35 disabled:cursor-not-allowed disabled:opacity-30';
+
+/** Status line while answering an Impossible call: how many tiles are down and whether the loop closes. */
+function ProofStatus({ draft }: { draft: Draft }) {
+  const t = useTranslations('Monorail');
+  return <p className={`rounded-md px-3 py-2 text-center text-[11px] font-black ${draft.complete ? 'bg-[#3ddc97]/15 text-[#7ff0bd]' : 'bg-white/[.05] text-white/50'}`}>
+    {draft.complete ? t('proveReady') : draft.tiles.length ? t('proveNotYet') : t('proveStart', { n: draft.limit })}
+  </p>;
+}
+
+export function TurnControls({ state, draft, disabled, onCommit, onImpossible, onProve, onGiveUp }: TurnActions & {
+  state: MonorailState; draft: Draft; disabled?: boolean;
 }) {
   const t = useTranslations('Monorail');
   const left = TILE_COUNT - state.tiles.length;
+  if (draft.proving) return (
+    <div className="space-y-3">
+      <ShapePicker shape={draft.shape} onShape={draft.setShape} disabled={disabled} title={t('tileFace')} />
+      {!disabled && <ProofStatus draft={draft} />}
+      <div className="flex items-center justify-between text-[11px] text-white/45"><span>{t('proofSelected', { n: draft.tiles.length, max: draft.limit })}</span><span>{t('tilesLeft', { n: left })}</span></div>
+      <div className="grid grid-cols-[1fr_auto] gap-2">
+        <button type="button" disabled={disabled || !draft.complete} onClick={onProve} className={`${BTN_ACCENT} py-3 disabled:opacity-35`}><Check size={15} />{t('proveSubmit')}</button>
+        <button type="button" disabled={disabled || !draft.tiles.length} onClick={draft.clear} className={`${BTN} px-3 disabled:opacity-35`} aria-label={t('undo')}><Undo2 size={15} /></button>
+      </div>
+      <button type="button" disabled={disabled} onClick={onGiveUp} className={GIVE_UP}><Flag size={14} />{t('giveUp')}</button>
+      <p className="break-keep text-[10px] leading-4 text-white/35">{t('proveHint')}</p>
+    </div>
+  );
   return (
     <div className="space-y-3">
       <ShapePicker shape={draft.shape} onShape={draft.setShape} disabled={disabled} title={t('tileFace')} />
       <div className="flex items-center justify-between text-[11px] text-white/45"><span>{t('selected', { n: draft.tiles.length })}</span><span>{t('tilesLeft', { n: left })}</span></div>
       <div className="grid grid-cols-[1fr_auto] gap-2">
         <button type="button" disabled={disabled || !draft.tiles.length} onClick={onCommit} className={`${BTN_ACCENT} py-3 disabled:opacity-35`}><CornerDownRight size={15} />{t('place', { n: draft.tiles.length || 0 })}</button>
-        <button type="button" disabled={disabled || !draft.tiles.length} onClick={draft.clear} className={`${BTN} px-3 disabled:opacity-35`} aria-label="Undo selection"><Undo2 size={15} /></button>
+        <button type="button" disabled={disabled || !draft.tiles.length} onClick={draft.clear} className={`${BTN} px-3 disabled:opacity-35`} aria-label={t('undo')}><Undo2 size={15} /></button>
       </div>
-      <button type="button" disabled={disabled || !!draft.tiles.length} onClick={onImpossible} className="flex w-full items-center justify-center gap-2 rounded-md border border-[#ff7d75]/35 bg-[#7f2929]/20 px-4 py-2.5 text-xs font-black text-[#ffaaa4] transition hover:bg-[#7f2929]/35 disabled:cursor-not-allowed disabled:opacity-30"><Minus size={14} />{t('impossible')}</button>
+      <button type="button" disabled={disabled || !!draft.tiles.length} onClick={onImpossible} className={GIVE_UP}><Minus size={14} />{t('impossible')}</button>
       <p className="break-keep text-[10px] leading-4 text-white/35">{t('impossibleHint')}</p>
+    </div>
+  );
+}
+
+/** Shown above the board while an Impossible call is being answered. */
+export function ChallengeBanner({ state, mine, caller, answerer }: { state: MonorailState; mine: boolean; caller: string; answerer: string }) {
+  const t = useTranslations('Monorail');
+  if (!inChallenge(state)) return null;
+  return (
+    <div className="mb-3 flex items-start gap-3 rounded-[14px] border border-[#ff8d85]/40 bg-[#43181d]/80 px-4 py-3">
+      <Siren size={18} className="mt-0.5 shrink-0 text-[#ff9d95]" />
+      <div className="min-w-0">
+        <p className="text-[10px] font-black tracking-[.18em] text-[#ff9d95]">IMPOSSIBLE · {t('challengeKicker', { name: caller })}</p>
+        <p className="mt-1 break-keep text-sm font-bold text-white/85">{mine ? t('challengeYou', { n: TILE_COUNT - state.tiles.length }) : t('challengeWait', { name: answerer })}</p>
+      </div>
     </div>
   );
 }
@@ -193,28 +241,29 @@ export function TurnControls({ state, draft, disabled, onCommit, onImpossible }:
 const noop = () => () => {};
 
 /** Phone / installed-app turn dock: keeps every action reachable without scrolling below the board. */
-export function MonorailTurnDock({ active, state, draft, onCommit, onImpossible }: {
-  active: boolean; state: MonorailState; draft: ReturnType<typeof useMonorailDraft>;
-  onCommit: () => void; onImpossible: () => void;
+export function MonorailTurnDock({ active, state, draft, onCommit, onImpossible, onProve, onGiveUp }: TurnActions & {
+  active: boolean; state: MonorailState; draft: Draft;
 }) {
   const t = useTranslations('Monorail');
   const mounted = useSyncExternalStore(noop, () => true, () => false);
   if (!active || !mounted) return null;
   const left = TILE_COUNT - state.tiles.length;
+  const proving = draft.proving;
+  const pill = 'pointer-events-auto absolute bottom-full left-1/2 mb-2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#ff8d85]/45 bg-[#43181d]/95 px-4 py-2 text-[12px] font-black text-[#ffb0aa] shadow-[0_8px_28px_rgba(0,0,0,.5)] backdrop-blur-md active:scale-95';
+  const ready = proving ? draft.complete : draft.tiles.length > 0;
 
   return createPortal(
     <div className="pointer-events-none fixed inset-x-0 bottom-[max(.5rem,env(safe-area-inset-bottom))] z-50 px-2 lg:hidden" style={accentVars(MONORAIL_ACCENT, MONORAIL_INK)}>
       <div className="relative mx-auto w-full max-w-[560px]">
-        {!draft.tiles.length && (
-          <button type="button" onClick={onImpossible}
-            className="pointer-events-auto absolute bottom-full left-1/2 mb-2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#ff8d85]/45 bg-[#43181d]/95 px-4 py-2 text-[12px] font-black text-[#ffb0aa] shadow-[0_8px_28px_rgba(0,0,0,.5)] backdrop-blur-md active:scale-95">
-            <Minus size={14} />{t('impossible')}
-          </button>
-        )}
-        <section aria-label={t('turnDock')} className="pointer-events-auto rounded-[18px] border border-[#f3b64a]/45 bg-[#171014]/95 p-3 shadow-[0_14px_55px_rgba(0,0,0,.72),0_0_25px_rgba(243,182,74,.12)] backdrop-blur-xl">
+        {proving ? <button type="button" onClick={onGiveUp} className={pill}><Flag size={14} />{t('giveUp')}</button>
+          : !draft.tiles.length && <button type="button" onClick={onImpossible} className={pill}><Minus size={14} />{t('impossible')}</button>}
+        <section aria-label={t('turnDock')} className={`pointer-events-auto rounded-[18px] border bg-[#171014]/95 p-3 shadow-[0_14px_55px_rgba(0,0,0,.72),0_0_25px_rgba(243,182,74,.12)] backdrop-blur-xl ${proving ? 'border-[#ff8d85]/50' : 'border-[#f3b64a]/45'}`}>
           <div className="mb-2 flex items-center justify-between gap-3 px-0.5">
-            <p className="flex items-center gap-1.5 text-[13px] font-black text-[#f6cc72]"><CornerDownRight size={14} />{t('turnDock')}</p>
-            <p className="text-[11px] font-bold text-white/45">{t('selected', { n: draft.tiles.length })} · {t('tilesLeft', { n: left })}</p>
+            <p className={`flex items-center gap-1.5 text-[13px] font-black ${proving ? (draft.complete ? 'text-[#7ff0bd]' : 'text-[#ffb0aa]') : 'text-[#f6cc72]'}`}>
+              {proving ? <Siren size={14} /> : <CornerDownRight size={14} />}
+              {proving ? (draft.complete ? t('proveReady') : t('proveDock')) : t('turnDock')}
+            </p>
+            <p className="text-[11px] font-bold text-white/45">{proving ? t('proofSelected', { n: draft.tiles.length, max: draft.limit }) : `${t('selected', { n: draft.tiles.length })} · ${t('tilesLeft', { n: left })}`}</p>
           </div>
           <div className="grid grid-cols-[1fr_auto] items-end gap-2">
             <div className="grid grid-cols-6 gap-1.5">
@@ -227,9 +276,9 @@ export function MonorailTurnDock({ active, state, draft, onCommit, onImpossible 
             </div>
             <div className="flex gap-1.5">
               {draft.tiles.length > 0 && <button type="button" onClick={draft.clear} aria-label={t('undo')} className="flex h-12 w-10 items-center justify-center rounded-[10px] border border-white/15 bg-white/[.06] text-white/60 active:scale-95"><Undo2 size={16} /></button>}
-              <button type="button" disabled={!draft.tiles.length} onClick={onCommit}
+              <button type="button" disabled={!ready} onClick={proving ? onProve : onCommit}
                 className="flex h-12 min-w-[76px] items-center justify-center gap-1 rounded-[10px] bg-[#f3b64a] px-3 text-[12px] font-black text-[#241607] shadow-[0_0_20px_rgba(243,182,74,.25)] active:scale-95 disabled:bg-white/10 disabled:text-white/25 disabled:shadow-none">
-                <CornerDownRight size={15} />{draft.tiles.length ? t('placeShort', { n: draft.tiles.length }) : t('pickTile')}
+                {proving ? <><Check size={15} />{t('proveSubmit')}</> : <><CornerDownRight size={15} />{draft.tiles.length ? t('placeShort', { n: draft.tiles.length }) : t('pickTile')}</>}
               </button>
             </div>
           </div>

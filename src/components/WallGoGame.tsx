@@ -87,7 +87,7 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
   const [replaying, setReplaying] = useState(false);
 
   const mode = MODES[modeId];
-  const playerNames = [t('you'), 'MIRA', 'NOVA'];
+  const playerNames = [t('you'), 'LEO', 'NOVA'];
   const canBreak = (player: PlayerId) => mode.wallBreak && breakAvailable[player];
   const piecesPerPlayer = mode.totalPieces / mode.players.length;
   // Territory only means something once every piece is on the board.

@@ -96,10 +96,10 @@
     "turnKicker": "TURN {turn}",
     "resultKicker": "TRUTH REVEALED",
     "yourTurn": "Choose a color, then play an intersection",
-    "aiThinking": "MIRA is choosing a matching stone…",
+    "aiThinking": "SANDY is choosing a matching stone…",
     "revealing": "Revealing the truth · {seconds}s",
     "youWin": "Black connects five — you win",
-    "aiWins": "White connects five — MIRA wins",
+    "aiWins": "White connects five — SANDY wins",
     "draw": "The board is full — draw",
     "truthVisible": "Undersides shown",
     "colorsOnly": "Surface colors only",
@@ -142,7 +142,7 @@
     "rulesKicker": "BLIND GOMOKU",
     "rulesTitle": "You can see the colors, not the sides",
     "fullRules": [
-      "You play first as black and MIRA follows as white on a 15×15 board. The black and white undersides stay hidden during play.",
+      "You play first as black and SANDY follows as white on a 15×15 board. The black and white undersides stay hidden during play.",
       "Choose one of seven surface colors each turn. The AI answers with the same surface color you just used.",
       "There are no forbidden moves: double-threes, double-fours, and overlines are legal. The first side to connect at least five wins.",
       "As a human handicap, you may flip the board twice per game and inspect the hidden position for five seconds.",
@@ -1855,7 +1855,7 @@
           "Rails do not have to match as they are placed, but every tile on the table must belong to the final loop.",
           "Complete the station-to-station loop with the last tile to win, or declare Impossible before placing when no completion remains."
         ],
-        "origin": "A web adaptation of Monorail from The Genius: Rule Breaker, based on the board game Venice Connection. Impossible calls are adjudicated by searching the remaining tile space."
+        "origin": "A web adaptation of Monorail from The Genius: Rule Breaker, based on the board game Venice Connection. As on the show, a player challenged with Impossible must finish the loop with the remaining tiles."
       },
       "nineMensMorris": {
         "tagline": "Nine pieces each, 24 points. Line up three to take your opponent's pieces one by one.",
@@ -3123,7 +3123,7 @@
     ],
     "newGame": "New game",
     "resultKicker": "REVEAL",
-    "vsAi": "VS MIRA · {level}",
+    "vsAi": "VS LUNA · {level}",
     "levels": {
       "easy": "Easy",
       "normal": "Normal",
@@ -3144,8 +3144,8 @@
     "roundLossLong": "Your rival took this round",
     "followYou": "Your rival laid a {color} tile. Pick your answer",
     "leadYou": "You lead. Pick a tile to lay first",
-    "aiAnswering": "MIRA is picking an answer…",
-    "aiLeading": "MIRA is picking a tile to lead…",
+    "aiAnswering": "LUNA is picking an answer…",
+    "aiLeading": "LUNA is picking a tile to lead…",
     "thinking": "Thinking…",
     "color": {
       "black": "black",
@@ -3222,8 +3222,8 @@
     "statEdge": "Wins by one",
     "statEdgeHint": "Rounds won by exactly one",
     "unplayed": "Tiles never played",
-    "finishedWin": "You beat MIRA!",
-    "finishedLoss": "MIRA wins this one"
+    "finishedWin": "You beat LUNA!",
+    "finishedLoss": "LUNA wins this one"
   },
   "BlackWhiteOnline": {
     "metaTitle": "Black & White with a friend",
@@ -4981,7 +4981,7 @@
     "roundKicker": "ROUND {n}",
     "matchKicker": "MATCH",
     "stallLeft": "{n} deadlock turns left",
-    "aiThinking": "MIRA is thinking…",
+    "aiThinking": "OTTO is thinking…",
     "pickPlace": "Pick an empty point to place a piece",
     "pickPiece": "Pick a piece to move",
     "pickTarget": "Pick where it goes (a free neighbouring point)",
@@ -5245,7 +5245,7 @@
     "white": "Blue",
     "wins": "{name} wins!",
     "draw": "Draw",
-    "aiThinking": "MIRA is thinking…",
+    "aiThinking": "COCO is thinking…",
     "turnOf": "{name}'s turn",
     "resultKicker": "RESULT",
     "moveKicker": "MOVE {n}",
@@ -5277,7 +5277,7 @@
     "newGameTip": "Clear the board and start over",
     "countTip": "Red and blue stones on the board now (flipped ones included)",
     "modeTips": {
-      "ai": "1:1 vs MIRA, you play red (first)",
+      "ai": "1:1 vs COCO, you play red (first)",
       "local": "Two players taking turns on one device"
     },
     "levelTips": {
@@ -5393,7 +5393,7 @@
   "FlipOmokGuide": {
     "eyebrow": "FLIP OMOK GUIDE",
     "title": "Flip Omok — sandwich, flip, make exactly five",
-    "intro": "Flip Omok is an original board game by the PUZZLTHINK developer: Omok with Othello’s flip. You still race to five in a row, but any enemy stones you close between two of yours flip to your colour. A line you thought was blocked can turn over in one move, and a blocker can end up in your opponent’s line. Play MIRA (Medium or Hard) or a friend by link or 4-digit code.",
+    "intro": "Flip Omok is an original board game by the PUZZLTHINK developer: Omok with Othello’s flip. You still race to five in a row, but any enemy stones you close between two of yours flip to your colour. A line you thought was blocked can turn over in one move, and a blocker can end up in your opponent’s line. Play COCO (Medium or Hard) or a friend by link or 4-digit code.",
     "rulesTitle": "Rules",
     "rules": [
       "Red (first) and blue take turns placing one stone on the points of a 15×15 board.",
@@ -5438,7 +5438,7 @@
       {
         "tag": "Attack",
         "title": "Double threats by flipping",
-        "body": "A move that flips and makes a new four at once is hard to answer — even Hard MIRA struggles with it."
+        "body": "A move that flips and makes a new four at once is hard to answer — even Hard COCO struggles with it."
       },
       {
         "tag": "Rules",
@@ -5472,14 +5472,15 @@
     "metaDescription": "Play the Monorail tile strategy game free: sixteen double-sided rails, exact Impossible checks, Medium and Hard AI, friend rooms and open 1v1 matches.",
     "keywords": ["Monorail board game", "Venice Connection online", "Monorail strategy", "two player tile game"],
     "title": "MONORAIL", "subtitle": "ONE LOOP · SIXTEEN TILES", "restart": "New game", "matchKicker": "MONORAIL MATCH", "resultKicker": "LINE CLOSED",
-    "yourTurn": "Pick a tile face and place it", "pickMore": "Place up to {n} more, or confirm", "aiTurn": "MIRA's turn", "aiThinking": "MIRA is tracing the remaining loops…",
-    "youWin": "You completed the loop", "aiWins": "MIRA wins", "you": "You", "first": "First player", "second": "Second player", "firstMove": "Starting from the two stations", "lastMove": "Last placement",
-    "difficulty": "AI difficulty", "tileFace": "Tile face", "selected": "{n}/3 selected", "tilesLeft": "{n} tiles left", "place": "Place {n}", "impossible": "Declare Impossible", "impossibleHint": "Available only before placing. Every completion within the sixteen-tile limit is checked automatically.", "turnDock": "Your turn · Pick a tile", "placeShort": "Place {n}", "pickTile": "Pick tile", "undo": "Clear selection", "targetWin": "test target {n}%", "level": { "normal": "Medium", "hard": "Hard" }, "levelDesc": { "normal": "Preserves a completable route and reads the opponent's next reply.", "hard": "Compares several full routes and three plies of replies before calling Impossible or setting up the 1–3 tile endgame." },
-    "rules": "Full rules", "close": "Close", "quickRules": "Quick rules", "quickRuleList": ["Place one to three tiles per turn.", "Two or more form one straight line.", "Every tile must enter the final loop.", "Call Impossible before placing."],
-    "ruleList": ["Begin with two station tiles open at both outer ends.", "Take turns placing from sixteen rail tiles to build one loop leaving and returning to the stations.", "Each tile is straight on one face and a corner on the other; choose either face and rotation.", "The first player begins; place one, two or three tiles on a turn.", "A new group must touch an existing tile orthogonally.", "Rail ends do not have to match while placing.", "Two or three tiles must form one contiguous straight row or column.", "You need not use all sixteen, but every placed tile must belong to the completed loop.", "Whoever places the final tile that completes the loop wins.", "Before placing at the start of your turn, you may declare that completion is Impossible.", "If a completion with the remaining tiles exists, the opponent wins.", "If no completion exists, the player who called Impossible wins."],
+    "yourTurn": "Pick a tile face and place it", "pickMore": "Place up to {n} more, or confirm", "aiTurn": "VICKY's turn", "aiThinking": "VICKY is tracing the remaining loops…",
+    "youWin": "You completed the loop", "aiWins": "VICKY wins", "you": "You", "first": "First player", "second": "Second player", "firstMove": "Starting from the two stations", "lastMove": "Last placement",
+    "difficulty": "AI difficulty", "tileFace": "Tile face", "selected": "{n}/3 selected", "tilesLeft": "{n} tiles left", "place": "Place {n}", "impossible": "Declare Impossible", "impossibleHint": "Available only before placing. Your opponent then tries to finish the loop with the remaining tiles; if they do, they win.", "turnDock": "Your turn · Pick a tile", "placeShort": "Place {n}", "pickTile": "Pick tile", "undo": "Clear selection", "targetWin": "test target {n}%", "level": { "normal": "Medium", "hard": "Hard" }, "levelDesc": { "normal": "Preserves a completable route and reads the opponent's next reply.", "hard": "Compares several full routes and three plies of replies before calling Impossible or setting up the 1–3 tile endgame." },
+    "rules": "Full rules", "close": "Close", "quickRules": "Quick rules", "quickRuleList": ["Place one to three tiles per turn.", "Two or more form one straight line.", "Every tile must enter the final loop.", "Call Impossible before placing: if they finish the loop they win, if they give up you win."],
+    "ruleList": ["Begin with two station tiles open at both outer ends.", "Take turns placing from sixteen rail tiles to build one loop leaving and returning to the stations.", "Each tile is straight on one face and a corner on the other; choose either face and rotation.", "The first player begins; place one, two or three tiles on a turn.", "A new group must touch an existing tile orthogonally.", "Rail ends do not have to match while placing.", "Two or three tiles must form one contiguous straight row or column.", "You need not use all sixteen, but every placed tile must belong to the completed loop.", "Whoever places the final tile that completes the loop wins.", "Before placing at the start of your turn, you may declare that completion is Impossible.", "The opponent then tries to finish the loop, laying any number of the remaining tiles on any cells at once.", "If they finish it they win; if they give up or run out of time, the player who called Impossible wins."],
+    "challengeKicker": "called by {name}", "challengeYou": "Finish the loop with the remaining {n} tiles to win; give up and you lose. Place them on any empty cells at once.", "challengeWait": "Waiting for {name} to try to finish the loop…", "challengeHeading": "Prove it: finish the loop", "aiProving": "{name} is trying to finish the loop…", "proveSubmit": "Submit loop", "proveReady": "Loop closed! Submit it", "proveNotYet": "Not one closed loop yet", "proveStart": "Place up to {n} tiles on any empty cells", "proveDock": "Answer Impossible", "proofSelected": "{n}/{max} placed", "proveHint": "Tap a placed tile with another face selected to change it, or with the same face to remove it.", "giveUp": "Give up · concede", "giveUpConfirm": "Give up and concede this game?", "aiGaveUp": "{name} concedes", "aiProved": "{name} finished the loop", "youProved": "Loop finished: Impossible overturned!", "gaveUpPossible": "The translucent gold tiles show a loop that was possible after all.", "gaveUpImpossible": "No loop was possible.",
     "strategyTitle": "One-move hint", "strategy": "When the missing cells form a straight run of three or fewer, the next player finishes. After your move, leave them bent or four or more long, and remember that loops always close with an even count, so a detour shifts the tempo.", "proofShown": "The translucent gold tiles show a valid counterexample loop.",
     "resign": "Resign", "resignConfirm": "Resign this game?", "rematch": "Play again",
-    "reason": { "loop": "The final placement connected every tile into one loop.", "impossible-right": "No loop fit inside the remaining tile count; the Impossible call was correct.", "impossible-wrong": "A valid remaining loop was found, so the player who called Impossible loses.", "resign": "The opponent resigned.", "timeout": "The turn clock expired." }
+    "reason": { "gave-up": "The challenged player gave up on finishing the loop.", "proved": "The challenged player finished the loop with the remaining tiles.", "loop": "The final placement connected every tile into one loop.", "impossible-right": "No loop fit inside the remaining tile count; the Impossible call was correct.", "impossible-wrong": "A valid remaining loop was found, so the player who called Impossible loses.", "resign": "The opponent resigned.", "timeout": "The turn clock expired." }
   },
   "MonorailOnline": {
     "metaTitle": "Monorail friend match", "metaDescription": "Play a live 1v1 Monorail match by invite link or code.", "guest": "Player", "connecting": "Connecting to room…", "connectionError": "Could not connect to the room.", "unconfigured": "Online play is not configured.", "roomNotFound": "Room not found.", "hostOffline": "The host is offline.", "back": "Back to Monorail",
@@ -5488,7 +5489,7 @@
     "players": "Players", "emptySeat": "Empty seat", "me": "me", "ready": "Ready", "waiting": "Waiting", "spectating": "Spectating", "joined": "{name} joined", "left": "{name} left"
   },
   "MonorailTutorial": {
-    "s1Title": "Start at two stations", "s1Desc": "Join the stations' two outer ends into one loop; their touching inner rails close it.", "s2Title": "Place one to three", "s2Desc": "Touch the layout; multiple tiles form one contiguous row or column.", "s3Title": "Rails may mismatch for now", "s3Desc": "A broken line is legal during play, but every tile must match in the final loop.", "s4Title": "The final tile wins", "s4Desc": "Complete one line leaving and returning to the stations to win immediately.", "s5Title": "Impossible is verified", "s5Desc": "Call it at the start of your turn. One counterexample gives the opponent the win; none gives it to you."
+    "s1Title": "Start at two stations", "s1Desc": "Join the stations' two outer ends into one loop; their touching inner rails close it.", "s2Title": "Place one to three", "s2Desc": "Touch the layout; multiple tiles form one contiguous row or column.", "s3Title": "Rails may mismatch for now", "s3Desc": "A broken line is legal during play, but every tile must match in the final loop.", "s4Title": "The final tile wins", "s4Desc": "Complete one line leaving and returning to the stations to win immediately.", "s5Title": "Calling and proving Impossible", "s5Desc": "Call it at the start of your turn and your opponent must finish the loop with the remaining tiles. They win if they do; you win if they give up."
   },
   "MonorailGuide": {
     "eyebrow": "MONORAIL STRATEGY GUIDE",
@@ -5500,7 +5501,7 @@
       "Alternate turns placing one to three tiles; multiple tiles form one straight contiguous line.",
       "The group must touch the layout orthogonally, though its rail ends need not match yet.",
       "The last player to make every tile one station loop wins.",
-      "Impossible may be called only before placing; the caller loses if any completion remains."
+      "Impossible may be called only before placing; the challenged player wins by finishing the loop and loses by giving up."
     ],
     "specialTitle": "Easy-to-miss rulings",
     "special": [
@@ -5517,12 +5518,12 @@
         "body": "Only at the untouched start of your own turn."
       },
       {
-        "title": "What does the verifier search?",
-        "body": "Every simple loop that contains all fixed tile faces and fits within the remaining tile count."
+        "title": "How do I answer an Impossible call?",
+        "body": "You may place the remaining tiles on any empty cells, with no one-to-three limit or straight-line rule. Tap a placed tile with another face selected to change it, or with the same face to remove it. Submit unlocks once every tile on the table forms one loop."
       },
       {
-        "title": "How does this differ from Impossible on the show?",
-        "body": "On the show, the challenged player had to finish the loop with the remaining tiles. Here an automatic search does that job, and when a completion exists it appears on the board as translucent tiles. The outcome is the same."
+        "title": "What if I gave up but a loop existed?",
+        "body": "The caller still wins: as on the show, only a loop actually built counts. The result screen shows a possible completion as translucent gold tiles."
       },
       {
         "title": "All sixteen tiles are down and there's no loop?",
@@ -5584,8 +5585,8 @@
         "a": "Medium mixes its best route with mistakes. Hard samples more completion routes and follows the multiple-of-four endgame more often."
       },
       {
-        "q": "Is Impossible judged randomly?",
-        "a": "No. The game searches for a remaining loop containing every fixed tile and displays a counterexample when one exists."
+        "q": "What happens when Impossible is called?",
+        "a": "Just like the show: the opponent must finish the loop with the remaining tiles. Finish it and they win; give up and the caller wins. Call it on the AI and it either completes the loop on the spot or concedes."
       },
       {
         "q": "Is there a forced win?",

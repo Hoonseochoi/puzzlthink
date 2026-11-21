@@ -9,8 +9,10 @@ import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg } from '@/components/ui/gameUi';
 import { reportGame } from '@/lib/stats';
-import { chooseMonorailAction, declareImpossible, moveText, newMonorail, playMonorail, type MonorailLevel, type MonorailState } from '@/lib/monorail';
-import { MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, TileDeck, TurnControls, useMonorailDraft } from './MonorailParts';
+import { answerChallenge, chooseMonorailAction, declareImpossible, giveUpChallenge, inChallenge, moveText, newMonorail, playMonorail, proveCompletion, type MonorailLevel, type MonorailState, type RailTile } from '@/lib/monorail';
+import { ChallengeBanner, MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, TileDeck, TurnControls, useMonorailDraft } from './MonorailParts';
+
+const AI_NAME = 'VICKY';
 
 const LEVELS: MonorailLevel[] = ['normal', 'hard'];
 
@@ -19,6 +21,8 @@ export default function MonorailGame() {
   const [level, setLevel] = useState<MonorailLevel>('normal');
   const [game, setGame] = useState<MonorailState>(newMonorail);
   const [showRules, setShowRules] = useState(false);
+  // Tiles the AI is laying down one by one while it answers your Impossible call.
+  const [aiDraft, setAiDraft] = useState<RailTile[]>([]);
   const run = useRef(0);
   const reportedMatch = useRef(false);
   const thinking = game.winner === null && game.turn === 1;
@@ -34,12 +38,23 @@ export default function MonorailGame() {
   useEffect(() => {
     if (game.winner !== null || game.turn !== 1) return;
     const id = run.current;
-    const timer = window.setTimeout(() => {
-      if (run.current !== id) return;
-      const action = chooseMonorailAction(game, level);
-      setGame((current) => action.t === 'impossible' ? declareImpossible(current) ?? current : playMonorail(current, action.move) ?? current);
-    }, 650);
-    return () => window.clearTimeout(timer);
+    const timers: number[] = [];
+    const later = (ms: number, fn: () => void) => timers.push(window.setTimeout(() => { if (run.current === id) fn(); }, ms));
+    if (inChallenge(game)) {
+      // You called Impossible: VICKY either finishes the loop in front of you or concedes.
+      later(900, () => {
+        const answer = answerChallenge(game);
+        if (answer.t === 'give-up') { setGame((current) => giveUpChallenge(current) ?? current); return; }
+        answer.tiles.forEach((_, i) => later(i * 240, () => setAiDraft(answer.tiles.slice(0, i + 1))));
+        later(answer.tiles.length * 240 + 600, () => { setAiDraft([]); setGame((current) => proveCompletion(current, answer.tiles) ?? current); });
+      });
+    } else {
+      later(650, () => {
+        const action = chooseMonorailAction(game, level);
+        setGame((current) => action.t === 'impossible' ? declareImpossible(current) ?? current : playMonorail(current, action.move) ?? current);
+      });
+    }
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [game, level]);
 
   useEffect(() => {
@@ -49,17 +64,24 @@ export default function MonorailGame() {
   }, [game.winner]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const restart = (nextLevel = level) => {
-    run.current += 1; reportedMatch.current = false; setLevel(nextLevel); setGame(newMonorail()); draft.clear();
+    run.current += 1; reportedMatch.current = false; setLevel(nextLevel); setGame(newMonorail()); setAiDraft([]); draft.clear();
     const url = new URL(window.location.href); url.searchParams.set('difficulty', nextLevel); window.history.replaceState(null, '', url);
   };
   const commit = () => {
     const next = playMonorail(game, draft.move);
     if (next) { setGame(next); draft.clear(); }
   };
-  const impossible = () => { const next = declareImpossible(game); if (next) setGame(next); };
-  const result = game.winner === null ? null : game.winner === 0 ? t('youWin') : t('aiWins');
-  const reason = game.reason ? t(`reason.${game.reason}`) : '';
-  const heading = result ?? (thinking ? t('aiThinking') : myTurn ? (draft.tiles.length ? t('pickMore', { n: 3 - draft.tiles.length }) : t('yourTurn')) : t('aiTurn'));
+  const impossible = () => { const next = declareImpossible(game); if (next) { setGame(next); draft.clear(); } };
+  const prove = () => { const next = proveCompletion(game, draft.tiles); if (next) { setGame(next); draft.clear(); } };
+  const giveUp = () => { if (!window.confirm(t('giveUpConfirm'))) return; const next = giveUpChallenge(game); if (next) { setGame(next); draft.clear(); } };
+  const challenge = inChallenge(game);
+  const result = game.winner === null ? null
+    : game.reason === 'gave-up' && game.winner === 0 ? t('aiGaveUp', { name: AI_NAME })
+      : game.reason === 'proved' ? (game.winner === 0 ? t('youProved') : t('aiProved', { name: AI_NAME }))
+        : game.winner === 0 ? t('youWin') : t('aiWins');
+  const reason = !game.reason ? '' : game.reason === 'gave-up' ? `${t('reason.gave-up')} ${game.proof ? t('gaveUpPossible') : t('gaveUpImpossible')}` : t(`reason.${game.reason}`);
+  const heading = result ?? (challenge ? (myTurn ? t('challengeHeading') : t('aiProving', { name: AI_NAME }))
+    : thinking ? t('aiThinking') : myTurn ? (draft.tiles.length ? t('pickMore', { n: 3 - draft.tiles.length }) : t('yourTurn')) : t('aiTurn'));
   const last = game.last ? moveText(game.last) : t('firstMove');
   const confidence = level === 'hard' ? 80 : 50;
 
@@ -77,14 +99,15 @@ export default function MonorailGame() {
             <div><p className={KICKER}>{game.winner === null ? t('matchKicker') : t('resultKicker')}</p><h1 className={`mt-1 ${HEADING}`}>{heading}</h1></div>
             <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 font-mono text-[11px] font-bold text-white/55">{game.tiles.length}/16</span>
           </div>
+          <ChallengeBanner state={game} mine={myTurn} caller={game.challenger === 0 ? t('you') : AI_NAME} answerer={game.turn === 0 ? t('you') : AI_NAME} />
           <div className="relative">
-            <MonorailBoard state={game} pending={draft.tiles} interactive={myTurn} onCell={draft.add} onPending={draft.remove} />
+            <MonorailBoard state={game} pending={myTurn ? draft.tiles : aiDraft} interactive={myTurn} onCell={draft.add} onPending={draft.remove} />
             {game.winner !== null && (
               <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[18px] bg-[#19080d]/62 p-5 backdrop-blur-[2px]">
                 <div className="w-full max-w-sm rounded-[18px] border border-[#f3b64a]/45 bg-[#241016]/95 p-6 text-center shadow-[0_0_70px_rgba(243,182,74,.22)]">
                   <Trophy size={32} className="mx-auto text-[#f3b64a]" /><p className={`${KICKER} mt-3`}>{t('resultKicker')}</p>
                   <h2 className="mt-1 text-2xl font-black">{result}</h2><p className="mt-2 break-keep text-sm leading-6 text-white/60">{reason}</p>
-                  {game.reason === 'impossible-wrong' && <p className="mt-3 rounded-md bg-[#f3b64a]/10 px-3 py-2 text-xs font-bold text-[#f6d58f]">{t('proofShown')}</p>}
+                  {game.reason === 'gave-up' && game.proof && <p className="mt-3 rounded-md bg-[#f3b64a]/10 px-3 py-2 text-xs font-bold text-[#f6d58f]">{t('proofShown')}</p>}
                   <button type="button" onClick={() => restart()} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={15} />{t('rematch')}</button>
                 </div>
               </div>
@@ -102,23 +125,24 @@ export default function MonorailGame() {
           <section className={PANEL}>
             <div className="grid grid-cols-2 gap-2">
               <div className={playerRow(game.winner === null && game.turn === 0)}><span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f3b64a] font-black text-[#2a1706]">YOU</span><div><p className="text-xs font-black">{t('you')}</p><p className="text-[10px] text-white/40">{t('first')}</p></div></div>
-              <div className={playerRow(game.winner === null && game.turn === 1)}><span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#6d3140] text-[#ffd987]"><Bot size={18} /></span><div><p className="text-xs font-black">MIRA</p><p className="text-[10px] text-white/40">{t('second')}</p></div></div>
+              <div className={playerRow(game.winner === null && game.turn === 1)}><span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#6d3140] text-[#ffd987]"><Bot size={18} /></span><div><p className="text-xs font-black">VICKY</p><p className="text-[10px] text-white/40">{t('second')}</p></div></div>
             </div>
             <div className="mt-4 border-t border-white/10 pt-4"><TileDeck used={game.tiles.length} /></div>
           </section>
-          <section className={PANEL}>
-            <TurnControls state={game} draft={draft} disabled={!myTurn} onCommit={commit} onImpossible={impossible} />
+          {/* Phones use the floating turn dock instead, so the same tile faces are not shown twice. */}
+          <section className={`${PANEL} hidden lg:block`}>
+            <TurnControls state={game} draft={draft} disabled={!myTurn} onCommit={commit} onImpossible={impossible} onProve={prove} onGiveUp={giveUp} />
           </section>
           <section className={NOTE}>
             <h2 className="flex items-center gap-2 text-xs font-black"><BrainCircuit size={14} className="text-[#f3b64a]" />{t('strategyTitle')}</h2>
             <p className="mt-2 break-keep text-xs leading-5 text-white/55">{t('strategy')}</p>
           </section>
-          {game.winner === null && <button type="button" onClick={() => setGame({ ...game, winner: 1, reason: 'resign' })} className={`${BTN} py-2.5 text-white/45`}><Flag size={13} />{t('resign')}</button>}
+          {game.winner === null && !challenge && <button type="button" onClick={() => { if (window.confirm(t('resignConfirm'))) setGame({ ...game, winner: 1, reason: 'resign' }); }} className={`${BTN} py-2.5 text-white/45`}><Flag size={13} />{t('resign')}</button>}
         </aside>
       </main>
 
       {showRules && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" onClick={() => setShowRules(false)}><div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-[18px] border border-[#f3b64a]/35 bg-[#241016] p-5" onClick={(e) => e.stopPropagation()}><div className="flex items-center justify-between"><h2 className="text-lg font-black">{t('rules')}</h2><button onClick={() => setShowRules(false)} className={BTN}>{t('close')}</button></div><ol className="mt-4 space-y-3">{(t.raw('ruleList') as string[]).map((rule, i) => <li key={rule} className="flex gap-3 text-sm leading-6 text-white/65"><span className="font-mono font-black text-[#f3b64a]">{String(i + 1).padStart(2, '0')}</span><span className="break-keep">{rule}</span></li>)}</ol></div></div>}
-      <MonorailTurnDock active={myTurn && !showRules} state={game} draft={draft} onCommit={commit} onImpossible={impossible} />
+      <MonorailTurnDock active={myTurn && !showRules} state={game} draft={draft} onCommit={commit} onImpossible={impossible} onProve={prove} onGiveUp={giveUp} />
     </div>
   );
 }

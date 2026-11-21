@@ -167,9 +167,9 @@ export default function BlindGomokuGame() {
             <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
               <div className={`rounded-[10px] border p-3 text-center ${phase === 'human' ? 'border-[#ffd166]/55 bg-[#ffd166]/10' : 'border-white/10 bg-black/30'}`}><div className="mx-auto h-11 w-11"><BlindStone color="#ef4957" owner="black" revealed /></div><p className="mt-2 text-xs font-black">{t('you')}</p><p className="text-[10px] text-white/40">{t('blackHidden')}</p></div>
               <span className="font-mono text-[10px] font-black text-white/25">VS</span>
-              <div className={`rounded-[10px] border p-3 text-center ${phase === 'ai' ? 'border-[#ffd166]/55 bg-[#ffd166]/10' : 'border-white/10 bg-black/30'}`}><div className="mx-auto h-11 w-11"><BlindStone color="#4e87ed" owner="white" revealed /></div><p className="mt-2 text-xs font-black">MIRA</p><p className="text-[10px] text-white/40">{t('whiteHidden')}</p></div>
+              <div className={`rounded-[10px] border p-3 text-center ${phase === 'ai' ? 'border-[#ffd166]/55 bg-[#ffd166]/10' : 'border-white/10 bg-black/30'}`}><div className="mx-auto h-11 w-11"><BlindStone color="#4e87ed" owner="white" revealed /></div><p className="mt-2 text-xs font-black">SANDY</p><p className="text-[10px] text-white/40">{t('whiteHidden')}</p></div>
             </div>
-            {latest && <p className="mt-3 flex items-center justify-center gap-2 rounded-md bg-black/30 px-3 py-2 text-[11px] text-white/55"><Sparkles size={12} className="text-[#ffd166]" />{t('lastMove', { player: latest.owner === 'black' ? t('you') : 'MIRA', coordinate: coordinateLabel(latest.row, latest.col) })}</p>}
+            {latest && <p className="mt-3 flex items-center justify-center gap-2 rounded-md bg-black/30 px-3 py-2 text-[11px] text-white/55"><Sparkles size={12} className="text-[#ffd166]" />{t('lastMove', { player: latest.owner === 'black' ? t('you') : 'SANDY', coordinate: coordinateLabel(latest.row, latest.col) })}</p>}
           </section>
 
           <ColorPicker selected={color} onSelect={setSelectedColor} disabled={phase !== 'human' || revealSeconds > 0} note={t('aiCopies')}

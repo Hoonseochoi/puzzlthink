@@ -16,7 +16,7 @@ import { HandRow, MORRIS_ACCENT, MORRIS_INK, MorrisBoard, MorrisStone, useMorris
 type Round = { human: Player; winner: 'you' | 'ai' | 'draw' };
 const LEVELS: MorrisLevel[] = ['easy', 'normal', 'hard'];
 
-/** 1:1 against MIRA, best of three. You are black (first) in round one; the sides swap every round. */
+/** 1:1 against OTTO, best of three. You are black (first) in round one; the sides swap every round. */
 export default function MorrisGame() {
   const t = useTranslations('Morris');
   const [level, setLevel] = useState<MorrisLevel>('normal');
@@ -52,7 +52,7 @@ export default function MorrisGame() {
 
   const picker = useMorrisPicker(game, myTurn, apply);
 
-  // MIRA's move, after a short pause so the board can be read.
+  // OTTO's move, after a short pause so the board can be read.
   useEffect(() => {
     if (roundOver || game.turn !== aiColor) return;
     const timer = window.setTimeout(() => {
@@ -76,7 +76,7 @@ export default function MorrisGame() {
     : !myTurn ? t('aiThinking')
       : picker.removing ? t('pickRemove') : placing(game) ? t('pickPlace') : picker.selected !== null ? t('pickTarget') : flying(game) ? t('pickFly') : t('pickPiece');
 
-  const players: { color: Player; name: string; you: boolean }[] = [{ color: human, name: t('you'), you: true }, { color: aiColor, name: 'MIRA', you: false }];
+  const players: { color: Player; name: string; you: boolean }[] = [{ color: human, name: t('you'), you: true }, { color: aiColor, name: 'OTTO', you: false }];
 
   return (
     <div className={SHELL} style={{ ...accentVars(MORRIS_ACCENT, MORRIS_INK), backgroundImage: fog('62, 201, 214') }}>
@@ -116,7 +116,7 @@ export default function MorrisGame() {
           </div>
 
           <div className="mt-3 flex min-h-9 flex-wrap items-center justify-between gap-2 px-1 text-[11px] text-white/45">
-            <span>{game.last ? t('lastMove', { who: game.turn === human ? 'MIRA' : t('you'), move: moveLabel(game.last) }) : t('firstHint')}</span>
+            <span>{game.last ? t('lastMove', { who: game.turn === human ? 'OTTO' : t('you'), move: moveLabel(game.last) }) : t('firstHint')}</span>
             {picker.selected !== null && myTurn && <button type="button" onClick={picker.cancel} className={`${BTN} py-1.5`}><X size={12} />{t('cancel')}</button>}
           </div>
         </section>
@@ -149,7 +149,7 @@ export default function MorrisGame() {
             </div>
             {rounds.length > 0 && (
               <ol className="mt-3 flex flex-wrap gap-1.5">
-                {rounds.map((r, i) => <li key={i} className={`rounded-md px-2 py-1 text-[10px] font-black ${r.winner === 'you' ? 'bg-(--accent) text-(--accent-ink)' : r.winner === 'ai' ? 'bg-white/10 text-white/60' : 'border border-white/15 text-white/45'}`}>R{i + 1} {r.winner === 'you' ? t('you') : r.winner === 'ai' ? 'MIRA' : t('draw')}</li>)}
+                {rounds.map((r, i) => <li key={i} className={`rounded-md px-2 py-1 text-[10px] font-black ${r.winner === 'you' ? 'bg-(--accent) text-(--accent-ink)' : r.winner === 'ai' ? 'bg-white/10 text-white/60' : 'border border-white/15 text-white/45'}`}>R{i + 1} {r.winner === 'you' ? t('you') : r.winner === 'ai' ? 'OTTO' : t('draw')}</li>)}
               </ol>
             )}
           </section>

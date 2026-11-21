@@ -129,7 +129,7 @@ export function isForbidden(board: Board, at: number, p: Player): boolean {
 
 export const isFull = (board: Board) => board.every((c) => c !== 0);
 
-// ---- AI (MIRA) ----
+// ---- AI (COCO) ----
 
 // Every five-cell window on the board, built once.
 const WINDOWS: number[][] = [];
