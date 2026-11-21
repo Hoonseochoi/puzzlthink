@@ -29,6 +29,7 @@ import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { prepareBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 import { prepareBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
 import { prepareMonorailRoom, useMonorailRoom } from '@/hooks/useMonorailRoom';
+import { prepareMasyuRoom, prepareNonogramRoom, useMasyuRoom, useNonogramRoom } from '@/hooks/useLogicRoom';
 import { prepareTwoSidedPokerRoom, useTwoSidedPokerRoom } from '@/hooks/useTwoSidedPokerRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
@@ -51,6 +52,14 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  masyu: {
+    path: '/masyu', solo: true, ai: [{ label: 'logicNew', query: 'mode=challenge' }, { label: 'logicBeat', query: 'mode=beat' }, { label: 'masyuPractice', query: 'mode=practice' }],
+    rooms: [{ label: 'logicRoom', create: prepareMasyuRoom, openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useMasyuRoom,
+  },
+  nonogram: {
+    path: '/nonogram', solo: true, ai: [{ label: 'logicNew', query: 'mode=challenge' }, { label: 'logicBeat', query: 'mode=beat' }, { label: 'nonogramPractice', query: 'mode=practice' }],
+    rooms: [{ label: 'logicRoom', create: prepareNonogramRoom, openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useNonogramRoom,
+  },
   twoSidedPoker: { path: '/two-sided-poker', ai: [{ label: 'aiPlay' }], rooms: [{ label: 'roomTwo', create: prepareTwoSidedPokerRoom }], useRoom: useTwoSidedPokerRoom },
   monorail: { path: '/monorail', ai: [{ label: 'aiNormal', query: 'difficulty=normal' }, { label: 'aiHard', query: 'difficulty=hard' }], rooms: [{ label: 'roomTwo', create: prepareMonorailRoom }], useRoom: useMonorailRoom },
   flipOmok: { path: '/flip-omok', ai: [{ label: 'aiTwo' }], rooms: [{ label: 'roomTwo', create: prepareFlipOmokRoom }], useRoom: useFlipOmokRoom },

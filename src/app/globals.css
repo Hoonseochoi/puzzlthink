@@ -37,6 +37,7 @@ button:disabled { cursor: default; }
 .laser-janggi-beam { animation: laserBeam .42s cubic-bezier(.2,.8,.2,1) both; }
 .laser-janggi-hit { transform-box: fill-box; transform-origin: center; animation: laserHit .72s .25s ease-out both; }
 @keyframes nemoHighlight { from { opacity: 0; transform: scale(1.08); } to { opacity: 1; transform: scale(1); } }
+@keyframes logic-pop { 0% { transform: scale(1); } 35% { transform: scale(1.035); } 100% { transform: scale(1); } }
 .nemo-highlight { animation: nemoHighlight .22s ease-out both; }
 /* 흑과 백: a tile laid face down, a number turned over in the replay, the round result. */
 @keyframes bwLay { 0% { opacity: 0; transform: translateY(-26px) rotate(-6deg) scale(1.08); } 70% { opacity: 1; transform: translateY(2px) rotate(1deg); } 100% { transform: none; } }

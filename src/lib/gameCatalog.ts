@@ -1,11 +1,11 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
 // Order: by how often each is played (벽바둑 II right after 벽바둑), matching the home cards. 뒤집기 오목 stays last while its rules settle.
-export type GameId = 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
+export type GameId = 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 
 export interface CatalogGame {
   id: GameId;
   /** Route of the playable page. */
-  href: '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+  href: '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
   /** Accent color, matching the home page cards. */
   color: string;
   /** Whether the game page renders a long-form guide below the board (anchored at #guide). */
@@ -17,6 +17,8 @@ export const GAMES: readonly CatalogGame[] = [
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
   { id: 'wallgo', href: '/wallgo', color: '#ff6b4a', hasGuide: true },
   { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true },
+  { id: 'masyu', href: '/masyu', color: '#ff4d5e', hasGuide: true },
+  { id: 'nonogram', href: '/nonogram', color: '#3fcf6a', hasGuide: true },
   { id: 'twoSidedPoker', href: '/two-sided-poker', color: '#9b87ff', hasGuide: false },
   { id: 'russianJanggi', href: '/russian-janggi', color: '#e2283c', hasGuide: true },
   { id: 'janggi', href: '/janggi', color: '#e8a33c', hasGuide: true },

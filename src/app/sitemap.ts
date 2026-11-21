@@ -11,6 +11,8 @@ const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekl
   ...GAME_PATHS.map((path) => ({ path, priority: 0.9, changeFrequency: 'weekly' as const })),
   { path: '/games', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/slitherlink/guide', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/masyu/guide', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/nonogram/guide', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/records', priority: 0.5, changeFrequency: 'daily' },
   ...GAME_PATHS.map((path) => (path === '/play' ? 'sudoku' : path.slice(1))).filter((slug) => gameFromSlug(slug)).map((slug) => ({ path: `/ranking/${slug}`, priority: 0.6, changeFrequency: 'daily' as const })),
   { path: '/about', priority: 0.3, changeFrequency: 'monthly' },

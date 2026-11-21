@@ -37,10 +37,10 @@ const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'sudoku', href: '/play', color: '#4b7bff' },
 ];
 /** Common message key for each game's name. */
-const GAME_LABEL: Record<GameId, string> = { two_sided_poker: 'twoSidedPoker', monorail: 'monorail', flip_omok: 'flipOmok', nine_mens_morris: 'nineMensMorris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
+const GAME_LABEL: Record<GameId, string> = { masyu: 'masyu', nonogram: 'nonogram', two_sided_poker: 'twoSidedPoker', monorail: 'monorail', flip_omok: 'flipOmok', nine_mens_morris: 'nineMensMorris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
 /** Solo challenges have their own tab (they never appear in the AI Hall of Fame). */
-const CHALLENGE_GAMES = new Set<GameId>(['slitherlink', 'gyulhap', 'nemo_count', 'hexagon']);
+const CHALLENGE_GAMES = new Set<GameId>(['slitherlink', 'gyulhap', 'nemo_count', 'hexagon', 'masyu', 'nonogram']);
 
 function formatDuration(seconds: number, t: (k: string, v?: Record<string, number>) => string) {
   const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60);

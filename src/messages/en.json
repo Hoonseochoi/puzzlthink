@@ -80,6 +80,8 @@
     "supportCta": "Server fund",
     "supportNote": "Support only pays for servers and gives no perks. Every game stays free either way.",
     "supportDismiss": "Hide for today",
+    "masyu": "Masyu",
+    "nonogram": "Nonogram",
     "slitherlink": "Slitherlink",
     "wallgo2": "Wallgo II",
     "nineMensMorris": "Nine Men's Morris",
@@ -322,6 +324,11 @@
     "modeHexFriend": "Friends",
     "modeHexFriendDesc": "2–4 · buzzer",
     "hypeTag": "most played",
+    "masyuDescription": "Straight through white, turn on black! Draw one loop past all our stones. Claim new maps and steal other players' maps.",
+    "masyuMeta": "Challenge · steal maps · 2–4 friends",
+    "nonogramDescription": "Fill cells from the numbers and a hidden picture lights up in colour. No guessing. Claim new maps and steal other players' maps.",
+    "nonogramMeta": "Challenge · steal maps · 2–4 friends",
+    "tag_logicPuzzle": "Logic puzzle",
     "slitherlinkDescription": "The loop puzzle from the show, as it was. Join the dots into one loop that matches every number.",
     "slitherlinkMeta": "Challenge · take boards · 2–4 friends",
     "modeSlitherNew": "Challenge",
@@ -1634,6 +1641,8 @@
     "challengeTab": "Challenges",
     "chTitle": "Challenge rankings",
     "chDesc": "Top 3 best runs in each solo challenge. Slitherlink counts boards owned; the others rank by best single-run score.",
+    "chMasyu": "Masyu board collection",
+    "chNonogram": "Nonogram board collection",
     "chSlither": "Slitherlink board collection",
     "chGyul10": "Gyul! Hap! 10-min challenge",
     "chGyul5": "Gyul! Hap! 5-min challenge",
@@ -2119,6 +2128,38 @@
         ],
         "origin": "Based on Hexagon, the second game of the final of Netflix's The Devil's Plan season 1. Boards and targets are generated at random and every answer is computed; the ten boards from the broadcast are included."
       },
+      "masyu": {
+        "tagline": "Draw one loop through the cell centers that passes every stone. Go straight through white and turn next to it; turn on black and go two cells each way. Two rules, endless thinking. Claim new maps, steal others' and race friends.",
+        "players": "1 player or 2–4 friends",
+        "pace": "3–20 min a board",
+        "level": "6×6 · 8×8 · 10×10 (random boards with one answer)",
+        "solo": "New map (ranked) · steal a map · practice by size",
+        "friend": "2–4 race on the same board · first to finish wins",
+        "ai": "New map (ranked) · steal a map · practice by size",
+        "rules": [
+          "Connect cell centers into one closed loop with no branches or breaks. Each cell is visited at most once.",
+          "The loop must pass every stone. Empty cells are optional.",
+          "● Black: the loop turns on it and goes straight one more cell on both sides.",
+          "○ White: the loop goes straight through and turns in a cell next to it."
+        ],
+        "origin": "Masyu (\"pearl\") is a classic puzzle from the Japanese publisher Nikoli, drawn here with PUZZLTHINK's stone characters. Every board is checked by computer to have exactly one answer."
+      },
+      "nonogram": {
+        "tagline": "Fill cells from the numbers beside each row and column to reveal a hidden picture, which lights up in our stone colours when done. Pure logic, no guessing, plus a challenge to claim and steal maps and races with friends.",
+        "players": "1 player or 2–4 friends",
+        "pace": "2–20 min a board",
+        "level": "5×5 · 10×10 · 15×15 (random pictures solvable by logic)",
+        "solo": "New map (ranked) · steal a map · practice by size",
+        "friend": "2–4 race on the same board · first to finish wins",
+        "ai": "New map (ranked) · steal a map · practice by size",
+        "rules": [
+          "The numbers of a line are the lengths of its runs of filled cells, in order.",
+          "Runs are separated by at least one empty cell.",
+          "When every row and column matches, the picture is done.",
+          "Mark empty cells with ✕. Drag to fill a whole run."
+        ],
+        "origin": "The picture logic puzzle also known as Picross or Griddlers. PUZZLTHINK only serves pictures that can be solved line by line with logic alone."
+      },
       "slitherlink": {
         "tagline": "A logic puzzle: join the dots into one unbroken loop that runs along exactly as many sides as each number says.",
         "players": "1 player, or 2–4 friends",
@@ -2259,6 +2300,12 @@
     "slitherNew": "New challenge (claim a board)",
     "slitherBeat": "Beat a board",
     "slitherPractice": "Practice (9×9 · 10×10 · 11×11)",
+    "logicNew": "New map (claim it)",
+    "logicBeat": "Steal a map",
+    "masyuPractice": "Practice (6×6 · 8×8 · 10×10)",
+    "nonogramPractice": "Practice (5×5 · 10×10 · 15×15)",
+    "logicRoom": "Create a room (2–4)",
+    "short_logicRoom": "2–4",
     "slitherRoom": "Create a room (2–4)",
     "short_slitherRoom": "2–4"
   },
@@ -5634,5 +5681,314 @@
     "warn": "You left the board ({n}/{max}). {max} times and the run won’t count.",
     "void": "You left the board 3 or more times; this challenge won’t count.",
     "voided": "You left for another tab or app {n} or more times, so this score isn’t ranked."
+  },
+  "Logic": {
+    "mode_challenge": "New map",
+    "mode_beat": "Steal",
+    "mode_practice": "Practice",
+    "newBoard": "New board",
+    "loading": "Loading…",
+    "minSec": "{m}m {s}s",
+    "rankingTitle": "Board collection",
+    "rankingEmpty": "No one owns a board yet. Be the first!",
+    "mapsN": "{n} maps",
+    "boardTried": "Tried",
+    "boardGo": "Steal",
+    "boardMine": "Mine",
+    "myPlace": "You: #{rank} · {maps} maps · {total} players",
+    "newTitle": "Claim a new map",
+    "newDesc": "You get a {game} board no one has seen. Solve it with no time limit and it is yours. The ranking counts the maps you own.",
+    "fairNote": "For fair records the server replays your solve. Leaving for another tab or app 3+ times (2 s or more) voids a clear under 20 minutes. Leaving the page counts as giving up.",
+    "needSignIn": "Sign in to play the challenge (so your records and maps are kept).",
+    "newStart": "Start a new map",
+    "focusTitle": "Steal {name}'s map",
+    "boardLine": "Record {time} · {n} tries · stolen {k}×",
+    "beatStart": "Solve within {time} to take it!",
+    "beatDesc": "Solve someone's map faster than their record and it becomes yours. One try per map.",
+    "boardsEmpty": "No maps yet. Claim a new one first!",
+    "holderMap": "{name}'s map",
+    "errTried": "You already tried this map. One try per map.",
+    "errPool": "New maps are being prepared. Try again in a moment.",
+    "errMine": "You cannot steal your own map.",
+    "errStart": "Could not get a board. Please try again.",
+    "practiceKicker": "PRACTICE",
+    "beatKicker": "{name}'s map",
+    "newKicker": "NEW MAP",
+    "awayWarn": "You left the board ({n}/{max})",
+    "awayVoid": "Left 3 times: a clear under 20 minutes will not count",
+    "toolFill": "Fill",
+    "toolCross": "Mark ✕",
+    "toolUndo": "Undo",
+    "undoKey": "Undo (Ctrl/⌘+Z)",
+    "toolClear": "Clear all",
+    "clearConfirm": "Tap again",
+    "giveUpPractice": "Give up and show the answer",
+    "giveUpChallenge": "Give up",
+    "help_masyu": "Tap between two cell centers: line → ✕ → empty. Or drag from cell to cell to draw. Smiling stones keep their rule; frowning ones break it.",
+    "help_nonogram_fill": "Tap a cell to fill, tap again to clear. Drag to fill a run. A line's numbers fade once it matches.",
+    "help_nonogram_cross": "✕ mode: mark cells that stay empty. Drag to mark a run.",
+    "solvedTitle": "Solved! {time}",
+    "solvedDesc": "You solved a {size} board. Another one?",
+    "answerShown": "Here is the answer",
+    "checking": "Checking your solve on the server…",
+    "claimTitle": "The map is yours!",
+    "tookTitle": "Map stolen!",
+    "clearLine": "Time {time}",
+    "tookFrom": "from {name}",
+    "rankLine": "{maps} maps · #{rank} of {total}",
+    "beatFail": "Not this time",
+    "failTitle": "Map failed",
+    "flagAway": "You left the board too often, so this clear does not count.",
+    "flagFast": "That solve was implausibly fast, so it does not count.",
+    "gaveUpDesc": "A map you give up cannot be retried. Try a new one!",
+    "failDesc": "Time ran out. Try another map!",
+    "newAgain": "New map",
+    "rulesTitle": "Rules",
+    "rules_masyu": [
+      "Join cell centers into one unbroken loop, no branches or crossings.",
+      "The loop passes every stone.",
+      "● Black: turn, then one more cell straight both ways.",
+      "○ White: straight through, turning just before or after.",
+      "One answer only: draw what is certain."
+    ],
+    "rules_nonogram": [
+      "Numbers = lengths of the filled runs in that line, in order.",
+      "At least one empty cell between runs.",
+      "All lines match = done, and the picture lights up.",
+      "Drag to fill a run; use ✕ mode for empty cells.",
+      "One answer, solvable by logic alone."
+    ]
+  },
+  "LogicOnline": {
+    "metaTitle": "Solve {game} together? You are invited",
+    "metaDescription": "Race on the same {game} board; first to finish wins. Just open the link.",
+    "guest": "Guest",
+    "connecting": "Connecting to the room…",
+    "connectionError": "Could not connect. Please reload.",
+    "hostOffline": "The host stepped away. The game continues when they are back.",
+    "emptySeat": "Empty",
+    "me": "me",
+    "lobbyTitle": "Waiting for friends",
+    "inviteTitle": "Invite",
+    "copy": "Copy link",
+    "copied": "Copied!",
+    "share": "Share",
+    "rename": "Rename",
+    "startCount": "Start with {n}",
+    "startLocked": "Start once 2 or more have joined",
+    "startHint": "Everyone solves the same board at once. First to finish wins.",
+    "roomFull": "The room is full (4 max).",
+    "waitingHost": "Waiting for the host to start…",
+    "race": "Finish first!",
+    "youWin": "You finished first! 🎉",
+    "winnerIs": "{name} finished first",
+    "noWinner": "Everyone gave up",
+    "gaveUpWatching": "You gave up. Watch the others",
+    "giveUpConfirm": "Give up? You cannot rejoin this round.",
+    "showAnswer": "Show answer",
+    "hideAnswer": "Show my work",
+    "rematch": "Another round on a new board",
+    "rematchWait": "Waiting for the host to start a new round…",
+    "watching": "Watching this round.",
+    "players": "Players",
+    "out": "Out",
+    "linesN": "{n} lines",
+    "cellsN": "{n} cells",
+    "boardSize": "Board size",
+    "rulesTitle": "Room rules",
+    "rules": [
+      "Everyone solves the same random {game} board at once.",
+      "The first correct answer wins right away.",
+      "You see others' progress, not their work.",
+      "If everyone else gives up, the last one standing wins."
+    ],
+    "youWinForfeit": "Everyone else gave up: you win!",
+    "winnerForfeit": "{name} stayed to the end and won"
+  },
+  "MasyuGuide": {
+    "metaTitle": "Masyu Online Free — Black & White Pearl Loop Puzzle | Claim & Steal Map Ranking, Friend Races",
+    "metaDescription": "Straight through white, turn on black! Nikoli's Masyu loop puzzle with random one-answer boards, a claim-and-steal map ranking and 2–4 player races. Free.",
+    "keywords": [
+      "Masyu",
+      "Masyu online",
+      "pearl puzzle",
+      "loop puzzle",
+      "Nikoli",
+      "logic puzzle online"
+    ],
+    "alternateNames": [
+      "Masyu",
+      "Pearl puzzle",
+      "마슈"
+    ],
+    "eyebrow": "MASYU GUIDE",
+    "title": "Masyu — the loop puzzle of white and black stones",
+    "intro": "Masyu asks for one loop through the cell centers that passes every stone: it turns on black stones and goes straight through white ones. Two rules, yet the stones feed each other clues until every line is forced. Every board here is checked to have one answer.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Connect cell centers horizontally and vertically into one closed loop. No branches, crossings or breaks.",
+      "Each cell is visited at most once, and the loop passes every stone.",
+      "On a black stone the loop turns 90°, and both legs go straight through the next cell.",
+      "Through a white stone the loop goes straight and turns in at least one of the neighbouring cells.",
+      "Mark places the loop cannot go with ✕."
+    ],
+    "specialTitle": "Controls",
+    "special": [
+      {
+        "title": "Tap to cycle",
+        "body": "Tap between two cell centers: line → ✕ → empty. You can also drag from cell to cell; a drag that starts on a line erases."
+      },
+      {
+        "title": "Smiling and frowning stones",
+        "body": "A stone whose rule is kept smiles; one whose rule is broken frowns inside a red ring, so mistakes show at once."
+      },
+      {
+        "title": "Undo",
+        "body": "Undo (or Ctrl/⌘+Z) steps back one move at a time, as far as you like. A drag counts as one move."
+      },
+      {
+        "title": "Claim and steal",
+        "body": "Solve a new map to own it; solve someone's map faster than their record to take it. The ranking counts the maps you own."
+      }
+    ],
+    "strategyTitle": "Key strategies",
+    "strategyIntro": "The full illustrated guide is behind the \"First time?\" button above.",
+    "strategies": [
+      {
+        "tag": "Black",
+        "title": "Black stones by the wall first",
+        "body": "Black stones need two cells each way, so near a wall their direction is forced."
+      },
+      {
+        "tag": "Black",
+        "title": "Two blacks side by side",
+        "body": "The loop cannot pass between them; each extends outward."
+      },
+      {
+        "tag": "White",
+        "title": "White stone on the wall",
+        "body": "It runs along the wall."
+      },
+      {
+        "tag": "White",
+        "title": "Three whites in a row",
+        "body": "One straight line through all three leaves the middle one no turn, so all three are crossed at right angles."
+      },
+      {
+        "tag": "Loop",
+        "title": "No small loops",
+        "body": "The loop cannot close while stones remain. Two neighbouring line ends: ✕ between them."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where does Masyu come from?",
+        "a": "It is a puzzle by the Japanese publisher Nikoli; the name comes from the word for \"pearl\". Here the pearls are our stone characters."
+      },
+      {
+        "q": "Can a board have several answers?",
+        "a": "No. Every board is checked by computer to have exactly one answer, so logic alone solves it."
+      },
+      {
+        "q": "How are challenge records protected?",
+        "a": "The server hands out the board and times the run. A clear is replayed on the server before it counts, each map allows one try, and leaving the board too often voids the record."
+      }
+    ],
+    "disclaimer": "A free web puzzle made by PUZZLTHINK. Masyu is the name of a puzzle genre by Nikoli; this page is not affiliated with Nikoli."
+  },
+  "NonogramGuide": {
+    "metaTitle": "Nonogram Online Free — Picture Logic Puzzle | Claim & Steal Map Ranking, Friend Races",
+    "metaDescription": "Fill cells from the numbers and a hidden picture appears in colour. Logic-only nonograms (Picross) from 5×5 to 15×15, a claim-and-steal map ranking and 2–4 player races. Free.",
+    "keywords": [
+      "Nonogram",
+      "Picross",
+      "Griddlers",
+      "nonogram online",
+      "picture logic puzzle",
+      "free puzzle game"
+    ],
+    "alternateNames": [
+      "Nonogram",
+      "Picross",
+      "Griddlers",
+      "노노그램",
+      "네모로직"
+    ],
+    "eyebrow": "NONOGRAM GUIDE",
+    "title": "Nonogram — a picture drawn by numbers",
+    "intro": "A nonogram hides a picture: the numbers beside each row and column give the lengths of its runs of filled cells, in order. Every board here can be solved line by line with logic alone, and the finished picture lights up in our stone colours.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "A line's numbers are the lengths of its runs of filled cells, left to right (top to bottom).",
+      "Runs are separated by at least one empty cell.",
+      "A 0 means the line is empty.",
+      "The puzzle is done when every row and column matches.",
+      "Mark cells that stay empty with ✕."
+    ],
+    "specialTitle": "Controls",
+    "special": [
+      {
+        "title": "Tap and drag",
+        "body": "Tap a cell to fill it, tap again to clear. Drag along a row or column to fill a run; a drag that starts on a filled cell erases."
+      },
+      {
+        "title": "✕ mode",
+        "body": "With ✕ selected, taps and drags mark cells instead. Filling never paints over a ✕."
+      },
+      {
+        "title": "Fading numbers",
+        "body": "When a line matches its numbers, they fade to green. Cross out the rest."
+      },
+      {
+        "title": "Claim and steal",
+        "body": "Solve a new 15×15 map to own it; solve someone's map faster than their record to take it. The ranking counts the maps you own."
+      }
+    ],
+    "strategyTitle": "Key strategies",
+    "strategyIntro": "The full illustrated guide is behind the \"First time?\" button above.",
+    "strategies": [
+      {
+        "tag": "Basics",
+        "title": "Overlap",
+        "body": "A 7 in a line of 10 always covers the middle 4 cells. Start from big numbers."
+      },
+      {
+        "tag": "Basics",
+        "title": "Full lines",
+        "body": "If numbers plus gaps fill the line exactly, there is only one placement."
+      },
+      {
+        "tag": "Next",
+        "title": "Pushing from the edge",
+        "body": "A filled cell near the wall keeps the first run from moving away."
+      },
+      {
+        "tag": "Next",
+        "title": "Capping finished runs",
+        "body": "A run as long as its number gets ✕ at both ends."
+      },
+      {
+        "tag": "Next",
+        "title": "Unreachable cells",
+        "body": "Cells no run can reach are ✕. Alternate rows and columns."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Are Picross and nonograms the same?",
+        "a": "Yes: Nonogram, Picross and Griddlers all name the same puzzle."
+      },
+      {
+        "q": "Do I ever need to guess?",
+        "a": "No. Every board is solvable line by line with logic alone, and has one answer."
+      },
+      {
+        "q": "How are challenge records protected?",
+        "a": "The server hands out the board and times the run. A clear is replayed on the server before it counts, each map allows one try, and leaving the board too often voids the record."
+      }
+    ],
+    "disclaimer": "A free web puzzle made by PUZZLTHINK. Nonogram is a puzzle genre name and is not tied to any company's trademark."
   }
 }

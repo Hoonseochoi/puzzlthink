@@ -10,7 +10,7 @@ import AuthButton from './AuthButton';
 import GamesMenu from './GamesMenu';
 import { HeaderSupportButton, SupportBanner } from './SupportLink';
 
-const HIDE_ON = ['/play', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker'];
+const HIDE_ON = ['/play', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker', '/masyu', '/nonogram'];
 const NAV_LINK = 'rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black';
 const MOBILE_LINK = 'rounded-xl px-4 py-3 text-sm font-extrabold hover:bg-white';
 
