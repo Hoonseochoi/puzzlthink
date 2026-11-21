@@ -236,10 +236,10 @@ export default function HomeClient() {
   const podiums = useHallPodiums();
   // Order: by plays (2026-11-20); 벽바둑 II sits right under 벽바둑. 뒤집기 오목 stays last while its rules settle. HYPE = the most played.
   const games = [
-    { title: 'MONORAIL', display: tc('monorail'), description: t('monorailDescription'), href: '/monorail', tag: 'spatialStrategy', meta: t('monorailMeta'), color: '#f3b64a', illustration: 'monorail', new: true },
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
+    { title: 'MONORAIL', display: tc('monorail'), description: t('monorailDescription'), href: '/monorail', tag: 'spatialStrategy', meta: t('monorailMeta'), color: '#f3b64a', illustration: 'monorail', new: true },
     { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', tag: 'spatialStrategy', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
     { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', tag: 'miniStrategy', meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
     { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
