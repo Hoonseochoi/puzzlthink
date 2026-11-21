@@ -12,6 +12,7 @@ import OpenPracticeShell from './OpenPractice';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import { GAME_MODES } from './gameModes';
+import ServerLoadNotice from './ServerLoadNotice';
 import { accentVars } from './ui/gameUi';
 
 const PLAY_HASH = '#play';
@@ -144,6 +145,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
               <section className={card}>
                 <h3 className="flex items-center gap-2 text-base font-black"><UsersRound size={17} className="text-(--accent)" />{t('friendTitle')}</h3>
                 <p className={`mt-1 text-xs leading-5 ${muted}`}>{t('friendDesc')}</p>
+                <ServerLoadNotice dark={dark} className="mt-2" />
                 <div className="mt-4 flex flex-col gap-2">
                   {modes.rooms.map((room) => (
                     <button key={room.label} type="button" disabled={creating !== null} onClick={() => createRoom(room.label, room.create)} className={secondary}>
@@ -174,6 +176,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                 <div>
                   <h3 className="flex items-center gap-2 text-base font-black"><DoorOpen size={17} className="text-(--accent)" />{t('openTitle')}</h3>
                   <p className={`mt-1 text-xs leading-5 ${muted}`}>{t('openDesc')}</p>
+                  <ServerLoadNotice dark={dark} className="mt-2" />
                 </div>
                 <button type="button" onClick={() => setListTick((n) => n + 1)} className={`shrink-0 rounded-md p-2 ${muted} hover:text-(--accent)`} aria-label={t('openRefresh')}><RefreshCw size={15} /></button>
               </div>

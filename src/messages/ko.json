@@ -82,7 +82,8 @@
     "wallgo2": "벽바둑 II",
     "nineMensMorris": "나인 멘스 모리스",
     "backupAddress": "접속이 안 될 때 임시 주소",
-    "flipOmok": "뒤집기 오목"
+    "flipOmok": "뒤집기 오목",
+    "serverNotice": "1인 취미 개발 프로젝트라 서버가 작아요. 접속이 몰리는 피크 시간에는 서버 과부하로 친구방·공개방 이용이 어려울 수 있어요. 양해 부탁드려요 🙏"
   },
   "BlindGomoku": {
     "metaTitle": "블라인드 오목 — 데블스플랜 그 게임 룰 + 기억력 오목 한판",

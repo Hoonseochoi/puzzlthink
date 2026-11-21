@@ -82,7 +82,8 @@
     "wallgo2": "Wallgo II",
     "nineMensMorris": "Nine Men's Morris",
     "backupAddress": "Backup address if the site won't open",
-    "flipOmok": "Flip Omok"
+    "flipOmok": "Flip Omok",
+    "serverNotice": "This is a one-person hobby project on a small server. At peak hours, friend and open rooms may be hard to use due to server load. Thanks for bearing with it 🙏"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
