@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, Clock3, Copy, Crown, Eraser, Eye, Flag, Lightbulb, Loader2, PenLine, RotateCcw, Share2, Swords, Trash2, Users, WifiOff, X } from 'lucide-react';
+import { Check, Clock3, Copy, Crown, Eraser, Eye, Flag, Lightbulb, Loader2, PenLine, RotateCcw, Share2, Swords, Trash2, Undo2, Users, WifiOff, X } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
@@ -12,13 +12,14 @@ import { useSlitherRoom } from '@/hooks/useSlitherRoom';
 import { type Mark, formatClock, hintEdges, isSolved, loopOrder } from '@/lib/slitherlink';
 import { ROOM_SIZES, roomPuzzle } from '@/lib/slitherRoom';
 import { reportGame } from '@/lib/stats';
-import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool } from './SlitherBoard';
+import SlitherUpdate from './SlitherUpdate';
+import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool, undoOf, useUndoKey } from './SlitherBoard';
 
 const COLORS = ['#8f7cff', '#ff6b8a', '#4ac9ff', '#8ce06b'];
 const ROOM_HINTS = 1;
 
 /** My lines for one game (reset when the host starts a new one). */
-type Local = { sid: string; marks: Mark[]; locked: number[]; hints: number };
+type Local = { sid: string; marks: Mark[]; locked: number[]; hints: number; undo: [number, Mark][][] };
 
 /** 슬리더링크 친구방: 2–4 players race on the same board; the first correct loop wins. */
 export default function SlitherRoomView({ code }: { code: string }) {
@@ -34,15 +35,18 @@ export default function SlitherRoomView({ code }: { code: string }) {
   const [tool, setTool] = useState<Tool>('pen');
   const [confirmClear, setConfirmClear] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
-  const [local, setLocal] = useState<Local>({ sid: '', marks: [], locked: [], hints: 0 });
+  const [local, setLocal] = useState<Local>({ sid: '', marks: [], locked: [], hints: 0, undo: [] });
   const localRef = useRef(local);
+  // Ctrl/⌘+Z presses the 되돌리기 button (a disabled button ignores it).
+  const undoBtn = useRef<HTMLButtonElement>(null);
+  useUndoKey(() => undoBtn.current?.click());
   const [shareUrl] = useState(() => (typeof window === 'undefined' ? '' : `${window.location.origin}/${locale}/slitherlink/room/${code}`));
   useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 500); return () => window.clearInterval(id); }, []);
 
   const puzzle = useMemo(() => (state && state.phase !== 'lobby' && state.seed ? roomPuzzle(state) : null), [state?.phase, state?.seed, state?.dots]); // eslint-disable-line react-hooks/exhaustive-deps
   // A new game: start from an empty board.
   if (state && puzzle && local.sid !== state.sid) {
-    const fresh = { sid: state.sid, marks: new Array<Mark>(puzzle.solution.length).fill(0), locked: [], hints: 0 };
+    const fresh = { sid: state.sid, marks: new Array<Mark>(puzzle.solution.length).fill(0), locked: [], hints: 0, undo: [] };
     setLocal(fresh); setShowAnswer(false); setTool('pen');
   }
 
@@ -72,13 +76,14 @@ export default function SlitherRoomView({ code }: { code: string }) {
   const lockedSet = new Set(local.locked);
   const elapsed = playing ? Math.max(0, now - state.startedAt) : 0;
 
-  const apply = (changes: [number, Mark][], hint = false) => {
+  const apply = (changes: [number, Mark][], hint = false, undoing = false) => {
     if (!puzzle || !iPlay) return;
     // Several pointer moves can land before a re-render: build on the newest marks of this game.
     const cur = localRef.current.sid === local.sid ? localRef.current : local;
     const marks = [...cur.marks];
     for (const [e, v] of changes) marks[e] = v;
-    const next = { ...cur, marks, locked: hint ? [...cur.locked, ...changes.map(([e]) => e)] : cur.locked, hints: cur.hints + (hint ? 1 : 0) };
+    const undo = undoing ? cur.undo.slice(0, -1) : hint ? cur.undo : [...cur.undo, undoOf(cur.marks, changes)];
+    const next = { ...cur, marks, undo, locked: hint ? [...cur.locked, ...changes.map(([e]) => e)] : cur.locked, hints: cur.hints + (hint ? 1 : 0) };
     localRef.current = next; setLocal(next);
     const lines = marks.filter((m) => m === 1).length;
     if (isSolved(puzzle, marks)) dispatch({ t: 'solve', edges: marks.flatMap((m, e) => (m === 1 ? [e] : [])) });
@@ -88,6 +93,13 @@ export default function SlitherRoomView({ code }: { code: string }) {
     if (!puzzle || local.hints >= ROOM_HINTS) return;
     setTool('pen');
     apply(hintEdges(puzzle, r, c).map((e) => [e, puzzle.solution[e] ? 1 : 2] as [number, Mark]), true);
+  };
+  /** 되돌리기: steps back one move (edges a hint fixed stay). */
+  const undo = () => {
+    const cur = localRef.current.sid === local.sid ? localRef.current : local;
+    const last = cur.undo[cur.undo.length - 1];
+    if (!last) return;
+    apply(last.filter(([e]) => !cur.locked.includes(e)), false, true);
   };
   const clearAll = () => {
     if (!confirmClear) { setConfirmClear(true); window.setTimeout(() => setConfirmClear(false), 2500); return; }
@@ -106,7 +118,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
 
   return <div className={SHELL} style={{ ...accentVars(SLITHER_ACCENT, SLITHER_INK), backgroundImage: fog('120, 100, 220') }}>
     
-    <GameHeader backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · 2–4 · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+    <GameHeader backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · 2–4 · ${code}`}><SlitherUpdate /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}>
       <section className={STAGE}>
@@ -130,8 +142,9 @@ export default function SlitherRoomView({ code }: { code: string }) {
           />
           {iPlay ? (
             <div className="mx-auto mt-3 max-w-[560px] space-y-2">
-              <div className="grid grid-cols-4 gap-1.5">
+              <div className="grid grid-cols-5 gap-1.5">
                 {tools.map(([id, Icon, label]) => <button key={id} type="button" onClick={() => setTool(id)} aria-pressed={tool === id} className={`flex flex-col items-center gap-1 py-2.5 ${seg(tool === id)}`}><Icon size={17} />{label}</button>)}
+                <button ref={undoBtn} type="button" onClick={undo} disabled={!local.undo.length} title={ts('undoKey')} className={`flex flex-col items-center gap-1 py-2.5 ${seg(false)} disabled:opacity-35`}><Undo2 size={17} />{ts('toolUndo')}</button>
                 <button type="button" onClick={clearAll} className={`flex flex-col items-center gap-1 py-2.5 ${confirmClear ? 'rounded-md bg-[#e5484d]/20 text-xs font-extrabold text-[#ff8f8f] ring-1 ring-[#e5484d]/50' : seg(false)}`}><Trash2 size={17} />{confirmClear ? ts('clearConfirm') : ts('toolClear')}</button>
               </div>
               <div className="grid grid-cols-2 gap-1.5">

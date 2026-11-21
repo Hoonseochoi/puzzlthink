@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, ChevronDown, Clock3, Crown, Eraser, Flag, History, Infinity as InfinityIcon, Lightbulb, Loader2, PenLine, RefreshCw, RotateCcw, SkipForward, Swords, Timer, Trash2, Trophy, X } from 'lucide-react';
+import { Check, ChevronDown, Clock3, Crown, Eraser, Flag, History, Infinity as InfinityIcon, Lightbulb, Loader2, PenLine, RefreshCw, RotateCcw, SkipForward, Undo2, Swords, Timer, Trash2, Trophy, X } from 'lucide-react';
 import AuthButton from '@/components/AuthButton';
 import { useAuth } from '@/components/AuthProvider';
 import BugReport from '@/components/BugReport';
@@ -19,7 +19,8 @@ import { SLITHER_SIZES, type Mark, type SlitherSize, type Puzzle, formatClock, g
 import { type BoardRow, type FinishResult, type RankRow, type RivalRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, fetchRivals, finishCleared, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
 import { reportGame } from '@/lib/stats';
 import SlitherHistory from './SlitherHistory';
-import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool } from './SlitherBoard';
+import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool, undoOf, useUndoKey } from './SlitherBoard';
+import SlitherUpdate from './SlitherUpdate';
 
 type Mode = 'challenge' | 'beat' | 'practice';
 type Step = { changes: [number, Mark][]; hint?: boolean; at?: [number, number]; t?: number };
@@ -94,6 +95,9 @@ export default function SlitherGame() {
   const awayRef = useRef<{ spans: [number, number][]; since: number | null }>({ spans: [], since: null });
   const [awayWarn, setAwayWarn] = useState<number | null>(null); // "보드를 벗어났어요 (n/3)" after each counted exit
   const stepsRef = useRef<Step[]>([]); // every move this run, for the server's replay
+  // 되돌리기: for each of the player's moves, the changes that undo it (an undo is itself a new step in the replay).
+  const undoRef = useRef<[number, Mark][][]>([]);
+  const [undoCount, setUndoCount] = useState(0);
   const setBoard = (next: Mark[]) => { marksRef.current = next; setMarks(next); };
   const setPhaseNow = (next: Phase) => { phaseRef.current = next; setPhase(next); };
 
@@ -104,7 +108,7 @@ export default function SlitherGame() {
     clearTimers();
     const p = generatePuzzle(dots, seed);
     setPuzzle(p);
-    setBoard(new Array<Mark>(p.solution.length).fill(0)); setLocked(new Set()); setSteps([]); stepsRef.current = [];
+    setBoard(new Array<Mark>(p.solution.length).fill(0)); setLocked(new Set()); setSteps([]); stepsRef.current = []; undoRef.current = []; setUndoCount(0);
     setTool('pen'); setPhaseNow('play'); const at = clockNow(); setStartedAt(at); setNow(at); setEndMs(0);
     awayRef.current = { spans: [], since: null };
     hintsRef.current = 0; setHints(0); setFlashArea(null); setRevealed(0); setReplaying(false); setConfirmClear(false); setResult(null); setError(null);
@@ -216,8 +220,9 @@ export default function SlitherGame() {
     setListTick((n) => n + 1);
   };
 
-  const apply = (changes: [number, Mark][], hint = false, at?: [number, number]) => {
+  const apply = (changes: [number, Mark][], hint = false, at?: [number, number], undoing = false) => {
     if (!puzzle || phaseRef.current !== 'play') return;
+    if (!hint && !undoing) { undoRef.current = [...undoRef.current, undoOf(marksRef.current, changes)]; setUndoCount(undoRef.current.length); }
     const next = [...marksRef.current];
     for (const [e, v] of changes) next[e] = v;
     setBoard(next);
@@ -229,6 +234,16 @@ export default function SlitherGame() {
       if (mode === 'practice') countPractice(); else endRun(true);
     }
   };
+
+  /** Steps back one move; edges a hint has fixed since then stay as they are. */
+  const undo = () => {
+    if (phaseRef.current !== 'play' || replaying || !undoRef.current.length) return;
+    const last = undoRef.current[undoRef.current.length - 1];
+    undoRef.current = undoRef.current.slice(0, -1); setUndoCount(undoRef.current.length);
+    const changes = last.filter(([e, v]) => !locked.has(e) && marksRef.current[e] !== v);
+    if (changes.length) apply(changes, false, undefined, true);
+  };
+  useUndoKey(undo);
 
   const hintLimit = mode === 'practice' ? Infinity : CHALLENGE_HINTS;
   const takeHint = (r: number, c: number) => {
@@ -304,7 +319,7 @@ export default function SlitherGame() {
     <div className={SHELL} style={{ ...accentVars(SLITHER_ACCENT, SLITHER_INK), backgroundImage: fog('120, 100, 220') }}>
       <Shards tint="#2a2450" />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <SlitherUpdate /><BugReport /><LanguageSwitcher compact dark />
         {mode === 'practice' && <button type="button" onClick={() => startPractice(size)} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newBoard')}</span></button>}
       </GameHeader>
 
@@ -411,10 +426,11 @@ export default function SlitherGame() {
 
               {replaying ? <ReplayControls player={player} onShowResult={() => setReplaying(false)} /> : phase === 'play' ? (
                 <div className="mx-auto mt-3 max-w-[560px] space-y-2">
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-5 gap-1.5">
                     {tools.map(([id, Icon, label]) => (
                       <button key={id} type="button" onClick={() => setTool(id)} aria-pressed={tool === id} className={`flex flex-col items-center gap-1 py-2.5 ${seg(tool === id)}`}><Icon size={17} />{label}</button>
                     ))}
+                    <button type="button" onClick={undo} disabled={!undoCount} title={t('undoKey')} className={`flex flex-col items-center gap-1 py-2.5 ${seg(false)} disabled:opacity-35`}><Undo2 size={17} />{t('toolUndo')}</button>
                     <button type="button" onClick={clearAll} className={`flex flex-col items-center gap-1 py-2.5 ${confirmClear ? 'rounded-md bg-[#e5484d]/20 text-xs font-extrabold text-[#ff8f8f] ring-1 ring-[#e5484d]/50' : seg(false)}`}><Trash2 size={17} />{confirmClear ? t('clearConfirm') : t('toolClear')}</button>
                   </div>
                   <div className="grid grid-cols-2 gap-1.5">

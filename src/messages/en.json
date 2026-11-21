@@ -186,6 +186,8 @@
     "description1": "Play deduction, strategy and bluffing games with AI or friends!",
     "description2": "No sign-up — one link and you're in.",
     "new": "NEW",
+    "updated": "UPDATE",
+    "updatedTitle": "Tap input is back, plus Undo",
     "classic": "CLASSIC",
     "wallgoDescription": "Move your characters, build walls, and claim more territory than anyone else.",
     "blindGomokuDescription": "Black and white hide beneath matching colors. Remember, deduce, and connect five.",
@@ -4671,8 +4673,8 @@
     "hint": "Hint (3×3 area)",
     "hintPick": "Tap an area",
     "hintHelp": "Tap the board: the answer for the 3×3 dots around that spot is filled in.",
-    "help_pen": "Drag from dot to dot to draw. Tap between two dots to mark ✕; tap a line or ✕ to clear it.",
-    "help_eraser": "Drag or tap over lines and ✕ marks to erase them.",
+    "help_pen": "Tap between two dots to draw a line. Tap again for ✕, and once more to clear it. (Ctrl/⌘+Z to undo)",
+    "help_eraser": "Tap a line or ✕ to erase it.",
     "help_marker": "Tap between two dots to mark ✕ where the loop does not go.",
     "giveUp": "Give up and show the answer",
     "revealing": "Drawing the answer…",
@@ -4683,6 +4685,18 @@
     "replayCaption": "Your lines, in the order you drew them",
     "next": "Next board",
     "board": "This board",
+    "toolUndo": "Undo",
+    "undoKey": "Undo (Ctrl/⌘+Z)",
+    "updateTag": "UPDATE",
+    "updateTitle": "Slitherlink update",
+    "updateDate": "Updated November 22, 2026",
+    "update_tap": "Lines are drawn by tapping again",
+    "update_tapDesc": "Each tap between two dots cycles line → ✕ → clear. A ✕ now takes a second tap on a line.",
+    "update_undo": "New Undo button",
+    "update_undoDesc": "Step back one change at a time, as many times as you like. On a keyboard, press Ctrl/⌘+Z.",
+    "updateThanks": "Made from a player's feedback. Thank you!",
+    "updateOk": "Got it",
+    "updateClose": "Close",
     "statSize": "Size",
     "statLines": "Lines",
     "statHints": "Hints",
@@ -4771,11 +4785,11 @@
     "special": [
       {
         "title": "Pen",
-        "body": "Drag from one dot to the next to draw. Starting a drag on a line erases instead. With the pen, tapping between two dots marks ✕, and tapping a line or ✕ clears it."
+        "body": "Tap between two neighboring dots to draw a line. Tap the same spot again for ✕, and once more to clear it (line → ✕ → empty). Undo, or Ctrl/⌘+Z, steps back one change at a time."
       },
       {
         "title": "Eraser · Clear all",
-        "body": "Drag or tap with the eraser to remove lines and ✕ marks. Clear all needs two taps, and lines from hints stay."
+        "body": "Tap a line or ✕ with the eraser to remove it. Clear all needs two taps, and lines from hints stay."
       },
       {
         "title": "Marker ✕",

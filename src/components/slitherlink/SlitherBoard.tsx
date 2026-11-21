@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { type Mark, type Puzzle, edgeAt, geometry, hEdge, vEdge } from '@/lib/slitherlink';
 
 export type Tool = 'pen' | 'eraser' | 'marker' | 'hint';
@@ -17,10 +17,30 @@ const SOLUTION = '#e0a21c';
 
 type Point = { x: number; y: number };
 
+/** The changes that put `marks` back the way they were before `changes` (for 되돌리기). */
+export const undoOf = (marks: Mark[], changes: [number, Mark][]): [number, Mark][] => changes.map(([e]) => [e, marks[e]]);
+
+/** Ctrl+Z / ⌘Z runs `onUndo` (not while typing in a field). */
+export function useUndoKey(onUndo: () => void) {
+  const latest = useRef(onUndo);
+  useEffect(() => { latest.current = onUndo; });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'z') return;
+      const el = e.target as HTMLElement | null;
+      if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+      e.preventDefault();
+      latest.current();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+}
+
 /**
- * The dotted board. Drag from dot to dot to draw (or erase / mark with the chosen tool); tap between two dots to toggle
- * (with the pen a tap marks ✕, or clears a line or ✕).
- * With the hint tool, a tap picks the 3×3-dot area around it. `onEdges` gets [edge, value] pairs from one gesture step.
+ * The dotted board. Tap between two dots to change that edge: with the pen a tap cycles empty → line → ✕ → empty;
+ * the eraser clears and the marker toggles ✕. With the hint tool, a tap picks the 3×3-dot area around it.
+ * `onEdges` gets the [edge, value] pairs of one tap.
  */
 export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onHint, solutionUpTo = null, dimLines = false, readOnly = false, flashArea = null }: {
   puzzle: Puzzle; marks: Mark[]; tool: Tool; locked?: ReadonlySet<number>;
@@ -34,16 +54,12 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
   const g = geometry(puzzle.rows, puzzle.cols);
   const n = puzzle.dots;
   const svgRef = useRef<SVGSVGElement>(null);
-  const drag = useRef<{ lastDot: { r: number; c: number } | null; value: Mark | null; moved: boolean; start: Point } | null>(null);
+  // Where the pointer went down: a tap counts only if it ends near there (a scroll or slip is ignored).
+  const press = useRef<Point | null>(null);
 
   const toBoard = (e: React.PointerEvent): Point => {
     const box = svgRef.current!.getBoundingClientRect();
     return { x: ((e.clientX - box.left) / box.width) * n - 0.5, y: ((e.clientY - box.top) / box.height) * n - 0.5 };
-  };
-  const nearDot = (p: Point, reach: number) => {
-    const r = Math.round(p.y), c = Math.round(p.x);
-    if (r < 0 || r >= n || c < 0 || c >= n) return null;
-    return Math.hypot(p.y - r, p.x - c) <= reach ? { r, c } : null;
   };
   const nearEdge = (p: Point) => {
     let best = -1, dist = 0.42;
@@ -53,53 +69,28 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
     if (vc >= 0 && vc <= puzzle.cols && vr >= 0 && vr < puzzle.rows && Math.abs(p.x - vc) < dist) best = vEdge(g, vr, vc);
     return best;
   };
-  const edgeBetween = (a: { r: number; c: number }, b: { r: number; c: number }) =>
-    a.r === b.r ? hEdge(g, a.r, Math.min(a.c, b.c)) : vEdge(g, Math.min(a.r, b.r), a.c);
 
-  /** What the current tool does to an edge, the first edge of a drag deciding draw vs. erase. */
+  /** What a tap with the current tool does to an edge. */
   const valueFor = (edge: number): Mark => {
     if (tool === 'eraser') return 0;
     if (tool === 'marker') return marks[edge] === 2 ? 0 : 2;
-    return marks[edge] === 1 ? 0 : 1;
+    return marks[edge] === 0 ? 1 : marks[edge] === 1 ? 2 : 0;
   };
 
   const onDown = (e: React.PointerEvent) => {
     if (readOnly) return;
-    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* not every pointer can be captured */ }
-    const p = toBoard(e);
-    drag.current = { lastDot: tool === 'hint' ? null : nearDot(p, 0.42), value: null, moved: false, start: p };
-  };
-  const onMove = (e: React.PointerEvent) => {
-    const d = drag.current;
-    if (!d || readOnly || tool === 'hint') return;
-    const dot = nearDot(toBoard(e), 0.34);
-    if (!dot) return;
-    if (!d.lastDot) { d.lastDot = dot; return; }
-    if (dot.r === d.lastDot.r && dot.c === d.lastDot.c) return;
-    // A fast swipe can skip dots: fill in the straight run between them.
-    if (dot.r !== d.lastDot.r && dot.c !== d.lastDot.c) { d.lastDot = dot; return; }
-    const changes: [number, Mark][] = [];
-    let at = d.lastDot;
-    while (at.r !== dot.r || at.c !== dot.c) {
-      const next = { r: at.r + Math.sign(dot.r - at.r), c: at.c + Math.sign(dot.c - at.c) };
-      const edge = edgeBetween(at, next);
-      if (d.value === null) d.value = valueFor(edge);
-      if (!locked?.has(edge) && marks[edge] !== d.value) changes.push([edge, d.value]);
-      at = next;
-    }
-    d.lastDot = dot; d.moved = true;
-    if (changes.length) onEdges?.(changes);
+    press.current = toBoard(e);
   };
   const onUp = (e: React.PointerEvent) => {
-    const d = drag.current;
-    drag.current = null;
-    if (!d || readOnly || d.moved) return;
+    const start = press.current;
+    press.current = null;
+    if (!start || readOnly) return;
     const p = toBoard(e);
+    if (Math.hypot(p.x - start.x, p.y - start.y) > 0.45) return;
     if (tool === 'hint') { onHint?.(Math.round(p.y) - 1, Math.round(p.x) - 1); return; }
-    const edge = nearEdge(p);
+    const edge = nearEdge(start);
     if (edge < 0 || locked?.has(edge)) return;
-    // With the pen, a tap is for ✕ (lines are drawn by dragging): empty → ✕, and a line or ✕ clears.
-    const value: Mark = tool === 'pen' ? (marks[edge] ? 0 : 2) : valueFor(edge);
+    const value = valueFor(edge);
     if (value !== marks[edge]) onEdges?.([[edge, value]]);
   };
 
@@ -120,9 +111,9 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
   return (
     <svg
       ref={svgRef} viewBox={`0 0 ${n} ${n}`} role="img" aria-label="board"
-      className={`mx-auto block aspect-square w-full max-w-[min(100%,calc(100svh-290px))] lg:max-w-[min(100%,calc(100svh-250px))] touch-none select-none rounded-[10px] ${readOnly ? '' : tool === 'hint' ? 'cursor-help' : 'cursor-crosshair'}`}
+      className={`mx-auto block aspect-square w-full max-w-[min(100%,calc(100svh-290px))] lg:max-w-[min(100%,calc(100svh-250px))] touch-none select-none rounded-[10px] ${readOnly ? '' : tool === 'hint' ? 'cursor-help' : 'cursor-pointer'}`}
       style={{ background: BG }}
-      onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { drag.current = null; }}
+      onPointerDown={onDown} onPointerUp={onUp} onPointerCancel={() => { press.current = null; }}
     >
       {area && <rect x={area.c + 0.5 - 0.18} y={area.r + 0.5 - 0.18} width={2.36} height={2.36} rx={0.18} fill={HINT} opacity={0.16} stroke={HINT} strokeWidth={0.04} />}
       {puzzle.clues.map((v, cell) => {
