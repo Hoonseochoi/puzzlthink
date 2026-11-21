@@ -10,7 +10,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg } from '@/components/ui/gameUi';
 import { reportGame } from '@/lib/stats';
 import { chooseMonorailAction, declareImpossible, moveText, newMonorail, playMonorail, type MonorailLevel, type MonorailState } from '@/lib/monorail';
-import { MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, TileDeck, TurnControls, useMonorailDraft } from './MonorailParts';
+import { MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, TileDeck, TurnControls, useMonorailDraft } from './MonorailParts';
 
 const LEVELS: MonorailLevel[] = ['normal', 'hard'];
 
@@ -118,6 +118,7 @@ export default function MonorailGame() {
       </main>
 
       {showRules && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" onClick={() => setShowRules(false)}><div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-[18px] border border-[#f3b64a]/35 bg-[#241016] p-5" onClick={(e) => e.stopPropagation()}><div className="flex items-center justify-between"><h2 className="text-lg font-black">{t('rules')}</h2><button onClick={() => setShowRules(false)} className={BTN}>{t('close')}</button></div><ol className="mt-4 space-y-3">{(t.raw('ruleList') as string[]).map((rule, i) => <li key={rule} className="flex gap-3 text-sm leading-6 text-white/65"><span className="font-mono font-black text-[#f3b64a]">{String(i + 1).padStart(2, '0')}</span><span className="break-keep">{rule}</span></li>)}</ol></div></div>}
+      <MonorailTurnDock active={myTurn && !showRules} state={game} draft={draft} onCommit={commit} onImpossible={impossible} />
     </div>
   );
 }

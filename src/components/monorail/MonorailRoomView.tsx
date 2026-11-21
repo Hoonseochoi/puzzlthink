@@ -16,7 +16,7 @@ import { useMonorailRoom } from '@/hooks/useMonorailRoom';
 import { moveText } from '@/lib/monorail';
 import { MONORAIL_TURN_OPTIONS, colorOf, seatToMove, winnerSeat } from '@/lib/monorailRoom';
 import { reportGame } from '@/lib/stats';
-import { MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, TileDeck, TurnControls, useMonorailDraft } from './MonorailParts';
+import { MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, TileDeck, TurnControls, useMonorailDraft } from './MonorailParts';
 
 export default function MonorailRoomView({ code }: { code: string }) {
   const t = useTranslations('MonorailOnline');
@@ -97,6 +97,7 @@ export default function MonorailRoomView({ code }: { code: string }) {
           </aside>
         </main>
       )}
+      <MonorailTurnDock active={myTurn} state={game} draft={draft} onCommit={commit} onImpossible={() => dispatch({ t: 'impossible' })} />
     </div>
   );
 }

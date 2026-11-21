@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { CornerDownRight, Minus, Undo2 } from 'lucide-react';
 import { BOARD_SIZE, SHAPES, STATIONS, TILE_COUNT, keyOf, legalMove, type MonorailMove, type MonorailState, type RailShape, type RailTile } from '@/lib/monorail';
-import { BTN, BTN_ACCENT, PANEL_TITLE, seg } from '@/components/ui/gameUi';
+import { BTN, BTN_ACCENT, PANEL_TITLE, accentVars, seg } from '@/components/ui/gameUi';
 
 export const MONORAIL_ACCENT = '#f3b64a';
 export const MONORAIL_INK = '#241607';
@@ -113,6 +114,60 @@ export function TurnControls({ state, draft, disabled, onCommit, onImpossible }:
     </div>
   );
 }
+
+const noop = () => () => {};
+
+/** Phone / installed-app turn dock: keeps every action reachable without scrolling below the board. */
+export function MonorailTurnDock({ active, state, draft, onCommit, onImpossible }: {
+  active: boolean; state: MonorailState; draft: ReturnType<typeof useMonorailDraft>;
+  onCommit: () => void; onImpossible: () => void;
+}) {
+  const t = useTranslations('Monorail');
+  const mounted = useSyncExternalStore(noop, () => true, () => false);
+  if (!active || !mounted) return null;
+  const left = TILE_COUNT - state.tiles.length;
+
+  return createPortal(
+    <div className="pointer-events-none fixed inset-x-0 bottom-[max(.5rem,env(safe-area-inset-bottom))] z-50 px-2 lg:hidden" style={accentVars(MONORAIL_ACCENT, MONORAIL_INK)}>
+      <div className="relative mx-auto w-full max-w-[560px]">
+        {!draft.tiles.length && (
+          <button type="button" onClick={onImpossible}
+            className="pointer-events-auto absolute bottom-full left-1/2 mb-2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#ff8d85]/45 bg-[#43181d]/95 px-4 py-2 text-[12px] font-black text-[#ffb0aa] shadow-[0_8px_28px_rgba(0,0,0,.5)] backdrop-blur-md active:scale-95">
+            <Minus size={14} />{t('impossible')}
+          </button>
+        )}
+        <section aria-label={t('turnDock')} className="pointer-events-auto rounded-[18px] border border-[#f3b64a]/45 bg-[#171014]/95 p-3 shadow-[0_14px_55px_rgba(0,0,0,.72),0_0_25px_rgba(243,182,74,.12)] backdrop-blur-xl">
+          <div className="mb-2 flex items-center justify-between gap-3 px-0.5">
+            <p className="flex items-center gap-1.5 text-[13px] font-black text-[#f6cc72]"><CornerDownRight size={14} />{t('turnDock')}</p>
+            <p className="text-[11px] font-bold text-white/45">{t('selected', { n: draft.tiles.length })} · {t('tilesLeft', { n: left })}</p>
+          </div>
+          <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+            <div className="grid grid-cols-6 gap-1.5">
+              {SHAPES.map((item) => (
+                <button key={item} type="button" onClick={() => draft.setShape(item)} aria-label={`${t('tileFace')} ${item}`}
+                  className={`aspect-square min-w-0 rounded-[9px] p-1 transition ${shapeDockClass(draft.shape === item)}`}>
+                  <RailCard compact tile={{ r: 0, c: 0, shape: item, skin: 0 }} />
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1.5">
+              {draft.tiles.length > 0 && <button type="button" onClick={draft.clear} aria-label={t('undo')} className="flex h-12 w-10 items-center justify-center rounded-[10px] border border-white/15 bg-white/[.06] text-white/60 active:scale-95"><Undo2 size={16} /></button>}
+              <button type="button" disabled={!draft.tiles.length} onClick={onCommit}
+                className="flex h-12 min-w-[76px] items-center justify-center gap-1 rounded-[10px] bg-[#f3b64a] px-3 text-[12px] font-black text-[#241607] shadow-[0_0_20px_rgba(243,182,74,.25)] active:scale-95 disabled:bg-white/10 disabled:text-white/25 disabled:shadow-none">
+                <CornerDownRight size={15} />{draft.tiles.length ? t('placeShort', { n: draft.tiles.length }) : t('pickTile')}
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+const shapeDockClass = (on: boolean) => on
+  ? 'bg-[#f3b64a] shadow-[0_0_14px_rgba(243,182,74,.35)] ring-2 ring-[#ffe5a4]'
+  : 'border border-white/10 bg-white/[.04] opacity-70';
 
 export function TileDeck({ used }: { used: number }) {
   const left = TILE_COUNT - used;
