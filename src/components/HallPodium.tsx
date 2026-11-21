@@ -26,7 +26,8 @@ async function challengePodiums(): Promise<[string, GamePodium][]> {
   const boards = [...new Set(CHALLENGES.flatMap((c) => c.boards))];
   const tops = new Map(await Promise.all(boards.map(async (b) => {
     const { data } = await supabase.rpc('challenge_top', { p_board: b, p_limit: 3 });
-    return [b, ((data as { rank: number; nickname: string; score: number }[] | null) ?? []).map((r) => ({ rank: r.rank, nickname: r.nickname, n: r.score }))] as const;
+    // Ties share a rank (two players on 15 maps are both 1st): the podium places them in list order instead.
+    return [b, ((data as { rank: number; nickname: string; score: number }[] | null) ?? []).map((r, i) => ({ rank: i + 1, nickname: r.nickname, n: r.score }))] as const;
   })));
   const out: [string, GamePodium][] = [];
   for (const c of CHALLENGES) {
