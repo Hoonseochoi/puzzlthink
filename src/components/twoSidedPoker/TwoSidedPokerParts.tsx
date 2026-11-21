@@ -6,8 +6,8 @@ import type { TspCard, TspFace } from '@/lib/twoSidedPoker';
 type Size = 'sm' | 'md' | 'lg';
 const TILE: Record<Size, string> = {
   sm: 'h-12 w-9 rounded-[7px] text-xl',
-  md: 'h-[96px] w-[68px] rounded-[12px] text-[40px] sm:h-[118px] sm:w-[84px] sm:text-[52px]',
-  lg: 'h-[112px] w-[80px] rounded-[14px] text-[48px] sm:h-[140px] sm:w-[100px] sm:text-[62px]',
+  md: 'h-[92px] w-[64px] rounded-[12px] text-[38px] sm:h-[118px] sm:w-[84px] sm:text-[52px]',
+  lg: 'h-[104px] w-[74px] rounded-[14px] text-[46px] sm:h-[140px] sm:w-[100px] sm:text-[62px]',
 };
 
 /** One face of a card: ivory front (public) or violet back (private). */

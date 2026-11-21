@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BrainCircuit, Clock3, Layers2, SquareStack } from 'lucide-react';
-import { BTN, BTN_ACCENT, DIAMOND, HEADING, KICKER, NOTE, PANEL, PANEL_TITLE, WELL, timer } from '@/components/ui/gameUi';
+import { BTN, BTN_ACCENT, DIAMOND, KICKER, NOTE, PANEL, PANEL_TITLE, WELL, timer } from '@/components/ui/gameUi';
 import {
   type TspAction, type TspCard, type TspFace, type TspLog, type TspRound, type TspState, tspBackOdds, tspCommitted, tspOptions, tspPot,
 } from '@/lib/twoSidedPoker';
@@ -75,17 +75,18 @@ export function TspStage({ t, state, names, badges, canAct, onAct, waitText, sta
       : settled ? (settled.winner === 'draw' ? t.status.draw : settled.winner === 0 ? t.status.win : t.status.lose)
         : state.turn !== 0 ? waitText : !opts.canCall ? t.status.myOpen : answeredOnce ? t.status.myRaise : t.status.myAnswer);
 
-  const seat = (side: 0 | 1) => {
+  // Each player is one row: seat and stack on the left, the card in the middle, the bet on the right.
+  // Keeps the whole table plus the bet controls on one phone screen.
+  const seatInfo = (side: 0 | 1) => {
     const mine = side === 0;
     return (
-      <div className="flex w-full items-center justify-between gap-2">
-        <span className="flex min-w-0 items-center gap-2.5">
-          <span className={`flex h-9 min-w-9 items-center justify-center rounded-md px-1.5 text-[11px] font-black ${mine ? 'bg-(--accent)/15 text-(--accent)' : 'bg-[#ff8a5c]/15 text-[#ff8a5c]'}`}>{badges[side]}</span>
-          <span className="hidden max-w-[120px] truncate text-xs font-bold text-white/55 sm:inline">{names[side]}</span>
-          <ChipPile count={state.chips[side]} tone={mine ? 'me' : 'ai'} showZero most={4} />
-          {state.first === side && state.phase === 'bet' && <span className="rounded border border-white/15 px-1.5 py-0.5 text-[9px] font-black text-white/55">{t.firstMark}</span>}
+      <div className="flex min-w-0 flex-col items-start gap-1.5 justify-self-start">
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className={`flex h-8 min-w-8 items-center justify-center rounded-md px-1 text-[11px] font-black sm:h-9 sm:min-w-9 ${mine ? 'bg-(--accent)/15 text-(--accent)' : 'bg-[#ff8a5c]/15 text-[#ff8a5c]'}`}>{badges[side]}</span>
+          {state.first === side && state.phase === 'bet' && <span className="rounded border border-white/15 px-1 py-0.5 text-[9px] font-black text-white/55">{t.firstMark}</span>}
         </span>
-        {!mine && <Bubble text={state.phase === 'bet' || settled ? bubbleText(t, oppLog) : null} id={`${state.hand}-${state.log.length}-${oppLog?.kind}`} />}
+        <span className="hidden max-w-[120px] truncate text-xs font-bold text-white/55 sm:block">{names[side]}</span>
+        <ChipPile count={state.chips[side]} tone={mine ? 'me' : 'ai'} showZero most={4} size={20} />
       </div>
     );
   };
@@ -93,36 +94,38 @@ export function TspStage({ t, state, names, badges, canAct, onAct, waitText, sta
   const betZone = (side: 0 | 1) => {
     const f = state.faces[side];
     return (
-      <div className="flex min-h-[38px] items-center justify-center gap-2.5">
-        {f && <span className={`rounded-md px-2 py-1 text-[10px] font-black ${f === 'both' ? 'bg-(--accent) text-(--accent-ink) shadow-[0_0_16px_var(--accent-glow)]' : 'border border-(--accent)/45 bg-(--accent)/12 text-(--accent)'}`}>{t.face[f]}{f === 'both' && ' ×2'}</span>}
-        {state.phase === 'bet' && <ChipPile count={tspCommitted(state, side)} tone={side === 0 ? 'me' : 'ai'} size={18} />}
+      <div className="flex min-w-0 flex-col items-end gap-1.5 justify-self-end">
+        {side === 1 && <Bubble text={state.phase === 'bet' || settled ? bubbleText(t, oppLog) : null} id={`${state.hand}-${state.log.length}-${oppLog?.kind}`} />}
+        {f && <span className={`whitespace-nowrap rounded-md px-1.5 py-1 text-[10px] font-black sm:px-2 ${f === 'both' ? 'bg-(--accent) text-(--accent-ink) shadow-[0_0_16px_var(--accent-glow)]' : 'border border-(--accent)/45 bg-(--accent)/12 text-(--accent)'}`}>{t.face[f]}{f === 'both' && ' ×2'}</span>}
+        {state.phase === 'bet' && <ChipPile count={tspCommitted(state, side)} tone={side === 0 ? 'me' : 'ai'} size={18} align="right" />}
       </div>
     );
   };
 
   return (
     <>
-      <div className="mb-3 flex items-end justify-between gap-3 px-1 sm:mb-4 sm:px-2">
-        <div className="min-w-0"><p className={KICKER}>{t.hand(state.hand)}</p><h1 className={`mt-1 ${HEADING}`}>{status}</h1></div>
+      <div className="mb-2 flex items-center justify-between gap-3 px-1 sm:mb-4 sm:items-end sm:px-2">
+        <div className="min-w-0"><p className={`hidden sm:block ${KICKER}`}>{t.hand(state.hand)}</p><h1 className={`text-sm font-extrabold tracking-tight text-[#eef1f7] sm:mt-1 sm:text-xl`}><span className="mr-1.5 font-mono text-[10px] text-(--accent) sm:hidden">H{state.hand}</span>{status}</h1></div>
         <div className="flex shrink-0 items-center gap-2">
           {deadline && state.phase === 'bet' ? <TurnClock deadline={deadline} urgentFor={myTurn} /> : null}
-          <ChipRace chips={state.chips} />
+          {/* On phones the turn clock takes this spot; each seat already shows its stack. */}
+          <div className={deadline && state.phase === 'bet' ? 'hidden sm:block' : ''}><ChipRace chips={state.chips} /></div>
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-[12px] border border-(--accent)/20 bg-[radial-gradient(ellipse_at_center,#221b43,#0d0b18_75%)] p-3 shadow-[inset_0_0_80px_rgba(0,0,0,.6)] sm:p-5">
+      <div className="relative overflow-hidden rounded-[12px] border border-(--accent)/20 bg-[radial-gradient(ellipse_at_center,#221b43,#0d0b18_75%)] p-2.5 shadow-[inset_0_0_80px_rgba(0,0,0,.6)] sm:p-5">
         <div className="pointer-events-none absolute inset-0 opacity-[.07]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1.2px)', backgroundSize: '18px 18px' }} />
-        <div className="relative flex flex-col items-center gap-2.5">
-          {seat(1)}
+        <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          {seatInfo(1)}
           <TwoFaceCard card={opp} showBack={oppShown} chosen={state.faces[1]} dimUnchosen={oppShown} flipKey={oppShown ? `opp-${state.hand}` : undefined} dealKey={`opp-${state.hand}`} />
           {betZone(1)}
         </div>
 
-        <div className="relative my-2 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:my-3">
+        <div className="relative my-1.5 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:my-3">
           <span className="flex items-center gap-1.5 justify-self-start text-[10px] font-bold text-white/35"><span className="relative h-7 w-5 rounded-[4px] border border-(--accent)/40 bg-[linear-gradient(150deg,#3a2f6e,#17122e)] shadow-[2px_2px_0_#2a2350,4px_4px_0_#1d1838]" /><span><b className="block font-mono text-sm text-white/70">{state.shoe.length}</b>{t.shoe}</span></span>
           <div className="flex min-w-[110px] flex-col items-center">
             <p className="text-[9px] font-black tracking-[.24em] text-white/35">{t.pot}</p>
-            <div className="mt-1 flex items-center gap-2"><PokerChip tone="pot" size={22} /><motion.b key={potNow + state.carry} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="font-mono text-3xl font-black text-[#f2c14e] drop-shadow-[0_0_14px_rgba(242,193,78,.45)]">{potNow + state.carry}</motion.b></div>
+            <div className="mt-1 flex items-center gap-2"><PokerChip tone="pot" size={22} /><motion.b key={potNow + state.carry} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="font-mono text-2xl font-black text-[#f2c14e] sm:text-3xl drop-shadow-[0_0_14px_rgba(242,193,78,.45)]">{potNow + state.carry}</motion.b></div>
             {state.carry > 0 && <p className="mt-0.5 font-mono text-[10px] text-[#f2c14e]/70">{t.carry(state.carry)}</p>}
           </div>
           <span />
@@ -130,10 +133,10 @@ export function TspStage({ t, state, names, badges, canAct, onAct, waitText, sta
 
         <AnimatePresence>{settled && <RoundBanner key={`r-${state.rounds.length}`} t={t} round={settled} carry={state.carry} />}</AnimatePresence>
 
-        <div className="relative flex flex-col items-center gap-2.5">
-          {betZone(0)}
+        <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          {seatInfo(0)}
           <TwoFaceCard card={me} showBack chosen={myTurn && !state.faces[0] ? face : state.faces[0]} size="lg" dimUnchosen={!!settled} dealKey={`me-${state.hand}`} />
-          {seat(0)}
+          {betZone(0)}
         </div>
       </div>
 
@@ -148,7 +151,7 @@ export function TspStage({ t, state, names, badges, canAct, onAct, waitText, sta
                 return (
                   <button key={f} type="button" aria-pressed={on} disabled={!allowed} onClick={() => setFaceSel({ hand: state.hand, face: f })}
                     title={state.faces[0] ? t.faceLocked : f === 'both' && state.faces[1] === 'both' ? t.doubleBlocked : undefined}
-                    className={`rounded-md border p-2 text-left transition sm:p-2.5 ${on ? 'border-(--accent) bg-(--accent)/15 shadow-[inset_0_0_18px_var(--accent-soft)]' : 'border-white/10 bg-white/[0.03] hover:border-white/25'} disabled:cursor-not-allowed disabled:opacity-30`}>
+                    className={`rounded-md border px-2 py-1.5 text-left transition sm:p-2.5 ${on ? 'border-(--accent) bg-(--accent)/15 shadow-[inset_0_0_18px_var(--accent-soft)]' : 'border-white/10 bg-white/[0.03] hover:border-white/25'} disabled:cursor-not-allowed disabled:opacity-30`}>
                     <span className="flex items-center justify-between gap-1"><span className={`flex items-center gap-1.5 text-sm font-black ${on ? 'text-white' : 'text-white/70'}`}><Icon size={14} className={f === 'back' ? 'rotate-180' : ''} />{t.face[f]}</span><b className={`font-mono text-base font-black sm:text-lg ${on ? 'text-(--accent)' : 'text-white/45'}`}>{faceValue(me, f)}</b></span>
                     <span className="mt-0.5 hidden text-[10px] leading-4 text-white/40 sm:block">{t.faceHint[f]}</span>
                   </button>
