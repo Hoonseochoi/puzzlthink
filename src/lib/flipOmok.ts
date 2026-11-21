@@ -175,9 +175,28 @@ function winningReply(board: Board, p: Player): number | null {
   return null;
 }
 
+/** Whether `p` has a move that leaves two or more winning points (an open four or a double four): an unstoppable threat. */
+function hasOpenFourMove(board: Board, p: Player): boolean {
+  for (const m of candidates(board)) {
+    if (board[m] || isForbidden(board, m, p)) continue;
+    const next = play(board, m, p).board;
+    let wins = 0;
+    for (const r of candidates(next)) if (play(next, r, p).win && ++wins >= 2) return true;
+  }
+  return false;
+}
+
 /** 중간: one move of lookahead with a little randomness — solid, but it can be out-read. */
 function normalMove(board: Board, me: Player, moves: number[]): number {
   const foe = other(me);
+  // The opponent's open three (one move from an unstoppable four) must be answered: keep to moves that defuse it.
+  if (hasOpenFourMove(board, foe)) {
+    const safe = moves.map((m) => ({ m, res: play(board, m, me) }))
+      .filter(({ res }) => winningReply(res.board, foe) === null && !hasOpenFourMove(res.board, foe))
+      .map(({ m, res }) => ({ m, score: evaluate(res.board, me) + Math.random() * 60 }))
+      .sort((a, b) => b.score - a.score);
+    if (safe.length) return safe[0].m;
+  }
   const ranked = moves.map((m) => {
     const res = play(board, m, me);
     return { m, res, score: evaluate(res.board, me) + res.flipped.length * 40 + Math.random() * 60 };
