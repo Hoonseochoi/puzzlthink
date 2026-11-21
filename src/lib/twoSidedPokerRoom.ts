@@ -1,12 +1,11 @@
 // 양면포커 friend/open room: the host's browser runs the same rules as the AI game (src/lib/twoSidedPoker.ts),
 // seat 0 is the host and seat 1 the guest. Guests receive a redacted copy: the host's back stays hidden until a
 // showdown shows it, and the shoe order is never sent.
-import { type TspAction, type TspCard, type TspRound, type TspSide, type TspState, applyTspAction, newTspGame, startTspHand, tspOther } from './twoSidedPoker';
+import { type TspAction, type TspCard, type TspRound, type TspSide, type TspState, applyTspAction, newTspGame, startTspHand, tspForcedAction, tspOther, tspRevealMs } from './twoSidedPoker';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
 export const TSP_TURN_OPTIONS = [30, 20, 45] as const;
 export type TspTurnSeconds = (typeof TSP_TURN_OPTIONS)[number];
-export const TSP_REVEAL_MS = 3800; // the showdown stays up this long before the next hand is dealt
 export const TSP_MAX_TIMEOUTS = 3; // the third missed turn in a row loses the match
 
 export type TspRoom = BaseRoom & {
@@ -33,9 +32,12 @@ export function createTspRoom(host: Peer): TspRoom {
 export const syncTspSeats = (state: TspRoom, peers: Peer[]) => syncSeats(state, peers);
 
 /** Room phase and clock that follow a game state. */
-function follow(state: TspRoom, game: TspState): TspRoom {
+function follow(state: TspRoom, played: TspState): TspRoom {
+  // An all-in hand plays itself out.
+  let game = played;
+  for (let forced = tspForcedAction(game); forced; forced = tspForcedAction(game)) game = applyTspAction(game, game.turn, forced);
   if (game.phase === 'finished') return { ...state, game, phase: 'finished', winner: game.winner, reason: 'chips', deadline: 0 };
-  if (game.phase === 'reveal') return { ...state, game, phase: 'reveal', deadline: Date.now() + TSP_REVEAL_MS };
+  if (game.phase === 'reveal') return { ...state, game, phase: 'reveal', deadline: Date.now() + tspRevealMs(game) + 800 };
   return { ...state, game, phase: 'bet', deadline: Date.now() + state.turnSec * 1000 };
 }
 

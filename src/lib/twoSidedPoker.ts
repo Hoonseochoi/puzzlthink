@@ -199,30 +199,43 @@ export function tspBackOdds(state: TspState, me: TspSide, front: number, countin
 // ---------------------------------------------------------------- AI
 
 /**
- * `sound`: share of deliberate moves (the rest are plausible mistakes). `count`: how much of the shoe it remembers.
- * `read`: how much it infers from the player's face (betting the hidden back usually means a high back).
- * `double`: the win chance it wants before a 양면베팅. `bluff`: chance to push a weak hidden face. `size`: bet size scale.
+ * Every level counts the shoe and never pays off a hand that cannot win; the levels differ in skill, not in random blunders.
+ * `count`: share of the shoe it remembers. `read`: how much it reads the player's face choice and bet size.
+ * `noise`: error in its win estimate when the player's back is hidden. `loose`: extra calling beyond the pot odds (easy calls too much).
+ * `openFold`: win chance below which it gives up its ante instead of opening. `value`: value-bet size as a share of the pot.
+ * `double`: win chance it wants for a 양면베팅. `bluff`: chance to bluff with a hidden back. `raise`: chance to raise a strong hand.
  */
 const PROFILE = {
-  easy: { sound: 0.33, noise: 0.25, count: 0, read: 0, double: 0.9, bluff: 0.18, size: 0.6 },
-  normal: { sound: 0.64, noise: 0.12, count: 0.5, read: 0.5, double: 0.8, bluff: 0.12, size: 0.8 },
-  hard: { sound: 0.86, noise: 0.05, count: 1, read: 1, double: 0.72, bluff: 0.08, size: 1 },
+  easy: { count: 0, read: 0, noise: 0.4, loose: 0.8, openFold: 0, value: 0.2, double: 0.97, bluff: 0.25, raise: 0.08 },
+  normal: { count: 0.3, read: 0.1, noise: 0.3, loose: 0.5, openFold: 0.03, value: 0.35, double: 0.93, bluff: 0.16, raise: 0.2 },
+  hard: { count: 1, read: 1, noise: 0, loose: 0, openFold: 0.28, value: 1, double: 0.74, bluff: 0.12, raise: 0.85 },
 } satisfies Record<TspLevel, Record<string, number>>;
 
-/** Shown on the difficulty buttons: AI win rate aimed at, like the other games (players win ~80/50/25%). */
-export const TSP_AI_TARGET = { easy: 20, normal: 50, hard: 75 } satisfies Record<TspLevel, number>;
+/**
+ * Shown on the difficulty buttons: AI win rate against a sensible casual player (simulated: 42 / 71 / 93%).
+ * Higher than the site's usual 20/50/75 on purpose: every level plays disciplined poker, and hard plays it like a pro
+ * (about even with a perfect counter).
+ */
+export const TSP_AI_TARGET = { easy: 40, normal: 70, hard: 90 } satisfies Record<TspLevel, number>;
 
 type Dist = { v: number; w: number }[];
 
-/** The other side's number for the face it chose (or will likely choose), weighted by the copies left. */
+/**
+ * The other side's number for the face it chose (or the face it will likely choose), weighted by the copies left
+ * in the shoe and — with `read` — by what its play says: betting the hidden back usually means a back above the front,
+ * a 양면베팅 means two high faces, and a big bet means a strong number.
+ */
 function rivalDist(state: TspState, me: TspSide, read: number, counting: number): Dist {
   const them = tspOther(me);
   const front = state.cards[them].front;
   const face = state.faces[them];
-  const backs = tspBackOdds(state, me, front, counting).filter((b) => b.copies > 0);
   if (face === 'front') return [{ v: front, w: 1 }];
-  if (face === 'back') return backs.map((b) => ({ v: b.back, w: b.copies * (b.back > front ? 1 : 1 - 0.7 * read) }));
-  if (face === 'both') return backs.map((b) => ({ v: Math.min(front, b.back), w: b.copies * (Math.min(front, b.back) >= 7 ? 1 : 1 - 0.7 * read) }));
+  const backs = tspBackOdds(state, me, front, counting).filter((b) => b.copies > 0);
+  const potBefore = 2 * TSP_ANTE + tspCommitted(state, me) + Math.max(0, tspCommitted(state, them) - state.levels[them] * tspMult(face));
+  const pressure = face ? Math.min(2, state.levels[them] / Math.max(2, potBefore)) : 0; // their bet against the pot
+  const sized = (v: number) => Math.max(0.15, 1 + read * pressure * (v - 5.5) / 4.5);
+  if (face === 'back') return backs.map((b) => ({ v: b.back, w: b.copies * (b.back > front ? 1 : 1 - 0.75 * read) * sized(b.back) }));
+  if (face === 'both') return backs.map((b) => { const v = Math.min(front, b.back); return { v, w: b.copies * (v >= 7 ? 1 : 1 - 0.75 * read) * sized(v) }; });
   return backs.map((b) => ({ v: Math.max(front, b.back), w: b.copies })); // not chosen yet: assume their better face
 }
 
@@ -234,7 +247,7 @@ function winChance(state: TspState, me: TspSide, myFace: TspFace, dist: Dist) {
     let p: number;
     if (myFace === 'both') p = mine.front > d.v && mine.back > d.v ? 1 : 0;
     else if (theirFace === 'both') p = mine[myFace] >= d.v ? 1 : 0; // their 양면 loses a tie
-    else p = mine[myFace] > d.v ? 1 : mine[myFace] === d.v ? 0.5 : 0;
+    else p = mine[myFace] > d.v ? 1 : mine[myFace] === d.v ? 0.45 : 0; // a tie only carries the pot over
     return s + d.w * p;
   }, 0) / total;
 }
@@ -246,40 +259,49 @@ export function chooseTspAiAction(state: TspState, me: TspSide, rand: () => numb
   const opts = tspOptions(state, me);
   if (!opts.faces.length) return { t: 'fold' };
   const dist = rivalDist(state, me, profile.read, profile.count);
-  const scored = opts.faces.map((face) => ({ face, p: Math.max(0, Math.min(1, winChance(state, me, face, dist) + (rand() - 0.5) * profile.noise)) }));
-  const single = scored.filter((s) => s.face !== 'both').sort((a, b) => b.p - a.p)[0] ?? scored[0];
-  const both = scored.find((s) => s.face === 'both');
-  const pick = both && both.p >= profile.double && both.p >= single.p - 0.05 ? both : single;
+  // Misjudging only happens where something is hidden: a sure win or sure loss is always seen as one.
+  const hidden = state.faces[them] !== 'front';
+  const scored = opts.faces.map((face) => {
+    const exact = winChance(state, me, face, dist);
+    const p = hidden && exact > 0 && exact < 1 ? Math.max(0.01, Math.min(0.99, exact + (rand() - 0.5) * 2 * profile.noise)) : exact;
+    return { face, p };
+  });
+  const single = scored.filter((x) => x.face !== 'both').sort((a, b) => b.p - a.p)[0] ?? scored[0];
+  const both = scored.find((x) => x.face === 'both');
+  const pick = both && both.p >= profile.double && both.p >= single.p - 0.03 ? both : single;
   const { face, p } = pick;
   const max = opts.maxLevel(face);
   const pot = tspPot(state) + state.carry;
   const toCall = opts.canCall ? opts.cost(face, opts.callLevel) : 0;
   const foldPenalty = state.faces[them] === 'both' ? TSP_DOUBLE_BONUS : 0;
   const myBonus = face === 'both' ? TSP_DOUBLE_BONUS : 0;
-  const base = opts.canCall ? opts.callLevel : 0;
-  const sized = (fraction: number) => Math.min(max, Math.max(opts.canCall ? opts.minRaise : 1, base + Math.max(1, Math.round(pot * fraction * profile.size))));
-  const bluff = rand() < profile.bluff && face === 'back' && p < 0.45;
+  const floor = opts.canCall ? opts.minRaise : 1;
+  const sized = (fraction: number) => Math.min(max, Math.max(floor, (opts.canCall ? opts.callLevel : 0) + Math.max(1, Math.round(pot * fraction))));
+  // A bluff only from a face the player cannot see, and only when its front does not already give the game away.
+  const bluff = face === 'back' && p < 0.4 && state.cards[me].front >= 6 && rand() < profile.bluff;
   const call: TspAction = { t: 'bet', face, level: opts.callLevel };
 
-  if (rand() > profile.sound) {
-    // A plausible mistake: give up, call anything, or throw a random-sized bet.
-    if (opts.canCall && rand() < 0.35) return { t: 'fold' };
-    if (opts.canCall && rand() < 0.6) return call;
-    return { t: 'bet', face, level: sized(0.3 + rand()) };
-  }
+  if (max === 0) return opts.canCall ? call : { t: 'bet', face, level: 0 }; // all in from the ante: straight to the showdown
 
   if (!opts.canCall) {
-    // Opening: fold hopeless hands, value-bet strong ones. A 양면 opener stays small to get called — a fold still pays 10.
-    if (p < 0.2 && !bluff && rand() < 0.7) return { t: 'fold' };
+    // Opening. Trash gives up the single ante chip; a 양면 opener stays small so it gets called (a fold still pays 10).
+    if (p < profile.openFold && !bluff) return { t: 'fold' };
     if (face === 'both') return { t: 'bet', face, level: Math.max(1, Math.min(max, 1 + Math.floor(rand() * 3))) };
-    if (bluff) return { t: 'bet', face, level: sized(0.8) };
-    return { t: 'bet', face, level: p > 0.8 ? sized(1.2) : p > 0.6 ? sized(0.7) : 1 };
+    if (bluff) return { t: 'bet', face, level: sized(0.7 + rand() * 0.4) };
+    if (p >= 0.999) return { t: 'bet', face, level: sized(profile.value * (0.8 + rand() * 0.6)) };
+    if (p > 0.75) return { t: 'bet', face, level: sized(profile.value * (0.6 + rand() * 0.5)) };
+    if (p > 0.5) return { t: 'bet', face, level: sized(profile.value * 0.35) };
+    return { t: 'bet', face, level: 1 };
   }
 
-  // Facing a bet: calling vs folding (a fold loses what is already in, plus 10 against a 양면베팅).
-  const evCall = p * (pot + myBonus) - (1 - p) * toCall;
-  if (evCall < -foldPenalty && !bluff) return { t: 'fold' };
-  if ((p > 0.78 || bluff) && max > opts.callLevel && rand() < 0.75) return { t: 'bet', face, level: sized(bluff ? 0.7 : 1) };
+  // Facing a bet: call when the win chance beats the price (folding against 양면 costs 10 on top of the pot).
+  const need = Math.max(0, (toCall - foldPenalty) / Math.max(1, pot + myBonus + toCall));
+  if (p <= 0) return { t: 'fold' }; // never pay off a hand that cannot win
+  if (p < need - profile.loose && !bluff) return { t: 'fold' };
+  const canRaise = max > opts.callLevel;
+  if (canRaise && p >= 0.999) return { t: 'bet', face, level: sized(profile.value * (0.8 + rand() * 0.6)) };
+  if (canRaise && p > 0.8 && rand() < profile.raise) return { t: 'bet', face, level: sized(profile.value * 0.8) };
+  if (canRaise && bluff && state.log.filter((l) => l.kind === 'raise').length < 2) return { t: 'bet', face, level: sized(0.8) };
   return call;
 }
 
@@ -299,3 +321,20 @@ export function tspView(state: TspState, me: TspSide): TspState {
     rounds: state.rounds.map((r) => ({ ...r, cards: swap(r.cards), faces: swap(r.faces), levels: swap(r.levels), delta: swap(r.delta), winner: flip(r.winner) })),
   };
 }
+
+/**
+ * When nobody can add a chip (a player is all in from the ante), the move is forced: show down with the better face.
+ * Games apply it automatically so an all-in hand plays itself out.
+ */
+export function tspForcedAction(state: TspState): TspAction | null {
+  if (state.phase !== 'bet') return null;
+  const side = state.turn;
+  const o = tspOptions(state, side);
+  if (o.canCall || o.faces.some((f) => o.maxLevel(f) > 0)) return null;
+  const card = state.cards[side];
+  const face: TspFace = state.faces[side] ?? (card.front >= card.back ? 'front' : 'back');
+  return { t: 'bet', face, level: 0 };
+}
+
+/** How long a settled hand stays on the table before the next deal (a showdown gets a moment to read). */
+export const tspRevealMs = (state: TspState) => (state.rounds.at(-1)?.reason === 'showdown' ? 2800 : 1700);

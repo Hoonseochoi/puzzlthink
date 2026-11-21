@@ -6,7 +6,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN_ACCENT, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { reportGame } from '@/lib/stats';
-import { TSP_AI_TARGET, type TspLevel, type TspState, applyTspAction, chooseTspAiAction, newTspGame, startTspHand } from '@/lib/twoSidedPoker';
+import { TSP_AI_TARGET, type TspLevel, type TspState, applyTspAction, chooseTspAiAction, newTspGame, startTspHand, tspForcedAction, tspRevealMs } from '@/lib/twoSidedPoker';
 import { TSP_ACCENT, TSP_GLOW_RGB, TSP_INK, tspCopy } from './copy';
 import { TspCountingPanel, TspHistoryPanel, TspRulesPanel, TspStage } from './TwoSidedPokerTable';
 
@@ -24,6 +24,22 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
     return () => window.clearTimeout(id);
   }, [state]);
 
+  // The next hand deals itself after a short look at the result, until someone is out of chips.
+  useEffect(() => {
+    if (state.phase !== 'reveal') return;
+    const id = window.setTimeout(() => setState((s) => (s.phase === 'reveal' ? startTspHand(s) : s)), tspRevealMs(state));
+    return () => window.clearTimeout(id);
+  }, [state]);
+
+  // All in from the ante: the player's move is forced, so it plays itself.
+  useEffect(() => {
+    if (state.phase !== 'bet' || state.turn !== 0) return;
+    const forced = tspForcedAction(state);
+    if (!forced) return;
+    const id = window.setTimeout(() => setState((s) => (s.phase === 'bet' && s.turn === 0 ? applyTspAction(s, 0, forced) : s)), 700);
+    return () => window.clearTimeout(id);
+  }, [state]);
+
   // Every finished match goes to the records; normal/hard wins count for the Hall of Fame, hard wins earn the certificate.
   useEffect(() => {
     if (state.phase !== 'finished') return;
@@ -31,7 +47,7 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
   }, [state]);
 
   const footer = state.phase === 'reveal'
-    ? <button type="button" onClick={() => setState((s) => startTspHand(s))} className={`${BTN_ACCENT} w-full py-3 text-sm`}>{t.next}</button>
+    ? <NextDealBar key={state.rounds.length} ms={tspRevealMs(state)} label={t.room.nextSoon} />
     : state.phase === 'finished'
       ? <button type="button" onClick={() => setState(newTspGame(level))} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{t.again}</button>
       : null;
@@ -54,6 +70,17 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
           <TspRulesPanel t={t} />
         </aside>
       </main>
+    </div>
+  );
+}
+
+/** A thin bar that runs out while the result is shown, then the next hand is dealt. */
+function NextDealBar({ ms, label }: { ms: number; label: string }) {
+  return (
+    <div className="flex items-center gap-3 px-1 py-2">
+      <span className="shrink-0 text-xs font-bold text-white/45">{label}</span>
+      <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/10"><span className="block h-full origin-left rounded-full bg-(--accent)" style={{ animation: `tsp-deal ${ms}ms linear forwards` }} /></span>
+      <style>{'@keyframes tsp-deal { from { transform: scaleX(1) } to { transform: scaleX(0) } }'}</style>
     </div>
   );
 }
