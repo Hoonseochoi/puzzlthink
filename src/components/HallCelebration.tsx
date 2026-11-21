@@ -9,7 +9,7 @@ import { type GameId, HALL_RANK_EVENT, type HallRankDetail } from '@/lib/stats';
 import ShareButtons from './ShareButtons';
 import { CelebrationSupport } from './SupportLink';
 
-export const GAME_LABEL: Record<GameId, string> = { flip_omok: 'flipOmok', nine_mens_morris: 'nineMensMorris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
+export const GAME_LABEL: Record<GameId, string> = { monorail: 'monorail', flip_omok: 'flipOmok', nine_mens_morris: 'nineMensMorris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
 const COLORS = ['#ffd36e', '#ff6b4a', '#65e5ff', '#3ddc97', '#a978ed', '#ffffff', '#f2b84b'];
 

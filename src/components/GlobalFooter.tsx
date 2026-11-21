@@ -5,7 +5,7 @@ import { usePathname, Link } from '@/i18n/routing';
 import SupportLink from './SupportLink';
 import { BACKUP_HOST, BACKUP_URL } from '@/lib/backupSite';
 
-const HIDE_ON = ['/play', '/flip-omok', '/nine-mens-morris', '/gyulhap', '/indian-poker', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
+const HIDE_ON = ['/play', '/monorail', '/flip-omok', '/nine-mens-morris', '/gyulhap', '/indian-poker', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi'];
 
 export default function GlobalFooter() {
   const pathname = usePathname();

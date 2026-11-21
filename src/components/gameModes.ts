@@ -28,6 +28,7 @@ import { prepareNemoRoom } from '@/hooks/useNemoRoom';
 import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { prepareBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 import { prepareBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
+import { prepareMonorailRoom, useMonorailRoom } from '@/hooks/useMonorailRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
 export type PlayOption = { label: string; query?: string };
@@ -49,6 +50,7 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  monorail: { path: '/monorail', ai: [{ label: 'aiNormal', query: 'difficulty=normal' }, { label: 'aiHard', query: 'difficulty=hard' }], rooms: [{ label: 'roomTwo', create: prepareMonorailRoom }], useRoom: useMonorailRoom },
   flipOmok: { path: '/flip-omok', ai: [{ label: 'aiTwo' }], rooms: [{ label: 'roomTwo', create: prepareFlipOmokRoom }], useRoom: useFlipOmokRoom },
   nineMensMorris: { path: '/nine-mens-morris', ai: [{ label: 'aiTwo' }], rooms: [{ label: 'roomTwo', create: prepareMorrisRoom }], useRoom: useMorrisRoom },
   wallgo2: {

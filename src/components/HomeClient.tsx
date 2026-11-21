@@ -15,6 +15,8 @@ import { Pedestal } from './piggyBank/PiggyParts';
 import OpenMatchCard from './OpenMatchCard';
 import { HallPodium, useHallPodiums } from './HallPodium';
 import { SHOW_BOARD } from '@/lib/slitherShowBoard';
+import { MonorailBoard } from './monorail/MonorailParts';
+import { newMonorail } from '@/lib/monorail';
 
 function MiniFace({ color, shape = 'circle' }: { color: string; shape?: 'circle' | 'square' | 'hex' }) {
   const shapeClass = shape === 'circle' ? 'rounded-full' : shape === 'square' ? 'rounded-[35%]' : '[clip-path:polygon(25%_5%,75%_5%,100%_50%,75%_95%,25%_95%,0_50%)]';
@@ -29,6 +31,15 @@ function WallGoPreview() {
       {index === 7 && <MiniFace color="#ff6b4a" />}{index === 18 && <MiniFace color="#4b7bff" shape="square" />}{index === 21 && <MiniFace color="#12a594" shape="hex" />}
     </span>)}
   </div>;
+}
+
+function MonorailPreview() {
+  const state = { ...newMonorail(), tiles: [
+    { r: 4, c: 3, shape: 'se' as const, skin: 1 }, { r: 5, c: 3, shape: 'ne' as const, skin: 2 },
+    { r: 5, c: 4, shape: 'h' as const, skin: 3 }, { r: 5, c: 5, shape: 'h' as const, skin: 4 },
+    { r: 5, c: 6, shape: 'nw' as const, skin: 5 }, { r: 4, c: 6, shape: 'sw' as const, skin: 0 },
+  ] };
+  return <div className="w-full sm:w-[66%]"><MonorailBoard state={state} className="!rounded-xl !border-[3px] !border-[#17201e] !p-[2%] sm:!rounded-2xl sm:!border-4" /></div>;
 }
 
 /** 벽바둑 II as on the broadcast: coral 7×7 board in a grey frame, a square and a round piece per player. */
@@ -224,6 +235,7 @@ export default function HomeClient() {
   const podiums = useHallPodiums();
   // Order: by plays (2026-11-20); 벽바둑 II sits right under 벽바둑. 뒤집기 오목 stays last while its rules settle. HYPE = the most played.
   const games = [
+    { title: 'MONORAIL', display: tc('monorail'), description: t('monorailDescription'), href: '/monorail', tag: 'spatialStrategy', meta: t('monorailMeta'), color: '#f3b64a', illustration: 'monorail', new: true },
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
@@ -250,7 +262,7 @@ export default function HomeClient() {
     <PieceRaceBanner />
     <DevLetter />
     <div className="mt-8 grid gap-3 sm:mt-12 sm:gap-5 md:grid-cols-2"><OpenMatchCard previews={{
-      slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerPreview />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerPreview />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} />{games.map((game) => (
@@ -258,7 +270,7 @@ export default function HomeClient() {
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}</span>{podiums?.get(game.href)?.entries.length ? <HallPodium entries={podiums.get(game.href)!.entries} label={t(podiums.get(game.href)!.kind === 'wins' ? 'podiumLabel' : 'podiumChallengeLabel', { game: game.display })} stat={(n) => t(PODIUM_STAT[podiums.get(game.href)!.kind], { n })} /> : <span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span>}</div>
           <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:block">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'flipOmok' ? <FlipOmokPreview /> : game.illustration === 'morris' ? <MorrisPreview /> : game.illustration === 'slitherlink' ? <SlitherPreview /> : game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'wallgo2' ? <WallGo2Preview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center sm:h-[330px] sm:w-auto">{game.illustration === 'monorail' ? <MonorailPreview /> : game.illustration === 'flipOmok' ? <FlipOmokPreview /> : game.illustration === 'morris' ? <MorrisPreview /> : game.illustration === 'slitherlink' ? <SlitherPreview /> : game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'wallgo2' ? <WallGo2Preview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{game.display}</h2><p className="mt-1 max-w-sm break-keep text-[13px] leading-5 text-black/50 sm:mt-2 sm:text-sm sm:leading-6">{game.description}</p><div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-4">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={20} /></span>

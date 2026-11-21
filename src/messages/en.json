@@ -1,5 +1,6 @@
 {
   "Common": {
+    "monorail": "Monorail",
     "games": "Games",
     "wallgo": "Wallgo",
     "blindGomoku": "Blind Gomoku",
@@ -174,6 +175,8 @@
     ]
   },
   "Home": {
+    "monorailDescription": "Place straight and curved tiles to close one loop. Fight for the final tile—or call Impossible.",
+    "monorailMeta": "AI, friend & open 1v1",
     "metaTitle": "PUZZLTHINK — brain games seen on The Devil's Plan and The Genius",
     "metaDescription": "Play deduction and strategy games known from The Devil's Plan, The Genius and other brain-survival shows. An unofficial fan-made service with no broadcaster affiliation.",
     "eyebrow": "BRAIN GAMES · WITH FRIENDS",
@@ -1839,6 +1842,21 @@
     "unsupported": "Not available",
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
     "games": {
+      "monorail": {
+        "tagline": "Use sixteen rail tiles to build one loop leaving the two stations and returning to them.",
+        "players": "2 players (AI or friend)",
+        "pace": "5–15 min · 30–90s turns online",
+        "level": "Medium · Hard AI",
+        "ai": "Two AI levels targeting roughly 50% and 80%",
+        "friend": "Friend rooms and open 1v1 matches",
+        "rules": [
+          "Take turns placing from sixteen double-sided rail tiles: straight on one face, corner on the other.",
+          "Place one to three tiles touching the layout orthogonally; two or three must form one straight contiguous line.",
+          "Rails do not have to match as they are placed, but every tile on the table must belong to the final loop.",
+          "Complete the station-to-station loop with the last tile to win, or declare Impossible before placing when no completion remains."
+        ],
+        "origin": "A web adaptation of Monorail from The Genius: Rule Breaker, based on the board game Venice Connection. Impossible calls are adjudicated by searching the remaining tile space."
+      },
       "nineMensMorris": {
         "tagline": "Nine pieces each, 24 points. Line up three to take your opponent's pieces one by one.",
         "players": "2 (1:1 with the AI or a friend)",
@@ -2172,6 +2190,8 @@
     "soloPlay": "Start game",
     "aiThree": "3 players · vs 2 AI",
     "aiTwo": "1:1 · vs 1 AI",
+    "aiNormal": "Medium AI · ~50% target",
+    "aiHard": "Hard AI · ~80% target",
     "friendTitle": "Play with friends",
     "friendDesc": "Creating a room gives you an invite link and a 4-digit invite code. Friends open the link, or enter the code on this screen.",
     "roomCreate": "Create a friend room",
@@ -5446,6 +5466,37 @@
       }
     ],
     "disclaimer": "Flip Omok is an original game with rules made by PUZZLTHINK."
+  },
+  "Monorail": {
+    "metaTitle": "Monorail online — AI, friend rooms and open 1v1",
+    "metaDescription": "Play the Monorail tile strategy game free: sixteen double-sided rails, exact Impossible checks, Medium and Hard AI, friend rooms and open 1v1 matches.",
+    "keywords": ["Monorail board game", "Venice Connection online", "Monorail strategy", "two player tile game"],
+    "title": "MONORAIL", "subtitle": "ONE LOOP · SIXTEEN TILES", "restart": "New game", "matchKicker": "MONORAIL MATCH", "resultKicker": "LINE CLOSED",
+    "yourTurn": "Pick a tile face and place it", "pickMore": "Place up to {n} more, or confirm", "aiTurn": "MIRA's turn", "aiThinking": "MIRA is tracing the remaining loops…",
+    "youWin": "You completed the loop", "aiWins": "MIRA wins", "you": "You", "first": "First player", "second": "Second player", "firstMove": "Starting from the two stations", "lastMove": "Last placement",
+    "difficulty": "AI difficulty", "tileFace": "Tile face", "selected": "{n}/3 selected", "tilesLeft": "{n} tiles left", "place": "Place {n}", "impossible": "Declare Impossible", "impossibleHint": "Available only before placing. Every completion within the sixteen-tile limit is checked automatically.", "targetWin": "test target {n}%", "level": { "normal": "Medium", "hard": "Hard" }, "levelDesc": { "normal": "Mixes strong lines with mistakes, leaving beginners room to fight back.", "hard": "Compares several completion routes and favours the 1–3 tile endgame." },
+    "rules": "Full rules", "close": "Close", "quickRules": "Quick rules", "quickRuleList": ["Place one to three tiles per turn.", "Two or more form one straight line.", "Every tile must enter the final loop.", "Call Impossible before placing."],
+    "ruleList": ["Begin with two station tiles open at both outer ends.", "Take turns placing from sixteen rail tiles to build one loop leaving and returning to the stations.", "Each tile is straight on one face and a corner on the other; choose either face and rotation.", "The first player begins; place one, two or three tiles on a turn.", "A new group must touch an existing tile orthogonally.", "Rail ends do not have to match while placing.", "Two or three tiles must form one contiguous straight row or column.", "You need not use all sixteen, but every placed tile must belong to the completed loop.", "Whoever places the final tile that completes the loop wins.", "Before placing at the start of your turn, you may declare that completion is Impossible.", "If a completion with the remaining tiles exists, the opponent wins.", "If no completion exists, the player who called Impossible wins."],
+    "strategyTitle": "One-move hint", "strategy": "Keep more than one route alive. Once the route is fixed, try to leave a multiple of four spaces after your turn.", "proofShown": "The translucent gold tiles show a valid counterexample loop.",
+    "resign": "Resign", "resignConfirm": "Resign this game?", "rematch": "Play again",
+    "reason": { "loop": "The final placement connected every tile into one loop.", "impossible-right": "No loop fit inside the remaining tile count; the Impossible call was correct.", "impossible-wrong": "A valid remaining loop was found, so the player who called Impossible loses.", "resign": "The opponent resigned.", "timeout": "The turn clock expired." }
+  },
+  "MonorailOnline": {
+    "metaTitle": "Monorail friend match", "metaDescription": "Play a live 1v1 Monorail match by invite link or code.", "guest": "Player", "connecting": "Connecting to room…", "connectionError": "Could not connect to the room.", "unconfigured": "Online play is not configured.", "roomNotFound": "Room not found.", "hostOffline": "The host is offline.", "back": "Back to Monorail",
+    "lobbyTitle": "Waiting for an opponent", "waitingFor": "Waiting for {name}", "winner": "{name} wins", "youLose": "Your opponent wins",
+    "inviteTitle": "Invite a friend", "inviteDesc": "Send the link or share the four-digit code.", "shareText": "Want to play Monorail?", "copy": "Copy", "copied": "Copied", "share": "Share", "turnTime": "Turn time", "seconds": "{n}s", "rename": "Rename", "start": "Start game", "startLocked": "Waiting for opponent", "startReady": "Both players are ready.", "startLockedHint": "Start when your opponent joins.", "waitingHost": "Waiting for the host to start.", "roomFull": "Room full — spectating.", "rematchWait": "The host can start a rematch.",
+    "players": "Players", "emptySeat": "Empty seat", "me": "me", "ready": "Ready", "waiting": "Waiting", "spectating": "Spectating", "joined": "{name} joined", "left": "{name} left"
+  },
+  "MonorailTutorial": {
+    "s1Title": "Start at two stations", "s1Desc": "Join the stations' two outer ends into one loop; their touching inner rails close it.", "s2Title": "Place one to three", "s2Desc": "Touch the layout; multiple tiles form one contiguous row or column.", "s3Title": "Rails may mismatch for now", "s3Desc": "A broken line is legal during play, but every tile must match in the final loop.", "s4Title": "The final tile wins", "s4Desc": "Complete one line leaving and returning to the stations to win immediately.", "s5Title": "Impossible is verified", "s5Desc": "Call it at the start of your turn. One counterexample gives the opponent the win; none gives it to you."
+  },
+  "MonorailGuide": {
+    "eyebrow": "MONORAIL STRATEGY GUIDE", "title": "Monorail — win the fight for the final tile", "intro": "Monorail is a two-player spatial strategy game about building one closed line from sixteen straight-or-corner tiles. Because rails may mismatch until the end, count both remaining tiles and viable space.",
+    "rulesTitle": "Rules", "rules": ["Start with two station tiles and sixteen rail tiles.", "Alternate turns placing one to three tiles; multiple tiles form one straight contiguous line.", "The group must touch the layout orthogonally, though its rail ends need not match yet.", "The last player to make every tile one station loop wins.", "Impossible may be called only before placing; the caller loses if any completion remains."],
+    "specialTitle": "Easy-to-miss rulings", "special": [{"title":"Must all sixteen be used?","body":"No. You may finish earlier, but every tile already on the table must belong to the final loop."},{"title":"May rail ends mismatch?","body":"Yes during play. Position is checked immediately; rail continuity is checked only when a completed loop is claimed."},{"title":"When can I call Impossible?","body":"Only at the untouched start of your own turn."},{"title":"What does the verifier search?","body":"Every simple loop that contains all fixed tile faces and fits within the remaining tile count."}],
+    "strategyTitle": "Strategy", "strategyIntro": "A fixed path becomes a take-away game, but flexible routes make spatial freedom just as important.", "strategies": [{"tag":"COUNT","title":"Leave a multiple of four","body":"When the final route is nearly fixed, leave 4, 8 or 12 gaps. You can answer their one-to-three placement to total four."},{"tag":"SPACE","title":"Keep symmetric gaps","body":"Two similarly sized route options let you switch when the opponent constrains one side."},{"tag":"ATTACK","title":"Target forced corners","body":"A corner with both exits boxed in sharply reduces the number of possible loops."},{"tag":"SAFETY","title":"Count before calling","body":"A visible route may require too many tiles; a long-looking counterexample still defeats the call if it fits within sixteen."}],
+    "faqTitle": "FAQ", "faq": [{"q":"Can I play online with a friend?","a":"Yes. Use an invite link or four-digit code, or join a signed-in open 1v1 room."},{"q":"How do the AI levels differ?","a":"Medium mixes its best route with mistakes. Hard samples more completion routes and follows the multiple-of-four endgame more often."},{"q":"Is Impossible judged randomly?","a":"No. The game searches for a remaining loop containing every fixed tile and displays a counterexample when one exists."},{"q":"Is there a forced win?","a":"The fixed original setup is known to favour the first player, but the winning openings are narrow. Tile count and route flexibility both matter here."}],
+    "disclaimer": "An unofficial fan-made web adaptation inspired by Venice Connection and Monorail; not affiliated with the broadcasters, producers or original rights holders."
   },
   "BoardExit": {
     "rule": "Leaving for another tab or app {n} or more times during a challenge voids the record.",
