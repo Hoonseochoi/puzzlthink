@@ -1,5 +1,6 @@
 {
   "Common": {
+    "fourThree": "4 Player 3 In a Row",
     "monorail": "Monorail",
     "games": "Games",
     "wallgo": "Wallgo",
@@ -184,10 +185,12 @@
     ]
   },
   "Home": {
+    "fourThreeDescription": "A 4×4 board of stacking pieces. Team up to stop the Special Guest's line while racing to make three in a row yourself.",
+    "fourThreeMeta": "vs AI (4 players) · Friends 2–3 · The Devil's Plan prize match",
     "monorailDescription": "Place straight and curved tiles to close one loop. Fight for the final tile—or call Impossible.",
     "monorailMeta": "AI, friend & open 1v1",
     "metaTitle": "PUZZLTHINK — Devil's Plan & The Genius brain games, logic puzzles",
-    "metaDescription": "27 free browser games: brain games known from The Devil's Plan and The Genius (Monorail, Wall Go, Two-Sided Poker, Heavy 13) and logic puzzles (Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu, Nonogram) with map-steal challenge rankings. Play the AI, friends or open matches. Unofficial fan-made service.",
+    "metaDescription": "28 free browser games: brain games known from The Devil's Plan and The Genius (Monorail, Wall Go, Two-Sided Poker, Heavy 13) and logic puzzles (Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu, Nonogram) with map-steal challenge rankings. Play the AI, friends or open matches. Unofficial fan-made service.",
     "eyebrow": "BRAIN GAMES · WITH FRIENDS",
     "title1": "Games worth thinking about,",
     "title2": "with your friends",
@@ -1866,7 +1869,7 @@
   },
   "Games": {
     "metaTitle": "All games — The Devil's Plan & The Genius games and logic puzzles",
-    "metaDescription": "From Monorail, Wall Go, Two-Sided Poker, Heavy 13 and Nemo Count to Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu and Nonogram: compare all 27 PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
+    "metaDescription": "From Monorail, Wall Go, Two-Sided Poker, Heavy 13 and Nemo Count to Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu and Nonogram: compare all 28 PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
     "eyebrow": "GAME GUIDE",
     "title": "About the games",
     "intro": "Every PUZZLTHINK game on one page. See how many players it takes, how a game runs and what you need to know, then jump right in. All games are free with no sign-up.",
@@ -1885,6 +1888,22 @@
     "unsupported": "Not available",
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
     "games": {
+      "fourThree": {
+        "tagline": "A 4×4 board where pieces stack up to three high. Three players hold off the Special Guest while racing to show three in a row from above.",
+        "players": "4 (you + 2 allies + Special Guest AI)",
+        "pace": "4 rounds · 30–90 s turns",
+        "level": "One AI level · always the best move",
+        "rules": [
+          "Red, yellow, green and blue each hold five pieces and take turns on a 4×4 board. One of them is the Special Guest (an AI) you must stop.",
+          "On your turn, place a new piece or move one. A new piece can go on any cell, even on top of others, up to three high.",
+          "Moving: take one of your pieces from the top of a stack to one of the eight cells around it. The piece underneath shows again.",
+          "Three of one colour in a row from above (across, down or diagonal) wins the round and 3 gems. Two lines at once: no reward.",
+          "The players must win all four rounds for the mission. One Guest line fails it. The top two players by gems go through!"
+        ],
+        "origin": "Brings the Day 6 prize match '4 Player 3 In a Row' from Netflix's The Devil's Plan season 1 to the web. As on the show, three players face a hidden Special Guest; here the Guest is revealed from the start.",
+        "ai": "You and two ally AIs against the Guest AI",
+        "friend": "2–3 people by link or 4-digit code (an ally AI fills the gap), 30–90 s turns"
+      },
       "twoSidedPoker": {
         "tagline": "One card: everyone sees the front, only you see the back. Choose which face to bet on, and when to go two-sided — last one with chips wins.",
         "players": "2 players (AI or friend)",
@@ -2331,6 +2350,9 @@
     "attached": "Sent along: the game, page address, browser and screen size"
   },
   "GameGate": {
+    "ftAi": "4 players · stop the Guest with 2 ally AIs",
+    "ftRoom": "Create a room (2–3 people + Guest AI)",
+    "short_ftRoom": "2–3",
     "start": "Start game",
     "howToPlay": "See how to play",
     "startHint": "Read the rules? Jump right in.",
@@ -6639,5 +6661,225 @@
         "a": "Yes. Tap and drag controls are built for phones."
       }
     ]
+  },
+  "FourThree": {
+    "metaTitle": "4 Player 3 In a Row — The Devil's Plan prize match, free online",
+    "metaDescription": "Play the Devil's Plan season 1 prize match 4 Player 3 In a Row in your browser. Stack and move pieces on a 4×4 board to show three in a row from above. Team up with ally AIs against the Special Guest, or play with 2–3 friends online. Free.",
+    "keywords": [
+      "4 player 3 in a row",
+      "four player tic tac toe",
+      "devil's plan 4 player 3 in a row",
+      "devil's plan prize match",
+      "special guest",
+      "stacking tic tac toe",
+      "3 in a row game"
+    ],
+    "title": "4 Player 3 In a Row",
+    "subtitle": "THE DEVIL'S PLAN · PRIZE MATCH",
+    "newGame": "New game",
+    "you": "You",
+    "tipButton": "Rules",
+    "rulesTitle": "4 Player 3 In a Row rules",
+    "close": "Close",
+    "fullRules": [
+      "Red, yellow, green and blue start with five pieces each on a 4×4 board (16 cells).",
+      "Three players and one Special Guest take part. The Guest is always an AI and its pieces carry a star (★).",
+      "Play goes red → yellow → green → blue; each round the first turn moves on by one colour.",
+      "On your turn, within the time limit, either place a new piece or move one. If time runs out, the turn passes.",
+      "Placing: any cell, even on top of other pieces, but a cell holds three pieces at most.",
+      "Moving: one of your pieces on top of a stack goes to one of the eight cells around it (not onto a full cell). Pieces underneath cannot move.",
+      "With nothing you can do, the turn passes.",
+      "When three pieces of one colour line up from above (across, down or diagonal), that player wins the round. Only the top piece of each cell counts.",
+      "The round winner gets 3 gems. If one action makes lines for two or more colours, nobody gets gems.",
+      "The mission succeeds only if the players win all four rounds. A single Guest line (shared ones too) fails it.",
+      "After four rounds the two players with the most gems go through to the final. Mission success + going through = your win!"
+    ],
+    "tipHelp": "Controls",
+    "helpControls": "Pick 'Place' or 'Move' with the buttons under the board. Placing: tap a cell. Moving: tap your piece (dashed ring), then a yellow cell.",
+    "roundKicker": "ROUND {n} / {total}",
+    "firstHint": "Three in a row across, down or diagonal! Always block the Guest (★).",
+    "lastPass": "{who}: passed",
+    "lastPlace": "{who}: new piece on {cell}",
+    "lastMove": "{who}: {from} → {to}",
+    "roundNone": "Nobody made a line",
+    "roundJointGuest": "Shared line with the Guest — mission failed",
+    "roundJoint": "{names}: lines at once — no reward",
+    "roundGuest": "The Special Guest made a line — mission failed",
+    "roundWin": "{who} made three! +3 gems",
+    "pickPlace": "Pick a cell for your new piece",
+    "pickPiece": "Pick one of your pieces to move",
+    "pickTarget": "Pick where it goes (yellow cells)",
+    "aiThinking": "{who} is thinking…",
+    "waitingFor": "{who}'s turn",
+    "nextIn": "Next round in {n}s",
+    "modePlace": "Place ({n})",
+    "modeMove": "Move",
+    "players": "Players · order this round",
+    "color": {
+      "red": "Red",
+      "yellow": "Yellow",
+      "green": "Green",
+      "blue": "Blue"
+    },
+    "guestTag": "GUEST",
+    "awayTag": "AI playing for now",
+    "mission": "Mission",
+    "missionDesc": "Players must win all four rounds. One Guest line fails it.",
+    "finalNote": "Top two players by gems go through",
+    "quickRules": "Quick rules",
+    "quick1": "Each turn: place a new piece (stacks up to three) or move your top piece to a neighbouring cell.",
+    "quick2": "Three of one colour in a row from above wins the round, +3 gems.",
+    "quick3": "Moving a piece uncovers the one below. Don't uncover a Guest piece!",
+    "quick4": "One Guest line fails the mission. You also need a top-two gem count to win.",
+    "resultKicker": "MISSION RESULT",
+    "missionOk": "Mission complete!",
+    "missionFail": "Mission failed",
+    "missionOkDesc": "You held off the Special Guest for all four rounds.",
+    "missionFailDesc": "In at least one round the Guest made a line (or nobody won).",
+    "through": "Final",
+    "tieNote": "Everyone level with second place goes through. Zero gems never does.",
+    "youWin": "Win — mission complete and through to the final!",
+    "youMissed": "Mission complete, but you missed the final",
+    "youLose": "Loss — the Guest got through",
+    "exit": "Leave",
+    "again": "Play again"
+  },
+  "FourThreeOnline": {
+    "metaTitle": "4 Player 3 In a Row room",
+    "metaDescription": "An online 4 Player 3 In a Row room: team up with friends against the Special Guest.",
+    "guest": "Guest",
+    "joined": "{name} joined",
+    "left": "{name} left",
+    "unconfigured": "The online server is not set up.",
+    "connectionError": "Could not reach the server. Please try again shortly.",
+    "roomNotFound": "Room not found. Check the link or invite code.",
+    "hostOffline": "The host stepped away. The game resumes when they return.",
+    "connecting": "Connecting to the room…",
+    "back": "Back to the game",
+    "lobbyTitle": "Start once 2–3 friends are here",
+    "inviteTitle": "Invite friends",
+    "inviteDesc": "Send the link or share the 4-digit invite code.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "shareText": "Play 4 Player 3 In a Row with me! Let's stop the Special Guest together.",
+    "allySeat": "Empty · ally AI",
+    "guestSeat": "Special Guest (AI)",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "needTwo": "At least 2 people are needed to start",
+    "startWithAlly": "Start with one ally AI",
+    "start": "Start",
+    "roomFull": "The room is full. You are watching.",
+    "waitingHost": "Waiting for the host to start…",
+    "turnTime": "Turn time",
+    "seconds": "{n}s",
+    "hostSets": "Set by the host.",
+    "rematchWait": "Waiting for the host to restart"
+  },
+  "FourThreeTutorial": {
+    "s1Title": "A 4×4 board, four colours",
+    "s1Desc": "Red, yellow, green and blue take turns with five pieces each. Pieces with a star (★) belong to the Special Guest you must stop.",
+    "s2Title": "Place a new piece",
+    "s2Desc": "Any cell, empty or on top of other pieces. A cell holds three at most (three filled dots in the corner means full).",
+    "s3Title": "Move a piece",
+    "s3Desc": "Move one of your pieces from the top of a stack to one of the eight cells around it, even on top of someone else.",
+    "s4Title": "Three in a row, from above",
+    "s4Desc": "Only the top piece of each cell counts. Three of one colour across, down or diagonal wins the round and 3 gems!",
+    "s5Title": "Stop the Guest",
+    "s5Desc": "When the Guest (blue ★) has two in a line, cover the last cell or stack on a Guest piece. A single Guest line fails the mission.",
+    "s6Title": "Cover to take over",
+    "s6Desc": "Stacking on a piece makes the cell yours. But moving your piece away uncovers what's below, so don't wake a Guest piece!"
+  },
+  "FourThreeGuide": {
+    "eyebrow": "4 PLAYER 3 IN A ROW · GUIDE",
+    "title": "4 Player 3 In a Row: rules and strategy",
+    "intro": "4 Player 3 In a Row was the Day 6 prize match on Netflix's The Devil's Plan season 1. Four players place, stack and move pieces on a 4×4 board to be first to show three in a row from above. The three players compete for gems, yet must work together against the Special Guest, whose single line fails their mission. On PUZZLTHINK the Guest is revealed from the start, and both the ally and Guest AIs always play their best move.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Red, yellow, green and blue start with five pieces each on a 4×4 board: three players and one Special Guest (an AI).",
+      "Play goes red → yellow → green → blue, and each round the first turn moves on to the next colour.",
+      "On your turn, place a new piece on any cell (on top of others too, three per cell at most) or move one of your top pieces to one of the eight neighbouring cells.",
+      "Three of one colour in a row from above (across, down or diagonal) wins the round and 3 gems. If two or more players complete lines at once, nobody is rewarded.",
+      "The mission succeeds if the players win all four rounds; one Guest line (shared ones included) fails it.",
+      "After four rounds the top two players by gems go through to the final. Complete the mission and go through to win."
+    ],
+    "specialTitle": "Tricky situations",
+    "special": [
+      {
+        "title": "My move uncovered someone else's line?",
+        "body": "If moving a piece reveals the one below and that completes another player's line, that player wins the round. Be careful lifting your piece off a Guest piece."
+      },
+      {
+        "title": "Two lines at once?",
+        "body": "The round ends but nobody gets gems. Between two players the mission goes on; if the Guest is one of them, the mission fails."
+      },
+      {
+        "title": "All my pieces are on the board?",
+        "body": "After placing all five you can only move. With no legal move, the turn passes."
+      },
+      {
+        "title": "Nobody makes a line?",
+        "body": "A round ends without a winner after 120 actions (passes included). The players did not win it, so the mission counts as failed."
+      }
+    ],
+    "strategyTitle": "Strategy",
+    "strategyIntro": "It is all about balancing defence and your own score. Ally AIs chase gems too, so block the Guest without giving up your own chances.",
+    "strategies": [
+      {
+        "tag": "Defence",
+        "title": "Cover a Guest pair at once",
+        "body": "When the Guest has two in a line, take the open cell or stack on top of a Guest piece. Covering is the surest block."
+      },
+      {
+        "tag": "Defence",
+        "title": "Remember what is under you",
+        "body": "Don't move a piece sitting on a Guest piece lightly: lifting it may open a Guest line."
+      },
+      {
+        "tag": "Attack",
+        "title": "Take the centre four",
+        "body": "The centre cells sit on the most lines. With stacking, covering the centre is strong too."
+      },
+      {
+        "tag": "Attack",
+        "title": "Make a double threat",
+        "body": "One move that sets up two lines at once is hard to stop. Moves that create a fork work especially well."
+      },
+      {
+        "tag": "Tempo",
+        "title": "Keep pieces in hand",
+        "body": "A new piece can go anywhere, which makes it your best block. Spend them all early and you can only shuffle later."
+      },
+      {
+        "tag": "Tempo",
+        "title": "Don't forget the gem race",
+        "body": "Every round an ally AI takes pushes you away from the final. Look for moves that block and build your own line at the same time."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What is 4 Player 3 In a Row?",
+        "a": "Four players place, stack and move pieces on a 4×4 board to be first to show three of their colour in a row from above. It comes from a prize match on The Devil's Plan season 1."
+      },
+      {
+        "q": "Who is the Special Guest?",
+        "a": "The opponent everyone must stop, always played by an AI. Unlike the show, PUZZLTHINK reveals the Guest's colour at the start and marks its pieces with a star (★)."
+      },
+      {
+        "q": "Can I choose the AI level?",
+        "a": "No. Ally and Guest AIs always play their best move, so you never lose to an AI blunder: play well and you win, slip and you lose."
+      },
+      {
+        "q": "How many friends do I need?",
+        "a": "Two or three people. With two, an ally AI fills the third seat; the Guest is always an AI. Invite by link or 4-digit code."
+      },
+      {
+        "q": "What counts as a win?",
+        "a": "Completing the mission (players win all four rounds) and going through to the final (top two by gems)."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan-made service, not affiliated with the broadcaster. Rules are based on the show and adjusted for play on the web."
   }
 }

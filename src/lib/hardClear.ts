@@ -7,7 +7,7 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number };
 
-type Href = '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
   binairo: { ko: '비나이로', en: 'Binairo', href: '/binairo', color: '#3f8cff' },
   onestroke: { ko: '한붓길', en: 'One Stroke', href: '/one-stroke', color: '#ff8a2b' },
@@ -17,6 +17,7 @@ export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; co
   nonogram: { ko: '노노그램', en: 'Nonogram', href: '/nonogram', color: '#3fcf6a' },
   two_sided_poker: { ko: '양면포커', en: 'Two-Sided Poker', href: '/two-sided-poker', color: '#9b87ff' },
   monorail: { ko: '모노레일', en: 'Monorail', href: '/monorail', color: '#f3b64a' },
+  four_three: { ko: '4인 3목', en: '4 Player 3 In a Row', href: '/four-three', color: '#ffb52e' },
   flip_omok: { ko: '뒤집기 오목', en: 'Flip Omok', href: '/flip-omok', color: '#3fb8ff' },
   nine_mens_morris: { ko: '나인 멘스 모리스', en: "Nine Men's Morris", href: '/nine-mens-morris', color: '#3ec9d6' },
   wallgo2: { ko: '벽바둑 II', en: 'Wallgo II', href: '/wallgo-2', color: '#e0283a' },
