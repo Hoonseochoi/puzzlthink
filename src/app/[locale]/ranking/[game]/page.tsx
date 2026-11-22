@@ -11,6 +11,8 @@ import { pageMetadata } from '@/lib/seo';
 import type { GameId } from '@/lib/stats';
 import RankMove from '@/components/RankMove';
 import StoneAvatar from '@/components/StoneAvatar';
+import JsonLd from '@/components/JsonLd';
+import { breadcrumbJsonLd } from '@/lib/seo';
 
 type Params = { params: Promise<{ locale: string; game: string }> };
 const MEDAL = ['🥇', '🥈', '🥉'];
@@ -104,6 +106,9 @@ export default async function RankingPage({ params }: Params) {
 
   return (
     <main className="min-h-screen bg-[#f3f0e8] px-4 pb-20 pt-10 text-[#17201e] sm:px-5 sm:pt-14">
+      <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
+        breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name, path: CERT_GAMES[game].href }, { name: t('title', { game: name }), path: `/ranking/${slug}` }]),
+      ] }} />
       <div className="mx-auto max-w-3xl">
         <span className="text-[10px] font-black tracking-[0.2em] text-[#ff6b4a]">RANKING</span>
         <h1 className="mt-2 text-4xl font-black tracking-[-0.04em] sm:text-5xl">{t('title', { game: name })}</h1>

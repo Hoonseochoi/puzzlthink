@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
-import { pageMetadata } from '@/lib/seo';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
+import TextGuide from '@/components/TextGuide';
 import GameGate from '@/components/GameGate';
 import GameIntroHero from '@/components/GameIntroHero';
 import { TSP_ACCENT, TSP_INK } from '@/components/twoSidedPoker/copy';
@@ -30,9 +32,19 @@ export default async function TwoSidedPokerPage({ params }: { params: Promise<{ 
       <div className="mx-auto w-[220px] md:w-full [&>div]:w-full! [&>div]:rounded-2xl! [&>div]:border-white/10!"><TwoSidedPokerPreview /></div>
     </div>
   );
+  const g = await getTranslations({ locale, namespace: 'TwoSidedPokerGuide' });
+  const tc = await getTranslations({ locale, namespace: 'Common' });
+  const korean = locale !== 'en';
   return (
-    <GameGate game="twoSidedPoker" accent={TSP_ACCENT} ink={TSP_INK} hero={hero} tutorial={<TwoSidedPokerTutorialSteps locale={locale} />}>
-      <TwoSidedPokerGame locale={locale} />
-    </GameGate>
+    <>
+      <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
+        gameJsonLd({ locale, path: '/two-sided-poker', name: tc('twoSidedPoker'), alternateName: ['양면포커', '양면 포커', 'Two-Sided Poker'], description: g('intro'), genre: ['Poker', 'Bluffing', 'Card game'], players: { min: 1, max: 2 }, show: 'genius3' }),
+        faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
+        breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: korean ? '양면포커' : 'Two-Sided Poker', path: '/two-sided-poker' }]),
+      ] }} />
+      <GameGate game="twoSidedPoker" accent={TSP_ACCENT} ink={TSP_INK} hero={hero} tutorial={<TwoSidedPokerTutorialSteps locale={locale} />} guide={<TextGuide locale={locale} namespace="TwoSidedPokerGuide" />}>
+        <TwoSidedPokerGame locale={locale} />
+      </GameGate>
+    </>
   );
 }

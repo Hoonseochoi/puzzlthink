@@ -39,6 +39,8 @@
     "hallCongratsView": "See the Hall of Fame",
     "hallCongratsClose": "Close",
     "gamesIntro": "About games",
+    "footerGames": "All games",
+    "logicHub": "Logic puzzles",
     "contactPartnership": "Contact & partnerships",
     "onlineNow": "{count} online now",
     "nemoCount": "Nemo Count",
@@ -181,8 +183,8 @@
   "Home": {
     "monorailDescription": "Place straight and curved tiles to close one loop. Fight for the final tile—or call Impossible.",
     "monorailMeta": "AI, friend & open 1v1",
-    "metaTitle": "PUZZLTHINK — brain games seen on The Devil's Plan and The Genius",
-    "metaDescription": "Play deduction and strategy games known from The Devil's Plan, The Genius and other brain-survival shows. An unofficial fan-made service with no broadcaster affiliation.",
+    "metaTitle": "PUZZLTHINK — Devil's Plan & The Genius brain games, logic puzzles",
+    "metaDescription": "24 free browser games: brain games known from The Devil's Plan and The Genius (Monorail, Wall Go, Two-Sided Poker, Heavy 13) and logic puzzles (Slitherlink, Star Battle, Masyu, Nonogram) with map-steal challenge rankings. Play the AI, friends or open matches. Unofficial fan-made service.",
     "eyebrow": "BRAIN GAMES · WITH FRIENDS",
     "title1": "Games worth thinking about,",
     "title2": "with your friends",
@@ -216,20 +218,24 @@
       "The Genius games",
       "The Society Game",
       "brain survival show games",
-      "online strategy games",
-      "online deduction games",
-      "bluffing games",
-      "Nemo Count",
-      "Heavy 13",
+      "free brain games",
+      "Monorail game",
       "Wall Go",
+      "Two-Sided Poker",
+      "Heavy 13",
+      "Nemo Count",
       "Laser Janggi",
-      "12 Janggi",
       "Russian Janggi",
-      "Blind Gomoku",
+      "Slitherlink",
+      "Star Battle",
+      "queens puzzle",
+      "Masyu",
+      "Nonogram",
+      "logic puzzles online",
       "free online board games"
     ],
-    "seoTitle": "Brain games known from The Devil's Plan, The Genius and more",
-    "seoBody": "PUZZLTHINK is an unofficial fan-made service for deduction and strategy games known from brain-survival shows, including Nemo Count, Heavy 13, Russian Roulette and Wall Go from The Devil's Plan 3, Laser Janggi and 12 Janggi from The Genius, and Russian Janggi from The Society Game 2. It is not affiliated with, endorsed by or approved by any broadcaster or production company. No sign-up or install: play the AI, or challenge friends in real time with one link or a 4-digit code.",
+    "seoTitle": "Brain games from The Devil's Plan and The Genius, plus logic puzzles",
+    "seoBody": "PUZZLTHINK is an unofficial fan-made service for deduction and strategy games known from brain-survival shows and for classic logic puzzles. Play Wall Go, Wall Go II, Nemo Count, Heavy 13 and Russian Roulette from The Devil's Plan 3; Monorail, Two-Sided Poker, Black & White, Laser Janggi, 12 Janggi and Indian Poker from The Genius; and Russian Janggi from The Society Game 2 against the AI or friends. Slitherlink, Star Battle, Masyu and Nonogram come as random boards with exactly one answer, with a challenge ranking where you claim new maps and steal others'. No sign-up or install: invite friends with a link or a 4-digit code, or join an open match. Not affiliated with, endorsed by or approved by any broadcaster or production company.",
     "modeTitle": "Pick a mode and play",
     "modeThreeAi": "1:1:1",
     "modeThreeAiDesc": "vs 2 AI",
@@ -1840,8 +1846,8 @@
     "afterGameDesc": "Install it and it opens in one tap next time · free"
   },
   "Games": {
-    "metaTitle": "All games — rules of The Devil's Plan and The Genius games | PUZZLTHINK",
-    "metaDescription": "Nemo Count, Heavy 13, Russian Roulette, Wall Go, Laser Janggi, Russian Janggi, Blind Gomoku, 12 Janggi and Sudoku: compare every PUZZLTHINK game by players, pace, modes, core rules and the show it comes from.",
+    "metaTitle": "All games — The Devil's Plan & The Genius games and logic puzzles",
+    "metaDescription": "From Monorail, Wall Go, Two-Sided Poker, Heavy 13 and Nemo Count to Slitherlink, Star Battle, Masyu and Nonogram: compare all 24 PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
     "eyebrow": "GAME GUIDE",
     "title": "About the games",
     "intro": "Every PUZZLTHINK game on one page. See how many players it takes, how a game runs and what you need to know, then jump right in. All games are free with no sign-up.",
@@ -2232,6 +2238,7 @@
       "Devil's Plan game rules",
       "The Genius game rules",
       "brain games collection",
+      "logic puzzle collection",
       "browser board games"
     ],
     "firstTime": "New to {game}?",
@@ -4705,6 +4712,78 @@
     ],
     "disclaimer": "An unofficial fan implementation inspired by rules shown on TV; not affiliated with its broadcaster or producers."
   },
+  "TwoSidedPokerGuide": {
+    "eyebrow": "TWO-SIDED POKER GUIDE",
+    "title": "Two-Sided Poker — front or back, where do your chips go?",
+    "intro": "Two-Sided Poker is the 1v1 chip survival known from the Grand Final death match of The Genius: Black Garnet. Each card has two numbers: everyone sees the front, only you see the back. Reading which face to play, and which face your opponent will pick, is the whole game. PUZZLTHINK uses the Grand Final rules against an Easy, Normal or Hard AI, or a friend.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Both players start with 40 chips and ante 1 each hand. Lose all your chips and you lose.",
+      "The deck has 50 cards whose two faces differ in parity, four sets of each (200 cards). Fronts are public; only the owner sees the back.",
+      "The first player picks front or back and bets; the other picks a face and calls, raises or folds. On a call both cards are shown and the bigger chosen number wins.",
+      "A two-sided bet costs double and wins only if both of your numbers beat the face your opponent chose. A tie loses. A win takes 10 extra chips.",
+      "Folding to a two-sided bet still pays 10 chips. Ties carry the pot to the next hand's winner."
+    ],
+    "specialTitle": "Good to know",
+    "special": [
+      {
+        "title": "Card counting",
+        "body": "Cards dealt from the 200-card shoe never come back. Remember them to narrow down your opponent's back face."
+      },
+      {
+        "title": "Parity",
+        "body": "A card's two faces always differ in parity: an even front means an odd back."
+      },
+      {
+        "title": "Three AI levels",
+        "body": "Easy, Normal and Hard aim at roughly 80%, 50% and 25% player wins. Hard counts cards and watches betting patterns."
+      },
+      {
+        "title": "Friends, open matches and replays",
+        "body": "Play a friend 1v1 with a link or a 4-digit code, or join an open match. Afterwards, replay each hand to see where it turned."
+      }
+    ],
+    "strategyTitle": "Key strategies",
+    "strategyIntro": "Two-Sided Poker is a fight over information, not numbers.",
+    "strategies": [
+      {
+        "tag": "Basics",
+        "title": "Play your bigger face",
+        "body": "Picking your bigger number is the default, which is exactly why a well-timed bluff on the smaller face can work."
+      },
+      {
+        "tag": "Reading",
+        "title": "Start from their front",
+        "body": "A big front usually means they'll play it. A small front may mean they trust their back."
+      },
+      {
+        "tag": "Two-sided",
+        "title": "Go two-sided only when sure",
+        "body": "It pays only when both numbers are high, and a tie loses, so a single face is safer when in doubt."
+      },
+      {
+        "tag": "Chips",
+        "title": "Manage your stack",
+        "body": "As the pot grows, folding can be the cheap option. Watch the chip gap and avoid forced raises."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Which show is Two-Sided Poker from?",
+        "a": "It appeared as a death match and in the Grand Final of The Genius: Black Garnet. PUZZLTHINK uses the Grand Final rules."
+      },
+      {
+        "q": "Do I need an account?",
+        "a": "No. Play the AI right away. Sign in to keep records and appear in rankings."
+      },
+      {
+        "q": "How do I play with a friend?",
+        "a": "Create a friend room on the game screen and send the link or the 4-digit code, or join an open match to play someone new."
+      }
+    ],
+    "disclaimer": "An unofficial fan-made web game, not affiliated with any broadcaster or production company."
+  },
   "Ranking": {
     "metaTitle": "{game} Ranking — Hall of Fame & open matches",
     "metaDescription": "See the {game} Hall of Fame and open-match ranking, then play and get your name on it. No sign-up needed.",
@@ -5840,7 +5919,7 @@
     "winnerForfeit": "{name} stayed to the end and won"
   },
   "MasyuGuide": {
-    "metaTitle": "Masyu Online Free — Black & White Pearl Loop Puzzle | Claim & Steal Map Ranking, Friend Races",
+    "metaTitle": "Masyu Online Free — Pearl Loop Puzzle with Map Ranking",
     "metaDescription": "Straight through white, turn on black! Nikoli's Masyu loop puzzle with random one-answer boards, a claim-and-steal map ranking and 2–4 player races. Free.",
     "keywords": [
       "Masyu",
@@ -5932,7 +6011,7 @@
     "disclaimer": "A free web puzzle made by PUZZLTHINK. Masyu is the name of a puzzle genre by Nikoli; this page is not affiliated with Nikoli."
   },
   "NonogramGuide": {
-    "metaTitle": "Nonogram Online Free — Picture Logic Puzzle | Claim & Steal Map Ranking, Friend Races",
+    "metaTitle": "Nonogram Online Free — Picross Puzzles with Map Ranking",
     "metaDescription": "Fill cells from the numbers and a hidden picture appears in colour. Logic-only nonograms (Picross) from 5×5 to 15×15, a claim-and-steal map ranking and 2–4 player races. Free.",
     "keywords": [
       "Nonogram",
@@ -6026,7 +6105,7 @@
     "disclaimer": "A free web puzzle made by PUZZLTHINK. Nonogram is a puzzle genre name and is not tied to any company's trademark."
   },
   "StarBattleGuide": {
-    "metaTitle": "Star Battle Online Free — Stone Placement Logic Puzzle | Claim & Steal Maps, Ranking, Friend Races",
+    "metaTitle": "Star Battle Online Free — Queens-Style Logic Puzzle",
     "metaDescription": "One stone in every row, column and coloured region, and no two may touch. A quick, addictive placement puzzle: random boards with one answer, claim and steal maps for the ranking, and race 2–4 friends. Free.",
     "keywords": [
       "Star Battle",
@@ -6116,5 +6195,62 @@
       }
     ],
     "disclaimer": "A free web puzzle made by PUZZLTHINK. Star Battle is the common name of a puzzle genre; this page is not affiliated with any company's game."
+  },
+  "LogicHub": {
+    "metaTitle": "Free Logic Puzzles Online — Slitherlink, Star Battle, Masyu, Nonogram",
+    "metaDescription": "Free random logic puzzles with exactly one answer: Slitherlink, Star Battle (queens puzzle), Masyu, Nonogram and Sudoku. No sign-up. Claim and steal maps in the challenge ranking, or race friends.",
+    "keywords": [
+      "logic puzzles",
+      "logic puzzles online",
+      "free puzzle games",
+      "Nikoli puzzles",
+      "Slitherlink",
+      "Star Battle",
+      "queens puzzle",
+      "Masyu",
+      "Nonogram",
+      "Picross",
+      "Sudoku"
+    ],
+    "eyebrow": "LOGIC PUZZLES",
+    "title": "Logic puzzles",
+    "intro": "Puzzles you solve to the end with logic alone, never guessing. Every board is checked by computer to have exactly one answer. In the challenge, clear a new map to make it yours or beat someone's time to steal theirs, or race 2–4 friends on the same board.",
+    "play": "Play",
+    "guide": "Guide",
+    "ranking": "Ranking",
+    "whyTitle": "What makes them different",
+    "why": [
+      {
+        "title": "One answer only",
+        "body": "Every board is checked to have exactly one answer, so you never need to guess."
+      },
+      {
+        "title": "Claim and steal maps",
+        "body": "Clear a new map and it's yours; solve someone else's faster and take it. The ranking counts the maps you hold."
+      },
+      {
+        "title": "Stone characters",
+        "body": "Stones smile when their rule is kept and frown when it's broken, so mistakes show at once."
+      },
+      {
+        "title": "Fair records",
+        "body": "The server keeps the time and replays every clear to check it."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Which puzzle should I start with?",
+        "a": "Star Battle or a 5×5 Nonogram have the simplest rules. Then try Slitherlink and Masyu."
+      },
+      {
+        "q": "Is it free?",
+        "a": "Yes, every puzzle is free with no sign-up. Sign in to keep challenge records and appear in rankings."
+      },
+      {
+        "q": "Does it work on phones?",
+        "a": "Yes. Tap and drag controls are built for phones."
+      }
+    ]
   }
 }

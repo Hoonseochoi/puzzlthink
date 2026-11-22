@@ -10,6 +10,7 @@ const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekl
   { path: '', priority: 1, changeFrequency: 'daily' },
   ...GAME_PATHS.map((path) => ({ path, priority: 0.9, changeFrequency: 'weekly' as const })),
   { path: '/games', priority: 0.8, changeFrequency: 'weekly' },
+  { path: '/logic-puzzles', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/slitherlink/guide', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/masyu/guide', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/nonogram/guide', priority: 0.7, changeFrequency: 'monthly' },

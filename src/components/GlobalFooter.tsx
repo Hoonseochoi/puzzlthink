@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { usePathname, Link } from '@/i18n/routing';
 import SupportLink from './SupportLink';
 import { BACKUP_HOST, BACKUP_URL } from '@/lib/backupSite';
+import { GAMES } from '@/lib/gameCatalog';
 
 const HIDE_ON = ['/play', '/monorail', '/flip-omok', '/nine-mens-morris', '/gyulhap', '/indian-poker', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker'];
 
@@ -14,6 +15,15 @@ export default function GlobalFooter() {
 
   return (
     <footer className="border-t border-black/[0.07] bg-[#f3f0e8]">
+      {/* Every game and hub as plain links: one click from any page for players and crawlers. */}
+      <nav aria-label={t('footerGames')} className="mx-auto max-w-6xl border-b border-black/[0.06] px-5 py-6">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-bold text-black/45">
+          <Link href="/games" className="text-black/70 hover:text-black">{t('footerGames')}</Link>
+          <Link href="/logic-puzzles" className="text-black/70 hover:text-black">{t('logicHub')}</Link>
+          <Link href="/records" className="text-black/70 hover:text-black">{t('records')}</Link>
+          {GAMES.map((game) => <Link key={game.id} href={game.href} className="hover:text-black">{t(game.id)}</Link>)}
+        </div>
+      </nav>
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-center sm:flex-row sm:text-left">
         <div className="max-w-2xl">
           <p className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</p>
