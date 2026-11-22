@@ -29,6 +29,8 @@ type Place = keyof typeof LINKS;
 type AdEvent = 'impression' | 'click' | 'dismiss';
 
 function trackAd(place: Place, event: AdEvent) {
+  // Local dev talks to the live DB too; only the deployed site may count toward the advertiser's numbers.
+  if (process.env.NODE_ENV !== 'production') return;
   try { getSupabase()?.rpc('count_ad_event', { p_campaign: CAMPAIGN, p_place: place, p_event: event }).then(() => {}); } catch { /* optional */ }
 }
 
@@ -60,17 +62,17 @@ function HiddenLogTopBanner({ onClose }: { onClose: () => void }) {
     <div className="relative h-[38px] overflow-hidden border-b border-[#e6b966]/35 bg-[linear-gradient(90deg,#24170f_0%,#3b281d_22%,#4a3326_50%,#3b281d_78%,#24170f_100%)] text-[#fff3e2]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_220%_at_50%_-60%,rgba(230,185,102,.22),transparent_55%)]" />
       <div className="relative mx-auto flex h-full max-w-6xl items-center gap-1.5 pl-3 pr-2.5 sm:gap-2 sm:px-4">
-        <AdLink place="top" className="flex min-w-0 flex-1 items-center gap-2 sm:justify-center sm:gap-2.5">
+        <AdLink place="top" className="flex min-w-0 flex-1 items-center gap-1.5 sm:justify-center sm:gap-2.5">
           <span className={AD_TAG}>AD</span>
           {/* eslint-disable-next-line @next/next/no-img-element -- tiny static logo, no optimizer needed */}
-          <img src={LOGO} alt="Hidden Log" width={48} height={24} className="h-6 w-auto shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,.5)] sm:h-7" />
-          <span className={`${heirOfLight.className} min-w-0 truncate text-[14px] sm:shrink-0 sm:text-[15px] ${GOLD_TEXT}`}>
-            <span className="sm:hidden">두뇌게임, 현실에서 직접!</span>
-            <span className="hidden sm:inline">방송 속 두뇌게임, 이제 현실에서 직접</span>
+          <img src={LOGO} alt="Hidden Log" width={48} height={24} className="h-5 w-auto shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,.5)] sm:h-7" />
+          <span className={`${heirOfLight.className} min-w-0 truncate text-[13px] min-[380px]:text-[13.5px] sm:shrink-0 sm:text-[15px] ${GOLD_TEXT}`}>
+            <span className="sm:hidden">서바이벌 두뇌게임 현실판</span>
+            <span className="hidden sm:inline">방송 속 서바이벌 두뇌게임, 이제 현실에서 직접</span>
           </span>
           <span className="hidden h-[3px] w-[3px] shrink-0 rounded-full bg-[#e6b966]/60 md:block" />
           <span className="hidden min-w-0 truncate text-[12px] font-semibold text-[#fff3e2]/60 md:block"><b className="font-extrabold text-[#fff3e2]/90">시청역 더히든게임룸</b> · 매주 주말 소셜게임 리그 · 테마 31종</span>
-          <span className={`${CTA} ml-auto px-2.5 py-1 text-[11.5px] sm:ml-0 sm:px-3`}><span className="sm:hidden">해보기 →</span><span className="hidden sm:inline">직접 해보기 →</span></span>
+          <span className={`${CTA} ml-auto px-2 py-1 text-[11px] min-[380px]:px-2.5 min-[380px]:text-[11.5px] sm:ml-0 sm:px-3`}>참가하기 →</span>
         </AdLink>
         <button type="button" onClick={onClose} aria-label="오늘 하루 닫기" title="오늘 하루 닫기" className="shrink-0 rounded-full p-1 text-[#fff3e2]/45 transition hover:bg-white/10 hover:text-[#fff3e2]"><X size={14} /></button>
       </div>
