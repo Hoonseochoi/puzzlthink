@@ -2,8 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { BookOpen, Bot, DoorOpen, KeyRound, Link2, Loader2, Play, RefreshCw, UserRound, UsersRound } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { BookOpen, Bot, DoorOpen, House, KeyRound, Link2, Loader2, Play, RefreshCw, UserRound, UsersRound } from 'lucide-react';
+import { Link, useRouter } from '@/i18n/routing';
 import type { GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
 import { type OpenRoomRow, listOpenRooms, saveTitle } from '@/lib/openRooms';
@@ -35,6 +35,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   tutorialKey?: string; // localStorage key the game uses to auto-open its tutorial popup
 }) {
   const t = useTranslations('GameGate');
+  const tc = useTranslations('Common');
   const router = useRouter();
   const modes = GAME_MODES[game];
   const [started, setStarted] = useState(false);
@@ -123,8 +124,13 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
 
   return (
     <div className={`min-h-screen pb-24 ${dark ? 'bg-[#0b0b0e] text-[#e6e9f0]' : 'bg-[#f3f0e8] text-[#17201e]'}`} style={accentVars(accent, ink)}>
-      <section className="px-4 pb-10 pt-10 sm:px-5 sm:pt-14">
+      <section className="px-4 pb-10 pt-4 sm:px-5 sm:pt-6">
         <div className="mx-auto max-w-4xl">
+          {/* Shared game links land here with the site header hidden: one tap back to every other game. */}
+          <Link href="/" aria-label={tc('home')} title={tc('home')} className={`mb-6 inline-flex items-center gap-2 rounded-full border py-1.5 pl-2 pr-3.5 text-xs font-black tracking-[-0.02em] transition sm:mb-8 ${dark ? 'border-white/12 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white' : 'border-black/10 bg-white/70 text-black/75 hover:bg-white hover:text-black'}`}>
+            <span className={`grid h-6 w-6 place-items-center rounded-full ${dark ? 'bg-white/10' : 'bg-black/[0.06]'}`}><House size={13} /></span>
+            PUZZLTHINK
+          </Link>
           {hero}
 
           {/* How to start: AI (or solo) and, for multiplayer games, friends by link or 4-digit code. */}
