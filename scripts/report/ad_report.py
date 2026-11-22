@@ -78,7 +78,8 @@ def main():
         lines.append(f"- {label}: 노출 {n(t['impression'])} · 클릭 {n(t['click'])} (클릭률 {pct(t['click'], t['impression'])}){extra}")
     if visitors_total:
         lines.append(f"- 사이트 방문자(GA, 기간 중 순 사용자): {n(visitors_total[0])}명 · 페이지뷰 {n(visitors_total[1])}")
-    lines += ["", "※ 노출: 띠배너는 배너가 보인 페이지뷰마다, 결과창은 결과 화면이 뜰 때마다 1회. 광고는 한국어 페이지에만 나가요.",
+    lines += ["", "※ 띠배너 닫기(X) 버튼은 11/23 01:01에 없앴어요. 닫기 수는 00:49~01:01 사이 값이에요.",
+              "※ 노출: 띠배너는 배너가 보인 페이지뷰마다, 결과창은 결과 화면이 뜰 때마다 1회. 광고는 한국어 페이지에만 나가요.",
               "※ 클릭은 저희 쪽에서 버튼을 누른 횟수라, 히든로그 쪽 집계와 조금 다를 수 있어요."]
     print("\n".join(lines))
 
