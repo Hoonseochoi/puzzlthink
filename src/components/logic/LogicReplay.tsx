@@ -5,8 +5,10 @@ import { createPortal } from 'react-dom';
 import { accentVars } from '@/components/ui/gameUi';
 import { useLocale, useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight, Clapperboard, Gauge, Pause, Play, RotateCcw, X } from 'lucide-react';
-import { type LogicBoard, type LogicGameId, LOGIC, emptyMarks } from '@/lib/logicPuzzles';
-import { type Replay, buildReplay } from '@/lib/logicReplay';
+import { LOGIC, emptyMarks } from '@/lib/logicPuzzles';
+import { type Replay, type ReplayGame, buildReplay } from '@/lib/logicReplay';
+import { geometry as slitherGeometry } from '@/lib/slitherlink';
+import SlitherBoard from '@/components/slitherlink/SlitherBoard';
 import BinairoBoard from './BinairoBoard';
 import ColorLinkBoard from './ColorLinkBoard';
 import MasyuBoard from './MasyuBoard';
@@ -17,8 +19,14 @@ import StarBoard from './StarBoard';
 /** How long a move stays on screen: notes get time to be read, plain moves go quickly. */
 const HOLD_NOTE = 2600, HOLD_CELL = 420, HOLD_EDGE = 260;
 
-function ReplayBoard({ board, marks, done }: { board: LogicBoard; marks: number[]; done: boolean }) {
+type ReplayBoardData = Replay['board'];
+/** Accent, ink and name key of a replay's game (슬리더링크 is not in the logic-puzzle table). */
+const specOf = (game: ReplayGame) => (game === 'slitherlink' ? { accent: '#8f7cff', ink: '#ffffff', catalog: 'slitherlink' } : LOGIC[game]);
+const blankMarks = (b: ReplayBoardData) => (b.kind === 'slitherlink' ? new Array<number>(slitherGeometry(b.puzzle.rows, b.puzzle.cols).edgeCount).fill(0) : emptyMarks(b));
+
+function ReplayBoard({ board, marks, done }: { board: ReplayBoardData; marks: number[]; done: boolean }) {
   switch (board.kind) {
+    case 'slitherlink': return <SlitherBoard puzzle={board.puzzle} marks={marks as (0 | 1 | 2)[]} tool="pen" readOnly />;
     case 'masyu': return <MasyuBoard board={board} marks={marks} readOnly />;
     case 'nonogram': return <NonogramBoard board={board} marks={marks} tool="fill" readOnly solvedGlow={done} />;
     case 'starbattle': return <StarBoard board={board} marks={marks} readOnly solved={done} />;
@@ -29,8 +37,10 @@ function ReplayBoard({ board, marks, done }: { board: LogicBoard; marks: number[
 }
 
 /** Where a cell's center sits inside the board's SVG, as fractions of its box (the nonogram has clue strips). */
-function cellFraction(board: LogicBoard, svg: SVGSVGElement, cell: number) {
+function cellFraction(board: ReplayBoardData, svg: SVGSVGElement, cell: number) {
   const n = board.size, r = Math.floor(cell / n), c = cell % n;
+  // 슬리더링크: numbers sit between the dots, at (c + 1, r + 1) on a dots × dots grid.
+  if (board.kind === 'slitherlink') return { x: (c + 1) / board.puzzle.dots, y: (r + 1) / board.puzzle.dots };
   if (board.kind === 'nonogram') {
     const R = Math.max(1, ...board.clues.rows.map((x) => x.length || 1)), C = Math.max(1, ...board.clues.cols.map((x) => x.length || 1));
     const left = R * 0.66 + 0.3, top = C * 0.66 + 0.3, W = left + n, H = top + n;
@@ -44,7 +54,7 @@ function cellFraction(board: LogicBoard, svg: SVGSVGElement, cell: number) {
  * 풀이 복기 player: the demo board of a game solved move by move, with speech bubbles on the moves worth explaining.
  * Opens playing; pause, step back and forth, restart, or play at double speed.
  */
-function ReplayDialog({ game, onClose }: { game: LogicGameId; onClose: () => void }) {
+function ReplayDialog({ game, onClose }: { game: ReplayGame; onClose: () => void }) {
   const t = useTranslations('Logic');
   const tc = useTranslations('Common');
   const locale = useLocale();
@@ -57,7 +67,7 @@ function ReplayDialog({ game, onClose }: { game: LogicGameId; onClose: () => voi
   const [pin, setPin] = useState<{ x: number; y: number; below: boolean } | null>(null);
 
   const marks = useMemo(() => {
-    const m = emptyMarks(board);
+    const m = blankMarks(board);
     for (let k = 0; k < step; k++) for (const [i, v] of frames[k].changes) m[i] = v;
     return m;
   }, [board, frames, step]);
@@ -70,7 +80,7 @@ function ReplayDialog({ game, onClose }: { game: LogicGameId; onClose: () => voi
   useEffect(() => {
     if (!playing || done) return;
     const f = frames[step];
-    const base = f.note ? HOLD_NOTE : board.kind === 'masyu' || board.kind === 'onestroke' || board.kind === 'colorlink' ? HOLD_EDGE : HOLD_CELL;
+    const base = f.note ? HOLD_NOTE : board.kind === 'masyu' || board.kind === 'onestroke' || board.kind === 'colorlink' || board.kind === 'slitherlink' ? HOLD_EDGE : HOLD_CELL;
     const id = window.setTimeout(() => setStep((s) => s + 1), step === 0 ? 500 : (frames[step - 1]?.note ? HOLD_NOTE : base) / (fast ? 2 : 1));
     return () => window.clearTimeout(id);
   }, [playing, done, step, frames, fast, board.kind]);
@@ -102,7 +112,7 @@ function ReplayDialog({ game, onClose }: { game: LogicGameId; onClose: () => voi
   }, [note, board]);
 
   const text = note ? (locale === 'en' ? note.en : note.ko) : '';
-  const spec = LOGIC[game];
+  const spec = specOf(game);
 
   return (
     <div role="dialog" aria-modal="true" aria-label={t('replayTitle', { game: tc(spec.catalog) })} className="fixed inset-0 z-[80] flex items-center justify-center bg-black/75 p-3 backdrop-blur-sm" style={accentVars(spec.accent, spec.ink)} onClick={onClose}>
@@ -156,7 +166,7 @@ function ReplayDialog({ game, onClose }: { game: LogicGameId; onClose: () => voi
  * Button that opens the replay. `variant`: a full-width card button, a small chip, or `learn` — the
  * "플레이 영상으로 배우기" box beside the game page's "처음이라면?" guide button.
  */
-export default function LogicReplayButton({ game, variant = 'card' }: { game: LogicGameId; variant?: 'card' | 'chip' | 'learn' }) {
+export default function LogicReplayButton({ game, variant = 'card' }: { game: ReplayGame; variant?: 'card' | 'chip' | 'learn' }) {
   const t = useTranslations('Logic');
   const [open, setOpen] = useState(false);
   return (

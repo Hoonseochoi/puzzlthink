@@ -3,11 +3,15 @@
 import { type LogicBoard, type LogicGameId, buildBoard } from './logicPuzzles';
 import { solveLine } from './nonogram';
 import { geometry as masyuGeometry } from './masyu';
+import { type Puzzle as SlitherPuzzle, generatePuzzle as slitherPuzzle, geometry as slitherGeometry } from './slitherlink';
 
 export type ReplayNote = { ko: string; en: string; at?: number };
 /** One move: the marks it changes (cell or edge index → value) and, sometimes, a note pinned to a cell. */
 export type ReplayFrame = { changes: [number, number][]; note?: ReplayNote };
-export type Replay = { board: LogicBoard; frames: ReplayFrame[] };
+/** 슬리더링크 lives outside the logic-puzzle interface; its replay carries the puzzle itself. */
+export type SlitherReplayBoard = { kind: 'slitherlink'; size: number; puzzle: SlitherPuzzle };
+export type ReplayGame = LogicGameId | 'slitherlink';
+export type Replay = { board: LogicBoard | SlitherReplayBoard; frames: ReplayFrame[] };
 
 /** Demo boards: small enough to watch in a minute, picked so the step solver finishes them. */
 const DEMO: Record<LogicGameId, { size: number; seed: number }> = {
@@ -347,11 +351,104 @@ function colorLinkReplay(b: Extract<LogicBoard, { kind: 'colorlink' }>): ReplayF
   return frames;
 }
 
-const cache = new Map<LogicGameId, Replay>();
+// ── 슬리더링크: classic patterns, number counts, two lines per dot, no small loops ──
+function slitherSolve(p: SlitherPuzzle): { frames: ReplayFrame[]; solved: boolean } {
+  const g = slitherGeometry(p.rows, p.cols), { rows, cols } = p;
+  const e = new Int8Array(g.edgeCount).fill(-1); // -1 open, 1 line, 0 ✕
+  const frames: ReplayFrame[] = [];
+  const seen: Record<string, number> = {};
+  const note = (kind: string, ko: string, en: string, at: number, times = 1): ReplayNote | undefined => {
+    seen[kind] = (seen[kind] ?? 0) + 1;
+    return seen[kind] <= times ? { ko, en, at } : undefined;
+  };
+  const apply = (edges: number[], v: 0 | 1, n?: ReplayNote) => {
+    const ch = edges.filter((x) => e[x] === -1);
+    if (!ch.length) return false;
+    ch.forEach((x) => { e[x] = v; });
+    frames.push({ changes: ch.map((x) => [x, v === 1 ? 1 : 2] as [number, number]), note: n });
+    return true;
+  };
+  const cell = (r: number, c: number) => r * cols + c;
+  // Opening patterns.
+  p.clues.forEach((k, i) => { if (k === 0) apply(g.cellEdges[i], 0, note('zero', '0은 주변에 선이 하나도 없어요. 네 변 모두 ✕.', 'A 0 has no line around it: all four sides are ✕.', i)); });
+  const corners = [[0, 0, 0, 2], [0, cols - 1, 0, 3], [rows - 1, 0, 1, 2], [rows - 1, cols - 1, 1, 3]];
+  for (const [r, c, a, b] of corners) {
+    const i = cell(r, c), ed = [g.cellEdges[i][a], g.cellEdges[i][b]];
+    if (p.clues[i] === 3) apply(ed, 1, note('c3', '구석의 3: 모서리 점에서 선이 꺾여야 하니 바깥 두 변은 선이에요.', 'A 3 in a corner: the loop must turn at the corner, so both outer sides are lines.', i));
+    if (p.clues[i] === 1) apply(ed, 0, note('c1', '구석의 1: 모서리 두 변을 쓰면 2가 되니 둘 다 ✕.', 'A 1 in a corner: using both corner sides would make 2, so both are ✕.', i));
+  }
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const i = cell(r, c);
+    if (p.clues[i] !== 3) continue;
+    if (c + 1 < cols && p.clues[i + 1] === 3) apply([g.cellEdges[i][2], g.cellEdges[i][3], g.cellEdges[i + 1][3]], 1, note('33', '나란한 3 두 개: 가운데 변과 양쪽 바깥 변은 반드시 선이에요.', 'Two 3s side by side: the middle side and both outer sides are lines.', i));
+    if (r + 1 < rows && p.clues[i + cols] === 3) apply([g.cellEdges[i][0], g.cellEdges[i][1], g.cellEdges[i + cols][1]], 1, note('33', '위아래로 붙은 3 두 개: 가운데 변과 위·아래 변은 선이에요.', 'Two 3s stacked: the middle side and the top and bottom sides are lines.', i));
+  }
+  frames.unshift({ changes: [], note: { ko: '0, 구석의 숫자, 붙어 있는 3처럼 바로 정해지는 곳부터 볼게요.', en: 'Start where things are certain: 0s, numbers in corners, 3s side by side.' } });
+  // Union-find over dots for the "no small loop" rule.
+  const parentOf = () => {
+    const par = Array.from({ length: g.dotEdges.length }, (_, i) => i);
+    const f = (x: number): number => (par[x] === x ? x : (par[x] = f(par[x])));
+    for (let x = 0; x < g.edgeCount; x++) if (e[x] === 1) par[f(g.ends[x][0])] = f(g.ends[x][1]);
+    return f;
+  };
+  for (let guard = 0; guard < 2000; guard++) {
+    if (p.solution.every((v, x) => (v === 1) === (e[x] === 1))) return { frames, solved: true };
+    let moved = false;
+    // Numbers: full → rest ✕; just enough room → rest are lines.
+    for (let i = 0; i < rows * cols && !moved; i++) {
+      const k = p.clues[i];
+      if (k < 0) continue;
+      const ed = g.cellEdges[i], on = ed.filter((x) => e[x] === 1).length, open = ed.filter((x) => e[x] === -1);
+      if (!open.length) continue;
+      if (on === k) moved = apply(open, 0, note('full', `${k} 주변에 선이 ${k}개 다 찼어요. 나머지 변은 ✕.`, `The ${k} already has ${k} lines. Its other sides are ✕.`, i, 2));
+      else if (on + open.length === k) moved = apply(open, 1, note('room', `${k}을 채우려면 남은 변을 모두 써야 해요.`, `To reach ${k}, every remaining side must be a line.`, i, 2));
+    }
+    if (moved) continue;
+    // Dots: two lines → rest ✕; one line and one way out → line; no line and one way → ✕.
+    for (let d = 0; d < g.dotEdges.length && !moved; d++) {
+      const ed = g.dotEdges[d], on = ed.filter((x) => e[x] === 1).length, open = ed.filter((x) => e[x] === -1);
+      if (!open.length) continue;
+      const r = Math.floor(d / (cols + 1)), c = d % (cols + 1), near = cell(Math.min(rows - 1, r), Math.min(cols - 1, c));
+      if (on === 2) moved = apply(open, 0, note('dot2', '한 점에는 선이 두 개까지만 와요. 이 점의 나머지 길은 ✕.', 'A dot takes at most two lines. Its other ways are ✕.', near, 2));
+      else if (on === 1 && open.length === 1) moved = apply(open, 1, note('dot1', '선은 끊기면 안 돼요. 이 점에서 나갈 길이 하나뿐이라 이어 그려요.', 'The line can\'t stop here, and there is only one way on.', near, 2));
+      else if (on === 0 && open.length === 1) moved = apply(open, 0, note('dead', '들어오면 나갈 길이 없는 막다른 변이에요. ✕.', 'A dead end: a line here could never get out. ✕.', near, 1));
+    }
+    if (moved) continue;
+    // No small loop: an open side joining both ends of one piece, while numbers are still unmet, is ✕.
+    const f = parentOf();
+    const unmet = p.clues.some((k, i) => k >= 0 && g.cellEdges[i].filter((x) => e[x] === 1).length !== k);
+    for (let x = 0; x < g.edgeCount && !moved; x++) {
+      if (e[x] !== -1) continue;
+      const [a, b] = g.ends[x];
+      if (f(a) === f(b) && g.dotEdges[a].some((y) => e[y] === 1) && unmet) {
+        const r = Math.floor(a / (cols + 1)), c = a % (cols + 1);
+        moved = apply([x], 0, note('loop', '여기를 이으면 작은 고리가 닫혀요. 아직 못 채운 숫자가 있으니 ✕.', 'Joining here would close a small loop while numbers are still unmet. ✕.', cell(Math.min(rows - 1, r), Math.min(cols - 1, c)), 2));
+      }
+    }
+    if (!moved) return { frames, solved: false };
+  }
+  return { frames, solved: false };
+}
+
+let slitherSeed: number | null = null;
+/** The first 9×9-dot board the step solver finishes (searched once, then cached). */
+function findSlitherSeed(): number {
+  if (slitherSeed !== null) return slitherSeed;
+  // 20270187 is the first one today; the search only moves on if the engine ever changes.
+  for (let s = 20270187; ; s++) if (slitherSolve(slitherPuzzle(9, s)).solved) { slitherSeed = s; return s; }
+}
+
+const cache = new Map<ReplayGame, Replay>();
 /** The replay of one game (built once per page). */
-export function buildReplay(game: LogicGameId): Replay {
+export function buildReplay(game: ReplayGame): Replay {
   const hit = cache.get(game);
   if (hit) return hit;
+  if (game === 'slitherlink') {
+    const puzzle = slitherPuzzle(9, findSlitherSeed());
+    const replay: Replay = { board: { kind: 'slitherlink', size: puzzle.cols, puzzle }, frames: [...slitherSolve(puzzle).frames, { changes: [], note: { ko: '완성! 모든 숫자를 맞추는 고리 하나예요.', en: 'Done! One loop that meets every number.' } }] };
+    cache.set(game, replay);
+    return replay;
+  }
   const d = DEMO[game];
   const board = buildBoard(game, d.size, game === 'starbattle' ? findStarSeed() : d.seed);
   const frames = board.kind === 'binairo' ? binairoReplay(board)

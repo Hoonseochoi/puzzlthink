@@ -5,6 +5,7 @@ import { Link } from '@/i18n/routing';
 import AdSlot from '@/components/AdSlot';
 import JsonLd from '@/components/JsonLd';
 import SlitherDiagram from '@/components/slitherlink/SlitherDiagram';
+import LogicReplayButton from '@/components/logic/LogicReplay';
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata, SITE_URL } from '@/lib/seo';
 import { EXAMPLE, GUIDE_COPY, TECH_FIGURES } from '@/lib/slitherGuide';
 
@@ -53,6 +54,7 @@ export default async function SlitherGuidePage({ params }: { params: Promise<{ l
         <h1 className="mt-2 text-4xl font-black tracking-[-0.05em] sm:text-5xl">{c.title}</h1>
         <p className="mt-2 text-lg font-black text-white/80 sm:text-xl">{c.lead}</p>
         <p className="mt-5 break-keep text-[15px] leading-8 text-white/60">{c.intro}</p>
+        <div className="mt-5"><LogicReplayButton game="slitherlink" variant="chip" /></div>
 
         <ul className="mt-5 flex flex-wrap gap-2 text-[11px] font-bold text-white/60">
           {c.legend.map((item, i) => <li key={item} className="flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1"><span className={`h-2 w-2 rounded-full ${['bg-[#ff3d7f]', 'bg-[#8f86c9]', 'bg-[#ffb020]'][i]}`} />{item}</li>)}
