@@ -81,6 +81,7 @@
     "supportNote": "Support only pays for servers and gives no perks. Every game stays free either way.",
     "supportDismiss": "Hide for today",
     "masyu": "Masyu",
+    "starbattle": "Star Battle",
     "nonogram": "Nonogram",
     "slitherlink": "Slitherlink",
     "wallgo2": "Wallgo II",
@@ -326,6 +327,8 @@
     "hypeTag": "most played",
     "masyuDescription": "Straight through white, turn on black! Draw one loop past all our stones. Claim new maps and steal other players' maps.",
     "masyuMeta": "Challenge · steal maps · 2–4 friends",
+    "starbattleDescription": "One stone per row, column and region, and no two may touch. A 1–5 minute placement puzzle you can't stop at one. Claim new maps, steal others'.",
+    "starbattleMeta": "Challenge · steal maps · 2–4 friends",
     "nonogramDescription": "Fill cells from the numbers and a hidden picture lights up in colour. No guessing. Claim new maps and steal other players' maps.",
     "nonogramMeta": "Challenge · steal maps · 2–4 friends",
     "tag_logicPuzzle": "Logic puzzle",
@@ -1642,6 +1645,7 @@
     "chTitle": "Challenge rankings",
     "chDesc": "Top 3 best runs in each solo challenge. Slitherlink counts boards owned; the others rank by best single-run score.",
     "chMasyu": "Masyu board collection",
+    "chStarbattle": "Star Battle board collection",
     "chNonogram": "Nonogram board collection",
     "chSlither": "Slitherlink board collection",
     "chGyul10": "Gyul! Hap! 10-min challenge",
@@ -2144,6 +2148,21 @@
         ],
         "origin": "Masyu (\"pearl\") is a classic puzzle from the Japanese publisher Nikoli, drawn here with PUZZLTHINK's stone characters. Every board is checked by computer to have exactly one answer."
       },
+      "starbattle": {
+        "tagline": "Place stones on a board cut into coloured regions: exactly one per row, column and region, and no two touching. 1–5 minutes a board, one rule, and you'll want another. Claim new maps, steal others' and race friends.",
+        "players": "1 player or 2–4 friends",
+        "pace": "1–5 min a board",
+        "level": "6×6 · 8×8 · 10×10 (random boards with one answer)",
+        "solo": "New map (ranked) · steal a map · practice by size",
+        "friend": "2–4 race on the same board · first to finish wins",
+        "ai": "New map (ranked) · steal a map · practice by size",
+        "rules": [
+          "Place N stones on an N×N board split into N coloured regions.",
+          "Every row, every column and every region holds exactly one stone.",
+          "Stones never touch, horizontally, vertically or diagonally."
+        ],
+        "origin": "Star Battle (one-star) is a staple of world puzzle championships, drawn here with PUZZLTHINK's stone characters. Every board is checked by computer to have exactly one answer."
+      },
       "nonogram": {
         "tagline": "Fill cells from the numbers beside each row and column to reveal a hidden picture, which lights up in our stone colours when done. Pure logic, no guessing, plus a challenge to claim and steal maps and races with friends.",
         "players": "1 player or 2–4 friends",
@@ -2303,6 +2322,7 @@
     "logicNew": "New map (claim it)",
     "logicBeat": "Steal a map",
     "masyuPractice": "Practice (6×6 · 8×8 · 10×10)",
+    "starbattlePractice": "Practice (6×6 · 8×8 · 10×10)",
     "nonogramPractice": "Practice (5×5 · 10×10 · 15×15)",
     "logicRoom": "Create a room (2–4)",
     "short_logicRoom": "2–4",
@@ -5730,6 +5750,7 @@
     "giveUpPractice": "Give up and show the answer",
     "giveUpChallenge": "Give up",
     "help_masyu": "Tap between two cell centers: line → ✕ → empty. Or drag from cell to cell to draw. Smiling stones keep their rule; frowning ones break it.",
+    "help_starbattle": "Tap a cell: ✕ → stone → empty. Drag to lay ✕ marks. A worried stone shares a row, column or region, or touches another stone.",
     "help_nonogram_fill": "Tap a cell to fill, tap again to clear. Drag to fill a run. A line's numbers fade once it matches.",
     "help_nonogram_cross": "✕ mode: mark cells that stay empty. Drag to mark a run.",
     "solvedTitle": "Solved! {time}",
@@ -5755,6 +5776,13 @@
       "● Black: turn, then one more cell straight both ways.",
       "○ White: straight through, turning just before or after.",
       "One answer only: draw what is certain."
+    ],
+    "rules_starbattle": [
+      "Exactly one stone in every row, column and coloured region.",
+      "Stones never touch, not even diagonally.",
+      "Place a stone, then ✕ its 8 neighbours.",
+      "Start with small regions and regions stuck in one row.",
+      "One answer only: place what is certain."
     ],
     "rules_nonogram": [
       "Numbers = lengths of the filled runs in that line, in order.",
@@ -5799,6 +5827,7 @@
     "out": "Out",
     "linesN": "{n} lines",
     "cellsN": "{n} cells",
+    "stonesN": "{n} stones",
     "boardSize": "Board size",
     "rulesTitle": "Room rules",
     "rules": [
@@ -5995,5 +6024,97 @@
       }
     ],
     "disclaimer": "A free web puzzle made by PUZZLTHINK. Nonogram is a puzzle genre name and is not tied to any company's trademark."
+  },
+  "StarBattleGuide": {
+    "metaTitle": "Star Battle Online Free — Stone Placement Logic Puzzle | Claim & Steal Maps, Ranking, Friend Races",
+    "metaDescription": "One stone in every row, column and coloured region, and no two may touch. A quick, addictive placement puzzle: random boards with one answer, claim and steal maps for the ranking, and race 2–4 friends. Free.",
+    "keywords": [
+      "Star Battle",
+      "Star Battle puzzle",
+      "queens puzzle",
+      "Two Not Touch",
+      "region puzzle",
+      "logic puzzle online",
+      "brain game"
+    ],
+    "alternateNames": [
+      "Star Battle",
+      "Two Not Touch",
+      "Queens puzzle"
+    ],
+    "eyebrow": "STAR BATTLE GUIDE",
+    "title": "Star Battle — one stone per row, column and region",
+    "intro": "Star Battle is a placement puzzle on a board cut into coloured regions. Put exactly one stone in every row, every column and every region, and never let two stones touch, not even at a corner. One rule, but every stone you place wipes out the cells around it and the board falls into place fast. Every board on PUZZLTHINK is checked to have exactly one answer.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Place N stones on an N×N board divided into N coloured regions.",
+      "Every row, every column and every region holds exactly one stone.",
+      "Stones may not touch each other, horizontally, vertically or diagonally.",
+      "Mark cells that cannot hold a stone with ✕ to see what is left."
+    ],
+    "specialTitle": "Controls",
+    "special": [
+      {
+        "title": "Tap to cycle",
+        "body": "Tap a cell to cycle ✕ → stone → empty. Drag across cells to lay ✕ marks in one go; a drag that starts on a ✕ erases them."
+      },
+      {
+        "title": "Worried and happy stones",
+        "body": "Stones sharing a row, column or region, or touching, frown inside a red ring. Solve the board and every stone smiles."
+      },
+      {
+        "title": "Undo",
+        "body": "Step back as far as you like with the undo button or Ctrl/⌘+Z. One drag is one step."
+      },
+      {
+        "title": "Claim and steal maps",
+        "body": "Clear a new map and it is yours. Solve someone else's map faster than their time and you take it. The ranking counts the maps you hold."
+      }
+    ],
+    "strategyTitle": "Key strategies",
+    "strategyIntro": "The full illustrated guide is behind the \"New here?\" button above.",
+    "strategies": [
+      {
+        "tag": "Basics",
+        "title": "Place, then clear 8 neighbours",
+        "body": "Each stone rules out the rest of its row, column and region, plus the 8 cells around it."
+      },
+      {
+        "tag": "Regions",
+        "title": "Small regions first",
+        "body": "A small region has only a few places for its stone. For a two-cell region, any cell touching both cells is ✕."
+      },
+      {
+        "tag": "Regions",
+        "title": "A region inside one row",
+        "body": "If a region lies entirely in one row, that row's stone belongs to it. Every other cell of the row is ✕."
+      },
+      {
+        "tag": "Rows",
+        "title": "A row with one region left",
+        "body": "If a row's open cells all belong to one region, that region's stone is in this row. The region's other cells are ✕."
+      },
+      {
+        "tag": "Advanced",
+        "title": "Two regions, two rows",
+        "body": "If two regions fit entirely inside two rows, those rows' two stones are theirs. All other cells of the two rows are ✕."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What is Star Battle?",
+        "a": "A classic logic puzzle genre where you place stars, often seen at world puzzle championships. The one-star version is also known as the queens puzzle. On PUZZLTHINK you place our stone characters instead of stars."
+      },
+      {
+        "q": "Can a board have more than one answer?",
+        "a": "No. Every board is checked by computer to have exactly one answer, so logic alone is enough."
+      },
+      {
+        "q": "How are challenge records kept fair?",
+        "a": "The server hands out the board and keeps the time. A clear is replayed on the server, and each board can be tried once. Leaving the tab often during a run voids the record."
+      }
+    ],
+    "disclaimer": "A free web puzzle made by PUZZLTHINK. Star Battle is the common name of a puzzle genre; this page is not affiliated with any company's game."
   }
 }

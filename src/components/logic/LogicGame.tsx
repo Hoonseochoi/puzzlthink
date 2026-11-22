@@ -17,6 +17,7 @@ import { type LogicBoardRow, type LogicFinish, type LogicRankRow, type LogicRun,
 import { reportGame } from '@/lib/stats';
 import MasyuBoard from './MasyuBoard';
 import NonogramBoard, { type NonoTool } from './NonogramBoard';
+import StarBoard from './StarBoard';
 import { useUndoKey } from '@/components/slitherlink/SlitherBoard';
 
 type Mode = 'challenge' | 'beat' | 'practice';
@@ -34,7 +35,7 @@ const readMode = (): Mode => {
 type Move = { gesture: number; undo: [number, number][] };
 
 /**
- * 마슈 · 노노그램, the 슬리더링크 way.
+ * 마슈 · 노노그램 · 스타배틀, the 슬리더링크 way.
  * - 새로운 맵: a fresh board from the server, timed; clearing it makes the board yours (ranked by boards owned).
  * - 맵 뺏기: someone's board within their time (one try per board); beat it to take it over.
  * - 연습: any size, give up to see the answer.
@@ -244,7 +245,9 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
 
   const boardView = board && (board.kind === 'masyu'
     ? <MasyuBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solutionLines={answerLines} dimLines={phase === 'gaveUp'} />
-    : <NonogramBoard board={board} marks={marks} tool={tool} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solvedGlow={phase === 'solved'} showAnswer={phase === 'gaveUp'} />);
+    : board.kind === 'nonogram'
+      ? <NonogramBoard board={board} marks={marks} tool={tool} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solvedGlow={phase === 'solved'} showAnswer={phase === 'gaveUp'} />
+      : <StarBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved'} showAnswer={phase === 'gaveUp'} />);
 
   const rankingPanel = (
     <section className={PANEL}>
@@ -268,9 +271,9 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
   );
 
   return (
-    <div className={SHELL} style={{ ...accentVars(spec.accent, spec.ink), backgroundImage: fog(game === 'masyu' ? '255, 77, 94' : '63, 207, 106') }}>
-      <Shards tint={game === 'masyu' ? '#3a1d24' : '#16301f'} />
-      <GameHeader backHref="/" backLabel="PUZZLTHINK" title={name} subtitle={game === 'masyu' ? 'MASYU' : 'NONOGRAM'}>
+    <div className={SHELL} style={{ ...accentVars(spec.accent, spec.ink), backgroundImage: fog(spec.fog) }}>
+      <Shards tint={spec.shard} />
+      <GameHeader backHref="/" backLabel="PUZZLTHINK" title={name} subtitle={spec.latin}>
         <BugReport /><LanguageSwitcher compact dark />
         {mode === 'practice' && <button type="button" onClick={() => startPractice(size)} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newBoard')}</span></button>}
       </GameHeader>

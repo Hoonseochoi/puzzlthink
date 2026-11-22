@@ -1,3 +1,4 @@
+import { STAR_TINTS } from '@/lib/starbattle';
 import { StoneDefs, StoneFace } from './StoneFace';
 
 /** [r1, c1, r2, c2]: a line between two neighbouring cell centers. */
@@ -5,10 +6,43 @@ export type Seg = [number, number, number, number];
 export type MasyuFigure = { kind: 'masyu'; rows: number; cols: number; pearls: [number, number, 'b' | 'w'][]; lines?: Seg[]; fresh?: Seg[]; crosses?: Seg[] };
 /** One nonogram line: `cells` like "..##x..", `fresh` = indices decided in this step. */
 export type NonoFigure = { kind: 'nono'; clue: number[]; cells: string; fresh?: number[] };
-export type Figure = MasyuFigure | NonoFigure;
+/**
+ * A small 스타배틀 board: `regions` rows of letters (a = first tint), stones and ✕ as [row, col];
+ * `fresh` ✕ marks are the ones this step decides (drawn in gold).
+ */
+export type StarFigure = { kind: 'star'; regions: string[]; stones?: [number, number][]; crosses?: [number, number][]; fresh?: [number, number][]; plain?: boolean };
+export type Figure = MasyuFigure | NonoFigure | StarFigure;
 
-/** Static pictures for the guides (server-rendered): a small 마슈 board or one 노노그램 line. */
+function StarDiagram({ fig, label, id }: { fig: StarFigure; label: string; id: string }) {
+  const rows = fig.regions.length, cols = fig.regions[0].length;
+  const at = (r: number, c: number) => fig.regions[r][c];
+  const prefix = `lgs-${id}`;
+  const borders: string[] = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    if (c < cols - 1 && at(r, c) !== at(r, c + 1)) borders.push(`M${c + 1} ${r}V${r + 1}`);
+    if (r < rows - 1 && at(r, c) !== at(r + 1, c)) borders.push(`M${c} ${r + 1}H${c + 1}`);
+  }
+  const x = (r: number, c: number, color: string, key: string, w = 0.07) => {
+    const cx = c + 0.5, cy = r + 0.5, s = 0.15;
+    return <path key={key} d={`M${cx - s} ${cy - s}L${cx + s} ${cy + s}M${cx + s} ${cy - s}L${cx - s} ${cy + s}`} stroke={color} strokeWidth={w} strokeLinecap="round" />;
+  };
+  return (
+    <svg viewBox={`-0.06 -0.06 ${cols + 0.12} ${rows + 0.12}`} role="img" aria-label={label} className="block w-full rounded-[12px]" style={{ background: '#2a2620' }}>
+      <StoneDefs prefix={prefix} />
+      {fig.regions.flatMap((line, r) => [...line].map((ch, c) => <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill={fig.plain ? '#efe7d8' : STAR_TINTS[(ch.charCodeAt(0) - 97) % STAR_TINTS.length]} />))}
+      {Array.from({ length: cols - 1 }, (_, i) => <line key={`v${i}`} x1={i + 1} y1={0} x2={i + 1} y2={rows} stroke="rgba(42,38,32,.16)" strokeWidth={0.02} />)}
+      {Array.from({ length: rows - 1 }, (_, i) => <line key={`h${i}`} x1={0} y1={i + 1} x2={cols} y2={i + 1} stroke="rgba(42,38,32,.16)" strokeWidth={0.02} />)}
+      <path d={borders.join('')} stroke="#2a2620" strokeWidth={0.075} fill="none" strokeLinecap="square" />
+      {fig.crosses?.map(([r, c], i) => x(r, c, 'rgba(42,38,32,.42)', `x${i}`))}
+      {fig.fresh?.map(([r, c], i) => <g key={`f${i}`}><rect x={c + 0.06} y={r + 0.06} width={0.88} height={0.88} rx={0.14} fill="rgba(242,182,48,.35)" />{x(r, c, '#b7790a', `fx${i}`, 0.09)}</g>)}
+      {fig.stones?.map(([r, c]) => <StoneFace key={`s${r}-${c}`} prefix={prefix} kind="black" cx={c + 0.5} cy={r + 0.5} r={0.33} mood="happy" />)}
+    </svg>
+  );
+}
+
+/** Static pictures for the guides (server-rendered): a small 마슈 / 스타배틀 board or one 노노그램 line. */
 export default function LogicDiagram({ fig, label, id }: { fig: Figure; label: string; id: string }) {
+  if (fig.kind === 'star') return <StarDiagram fig={fig} label={label} id={id} />;
   if (fig.kind === 'nono') {
     const n = fig.cells.length;
     const left = Math.max(1, fig.clue.length) * 0.62 + 0.3;

@@ -11,13 +11,13 @@ import { GAME_LABEL } from './HallCelebration';
 import RankMove from './RankMove';
 import { byGameOrder } from './recordOrder';
 
-type Board = 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
+type Board = 'starbattle' | 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
 type Row = { rank: number; nickname: string; avatar_url: string | null; score: number; sub: number | null; prev_rank?: number | null };
 type Card = { key: string; game: GameId; boards: Board[]; title: string };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const NEMO: Board[] = ['nemo_hard', 'nemo_normal', 'nemo_easy'];
-const BOARDS: Board[] = ['slither', 'masyu', 'nonogram', 'gyulhap10', 'gyulhap5', 'hexagon', ...NEMO];
+const BOARDS: Board[] = ['slither', 'starbattle', 'masyu', 'nonogram', 'gyulhap10', 'gyulhap5', 'hexagon', ...NEMO];
 const clock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
 
 /** Solo challenges in 기록실: a top-3 board per challenge, then my own best runs. Games follow the site order; boards nobody is on yet go last. */
@@ -40,6 +40,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
 
   const cards: Card[] = [
     { key: 'slither', game: 'slitherlink', boards: ['slither'], title: t('chSlither') },
+    { key: 'starbattle', game: 'starbattle', boards: ['starbattle'], title: t('chStarbattle') },
     { key: 'masyu', game: 'masyu', boards: ['masyu'], title: t('chMasyu') },
     { key: 'nonogram', game: 'nonogram', boards: ['nonogram'], title: t('chNonogram') },
     { key: 'gyulhap10', game: 'gyulhap', boards: ['gyulhap10'], title: t('chGyul10') },
@@ -47,7 +48,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { key: 'nemo', game: 'nemo_count', boards: NEMO, title: t('chNemo') },
     { key: 'hexagon', game: 'hexagon', boards: ['hexagon'], title: t('chHexagon') },
   ];
-  const stat = (b: Board, r: Row) => b === 'slither' || b === 'masyu' || b === 'nonogram' ? t('chMaps', { n: r.score })
+  const stat = (b: Board, r: Row) => b === 'slither' || b === 'starbattle' || b === 'masyu' || b === 'nonogram' ? t('chMaps', { n: r.score })
     : b.startsWith('nemo') ? t('chCorrect', { n: r.score }) : t('chScore', { n: r.score });
   const filled = (c: Card) => c.boards.some((b) => (tops[b]?.length ?? 0) > 0);
   const ordered = byGameOrder(cards, (c) => c.game, filled);
@@ -67,7 +68,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
       return { clears: wins.length, fastest: times.length ? Math.min(...times) : null };
     };
     return {
-      masyu: clearsOf('masyu'), nonogram: clearsOf('nonogram'),
+      starbattle: clearsOf('starbattle'), masyu: clearsOf('masyu'), nonogram: clearsOf('nonogram'),
       slither: { clears: slitherClears.length, fastest: fastest.length ? Math.min(...fastest) : null },
       gyulhap10: pick('gyulhap', (d) => d.mode === 'challenge10', 'score'),
       gyulhap5: pick('gyulhap', (d) => d.mode === 'challenge5', 'score'),
@@ -78,6 +79,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
 
   const myCards = byGameOrder([
     { game: 'slitherlink' as GameId, title: t('chSlither'), line: mine.slither.clears ? t('mySlither', { n: mine.slither.clears, time: mine.slither.fastest ? clock(mine.slither.fastest) : '—' }) : null },
+    { game: 'starbattle' as GameId, title: t('chStarbattle'), line: mine.starbattle.clears ? t('mySlither', { n: mine.starbattle.clears, time: mine.starbattle.fastest ? clock(mine.starbattle.fastest) : '—' }) : null },
     { game: 'masyu' as GameId, title: t('chMasyu'), line: mine.masyu.clears ? t('mySlither', { n: mine.masyu.clears, time: mine.masyu.fastest ? clock(mine.masyu.fastest) : '—' }) : null },
     { game: 'nonogram' as GameId, title: t('chNonogram'), line: mine.nonogram.clears ? t('mySlither', { n: mine.nonogram.clears, time: mine.nonogram.fastest ? clock(mine.nonogram.fastest) : '—' }) : null },
     { game: 'gyulhap' as GameId, title: t('chGyul10'), line: mine.gyulhap10 !== null ? t('chScore', { n: mine.gyulhap10 }) : null },

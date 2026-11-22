@@ -1,11 +1,13 @@
-// Builds the 마슈 / 노노그램 challenge pool: seeds with their one answer, as SQL for the logic_pool table.
-// Usage: node scripts/logic-pool.ts [masyuCount=2000] [nonogramCount=3000] [batch=1] > pool.sql  (a new batch number = new seeds)
+// Builds the 마슈 / 노노그램 / 스타배틀 challenge pool: seeds with their one answer, as SQL for the logic_pool table.
+// Usage: node scripts/logic-pool.ts [masyuCount=2000] [nonogramCount=3000] [batch=1] [starBattleCount=0] > pool.sql
+//        (a new batch number = new seeds)
 //        then apply pool.sql to the database (rows already there are kept: on conflict do nothing).
 // Uses the same engines the browser uses, so a seed builds the same board on both sides.
 import * as masyu from '../src/lib/masyu.ts';
 import * as nonogram from '../src/lib/nonogram.ts';
+import * as starbattle from '../src/lib/starbattle.ts';
 
-const [masyuCount = 2000, nonoCount = 3000, batch = 1] = process.argv.slice(2).map(Number);
+const [masyuCount = 2000, nonoCount = 3000, batch = 1, starCount = 0] = process.argv.slice(2).map(Number);
 const pick = masyu.rng(20270109 + (batch - 1) * 7777);
 const seeds = (count: number) => {
   const set = new Set<number>();
@@ -32,6 +34,14 @@ flush(masyuRows);
 const k = nonogram.NONO_CHALLENGE_SIZE;
 const nonoRows = seeds(nonoCount).map((seed) => `('nonogram', ${seed}, ${k}, '${nonogram.encodeCells(nonogram.generate(k, seed).grid, k * k)}')`);
 flush(nonoRows);
+
+const sb = starbattle.STAR_CHALLENGE_SIZE;
+const starRows: string[] = [];
+seeds(starCount).forEach((seed, i) => {
+  starRows.push(`('starbattle', ${seed}, ${sb}, '${starbattle.encodeCells(starbattle.generate(sb, seed).answer)}')`);
+  if ((i + 1) % 500 === 0) console.error(`starbattle ${i + 1}/${starCount}`);
+});
+flush(starRows);
 
 out.push('commit;');
 console.log(out.join('\n'));

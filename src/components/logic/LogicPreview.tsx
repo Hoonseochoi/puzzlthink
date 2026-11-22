@@ -1,5 +1,6 @@
 import { buildBoard } from '@/lib/logicPuzzles';
 import { cluesOf } from '@/lib/nonogram';
+import { STAR_TINTS } from '@/lib/starbattle';
 import { StoneDefs, StoneFace } from './StoneFace';
 
 /** Home card art: a solved 6×6 마슈 with the loop in coral and our stones smiling on it. */
@@ -52,6 +53,27 @@ export function NonogramPreview() {
         if (!v) return null;
         return <rect key={i} x={x + 0.07} y={y + 0.07} width={0.86} height={0.86} rx={0.2} fill={r < 7 ? '#ff4d5e' : '#22242b'} />;
       })}
+    </svg>
+  </div>;
+}
+
+/** Home card art: a solved 6×6 스타배틀 in a gold frame, the regions in our stone colours and a smiling stone in each. */
+export function StarBattlePreview() {
+  const b = buildBoard('starbattle', 6, 20270109);
+  if (b.kind !== 'starbattle') return null;
+  const n = 6;
+  const borders: string[] = [];
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    const g = b.regions[r * n + c];
+    if (c < n - 1 && b.regions[r * n + c + 1] !== g) borders.push(`M${c + 1} ${r}V${r + 1}`);
+    if (r < n - 1 && b.regions[(r + 1) * n + c] !== g) borders.push(`M${c} ${r + 1}H${c + 1}`);
+  }
+  return <div className="w-full rotate-[-3deg] rounded-xl bg-gradient-to-br from-[#ffd76a] to-[#e89a12] p-1.5 shadow-xl sm:w-[66%] sm:rounded-[22px] sm:p-3 sm:shadow-2xl">
+    <svg viewBox={`-0.06 -0.06 ${n + 0.12} ${n + 0.12}`} className="block w-full rounded-[6px] bg-[#2a2620] sm:rounded-[14px]">
+      <StoneDefs prefix="spv" />
+      {b.regions.map((g, i) => <rect key={i} x={i % n} y={Math.floor(i / n)} width={1} height={1} fill={STAR_TINTS[g % STAR_TINTS.length]} />)}
+      <path d={borders.join('')} stroke="#2a2620" strokeWidth={0.08} fill="none" strokeLinecap="square" />
+      {b.answer.map((v, i) => (v ? <StoneFace key={`s${i}`} prefix="spv" kind="black" cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.34} mood="happy" /> : null))}
     </svg>
   </div>;
 }

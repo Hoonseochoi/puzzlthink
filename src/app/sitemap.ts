@@ -13,6 +13,7 @@ const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekl
   { path: '/slitherlink/guide', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/masyu/guide', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/nonogram/guide', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/star-battle/guide', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/records', priority: 0.5, changeFrequency: 'daily' },
   ...GAME_PATHS.map((path) => (path === '/play' ? 'sudoku' : path.slice(1))).filter((slug) => gameFromSlug(slug)).map((slug) => ({ path: `/ranking/${slug}`, priority: 0.6, changeFrequency: 'daily' as const })),
   { path: '/about', priority: 0.3, changeFrequency: 'monthly' },

@@ -4,7 +4,7 @@ import { Link } from '@/i18n/routing';
 import { gameFromSlug } from '@/lib/rankings';
 
 /** Games with a 공략 page: a "처음이라면?" button sits beside the title (슬리더링크 · 마슈 · 노노그램). */
-const STRATEGY: Partial<Record<GameId, '/slitherlink/guide' | '/masyu/guide' | '/nonogram/guide'>> = { slitherlink: '/slitherlink/guide', masyu: '/masyu/guide', nonogram: '/nonogram/guide' };
+const STRATEGY: Partial<Record<GameId, '/slitherlink/guide' | '/masyu/guide' | '/nonogram/guide' | '/star-battle/guide'>> = { slitherlink: '/slitherlink/guide', starbattle: '/star-battle/guide', masyu: '/masyu/guide', nonogram: '/nonogram/guide' };
 
 /** Top of a game's entry screen: name, tagline, key facts and core rules, from the games overview copy. */
 export default async function GameIntroHero({ locale, id, tone = 'dark' }: { locale: string; id: GameId; tone?: 'dark' | 'light' }) {

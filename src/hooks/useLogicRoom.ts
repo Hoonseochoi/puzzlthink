@@ -14,11 +14,14 @@ const engine = (game: LogicGameId): RoomEngine<LogicRoom, LogicAction> => ({
 
 export const MASYU_ROOM = engine('masyu');
 export const NONOGRAM_ROOM = engine('nonogram');
-const ENGINES = { masyu: MASYU_ROOM, nonogram: NONOGRAM_ROOM };
+export const STARBATTLE_ROOM = engine('starbattle');
+const ENGINES = { masyu: MASYU_ROOM, nonogram: NONOGRAM_ROOM, starbattle: STARBATTLE_ROOM };
 
 export const prepareMasyuRoom = () => prepareRoom(MASYU_ROOM.channel, MASYU_ROOM.storage, 'masyu');
 export const prepareNonogramRoom = () => prepareRoom(NONOGRAM_ROOM.channel, NONOGRAM_ROOM.storage, 'nonogram');
+export const prepareStarBattleRoom = () => prepareRoom(STARBATTLE_ROOM.channel, STARBATTLE_ROOM.storage, 'starbattle');
 export const useMasyuRoom = (code: string, defaultName: string) => useRealtimeRoom(MASYU_ROOM, code, defaultName);
+export const useStarBattleRoom = (code: string, defaultName: string) => useRealtimeRoom(STARBATTLE_ROOM, code, defaultName);
 export const useNonogramRoom = (code: string, defaultName: string) => useRealtimeRoom(NONOGRAM_ROOM, code, defaultName);
 /** For the shared room view: the room hook of one game (the game never changes while the view is mounted). */
 export const useLogicRoom = (game: LogicGameId, code: string, defaultName: string) => useRealtimeRoom(ENGINES[game], code, defaultName);

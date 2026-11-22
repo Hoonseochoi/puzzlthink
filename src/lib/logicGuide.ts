@@ -1,4 +1,4 @@
-// 마슈 · 노노그램 공략 pages: copy (ko / en) and the small pictures for each technique.
+// 마슈 · 노노그램 · 스타배틀 공략 pages: copy (ko / en) and the small pictures for each technique.
 import type { Figure } from '@/components/logic/LogicDiagram';
 import type { LogicGameId } from './logicPuzzles';
 
@@ -36,6 +36,15 @@ export const FIGURES: Record<string, Figure> = {
   unreachable: { kind: 'nono', clue: [2], cells: 'xxxxx.#.xx', fresh: [0, 1, 2, 3, 4, 8, 9] },
   zeroLine: { kind: 'nono', clue: [0], cells: 'xxxxxxxxxx', fresh: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
   gapTooSmall: { kind: 'nono', clue: [3, 3], cells: '###xxxx###', fresh: [4, 6] },
+  // 스타배틀
+  ruleLines: { kind: 'star', regions: ['aabbb', 'aabcc', 'ddbcc', 'ddeee', 'ddeee'], stones: [[1, 1]], fresh: [[1, 0], [1, 2], [1, 3], [1, 4], [0, 1], [2, 1], [3, 1], [4, 1], [0, 0]] },
+  ruleTouch: { kind: 'star', plain: true, regions: ['aaa', 'aaa', 'aaa'], stones: [[1, 1]], fresh: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]] },
+  confinedRow: { kind: 'star', regions: ['bbbccc', 'baaacc', 'bbdddc'], fresh: [[1, 0], [1, 4], [1, 5]] },
+  rowOneRegion: { kind: 'star', regions: ['aaaaaa', 'abbbcc', 'abdccc'], fresh: [[1, 0], [2, 0]] },
+  smallRegion: { kind: 'star', regions: ['bbcc', 'bacc', 'badd', 'bbdd'], fresh: [[1, 0], [2, 0], [1, 2], [2, 2]] },
+  lShape: { kind: 'star', regions: ['bbcc', 'baac', 'badd', 'bbdd'], fresh: [[2, 2]] },
+  blocker: { kind: 'star', regions: ['bbbbb', 'bbbcc', 'daaac', 'ddddc'], fresh: [[1, 2], [3, 2]] },
+  twoRows: { kind: 'star', regions: ['bbbbdd', 'baaccd', 'bbaccd', 'bbbddd'], fresh: [[1, 0], [2, 0], [2, 1], [1, 5], [2, 5]] },
 };
 
 // ── Copy ──
@@ -267,7 +276,120 @@ const NONO_EN: GuideCopy = {
   ],
 };
 
+const STAR_KO: GuideCopy = {
+  metaTitle: '스타배틀(Star Battle) 공략 — 바둑알 배치 규칙과 풀이 기술 총정리 | PUZZLTHINK',
+  metaDescription: '스타배틀 처음이라면? 줄·구역마다 하나, 붙으면 안 되는 규칙부터 작은 구역, 한 줄에 갇힌 구역, 두 구역·두 줄 같은 실전 풀이 기술을 그림으로 정리했어요.',
+  keywords: ['스타배틀', 'Star Battle', '스타배틀 공략', '스타배틀 푸는 법', '퀸 퍼즐 공략', '별 배치 퍼즐', '논리 퍼즐'],
+  back: '스타배틀로 돌아가기', eyebrow: 'STAR BATTLE GUIDE', title: '스타배틀 공략', lead: '놓을 곳보다, 못 놓을 곳을 먼저.',
+  intro: '스타배틀은 줄마다, 구역마다 바둑알을 하나씩 놓는 퍼즐이에요. 잘 푸는 사람은 바둑알을 어디에 놓을지보다 어디에 못 놓는지를 먼저 찾아요. ✕가 쌓이면 바둑알 자리는 저절로 하나만 남거든요. 아래 기술 여섯 개면 10×10 챌린지도 찍지 않고 풀 수 있어요.',
+  tocTitle: '목차', rulesTitle: '기본 규칙',
+  rules: [
+    'N×N 판에 바둑알 N개를 놓아요. 판은 색깔이 다른 구역 N개로 나뉘어 있어요.',
+    '가로줄마다, 세로줄마다, 색깔 구역마다 바둑알이 정확히 하나씩 있어야 해요.',
+    '바둑알끼리는 가로·세로·대각선 어느 방향으로도 맞닿으면 안 돼요.',
+    '바둑알이 올 수 없는 칸은 ✕로 지워 두세요. 남은 칸이 곧 답이에요.',
+  ],
+  principleTitle: '그림으로 보는 두 규칙',
+  principles: [
+    { title: '줄·세로줄·구역에 하나', body: '바둑알을 하나 놓으면 그 가로줄, 그 세로줄, 그 색깔 구역에는 더 놓을 수 없어요. 금색 ✕가 한 알이 지우는 칸이에요.' },
+    { title: '주변 8칸은 비워 두기', body: '바둑알은 대각선으로도 붙으면 안 돼요. 그래서 한 알을 놓으면 둘러싼 8칸이 모두 ✕가 돼요. 이 규칙이 구역 모양 기술의 바탕이에요.' },
+  ],
+  sections: [
+    { id: 'basic', title: '기본 기술', intro: '판을 처음 볼 때 가장 먼저 찾는 패턴이에요.', techs: [
+      { id: 'confinedRow', title: '한 줄에 갇힌 구역', body: '빨간 구역이 가로줄 하나 안에만 있어요. 이 구역의 바둑알은 반드시 그 줄에 놓이니, 그 줄의 바둑알 자리는 이미 찼어요. 같은 줄의 다른 구역 칸은 모두 ✕. 세로줄에 갇힌 구역도 똑같아요.' },
+      { id: 'rowOneRegion', title: '한 구역뿐인 줄', body: '반대로, 어떤 줄이 통째로 한 구역이면 그 줄의 바둑알이 곧 그 구역의 바둑알이에요. 그래서 그 구역이 줄 밖으로 뻗은 칸은 모두 ✕예요. ✕를 지우다 보면 줄의 남은 칸이 한 구역만 남는 경우가 많아요.' },
+      { id: 'smallRegion', title: '두 칸짜리 구역', body: '두 칸 중 어디에 바둑알이 놓이든, 두 칸 모두와 맞닿는 칸에는 바둑알이 올 수 없어요. 세로로 긴 두 칸이면 양옆 네 칸이 ✕예요.' },
+    ] },
+    { id: 'shape', title: '구역 모양 기술', intro: '구역의 모양만 보고 주변 칸을 지우는 기술이에요.', techs: [
+      { id: 'lShape', title: 'ㄱ자 세 칸 구역', body: '세 칸 모두와 맞닿는 칸이 하나 있어요(금색). 거기에 바둑알을 놓으면 구역 전체가 지워지니, 그 칸은 ✕예요. 2×2 안에 들어가는 구역은 항상 이런 칸이 생겨요.' },
+      { id: 'blocker', title: '구역을 막는 칸', body: '어떤 칸에 바둑알을 놓았을 때 한 구역의 남은 칸이 전부 지워진다면, 그 칸은 ✕예요. 가로로 세 칸인 구역의 가운데 위·아래 칸이 대표적이에요.' },
+    ] },
+    { id: 'advanced', title: '고급 기술', intro: '막혔을 때 꺼내는 세기 기술이에요.', techs: [
+      { id: 'twoRows', title: '두 구역, 두 줄', body: '두 구역(빨강·노랑)이 가로줄 두 개 안에 모두 들어 있어요. 이 두 줄에는 바둑알이 두 개뿐인데, 두 구역이 하나씩 가져가야 해요. 그래서 두 줄의 다른 구역 칸은 모두 ✕예요. 세 구역·세 줄, 세로줄에서도 똑같이 쓸 수 있어요.' },
+    ] },
+  ],
+  mistakesTitle: '자주 하는 실수',
+  mistakes: [
+    '대각선을 잊기 — 바둑알은 모서리끼리도 붙으면 안 돼요.',
+    '바둑알부터 놓기 — 확실하지 않으면 ✕부터 지우세요. 틀린 바둑알 하나가 판 전체를 꼬이게 해요.',
+    '세로줄 확인을 빼먹기 — 가로줄에서 쓴 기술은 세로줄에서도 그대로 통해요.',
+    '구역 경계를 잘못 보기 — 굵은 선이 구역의 경계예요. 색이 비슷하면 굵은 선을 따라가 보세요.',
+  ],
+  tipsTitle: '빠르게 푸는 꿀팁',
+  tips: [
+    '가장 작은 구역부터 보세요. 칸이 적을수록 지울 칸이 많아요.',
+    '바둑알을 놓자마자 줄·세로줄·구역·주변 8칸을 ✕로 지우세요. 드래그하면 한 번에 그어져요.',
+    '한 줄에 갇힌 구역이 보이면 그 줄은 바로 정리돼요.',
+    '찡그린 돌이 보이면 그 돌이 다른 돌과 겹친 거예요. 되돌리기(Ctrl/⌘+Z)로 바로잡아요.',
+    '막히면 두 구역이 두 줄 안에 들어가는 곳이 없는지 세어 보세요.',
+  ],
+  ctaTitle: '이제 직접 풀어 볼까요?', ctaBody: '연습 6×6으로 감을 잡고, 10×10 챌린지에서 새 맵을 차지해 보세요. 남의 맵을 그 사람보다 빨리 풀면 뺏을 수도 있어요.', ctaPlay: '스타배틀 하러 가기',
+  faqTitle: '자주 묻는 질문',
+  faq: [
+    { q: '스타배틀은 어떤 퍼즐인가요?', a: '별을 놓는 논리 퍼즐 장르로, 세계 퍼즐 대회에서도 자주 나와요. 별 하나 버전은 \'퀸 퍼즐\'이라는 이름으로도 알려져 있어요. PUZZLTHINK에서는 별 대신 바둑알 캐릭터를 놓아요.' },
+    { q: '찍어야 하는 문제도 있나요?', a: '없어요. 모든 맵은 정답이 하나뿐인지 컴퓨터로 확인한 뒤에 나와요. 논리만으로 끝까지 풀 수 있어요.' },
+    { q: '챌린지 기록은 어떻게 매겨지나요?', a: '새로운 맵을 풀어 성공하면 그 맵의 주인이 돼요. 다른 사람이 내 기록보다 빨리 풀면 맵을 뺏겨요. 랭킹은 지금 가진 맵 개수로 정해져요.' },
+  ],
+};
+
+const STAR_EN: GuideCopy = {
+  metaTitle: 'Star Battle Guide — Rules and Solving Techniques | PUZZLTHINK',
+  metaDescription: 'New to Star Battle? One per row, column and region, no touching, then small regions, regions stuck in a row, two regions in two rows and more, explained with pictures.',
+  keywords: ['Star Battle', 'Star Battle guide', 'how to solve Star Battle', 'queens puzzle tips', 'Two Not Touch', 'logic puzzle'],
+  back: 'Back to Star Battle', eyebrow: 'STAR BATTLE GUIDE', title: 'Star Battle Guide', lead: 'Find where stones can\'t go first.',
+  intro: 'Star Battle asks for one stone in every row, column and region. Good solvers look for where a stone cannot go before where it can: as ✕ marks pile up, each stone is left with a single place. The six techniques below are enough to solve the 10×10 challenge without guessing.',
+  tocTitle: 'Contents', rulesTitle: 'Rules',
+  rules: [
+    'Place N stones on an N×N board divided into N coloured regions.',
+    'Every row, every column and every region holds exactly one stone.',
+    'Stones may not touch, horizontally, vertically or diagonally.',
+    'Cross out cells that cannot hold a stone. What is left is the answer.',
+  ],
+  principleTitle: 'Two rules in pictures',
+  principles: [
+    { title: 'One per row, column and region', body: 'A stone fills its row, its column and its region. The gold ✕ marks are the cells one stone rules out.' },
+    { title: 'Keep the 8 neighbours empty', body: 'Stones never touch, not even diagonally, so every stone rules out the 8 cells around it. The shape techniques build on this.' },
+  ],
+  sections: [
+    { id: 'basic', title: 'Basics', intro: 'The first patterns to look for on a new board.', techs: [
+      { id: 'confinedRow', title: 'A region inside one row', body: 'The red region lies within a single row, so its stone is in that row and the row\'s stone is taken. Every other cell of the row is ✕. The same works for columns.' },
+      { id: 'rowOneRegion', title: 'A row of one region', body: 'The other way round: if a row is all one region, the row\'s stone is that region\'s stone, so the region\'s cells outside the row are ✕. Crossing out often leaves a row with only one region.' },
+      { id: 'smallRegion', title: 'Two-cell regions', body: 'Wherever the stone goes, any cell touching both cells cannot hold a stone. For a vertical domino, the four cells beside it are ✕.' },
+    ] },
+    { id: 'shape', title: 'Shape techniques', intro: 'Rule out cells from a region\'s shape alone.', techs: [
+      { id: 'lShape', title: 'L-shaped three cells', body: 'One cell touches all three (gold). A stone there would wipe out the whole region, so it is ✕. Any region that fits in a 2×2 square has such a cell.' },
+      { id: 'blocker', title: 'Cells that block a region', body: 'If a stone on a cell would cross out every remaining cell of some region, that cell is ✕. The cells above and below the middle of a three-cell row are the classic case.' },
+    ] },
+    { id: 'advanced', title: 'Advanced', intro: 'A counting trick for when you are stuck.', techs: [
+      { id: 'twoRows', title: 'Two regions, two rows', body: 'Two regions (red and yellow) fit entirely inside two rows. Those rows hold only two stones and both regions need one, so every other cell in the two rows is ✕. It works for three regions in three rows, and for columns.' },
+    ] },
+  ],
+  mistakesTitle: 'Common mistakes',
+  mistakes: [
+    'Forgetting diagonals: stones may not touch corner to corner.',
+    'Placing stones first: when unsure, cross out instead. One wrong stone tangles the whole board.',
+    'Skipping the columns: every row technique works on columns too.',
+    'Misreading borders: thick lines mark regions. Follow them when colours look alike.',
+  ],
+  tipsTitle: 'Tips',
+  tips: [
+    'Start with the smallest region: fewer cells, more to cross out.',
+    'Right after placing a stone, ✕ its row, column, region and 8 neighbours. Drag to mark many at once.',
+    'A region stuck in one row clears that row immediately.',
+    'A worried stone overlaps another. Undo (Ctrl/⌘+Z) and fix it.',
+    'Stuck? Count: do two regions fit inside two rows somewhere?',
+  ],
+  ctaTitle: 'Ready to try?', ctaBody: 'Warm up on 6×6 practice, then claim new maps in the 10×10 challenge. Solve someone else\'s map faster than them and it becomes yours.', ctaPlay: 'Play Star Battle',
+  faqTitle: 'FAQ',
+  faq: [
+    { q: 'What is Star Battle?', a: 'A logic puzzle genre where you place stars, often seen at world puzzle championships. The one-star version is also known as the queens puzzle. Here you place our stone characters instead.' },
+    { q: 'Do I ever need to guess?', a: 'No. Every board is checked by computer to have exactly one answer, so logic alone gets you to the end.' },
+    { q: 'How does the challenge ranking work?', a: 'Clear a new map and it is yours. If someone solves it faster than your time, they take it. The ranking counts the maps you own.' },
+  ],
+};
+
 export const GUIDE_COPY: Record<LogicGameId, Record<'ko' | 'en', GuideCopy>> = {
   masyu: { ko: MASYU_KO, en: MASYU_EN },
   nonogram: { ko: NONO_KO, en: NONO_EN },
+  starbattle: { ko: STAR_KO, en: STAR_EN },
 };

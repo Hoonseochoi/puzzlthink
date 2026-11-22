@@ -15,6 +15,7 @@ import { roomBoard } from '@/lib/logicRoom';
 import { reportGame } from '@/lib/stats';
 import MasyuBoard from './MasyuBoard';
 import NonogramBoard, { type NonoTool } from './NonogramBoard';
+import StarBoard from './StarBoard';
 
 const COLORS = ['#ff4d5e', '#3f8cff', '#3fcf6a', '#ffd23f'];
 
@@ -61,7 +62,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
 
   const copy = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1500); } catch { /* blocked */ } };
   const share = async () => { if (navigator.share) { try { await navigator.share({ title: name, url: shareUrl }); return; } catch { return; } } copy(); };
-  const shell = { ...accentVars(spec.accent, spec.ink), backgroundImage: fog(game === 'masyu' ? '255, 77, 94' : '63, 207, 106') };
+  const shell = { ...accentVars(spec.accent, spec.ink), backgroundImage: fog(spec.fog) };
 
   if (!state) {
     return <div className={SHELL} style={shell}>
@@ -139,7 +140,9 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
         </div> : board && <>
           {board.kind === 'masyu'
             ? <MasyuBoard board={board} marks={showAnswer ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} />
-            : <NonogramBoard board={board} marks={marks} tool={tool} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay} showAnswer={showAnswer} solvedGlow={state.phase === 'finished' && winner === mySeat} />}
+            : board.kind === 'nonogram'
+              ? <NonogramBoard board={board} marks={marks} tool={tool} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay} showAnswer={showAnswer} solvedGlow={state.phase === 'finished' && winner === mySeat} />
+              : <StarBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} showAnswer={showAnswer} solved={state.phase === 'finished' && winner === mySeat} />}
           {iPlay ? (
             <div className="mx-auto mt-3 max-w-[560px] space-y-2">
               <div className={`grid gap-1.5 ${game === 'nonogram' ? 'grid-cols-4' : 'grid-cols-2'}`}>
@@ -173,7 +176,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
               <span className="min-w-0 flex-1 truncate text-sm font-black">{seatName(seat)}{mySeat === seat ? ` (${t('me')})` : ''}</span>
               {seat === 0 && <Crown size={12} className="text-[#f2c14e]" />}
               {state.phase !== 'lobby' && <span className="shrink-0 font-mono text-[11px] text-white/55">
-                {done !== null ? <span className="flex items-center gap-1 font-black text-[#7ee2ae]"><Check size={12} />{formatClock(done)}</span> : out ? t('out') : t(game === 'masyu' ? 'linesN' : 'cellsN', { n: state.progress[seat] ?? 0 })}
+                {done !== null ? <span className="flex items-center gap-1 font-black text-[#7ee2ae]"><Check size={12} />{formatClock(done)}</span> : out ? t('out') : t(spec.progress, { n: state.progress[seat] ?? 0 })}
               </span>}
             </div>;
           })}
