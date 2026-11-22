@@ -5946,6 +5946,7 @@
       "○ White: straight through, turning just before or after.",
       "One answer only: draw what is certain."
     ],
+    "colorlinkFillAll": "Fill every cell to finish · {count} empty",
     "rules_colorlink": [
       "Join the two stones of each colour with one line.",
       "Lines never overlap or branch.",

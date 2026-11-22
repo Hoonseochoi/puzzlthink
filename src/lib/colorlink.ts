@@ -224,3 +224,31 @@ export function generate(n: number, seed: number): { ends: number[]; answer: num
 
 /** The answer as a "0/1" string (one per edge), the form the server stores. */
 export const encodeEdges = (edges: ArrayLike<number>) => Array.from(edges, (v) => (v === 1 ? '1' : '0')).join('');
+
+/**
+ * When every pair is already joined by a clean line but some cells are still off any line, the cells left
+ * (so the board can point them out: the puzzle only ends once every cell is filled). Otherwise null.
+ */
+export function unfilledAfterLinking(p: ColorLinkPuzzle, marks: ArrayLike<number>): number[] | null {
+  const n = p.size, { ends } = geometry(n);
+  const adj: number[][] = Array.from({ length: n * n }, () => []);
+  for (let e = 0; e < ends.length; e++) if (marks[e] === 1) { adj[ends[e][0]].push(ends[e][1]); adj[ends[e][1]].push(ends[e][0]); }
+  const { color, broken } = paint(p, marks);
+  if (broken.size) return null;
+  for (let s = 0; s < n * n; s++) {
+    const k = p.ends[s];
+    if (!k) continue;
+    if (adj[s].length !== 1) return null;
+    // Follow the line; it must end on the other stone of the same colour.
+    let prev = s, cur = adj[s][0];
+    while (!p.ends[cur]) {
+      const next = adj[cur].filter((x) => x !== prev);
+      if (next.length !== 1) return null;
+      prev = cur; cur = next[0];
+    }
+    if (p.ends[cur] !== k || cur === s) return null;
+  }
+  const empty: number[] = [];
+  for (let i = 0; i < n * n; i++) if (!color[i]) empty.push(i);
+  return empty.length ? empty : null;
+}
