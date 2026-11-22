@@ -9,6 +9,9 @@ export const dynamic = 'force-static';
 const STATS_ID: Record<string, GameId> = Object.fromEntries((Object.keys(CERT_GAMES) as GameId[]).map((id) => [CERT_GAMES[id].href, id]));
 const GUIDES: [string, string][] = [
   ['/slitherlink/guide', '슬리더링크 공략 (Slitherlink guide)'],
+  ['/binairo/guide', '비나이로 공략 (Binairo guide)'],
+  ['/one-stroke/guide', '한붓길 공략 (One Stroke guide)'],
+  ['/color-link/guide', '컬러 잇기 공략 (Color Link guide)'],
   ['/star-battle/guide', '스타배틀 공략 (Star Battle guide)'],
   ['/masyu/guide', '마슈 공략 (Masyu guide)'],
   ['/nonogram/guide', '노노그램 공략 (Nonogram guide)'],

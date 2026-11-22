@@ -45,6 +45,22 @@ export const FIGURES: Record<string, Figure> = {
   lShape: { kind: 'star', regions: ['bbcc', 'baac', 'badd', 'bbdd'], fresh: [[2, 2]] },
   blocker: { kind: 'star', regions: ['bbbbb', 'bbbcc', 'daaac', 'ddddc'], fresh: [[1, 2], [3, 2]] },
   twoRows: { kind: 'star', regions: ['bbbbdd', 'baaccd', 'bbaccd', 'bbbddd'], fresh: [[1, 0], [2, 0], [2, 1], [1, 5], [2, 5]] },
+  // 비나이로
+  binPair: { kind: 'bin', rows: ['wbbw..'], fresh: [[0, 0], [0, 3]] },
+  binGap: { kind: 'bin', rows: ['bwb...'], fresh: [[0, 1]] },
+  binCount: { kind: 'bin', rows: ['bwbwbw'], fresh: [[0, 3], [0, 5]] },
+  binSign: { kind: 'bin', rows: ['bb.wb.'], fresh: [[0, 1], [0, 4]], signs: [[[0, 0], [0, 1], true], [[0, 3], [0, 4], false]] },
+  binEdge: { kind: 'bin', rows: ['b', 'w', 'w', 'b', 'b', 'w'], fresh: [[3, 0], [5, 0]] },
+  // 한붓길
+  pathEnds: { kind: 'path', rows: 3, cols: 4, numbers: [[1, 0, 1]], fresh: [[1, 0, 0, 0], [0, 0, 0, 1]] },
+  pathCorner: { kind: 'path', rows: 3, cols: 4, numbers: [[2, 3, 1]], fresh: [[1, 0, 0, 0], [0, 0, 0, 1]] },
+  pathForced: { kind: 'path', rows: 3, cols: 4, numbers: [[0, 0, 1]], lines: [[0, 0, 0, 1], [0, 1, 0, 2], [0, 2, 1, 2], [1, 2, 1, 1]], fresh: [[1, 1, 1, 0], [1, 0, 2, 0]] },
+  pathOrder: { kind: 'path', rows: 3, cols: 4, numbers: [[0, 0, 1], [0, 1, 3], [2, 0, 2]], fresh: [[0, 0, 1, 0]], crosses: [[0, 0, 0, 1]] },
+  pathSplit: { kind: 'path', rows: 3, cols: 4, numbers: [[0, 0, 1]], lines: [[0, 0, 0, 1], [0, 1, 1, 1]], crosses: [[1, 1, 2, 1]] },
+  // 컬러 잇기
+  linkEdge: { kind: 'link', rows: 3, cols: 4, ends: [[0, 0, 1], [0, 3, 1], [1, 1, 2], [2, 3, 2]], fresh: [[[0, 0, 0, 1], 1], [[0, 1, 0, 2], 1], [[0, 2, 0, 3], 1]] },
+  linkCorner: { kind: 'link', rows: 3, cols: 4, ends: [[0, 1, 1], [2, 2, 1], [1, 0, 2], [2, 3, 2]], fresh: [[[1, 0, 2, 0], 2], [[2, 0, 2, 1], 2]] },
+  linkFill: { kind: 'link', rows: 2, cols: 3, ends: [[0, 0, 1], [1, 0, 1]], fresh: [[[0, 0, 0, 1], 1], [[0, 1, 0, 2], 1], [[0, 2, 1, 2], 1], [[1, 2, 1, 1], 1], [[1, 1, 1, 0], 1]] },
 };
 
 // ── Copy ──
@@ -388,8 +404,313 @@ const STAR_EN: GuideCopy = {
   ],
 };
 
+const BIN_KO: GuideCopy = {
+  metaTitle: '비나이로(Binairo) 공략 — 흑돌·백돌 배치 규칙과 풀이 기술 | PUZZLTHINK',
+  metaDescription: '비나이로(타쿠주) 처음이라면? 세 개 연속 금지, 반반 규칙, =·× 표시 읽는 법, 가장자리 기술까지 흑돌·백돌 그림으로 정리했어요.',
+  keywords: ['비나이로', 'Binairo', '타쿠주', 'Takuzu', '비나이로 공략', '흑백 퍼즐', '0 1 퍼즐', '논리 퍼즐'],
+  back: '비나이로로 돌아가기', eyebrow: 'BINAIRO GUIDE', title: '비나이로 공략', lead: '셋은 안 되고, 반은 반.',
+  intro: '비나이로는 판을 흑돌과 백돌로 채우는 퍼즐이에요. 같은 색이 세 개 연속되면 안 되고, 줄마다 흑과 백이 반씩이어야 해요. 규칙은 두 줄이지만 몇 가지 패턴만 알면 한 칸씩 저절로 정해져요. PUZZLTHINK의 맵은 찍지 않고 논리로만 끝까지 풀리는 것만 내보내요.',
+  tocTitle: '목차', rulesTitle: '기본 규칙',
+  rules: [
+    '모든 칸을 흑돌 또는 백돌로 채워요. 처음부터 놓인 돌(파란 점)은 바꿀 수 없어요.',
+    '가로·세로로 같은 색이 세 개 이상 연속되면 안 돼요.',
+    '각 가로줄과 세로줄에는 흑돌과 백돌이 같은 개수만큼 들어가요.',
+    '두 칸 사이의 = 는 같은 색, × 는 다른 색이라는 뜻이에요.',
+  ],
+  principleTitle: '두 가지 원리',
+  principles: [
+    { title: '연속 세 개 금지', body: '같은 색 두 개가 붙어 있거나 한 칸 띄어 있으면, 그 옆과 사이는 반대 색이 돼요. 가장 자주 쓰는 기술이에요.' },
+    { title: '반반 맞추기', body: '줄의 한 색이 이미 반을 채웠다면 나머지 칸은 모두 반대 색이에요. 줄을 셀 때는 남은 칸 수도 같이 보세요.' },
+  ],
+  sections: [
+    { id: 'basic', title: '기본 기술', intro: '판을 보자마자 찾는 패턴이에요.', techs: [
+      { id: 'binPair', title: '붙은 두 개의 양옆', body: '흑돌 두 개가 붙어 있으면 그 양옆은 백돌이에요. 흑이 셋 이어지면 안 되니까요.' },
+      { id: 'binGap', title: '한 칸 띈 두 개의 사이', body: '흑·빈칸·흑이면 가운데는 백돌이에요. 흑을 넣으면 세 개가 되니까요.' },
+      { id: 'binCount', title: '반을 채운 줄', body: '6칸 줄에 흑돌이 3개면 흑은 다 찼어요. 나머지 빈칸은 모두 백돌이에요.' },
+    ] },
+    { id: 'signs', title: '표시 읽기', intro: '= 와 × 는 두 칸을 묶어 주는 힌트예요.', techs: [
+      { id: 'binSign', title: '= 와 ×', body: '한쪽 색을 알면 반대쪽도 바로 정해져요. = 면 같은 색, × 면 다른 색이에요. 두 칸 모두 비어 있어도 "둘이 같다/다르다"는 정보로 줄의 개수를 셀 때 쓸 수 있어요.' },
+    ] },
+    { id: 'advanced', title: '중급 기술', intro: '기본 기술이 막히면 줄 전체의 개수를 따져 보세요.', techs: [
+      { id: 'binEdge', title: '남은 두 칸 나누기', body: '세로줄에 흑 2개·백 2개가 있고 두 칸이 남았다면 흑과 백이 하나씩 들어가요. 백백 바로 다음 칸에 백을 넣으면 세 개가 되니 그 칸은 흑, 남은 칸은 백이에요.' },
+    ] },
+  ],
+  mistakesTitle: '자주 하는 실수',
+  mistakes: [
+    '세로줄 확인을 빼먹기 — 가로줄만 맞추다 보면 세로에서 세 개가 생겨요.',
+    '반반 규칙을 잊기 — 세 개 연속만 피하면 끝이 아니에요. 줄마다 개수가 같아야 해요.',
+    '감으로 채우기 — 틀린 돌 하나가 줄줄이 모순을 만들어요. 애매하면 되돌리기!',
+  ],
+  tipsTitle: '빠르게 푸는 꿀팁',
+  tips: [
+    '붙은 두 개와 한 칸 띈 두 개부터 훑어요. 판의 절반은 이걸로 풀려요.',
+    '탭할 때마다 흑 → 백 → 지우기 순서로 바뀌어요.',
+    '찡그린 돌이 보이면 세 개 연속이거나 줄의 개수가 넘친 거예요.',
+    '줄을 하나 다 채우면 그 줄과 엇갈리는 줄들을 다시 보세요.',
+  ],
+  ctaTitle: '이제 직접 풀어 볼까요?', ctaBody: '연습 6×6으로 감을 잡고, 8×8 챌린지에서 새 맵을 차지해 보세요. 남의 맵을 그 사람보다 빨리 풀면 뺏을 수도 있어요.', ctaPlay: '비나이로 하러 가기',
+  faqTitle: '자주 묻는 질문',
+  faq: [
+    { q: '비나이로와 타쿠주는 같은 퍼즐인가요?', a: '네. 비나이로, 타쿠주, 바이너리 퍼즐은 모두 같은 규칙의 퍼즐을 부르는 이름이에요. PUZZLTHINK에서는 0과 1 대신 흑돌과 백돌을 놓아요.' },
+    { q: '찍어야 하는 문제도 있나요?', a: '없어요. 모든 맵은 위의 기술만으로 끝까지 풀리는 것만 골라 내보내요. 정답도 하나뿐이에요.' },
+    { q: '챌린지 기록은 어떻게 매겨지나요?', a: '새로운 맵을 풀면 그 맵의 주인이 되고, 다른 사람이 더 빨리 풀면 맵을 뺏겨요. 랭킹은 지금 가진 맵 개수로 정해져요.' },
+  ],
+};
+
+const BIN_EN: GuideCopy = {
+  metaTitle: 'Binairo Guide — Black & White Stone Rules and Techniques | PUZZLTHINK',
+  metaDescription: 'New to Binairo (Takuzu)? No three in a row, half and half, reading = and × signs and more, explained with stone pictures.',
+  keywords: ['Binairo', 'Takuzu', 'binary puzzle', 'Binairo guide', 'how to solve Takuzu', 'logic puzzle'],
+  back: 'Back to Binairo', eyebrow: 'BINAIRO GUIDE', title: 'Binairo Guide', lead: 'Never three, always half.',
+  intro: 'Binairo fills a board with black and white stones: never three of a colour in a row, and every line half black, half white. Two rules, and a few patterns decide the cells one by one. Every board here is solvable by logic alone.',
+  tocTitle: 'Contents', rulesTitle: 'Rules',
+  rules: [
+    'Fill every cell with a black or white stone. Starting stones (blue dot) cannot change.',
+    'No three of the same colour in a row, across or down.',
+    'Every row and column holds as many black as white stones.',
+    'An = between two cells means the same colour; × means different colours.',
+  ],
+  principleTitle: 'Two principles',
+  principles: [
+    { title: 'Never three', body: 'Two of a colour side by side, or one cell apart, force the opposite colour next to them or between them.' },
+    { title: 'Half and half', body: 'Once a line has half of one colour, every empty cell in it is the other colour.' },
+  ],
+  sections: [
+    { id: 'basic', title: 'Basics', intro: 'Patterns to spot first.', techs: [
+      { id: 'binPair', title: 'Around a pair', body: 'Two black stones side by side: both neighbours are white, or there would be three black.' },
+      { id: 'binGap', title: 'Between two', body: 'Black, empty, black: the middle is white.' },
+      { id: 'binCount', title: 'Half full', body: 'Three black stones in a line of six: black is done, every empty cell is white.' },
+    ] },
+    { id: 'signs', title: 'Reading the signs', intro: '= and × tie two cells together.', techs: [
+      { id: 'binSign', title: '= and ×', body: 'Know one side and the other follows: = same colour, × different. Even with both empty, the pair still counts as one of each (×) or two of one colour (=) when you count a line.' },
+    ] },
+    { id: 'advanced', title: 'Next steps', intro: 'When the basics stall, count whole lines.', techs: [
+      { id: 'binEdge', title: 'Splitting the last two', body: 'A column with two black, two white and two cells left takes one of each. White right after two whites would make three, so that cell is black and the other one white.' },
+    ] },
+  ],
+  mistakesTitle: 'Common mistakes',
+  mistakes: [
+    'Checking only rows: three in a column is just as wrong.',
+    'Forgetting the counts: avoiding three is not enough, each line must be half and half.',
+    'Guessing: one wrong stone causes a chain of contradictions. Undo when unsure.',
+  ],
+  tipsTitle: 'Tips',
+  tips: [
+    'Scan for pairs and gaps first: they solve half the board.',
+    'Each tap cycles black → white → empty.',
+    'A worried stone is part of three in a row or an over-full line.',
+    'Finished a line? Look again at the lines that cross it.',
+  ],
+  ctaTitle: 'Ready to try?', ctaBody: 'Warm up on 6×6 practice, then claim new maps in the 8×8 challenge. Solve someone else\'s map faster than them and it becomes yours.', ctaPlay: 'Play Binairo',
+  faqTitle: 'FAQ',
+  faq: [
+    { q: 'Are Binairo and Takuzu the same?', a: 'Yes. Binairo, Takuzu and binary puzzles are names for the same rules. Here you place black and white stones instead of 0 and 1.' },
+    { q: 'Do I ever need to guess?', a: 'No. Every board is solvable with the techniques above, and has exactly one answer.' },
+    { q: 'How does the challenge ranking work?', a: 'Clear a new map and it is yours. If someone solves it faster than your time, they take it. The ranking counts the maps you own.' },
+  ],
+};
+
+const PATH_KO: GuideCopy = {
+  metaTitle: '한붓길 공략 — 숫자 순서대로 모든 칸 지나기 풀이 기술 | PUZZLTHINK',
+  metaDescription: '한붓길(숫자 한붓그리기) 처음이라면? 시작과 끝, 모서리, 막다른 칸, 숫자 순서, 판 쪼개짐 금지까지 그림으로 정리했어요.',
+  keywords: ['한붓길', '한붓그리기 퍼즐', '숫자 길 퍼즐', '모든 칸 지나기', '경로 퍼즐', '논리 퍼즐'],
+  back: '한붓길로 돌아가기', eyebrow: 'ONE STROKE GUIDE', title: '한붓길 공략', lead: '1부터 끝까지, 모든 칸을 한 번씩.',
+  intro: '한붓길은 1에서 출발해 숫자를 차례대로 지나 마지막 숫자에서 끝나는 선 하나를 그리는 퍼즐이에요. 선은 모든 칸을 딱 한 번씩 지나야 해요. 손가락으로 쭉 긋는 맛이 있지만, 막다른 칸 하나 때문에 막히기 쉬워요. 아래 기술이면 7×7 챌린지도 끝까지 그릴 수 있어요.',
+  tocTitle: '목차', rulesTitle: '기본 규칙',
+  rules: [
+    '1이 적힌 돌에서 시작해, 가로·세로로만 움직이며 선 하나를 그려요.',
+    '숫자 돌은 2, 3, 4… 순서대로 지나야 하고, 마지막 숫자에서 끝나요.',
+    '모든 칸을 정확히 한 번씩 지나야 해요. 갈림길이나 교차는 안 돼요.',
+  ],
+  principleTitle: '두 가지 원리',
+  principles: [
+    { title: '모든 칸은 들어오고 나가야 해요', body: '시작과 끝을 뺀 모든 칸은 선이 들어왔다가 나가요. 그래서 열린 면이 두 개뿐인 칸은 그 두 면으로 바로 정해져요.' },
+    { title: '숫자는 순서표예요', body: '선은 다음 숫자보다 큰 숫자를 먼저 밟을 수 없어요. 숫자 사이의 거리와 남은 칸 수를 함께 보세요.' },
+  ],
+  sections: [
+    { id: 'basic', title: '기본 기술', intro: '처음 볼 때 확정되는 곳이에요.', techs: [
+      { id: 'pathEnds', title: '1 옆의 모서리', body: '모서리 칸은 이웃이 둘뿐이라 선이 그 둘을 모두 써서 지나가야 해요. 1이 모서리 바로 옆이면, 1에서 모서리로 들어가 꺾어 나가는 길이 정해져요.' },
+      { id: 'pathCorner', title: '모서리 칸', body: '모서리 칸은 열린 면이 두 개뿐이에요. 시작이나 끝이 아니라면 그 두 면으로 반드시 꺾여 지나가요.' },
+    ] },
+    { id: 'middle', title: '중급 기술', intro: '선이 길어질수록 남은 칸의 모양이 중요해져요.', techs: [
+      { id: 'pathForced', title: '막다른 칸 피하기', body: '선이 지나가면서 어떤 칸의 열린 면이 두 개만 남으면, 그 칸은 그 두 면으로 지나가야 해요. 지금 안 들어가면 영영 못 들어가요.' },
+      { id: 'pathOrder', title: '숫자 순서 지키기', body: '1 다음은 2예요. 3을 먼저 밟는 길은 막히고(✕), 2로 가는 길이 정해져요.' },
+      { id: 'pathSplit', title: '판을 두 동강 내지 않기', body: '여기서 아래로 내려가면 왼쪽 아래 두 칸이 나머지와 끊겨 다시 갈 수 없어요(✕). 남은 칸이 한 덩어리로 이어지도록 그리세요.' },
+    ] },
+  ],
+  mistakesTitle: '자주 하는 실수',
+  mistakes: [
+    '구석을 남겨 두기 — 나중에 들어갈 길이 없어져요. 구석과 벽 쪽 칸부터 채우세요.',
+    '숫자만 이으려고 하기 — 숫자를 다 지나도 빈칸이 남으면 정답이 아니에요.',
+    '큰 숫자를 먼저 밟기 — 순서를 어긴 숫자에는 빨간 테두리가 생겨요.',
+  ],
+  tipsTitle: '빠르게 푸는 꿀팁',
+  tips: [
+    '칸에서 칸으로 드래그하면 선이 쭉 그려져요. 선 위에서 시작하면 지우개가 돼요.',
+    '1에서 끊김 없이 이어진 선만 진하게 보여요. 떨어진 조각은 흐리게 보여요.',
+    '두 칸 사이를 탭하면 선 → ✕ → 지우기. 확실히 안 가는 곳은 ✕로 막아 두세요.',
+    '막히면 열린 면이 두 개뿐인 칸을 찾아보세요.',
+  ],
+  ctaTitle: '이제 직접 그려 볼까요?', ctaBody: '연습 5×5로 감을 잡고, 7×7 챌린지에서 새 맵을 차지해 보세요. 남의 맵을 그 사람보다 빨리 풀면 뺏을 수도 있어요.', ctaPlay: '한붓길 하러 가기',
+  faqTitle: '자주 묻는 질문',
+  faq: [
+    { q: '한붓길은 어떤 퍼즐인가요?', a: '숫자 순서대로 모든 칸을 한 번씩 지나는 한붓그리기 퍼즐이에요. 요즘 매일 푸는 짧은 퍼즐로 인기가 많은 장르예요.' },
+    { q: '정답이 여러 개일 수도 있나요?', a: '아니요. 모든 맵은 컴퓨터로 정답 길이 하나뿐인지 확인한 뒤에 나와요.' },
+    { q: '챌린지 기록은 어떻게 매겨지나요?', a: '새로운 맵을 풀면 그 맵의 주인이 되고, 다른 사람이 더 빨리 풀면 맵을 뺏겨요. 랭킹은 지금 가진 맵 개수로 정해져요.' },
+  ],
+};
+
+const PATH_EN: GuideCopy = {
+  metaTitle: 'One Stroke Guide — Visit Every Cell in Number Order | PUZZLTHINK',
+  metaDescription: 'New to number path puzzles? Start and end, corners, dead ends, number order and keeping the board in one piece, explained with pictures.',
+  keywords: ['One Stroke', 'number path puzzle', 'Hamiltonian path puzzle', 'visit every cell', 'path puzzle', 'logic puzzle'],
+  back: 'Back to One Stroke', eyebrow: 'ONE STROKE GUIDE', title: 'One Stroke Guide', lead: 'From 1 to the end, every cell once.',
+  intro: 'Draw one line from 1 through the numbers in order, ending on the last number, and pass every cell exactly once. Drawing feels great, but a single dead-end cell can trap you. These techniques get you through the 7×7 challenge.',
+  tocTitle: 'Contents', rulesTitle: 'Rules',
+  rules: [
+    'Start on stone 1 and draw one line, moving across or down only.',
+    'Pass the numbered stones in order (2, 3, 4…) and end on the last number.',
+    'Visit every cell exactly once. No branches or crossings.',
+  ],
+  principleTitle: 'Two principles',
+  principles: [
+    { title: 'Every cell is entered and left', body: 'Apart from the start and the end, the line enters and leaves every cell, so a cell with only two open sides uses both.' },
+    { title: 'Numbers are a schedule', body: 'The line can never step on a later number before the next one. Compare distances with the cells left.' },
+  ],
+  sections: [
+    { id: 'basic', title: 'Basics', intro: 'What is settled at first sight.', techs: [
+      { id: 'pathEnds', title: 'A corner next to 1', body: 'A corner has only two neighbours, and the line must use both. When 1 sits next to a corner, the line goes from 1 into the corner and turns out of it.' },
+      { id: 'pathCorner', title: 'Corner cells', body: 'A corner has only two open sides. Unless it is the start or the end, the line turns through both.' },
+    ] },
+    { id: 'middle', title: 'Next steps', intro: 'As the line grows, the shape of what is left matters.', techs: [
+      { id: 'pathForced', title: 'Avoid dead ends', body: 'When a cell is left with only two open sides, the line must pass through both now, or never.' },
+      { id: 'pathOrder', title: 'Keep the order', body: 'After 1 comes 2. The way that reaches 3 first is closed (✕), which fixes the way to 2.' },
+      { id: 'pathSplit', title: 'Don\'t cut the board in two', body: 'Going down here would cut the two bottom-left cells off from the rest for good (✕). Keep the empty cells in one piece.' },
+    ] },
+  ],
+  mistakesTitle: 'Common mistakes',
+  mistakes: [
+    'Leaving corners for later: there will be no way in. Fill corners and walls early.',
+    'Only joining numbers: empty cells left over mean it is not solved.',
+    'Stepping on a later number: it gets a red ring.',
+  ],
+  tipsTitle: 'Tips',
+  tips: [
+    'Drag from cell to cell to draw; a drag starting on a line erases.',
+    'Only the unbroken run from 1 is drawn bright; loose pieces are faded.',
+    'Tap between two cells to cycle line → ✕ → empty, and block what is certain.',
+    'Stuck? Look for cells with only two open sides.',
+  ],
+  ctaTitle: 'Ready to draw?', ctaBody: 'Warm up on 5×5 practice, then claim new maps in the 7×7 challenge. Solve someone else\'s map faster than them and it becomes yours.', ctaPlay: 'Play One Stroke',
+  faqTitle: 'FAQ',
+  faq: [
+    { q: 'What kind of puzzle is One Stroke?', a: 'A number path puzzle: one line visiting every cell once, passing the numbers in order. It is a popular daily puzzle genre.' },
+    { q: 'Can a board have more than one answer?', a: 'No. Every board is checked by computer to have exactly one route.' },
+    { q: 'How does the challenge ranking work?', a: 'Clear a new map and it is yours. If someone solves it faster than your time, they take it. The ranking counts the maps you own.' },
+  ],
+};
+
+const LINK_KO: GuideCopy = {
+  metaTitle: '컬러 잇기 공략 — 같은 색 돌 잇기 퍼즐 풀이 기술 | PUZZLTHINK',
+  metaDescription: '컬러 잇기(넘버링크·아루코네) 처음이라면? 벽 따라가기, 모서리, 빈칸 남기지 않기, 길 막지 않기까지 그림으로 정리했어요.',
+  keywords: ['컬러 잇기', '색 잇기 퍼즐', '넘버링크', '아루코네', '선 잇기 퍼즐', '같은 색 잇기', '논리 퍼즐'],
+  back: '컬러 잇기로 돌아가기', eyebrow: 'COLOR LINK GUIDE', title: '컬러 잇기 공략', lead: '같은 색끼리, 빈칸 없이.',
+  intro: '컬러 잇기는 같은 색 바둑알 두 개를 선으로 잇는 퍼즐이에요. 선은 서로 겹치거나 갈라지면 안 되고, 모든 선을 다 그렸을 때 판이 빈칸 없이 꽉 차야 해요. 남녀노소 바로 이해하는 규칙이지만, 판을 꽉 채우는 조건 덕분에 길이 하나로 정해져요.',
+  tocTitle: '목차', rulesTitle: '기본 규칙',
+  rules: [
+    '같은 색 바둑알 두 개를 선 하나로 이어요. 선은 칸의 가운데를 가로·세로로 지나요.',
+    '선끼리 겹치거나 교차하거나 갈라지면 안 돼요.',
+    '모든 칸이 어떤 선이든 하나에 채워져야 해요.',
+  ],
+  principleTitle: '두 가지 원리',
+  principles: [
+    { title: '꽉 채우기', body: '빈칸이 남으면 정답이 아니에요. 그래서 바깥쪽 칸, 구석 칸을 누가 채울지부터 생각하면 길이 정해져요.' },
+    { title: '길 막지 않기', body: '어떤 선을 그었을 때 다른 색 두 돌이 서로 못 만나게 되면 그 선은 틀린 거예요.' },
+  ],
+  sections: [
+    { id: 'basic', title: '기본 기술', intro: '판의 가장자리에서 시작해요.', techs: [
+      { id: 'linkEdge', title: '벽을 따라가는 짝', body: '같은 색 두 돌이 같은 벽에 붙어 있고 그 사이를 막는 게 없으면, 보통 벽을 따라 바로 이어져요.' },
+      { id: 'linkCorner', title: '모서리 칸', body: '모서리 칸은 이웃이 둘뿐이에요. 돌이 없는 모서리는 그 두 이웃을 지나는 선이 꺾여서 채워요.' },
+    ] },
+    { id: 'middle', title: '중급 기술', intro: '빈칸이 남지 않는지 늘 확인하세요.', techs: [
+      { id: 'linkFill', title: '바로 잇지 말고 돌아가기', body: '두 돌이 붙어 있어도 바로 이으면 나머지 칸이 비어요. 판을 꽉 채우려면 빙 돌아가는 길이 정답이에요. 다른 색이 채울 수 없는 칸은 가까운 색이 돌아서 채워야 해요.' },
+    ] },
+  ],
+  mistakesTitle: '자주 하는 실수',
+  mistakes: [
+    '가장 짧은 길로만 잇기 — 빈칸이 남으면 정답이 아니에요. 돌아가는 길이 정답일 때가 많아요.',
+    '한 색만 계속 그리기 — 다른 짝의 길을 막기 쉬워요. 여러 색을 번갈아 보세요.',
+    '구석을 비워 두기 — 나중에 채울 선이 없어져요.',
+  ],
+  tipsTitle: '빠르게 푸는 꿀팁',
+  tips: [
+    '돌에서 시작해 칸에서 칸으로 드래그하면 그 색 선이 그려져요. 선 위에서 시작하면 지우개가 돼요.',
+    '선이 채운 칸은 그 색으로 옅게 칠해져서 빈칸이 한눈에 보여요.',
+    '찡그린 돌은 선이 갈라졌거나 다른 색과 이어진 거예요.',
+    '막히면 구석과 벽 쪽 빈칸을 누가 채울 수 있는지 따져 보세요.',
+  ],
+  ctaTitle: '이제 직접 이어 볼까요?', ctaBody: '연습 5×5로 감을 잡고, 7×7 챌린지에서 새 맵을 차지해 보세요. 남의 맵을 그 사람보다 빨리 풀면 뺏을 수도 있어요.', ctaPlay: '컬러 잇기 하러 가기',
+  faqTitle: '자주 묻는 질문',
+  faq: [
+    { q: '컬러 잇기는 어떤 퍼즐인가요?', a: '넘버링크·아루코네로 알려진 선 잇기 퍼즐을 색깔 바둑알로 옮긴 거예요. 같은 색끼리 잇고 판을 꽉 채우면 돼요.' },
+    { q: '정답이 여러 개일 수도 있나요?', a: '아니요. 판을 꽉 채우는 방법이 딱 하나인 맵만 컴퓨터로 확인해서 내보내요.' },
+    { q: '챌린지 기록은 어떻게 매겨지나요?', a: '새로운 맵을 풀면 그 맵의 주인이 되고, 다른 사람이 더 빨리 풀면 맵을 뺏겨요. 랭킹은 지금 가진 맵 개수로 정해져요.' },
+  ],
+};
+
+const LINK_EN: GuideCopy = {
+  metaTitle: 'Color Link Guide — Connect the Colour Pairs, Fill Every Cell | PUZZLTHINK',
+  metaDescription: 'New to Numberlink (Arukone)? Pairs along walls, corners, leaving no empty cell and not blocking other pairs, explained with pictures.',
+  keywords: ['Color Link', 'Numberlink', 'Arukone', 'connect the dots puzzle', 'colour pairs puzzle', 'logic puzzle'],
+  back: 'Back to Color Link', eyebrow: 'COLOR LINK GUIDE', title: 'Color Link Guide', lead: 'Same colours together, no cell left empty.',
+  intro: 'Join each pair of same-coloured stones with a line. Lines never cross or branch, and together they must fill every cell. Anyone gets the rules at once, and the fill rule is what makes each board have exactly one answer.',
+  tocTitle: 'Contents', rulesTitle: 'Rules',
+  rules: [
+    'Join the two stones of each colour with one line through cell centers, across or down.',
+    'Lines never overlap, cross or branch.',
+    'Every cell must be covered by some line.',
+  ],
+  principleTitle: 'Two principles',
+  principles: [
+    { title: 'Fill everything', body: 'Empty cells mean it is not solved, so ask who can fill the outer and corner cells first.' },
+    { title: 'Don\'t block', body: 'A line that stops another pair from ever meeting is wrong.' },
+  ],
+  sections: [
+    { id: 'basic', title: 'Basics', intro: 'Start from the edges.', techs: [
+      { id: 'linkEdge', title: 'Pairs along a wall', body: 'Two stones of a colour on the same wall with nothing between them usually join straight along it.' },
+      { id: 'linkCorner', title: 'Corner cells', body: 'A corner has only two neighbours. An empty corner is filled by a line turning through both.' },
+    ] },
+    { id: 'middle', title: 'Next steps', intro: 'Always check that no cell is left empty.', techs: [
+      { id: 'linkFill', title: 'Go around, not across', body: 'Even when two stones touch, joining them directly leaves cells empty. To fill the board the line goes the long way round. Cells no other colour can reach must be filled by the nearest one going around.' },
+    ] },
+  ],
+  mistakesTitle: 'Common mistakes',
+  mistakes: [
+    'Always taking the shortest way: empty cells mean it is wrong; the long way is often right.',
+    'Drawing one colour at a time: it is easy to block another pair. Look at several at once.',
+    'Leaving corners empty: no line may be able to reach them later.',
+  ],
+  tipsTitle: 'Tips',
+  tips: [
+    'Drag from a stone, cell to cell, to draw its colour; starting on a line erases.',
+    'Covered cells are tinted with their line\'s colour, so gaps stand out.',
+    'A worried stone has a branching line or one joined to another colour.',
+    'Stuck? Ask who can fill each corner and wall cell.',
+  ],
+  ctaTitle: 'Ready to connect?', ctaBody: 'Warm up on 5×5 practice, then claim new maps in the 7×7 challenge. Solve someone else\'s map faster than them and it becomes yours.', ctaPlay: 'Play Color Link',
+  faqTitle: 'FAQ',
+  faq: [
+    { q: 'What is Color Link?', a: 'The connect-the-pairs puzzle known as Numberlink or Arukone, drawn with coloured stones. Join each colour and fill the board.' },
+    { q: 'Can a board have more than one answer?', a: 'No. Only boards with exactly one way to fill them are used, checked by computer.' },
+    { q: 'How does the challenge ranking work?', a: 'Clear a new map and it is yours. If someone solves it faster than your time, they take it. The ranking counts the maps you own.' },
+  ],
+};
+
 export const GUIDE_COPY: Record<LogicGameId, Record<'ko' | 'en', GuideCopy>> = {
   masyu: { ko: MASYU_KO, en: MASYU_EN },
   nonogram: { ko: NONO_KO, en: NONO_EN },
   starbattle: { ko: STAR_KO, en: STAR_EN },
+  binairo: { ko: BIN_KO, en: BIN_EN },
+  onestroke: { ko: PATH_KO, en: PATH_EN },
+  colorlink: { ko: LINK_KO, en: LINK_EN },
 };

@@ -15,6 +15,9 @@ type Podium = Map<string, GamePodium>; // game href → its top three
 // Solo-challenge games: their challenge board stands in for the AI Hall of Fame (네모 세기 takes the first level with a full podium).
 const CHALLENGES: { game: GameId; boards: string[]; kind: PodiumKind }[] = [
   { game: 'slitherlink', boards: ['slither'], kind: 'maps' },
+  { game: 'binairo', boards: ['binairo'], kind: 'maps' },
+  { game: 'onestroke', boards: ['onestroke'], kind: 'maps' },
+  { game: 'colorlink', boards: ['colorlink'], kind: 'maps' },
   { game: 'starbattle', boards: ['starbattle'], kind: 'maps' },
   { game: 'masyu', boards: ['masyu'], kind: 'maps' },
   { game: 'nonogram', boards: ['nonogram'], kind: 'maps' },

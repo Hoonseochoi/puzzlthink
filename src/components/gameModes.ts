@@ -29,7 +29,7 @@ import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { prepareBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 import { prepareBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
 import { prepareMonorailRoom, useMonorailRoom } from '@/hooks/useMonorailRoom';
-import { prepareMasyuRoom, prepareNonogramRoom, prepareStarBattleRoom, useMasyuRoom, useNonogramRoom, useStarBattleRoom } from '@/hooks/useLogicRoom';
+import { prepareLogicRoom, prepareMasyuRoom, prepareNonogramRoom, prepareStarBattleRoom, useBinairoRoom, useColorLinkRoom, useMasyuRoom, useOneStrokeRoom, useNonogramRoom, useStarBattleRoom } from '@/hooks/useLogicRoom';
 import { prepareTwoSidedPokerRoom, useTwoSidedPokerRoom } from '@/hooks/useTwoSidedPokerRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
@@ -52,6 +52,18 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  binairo: {
+    path: '/binairo', solo: true, ai: [{ label: 'logicNew', query: 'mode=challenge' }, { label: 'logicBeat', query: 'mode=beat' }, { label: 'binairoPractice', query: 'mode=practice' }],
+    rooms: [{ label: 'logicRoom', create: () => prepareLogicRoom('binairo'), openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useBinairoRoom,
+  },
+  onestroke: {
+    path: '/one-stroke', solo: true, ai: [{ label: 'logicNew', query: 'mode=challenge' }, { label: 'logicBeat', query: 'mode=beat' }, { label: 'onestrokePractice', query: 'mode=practice' }],
+    rooms: [{ label: 'logicRoom', create: () => prepareLogicRoom('onestroke'), openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useOneStrokeRoom,
+  },
+  colorlink: {
+    path: '/color-link', solo: true, ai: [{ label: 'logicNew', query: 'mode=challenge' }, { label: 'logicBeat', query: 'mode=beat' }, { label: 'colorlinkPractice', query: 'mode=practice' }],
+    rooms: [{ label: 'logicRoom', create: () => prepareLogicRoom('colorlink'), openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useColorLinkRoom,
+  },
   starbattle: {
     path: '/star-battle', solo: true, ai: [{ label: 'logicNew', query: 'mode=challenge' }, { label: 'logicBeat', query: 'mode=beat' }, { label: 'starbattlePractice', query: 'mode=practice' }],
     rooms: [{ label: 'logicRoom', create: prepareStarBattleRoom, openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useStarBattleRoom,

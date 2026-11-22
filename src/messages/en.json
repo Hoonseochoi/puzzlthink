@@ -83,6 +83,9 @@
     "supportNote": "Support only pays for servers and gives no perks. Every game stays free either way.",
     "supportDismiss": "Hide for today",
     "masyu": "Masyu",
+    "colorlink": "Color Link",
+    "onestroke": "One Stroke",
+    "binairo": "Binairo",
     "starbattle": "Star Battle",
     "nonogram": "Nonogram",
     "slitherlink": "Slitherlink",
@@ -184,7 +187,7 @@
     "monorailDescription": "Place straight and curved tiles to close one loop. Fight for the final tile—or call Impossible.",
     "monorailMeta": "AI, friend & open 1v1",
     "metaTitle": "PUZZLTHINK — Devil's Plan & The Genius brain games, logic puzzles",
-    "metaDescription": "24 free browser games: brain games known from The Devil's Plan and The Genius (Monorail, Wall Go, Two-Sided Poker, Heavy 13) and logic puzzles (Slitherlink, Star Battle, Masyu, Nonogram) with map-steal challenge rankings. Play the AI, friends or open matches. Unofficial fan-made service.",
+    "metaDescription": "27 free browser games: brain games known from The Devil's Plan and The Genius (Monorail, Wall Go, Two-Sided Poker, Heavy 13) and logic puzzles (Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu, Nonogram) with map-steal challenge rankings. Play the AI, friends or open matches. Unofficial fan-made service.",
     "eyebrow": "BRAIN GAMES · WITH FRIENDS",
     "title1": "Games worth thinking about,",
     "title2": "with your friends",
@@ -232,10 +235,15 @@
       "Masyu",
       "Nonogram",
       "logic puzzles online",
-      "free online board games"
+      "free online board games",
+      "Binairo",
+      "Takuzu",
+      "One Stroke",
+      "Color Link",
+      "Numberlink"
     ],
     "seoTitle": "Brain games from The Devil's Plan and The Genius, plus logic puzzles",
-    "seoBody": "PUZZLTHINK is an unofficial fan-made service for deduction and strategy games known from brain-survival shows and for classic logic puzzles. Play Wall Go, Wall Go II, Nemo Count, Heavy 13 and Russian Roulette from The Devil's Plan 3; Monorail, Two-Sided Poker, Black & White, Laser Janggi, 12 Janggi and Indian Poker from The Genius; and Russian Janggi from The Society Game 2 against the AI or friends. Slitherlink, Star Battle, Masyu and Nonogram come as random boards with exactly one answer, with a challenge ranking where you claim new maps and steal others'. No sign-up or install: invite friends with a link or a 4-digit code, or join an open match. Not affiliated with, endorsed by or approved by any broadcaster or production company.",
+    "seoBody": "PUZZLTHINK is an unofficial fan-made service for deduction and strategy games known from brain-survival shows and for classic logic puzzles. Play Wall Go, Wall Go II, Nemo Count, Heavy 13 and Russian Roulette from The Devil's Plan 3; Monorail, Two-Sided Poker, Black & White, Laser Janggi, 12 Janggi and Indian Poker from The Genius; and Russian Janggi from The Society Game 2 against the AI or friends. Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu and Nonogram come as random boards with exactly one answer, with a challenge ranking where you claim new maps and steal others'. No sign-up or install: invite friends with a link or a 4-digit code, or join an open match. Not affiliated with, endorsed by or approved by any broadcaster or production company.",
     "modeTitle": "Pick a mode and play",
     "modeThreeAi": "1:1:1",
     "modeThreeAiDesc": "vs 2 AI",
@@ -335,6 +343,12 @@
     "hypeTag": "most played",
     "masyuDescription": "Straight through white, turn on black! Draw one loop past all our stones. Claim new maps and steal other players' maps.",
     "masyuMeta": "Challenge · steal maps · 2–4 friends",
+    "colorlinkDescription": "Join each pair of same-coloured stones and fill every cell, no crossings. Rules anyone gets at once, 1–3 minutes a board. Claim new maps, steal others'.",
+    "colorlinkMeta": "Challenge · steal maps · 2–4 friends",
+    "onestrokeDescription": "One line from 1 through the numbers in order, visiting every cell once. Draw it in one swipe, 1–3 minutes a board. Claim new maps, steal others'.",
+    "onestrokeMeta": "Challenge · steal maps · 2–4 friends",
+    "binairoDescription": "Fill the board with black and white stones: never three in a row, every line half and half. A 1–3 minute puzzle. Claim new maps, steal others'.",
+    "binairoMeta": "Challenge · steal maps · 2–4 friends",
     "starbattleDescription": "One stone per row, column and region, and no two may touch. A 1–5 minute placement puzzle you can't stop at one. Claim new maps, steal others'.",
     "starbattleMeta": "Challenge · steal maps · 2–4 friends",
     "nonogramDescription": "Fill cells from the numbers and a hidden picture lights up in colour. No guessing. Claim new maps and steal other players' maps.",
@@ -1653,6 +1667,9 @@
     "chTitle": "Challenge rankings",
     "chDesc": "Top 3 best runs in each solo challenge. Slitherlink counts boards owned; the others rank by best single-run score.",
     "chMasyu": "Masyu board collection",
+    "chColorlink": "Color Link board collection",
+    "chOnestroke": "One Stroke board collection",
+    "chBinairo": "Binairo board collection",
     "chStarbattle": "Star Battle board collection",
     "chNonogram": "Nonogram board collection",
     "chSlither": "Slitherlink board collection",
@@ -1849,7 +1866,7 @@
   },
   "Games": {
     "metaTitle": "All games — The Devil's Plan & The Genius games and logic puzzles",
-    "metaDescription": "From Monorail, Wall Go, Two-Sided Poker, Heavy 13 and Nemo Count to Slitherlink, Star Battle, Masyu and Nonogram: compare all 24 PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
+    "metaDescription": "From Monorail, Wall Go, Two-Sided Poker, Heavy 13 and Nemo Count to Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu and Nonogram: compare all 27 PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
     "eyebrow": "GAME GUIDE",
     "title": "About the games",
     "intro": "Every PUZZLTHINK game on one page. See how many players it takes, how a game runs and what you need to know, then jump right in. All games are free with no sign-up.",
@@ -2156,6 +2173,51 @@
         ],
         "origin": "Masyu (\"pearl\") is a classic puzzle from the Japanese publisher Nikoli, drawn here with PUZZLTHINK's stone characters. Every board is checked by computer to have exactly one answer."
       },
+      "colorlink": {
+        "tagline": "Join each pair of same-coloured stones with a line. Lines never overlap, and when you're done no cell may be empty. Rules anyone gets at once, on a colourful board. Claim new maps, steal others' and race friends.",
+        "players": "1 player or 2–4 friends",
+        "pace": "1–3 min a board",
+        "level": "5×5 · 6×6 · 7×7 (random boards with one answer)",
+        "solo": "New map (ranked) · steal a map · practice by size",
+        "friend": "2–4 race on the same board · first to finish wins",
+        "ai": "New map (ranked) · steal a map · practice by size",
+        "rules": [
+          "Join the two stones of each colour with one line.",
+          "Lines never overlap, cross or branch.",
+          "Every cell must be covered by some line."
+        ],
+        "origin": "The connect-the-pairs puzzle known as Numberlink or Arukone, drawn with PUZZLTHINK's coloured stones. Only boards with exactly one way to fill them are used."
+      },
+      "onestroke": {
+        "tagline": "Start on 1, pass the numbers in order and end on the last one, visiting every cell exactly once. One satisfying swipe, and one dead-end cell away from trouble. Claim new maps, steal others' and race friends.",
+        "players": "1 player or 2–4 friends",
+        "pace": "1–3 min a board",
+        "level": "5×5 · 6×6 · 7×7 (random boards with one answer)",
+        "solo": "New map (ranked) · steal a map · practice by size",
+        "friend": "2–4 race on the same board · first to finish wins",
+        "ai": "New map (ranked) · steal a map · practice by size",
+        "rules": [
+          "Start on stone 1 and draw one line, moving across or down only.",
+          "Pass the numbered stones in order and end on the last number.",
+          "Visit every cell exactly once."
+        ],
+        "origin": "A number path puzzle (visit every cell once, numbers in order) made for the web by PUZZLTHINK. Every board is checked by computer to have exactly one route."
+      },
+      "binairo": {
+        "tagline": "Fill the board with black and white stones: never three of a colour in a row, every line half and half. Read the = and × hints and settle one cell at a time. 1–3 minutes a board. Claim new maps, steal others' and race friends.",
+        "players": "1 player or 2–4 friends",
+        "pace": "1–3 min a board",
+        "level": "6×6 · 8×8 · 10×10 (random boards solvable by logic)",
+        "solo": "New map (ranked) · steal a map · practice by size",
+        "friend": "2–4 race on the same board · first to finish wins",
+        "ai": "New map (ranked) · steal a map · practice by size",
+        "rules": [
+          "Fill every cell with a black or white stone.",
+          "Never three of the same colour in a row, across or down.",
+          "Every row and column has as many black as white. = means same colour, × different."
+        ],
+        "origin": "The black-and-white placement puzzle known as Binairo or Takuzu, drawn with PUZZLTHINK's stone characters. Every board is checked to be solvable by logic alone."
+      },
       "starbattle": {
         "tagline": "Place stones on a board cut into coloured regions: exactly one per row, column and region, and no two touching. 1–5 minutes a board, one rule, and you'll want another. Claim new maps, steal others' and race friends.",
         "players": "1 player or 2–4 friends",
@@ -2331,6 +2393,9 @@
     "logicNew": "New map (claim it)",
     "logicBeat": "Steal a map",
     "masyuPractice": "Practice (6×6 · 8×8 · 10×10)",
+    "colorlinkPractice": "Practice (5×5 · 6×6 · 7×7)",
+    "onestrokePractice": "Practice (5×5 · 6×6 · 7×7)",
+    "binairoPractice": "Practice (6×6 · 8×8 · 10×10)",
     "starbattlePractice": "Practice (6×6 · 8×8 · 10×10)",
     "nonogramPractice": "Practice (5×5 · 10×10 · 15×15)",
     "logicRoom": "Create a room (2–4)",
@@ -5831,6 +5896,15 @@
     "giveUpPractice": "Give up and show the answer",
     "giveUpChallenge": "Give up",
     "help_masyu": "Tap between two cell centers: line → ✕ → empty. Or drag from cell to cell to draw. Smiling stones keep their rule; frowning ones break it.",
+    "tipButton": "Rules",
+    "tipTitle": "{game}: rules and tips",
+    "tipHelp": "Controls",
+    "tipGuide": "Illustrated guide",
+    "tipClock": "In a challenge the clock keeps running while this is open.",
+    "tipClose": "Close",
+    "help_colorlink": "Drag from a stone, cell to cell, to draw its colour (starting on a line erases). Tap between two cells: line → ✕ → empty. Covered cells get a light tint.",
+    "help_onestroke": "Drag from cell to cell to draw (starting on a line erases). Tap between two cells: line → ✕ → empty. Only the run unbroken from 1 is drawn bright.",
+    "help_binairo": "Tap a cell: black → white → empty. Stones with a blue dot were there from the start. A worried stone is part of three in a row or an over-full line.",
     "help_starbattle": "Tap a cell: ✕ → stone → empty. Drag to lay ✕ marks. A worried stone shares a row, column or region, or touches another stone.",
     "help_nonogram_fill": "Tap a cell to fill, tap again to clear. Drag to fill a run. A line's numbers fade once it matches.",
     "help_nonogram_cross": "✕ mode: mark cells that stay empty. Drag to mark a run.",
@@ -5857,6 +5931,27 @@
       "● Black: turn, then one more cell straight both ways.",
       "○ White: straight through, turning just before or after.",
       "One answer only: draw what is certain."
+    ],
+    "rules_colorlink": [
+      "Join the two stones of each colour with one line.",
+      "Lines never overlap or branch.",
+      "Every cell must be covered.",
+      "Ask who can fill the corners and walls first.",
+      "The long way round is often the answer."
+    ],
+    "rules_onestroke": [
+      "Start on 1, pass the numbers in order, end on the last one.",
+      "Visit every cell exactly once. No branches or crossings.",
+      "Fill corners and walls early.",
+      "A cell with two open sides uses both.",
+      "Never cut the board in two."
+    ],
+    "rules_binairo": [
+      "Never three of a colour in a row, across or down.",
+      "Every row and column is half black, half white.",
+      "= means same colour, × means different.",
+      "Start beside pairs and between stones one cell apart.",
+      "One answer only: place what is certain."
     ],
     "rules_starbattle": [
       "Exactly one stone in every row, column and coloured region.",
@@ -6198,9 +6293,274 @@
     ],
     "disclaimer": "A free web puzzle made by PUZZLTHINK. Star Battle is the common name of a puzzle genre; this page is not affiliated with any company's game."
   },
+  "ColorLinkGuide": {
+    "metaTitle": "Color Link Online Free — Connect Colour Pairs (Numberlink) | Map Ranking",
+    "metaDescription": "Join each pair of same-coloured stones and fill the board, no crossings. A colourful 1–3 minute Numberlink puzzle: random boards with one answer, claim and steal maps for the ranking, race 2–4 friends. Free.",
+    "keywords": [
+      "Color Link",
+      "Numberlink",
+      "Arukone",
+      "connect the pairs puzzle",
+      "line puzzle",
+      "logic puzzle online"
+    ],
+    "alternateNames": [
+      "Color Link",
+      "Numberlink",
+      "Arukone"
+    ],
+    "eyebrow": "COLOR LINK GUIDE",
+    "title": "Color Link — same colours together, no gaps",
+    "intro": "Join each pair of same-coloured stones with a line. Lines never overlap or branch, and together they must fill every cell. Anyone gets the rules at once; the fill rule is what makes each board have exactly one answer, checked by computer.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Join the two stones of each colour with one line through cell centers, across or down.",
+      "Lines never overlap, cross or branch.",
+      "Every cell must be covered by some line."
+    ],
+    "specialTitle": "Controls",
+    "special": [
+      {
+        "title": "Drag to connect",
+        "body": "Start on a stone and drag cell to cell to draw its colour. A drag starting on a line erases, and tapping between two cells cycles line → ✕ → empty."
+      },
+      {
+        "title": "Tinted cells, worried stones",
+        "body": "Covered cells get a light tint, so gaps stand out. A stone with a branching line or one joined to another colour frowns; solve it and they all smile."
+      },
+      {
+        "title": "Undo",
+        "body": "Step back as far as you like with the undo button or Ctrl/⌘+Z. One drag is one step."
+      },
+      {
+        "title": "Claim and steal maps",
+        "body": "Clear a new map and it is yours. Solve someone else's map faster than their time and you take it. The ranking counts the maps you hold."
+      },
+      {
+        "title": "Rules during play",
+        "body": "Tap the ? button above the board to see the rules and tips any time. In a challenge the clock keeps running."
+      }
+    ],
+    "strategyTitle": "Key strategies",
+    "strategyIntro": "The full illustrated guide is behind the \"New here?\" button above.",
+    "strategies": [
+      {
+        "tag": "Basics",
+        "title": "Pairs along a wall",
+        "body": "A pair on the same wall usually joins along it."
+      },
+      {
+        "tag": "Basics",
+        "title": "Corner cells",
+        "body": "An empty corner is filled by a line turning through its two neighbours."
+      },
+      {
+        "tag": "Filling",
+        "title": "The long way",
+        "body": "When joining directly leaves gaps, the long way round is the answer."
+      },
+      {
+        "tag": "Blocking",
+        "title": "Don't block",
+        "body": "A line that stops another pair from meeting is wrong."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What is Color Link?",
+        "a": "The connect-the-pairs puzzle known as Numberlink or Arukone, drawn with coloured stones."
+      },
+      {
+        "q": "Can a board have more than one answer?",
+        "a": "No. Only boards with exactly one way to fill them are used."
+      },
+      {
+        "q": "How are challenge records kept fair?",
+        "a": "The server hands out the board and keeps the time. A clear is replayed on the server, and each board can be tried once. Leaving the tab often during a run voids the record."
+      }
+    ],
+    "disclaimer": "A free web puzzle made by PUZZLTHINK. Numberlink and Arukone are common names of a puzzle genre; this page is not affiliated with any company's game."
+  },
+  "OneStrokeGuide": {
+    "metaTitle": "One Stroke Online Free — Visit Every Cell in Number Order | Map Ranking",
+    "metaDescription": "One line from 1 through the numbers in order, visiting every cell once. A 1–3 minute number path puzzle: random boards with one answer, claim and steal maps for the ranking, race 2–4 friends. Free.",
+    "keywords": [
+      "One Stroke",
+      "number path puzzle",
+      "visit every cell puzzle",
+      "line drawing puzzle",
+      "logic puzzle online"
+    ],
+    "alternateNames": [
+      "One Stroke",
+      "Number path puzzle"
+    ],
+    "eyebrow": "ONE STROKE GUIDE",
+    "title": "One Stroke — every cell, numbers in order",
+    "intro": "Draw one line that starts on 1, passes the numbers in order and ends on the last one, visiting every cell exactly once. Simple to start, but one corner or dead-end cell can trap you. Every board here is checked to have exactly one route.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Start on stone 1 and draw one line, moving across or down only.",
+      "Pass the numbered stones in order (2, 3, 4…) and end on the last number.",
+      "Visit every cell exactly once; no branches or crossings."
+    ],
+    "specialTitle": "Controls",
+    "special": [
+      {
+        "title": "Drag to draw",
+        "body": "Drag from cell to cell to extend the line. A drag starting on a line erases, and tapping between two cells cycles line → ✕ → empty."
+      },
+      {
+        "title": "Bright line, red rings",
+        "body": "The run unbroken from 1 is drawn bright, loose pieces faded. A number passed out of order gets a red ring. When solved, the number stones turn gold."
+      },
+      {
+        "title": "Undo",
+        "body": "Step back as far as you like with the undo button or Ctrl/⌘+Z. One drag is one step."
+      },
+      {
+        "title": "Claim and steal maps",
+        "body": "Clear a new map and it is yours. Solve someone else's map faster than their time and you take it. The ranking counts the maps you hold."
+      },
+      {
+        "title": "Rules during play",
+        "body": "Tap the ? button above the board to see the rules and tips any time. In a challenge the clock keeps running."
+      }
+    ],
+    "strategyTitle": "Key strategies",
+    "strategyIntro": "The full illustrated guide is behind the \"New here?\" button above.",
+    "strategies": [
+      {
+        "tag": "Basics",
+        "title": "Corners first",
+        "body": "A corner has two neighbours, so the line through it is fixed."
+      },
+      {
+        "tag": "Basics",
+        "title": "Avoid dead ends",
+        "body": "A cell left with two open sides must be passed now."
+      },
+      {
+        "tag": "Order",
+        "title": "Number order",
+        "body": "A way that reaches a later number first is closed."
+      },
+      {
+        "tag": "Shape",
+        "title": "Don't split",
+        "body": "Keep the empty cells in one piece."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What kind of puzzle is One Stroke?",
+        "a": "A number path puzzle: one line visiting every cell once, passing the numbers in order. A popular daily puzzle genre."
+      },
+      {
+        "q": "Can a board have more than one answer?",
+        "a": "No. Every board is checked by computer to have exactly one route."
+      },
+      {
+        "q": "How are challenge records kept fair?",
+        "a": "The server hands out the board and keeps the time. A clear is replayed on the server, and each board can be tried once. Leaving the tab often during a run voids the record."
+      }
+    ],
+    "disclaimer": "A free web puzzle made by PUZZLTHINK. Number path puzzles are a common genre; this page is not affiliated with any company's game."
+  },
+  "BinairoGuide": {
+    "metaTitle": "Binairo Online Free — Black & White Takuzu Puzzle with Map Ranking",
+    "metaDescription": "Never three in a row, every line half and half. Fill the board with black and white stones in this 1–3 minute Takuzu puzzle: random boards solvable by logic, claim and steal maps for the ranking, race 2–4 friends. Free.",
+    "keywords": [
+      "Binairo",
+      "Takuzu",
+      "binary puzzle",
+      "black and white puzzle",
+      "logic puzzle online"
+    ],
+    "alternateNames": [
+      "Binairo",
+      "Takuzu",
+      "Binary puzzle"
+    ],
+    "eyebrow": "BINAIRO GUIDE",
+    "title": "Binairo — black, white, half and half",
+    "intro": "Binairo fills a board with black and white stones: never three of a colour in a row, and every line half black, half white. = and × marks tell you how two cells relate. Every board here is checked to be solvable by logic alone.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Fill every cell of the N×N board with a black or white stone. Starting stones cannot change.",
+      "No three of the same colour in a row, across or down.",
+      "Every row and column holds as many black as white stones.",
+      "= between two cells means the same colour; × means different colours."
+    ],
+    "specialTitle": "Controls",
+    "special": [
+      {
+        "title": "Tap to cycle",
+        "body": "Tap a cell to cycle black → white → empty. Stones with a blue dot were placed at the start and cannot change."
+      },
+      {
+        "title": "Worried and happy stones",
+        "body": "Stones in three in a row, in an over-full line or against a sign frown inside a red ring. Solve the board and every stone smiles."
+      },
+      {
+        "title": "Undo",
+        "body": "Step back as far as you like with the undo button or Ctrl/⌘+Z. One drag is one step."
+      },
+      {
+        "title": "Claim and steal maps",
+        "body": "Clear a new map and it is yours. Solve someone else's map faster than their time and you take it. The ranking counts the maps you hold."
+      },
+      {
+        "title": "Rules during play",
+        "body": "Tap the ? button above the board to see the rules and tips any time. In a challenge the clock keeps running."
+      }
+    ],
+    "strategyTitle": "Key strategies",
+    "strategyIntro": "The full illustrated guide is behind the \"New here?\" button above.",
+    "strategies": [
+      {
+        "tag": "Basics",
+        "title": "Around a pair",
+        "body": "Two of a colour side by side: both neighbours are the other colour."
+      },
+      {
+        "tag": "Basics",
+        "title": "Between two",
+        "body": "Black, empty, black: the middle is white."
+      },
+      {
+        "tag": "Counting",
+        "title": "Half full",
+        "body": "Once a line has half of one colour, the rest is the other colour."
+      },
+      {
+        "tag": "Signs",
+        "title": "= and ×",
+        "body": "Know one side and the other follows."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Are Binairo and Takuzu the same?",
+        "a": "Yes, the same rules under different names. Here you place black and white stones instead of 0 and 1."
+      },
+      {
+        "q": "Do I ever need to guess?",
+        "a": "No. Every board is solvable by logic alone and has exactly one answer."
+      },
+      {
+        "q": "How are challenge records kept fair?",
+        "a": "The server hands out the board and keeps the time. A clear is replayed on the server, and each board can be tried once. Leaving the tab often during a run voids the record."
+      }
+    ],
+    "disclaimer": "A free web puzzle made by PUZZLTHINK. Binairo and Takuzu are common names of a puzzle genre; this page is not affiliated with any company's game."
+  },
   "LogicHub": {
-    "metaTitle": "Free Logic Puzzles Online — Slitherlink, Star Battle, Masyu, Nonogram",
-    "metaDescription": "Free random logic puzzles with exactly one answer: Slitherlink, Star Battle (queens puzzle), Masyu, Nonogram and Sudoku. No sign-up. Claim and steal maps in the challenge ranking, or race friends.",
+    "metaTitle": "Free Logic Puzzles Online — Binairo, One Stroke, Color Link, Star Battle and more",
+    "metaDescription": "Free random logic puzzles with exactly one answer: Binairo (Takuzu), One Stroke, Color Link (Numberlink), Star Battle (queens puzzle), Slitherlink, Masyu, Nonogram and Sudoku. No sign-up. Claim and steal maps in the challenge ranking, or race friends.",
     "keywords": [
       "logic puzzles",
       "logic puzzles online",
@@ -6212,7 +6572,12 @@
       "Masyu",
       "Nonogram",
       "Picross",
-      "Sudoku"
+      "Sudoku",
+      "Binairo",
+      "Takuzu",
+      "One Stroke",
+      "Color Link",
+      "Numberlink"
     ],
     "eyebrow": "LOGIC PUZZLES",
     "title": "Logic puzzles",

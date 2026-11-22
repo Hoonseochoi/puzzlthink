@@ -2,7 +2,7 @@
 const KEY = 'puzzlthink_signup_source';
 const FRESH_MS = 30 * 60 * 1000;
 
-export type SignupSource = 'header' | 'header_menu' | 'result' | 'open_room' | 'game_open' | 'home_open' | 'hard_clear' | 'records' | 'slitherlink' | 'masyu_challenge' | 'masyu_beat' | 'nonogram_challenge' | 'nonogram_beat' | 'starbattle_challenge' | 'starbattle_beat' | 'other';
+export type SignupSource = 'header' | 'header_menu' | 'result' | 'open_room' | 'game_open' | 'home_open' | 'hard_clear' | 'records' | 'slitherlink' | 'masyu_challenge' | 'masyu_beat' | 'nonogram_challenge' | 'nonogram_beat' | 'starbattle_challenge' | 'starbattle_beat' | 'binairo_challenge' | 'binairo_beat' | 'onestroke_challenge' | 'onestroke_beat' | 'colorlink_challenge' | 'colorlink_beat' | 'other';
 
 /** Remembers the button the player is about to sign in with (survives the Google redirect). */
 export function markSignupSource(source: SignupSource) {

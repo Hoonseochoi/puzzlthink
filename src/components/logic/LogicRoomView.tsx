@@ -16,6 +16,10 @@ import { reportGame } from '@/lib/stats';
 import MasyuBoard from './MasyuBoard';
 import NonogramBoard, { type NonoTool } from './NonogramBoard';
 import StarBoard from './StarBoard';
+import BinairoBoard from './BinairoBoard';
+import OneStrokeBoard from './OneStrokeBoard';
+import ColorLinkBoard from './ColorLinkBoard';
+import LogicRulesTip from './LogicRulesTip';
 
 const COLORS = ['#ff4d5e', '#3f8cff', '#3fcf6a', '#ffd23f'];
 
@@ -96,7 +100,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
     const next = { ...cur, marks, moves };
     localRef.current = next; setLocal(next);
     if (solved(board, marks)) dispatch({ t: 'solve', answer: encodeMarks(board, marks) });
-    else if (progressOf(marks) !== progressOf(cur.marks)) dispatch({ t: 'progress', n: progressOf(marks) });
+    else if (progressOf(marks, board) !== progressOf(cur.marks, board)) dispatch({ t: 'progress', n: progressOf(marks, board) });
   };
   const undo = () => {
     const cur = localRef.current.sid === local.sid ? localRef.current : local;
@@ -110,7 +114,8 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
   const clearAll = () => {
     if (!confirmClear) { setConfirmClear(true); window.setTimeout(() => setConfirmClear(false), 2500); return; }
     setConfirmClear(false);
-    apply(local.marks.map((m, i) => [i, 0] as [number, number]).filter(([i]) => local.marks[i] !== 0), -2);
+    const base = board ? emptyMarks(board) : [];
+    apply(local.marks.map((m, i) => [i, base[i] ?? 0] as [number, number]).filter(([i, v]) => local.marks[i] !== v), -2);
   };
 
   const heading = state.phase === 'lobby' ? t('lobbyTitle')
@@ -127,7 +132,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
       <section className={STAGE}>
         <div className="mb-3 flex items-end justify-between gap-3 px-1">
           <div><p className={KICKER}>{state.phase === 'lobby' ? 'LOBBY' : `${state.size}×${state.size}`}</p><h1 className={`mt-1 ${HEADING}`}>{heading}</h1></div>
-          {playing && <p className="flex items-center gap-1 font-mono text-sm font-bold text-white/70"><Clock3 size={14} />{formatClock(elapsed)}</p>}
+          {playing && <div className="flex items-center gap-1.5"><LogicRulesTip game={game} running /><p className="flex items-center gap-1 font-mono text-sm font-bold text-white/70"><Clock3 size={14} />{formatClock(elapsed)}</p></div>}
           {state.phase === 'finished' && winner !== null && state.solvedMs[winner] !== null && <p className="font-mono text-sm font-black text-(--accent)">{formatClock(state.solvedMs[winner]!)}</p>}
         </div>
 
@@ -142,7 +147,13 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
             ? <MasyuBoard board={board} marks={showAnswer ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} />
             : board.kind === 'nonogram'
               ? <NonogramBoard board={board} marks={marks} tool={tool} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay} showAnswer={showAnswer} solvedGlow={state.phase === 'finished' && winner === mySeat} />
-              : <StarBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} showAnswer={showAnswer} solved={state.phase === 'finished' && winner === mySeat} />}
+              : board.kind === 'starbattle'
+                ? <StarBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} showAnswer={showAnswer} solved={state.phase === 'finished' && winner === mySeat} />
+                : board.kind === 'binairo'
+                  ? <BinairoBoard board={board} marks={showAnswer ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} solved={showAnswer || (state.phase === 'finished' && winner === mySeat)} />
+                  : board.kind === 'onestroke'
+                    ? <OneStrokeBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} showAnswer={showAnswer} solved={state.phase === 'finished' && winner === mySeat} />
+                    : <ColorLinkBoard board={board} marks={showAnswer ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} solved={showAnswer || (state.phase === 'finished' && winner === mySeat)} />}
           {iPlay ? (
             <div className="mx-auto mt-3 max-w-[560px] space-y-2">
               <div className={`grid gap-1.5 ${game === 'nonogram' ? 'grid-cols-4' : 'grid-cols-2'}`}>

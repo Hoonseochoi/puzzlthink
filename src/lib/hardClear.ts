@@ -7,8 +7,11 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number };
 
-type Href = '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
+  binairo: { ko: '비나이로', en: 'Binairo', href: '/binairo', color: '#3f8cff' },
+  onestroke: { ko: '한붓길', en: 'One Stroke', href: '/one-stroke', color: '#ff8a2b' },
+  colorlink: { ko: '컬러 잇기', en: 'Color Link', href: '/color-link', color: '#21c2b5' },
   starbattle: { ko: '스타배틀', en: 'Star Battle', href: '/star-battle', color: '#ffc23d' },
   masyu: { ko: '마슈', en: 'Masyu', href: '/masyu', color: '#ff4d5e' },
   nonogram: { ko: '노노그램', en: 'Nonogram', href: '/nonogram', color: '#3fcf6a' },

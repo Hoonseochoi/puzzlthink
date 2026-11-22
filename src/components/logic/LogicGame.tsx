@@ -12,12 +12,16 @@ import Shards from '@/components/WallGoShards';
 import { CoffeeNudge } from '@/components/SupportLink';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
-import { type LogicBoard, type LogicGameId, LOGIC, buildBoard, emptyMarks, formatClock, newSeed, solved } from '@/lib/logicPuzzles';
+import { type LogicBoard, type LogicGameId, LOGIC, buildBoard, emptyMarks, formatClock, newSeed, solved, startSteps } from '@/lib/logicPuzzles';
 import { type LogicBoardRow, type LogicFinish, type LogicRankRow, type LogicRun, type LogicStep, fetchLogicBoard, fetchLogicBoards, fetchLogicMe, fetchLogicRanking, finishMap, startBeatMap, startNewMap } from '@/lib/logicChallenge';
 import { reportGame } from '@/lib/stats';
 import MasyuBoard from './MasyuBoard';
 import NonogramBoard, { type NonoTool } from './NonogramBoard';
 import StarBoard from './StarBoard';
+import BinairoBoard from './BinairoBoard';
+import OneStrokeBoard from './OneStrokeBoard';
+import ColorLinkBoard from './ColorLinkBoard';
+import LogicRulesTip from './LogicRulesTip';
 import { useUndoKey } from '@/components/slitherlink/SlitherBoard';
 
 type Mode = 'challenge' | 'beat' | 'practice';
@@ -84,7 +88,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
     clearTimers();
     boardRef.current = b; setBoard(b);
     setWork(emptyMarks(b));
-    stepsRef.current = []; movesRef.current = []; setUndoCount(0);
+    stepsRef.current = startSteps(b); movesRef.current = []; setUndoCount(0);
     awayRef.current = { spans: [], since: null };
     setTool('fill'); setConfirmClear(false); setResult(null); setError(null);
     const at = Date.now(); startedRef.current = at; setStartedAt(at); setNow(at); setEndMs(0);
@@ -219,7 +223,9 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
   const clearAll = () => {
     if (!confirmClear) { setConfirmClear(true); timers.current.push(window.setTimeout(() => setConfirmClear(false), 2500)); return; }
     setConfirmClear(false);
-    apply(marksRef.current.map((m, i) => [i, 0] as [number, number]).filter(([i]) => marksRef.current[i] !== 0), -2);
+    // Back to a fresh board (비나이로 keeps its starting stones).
+    const base = boardRef.current ? emptyMarks(boardRef.current) : [];
+    apply(marksRef.current.map((m, i) => [i, base[i] ?? 0] as [number, number]).filter(([i, v]) => marksRef.current[i] !== v), -2);
   };
 
   const giveUp = () => {
@@ -247,7 +253,13 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
     ? <MasyuBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solutionLines={answerLines} dimLines={phase === 'gaveUp'} />
     : board.kind === 'nonogram'
       ? <NonogramBoard board={board} marks={marks} tool={tool} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solvedGlow={phase === 'solved'} showAnswer={phase === 'gaveUp'} />
-      : <StarBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved'} showAnswer={phase === 'gaveUp'} />);
+      : board.kind === 'starbattle'
+        ? <StarBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved'} showAnswer={phase === 'gaveUp'} />
+        : board.kind === 'binairo'
+          ? <BinairoBoard board={board} marks={phase === 'gaveUp' ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved' || phase === 'gaveUp'} />
+          : board.kind === 'onestroke'
+            ? <OneStrokeBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved'} showAnswer={phase === 'gaveUp'} />
+            : <ColorLinkBoard board={board} marks={phase === 'gaveUp' ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved' || phase === 'gaveUp'} />);
 
   const rankingPanel = (
     <section className={PANEL}>
@@ -345,9 +357,12 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                     <div className="mt-2 flex gap-1.5">{spec.sizes.map((s) => <button key={s} type="button" onClick={() => startPractice(s)} className={`px-2.5 py-1 ${seg(size === s)}`}>{s}×{s}</button>)}</div>
                   )}
                 </div>
-                <p className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-sm font-black ${limitMs !== null && phase === 'play' && limitMs - elapsed < 30000 ? 'animate-pulse bg-(--accent) text-(--accent-ink)' : 'bg-black/50 text-white/85 ring-1 ring-white/10'}`}>
-                  {limitMs !== null ? <Timer size={14} /> : <Clock3 size={14} />}{formatClock(limitMs !== null && phase === 'play' ? Math.max(0, limitMs - elapsed) : elapsed)}
-                </p>
+                <div className="flex items-center gap-1.5">
+                  <LogicRulesTip game={game} running={mode !== 'practice' && phase === 'play'} />
+                  <p className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-sm font-black ${limitMs !== null && phase === 'play' && limitMs - elapsed < 30000 ? 'animate-pulse bg-(--accent) text-(--accent-ink)' : 'bg-black/50 text-white/85 ring-1 ring-white/10'}`}>
+                    {limitMs !== null ? <Timer size={14} /> : <Clock3 size={14} />}{formatClock(limitMs !== null && phase === 'play' ? Math.max(0, limitMs - elapsed) : elapsed)}
+                  </p>
+                </div>
               </div>
               {awayWarn !== null && <div className="pointer-events-none fixed left-1/2 top-20 z-50 -translate-x-1/2 rounded-full border border-[#ff8f8f]/50 bg-black/85 px-4 py-2 text-xs font-black text-[#ffb3b3] shadow-2xl">{awayWarn >= AWAY_LIMIT ? t('awayVoid') : t('awayWarn', { n: awayWarn, max: AWAY_LIMIT })}</div>}
 

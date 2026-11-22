@@ -33,13 +33,35 @@ function exampleStar(): Figure {
   return { kind: 'star', regions, stones };
 }
 
-/** 마슈 / 노노그램 / 스타배틀 공략: rules, techniques with pictures, mistakes, tips and FAQ. */
+/** A solved 6×6 board of the newer puzzles, for the rules section. */
+function exampleOf(game: 'binairo' | 'onestroke' | 'colorlink'): Figure {
+  const b = buildBoard(game, 6, 20270109);
+  const n = 6;
+  const segs = (answer: number[]) => answer.flatMap((v, e) => {
+    if (!v) return [];
+    const H = n * (n - 1);
+    if (e < H) { const r = Math.floor(e / (n - 1)), c = e % (n - 1); return [[r, c, r, c + 1] as Seg]; }
+    const i = e - H, r = Math.floor(i / n), c = i % n;
+    return [[r, c, r + 1, c] as Seg];
+  });
+  if (b.kind === 'binairo') return { kind: 'bin', rows: Array.from({ length: n }, (_, r) => b.answer.slice(r * n, r * n + n).map((v) => (v === 1 ? 'b' : 'w')).join('')) };
+  if (b.kind === 'onestroke') return { kind: 'path', rows: n, cols: n, numbers: b.numbers.flatMap((k, i) => (k ? [[Math.floor(i / n), i % n, k] as [number, number, number]] : [])), lines: segs(b.answer) };
+  if (b.kind !== 'colorlink') throw new Error(game);
+  // Colour each answer segment by walking the line from its stone.
+  const adj: number[][] = Array.from({ length: n * n }, () => []);
+  segs(b.answer).forEach(([r1, c1, r2, c2]) => { adj[r1 * n + c1].push(r2 * n + c2); adj[r2 * n + c2].push(r1 * n + c1); });
+  const col = new Array<number>(n * n).fill(0);
+  b.ends.forEach((k, s) => { if (!k || col[s]) return; let prev = -1, cur = s; col[s] = k; for (;;) { const nx = adj[cur].find((x) => x !== prev); if (nx === undefined || col[nx]) break; col[nx] = k; prev = cur; cur = nx; } });
+  return { kind: 'link', rows: n, cols: n, ends: b.ends.flatMap((k, i) => (k ? [[Math.floor(i / n), i % n, k] as [number, number, number]] : [])), lines: segs(b.answer).map((s) => [s, col[s[0] * n + s[1]]] as [Seg, number]) };
+}
+
+/** 마슈 / 노노그램 / 스타배틀 / 비나이로 / 한붓길 / 컬러 잇기 공략: rules, techniques with pictures, mistakes, tips and FAQ. */
 export default function LogicGuidePage({ game, locale }: { game: LogicGameId; locale: string }) {
   const spec = LOGIC[game];
   const c = GUIDE_COPY[game][locale === 'en' ? 'en' : 'ko'];
   const path = `${spec.path}/guide`;
   const toc = [{ id: 'rules', title: c.rulesTitle }, ...c.sections.map((s) => ({ id: s.id, title: s.title })), { id: 'mistakes', title: c.mistakesTitle }, { id: 'faq', title: c.faqTitle }];
-  const hero: Figure = game === 'masyu' ? exampleMasyu() : game === 'starbattle' ? exampleStar() : FIGURES.overlap;
+  const hero: Figure = game === 'masyu' ? exampleMasyu() : game === 'starbattle' ? exampleStar() : game === 'nonogram' ? FIGURES.overlap : exampleOf(game);
   // Board-shaped pictures sit beside the text; nonogram lines are wide and go above it.
   const square = game !== 'nonogram';
   const principleFigs: Partial<Record<LogicGameId, [string, string]>> = { masyu: ['ruleBlack', 'ruleWhite'], starbattle: ['ruleLines', 'ruleTouch'] };
@@ -115,7 +137,7 @@ export default function LogicGuidePage({ game, locale }: { game: LogicGameId; lo
           </div>
         </section>
 
-        <section className="mt-12 rounded-[22px] p-7 text-center" style={{ background: `linear-gradient(135deg, ${accent}, ${game === 'masyu' ? '#b8233a' : game === 'starbattle' ? '#c9821a' : '#1f8a4c'})` }}>
+        <section className="mt-12 rounded-[22px] p-7 text-center" style={{ background: `linear-gradient(135deg, ${accent}, ${({ masyu: '#b8233a', starbattle: '#c9821a', nonogram: '#1f8a4c', binairo: '#1b56b8', onestroke: '#c4560a', colorlink: '#0f7d73' } as const)[game]})` }}>
           <h2 className="text-2xl font-black text-white">{c.ctaTitle}</h2>
           <p className="mx-auto mt-2 max-w-md break-keep text-sm leading-7 text-white/90">{c.ctaBody}</p>
           <Link href={spec.path} className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-black text-[#17201e] hover:brightness-95"><Play size={16} fill="currentColor" />{c.ctaPlay}</Link>

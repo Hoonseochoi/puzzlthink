@@ -1,6 +1,8 @@
 import { buildBoard } from '@/lib/logicPuzzles';
 import { cluesOf } from '@/lib/nonogram';
 import { STAR_TINTS } from '@/lib/starbattle';
+import { ColorStone, LINK_COLORS } from './ColorStone';
+import { edgeCells } from './edgeGeometry';
 import { StoneDefs, StoneFace } from './StoneFace';
 
 /** Home card art: a solved 6×6 마슈 with the loop in coral and our stones smiling on it. */
@@ -74,6 +76,60 @@ export function StarBattlePreview() {
       {b.regions.map((g, i) => <rect key={i} x={i % n} y={Math.floor(i / n)} width={1} height={1} fill={STAR_TINTS[g % STAR_TINTS.length]} />)}
       <path d={borders.join('')} stroke="#2a2620" strokeWidth={0.08} fill="none" strokeLinecap="square" />
       {b.answer.map((v, i) => (v ? <StoneFace key={`s${i}`} prefix="spv" kind="black" cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.34} mood="happy" /> : null))}
+    </svg>
+  </div>;
+}
+
+/** Home card art: a solved 6×6 비나이로, black and white stones smiling in a blue frame. */
+export function BinairoPreview() {
+  const b = buildBoard('binairo', 6, 20270109);
+  if (b.kind !== 'binairo') return null;
+  const n = 6;
+  return <div className="w-full rotate-2 rounded-xl bg-gradient-to-br from-[#6aa8ff] to-[#2563d8] p-1.5 shadow-xl sm:w-[66%] sm:rounded-[22px] sm:p-3 sm:shadow-2xl">
+    <svg viewBox={`-0.05 -0.05 ${n + 0.1} ${n + 0.1}`} className="block w-full rounded-[6px] bg-[#dfe8f5] sm:rounded-[14px]">
+      <StoneDefs prefix="bpv" />
+      {b.answer.map((v, i) => <rect key={`c${i}`} x={(i % n) + 0.04} y={Math.floor(i / n) + 0.04} width={0.92} height={0.92} rx={0.16} fill={b.givens[i] ? '#c3d2e8' : '#f3f7fc'} />)}
+      {b.answer.map((v, i) => <StoneFace key={`s${i}`} prefix="bpv" kind={v === 1 ? 'black' : 'white'} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.35} mood="happy" />)}
+    </svg>
+  </div>;
+}
+
+/** Home card art: a solved 6×6 한붓길, the orange line running through the numbered stones. */
+export function OneStrokePreview() {
+  const b = buildBoard('onestroke', 6, 20270109);
+  if (b.kind !== 'onestroke') return null;
+  const n = 6;
+  return <div className="w-full -rotate-2 rounded-xl bg-gradient-to-br from-[#ffb36b] to-[#e8660f] p-1.5 shadow-xl sm:w-[66%] sm:rounded-[22px] sm:p-3 sm:shadow-2xl">
+    <svg viewBox={`0 0 ${n} ${n}`} className="block w-full rounded-[6px] bg-[#f7f2e8] sm:rounded-[14px]">
+      {b.answer.map((v, e) => {
+        if (!v) return null;
+        const [x, y] = edgeCells(n, e);
+        return <line key={e} x1={(x % n) + 0.5} y1={Math.floor(x / n) + 0.5} x2={(y % n) + 0.5} y2={Math.floor(y / n) + 0.5} stroke="#ff8a2b" strokeWidth={0.22} strokeLinecap="round" />;
+      })}
+      {b.numbers.map((k, i) => (k ? <g key={`n${i}`}><circle cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.33} fill="#22242b" /><text x={(i % n) + 0.5} y={Math.floor(i / n) + 0.62} textAnchor="middle" fontSize={0.34} fontWeight={900} fill="#ffffff">{k}</text></g> : null))}
+    </svg>
+  </div>;
+}
+
+/** Home card art: a solved 6×6 컬러 잇기, colour lines joining smiling stone pairs. */
+export function ColorLinkPreview() {
+  const b = buildBoard('colorlink', 6, 20270109);
+  if (b.kind !== 'colorlink') return null;
+  const n = 6;
+  // Colour each cell by walking the answer lines from each stone.
+  const adj: number[][] = Array.from({ length: n * n }, () => []);
+  b.answer.forEach((v, e) => { if (v) { const [x, y] = edgeCells(n, e); adj[x].push(y); adj[y].push(x); } });
+  const col = new Array<number>(n * n).fill(0);
+  b.ends.forEach((k, s) => { if (!k || col[s]) return; let prev = -1, cur = s; col[s] = k; for (;;) { const nx = adj[cur].find((x) => x !== prev); if (nx === undefined || col[nx]) break; col[nx] = k; prev = cur; cur = nx; } });
+  return <div className="w-full rotate-2 rounded-xl bg-gradient-to-br from-[#5fe0d4] to-[#139488] p-1.5 shadow-xl sm:w-[66%] sm:rounded-[22px] sm:p-3 sm:shadow-2xl">
+    <svg viewBox={`0 0 ${n} ${n}`} className="block w-full rounded-[6px] bg-[#f7f2e8] sm:rounded-[14px]">
+      {col.map((k, i) => (k ? <rect key={`t${i}`} x={i % n} y={Math.floor(i / n)} width={1} height={1} fill={LINK_COLORS[(k - 1) % LINK_COLORS.length].fill} opacity={0.22} /> : null))}
+      {b.answer.map((v, e) => {
+        if (!v) return null;
+        const [x, y] = edgeCells(n, e);
+        return <line key={e} x1={(x % n) + 0.5} y1={Math.floor(x / n) + 0.5} x2={(y % n) + 0.5} y2={Math.floor(y / n) + 0.5} stroke={LINK_COLORS[(col[x] - 1 + LINK_COLORS.length) % LINK_COLORS.length].fill} strokeWidth={0.3} strokeLinecap="round" />;
+      })}
+      {b.ends.map((k, i) => (k ? <ColorStone key={`s${i}`} id="clp" k={k} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.35} mood="happy" /> : null))}
     </svg>
   </div>;
 }
