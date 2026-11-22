@@ -11,7 +11,7 @@ import subprocess
 import sys
 
 CAMPAIGN = "hiddenlog_2611"
-LAUNCHED_AT = "2026-11-23"  # set to the exact KST launch time once live
+LAUNCHED_AT = "2026-11-23 00:49"
 START = dt.date(2026, 11, 23)
 END = dt.date(2026, 12, 2)
 GA_PROPERTY = "properties/525486998"
