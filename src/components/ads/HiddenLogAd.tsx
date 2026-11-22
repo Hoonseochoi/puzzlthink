@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import localFont from 'next/font/local';
-import { X } from 'lucide-react';
 import { getSupabase } from '@/lib/supabase';
 import { usePathname } from '@/i18n/routing';
 import { CoffeeNudge, SupportBanner } from '../SupportLink';
@@ -20,21 +19,18 @@ const LINKS = {
   result: 'https://thehiddenlog.web.app/go/pt-result',
 } as const;
 const LOGO = '/ads/hiddenlog/logo.webp';
-const TOP_DAY_KEY = 'puzzlthink_ad_hiddenlog_top_day';
 
 // Only the glyphs of the four headlines (≈14 KB); everything else stays in the site font.
 const heirOfLight = localFont({ src: './heiroflight-ad.woff2', weight: '700', display: 'swap', preload: false });
 
 type Place = keyof typeof LINKS;
-type AdEvent = 'impression' | 'click' | 'dismiss';
+type AdEvent = 'impression' | 'click';
 
 function trackAd(place: Place, event: AdEvent) {
   // Local dev talks to the live DB too; only the deployed site may count toward the advertiser's numbers.
   if (process.env.NODE_ENV !== 'production') return;
   try { getSupabase()?.rpc('count_ad_event', { p_campaign: CAMPAIGN, p_place: place, p_event: event }).then(() => {}); } catch { /* optional */ }
 }
-
-const todayKst = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 
 function useCampaignLive() {
   const locale = useLocale();
@@ -55,14 +51,14 @@ const GOLD_TEXT = 'bg-gradient-to-b from-[#fff6df] via-[#f7dc9c] to-[#e6b966] bg
 const CTA = 'shrink-0 whitespace-nowrap rounded-full bg-gradient-to-b from-[#ef7a5c] to-[#e2674a] font-black text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.12),0_2px_8px_rgba(226,103,74,.45)]';
 const AD_TAG = 'shrink-0 rounded-[4px] border border-[#f7dc9c]/40 px-1 text-[9px] font-extrabold leading-3 tracking-[0.08em] text-[#f7dc9c]/75';
 
-function HiddenLogTopBanner({ onClose }: { onClose: () => void }) {
+function HiddenLogTopBanner() {
   const pathname = usePathname();
   useEffect(() => { trackAd('top', 'impression'); }, [pathname]);
   return (
     <div className="relative h-[38px] overflow-hidden border-b border-[#e6b966]/35 bg-[linear-gradient(90deg,#24170f_0%,#3b281d_22%,#4a3326_50%,#3b281d_78%,#24170f_100%)] text-[#fff3e2]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_220%_at_50%_-60%,rgba(230,185,102,.22),transparent_55%)]" />
-      <div className="relative mx-auto flex h-full max-w-6xl items-center gap-1.5 pl-3 pr-2.5 sm:gap-2 sm:px-4">
-        <AdLink place="top" className="flex min-w-0 flex-1 items-center gap-1.5 sm:justify-center sm:gap-2.5">
+      <div className="relative mx-auto flex h-full max-w-6xl items-center px-3 sm:px-4">
+        <AdLink place="top" className="flex h-full min-w-0 flex-1 items-center gap-1.5 sm:justify-center sm:gap-2.5">
           <span className={AD_TAG}>AD</span>
           {/* eslint-disable-next-line @next/next/no-img-element -- tiny static logo, no optimizer needed */}
           <img src={LOGO} alt="Hidden Log" width={48} height={24} className="h-5 w-auto shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,.5)] sm:h-7" />
@@ -74,31 +70,15 @@ function HiddenLogTopBanner({ onClose }: { onClose: () => void }) {
           <span className="hidden min-w-0 truncate text-[12px] font-semibold text-[#fff3e2]/60 md:block"><b className="font-extrabold text-[#fff3e2]/90">시청역 더히든게임룸</b> · 매주 주말 소셜게임 리그 · 테마 31종</span>
           <span className={`${CTA} ml-auto px-2 py-1 text-[11px] min-[380px]:px-2.5 min-[380px]:text-[11.5px] sm:ml-0 sm:px-3`}>참가하기 →</span>
         </AdLink>
-        <button type="button" onClick={onClose} aria-label="오늘 하루 닫기" title="오늘 하루 닫기" className="shrink-0 rounded-full p-1 text-[#fff3e2]/45 transition hover:bg-white/10 hover:text-[#fff3e2]"><X size={14} /></button>
       </div>
     </div>
   );
 }
 
-/** Top strip above the header: the campaign while it runs, otherwise the support banner. Closing hides it for the day. */
+/** Top strip above the header: the campaign while it runs (no close button, per the deal), otherwise the support banner. */
 export function TopBannerSlot() {
   const live = useCampaignLive();
-  const [hidden, setHidden] = useState(true);
-  useEffect(() => {
-    if (!live) return;
-    let off = false;
-    try { off = localStorage.getItem(TOP_DAY_KEY) === todayKst(); } catch { /* optional */ }
-    const id = window.setTimeout(() => setHidden(off), 0);
-    return () => window.clearTimeout(id);
-  }, [live]);
-  if (!live) return <SupportBanner />;
-  if (hidden) return null;
-  const close = () => {
-    trackAd('top', 'dismiss');
-    try { localStorage.setItem(TOP_DAY_KEY, todayKst()); } catch { /* optional */ }
-    setHidden(true);
-  };
-  return <HiddenLogTopBanner onClose={close} />;
+  return live ? <HiddenLogTopBanner /> : <SupportBanner />;
 }
 
 const Icon = ({ d }: { d: string }) => (
@@ -118,7 +98,7 @@ function HiddenLogResultCard({ won, className }: { won?: boolean; className: str
     trackAd('result', 'impression');
   }, []);
   return (
-    <div className={`relative overflow-hidden rounded-[18px] border border-[#e6b966]/40 bg-[radial-gradient(90%_70%_at_100%_0%,rgba(230,185,102,.20),transparent_60%),radial-gradient(70%_60%_at_0%_100%,rgba(226,103,74,.16),transparent_60%),linear-gradient(160deg,#4a3326_0%,#2f2018_55%,#22170f_100%)] px-4 pb-3.5 pt-4 text-left text-[#fff3e2] shadow-[inset_0_1px_0_rgba(247,220,156,.12)] ${className}`}>
+    <AdLink place="result" className={`group relative block overflow-hidden rounded-[18px] border border-[#e6b966]/40 bg-[radial-gradient(90%_70%_at_100%_0%,rgba(230,185,102,.20),transparent_60%),radial-gradient(70%_60%_at_0%_100%,rgba(226,103,74,.16),transparent_60%),linear-gradient(160deg,#4a3326_0%,#2f2018_55%,#22170f_100%)] px-4 pb-3.5 pt-4 text-left text-[#fff3e2] shadow-[inset_0_1px_0_rgba(247,220,156,.12)] transition hover:border-[#e6b966]/70 ${className}`}>
       <div className="flex items-center justify-between">
         <span className="font-mono text-[10px] tracking-[0.12em] text-[#f7dc9c]/70">OFFLINE · SOCIAL GAME</span>
         {/* eslint-disable-next-line @next/next/no-img-element -- tiny static logo, no optimizer needed */}
@@ -135,11 +115,11 @@ function HiddenLogResultCard({ won, className }: { won?: boolean; className: str
           <span key={c.label} className="inline-flex items-center gap-1 rounded-full border border-[#e6b966]/30 bg-[#e6b966]/10 px-2 py-[3px] text-[10.5px] font-extrabold text-[#f7dc9c]"><Icon d={c.d} />{c.label}</span>
         ))}
       </div>
-      <AdLink place="result" className="mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-b from-[#ef7a5c] to-[#e2674a] px-4 py-[11px] text-[13.5px] font-black text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.14),0_6px_18px_rgba(226,103,74,.35)] transition hover:brightness-105">
+      <span className="mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-b from-[#ef7a5c] to-[#e2674a] px-4 py-[11px] text-[13.5px] font-black text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.14),0_6px_18px_rgba(226,103,74,.35)] transition group-hover:brightness-105">
         직접 해보러 가기 →
-      </AdLink>
-      <div className="mt-2 flex justify-between text-[10px] text-[#fff3e2]/40"><span>AD · 광고</span><span>시청역점 · 네이버 예약</span></div>
-    </div>
+      </span>
+      <span className="mt-2 flex justify-between text-[10px] text-[#fff3e2]/40"><span>AD · 광고</span><span>시청역점 · 네이버 예약</span></span>
+    </AdLink>
   );
 }
 
