@@ -8,7 +8,7 @@ import { useRouter } from '@/i18n/routing';
 import { displayName, useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
 import { clearPendingGame } from '@/lib/stats';
-import { CoffeeNudge } from './SupportLink';
+import { ResultBannerSlot } from './ads/HiddenLogAd';
 import AdSlot from './AdSlot';
 
 /** "Keep this on record?" card with Google sign-in, shown on result screens to signed-out players. */
@@ -47,10 +47,11 @@ function RecordPrompt() {
 
 /**
  * End-of-game panel: sign-in prompt (signed-out players), then quit / play again / share — share copies the game's page link.
+ * `won` picks the sponsor card's copy (unknown → the winning line).
  * `gamePath` is the game page (e.g. "/heavy13"); `exitPath` is where 끝내기 goes.
  */
-export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPath, primaryClass }: {
-  onAgain?: () => void; waitingLabel?: string; gamePath: string; exitPath: string; primaryClass: string;
+export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPath, primaryClass, won }: {
+  onAgain?: () => void; waitingLabel?: string; gamePath: string; exitPath: string; primaryClass: string; won?: boolean;
 }) {
   const t = useTranslations('Common');
   const tp = useTranslations('OpenPractice');
@@ -98,7 +99,7 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
           </button>
         </div>
       </div>
-      <CoffeeNudge className="mt-4" />
+      <ResultBannerSlot won={won} className="mt-4" />
       {/* Below the buttons so a late-loading ad never shifts them under the player's finger. */}
       <AdSlot placement="result" tone="dark" compact className="mt-5 border-t border-white/10 pt-4" />
     </>

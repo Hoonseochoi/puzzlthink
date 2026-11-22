@@ -8,7 +8,8 @@ import { GAMES } from '@/lib/gameCatalog';
 import LanguageSwitcher from './LanguageSwitcher';
 import AuthButton from './AuthButton';
 import GamesMenu from './GamesMenu';
-import { HeaderSupportButton, SupportBanner } from './SupportLink';
+import { HeaderSupportButton } from './SupportLink';
+import { TopBannerSlot } from './ads/HiddenLogAd';
 
 const HIDE_ON = ['/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker', '/masyu', '/nonogram', '/star-battle', '/binairo', '/one-stroke', '/color-link'];
 const NAV_LINK = 'rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black';
@@ -29,7 +30,7 @@ export default function GlobalHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/[0.07] bg-[#f3f0e8]/90 backdrop-blur-xl">
-      <SupportBanner />
+      <TopBannerSlot />
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link href="/" className="flex items-center gap-2.5" onClick={closeMenu}>
           <span className="grid h-8 w-8 grid-cols-2 gap-0.5 rounded-[10px] bg-[#17201e] p-2"><i className="rounded-sm bg-[#ff6b4a]" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-[#f2c14e]" /></span>

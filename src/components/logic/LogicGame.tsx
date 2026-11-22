@@ -9,7 +9,7 @@ import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RankMove from '@/components/RankMove';
 import Shards from '@/components/WallGoShards';
-import { CoffeeNudge } from '@/components/SupportLink';
+import { ResultBannerSlot } from '@/components/ads/HiddenLogAd';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { type LogicBoard, type LogicGameId, LOGIC, buildBoard, emptyMarks, formatClock, newSeed, solved, startSteps } from '@/lib/logicPuzzles';
@@ -419,7 +419,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                       <button type="button" onClick={() => switchMode('beat')} className={`py-3 ${BTN}`}><Swords size={14} />{t('mode_beat')}</button>
                     </>}
                   </div>
-                  {phase === 'solved' && <div className="mt-4"><CoffeeNudge /></div>}
+                  {phase === 'solved' && <div className="mt-4"><ResultBannerSlot won /></div>}
                 </div>
               )}
             </>

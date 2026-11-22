@@ -14,7 +14,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
-import { CoffeeNudge } from '@/components/SupportLink';
+import { ResultBannerSlot } from '@/components/ads/HiddenLogAd';
 import { SLITHER_SIZES, type Mark, type SlitherSize, type Puzzle, formatClock, generatePuzzle, hintEdges, isSolved, loopOrder, newSeed } from '@/lib/slitherlink';
 import { type BoardRow, type FinishResult, type RankRow, type RivalRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, fetchRivals, finishCleared, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
 import { reportGame } from '@/lib/stats';
@@ -477,7 +477,7 @@ export default function SlitherGame() {
                       </button>
                     </div>
                   )}
-                  {phase === 'solved' && (mode === 'practice' || result?.ok) && <CoffeeNudge className="mt-4" />}
+                  {phase === 'solved' && (mode === 'practice' || result?.ok) && <ResultBannerSlot won className="mt-4" />}
                 </div>
               )}
             </>

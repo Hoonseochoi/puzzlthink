@@ -60,7 +60,7 @@ export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLa
           </ol>}
         </div>
         {onReplay && <ReplayButton onClick={onReplay} className="!mt-4" />}
-        <ResultActions onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-roulette" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
+        <ResultActions won={mySeat === null ? undefined : !hit} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-roulette" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
       </div>
     </div>
   );
