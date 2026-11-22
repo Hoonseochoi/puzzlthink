@@ -21,6 +21,7 @@ export type TspRound = {
   reason: 'showdown' | 'fold';
   bonus: number; // 양면베팅 chips moved on top of the pot
   delta: [number, number]; // net chip change this hand, ante included
+  log?: TspLog[]; // the betting, for the replay (older saved rooms have none)
 };
 export type TspState = {
   sid: string;
@@ -169,7 +170,7 @@ function settle(state: TspState, winner: TspSide | 'draw', reason: TspRound['rea
     }
   }
   const delta: [number, number] = [chips[0] - before[0], chips[1] - before[1]];
-  const round: TspRound = { cards: state.cards, faces: state.faces, levels: state.levels, pot: won, winner, reason, bonus, delta };
+  const round: TspRound = { cards: state.cards, faces: state.faces, levels: state.levels, pot: won, winner, reason, bonus, delta, log: state.log };
   const next: TspState = { ...state, chips, carry, phase: 'reveal', rounds: [...state.rounds, round] };
   return next.chips[0] <= 0 || next.chips[1] <= 0 ? { ...next, phase: 'finished', winner: next.chips[0] > 0 ? 0 : 1 } : next;
 }
@@ -318,7 +319,7 @@ export function tspView(state: TspState, me: TspSide): TspState {
     chips: swap(state.chips), cards: swap(state.cards), faces: swap(state.faces), levels: swap(state.levels),
     first: flip(state.first), turn: flip(state.turn), winner: flip(state.winner),
     log: state.log.map((l) => ({ ...l, side: flip(l.side) })),
-    rounds: state.rounds.map((r) => ({ ...r, cards: swap(r.cards), faces: swap(r.faces), levels: swap(r.levels), delta: swap(r.delta), winner: flip(r.winner) })),
+    rounds: state.rounds.map((r) => ({ ...r, cards: swap(r.cards), faces: swap(r.faces), levels: swap(r.levels), delta: swap(r.delta), winner: flip(r.winner), log: r.log?.map((l) => ({ ...l, side: flip(l.side) })) })),
   };
 }
 

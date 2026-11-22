@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { History, RotateCcw, Trophy } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
-import { BTN_ACCENT, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
+import { BTN, BTN_ACCENT, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { reportGame } from '@/lib/stats';
 import { TSP_AI_TARGET, type TspLevel, type TspState, applyTspAction, chooseTspAiAction, newTspGame, startTspHand, tspForcedAction, tspRevealMs } from '@/lib/twoSidedPoker';
 import { TSP_ACCENT, TSP_GLOW_RGB, TSP_INK, tspCopy } from './copy';
 import { TspCountingPanel, TspHistoryPanel, TspRulesPanel, TspStage } from './TwoSidedPokerTable';
+import { TspReplay, TspResultModal } from './TwoSidedPokerResult';
 
 /** 양면포커 against the AI (seat 1), in this browser. */
 export default function TwoSidedPokerGame({ locale }: { locale: string }) {
@@ -16,6 +17,8 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
   const [level, setLevel] = useState<TspLevel>('normal');
   // Only rendered after the player starts (#play), never on the server, so the shuffle can happen at init.
   const [state, setState] = useState<TspState>(() => newTspGame('normal'));
+  const [closedSid, setClosedSid] = useState<string | null>(null); // the result popup was closed for this match
+  const [replaying, setReplaying] = useState(false);
 
   // AI turn, with a short think.
   useEffect(() => {
@@ -46,10 +49,19 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
     reportGame(`two-sided-poker-ai-${state.sid}`, 'two_sided_poker', 'ai', state.winner === 0 ? 'win' : 'loss', { difficulty: state.level, hands: state.hand, chips: state.chips[0] });
   }, [state]);
 
+  const newGame = () => { setReplaying(false); setClosedSid(null); setState(newTspGame(level)); };
+  const finished = state.phase === 'finished';
+  const won = state.winner === 0;
   const footer = state.phase === 'reveal'
     ? <NextDealBar key={state.rounds.length} ms={tspRevealMs(state)} label={t.room.nextSoon} />
-    : state.phase === 'finished'
-      ? <button type="button" onClick={() => setState(newTspGame(level))} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{t.again}</button>
+    : finished
+      ? (
+        <div className="grid grid-cols-3 gap-2">
+          <button type="button" onClick={() => { setReplaying(false); setClosedSid(null); }} className={`${BTN} py-3 text-xs`}><Trophy size={14} />{t.end.showResult}</button>
+          <button type="button" onClick={() => setReplaying(true)} className={`${BTN} py-3 text-xs`}><History size={14} />{t.end.replay}</button>
+          <button type="button" onClick={newGame} className={`${BTN_ACCENT} py-3 text-xs`}><RotateCcw size={14} />{t.again}</button>
+        </div>
+      )
       : null;
 
   return (
@@ -57,7 +69,9 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
       <GameHeader backHref="/two-sided-poker" backLabel={t.back} title={t.title} subtitle={t.subtitle}><LanguageSwitcher compact dark /></GameHeader>
       <main className={MAIN}>
         <section className={STAGE}>
-          <TspStage t={t} state={state} names={[t.you, t.ai]} badges={[t.you, t.ai]} canAct onAct={(action) => setState((s) => applyTspAction(s, 0, action))} waitText={t.status.aiThinking} footer={footer} />
+          {replaying && finished
+            ? <TspReplay t={t} rounds={state.rounds} names={[t.you, t.ai]} onClose={() => { setReplaying(false); setClosedSid(state.sid); }} onShowResult={() => { setReplaying(false); setClosedSid(null); }} />
+            : <TspStage t={t} state={state} names={[t.you, t.ai]} badges={[t.you, t.ai]} canAct onAct={(action) => setState((s) => applyTspAction(s, 0, action))} waitText={t.status.aiThinking} footer={footer} />}
         </section>
         <aside className="flex flex-col gap-4">
           <TspCountingPanel t={t} state={state} />
@@ -70,6 +84,14 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
           <TspRulesPanel t={t} />
         </aside>
       </main>
+      {finished && !replaying && closedSid !== state.sid && (
+        <TspResultModal
+          t={t} won={won} chips={state.chips[0]} title={won ? t.end.win : t.end.lose}
+          reason={`${won ? t.end.byChips(state.hand) : t.end.lostChips(state.hand)} · ${t.end.level(t.levels[state.level])}`}
+          rounds={state.rounds} rankingNote={won ? (state.level === 'easy' ? t.end.rankingEasy : t.end.rankingWin) : t.end.rankingLose}
+          onReplay={() => setReplaying(true)} onClose={() => setClosedSid(state.sid)} onAgain={newGame}
+        />
+      )}
     </div>
   );
 }

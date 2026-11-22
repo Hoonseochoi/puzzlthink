@@ -13,7 +13,7 @@ import { Bubble, ChipPile, PokerChip, TwoFaceCard } from './TwoSidedPokerParts';
 const CHIP_STEPS = [1, 2, 5, 10];
 export const faceValue = (card: TspCard, face: TspFace) => (face === 'both' ? `${card.front}·${card.back}` : String(card[face]));
 
-function bubbleText(t: TspCopy, entry: TspLog | undefined) {
+export function bubbleText(t: TspCopy, entry: TspLog | undefined) {
   if (!entry) return null;
   if (entry.kind === 'fold') return t.bubble.fold;
   if (entry.kind === 'call') return t.bubble.call;
@@ -187,7 +187,7 @@ export function TspStage({ t, state, names, badges, canAct, onAct, waitText, sta
   );
 }
 
-function RoundBanner({ t, round, carry }: { t: TspCopy; round: TspRound; carry: number }) {
+export function RoundBanner({ t, round, carry }: { t: TspCopy; round: TspRound; carry: number }) {
   const mine = round.delta[0];
   const [f0, f1] = round.faces;
   const shown = round.reason === 'showdown' && f0 && f1;

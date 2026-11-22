@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { Copy, Crown, Flag, Loader2, RotateCcw, Share2, Swords, Users, WifiOff } from 'lucide-react';
+import { Copy, Crown, Flag, History, Loader2, RotateCcw, Share2, Swords, Trophy, Users, WifiOff } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
@@ -14,6 +14,7 @@ import { tspView } from '@/lib/twoSidedPoker';
 import { TSP_TURN_OPTIONS } from '@/lib/twoSidedPokerRoom';
 import { TSP_ACCENT, TSP_GLOW_RGB, TSP_INK, tspCopy } from './copy';
 import { TspCountingPanel, TspHistoryPanel, TspRulesPanel, TspStage } from './TwoSidedPokerTable';
+import { TspReplay, TspResultModal } from './TwoSidedPokerResult';
 
 export default function TwoSidedPokerRoomView({ code }: { code: string }) {
   const locale = useLocale();
@@ -23,6 +24,8 @@ export default function TwoSidedPokerRoomView({ code }: { code: string }) {
   const { status, state, hostOnline, me, mySeat, dispatch, rename } = useTwoSidedPokerRoom(code, defaultName);
   const [name, setName] = useState('');
   const [copied, setCopied] = useState(false);
+  const [closedSid, setClosedSid] = useState<string | null>(null); // the result popup was closed for this match
+  const [replaying, setReplaying] = useState(false);
   const [shareUrl] = useState(() => (typeof window === 'undefined' ? '' : `${window.location.origin}/${locale}/two-sided-poker/room/${code}`));
 
   useEffect(() => {
@@ -51,11 +54,25 @@ export default function TwoSidedPokerRoomView({ code }: { code: string }) {
   const finishedStatus = state.phase === 'finished' && state.winner !== null
     ? `${r.winner(seatName(state.winner))}${state.reason === 'resign' ? ` · ${r.byResign}` : state.reason === 'timeout' ? ` · ${r.byTimeout}` : ''}`
     : undefined;
+  const finished = state.phase === 'finished' && !!game;
+  const won = mySeat !== null && state.winner === mySeat;
+  const rematch = () => { setReplaying(false); setClosedSid(null); dispatch({ t: 'start' }); };
   const footer = state.phase === 'reveal'
     ? <p className="text-center text-xs font-bold text-white/45">{r.nextSoon}</p>
-    : state.phase === 'finished'
-      ? (me?.isHost ? <button type="button" onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{r.rematch}</button> : <p className="text-center text-xs text-white/45">{r.rematchWait}</p>)
+    : finished
+      ? (
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <button type="button" onClick={() => { setReplaying(false); setClosedSid(null); }} className={`${BTN} py-3 text-xs`}><Trophy size={14} />{t.end.showResult}</button>
+            <button type="button" onClick={() => setReplaying(true)} className={`${BTN} py-3 text-xs`}><History size={14} />{t.end.replay}</button>
+          </div>
+          {me?.isHost ? <button type="button" onClick={rematch} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{r.rematch}</button> : <p className="text-center text-xs text-white/45">{r.rematchWait}</p>}
+        </div>
+      )
       : null;
+  const endReason = state.reason === 'resign' ? (won ? t.end.byResign : t.end.resigned)
+    : state.reason === 'timeout' ? (won ? t.end.byTimeout : t.end.timedOut)
+      : won ? t.end.byChips(game?.hand ?? 0) : t.end.lostChips(game?.hand ?? 0);
 
   return (
     <div className={SHELL} style={shell}>
@@ -76,6 +93,8 @@ export default function TwoSidedPokerRoomView({ code }: { code: string }) {
                 ? <button type="button" disabled={!full} onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3 text-sm disabled:opacity-35`}><Swords size={15} />{full ? r.start : r.startLocked}</button>
                 : <p className="text-center text-sm text-white/45">{mySeat === null ? r.roomFull : r.waitingHost}</p>}
             </div>
+          ) : replaying && finished ? (
+            <TspReplay t={t} rounds={tspView(game, viewer).rounds} names={[seatName(viewer), seatName(rival)]} onClose={() => { setReplaying(false); setClosedSid(state.sid); }} onShowResult={() => { setReplaying(false); setClosedSid(null); }} />
           ) : (
             <TspStage
               t={t} state={tspView(game, viewer)} names={[seatName(viewer), seatName(rival)]} badges={[badge(viewer), badge(rival)]}
@@ -110,6 +129,14 @@ export default function TwoSidedPokerRoomView({ code }: { code: string }) {
           {running && mySeat !== null && <button type="button" onClick={() => window.confirm(r.resignConfirm) && dispatch({ t: 'resign' })} className={`${BTN} text-white/50`}><Flag size={13} />{r.resign}</button>}
         </aside>
       </main>
+      {finished && game && !replaying && closedSid !== state.sid && (
+        <TspResultModal
+          t={t} won={won} chips={game.chips[viewer]} title={mySeat === null && state.winner !== null ? t.end.winner(seatName(state.winner)) : won ? t.end.win : t.end.lose}
+          reason={endReason} rounds={tspView(game, viewer).rounds} rankingNote={t.end.rankingRoom}
+          onReplay={() => setReplaying(true)} onClose={() => setClosedSid(state.sid)}
+          onAgain={me?.isHost ? rematch : undefined} waitingLabel={me?.isHost ? undefined : r.rematchWait}
+        />
+      )}
     </div>
   );
 }
