@@ -12,7 +12,7 @@ import { useWallGo2Room, useWallGoRoom } from '@/hooks/useWallGoRoom';
 import { KindPicker } from './WallGoGame';
 import { useGameCounter, useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
 import { ReplayButton, ReplayControls, ReplayHeader } from './ui/ReplayBar';
-import { accentVars } from './ui/gameUi';
+import { accentVars, MODAL_BACKDROP } from './ui/gameUi';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import RoomAlerts from './RoomAlerts';
 import { reportGame } from '@/lib/stats';
@@ -262,14 +262,13 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
       )}
 
       {state?.phase === 'finished' && state.winner !== null && !showReplay && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className={MODAL_BACKDROP}>
           <div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]">
             <div className="flex justify-center gap-2">{winners.map((p) => <WallGoCharacter key={p} player={p} className="h-20" />)}</div>
             <p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{tw('gameOver')}</p>
             <h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winners.length > 1 ? tw('coWin', { players: winners.map((p) => plainName(p)).join(' · ') }) : state.winner === mySeat ? tw('youWin') : t('winnerTitle', { player: plainName(state.winner) })}</h2>
             <p className="mt-2 text-sm text-white/50">{tw('finalScore', { score: territory.scores[state.winner], largest: territory.largest[state.winner] })}</p>
-            {frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} />}
-            <ResultActions won={mySeat === null ? undefined : winners.length ? winners.includes(mySeat) : state.winner === mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath={PATH} exitPath={PATH} primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
+            <ResultActions replay={frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} />} won={mySeat === null ? undefined : winners.length ? winners.includes(mySeat) : state.winner === mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath={PATH} exitPath={PATH} primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
           </div>
         </div>
       )}

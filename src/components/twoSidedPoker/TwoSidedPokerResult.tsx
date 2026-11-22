@@ -44,15 +44,15 @@ export function TspResultModal({ t, won, chips, title, reason, rounds, rankingNo
           ))}
         </dl>
 
-        {rounds.length > 0 && <ReplayButton onClick={onReplay} />}
+        <ResultActions replay={<>
+          {rounds.length > 0 && <ReplayButton onClick={onReplay} />}
 
-        <div className="mt-3 rounded-[12px] border border-[#ffd36e]/30 bg-[#ffd36e]/[0.07] px-4 py-3 text-left">
-          <p className="flex items-center gap-1.5 text-xs font-black text-[#ffd36e]"><Trophy size={13} />{t.end.rankingTitle}</p>
-          <p className="mt-1 break-keep text-xs leading-5 text-white/60">{rankingNote}</p>
-          <Link href="/ranking/two-sided-poker" className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#ffd36e]/40 bg-[#ffd36e]/10 px-3 py-1.5 text-xs font-black text-[#ffd36e] hover:bg-[#ffd36e]/20">🏆 {t.end.rankingButton}</Link>
-        </div>
-
-        <ResultActions won={won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/two-sided-poker" exitPath="/two-sided-poker" primaryClass={RESULT_PRIMARY} />
+          <div className="mt-3 rounded-[12px] border border-[#ffd36e]/30 bg-[#ffd36e]/[0.07] px-4 py-3 text-left">
+            <p className="flex items-center gap-1.5 text-xs font-black text-[#ffd36e]"><Trophy size={13} />{t.end.rankingTitle}</p>
+            <p className="mt-1 break-keep text-xs leading-5 text-white/60">{rankingNote}</p>
+            <Link href="/ranking/two-sided-poker" className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#ffd36e]/40 bg-[#ffd36e]/10 px-3 py-1.5 text-xs font-black text-[#ffd36e] hover:bg-[#ffd36e]/20">🏆 {t.end.rankingButton}</Link>
+          </div>
+        </>} won={won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/two-sided-poker" exitPath="/two-sided-poker" primaryClass={RESULT_PRIMARY} />
       </div>
     </div>
   );

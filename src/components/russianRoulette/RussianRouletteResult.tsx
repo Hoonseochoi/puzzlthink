@@ -9,7 +9,7 @@ import ResultActions from '../ResultActions';
 import { ReplayButton } from '../ui/ReplayBar';
 import RouletteCharacter from './RouletteCharacter';
 import { russianRouletteFiringDuration } from './firing';
-import { KICKER, RESULT_PRIMARY, STEEL_TEXT, WELL } from '../ui/gameUi';
+import { KICKER, MODAL_BACKDROP, RESULT_PRIMARY, STEEL_TEXT, WELL } from '../ui/gameUi';
 import { RR_MODAL } from './theme';
 
 export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLabel, exitPath = '/', onReplay, hidden = false }: {
@@ -33,7 +33,7 @@ export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLa
 
   if (!ready || hidden) return null;
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+    <div className={`${MODAL_BACKDROP} !z-[80]`}>
       <div className={`${RR_MODAL} max-w-2xl overflow-hidden p-5 text-white sm:p-6`}>
         <p className={`text-center ${KICKER}`}>FINAL TRIGGER</p>
         <p className="mt-2 text-center text-[9px] font-black tracking-[.2em] text-white/30">{t('resultReady')}</p>
@@ -59,8 +59,7 @@ export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLa
             </li>)}
           </ol>}
         </div>
-        {onReplay && <ReplayButton onClick={onReplay} className="!mt-4" />}
-        <ResultActions won={mySeat === null ? undefined : !hit} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-roulette" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
+        <ResultActions replay={onReplay && <ReplayButton onClick={onReplay} className="!mt-4" />} won={mySeat === null ? undefined : !hit} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-roulette" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
       </div>
     </div>
   );

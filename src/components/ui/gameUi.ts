@@ -59,7 +59,8 @@ export const playerRow = (on: boolean) => `flex items-center gap-3 rounded-[10px
 export const DIAMOND = 'mt-1 h-1.5 w-1.5 shrink-0 rotate-45 bg-(--accent)';
 export const INPUT = 'min-w-0 flex-1 rounded-md border border-white/10 bg-[#0b0b0e] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-(--accent)/60';
 
-export const MODAL_BACKDROP = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm';
+// Scrolls when the dialog is taller than the screen (result screens carry a sponsor card); centred otherwise.
+export const MODAL_BACKDROP = 'fixed inset-0 z-50 flex flex-col items-center overflow-y-auto overscroll-contain bg-black/80 p-4 backdrop-blur-sm [&>*]:my-auto [&>*]:shrink-0';
 export const MODAL = 'relative w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_var(--accent-glow)]';
 export const MODAL_CLOSE = 'absolute right-3 top-3 rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white';
 /** `primaryClass` for ResultActions. */

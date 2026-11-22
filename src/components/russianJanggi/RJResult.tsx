@@ -31,11 +31,12 @@ export default function RJResult({ game, viewer, names, onAgain, waitingLabel, e
         </div>
         <h2 className={`mt-5 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{title}</h2>
         <p className="mt-2 text-sm text-white/55">{t(`reason_${game.reason}`)}</p>
-        {onReplay && (game.moves?.length ?? 0) > 0 && (
-          <button onClick={onReplay} className="mt-5 flex w-full items-center justify-center gap-2 rounded-md border border-(--accent)/40 bg-(--accent)/10 py-3 text-sm font-black text-(--accent) hover:bg-(--accent)/20"><History size={15} />{t('replay')}</button>
-        )}
-        {lost && <TipsButton label={t('tipsButton')} onOpen={() => setTipsOpen(true)} />}
-        <ResultActions won={draw || viewer === null ? undefined : game.winner === viewer} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-janggi" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
+        <ResultActions replay={<>
+          {onReplay && (game.moves?.length ?? 0) > 0 && (
+            <button onClick={onReplay} className="mt-5 flex w-full items-center justify-center gap-2 rounded-md border border-(--accent)/40 bg-(--accent)/10 py-3 text-sm font-black text-(--accent) hover:bg-(--accent)/20"><History size={15} />{t('replay')}</button>
+          )}
+          {lost && <TipsButton label={t('tipsButton')} onOpen={() => setTipsOpen(true)} />}
+        </>} won={draw || viewer === null ? undefined : game.winner === viewer} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-janggi" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
         {tipsOpen && lost && <RJTips game={game} viewer={viewer!} onClose={() => setTipsOpen(false)} />}
       </div>
     </div>

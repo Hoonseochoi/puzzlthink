@@ -31,8 +31,7 @@ export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel, exi
             </li>
           ))}
         </ol>
-        {onReplay && <ReplayButton onClick={onReplay} />}
-        <ResultActions won={mySeat === null ? undefined : rankOf(mySeat) === 1} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/heavy13" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
+        <ResultActions replay={onReplay && <ReplayButton onClick={onReplay} />} won={mySeat === null ? undefined : rankOf(mySeat) === 1} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/heavy13" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
       </div>
     </div>
   );

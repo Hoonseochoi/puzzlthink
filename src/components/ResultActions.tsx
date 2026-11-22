@@ -47,11 +47,13 @@ function RecordPrompt() {
 
 /**
  * End-of-game panel: sign-in prompt (signed-out players), then quit / play again / share — share copies the game's page link.
+ * Order: sponsor card, then `replay` (the screen's 복기 button and anything tied to it), then sign-in and the buttons,
+ * so the card sits in the middle and players scroll past it to 복기 / 다시 하기.
  * `won` picks the sponsor card's copy (unknown → the winning line).
  * `gamePath` is the game page (e.g. "/heavy13"); `exitPath` is where 끝내기 goes.
  */
-export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPath, primaryClass, won }: {
-  onAgain?: () => void; waitingLabel?: string; gamePath: string; exitPath: string; primaryClass: string; won?: boolean;
+export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPath, primaryClass, won, replay }: {
+  onAgain?: () => void; waitingLabel?: string; gamePath: string; exitPath: string; primaryClass: string; won?: boolean; replay?: React.ReactNode;
 }) {
   const t = useTranslations('Common');
   const tp = useTranslations('OpenPractice');
@@ -80,14 +82,19 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
   // Practice beside an open room: back to waiting, or another practice game.
   if (practice) {
     return (
+      <>
+      {replay}
       <div className="mt-4 grid grid-cols-2 gap-2">
         <button onClick={practice.wait} className={secondary}><Hourglass size={14} />{tp('wait')}</button>
         <button onClick={practice.again} className={`flex items-center justify-center gap-1.5 py-3 text-xs font-black ${primaryClass}`}><RotateCcw size={14} />{tp('again')}</button>
       </div>
+      </>
     );
   }
   return (
     <>
+      <ResultBannerSlot won={won} className="mt-5" />
+      {replay}
       <RecordPrompt />
       <div className="mt-4 space-y-2">
         {!onAgain && waitingLabel && <p className="pb-1 text-center text-xs text-white/45">{waitingLabel}</p>}
@@ -99,7 +106,6 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
           </button>
         </div>
       </div>
-      <ResultBannerSlot won={won} className="mt-4" />
       {/* Below the buttons so a late-loading ad never shifts them under the player's finger. */}
       <AdSlot placement="result" tone="dark" compact className="mt-5 border-t border-white/10 pt-4" />
     </>
