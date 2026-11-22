@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, Clock3, Crown, Eye, Flag, Loader2, PaintBucket, RotateCcw, Sparkles, Swords, Timer, Trash2, Trophy, Undo2, X } from 'lucide-react';
+import { Check, ChevronDown, Clock3, Crown, Eye, Flag, Loader2, PaintBucket, RotateCcw, Sparkles, Swords, Timer, Trash2, Trophy, Undo2, X } from 'lucide-react';
 import AuthButton from '@/components/AuthButton';
 import { useAuth } from '@/components/AuthProvider';
 import BugReport from '@/components/BugReport';
@@ -23,6 +23,7 @@ import OneStrokeBoard from './OneStrokeBoard';
 import ColorLinkBoard from './ColorLinkBoard';
 import LogicRulesTip from './LogicRulesTip';
 import LogicReplayButton from './LogicReplay';
+import LogicHistory from './LogicHistory';
 import { useUndoKey } from '@/components/slitherlink/SlitherBoard';
 
 type Mode = 'challenge' | 'beat' | 'practice';
@@ -54,6 +55,8 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
   const [mode, setMode] = useState<Mode>('challenge');
   const [size, setSize] = useState<number>(spec.sizes[1]);
   const [board, setBoard] = useState<LogicBoard | null>(null);
+  const [historyOf, setHistoryOf] = useState<string | null>(null); // board whose owner history is open in the list
+  const minSec = (ms: number) => { const s = Math.floor(ms / 1000); return t('minSec', { m: Math.floor(s / 60), s: s % 60 }); };
   const [marks, setMarks] = useState<number[]>([]);
   const [tool, setTool] = useState<NonoTool>('fill');
   const [phase, setPhase] = useState<Phase>('lobby');
@@ -117,8 +120,8 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
   };
 
   useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('board'); // before switchMode drops it from the URL
     switchMode(readMode()); // eslint-disable-line react-hooks/set-state-in-effect -- read once from the URL
-    const id = new URLSearchParams(window.location.search).get('board');
     if (id && /^[0-9a-f]{10}$/.test(id)) fetchLogicBoard(game, id).then(({ data }) => setFocus(data));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- once, on mount
   useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 250); return () => window.clearInterval(id); }, []);
@@ -324,7 +327,9 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                     <div className="mb-4 rounded-[18px] border border-(--accent)/40 bg-(--accent)/10 p-5">
                       <p className={KICKER}>MAP #{focus.id.slice(0, 4)}</p>
                       <p className="mt-1 text-lg font-black">{t('focusTitle', { name: focus.holder })}</p>
-                      <p className="mt-1 text-xs text-white/60">{t('boardLine', { time: formatClock(focus.holder_ms), n: focus.attempts, k: focus.takeovers })}</p>
+                      <p className="mt-1 text-sm font-bold text-white/75">{t('limitLine', { time: minSec(focus.holder_ms) })}</p>
+                      <p className="mt-0.5 text-[11px] text-white/45">{t('boardMeta', { n: focus.attempts, k: focus.takeovers })}</p>
+                      <div className="mt-3"><p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-white/40">{t('historyTitle')}</p><LogicHistory id={focus.id} /></div>
                       <button type="button" disabled={focus.tried || focus.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', focus.id)} className={`${BTN_ACCENT} mt-4 w-full py-3.5 text-sm disabled:opacity-40`}>
                         <Swords size={15} />{focus.mine ? t('boardMine') : focus.tried ? t('boardTried') : t('beatStart', { time: formatClock(focus.holder_ms) })}
                       </button>
@@ -337,13 +342,18 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                     : !boards.length ? <p className="rounded-xl border border-dashed border-white/15 p-6 text-center text-xs text-white/45">{t('boardsEmpty')}</p>
                     : <ul className="space-y-1.5">
                       {boards.map((b) => (
-                        <li key={b.id} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--accent)/15 font-mono text-[10px] font-black text-(--accent)">{b.id.slice(0, 3)}</span>
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-black">{t('holderMap', { name: b.holder })}</p>
-                            <p className="text-[11px] text-white/45">{t('boardLine', { time: formatClock(b.holder_ms), n: b.attempts, k: b.takeovers })}</p>
+                        <li key={b.id} className="rounded-xl border border-white/10 bg-white/[0.03]">
+                          <div className="flex items-center gap-3 px-3 py-2.5">
+                            <button type="button" onClick={() => setHistoryOf((cur) => (cur === b.id ? null : b.id))} aria-expanded={historyOf === b.id} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--accent)/15 font-mono text-[10px] font-black text-(--accent)">{b.id.slice(0, 3)}</span>
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate text-sm font-black">{t('holderMap', { name: b.holder })} · <span className="font-mono text-(--accent)">{minSec(b.holder_ms)}</span></span>
+                                <span className="flex items-center gap-1 truncate text-[11px] text-white/45">{t('boardMeta', { n: b.attempts, k: b.takeovers })}<ChevronDown size={11} className={`shrink-0 transition ${historyOf === b.id ? 'rotate-180' : ''}`} /></span>
+                              </span>
+                            </button>
+                            <button type="button" disabled={b.tried || b.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', b.id)} className={`${BTN_ACCENT} shrink-0 !px-3 !py-1.5 disabled:opacity-40`}>{b.mine ? t('boardMine') : b.tried ? t('boardTried') : t('boardGo')}</button>
                           </div>
-                          <button type="button" disabled={b.tried || b.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', b.id)} className={`${BTN_ACCENT} shrink-0 !px-3 !py-1.5 disabled:opacity-40`}>{b.mine ? t('boardMine') : b.tried ? t('boardTried') : t('boardGo')}</button>
+                          {historyOf === b.id && <div className="border-t border-white/10 px-2.5 py-2"><LogicHistory id={b.id} /></div>}
                         </li>
                       ))}
                     </ul>}

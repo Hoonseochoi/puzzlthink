@@ -31,3 +31,6 @@ export const fetchLogicBoard = async (game: LogicGameId, id: string) => {
   const res = await call<LogicBoardRow[]>('logic_boards_list', { p_game: game, p_limit: 1, p_board: id });
   return { data: res.data?.[0] ?? null, error: res.error };
 };
+/** One clear in a board's life: the first (NEW) and every takeover after, oldest first. */
+export type LogicHistoryRow = { nth: number; kind: 'new' | 'beat'; nickname: string; ms: number; at: string; is_me: boolean };
+export const fetchLogicHistory = (id: string) => call<LogicHistoryRow[]>('logic_history', { p_id: id });
