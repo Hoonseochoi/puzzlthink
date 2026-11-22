@@ -55,11 +55,12 @@ function HiddenLogTopBanner() {
   const pathname = usePathname();
   useEffect(() => { trackAd('top', 'impression'); }, [pathname]);
   return (
-    <div className="relative h-[50px] overflow-hidden border-b border-[#e6b966]/35 bg-[linear-gradient(90deg,#24170f_0%,#3b281d_22%,#4a3326_50%,#3b281d_78%,#24170f_100%)] text-[#fff3e2] sm:h-[38px]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_220%_at_50%_-60%,rgba(230,185,102,.22),transparent_55%)]" />
-      <div className="relative mx-auto flex h-full max-w-6xl items-center px-3 sm:px-4">
-        {/* Phones: logo + two lines so the whole line fits; the strip itself is the link. */}
-        <AdLink place="top" className="flex h-full min-w-0 flex-1 items-center gap-2.5 sm:hidden">
+    // The whole strip, edge to edge, is one link.
+    <AdLink place="top" className="relative block h-[50px] overflow-hidden border-b border-[#e6b966]/35 bg-[linear-gradient(90deg,#24170f_0%,#3b281d_22%,#4a3326_50%,#3b281d_78%,#24170f_100%)] text-[#fff3e2] sm:h-[38px]">
+      <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_220%_at_50%_-60%,rgba(230,185,102,.22),transparent_55%)]" />
+      <span className="relative mx-auto flex h-full max-w-6xl items-center px-3 sm:px-4">
+        {/* Phones: logo + two lines so the whole line fits. */}
+        <span className="flex h-full min-w-0 flex-1 items-center gap-2.5 sm:hidden">
           {/* eslint-disable-next-line @next/next/no-img-element -- tiny static logo, no optimizer needed */}
           <img src={LOGO} alt="Hidden Log" width={63} height={32} className="h-8 w-auto shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,.5)]" />
           <span className="flex min-w-0 flex-1 flex-col justify-center gap-[3px]">
@@ -70,9 +71,9 @@ function HiddenLogTopBanner() {
               <span className={`${CTA} ml-auto px-2 py-[2px] text-[10.5px]`}>참가하기 →</span>
             </span>
           </span>
-        </AdLink>
+        </span>
         {/* Wider screens: one line. */}
-        <AdLink place="top" className="hidden h-full min-w-0 flex-1 items-center justify-center gap-2.5 sm:flex">
+        <span className="hidden h-full min-w-0 flex-1 items-center justify-center gap-2.5 sm:flex">
           <span className={AD_TAG}>AD</span>
           {/* eslint-disable-next-line @next/next/no-img-element -- tiny static logo, no optimizer needed */}
           <img src={LOGO} alt="Hidden Log" width={55} height={28} className="h-7 w-auto shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,.5)]" />
@@ -80,9 +81,9 @@ function HiddenLogTopBanner() {
           <span className="h-[3px] w-[3px] shrink-0 rounded-full bg-[#e6b966]/60" />
           <span className="min-w-0 truncate text-[12.5px] font-extrabold text-[#fff3e2]/90">히든로그 서울시청점에서!</span>
           <span className={`${CTA} px-3 py-1 text-[11.5px]`}>참가하기 →</span>
-        </AdLink>
-      </div>
-    </div>
+        </span>
+      </span>
+    </AdLink>
   );
 }
 
@@ -119,7 +120,7 @@ function HiddenLogResultCard({ won, className }: { won?: boolean; className: str
         {won === false ? <>아쉬운 이번 판,<br />설욕은 현실에서 해볼까요?</> : <>방금 그 두뇌,<br />현실에서 증명해 볼까요?</>}
       </p>
       <p className="mt-1.5 break-keep text-[12.5px] leading-[1.6] text-[#fff3e2]/70">
-        더지니어스·데블스플랜 같은 소셜게임 31종을 <b className="text-[#fff3e2]/95">8~13명이 한 테이블에서</b> 직접. 매주 주말 <b className="text-[#fff3e2]/95">시청역 더히든게임룸</b>에서 리그가 열려요.
+        더지니어스·데블스플랜 같은 소셜게임 31종을 <b className="text-[#fff3e2]/95">8~13명이 한 테이블에서</b> 직접. 매주 주말 <b className="text-[#fff3e2]/95">히든로그 서울시청점</b>에서 리그가 열려요.
       </p>
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {CHIPS.map((c) => (
@@ -129,7 +130,7 @@ function HiddenLogResultCard({ won, className }: { won?: boolean; className: str
       <span className="mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-b from-[#ef7a5c] to-[#e2674a] px-4 py-[11px] text-[13.5px] font-black text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.14),0_6px_18px_rgba(226,103,74,.35)] transition group-hover:brightness-105">
         직접 해보러 가기 →
       </span>
-      <span className="mt-2 flex justify-between text-[10px] text-[#fff3e2]/40"><span>AD · 광고</span><span>시청역점 · 네이버 예약</span></span>
+      <span className="mt-2 flex justify-between text-[10px] text-[#fff3e2]/40"><span>AD · 광고</span><span>서울시청점 · 네이버 예약</span></span>
     </AdLink>
   );
 }
