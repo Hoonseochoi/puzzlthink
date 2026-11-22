@@ -28,7 +28,7 @@ export default function GlobalFooter() {
         <div className="max-w-2xl">
           <p className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</p>
           <p className="mt-1 text-[11px] text-black/40">{t('tagline')}</p>
-          <p className="mt-3 text-[11px] leading-5 text-black/50">{t('hobbyOperationNotice')}</p>
+          <p className="mt-3 text-[11px] leading-5 text-black/50">{t('operationNotice')}</p>
           <p className="mt-2 max-w-sm text-[10px] leading-4 text-black/35">{t('unofficialNotice')}</p>
           <p className="mt-1 text-[11px] text-black/45">{t('backupAddress')} · <a href={BACKUP_URL} className="font-bold hover:text-black">{BACKUP_HOST}</a></p>
           <p className="mt-1 text-[11px] text-black/45">{t('contactPartnership')} · <a href="mailto:contact@puzzlthink.com" className="font-bold hover:text-black">contact@puzzlthink.com</a></p>

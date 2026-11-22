@@ -10,7 +10,6 @@ import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
 import VisitCounter from './VisitCounter';
 import PieceRaceBanner from './PieceRaceBanner';
-import DevLetter from './DevLetter';
 import { Pedestal } from './piggyBank/PiggyParts';
 import OpenMatchCard from './OpenMatchCard';
 import TwoSidedPokerPreview from './twoSidedPoker/TwoSidedPokerPreview';
@@ -284,7 +283,6 @@ export default function HomeClient() {
   return <main className="min-h-screen bg-[#f3f0e8] text-[#17201e]"><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
     <div className="mx-auto max-w-3xl text-center"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/50 backdrop-blur"><Sparkles size={12} className="text-[#ff6b4a]" /> {t('eyebrow')}</div><h1 className="text-balance break-keep text-[2.4rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-7xl sm:leading-[0.98]">{t('title1')}<br />{t('title2')}</h1><p className="mx-auto mt-4 max-w-xl break-keep text-sm leading-6 text-black/55 sm:mt-6 sm:text-base sm:leading-7">{t('description1')}<br className="hidden sm:block" /> {t('description2')}</p><VisitCounter /></div>
     <PieceRaceBanner />
-    <DevLetter />
     <div className="mt-8 grid gap-3 sm:mt-12 sm:gap-5 md:grid-cols-2"><OpenMatchCard previews={{
       fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerPreview />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
