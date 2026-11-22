@@ -19,6 +19,7 @@ import { SLITHER_SIZES, type Mark, type SlitherSize, type Puzzle, formatClock, g
 import { type BoardRow, type FinishResult, type RankRow, type RivalRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, fetchRivals, finishCleared, finishRun, startBeat, startNew } from '@/lib/slitherChallenge';
 import { reportGame } from '@/lib/stats';
 import SlitherHistory from './SlitherHistory';
+import ClearRate from '../ClearRate';
 import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool, undoOf, useUndoKey } from './SlitherBoard';
 import SlitherUpdate from './SlitherUpdate';
 
@@ -355,8 +356,8 @@ export default function SlitherGame() {
                   <Crown size={26} className="mx-auto text-[#ffcf3f]" />
                   <p className="mt-2 text-xl font-black">{t('boardHolder', { name: focus.holder })}</p>
                   <p className="mt-1 text-sm text-white/60">{t('focusLimit', { time: time(focus.holder_ms) })}</p>
-                  <p className="mt-1 text-[11px] text-white/40">{t('boardMeta', { tries: focus.attempts, wins: focus.takeovers })}</p>
-                  <div className="mt-3 text-left"><p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-white/40">{t('historyTitle')}</p><SlitherHistory id={focus.id} /></div>
+                  <p className="mt-1 flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-white/40"><ClearRate ns="Slitherlink" attempts={focus.attempts} clears={focus.takeovers} full />{t('boardMeta', { tries: focus.attempts, wins: focus.takeovers })}</p>
+                  <div className="mt-3 text-left"><p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-white/40">{t('historyTitle')}</p><SlitherHistory id={focus.id} attempts={focus.attempts} clears={focus.takeovers} /></div>
                   <button type="button" disabled={focus.tried || focus.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', focus.id)} className={`${BTN_ACCENT} mt-4 w-full py-3.5 text-sm disabled:opacity-40`}>
                     {phase === 'starting' ? <Loader2 size={16} className="animate-spin" /> : <Swords size={16} />}
                     {focus.mine ? t('focusMine') : focus.tried ? t('boardTried') : t('tryBoard', { name: focus.holder })}
@@ -375,12 +376,12 @@ export default function SlitherGame() {
                               <Crown size={15} className="shrink-0 text-[#ffcf3f]" />
                               <span className="min-w-0 flex-1">
                                 <span className="block truncate text-sm font-black">{t('boardHolder', { name: b.holder })} · <span className="font-mono text-(--accent)">{time(b.holder_ms)}</span></span>
-                                <span className="flex items-center gap-1 truncate text-[11px] text-white/45">{t('boardMeta', { tries: b.attempts, wins: b.takeovers })}<ChevronDown size={11} className={`shrink-0 transition ${historyOf === b.id ? 'rotate-180' : ''}`} /></span>
+                                <span className="flex items-center gap-1 truncate text-[11px] text-white/45"><ClearRate ns="Slitherlink" attempts={b.attempts} clears={b.takeovers} className="mr-0.5" /><span className="truncate">{t('boardMeta', { tries: b.attempts, wins: b.takeovers })}</span><ChevronDown size={11} className={`shrink-0 transition ${historyOf === b.id ? 'rotate-180' : ''}`} /></span>
                               </span>
                             </button>
                             <button type="button" disabled={b.tried || !signedIn || phase === 'starting'} onClick={() => startRun('beat', b.id)} className={`${BTN_ACCENT} shrink-0 !px-3 !py-1.5 disabled:opacity-40`}>{b.tried ? t('boardTried') : t('boardGo')}</button>
                           </div>
-                          {historyOf === b.id && <div className="border-t border-white/10 px-2.5 py-2"><SlitherHistory id={b.id} /></div>}
+                          {historyOf === b.id && <div className="border-t border-white/10 px-2.5 py-2"><SlitherHistory id={b.id} attempts={b.attempts} clears={b.takeovers} /></div>}
                         </li>
                       ))}</ul>}
                   <p className="mt-2 text-[11px] leading-5 text-white/40">{t('beatRule')}</p>

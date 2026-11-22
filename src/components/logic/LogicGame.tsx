@@ -24,6 +24,7 @@ import ColorLinkBoard from './ColorLinkBoard';
 import LogicRulesTip from './LogicRulesTip';
 import LogicReplayButton from './LogicReplay';
 import LogicHistory from './LogicHistory';
+import ClearRate from '../ClearRate';
 import { useUndoKey } from '@/components/slitherlink/SlitherBoard';
 
 type Mode = 'challenge' | 'beat' | 'practice';
@@ -328,8 +329,8 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                       <p className={KICKER}>MAP #{focus.id.slice(0, 4)}</p>
                       <p className="mt-1 text-lg font-black">{t('focusTitle', { name: focus.holder })}</p>
                       <p className="mt-1 text-sm font-bold text-white/75">{t('limitLine', { time: minSec(focus.holder_ms) })}</p>
-                      <p className="mt-0.5 text-[11px] text-white/45">{t('boardMeta', { n: focus.attempts, k: focus.takeovers })}</p>
-                      <div className="mt-3"><p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-white/40">{t('historyTitle')}</p><LogicHistory id={focus.id} /></div>
+                      <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-white/45"><ClearRate ns="Logic" attempts={focus.attempts} clears={focus.takeovers} full />{t('boardMeta', { n: focus.attempts, k: focus.takeovers })}</p>
+                      <div className="mt-3"><p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-white/40">{t('historyTitle')}</p><LogicHistory id={focus.id} attempts={focus.attempts} clears={focus.takeovers} /></div>
                       <button type="button" disabled={focus.tried || focus.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', focus.id)} className={`${BTN_ACCENT} mt-4 w-full py-3.5 text-sm disabled:opacity-40`}>
                         <Swords size={15} />{focus.mine ? t('boardMine') : focus.tried ? t('boardTried') : t('beatStart', { time: formatClock(focus.holder_ms) })}
                       </button>
@@ -348,12 +349,12 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--accent)/15 font-mono text-[10px] font-black text-(--accent)">{b.id.slice(0, 3)}</span>
                               <span className="min-w-0 flex-1">
                                 <span className="block truncate text-sm font-black">{t('holderMap', { name: b.holder })} · <span className="font-mono text-(--accent)">{minSec(b.holder_ms)}</span></span>
-                                <span className="flex items-center gap-1 truncate text-[11px] text-white/45">{t('boardMeta', { n: b.attempts, k: b.takeovers })}<ChevronDown size={11} className={`shrink-0 transition ${historyOf === b.id ? 'rotate-180' : ''}`} /></span>
+                                <span className="flex items-center gap-1 truncate text-[11px] text-white/45"><ClearRate ns="Logic" attempts={b.attempts} clears={b.takeovers} className="mr-0.5" /><span className="truncate">{t('boardMeta', { n: b.attempts, k: b.takeovers })}</span><ChevronDown size={11} className={`shrink-0 transition ${historyOf === b.id ? 'rotate-180' : ''}`} /></span>
                               </span>
                             </button>
                             <button type="button" disabled={b.tried || b.mine || !signedIn || phase === 'starting'} onClick={() => startRun('beat', b.id)} className={`${BTN_ACCENT} shrink-0 !px-3 !py-1.5 disabled:opacity-40`}>{b.mine ? t('boardMine') : b.tried ? t('boardTried') : t('boardGo')}</button>
                           </div>
-                          {historyOf === b.id && <div className="border-t border-white/10 px-2.5 py-2"><LogicHistory id={b.id} /></div>}
+                          {historyOf === b.id && <div className="border-t border-white/10 px-2.5 py-2"><LogicHistory id={b.id} attempts={b.attempts} clears={b.takeovers} /></div>}
                         </li>
                       ))}
                     </ul>}
