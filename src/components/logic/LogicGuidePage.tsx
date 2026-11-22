@@ -6,6 +6,7 @@ import { breadcrumbJsonLd, faqJsonLd, SITE_URL } from '@/lib/seo';
 import { FIGURES, GUIDE_COPY } from '@/lib/logicGuide';
 import { type LogicGameId, LOGIC, buildBoard } from '@/lib/logicPuzzles';
 import LogicDiagram, { type Figure, type Seg } from './LogicDiagram';
+import LogicReplayButton from './LogicReplay';
 
 const card = 'rounded-[18px] border border-white/10 bg-white/[0.035]';
 /** A solved 6×6 마슈 board for the rules section (fixed seed, so the page never changes). */
@@ -80,6 +81,7 @@ export default function LogicGuidePage({ game, locale }: { game: LogicGameId; lo
         <h1 className="mt-2 text-4xl font-black tracking-[-0.05em] sm:text-5xl">{c.title}</h1>
         <p className="mt-2 text-lg font-black text-white/80 sm:text-xl">{c.lead}</p>
         <p className="mt-5 break-keep text-[15px] leading-8 text-white/60">{c.intro}</p>
+        <div className="mt-5"><LogicReplayButton game={game} variant="chip" /></div>
 
         <nav className={`mt-8 p-5 ${card}`} aria-label={c.tocTitle}>
           <p className="text-[11px] font-black tracking-[0.14em] text-white/40">{c.tocTitle}</p>

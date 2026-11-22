@@ -22,6 +22,7 @@ import BinairoBoard from './BinairoBoard';
 import OneStrokeBoard from './OneStrokeBoard';
 import ColorLinkBoard from './ColorLinkBoard';
 import LogicRulesTip from './LogicRulesTip';
+import LogicReplayButton from './LogicReplay';
 import { useUndoKey } from '@/components/slitherlink/SlitherBoard';
 
 type Mode = 'challenge' | 'beat' | 'practice';
@@ -308,6 +309,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                   <h2 className="mt-2 text-2xl font-black">{t('newTitle')}</h2>
                   <p className="mt-2 break-keep text-sm leading-6 text-white/60">{t('newDesc', { game: name })}</p>
                   <p className="mt-2 break-keep text-[11px] leading-5 text-white/40">{t('fairNote')}</p>
+                  <div className="mt-4"><LogicReplayButton game={game} /></div>
                   {!ready ? null : !signedIn && configured ? (
                     <div className="mt-5 flex flex-col items-center gap-2"><p className="text-xs font-bold text-white/60">{t('needSignIn')}</p><AuthButton source={`${game}_challenge`} /></div>
                   ) : (
@@ -328,6 +330,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                       </button>
                     </div>
                   )}
+                  <div className="mb-3"><LogicReplayButton game={game} /></div>
                   <p className="mb-2 break-keep text-xs leading-5 text-white/50">{t('beatDesc')}</p>
                   {!signedIn && configured && ready && <div className="mb-3 flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-3"><p className="text-xs font-bold text-white/60">{t('needSignIn')}</p><AuthButton source={`${game}_beat`} /></div>}
                   {boards === null ? <p className="flex items-center gap-2 py-6 text-xs text-white/40"><Loader2 size={12} className="animate-spin" />{t('loading')}</p>

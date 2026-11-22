@@ -2,9 +2,14 @@ import { getTranslations } from 'next-intl/server';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { Link } from '@/i18n/routing';
 import { gameFromSlug } from '@/lib/rankings';
+import type { LogicGameId } from '@/lib/logicPuzzles';
+import LogicReplayButton from '@/components/logic/LogicReplay';
 
 /** Games with a 공략 page: a "처음이라면?" button sits beside the title (슬리더링크 · 마슈 · 노노그램). */
 const STRATEGY: Partial<Record<GameId, '/slitherlink/guide' | '/masyu/guide' | '/nonogram/guide' | '/star-battle/guide' | '/binairo/guide' | '/one-stroke/guide' | '/color-link/guide'>> = { slitherlink: '/slitherlink/guide', binairo: '/binairo/guide', onestroke: '/one-stroke/guide', colorlink: '/color-link/guide', starbattle: '/star-battle/guide', masyu: '/masyu/guide', nonogram: '/nonogram/guide' };
+
+/** Games with a solve replay: a "플레이 영상으로 배우기" button sits beside the guide button. */
+const REPLAY: Partial<Record<GameId, LogicGameId>> = { binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram' };
 
 /** Top of a game's entry screen: name, tagline, key facts and core rules, from the games overview copy. */
 export default async function GameIntroHero({ locale, id, tone = 'dark' }: { locale: string; id: GameId; tone?: 'dark' | 'light' }) {
@@ -25,14 +30,17 @@ export default async function GameIntroHero({ locale, id, tone = 'dark' }: { loc
   return (
     <div>
       <p className="font-mono text-[10px] font-bold tracking-[0.2em] text-(--accent)">PUZZLTHINK · GAME</p>
-      <div className="mt-2 flex items-start justify-between gap-3">
-        <h2 className="text-4xl font-black tracking-[-0.05em] sm:text-5xl">{tc(id)}</h2>
+      <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+        <h2 className="whitespace-nowrap text-4xl font-black tracking-[-0.05em] sm:text-5xl">{tc(id)}</h2>
+        {(STRATEGY[id] || REPLAY[id]) && <div className="flex shrink-0 flex-wrap justify-end gap-2">
+        {REPLAY[id] && <LogicReplayButton game={REPLAY[id]} variant="learn" />}
         {STRATEGY[id] && (
           <Link href={STRATEGY[id]} className="group mt-1 flex shrink-0 flex-col items-end rounded-[14px] border border-(--accent)/50 bg-(--accent)/15 px-3.5 py-2 text-right shadow-[0_0_24px_color-mix(in_srgb,var(--accent)_25%,transparent)] transition hover:bg-(--accent)/25">
             <span className={`text-[11px] font-bold ${dark ? 'text-white/60' : 'text-black/55'}`}>{t('firstTime', { game: tc(id) })}</span>
             <span className="text-sm font-black text-(--accent)">{t('firstTimeCta')} <span className="inline-block transition group-hover:translate-x-0.5">→</span></span>
           </Link>
         )}
+        </div>}
       </div>
       <p className={`mt-3 max-w-2xl break-keep text-sm leading-7 sm:text-base ${muted}`}>{t(`${key}.tagline`)}</p>
 
