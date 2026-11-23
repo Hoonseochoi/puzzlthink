@@ -213,6 +213,7 @@ export default function LoungeChat({ game }: { game: string | null }) {
                       {label && <span className="text-[11px] text-white/35">({label})</span>}
                       <span className="mx-1 text-white/30">:</span>
                       <span className={m.staff ? 'font-bold text-[#dff4ff]' : 'text-white/90'}>{m.text}</span>
+                      <time dateTime={new Date(m.at).toISOString()} className="ml-1.5 whitespace-nowrap font-mono text-[9.5px] text-white/30">{sentAt(m.at)}</time>
                     </p>
                     {!mine && !m.staff && (
                       <>
@@ -267,4 +268,11 @@ export default function LoungeChat({ game }: { game: string | null }) {
       </div>
     </>
   );
+}
+
+/** When a message was sent, small: "15:42" today, "11/22 15:42" on an earlier day (viewer's local time). */
+function sentAt(at: number) {
+  const d = new Date(at);
+  const hm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  return d.toDateString() === new Date().toDateString() ? hm : `${d.getMonth() + 1}/${d.getDate()} ${hm}`;
 }
