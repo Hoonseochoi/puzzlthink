@@ -3,7 +3,11 @@ import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './
 
 export const POKER_TURN_OPTIONS = [30, 20, 45] as const;
 export type PokerTurnSeconds = (typeof POKER_TURN_OPTIONS)[number];
-export const POKER_REVEAL_MS = 2400;
+/** Long enough for the staged showdown: suspense, the flip, then the chips sliding to the winner. */
+export const POKER_REVEAL_MS = 4200;
+
+/** The latest bet or fold of the hand, for the table's speech bubble and chip flight. */
+export type PokerLastAct = { side: PokerSide; kind: 'open' | 'raise' | 'call' | 'allIn' | 'fold'; total: number; add: number };
 
 export type IndianPokerRoom = BaseRoom & {
   phase: 'lobby' | 'playing' | 'reveal' | 'finished';
@@ -23,6 +27,8 @@ export type IndianPokerRoom = BaseRoom & {
   winner: PokerSide | 'draw' | null;
   reason: 'chips' | 'resign' | 'timeout' | null;
   timeouts: [number, number];
+  /** Optional: rooms saved before it existed simply have none. */
+  lastAct?: PokerLastAct | null;
 };
 
 export type IndianPokerAction =
@@ -41,7 +47,7 @@ export function createIndianPokerRoom(host: Peer, solo = false): IndianPokerRoom
   const base: IndianPokerRoom = {
     sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, ai: [false, solo], aiLevel: 'normal', turnSec: 30,
     chips: [POKER_START_CHIPS, POKER_START_CHIPS], deck: [], deckPos: 0, cards: [0, 0], bets: [0, 0], carry: 0,
-    first: 0, turn: 0, opened: false, rounds: [], winner: null, reason: null, timeouts: [0, 0],
+    first: 0, turn: 0, opened: false, rounds: [], winner: null, reason: null, timeouts: [0, 0], lastAct: null,
   };
   return solo ? startGame(base)! : base;
 }
@@ -53,7 +59,7 @@ function deal(state: IndianPokerRoom, first: PokerSide): IndianPokerRoom {
   let deckPos = state.deckPos;
   if (deck.length !== 20 || deckPos + 2 > deck.length) { deck = shufflePokerDeck(); deckPos = 0; }
   const cards = [deck[deckPos], deck[deckPos + 1]] as [number, number];
-  const next = { ...state, phase: 'playing' as const, deck, deckPos: deckPos + 2, cards, bets: [0, 0] as [number, number], first, turn: first, opened: false };
+  const next = { ...state, phase: 'playing' as const, deck, deckPos: deckPos + 2, cards, bets: [0, 0] as [number, number], first, turn: first, opened: false, lastAct: null };
   return { ...next, deadline: clock(next) };
 }
 
@@ -73,7 +79,7 @@ function finishIfBroke(state: IndianPokerRoom): IndianPokerRoom {
   return { ...state, phase: 'finished', winner, reason: 'chips', deadline: 0 };
 }
 
-function reveal(state: IndianPokerRoom, winner: PokerSide | 'draw', reason: 'showdown' | 'fold', tenPenalty = false): IndianPokerRoom {
+function reveal(state: IndianPokerRoom, winner: PokerSide | 'draw', reason: 'showdown' | 'fold', tenPenalty = false, penalty = 0): IndianPokerRoom {
   const pot = state.bets[0] + state.bets[1] + state.carry;
   const chips = [...state.chips] as [number, number];
   let carry = 0;
@@ -85,7 +91,7 @@ function reveal(state: IndianPokerRoom, winner: PokerSide | 'draw', reason: 'sho
     chips[1] += pot / 2;
   }
   else chips[winner] += pot;
-  const round: PokerRound = { cards: state.cards, first: state.first, bets: state.bets, winner, reason, tenPenalty, pot };
+  const round: PokerRound = { cards: state.cards, first: state.first, bets: state.bets, winner, reason, tenPenalty, penalty, pot };
   return { ...state, phase: 'reveal', chips, carry, rounds: [...state.rounds, round], deadline: Date.now() + POKER_REVEAL_MS };
 }
 
@@ -103,23 +109,26 @@ function bet(state: IndianPokerRoom, side: PokerSide, total: number): IndianPoke
   bets[side] = total;
   const timeouts = state.timeouts.map((n, i) => i === side ? 0 : n) as [number, number];
   const called = state.opened && bets[0] === bets[1];
-  if (called) return reveal({ ...state, chips, bets, timeouts }, pokerWinner(state.cards), 'showdown');
-  const next = { ...state, chips, bets, opened: true, turn: pokerOther(side), timeouts };
+  const kind: PokerLastAct['kind'] = called ? 'call' : total === max ? 'allIn' : state.opened ? 'raise' : 'open';
+  const lastAct: PokerLastAct = { side, kind, total, add: delta };
+  if (called) return reveal({ ...state, chips, bets, timeouts, lastAct }, pokerWinner(state.cards), 'showdown');
+  const next = { ...state, chips, bets, opened: true, turn: pokerOther(side), timeouts, lastAct };
   return { ...next, deadline: clock(next) };
 }
 
 function fold(state: IndianPokerRoom, side: PokerSide): IndianPokerRoom {
   const winner = pokerOther(side);
   const tenPenalty = state.cards[side] === 10;
-  let base = state;
+  let penalty = 0;
+  let base: IndianPokerRoom = { ...state, lastAct: { side, kind: 'fold', total: state.bets[side], add: 0 } };
   if (tenPenalty) {
     const chips = [...state.chips] as [number, number];
-    const penalty = Math.min(10, chips[side]);
+    penalty = Math.min(10, chips[side]);
     chips[side] -= penalty;
     chips[winner] += penalty;
-    base = { ...state, chips };
+    base = { ...base, chips };
   }
-  return reveal(base, winner, 'fold', tenPenalty);
+  return reveal(base, winner, 'fold', tenPenalty, penalty);
 }
 
 export function reduceIndianPokerRoom(state: IndianPokerRoom, action: IndianPokerAction, seat: number | null, isHost: boolean): IndianPokerRoom | null {
