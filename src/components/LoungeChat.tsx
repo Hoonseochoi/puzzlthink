@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import { useTranslations } from 'next-intl';
 import { Ban, ChevronRight, Flag, MessageCircle, MessageCircleOff, Send, X } from 'lucide-react';
 import { getSupabase } from '@/lib/supabase';
-import { chatPrefs, chatPrefsServer, clearMuted, isMuted, setMuted, subscribeChat } from '@/lib/roomChat';
+import { usePathname } from '@/i18n/routing';
+import { GAMES } from '@/lib/gameCatalog';
+import { chatPrefs, chatPrefsServer, clearMuted, isMuted, roomPlaying, setMuted, subscribeChat } from '@/lib/roomChat';
 import { LOUNGE_KEEP, LOUNGE_MAX_LEN, type LoungeBan, type LoungeMessage, type LoungeReason, isLoungeMessage, falseOnServer, loadLounge, loungeMini, loungeOff, loungeOffServer, loungeSeen, markLoungeSeen, setLoungeMini, trueOnServer, reportLounge, sendLounge, setLoungeOff, subscribeLoungeOff, visibilityStore } from '@/lib/lounge';
 import { useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
@@ -14,14 +16,19 @@ type Notice = { reason: LoungeReason | 'reported'; wait: number; n: number };
 let noticeSeq = 0;
 
 /**
- * Lounge (라운지): one chat shared by the whole site, on the home page and every game page, mostly to find
+ * Lounge (라운지): one chat shared by the whole site, on every page (mounted once in the layout) except a friend or
+ * open room whose match has started (its lobby shows both the room chat and the lounge); mostly to find
  * people for open rooms. A translucent button in the bottom-right corner (with an UPDATE tag until the lounge
  * is first opened) opens a drawer like the room chat's; "hide" shrinks it to a small faint icon.
  * Each line reads "[piece]n 닉네임(게임) : message" (피스 경쟁전 pieces); site operators get a "퍼띵 운영자" badge and their own colour, and a
  * pinned card from the lounge host Viky says hello. It joins Realtime only while this page is visible and
  * the lounge is on; the database decides what may be sent (see src/lib/lounge.ts).
  */
-export default function LoungeChat({ game }: { game: string | null }) {
+export default function LoungeChat() {
+  // Which game this page is (a name in the lounge shows it): the catalog entry whose route this page is under.
+  const pathname = usePathname();
+  const game = GAMES.find((g) => pathname === g.href || pathname.startsWith(`${g.href}/`))?.id ?? null;
+  const playing = useSyncExternalStore(subscribeChat, roomPlaying, () => false);
   const t = useTranslations('Lounge');
   const tc = useTranslations('Common');
   const { user, configured } = useAuth();
@@ -51,7 +58,7 @@ export default function LoungeChat({ game }: { game: string | null }) {
   // Join while visible and on; history (last 50) is reloaded on every join so nothing is missed.
   useEffect(() => {
     const supabase = getSupabase();
-    if (!supabase || off || !visible) return;
+    if (!supabase || off || !visible || playing) return; // no Realtime join during a room match
     let alive = true;
     const refresh = () => loadLounge().then((state) => {
       if (!alive || !state) return;
@@ -72,7 +79,7 @@ export default function LoungeChat({ game }: { game: string | null }) {
       })
       .subscribe((status) => { if (status === 'SUBSCRIBED') refresh(); });
     return () => { alive = false; supabase.removeChannel(channel); };
-  }, [off, visible, user?.id]);
+  }, [off, visible, playing, user?.id]);
 
   // A clock for the ban countdown.
   useEffect(() => {
@@ -122,7 +129,8 @@ export default function LoungeChat({ game }: { game: string | null }) {
     }
   };
 
-  if (!configured) return null;
+  // Every page has the lounge, except a friend or open room whose match is on.
+  if (!configured || playing) return null;
 
   const mutedHere = new Set(messages.filter((m) => m.sender !== me && isMuted(prefs.muted, { from: m.sender })).map((m) => m.sender)).size;
   const banLeft = ban && ban.until > now ? ban.until - now : 0;

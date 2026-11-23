@@ -15,6 +15,7 @@ import InstallBanner from '@/components/InstallBanner';
 import OnlineCount from '@/components/OnlineCount';
 import LiveIsland from '@/components/LiveIsland';
 import RoomChat from '@/components/RoomChat';
+import LoungeChat from '@/components/LoungeChat';
 import { routing } from '@/i18n/routing';
 import { GA_ID } from '@/lib/analytics';
 import '../globals.css';
@@ -82,6 +83,7 @@ export default async function LocaleLayout({
           <OnlineCount />
           <LiveIsland />
           <RoomChat />
+          <LoungeChat />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>
