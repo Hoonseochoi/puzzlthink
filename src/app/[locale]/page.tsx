@@ -5,6 +5,7 @@ import HomeClient from '@/components/HomeClient';
 import JsonLd from '@/components/JsonLd';
 import { GAMES } from '@/lib/gameCatalog';
 import AdSlot from '@/components/AdSlot';
+import LoungeChat from '@/components/LoungeChat';
 
 const BASE_URL = 'https://www.puzzlthink.com';
 
@@ -26,6 +27,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         { '@type': 'ItemList', name: t('seoTitle'), itemListElement: GAMES.map((game, i) => ({ '@type': 'ListItem', position: i + 1, url: `${BASE_URL}/${locale}${game.href}`, name: tc(game.id) })) },
       ] }} />
       <HomeClient />
+      <LoungeChat game={null} />
       <section className="bg-[#f3f0e8] px-5 pb-20">
         <AdSlot placement="inline" className="mx-auto mb-12 max-w-3xl" />
         <div className="mx-auto max-w-3xl text-center">
