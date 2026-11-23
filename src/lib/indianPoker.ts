@@ -10,6 +10,8 @@ export type PokerRound = {
   winner: PokerSide | 'draw';
   reason: 'showdown' | 'fold';
   tenPenalty: boolean;
+  /** Chips the folded 10 actually paid (less than ten when the stack ran short). Absent in older saves. */
+  penalty?: number;
   pot: number;
 };
 

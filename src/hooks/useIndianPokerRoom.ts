@@ -9,7 +9,7 @@ export const INDIAN_POKER_ROOM: RoomEngine<IndianPokerRoom, IndianPokerAction> =
   restorable: (saved) => Array.isArray(saved?.seats) && Array.isArray(saved.chips) && Array.isArray(saved.rounds),
   reduce: reduceIndianPokerRoom, syncSeats: syncIndianPokerSeats,
   running: (state) => state.phase === 'playing' || state.phase === 'reveal', timeoutAction: { t: 'timeout' },
-  autoAction: indianPokerAutoAction, autoDelay: 1050, redact: redactIndianPoker,
+  autoAction: indianPokerAutoAction, autoDelay: 1500, redact: redactIndianPoker,
 };
 
 export const prepareIndianPokerRoom = () => prepareRoom(INDIAN_POKER_ROOM.channel, INDIAN_POKER_ROOM.storage, 'indian-poker');

@@ -1,5 +1,6 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
-// Order: by plays on 2026-11-22 (KST), most played first; the new games (2048, then 마방진 스왑) sit on top, above 슬리더링크.
+// Order: by plays on 2026-11-22 (KST), most played first; 마방진 스왑 (new) sits on top, above 슬리더링크;
+// 2048 (new) is pinned 5th and 인디언 포커 (updated) 6th.
 export type GameId = 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 
 export interface CatalogGame {
@@ -13,17 +14,17 @@ export interface CatalogGame {
 }
 
 export const GAMES: readonly CatalogGame[] = [
-  { id: 'merge2048', href: '/2048', color: '#ff8fa3', hasGuide: true },
   { id: 'magicswap', href: '/magic-square', color: '#e45bd6', hasGuide: true },
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
   { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true },
   { id: 'wallgo', href: '/wallgo', color: '#ff6b4a', hasGuide: true },
+  { id: 'merge2048', href: '/2048', color: '#ff8fa3', hasGuide: true },
+  { id: 'indianPoker', href: '/indian-poker', color: '#e6b94f', hasGuide: true },
   { id: 'colorlink', href: '/color-link', color: '#21c2b5', hasGuide: true },
   { id: 'heavy13', href: '/heavy13', color: '#c9a061', hasGuide: true },
   { id: 'janggi', href: '/janggi', color: '#e8a33c', hasGuide: true },
   { id: 'monorail', href: '/monorail', color: '#f3b64a', hasGuide: true },
   { id: 'russianJanggi', href: '/russian-janggi', color: '#e2283c', hasGuide: true },
-  { id: 'indianPoker', href: '/indian-poker', color: '#e6b94f', hasGuide: true },
   { id: 'starbattle', href: '/star-battle', color: '#ffc23d', hasGuide: true },
   { id: 'twoSidedPoker', href: '/two-sided-poker', color: '#9b87ff', hasGuide: false },
   { id: 'onestroke', href: '/one-stroke', color: '#ff8a2b', hasGuide: true },
