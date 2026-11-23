@@ -707,31 +707,39 @@
     "email": "contact@puzzlthink.com",
     "aboutEyebrow": "ABOUT",
     "aboutTitle": "About PUZZLTHINK",
-    "aboutDescription": "A puzzle site bringing games from The Devil's Plan and The Genius to the web.",
+    "aboutDescription": "Brain games from TV survival shows and logic puzzles from around the world, right in your browser with no sign-up. A place to think and play, against AI or with friends.",
     "aboutSections": [
       {
         "title": "What we make",
-        "body": "PUZZLTHINK recreates games from brain-survival shows like The Devil's Plan and The Genius for the web. Starting with Wallgo from The Devil's Plan, we build the strategy games you wanted to try while watching — playable instantly in your browser with no install or sign-up."
+        "body": "PUZZLTHINK is a free web game site for games that get more fun the more you think. We rebuild games from brain-survival shows like The Devil's Plan and The Genius with the rules you saw on TV, and we make logic puzzles that have exactly one solution. Nothing to install, no sign-up: one link and you're playing."
       },
       {
-        "title": "WallGo",
-        "body": "A strategy board game where you move a piece and then place a wall to divide the board. The player who claims the larger territory wins, and you can play against an AI opponent."
+        "title": "18 games from the shows",
+        "body": "The Devil's Plan: Wallgo, Wallgo II, Nemo Count, Heavy 13, Russian Roulette, Piggy Bank, 4 Player 3 In a Row, Hexagon, Blind Gomoku\nThe Genius: Monorail, Two-Sided Poker, Black & White, Black & White II, Laser Janggi, 12 Janggi, Indian Poker, Gyul! Hap!\nSociety Game 2: Russian Janggi\nReading the board, reading the room, memory and mind games: feel the tension you saw on screen."
       },
       {
-        "title": "Sudoku",
-        "body": "The classic logic puzzle: fill each row, column, and 3×3 box of a 9×9 grid with the digits 1 to 9 exactly once. Multiple difficulty levels and a notes mode are included."
+        "title": "9 logic puzzles to go deep, solo",
+        "body": "Magic Square Swap, Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu, Nonogram and Sudoku. Every map is picked so it can be solved to the end by logic alone, with no guessing. There's also Flip Omok, our own mix of gomoku and Othello, and the ancient classic Nine Men's Morris."
       },
       {
-        "title": "How we operate",
-        "body": "Every game on PUZZLTHINK stays free forever, and running costs are covered by ads on the site. All game copyrights belong to their original creators; for copyright inquiries, email contact@puzzlthink.com."
+        "title": "More fun together",
+        "body": "AI matches: no opponent, no waiting. In most games you pick a difficulty and start right away.\nFriend matches: send a link or a 4-digit invite code and play live with friends, from 1:1 up to group games.\nOpen matches: take on anyone online now and get your name on the open-match ranking."
+      },
+      {
+        "title": "Chasing records",
+        "body": "Logic puzzles have random-map challenges for time records. Claim a new map first, or take one from another player with a faster time. The server keeps the clock and replays every successful solve to check it. See each game's Hall of Fame, rankings, your record and clear certificates in the Records room."
+      },
+      {
+        "title": "How we run",
+        "body": "Every game stays free. Running costs are covered by on-site ads and voluntary support. Support only pays for servers and gives no perks; every game plays the same whether you support or not. We keep adding new games and puzzles."
       },
       {
         "title": "Contact",
-        "body": "Send suggestions or bug reports to contact@puzzlthink.com."
+        "body": "Send suggestions, bug reports and copyright questions to contact@puzzlthink.com."
       },
       {
         "title": "Notice",
-        "body": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius, or their broadcasters. Show names are used only to describe the games."
+        "body": "PUZZLTHINK is an unofficial fan-made project, not affiliated with The Devil's Plan, The Genius, Society Game or their broadcasters and producers. Show names are used only to describe the games, and each game's original rights belong to their creators."
       }
     ],
     "contactEyebrow": "CONTACT",

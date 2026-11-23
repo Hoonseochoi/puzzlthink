@@ -19,7 +19,7 @@ export default function InfoArticle({ eyebrow, title, subtitle, sections, accent
           {sections.map((section) => (
             <section key={section.title}>
               <h2 className="text-lg font-extrabold">{section.title}</h2>
-              <p className="mt-2 text-sm leading-7 text-black/60">{section.body}</p>
+              <p className="mt-2 whitespace-pre-line text-sm leading-7 text-black/60">{section.body}</p>
             </section>
           ))}
         </div>
