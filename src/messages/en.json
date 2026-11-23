@@ -4746,6 +4746,7 @@
     "quickRules": "Quick rules",
     "quick": [
       "You never see your own card, only theirs.",
+      "Both players ante 1 chip every hand; a fold never gets it back.",
       "Call to reveal; the higher card wins the pot.",
       "Equal cards carry the pot to the next hand.",
       "Fold a 10 and pay ten extra chips."
@@ -4762,7 +4763,7 @@
       "call": "Match the opponent's total wager and reveal both cards.",
       "bet": "The displayed number is your cumulative wager for this hand.",
       "allIn": "Bet the largest total the opponent can still match.",
-      "fold": "Give up the hand and pot. Folding when your hidden card is 10 pays an extra ten-chip penalty."
+      "fold": "Give up the hand and the pot, your 1-chip ante included. Folding when your hidden card is 10 pays an extra ten-chip penalty."
     },
     "fx": {
       "thinking": "Thinking",
@@ -4849,7 +4850,7 @@
     "s1Title": "See only their card",
     "s1Desc": "Your card is on your forehead; judge from the opponent's number.",
     "s2Title": "Bet, call and raise",
-    "s2Desc": "Match the bet for showdown or raise to keep the mind game going.",
+    "s2Desc": "Both ante 1 chip first. Match the bet for showdown or raise to keep the mind game going.",
     "s3Title": "High card takes the pot",
     "s3Desc": "After a call, reveal both cards and award every wager to the higher number.",
     "s4Title": "Folding a 10 hurts",
@@ -4865,7 +4866,8 @@
     "rules": [
       "Use two copies of 1–10 and start with 20 chips each.",
       "See the opponent's card, never your own during the hand.",
-      "The first player bets; the rival calls, raises or folds.",
+      "Both players ante 1 chip before every hand.",
+      "The first player bets at least 1 more; the rival calls, raises or folds.",
       "A call reveals cards; high wins, equal carries the pot.",
       "Folding a 10 pays ten extra chips.",
       "Lose all chips and lose the game."

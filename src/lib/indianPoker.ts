@@ -16,6 +16,8 @@ export type PokerRound = {
 };
 
 export const POKER_START_CHIPS = 20;
+/** Both players put this many chips in before every hand, so a fold always costs something. */
+export const POKER_ANTE = 1;
 export const POKER_DECK = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 export const pokerOther = (side: PokerSide): PokerSide => (side === 0 ? 1 : 0);
 /** Design targets, not guaranteed match results: cards and opponent choices still add variance. */
@@ -106,7 +108,7 @@ export function choosePokerAiAction(args: {
   const tenPenaltyRisk = tenChance * Math.min(10, chips[me]) / Math.max(10, pot + toCall);
   const foldLine = potOdds + stackPressure * .17 - rivalPressure - tenPenaltyRisk;
   if (toCall > 0 && !bluff && estimate < foldLine) return { t: 'fold' };
-  if (!canCheck && estimate < .58 && !bluff) return { t: 'bet', total: 1 };
+  if (!canCheck && estimate < .58 && !bluff) return { t: 'bet', total: Math.min(max, callTotal + 1) };
   if (toCall > 0 && (estimate < .62 || callTotal >= max) && !bluff) return { t: 'bet', total: Math.min(max, callTotal) };
 
   const room = max - callTotal;

@@ -1,4 +1,4 @@
-import { type PokerDifficulty, type PokerRound, type PokerSide, POKER_START_CHIPS, choosePokerAiAction, maxMatchableBet, pokerOther, pokerWinner, shufflePokerDeck } from './indianPoker';
+import { type PokerDifficulty, type PokerRound, type PokerSide, POKER_ANTE, POKER_START_CHIPS, choosePokerAiAction, maxMatchableBet, pokerOther, pokerWinner, shufflePokerDeck } from './indianPoker';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
 export const POKER_TURN_OPTIONS = [30, 20, 45] as const;
@@ -59,7 +59,12 @@ function deal(state: IndianPokerRoom, first: PokerSide): IndianPokerRoom {
   let deckPos = state.deckPos;
   if (deck.length !== 20 || deckPos + 2 > deck.length) { deck = shufflePokerDeck(); deckPos = 0; }
   const cards = [deck[deckPos], deck[deckPos + 1]] as [number, number];
-  const next = { ...state, phase: 'playing' as const, deck, deckPos: deckPos + 2, cards, bets: [0, 0] as [number, number], first, turn: first, opened: false, lastAct: null };
+  // Ante: both players put in POKER_ANTE (or what is left of their stack) before anyone acts.
+  const ante = Math.min(POKER_ANTE, state.chips[0], state.chips[1]);
+  const chips = [state.chips[0] - ante, state.chips[1] - ante] as [number, number];
+  const next = { ...state, phase: 'playing' as const, deck, deckPos: deckPos + 2, cards, chips, bets: [ante, ante] as [number, number], first, turn: first, opened: false, lastAct: null };
+  // Someone went all in with the ante: nothing left to bet, so the cards are shown at once.
+  if (chips[0] === 0 || chips[1] === 0) return reveal(next, pokerWinner(cards), 'showdown');
   return { ...next, deadline: clock(next) };
 }
 
@@ -98,7 +103,7 @@ function reveal(state: IndianPokerRoom, winner: PokerSide | 'draw', reason: 'sho
 function bet(state: IndianPokerRoom, side: PokerSide, total: number): IndianPokerRoom | null {
   const current = Math.max(...state.bets);
   const max = maxMatchableBet(state.chips, state.bets);
-  const minimum = state.opened ? current : 1;
+  const minimum = state.opened ? current : current + 1; // the opener must raise past the antes
   if (!Number.isInteger(total) || total < minimum || total > max || total < state.bets[side]) return null;
   if (state.opened && total === current && state.bets[side] === current) return null;
   const delta = total - state.bets[side];
@@ -135,7 +140,7 @@ export function reduceIndianPokerRoom(state: IndianPokerRoom, action: IndianPoke
   let next: IndianPokerRoom | null = null;
   switch (action.t) {
     case 'config':
-      if (!isHost || state.phase === 'reveal' || (state.phase === 'playing' && (state.rounds.length > 0 || state.opened || state.bets.some((n) => n > 0)))) break;
+      if (!isHost || state.phase === 'reveal' || (state.phase === 'playing' && (state.rounds.length > 0 || state.opened || state.bets.some((n) => n > POKER_ANTE)))) break;
       next = {
         ...state,
         turnSec: action.turnSec && (POKER_TURN_OPTIONS as readonly number[]).includes(action.turnSec) ? action.turnSec : state.turnSec,
