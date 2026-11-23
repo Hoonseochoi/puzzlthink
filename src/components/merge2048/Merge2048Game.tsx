@@ -2,54 +2,77 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Leaf, Play, RotateCcw, Timer, Trophy, Undo2, Volume2, VolumeX } from 'lucide-react';
+import { Infinity as InfinityIcon, Leaf, Medal, Play, RotateCcw, Trophy, Undo2, Volume2, VolumeX } from 'lucide-react';
+import { Link } from '@/i18n/routing';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
-import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
 import { mergeSoundOn, setMergeSound, unlockGameAudio } from '@/lib/gameAudio';
 import { type Dir, type M2State, isState, maxTile, newGame, randomSeed } from '@/lib/merge2048';
 import { reportGame } from '@/lib/stats';
-import { BlockCollection, BlockFace, M2Board, M2_ACCENT, M2_INK, StatBox, clock, useM2Input } from './M2Parts';
+import { BlockCollection, BlockFace, M2Board, M2_ACCENT, M2_INK, StatBox, useM2Input } from './M2Parts';
+import EndlessTop from './EndlessTop';
+import Merge2048Result, { type M2Place } from './Merge2048Result';
+import { getSupabase } from '@/lib/supabase';
 import { useM2Game } from './useM2Game';
 
-type Mode = 'free' | 'challenge';
-export const CHALLENGE_MS = 10 * 60_000;
+type Mode = 'free' | 'endless';
 const SAVE_KEY = 'puzzlthink_2048_free'; // the free game in progress
 const BEST_KEY = 'puzzlthink_2048_best'; // best free score
-const CH_BEST_KEY = 'puzzlthink_2048_challenge_best';
+const RUN_KEY = 'puzzlthink_2048_endless'; // the 챌린지 도전 run in progress
+const RUN_START_KEY = 'puzzlthink_2048_endless_start';
+const RUN_BEST_KEY = 'puzzlthink_2048_endless_best';
 const TOP_KEY = 'puzzlthink_2048_top'; // biggest block ever made (for the collection)
 
 const read = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
 const write = (key: string, value: string) => { try { localStorage.setItem(key, value); } catch { /* Optional. */ } };
 const readNum = (key: string) => Number(read(key)) || 0;
-const readMode = (): Mode => (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'challenge' ? 'challenge' : 'free');
-const loadFree = (): M2State => {
-  try { const saved = JSON.parse(read(SAVE_KEY) || 'null'); if (isState(saved) && !saved.over) return saved; } catch { /* fresh game */ }
-  return newGame(randomSeed());
+// Old links (?mode=challenge, the former 10-minute challenge) open 챌린지 도전.
+const readMode = (): Mode => {
+  if (typeof window === 'undefined') return 'free';
+  const m = new URLSearchParams(window.location.search).get('mode');
+  return m === 'endless' || m === 'challenge' ? 'endless' : 'free';
+};
+/** A new 챌린지 도전 board, saved at once so a reload continues it. */
+function freshRun(at: number): M2State {
+  const fresh = newGame(randomSeed());
+  write(RUN_KEY, JSON.stringify(fresh)); write(RUN_START_KEY, String(at));
+  return fresh;
+}
+const loadSaved = (key: string): M2State | null => {
+  try { const saved = JSON.parse(read(key) || 'null'); if (isState(saved) && !saved.over) return saved; } catch { /* none */ }
+  return null;
 };
 
-/** Free play (no clock, undo, saved as you go) and the 10-minute challenge (score is recorded). */
+/**
+ * Free play (undo, saved as you go) and 챌린지 도전: one board until no move is left, no undo, the final score goes on
+ * the ranking. A 챌린지 도전 run is saved as you go too, so a reload continues it (the spawns come from the saved
+ * generator state, so reloading does not reroll anything).
+ */
 export default function Merge2048Game() {
   const t = useTranslations('Merge2048');
   const [mode, setMode] = useState<Mode>(readMode);
   const [phase, setPhase] = useState<'intro' | 'playing' | 'done'>('intro');
-  const [endAt, setEndAt] = useState(0);
   const [now, setNow] = useState(() => Date.now());
   const [best, setBest] = useState(0);
-  const [chBest, setChBest] = useState(0);
+  const [runBest, setRunBest] = useState(0);
+  const [hasRun, setHasRun] = useState(false); // a 챌린지 도전 run is waiting to be continued
   const [top, setTop] = useState(0);
   const [undo, setUndo] = useState<M2State | null>(null);
   const [toast, setToast] = useState<{ v: number; at: number } | null>(null);
   const [won, setWon] = useState(false); // 2048 made this game: the celebration card
   const [sound, setSound] = useState(true);
-  const [voided, setVoided] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const reported = useRef('');
   const startedAt = useRef(0);
-  const { exits: exitCount, warn: exitWarn } = useBoardExits(mode === 'challenge' && phase === 'playing');
+  const [topKey, setTopKey] = useState(0); // refreshes the ranking after a run is recorded
+  // The result popup of the board that just ended (closing it leaves the small card on the board).
+  const [result, setResult] = useState<{ mode: Mode; score: number; max: number; moves: number; newBest: boolean; place: M2Place | null | 'loading' } | null>(null);
+  const [resultOpen, setResultOpen] = useState(false);
+  const freeBestBefore = useRef(0); // free-play best when this board began (a new best shows in the result)
+  const autoStart = useRef(false); // the result's 챌린지 도전 button: start a run as soon as the mode switches
 
   const onMoved = useCallback((next: M2State, prev: M2State) => {
     const before = maxTile(prev), after = maxTile(next);
@@ -60,30 +83,25 @@ export default function Merge2048Game() {
       write(SAVE_KEY, JSON.stringify(next));
       setUndo(prev);
       if (next.score > readNum(BEST_KEY)) { write(BEST_KEY, String(next.score)); setBest(next.score); }
-    }
+    } else write(RUN_KEY, JSON.stringify(next));
   }, [mode]);
   const { game, view, step, setGame } = useM2Game(onMoved);
 
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- saved records live in localStorage */
-    setBest(readNum(BEST_KEY)); setChBest(readNum(CH_BEST_KEY)); setTop(readNum(TOP_KEY)); setSound(mergeSoundOn());
+    setBest(readNum(BEST_KEY)); setRunBest(readNum(RUN_BEST_KEY)); setTop(readNum(TOP_KEY)); setSound(mergeSoundOn());
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
-  // Free play opens straight onto the saved board; the challenge waits for its start button.
+  // Free play opens straight onto the saved board; 챌린지 도전 waits for its start (or continue) button.
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- switching modes resets the board */
-    setWon(false); setUndo(null); setToast(null); setVoided(false);
-    if (mode === 'free') { setGame(loadFree()); setPhase('playing'); setEndAt(0); }
-    else { setGame(null); setPhase('intro'); setEndAt(0); }
+    setWon(false); setUndo(null); setToast(null); setResult(null); setResultOpen(false);
+    if (mode === 'free') { freeBestBefore.current = readNum(BEST_KEY); setGame(loadSaved(SAVE_KEY) ?? newGame(randomSeed())); setPhase('playing'); }
+    else if (autoStart.current) { autoStart.current = false; startedAt.current = Date.now(); setGame(freshRun(startedAt.current)); setHasRun(true); setPhase('playing'); }
+    else { setGame(null); setPhase('intro'); setHasRun(!!loadSaved(RUN_KEY)); }
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [mode, setGame]);
-
-  useEffect(() => {
-    if (!endAt) return;
-    const timer = window.setInterval(() => setNow(Date.now()), 250);
-    return () => window.clearInterval(timer);
-  }, [endAt]);
 
   const switchMode = (m: Mode) => {
     setMode(m);
@@ -91,46 +109,63 @@ export default function Merge2048Game() {
   };
 
   const finish = useCallback((final: M2State) => {
-    setPhase('done'); setEndAt(0);
+    setPhase('done');
     const key = `${mode}-${startedAt.current}-${final.moves}`;
     if (reported.current === key) return;
     reported.current = key;
     const max = maxTile(final);
-    if (mode === 'challenge') {
-      const exits = exitDetail(exitCount());
-      const bad = 'voided' in exits;
-      setVoided(bad);
-      if (!bad && final.score > readNum(CH_BEST_KEY)) { write(CH_BEST_KEY, String(final.score)); setChBest(final.score); }
-      reportGame(`m2-challenge-${startedAt.current}`, 'merge2048', 'solo', final.score > 0 ? 'win' : 'loss', {
-        ...exits, mode: 'challenge', score: final.score, max, moves: final.moves, durationMs: Math.min(CHALLENGE_MS, Date.now() - startedAt.current),
+    const base = { mode, score: final.score, max, moves: final.moves };
+    if (mode === 'endless') {
+      write(RUN_KEY, ''); setHasRun(false);
+      const newBest = final.score > 0 && final.score > readNum(RUN_BEST_KEY);
+      if (newBest) { write(RUN_BEST_KEY, String(final.score)); setRunBest(final.score); }
+      setResult({ ...base, newBest, place: 'loading' });
+      const runStart = readNum(RUN_START_KEY) || startedAt.current;
+      // Save first (signed in), then ask where the score lands, so my own rank already counts this run.
+      reportGame(`m2-endless-${runStart}-${final.moves}`, 'merge2048', 'solo', max >= 2048 ? 'win' : 'loss', {
+        mode: 'endless', score: final.score, max, moves: final.moves, durationMs: Date.now() - runStart,
+      }).catch(() => {}).then(async () => {
+        const supabase = getSupabase();
+        const { data, error } = supabase ? await supabase.rpc('challenge_place', { p_board: 'merge2048', p_score: final.score }) : { data: null, error: true };
+        const row = !error && Array.isArray(data) ? (data[0] as M2Place | undefined) : undefined;
+        setResult((r) => (r ? { ...r, place: row ?? null } : r));
+        setTopKey((n) => n + 1);
       });
     } else {
+      setResult({ ...base, newBest: final.score > 0 && final.score > freeBestBefore.current, place: null });
       write(SAVE_KEY, '');
       reportGame(`m2-free-${startedAt.current}-${final.moves}`, 'merge2048', 'solo', max >= 2048 ? 'win' : 'loss', { mode: 'free', score: final.score, max, moves: final.moves });
     }
-  }, [mode, exitCount]);
+    setResultOpen(true);
+  }, [mode]);
 
-  // Out of moves ends the game in both modes; the challenge also ends when its ten minutes are up.
+  // Out of moves ends the game in both modes.
   useEffect(() => {
-    if (phase === 'playing' && game?.over) { const id = window.setTimeout(() => finish(game), 650); return () => window.clearTimeout(id); }
+    if (phase === 'playing' && game?.over) { const id = window.setTimeout(() => finish(game), 900); return () => window.clearTimeout(id); }
   }, [phase, game, finish]);
-  const left = endAt ? Math.max(0, endAt - now) : 0;
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the challenge clock ran out
-    if (mode === 'challenge' && phase === 'playing' && endAt && left === 0 && game) finish(game);
-  }, [mode, phase, endAt, left, game, finish]);
 
-  const startChallenge = () => {
+  const startRun = () => {
     unlockGameAudio();
     startedAt.current = Date.now();
-    setGame(newGame(randomSeed())); setWon(false); setToast(null); setVoided(false);
-    setNow(Date.now()); setEndAt(Date.now() + CHALLENGE_MS); setPhase('playing');
+    setGame(freshRun(startedAt.current)); setWon(false); setToast(null); setHasRun(true); setResult(null); setResultOpen(false); setPhase('playing');
   };
+  // From the free-play result: switch to 챌린지 도전 and start a run straight away.
+  const toChallenge = () => { setResultOpen(false); if (mode === 'endless') startRun(); else { autoStart.current = true; switchMode('endless'); } };
+  const continueRun = () => {
+    const saved = loadSaved(RUN_KEY);
+    if (!saved) { startRun(); return; }
+    unlockGameAudio();
+    startedAt.current = readNum(RUN_START_KEY) || Date.now();
+    setGame(saved); setWon(false); setToast(null); setPhase('playing');
+  };
+  // Starting over gives up the run in progress (it is not recorded), so it asks first.
+  const restartRun = () => { if (phase === 'playing' && game && game.moves > 0 && !window.confirm(t('giveUpConfirm'))) return; startRun(); };
   const newFree = () => {
     startedAt.current = Date.now();
     const fresh = newGame(randomSeed());
     write(SAVE_KEY, JSON.stringify(fresh));
-    setGame(fresh); setUndo(null); setWon(false); setToast(null); setPhase('playing');
+    freeBestBefore.current = readNum(BEST_KEY);
+    setGame(fresh); setUndo(null); setWon(false); setToast(null); setResult(null); setResultOpen(false); setPhase('playing');
   };
   const takeBack = () => { if (!undo || mode !== 'free' || phase !== 'playing') return; setGame(undo); write(SAVE_KEY, JSON.stringify(undo)); setUndo(null); };
 
@@ -146,18 +181,17 @@ export default function Merge2048Game() {
   return (
     <div className={SHELL} style={{ ...accentVars(M2_ACCENT, M2_INK), backgroundImage: fog('255, 143, 163') }}>
       <Shards tint="#3a2630" />
-      <BoardExitToast warn={exitWarn} />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title="2048" subtitle={t('subtitle')}>
         <BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => { setMergeSound(!sound); setSound(!sound); }} className={BTN} aria-label={t('sound')}>{sound ? <Volume2 size={14} /> : <VolumeX size={14} />}</button>
         {mode === 'free' ? <button type="button" onClick={newFree} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
-          : phase !== 'intro' && <button type="button" onClick={() => { setPhase('intro'); setEndAt(0); setGame(null); }} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('restart')}</span></button>}
+          : phase !== 'intro' && <button type="button" onClick={restartRun} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('restart')}</span></button>}
       </GameHeader>
 
       <main className={MAIN}>
         <section className={STAGE}>
           <div className="mb-3 grid grid-cols-2 gap-1.5">
-            {([['free', Leaf], ['challenge', Timer]] as const).map(([m, Icon]) => (
+            {([['free', Leaf], ['endless', InfinityIcon]] as const).map(([m, Icon]) => (
               <button key={m} type="button" onClick={() => switchMode(m)} className={`flex items-center justify-center gap-1.5 py-2.5 ${seg(mode === m)}`}><Icon size={14} />{t(`mode_${m}`)}</button>
             ))}
           </div>
@@ -167,20 +201,21 @@ export default function Merge2048Game() {
               <StatBox label={t('score')} value={game?.score ?? 0} accent>
                 {view.gained > 0 && <span key={view.key} className="m2-float pointer-events-none absolute -top-2 right-2 font-mono text-xs font-black text-(--accent)">+{view.gained}</span>}
               </StatBox>
-              <StatBox label={mode === 'free' ? t('best') : t('bestChallenge')} value={mode === 'free' ? Math.max(best, game?.score ?? 0) : chBest} />
-              {mode === 'challenge'
-                ? <StatBox label={t('timeLeft')} value={<span className={phase === 'playing' && left < 60_000 ? 'text-[#ff7b71]' : ''}>{clock(phase === 'playing' ? left : CHALLENGE_MS)}</span>} />
-                : <StatBox label={t('biggest')} value={max || '—'} />}
+              <StatBox label={mode === 'free' ? t('best') : t('bestEndless')} value={Math.max(mode === 'free' ? best : runBest, game?.score ?? 0)} />
+              <StatBox label={t('biggest')} value={max || '—'} />
             </div>
 
-            {phase === 'intro' && mode === 'challenge' ? (
+            {phase === 'intro' && mode === 'endless' ? (
               <div className="rounded-[16px] border border-white/10 bg-black/30 px-5 py-8 text-center">
                 <div className="mx-auto h-20 w-20 m2-breathe"><BlockFace v={2048} /></div>
-                <h1 className="mt-4 text-2xl font-black">{t('challengeTitle')}</h1>
-                <p className="mx-auto mt-2 max-w-sm break-keep text-sm leading-6 text-white/55">{t('challengeDesc')}</p>
-                <p className="mt-4 text-xs font-bold text-white/40">{t('bestScore', { n: chBest })}</p>
-                <button type="button" onClick={startChallenge} className={`${BTN_ACCENT} mt-6 w-full max-w-xs py-3.5 text-sm`}><Play size={15} fill="currentColor" />{t('startChallenge')}</button>
-                <div className="mx-auto max-w-sm"><BoardExitRule /></div>
+                <h1 className="mt-4 text-2xl font-black">{t('endlessTitle')}</h1>
+                <p className="mx-auto mt-2 max-w-sm break-keep text-sm leading-6 text-white/55">{t('endlessDesc')}</p>
+                <p className="mt-4 text-xs font-bold text-white/40">{t('bestScore', { n: runBest })}</p>
+                <div className="mx-auto mt-6 flex w-full max-w-xs flex-col gap-2">
+                  {hasRun && <button type="button" onClick={continueRun} className={`${BTN_ACCENT} w-full py-3.5 text-sm`}><Play size={15} fill="currentColor" />{t('continueRun')}</button>}
+                  <button type="button" onClick={hasRun ? () => { if (window.confirm(t('giveUpConfirm'))) startRun(); } : startRun} className={`${hasRun ? BTN : BTN_ACCENT} w-full py-3.5 text-sm`}><InfinityIcon size={15} />{t('startEndless')}</button>
+                  <Link href="/ranking/2048" className={`${BTN} w-full py-3 text-sm`}><Medal size={15} />{t('seeRanking')}</Link>
+                </div>
               </div>
             ) : game && (
               <M2Board tiles={game.tiles} ghosts={view.ghosts} merged={view.merged} spawned={view.spawned} boardRef={boardRef} dim={phase === 'done'}>
@@ -201,11 +236,13 @@ export default function Merge2048Game() {
                   <div className="absolute inset-0 z-40 flex flex-col items-center justify-center p-4 text-center">
                     <div className="w-full max-w-[300px] rounded-[16px] bg-[#17201e]/95 p-5 text-white shadow-2xl">
                       <Trophy size={28} className="mx-auto text-[#ffd23f]" />
-                      <p className={`${KICKER} mt-2`}>{mode === 'challenge' && game.over === false ? 'TIME UP' : 'NO MORE MOVES'}</p>
+                      <p className={`${KICKER} mt-2`}>NO MORE MOVES</p>
                       <p className="mt-1 text-3xl font-black">{t('points', { n: game.score })}</p>
                       <p className="mt-1 text-xs text-white/55">{t('doneBiggest', { n: max })}</p>
-                      {voided && <BoardExitRule voided />}
-                      <button type="button" onClick={mode === 'challenge' ? startChallenge : newFree} className={`${BTN_ACCENT} mt-4 w-full py-3`}><RotateCcw size={14} />{t('again')}</button>
+                      {mode === 'endless' && result?.place && result.place !== 'loading' && <p className="mt-2 text-sm font-black text-[#ffd36e]">{t('placeN', { n: result.place.place })} <span className="text-xs font-bold text-white/45">{t('placeOf', { n: Math.max(result.place.players, result.place.place) })}</span></p>}
+                      <button type="button" onClick={mode === 'endless' ? startRun : newFree} className={`${BTN_ACCENT} mt-4 w-full py-3`}><RotateCcw size={14} />{t('again')}</button>
+                      {result && <button type="button" onClick={() => setResultOpen(true)} className={`${BTN} mt-2 w-full py-2.5`}><Trophy size={14} />{t('showResult')}</button>}
+                      {mode === 'endless' && <Link href="/ranking/2048" className={`${BTN} mt-2 w-full py-2.5`}><Medal size={14} />{t('seeRanking')}</Link>}
                     </div>
                   </div>
                 )}
@@ -222,6 +259,7 @@ export default function Merge2048Game() {
         </section>
 
         <aside className="flex flex-col gap-4">
+          {mode === 'endless' && <EndlessTop refresh={topKey} />}
           <BlockCollection best={Math.max(top, max)} title={t('collection')} hint={t('collectionHint')} />
           <section className="rounded-[14px] border border-(--accent)/25 bg-(--accent)/[.05] p-4">
             <p className={PANEL_TITLE}>{t('quickRules')}</p>
@@ -229,6 +267,10 @@ export default function Merge2048Game() {
           </section>
         </aside>
       </main>
+      {result && resultOpen && (
+        <Merge2048Result {...result} mode={result.mode} onClose={() => setResultOpen(false)}
+          onAgain={result.mode === 'endless' ? startRun : newFree} onChallenge={toChallenge} />
+      )}
     </div>
   );
 }

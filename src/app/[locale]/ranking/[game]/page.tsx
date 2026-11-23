@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Crown, DoorOpen, Map as MapIcon, Swords, Timer, Trophy } from 'lucide-react';
+import { Crown, DoorOpen, Infinity as InfinityIcon, Map as MapIcon, Swords, Timer, Trophy } from 'lucide-react';
 import ShareButtons from '@/components/ShareButtons';
 import { Link } from '@/i18n/routing';
 import { CERT_GAMES } from '@/lib/hardClear';
@@ -99,6 +99,7 @@ export default async function RankingPage({ params }: Params) {
   const nemoTop = r.nemo && (r.nemo.hard.length ? r.nemo.hard : r.nemo.normal.length ? r.nemo.normal : r.nemo.easy);
   const top: { title: string; rows: PodiumRow[] } = r.maps
     ? { title: t('mapsTitle'), rows: r.maps.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('maps', { n: x.score }) })) }
+    : r.scores ? { title: t('scoresTitle'), rows: r.scores.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }) })) }
     : hasHall(game) && r.hall.length ? { title: t('hallTitle'), rows: r.hall.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('wins', { w: x.wins, g: x.games }) })) }
     : nemoTop ? { title: t('nemoTitle', { level: t(`level_${nemoTop === r.nemo!.hard ? 'hard' : nemoTop === r.nemo!.normal ? 'normal' : 'easy'}`) }), rows: nemoTop.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: `${x.correct}` })) }
     : hasOpen(game) && r.open.length ? { title: t('openTitle'), rows: r.open.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname ?? 'Player', stat: t('wld', { w: x.wins, l: x.losses, d: x.draws }) })) }
@@ -121,6 +122,10 @@ export default async function RankingPage({ params }: Params) {
         <Podium rows={top.rows} color={CERT_GAMES[game].color} title={top.title} empty={t('podiumEmpty')} />
 
         <div className="mt-6 grid gap-4">
+          {r.scores && (
+            <Board title={t('scoresTitle')} desc={t('scoresDesc')} icon={<InfinityIcon size={18} style={{ color: CERT_GAMES[game].color }} />} empty={t('emptyScores')}
+              rows={r.scores.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }), prev: x.prev_rank }))} />
+          )}
           {r.maps && (
             <Board title={t('mapsTitle')} desc={t('mapsDesc')} icon={<MapIcon size={18} style={{ color: CERT_GAMES[game].color }} />} empty={t('emptyMaps')}
               rows={r.maps.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('maps', { n: x.score }), prev: x.prev_rank }))} />

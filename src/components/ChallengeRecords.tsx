@@ -78,7 +78,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
       gyulhap10: pick('gyulhap', (d) => d.mode === 'challenge10', 'score'),
       gyulhap5: pick('gyulhap', (d) => d.mode === 'challenge5', 'score'),
       hexagon: pick('hexagon', (d) => d.mode === 'challenge', 'score'),
-      merge2048: pick('merge2048', (d) => d.mode === 'challenge' && !('voided' in d), 'score'),
+      merge2048: pick('merge2048', (d) => d.mode === 'endless', 'score'),
       nemo: Object.fromEntries(['easy', 'normal', 'hard'].map((lv) => [lv, pick('nemo_count', (d) => d.difficulty === lv, 'correct')])) as Record<string, number | null>,
     };
   }, [results]);

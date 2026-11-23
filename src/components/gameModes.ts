@@ -55,7 +55,7 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
   merge2048: {
-    path: '/2048', solo: true, ai: [{ label: 'm2Free', query: 'mode=free' }, { label: 'm2Challenge', query: 'mode=challenge' }],
+    path: '/2048', solo: true, ai: [{ label: 'm2Free', query: 'mode=free' }, { label: 'm2Endless', query: 'mode=endless' }],
     rooms: [{ label: 'm2Room', create: prepareMerge2048Room, openMin: 2, play: 'mode=free', fillAi: false }], useRoom: useMerge2048Room,
   },
   fourThree: {
