@@ -248,36 +248,36 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const podiums = useHallPodiums();
   const rates = useChallengeRates();
-  // Order: by plays (2026-11-20), 마슈 · 노노그램 placed 4th · 5th at launch (2026-11-22), 양면포커 after them; 벽바둑 II sits right under 벽바둑. 뒤집기 오목 stays last while its rules settle. HYPE = the most played.
+  // Order: by plays on 2026-11-22 (KST), most played first (same order as the game catalog).
   const games = [
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true, updated: true },
-    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
-    { title: '4 PLAYER 3 IN A ROW', display: tc('fourThree'), description: t('fourThreeDescription'), href: '/four-three', tag: 'spatialStrategy', meta: t('fourThreeMeta'), color: '#ffb52e', illustration: 'fourThree', new: true },
-    { title: 'BINAIRO', display: tc('binairo'), description: t('binairoDescription'), href: '/binairo', tag: 'logicPuzzle', meta: t('binairoMeta'), color: '#3f8cff', illustration: 'binairo', new: true },
-    { title: 'ONE STROKE', display: tc('onestroke'), description: t('onestrokeDescription'), href: '/one-stroke', tag: 'logicPuzzle', meta: t('onestrokeMeta'), color: '#ff8a2b', illustration: 'onestroke', new: true },
+    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'COLOR LINK', display: tc('colorlink'), description: t('colorlinkDescription'), href: '/color-link', tag: 'logicPuzzle', meta: t('colorlinkMeta'), color: '#21c2b5', illustration: 'colorlink', new: true },
-    { title: 'STAR BATTLE', display: tc('starbattle'), description: t('starbattleDescription'), href: '/star-battle', tag: 'logicPuzzle', meta: t('starbattleMeta'), color: '#ffc23d', illustration: 'starbattle', new: true },
-    { title: 'MASYU', display: tc('masyu'), description: t('masyuDescription'), href: '/masyu', tag: 'logicPuzzle', meta: t('masyuMeta'), color: '#ff4d5e', illustration: 'masyu', new: true },
-    { title: 'NONOGRAM', display: tc('nonogram'), description: t('nonogramDescription'), href: '/nonogram', tag: 'logicPuzzle', meta: t('nonogramMeta'), color: '#3fcf6a', illustration: 'nonogram', new: true },
-    { title: 'TWO-SIDED POKER', display: tc('twoSidedPoker'), description: t('twoSidedPokerDescription'), href: '/two-sided-poker', tag: 'observationBluff', meta: t('twoSidedPokerMeta'), color: '#9b87ff', illustration: 'twoSidedPoker', new: true },
+    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
+    { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', tag: 'miniStrategy', meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
     { title: 'MONORAIL', display: tc('monorail'), description: t('monorailDescription'), href: '/monorail', tag: 'spatialStrategy', meta: t('monorailMeta'), color: '#f3b64a', illustration: 'monorail', new: true },
     { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', tag: 'spatialStrategy', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
-    { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', tag: 'miniStrategy', meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
-    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
     { title: 'INDIAN POKER', display: tc('indianPoker'), description: t('indianPokerDescription'), href: '/indian-poker', tag: 'observationBluff', meta: t('indianPokerMeta'), color: '#e6b94f', illustration: 'indianPoker' },
+    { title: 'STAR BATTLE', display: tc('starbattle'), description: t('starbattleDescription'), href: '/star-battle', tag: 'logicPuzzle', meta: t('starbattleMeta'), color: '#ffc23d', illustration: 'starbattle', new: true },
+    { title: 'TWO-SIDED POKER', display: tc('twoSidedPoker'), description: t('twoSidedPokerDescription'), href: '/two-sided-poker', tag: 'observationBluff', meta: t('twoSidedPokerMeta'), color: '#9b87ff', illustration: 'twoSidedPoker', new: true },
+    { title: 'ONE STROKE', display: tc('onestroke'), description: t('onestrokeDescription'), href: '/one-stroke', tag: 'logicPuzzle', meta: t('onestrokeMeta'), color: '#ff8a2b', illustration: 'onestroke', new: true },
     { title: 'BLACK & WHITE', display: tc('blackWhite'), description: t('blackWhiteDescription'), href: '/black-white', tag: 'strategyBluff', meta: t('blackWhiteMeta'), color: '#2b2b31', illustration: 'blackWhite' },
     { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', tag: 'memoryDeduction', meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
-    { title: 'BLACK & WHITE II', display: tc('blackWhite2'), description: t('blackWhite2Description'), href: '/black-white-2', tag: 'pointStrategy', meta: t('blackWhite2Meta'), color: '#ef3340', illustration: 'blackWhite2' },
-    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', tag: 'brainSurvival', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
-    { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', tag: 'classic', meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
-    { title: "NINE MEN'S MORRIS", display: tc('nineMensMorris'), description: t('nineMensMorrisDescription'), href: '/nine-mens-morris', tag: 'spatialStrategy', meta: t('nineMensMorrisMeta'), color: '#3ec9d6', illustration: 'morris', new: true },
+    { title: 'FLIP OMOK', display: tc('flipOmok'), description: t('flipOmokDescription'), href: '/flip-omok', tag: 'devOriginal', meta: t('flipOmokMeta'), color: '#2f9e78', illustration: 'flipOmok' },
+    { title: 'NONOGRAM', display: tc('nonogram'), description: t('nonogramDescription'), href: '/nonogram', tag: 'logicPuzzle', meta: t('nonogramMeta'), color: '#3fcf6a', illustration: 'nonogram', new: true },
     { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', tag: 'brainSurvival', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
-    { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', tag: 'strategyBluff', meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
+    { title: 'BLACK & WHITE II', display: tc('blackWhite2'), description: t('blackWhite2Description'), href: '/black-white-2', tag: 'pointStrategy', meta: t('blackWhite2Meta'), color: '#ef3340', illustration: 'blackWhite2' },
+    { title: "NINE MEN'S MORRIS", display: tc('nineMensMorris'), description: t('nineMensMorrisDescription'), href: '/nine-mens-morris', tag: 'spatialStrategy', meta: t('nineMensMorrisMeta'), color: '#3ec9d6', illustration: 'morris', new: true },
+    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', tag: 'brainSurvival', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
+    { title: 'BINAIRO', display: tc('binairo'), description: t('binairoDescription'), href: '/binairo', tag: 'logicPuzzle', meta: t('binairoMeta'), color: '#3f8cff', illustration: 'binairo', new: true },
     { title: 'GYUL! HAP!', display: tc('gyulhap'), description: t('gyulhapDescription'), href: '/gyulhap', tag: 'observationBluff', meta: t('gyulhapMeta'), color: '#ffcf3f', illustration: 'gyulhap' },
+    { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', tag: 'classic', meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
+    { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', tag: 'strategyBluff', meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
+    { title: 'MASYU', display: tc('masyu'), description: t('masyuDescription'), href: '/masyu', tag: 'logicPuzzle', meta: t('masyuMeta'), color: '#ff4d5e', illustration: 'masyu', new: true },
+    { title: '4 PLAYER 3 IN A ROW', display: tc('fourThree'), description: t('fourThreeDescription'), href: '/four-three', tag: 'spatialStrategy', meta: t('fourThreeMeta'), color: '#ffb52e', illustration: 'fourThree', new: true },
     { title: 'HEXAGON', display: tc('hexagon'), description: t('hexagonDescription'), href: '/hexagon', tag: 'memoryDeduction', meta: t('hexagonMeta'), color: '#e8b04a', illustration: 'hexagon' },
     { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', tag: 'brainSurvival', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
-    { title: 'FLIP OMOK', display: tc('flipOmok'), description: t('flipOmokDescription'), href: '/flip-omok', tag: 'devOriginal', meta: t('flipOmokMeta'), color: '#2f9e78', illustration: 'flipOmok' },
   ] as const;
 
   return <main className="min-h-screen bg-[#f3f0e8] text-[#17201e]"><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
