@@ -2410,6 +2410,7 @@
     "attached": "Sent along: the game, page address, browser and screen size"
   },
   "GameGate": {
+    "startGame": "Start",
     "short_m2Room": "2–4",
     "m2Room": "Create a friend room (2–4)",
     "m2Endless": "Challenge run (ranked)",
