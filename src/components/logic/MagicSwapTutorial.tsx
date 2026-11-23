@@ -8,6 +8,7 @@ import { accentVars } from '@/components/ui/gameUi';
 import { LOGIC, buildBoard } from '@/lib/logicPuzzles';
 import { lineSums, magicSum } from '@/lib/magicswap';
 import MagicSwapBoard from './MagicSwapBoard';
+import LogicReplayButton from './LogicReplay';
 
 const SEEN_KEY = 'puzzlthink_magicswap_tutorial_seen';
 /** Fired by the rules tip's "튜토리얼" button to open the steps again. */
@@ -69,6 +70,7 @@ export default function MagicSwapTutorial() {
         <div className="mt-3 flex min-h-[250px] items-center justify-center">{steps[step].visual}</div>
         <h3 className="mt-3 text-lg font-black tracking-tight">{steps[step].title}</h3>
         <p className="mt-1 min-h-[72px] break-keep text-[13px] leading-6 text-white/65">{steps[step].desc}</p>
+        {last && <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-white/[0.05] px-3 py-2"><span className="text-[11px] font-bold text-white/55">{t('replayLead')}</span><LogicReplayButton game="magicswap" variant="chip" /></div>}
         <div className="mt-3 flex items-center justify-center gap-1.5">{steps.map((s, i) => <button key={s.title} type="button" aria-label={`${i + 1}`} onClick={() => setStep(i)} className={`h-1.5 rounded-full transition-all ${i === step ? 'w-5 bg-(--accent)' : 'w-1.5 bg-white/25'}`} />)}</div>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className="flex items-center justify-center gap-1 rounded-xl bg-white/10 py-3 text-sm font-black text-white/80 disabled:opacity-30"><ChevronLeft size={15} />{t('prev')}</button>

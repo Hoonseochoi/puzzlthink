@@ -3,12 +3,14 @@
 import { type LogicBoard, type LogicGameId, buildBoard } from './logicPuzzles';
 import { solveLine } from './nonogram';
 import { geometry as masyuGeometry } from './masyu';
-import { lineSums, linesRight, magicSum } from './magicswap';
+import { linesRight, magicSum } from './magicswap';
 import { type Puzzle as SlitherPuzzle, generatePuzzle as slitherPuzzle, geometry as slitherGeometry } from './slitherlink';
 
 export type ReplayNote = { ko: string; en: string; at?: number };
 /** One move: the marks it changes (cell or edge index → value) and, sometimes, a note pinned to a cell. */
-export type ReplayFrame = { changes: [number, number][]; note?: ReplayNote };
+/** 마방진 스왑 also shows the tile being picked up (`sel`), where it goes (`target`) and the pair just swapped (`swapped`). */
+export type ReplayFocus = { sel?: number; target?: number; swapped?: [number, number] };
+export type ReplayFrame = { changes: [number, number][]; note?: ReplayNote; focus?: ReplayFocus };
 /** 슬리더링크 lives outside the logic-puzzle interface; its replay carries the puzzle itself. */
 export type SlitherReplayBoard = { kind: 'slitherlink'; size: number; puzzle: SlitherPuzzle };
 export type ReplayGame = LogicGameId | 'slitherlink';
@@ -432,31 +434,91 @@ function slitherSolve(p: SlitherPuzzle): { frames: ReplayFrame[]; solved: boolea
   return { frames, solved: false };
 }
 
-// ── 마방진 스왑: undo the scramble one pair at a time, the pair that fixes the most lines first ──
-function magicReplay(b: Extract<LogicBoard, { kind: 'magicswap' }>): ReplayFrame[] {
-  const n = b.size, M = magicSum(n), g = b.start.slice();
-  const frames: ReplayFrame[] = [{ changes: [], note: { ko: `줄마다 합이 ${M}이어야 해요. 끝의 +, − 숫자는 목표보다 얼마나 크거나 작은지예요.`, en: `Every line must add up to ${M}. The + and − at the edge say how far each line is off.` } }];
+// ── 마방진 스왑: played like a person would — read a line that is off, pick up the tile, find its partner, swap ──
+type MagicLine = { ko: string; en: string; cells: number[] };
+function magicLines(n: number): MagicLine[] {
+  const lines: MagicLine[] = [];
+  for (let r = 0; r < n; r++) lines.push({ ko: `${r + 1}행`, en: `row ${r + 1}`, cells: Array.from({ length: n }, (_, c) => r * n + c) });
+  for (let c = 0; c < n; c++) lines.push({ ko: `${c + 1}열`, en: `column ${c + 1}`, cells: Array.from({ length: n }, (_, r) => r * n + c) });
+  lines.push({ ko: '↘ 대각선', en: 'the ↘ diagonal', cells: Array.from({ length: n }, (_, i) => i * n + i) });
+  lines.push({ ko: '↙ 대각선', en: 'the ↙ diagonal', cells: Array.from({ length: n }, (_, i) => i * n + n - 1 - i) });
+  return lines;
+}
+const signed = (v: number) => (v > 0 ? `+${v}` : v < 0 ? `−${-v}` : '0');
+/** Korean particle after a number read aloud (13 → 십삼 → 을, 12 → 십이 → 를; 0-ending tens end in 십). */
+const josa = (v: number, withB: string, without: string) => (v % 10 === 0 || [1, 3, 6, 7, 8].includes(v % 10) ? withB : without);
+const eul = (v: number) => `${v}${josa(v, '을', '를')}`;
+const ga = (v: number) => `${v}${josa(v, '이', '가')}`;
+
+/** The reasoning for swapping tiles i and j: a line through i (not j) that the swap fixes, and one through j. */
+function magicReason(n: number, g: number[], i: number, j: number) {
+  const M = magicSum(n), lines = magicLines(n), diff = (l: MagicLine) => l.cells.reduce((a, k) => a + g[k], 0) - M;
+  const delta = g[j] - g[i]; // what i's lines gain from the swap
+  const fixes = (cell: number, gain: number) => lines.find((l) => l.cells.includes(cell) && !l.cells.includes(cell === i ? j : i) && diff(l) !== 0 && diff(l) + gain === 0);
+  return { a: fixes(i, delta), b: fixes(j, -delta), diff };
+}
+
+function magicFrames(b: Extract<LogicBoard, { kind: 'magicswap' }>) {
+  const n = b.size, M = magicSum(n), g = b.start.slice(), all = 2 * n + 2;
+  const frames: ReplayFrame[] = [{ changes: [], note: {
+    ko: `목표는 모든 줄이 ${M}! 끝의 +, − 숫자는 그 줄이 ${M}보다 얼마나 크거나 작은지예요. 지금 맞은 줄은 ${linesRight(n, g)}/${all}개.`,
+    en: `Every line must make ${M}. The + and − at the edge say how far each line is off. Right now ${linesRight(n, g)} of ${all} lines add up.`,
+  } }];
+  let explained = 0;
   const left = b.swaps.slice();
   while (left.length) {
     let best = 0, bestScore = -1;
     left.forEach(([i, j], k) => { const t = g.slice(); [t[i], t[j]] = [t[j], t[i]]; const sc = linesRight(n, t); if (sc > bestScore) { bestScore = sc; best = k; } });
-    const [i, j] = left.splice(best, 1)[0];
-    const [ri] = rc(n, i), [rj, cj] = rc(n, j);
-    const s = lineSums(n, g), d = Math.abs(g[i] - g[j]);
-    const rowOff = s.rows[ri - 1] - M, sign = (v: number) => (v > 0 ? `+${v}` : `${v}`);
-    const changes: [number, number][] = [[i, g[j]], [j, g[i]]];
+    let [i, j] = left.splice(best, 1)[0];
+    let why = magicReason(n, g, i, j);
+    if (!why.a && magicReason(n, g, j, i).a) { [i, j] = [j, i]; why = magicReason(n, g, i, j); }
+    const x = g[i], y = g[j], d = Math.abs(x - y), before = linesRight(n, g);
+    const [ri, ci] = rc(n, i), [rj, cj] = rc(n, j);
+    if (why.a) explained++;
+    // 1. Pick up the tile, saying which line gives it away.
+    frames.push({ changes: [], focus: { sel: i }, note: why.a ? {
+      ko: `${why.a.ko}이 ${signed(why.diff(why.a))}${josa(Math.abs(why.diff(why.a)), '이에요', '예요')}. 여기 있는 ${eul(x)} ${d}만큼 ${y < x ? '작은' : '큰'} 수로 바꾸면 이 줄이 맞아요. 먼저 ${eul(x)} 눌러 들어요.`,
+      en: `${why.a.en[0].toUpperCase()}${why.a.en.slice(1)} is ${signed(why.diff(why.a))}. Swap its ${x} for a number ${d} ${y < x ? 'smaller' : 'bigger'} and it adds up. Tap ${x} to pick it up.`,
+      at: i,
+    } : {
+      ko: `${ri}행 ${ci}열의 ${ga(x)} 지나는 줄들이 함께 틀려 있어요. 이 칸부터 의심해 볼게요.`,
+      en: `The lines through the ${x} at row ${ri}, column ${ci} are all off. Start with this tile.`,
+      at: i,
+    } });
+    // 2. Find its partner.
+    frames.push({ changes: [], focus: { sel: i, target: j }, note: {
+      ko: why.b ? `${why.b.ko}은 ${signed(why.diff(why.b))}. 거기 있는 ${ga(y)} 딱 ${d} 차이라서 두 줄이 한 번에 맞춰져요. ${eul(y)} 눌러 바꿔요!` : `${rj}행 ${cj}열의 ${ga(y)} ${x}${josa(x, '과', '와')} ${d} 차이예요. 둘을 바꿔요!`,
+      en: why.b ? `${why.b.en[0].toUpperCase()}${why.b.en.slice(1)} is ${signed(why.diff(why.b))}, and its ${y} is exactly ${d} away, so one swap fixes both. Tap ${y} to swap.` : `The ${y} at row ${rj}, column ${cj} is ${d} away from ${x}. Swap them!`,
+      at: j,
+    } });
+    // 3. Swap.
     [g[i], g[j]] = [g[j], g[i]];
-    frames.push({
-      changes, note: frames.length <= 2 ? {
-        ko: `${ri}행(${sign(rowOff)})의 ${g[j]}와 ${rj}행 ${cj}열의 ${g[i]}를 바꿔요. 차이가 ${d}라서 두 줄이 함께 맞춰져요.`,
-        en: `Row ${ri} is ${sign(rowOff)}: swap its ${g[j]} with the ${g[i]} at row ${rj}, column ${cj}. They differ by ${d}, so both lines line up.`,
-        at: i,
-      } : undefined,
-    });
+    const after = linesRight(n, g);
+    frames.push({ changes: [[i, y], [j, x]], focus: { swapped: [i, j] }, note: {
+      ko: left.length ? `바꿨더니 맞은 줄이 ${before} → ${after}개! 남은 틀린 줄에서 같은 방법으로 찾아요.` : `${before} → ${after}개, 전부 맞았어요!`,
+      en: left.length ? `That took the lines adding up from ${before} to ${after}. Repeat on the lines still off.` : `${before} → ${after}: every line adds up!`,
+      at: j,
+    } });
   }
-  frames.push({ changes: [], note: { ko: `완성! 가로·세로·대각선 ${2 * n + 2}줄이 모두 ${M}이에요.`, en: `Done! All ${2 * n + 2} lines add up to ${M}.` } });
-  return frames;
+  frames.push({ changes: [], note: {
+    ko: `완성! 가로·세로·대각선 ${all}줄이 모두 ${M}${josa(M, '이에요', '예요')}. 요령: +d 줄과 −d 줄에서 d만큼 차이 나는 두 수를 찾아 바꾸기.`,
+    en: `Done! All ${all} lines make ${M}. The trick: find two numbers d apart on a +d line and a −d line, and swap them.`,
+  } });
+  return { frames, explained, total: b.swaps.length };
 }
+
+/** The demo board: the first 5×5 seed from 20271124 whose every swap reads as "+d line meets −d line". */
+let magicSeed: number | null = null;
+export function findMagicSeed(): number {
+  if (magicSeed !== null) return magicSeed;
+  for (let s = 20271124; s < 20271124 + 500; s++) {
+    const b = buildBoard('magicswap', 5, s);
+    if (b.kind === 'magicswap') { const f = magicFrames(b); if (f.explained === f.total) { magicSeed = s; return s; } }
+  }
+  magicSeed = 20271124;
+  return magicSeed;
+}
+const magicReplay = (b: Extract<LogicBoard, { kind: 'magicswap' }>) => magicFrames(b).frames;
 
 let slitherSeed: number | null = null;
 /** The first 9×9-dot board the step solver finishes (searched once, then cached). */
@@ -478,7 +540,7 @@ export function buildReplay(game: ReplayGame): Replay {
     return replay;
   }
   const d = DEMO[game];
-  const board = buildBoard(game, d.size, game === 'starbattle' ? findStarSeed() : d.seed);
+  const board = buildBoard(game, d.size, game === 'starbattle' ? findStarSeed() : game === 'magicswap' ? findMagicSeed() : d.seed);
   const frames = board.kind === 'binairo' ? binairoReplay(board)
     : board.kind === 'nonogram' ? nonogramReplay(board)
       : board.kind === 'starbattle' ? starReplay(board)

@@ -23,6 +23,7 @@ import OneStrokeBoard from './OneStrokeBoard';
 import ColorLinkBoard from './ColorLinkBoard';
 import MagicSwapBoard from './MagicSwapBoard';
 import MagicSwapTutorial from './MagicSwapTutorial';
+import MagicReplayTip from './MagicReplayTip';
 import LogicRulesTip from './LogicRulesTip';
 import LogicReplayButton from './LogicReplay';
 import LogicHistory from './LogicHistory';
@@ -385,6 +386,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
               </div>
               {awayWarn !== null && <div className="pointer-events-none fixed left-1/2 top-20 z-50 -translate-x-1/2 rounded-full border border-[#ff8f8f]/50 bg-black/85 px-4 py-2 text-xs font-black text-[#ffb3b3] shadow-2xl">{awayWarn >= AWAY_LIMIT ? t('awayVoid') : t('awayWarn', { n: awayWarn, max: AWAY_LIMIT })}</div>}
 
+              {game === 'magicswap' && mode === 'practice' && phase === 'play' && <MagicReplayTip />}
               <div className={phase === 'solved' ? 'animate-[logic-pop_.6s_ease]' : ''}>{boardView}</div>
 
               {phase === 'play' ? (
