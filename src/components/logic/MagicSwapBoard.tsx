@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeftRight, Check, Circle, Sigma } from 'lucide-react';
+import { ArrowLeftRight, Check, Circle, Lock, Sigma } from 'lucide-react';
 import { seg } from '@/components/ui/gameUi';
 import type { MagicSwapBoard as Board } from '@/lib/logicPuzzles';
 import { lineSums, magicSum } from '@/lib/magicswap';
@@ -17,7 +17,7 @@ let gestureSeq = 1;
 /**
  * 마방진 스왑 board. Tap two tiles (or drag one onto another) to swap them. The edge shows how far each row and column
  * is from the magic sum (or the sums themselves); both diagonals sit under the board. ✓ locks a tile, ● marks a
- * suspect; a long press cycles ✓ → ● → none whatever the tool.
+ * suspect; a long press cycles ✓ → ● → none whatever the tool. The three 🔒 tiles never move.
  */
 export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false, solved = false, showAnswer = false, demo, focus }: {
   board: Board;
@@ -58,13 +58,15 @@ export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false
   const s = lineSums(n, cells);
   const selR = shownSel >= 0 ? Math.floor(shownSel / n) : -1, selC = shownSel >= 0 ? shownSel % n : -1;
 
+  const locked = (i: number) => board.fixed.includes(i);
   const swap = (i: number, j: number) => {
-    if (i === j || pins[i] === 1 || pins[j] === 1) return;
+    if (i === j || pins[i] === 1 || pins[j] === 1 || locked(i) || locked(j)) return;
     onMarks?.([[i, cells[j]], [j, cells[i]]], gestureSeq++);
     setSel(-1);
   };
   const setPin = (i: number, p: Pin) => setPins((cur) => cur.map((v, k) => (k === i ? p : v)));
   const tap = (i: number) => {
+    if (locked(i)) return;
     if (tool !== 'swap') { const want: Pin = tool === 'check' ? 1 : 2; setPin(i, pins[i] === want ? 0 : want); if (want === 1 && sel === i) setSel(-1); return; }
     if (pins[i] === 1) return;
     if (sel < 0) setSel(i);
@@ -77,7 +79,7 @@ export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false
   };
 
   const onDown = (e: React.PointerEvent, i: number) => {
-    if (!live) return;
+    if (!live || locked(i)) return;
     e.preventDefault();
     const timer = window.setTimeout(() => {
       const d = drag.current;
@@ -95,7 +97,7 @@ export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false
       const d = drag.current;
       if (!d) return;
       const j = cellAt(e.clientX, e.clientY);
-      if (j >= 0 && j !== d.from) { d.moved = true; window.clearTimeout(d.timer); d.to = j; setOver(j); }
+      if (j >= 0 && j !== d.from && !locked(j)) { d.moved = true; window.clearTimeout(d.timer); d.to = j; setOver(j); }
       else if (d.moved) { d.to = -1; setOver(-1); }
     };
     const up = () => {
@@ -132,17 +134,18 @@ export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false
       <div ref={gridRef} className="grid select-none gap-[3px] sm:gap-1.5" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr)) ${n >= 7 ? '1.6rem' : '2rem'}`, touchAction: live ? 'none' : undefined }}>
         {Array.from({ length: n }, (_, r) => [
           ...Array.from({ length: n }, (_, c) => {
-            const i = r * n + c, pin = shownPins[i];
+            const i = r * n + c, pin = shownPins[i], fix = locked(i);
             const isSel = i === shownSel, lineHl = !isSel && (r === selR || c === selC);
             return (
               <button key={i} type="button" data-cell={i} disabled={!live} onPointerDown={(e) => onDown(e, i)} onContextMenu={(e) => e.preventDefault()}
-                aria-label={`${r + 1}-${c + 1}: ${cells[i]}`} aria-pressed={isSel}
+                aria-label={`${r + 1}-${c + 1}: ${cells[i]}${fix ? ` (${t('magicFixed')})` : ''}`} aria-pressed={isSel}
                 className={`relative flex aspect-square items-center justify-center rounded-[7px] font-black tabular-nums transition-transform duration-100 sm:rounded-[10px] ${tile}
-                  ${solved ? 'bg-(--accent)/25 text-white ring-1 ring-(--accent)/60' : fresh?.includes(i) ? 'animate-[logic-pop_.45s_ease] bg-[#7ee2ae]/25 text-white ring-2 ring-[#7ee2ae]' : isSel ? 'z-10 scale-[1.07] bg-(--accent) text-(--accent-ink) shadow-[0_6px_18px_rgba(0,0,0,.45)]' : lineHl ? 'bg-white/[0.12] text-white' : 'bg-white/[0.06] text-white/90'}
+                  ${solved ? 'bg-(--accent)/25 text-white ring-1 ring-(--accent)/60' : fresh?.includes(i) ? 'animate-[logic-pop_.45s_ease] bg-[#7ee2ae]/25 text-white ring-2 ring-[#7ee2ae]' : isSel ? 'z-10 scale-[1.07] bg-(--accent) text-(--accent-ink) shadow-[0_6px_18px_rgba(0,0,0,.45)]' : fix ? 'bg-black/45 text-white/75 ring-1 ring-inset ring-white/25' : lineHl ? 'bg-white/[0.12] text-white' : 'bg-white/[0.06] text-white/90'}
                   ${pin === 1 && !solved ? 'ring-2 ring-[#7ee2ae]/80' : ''} ${i === shownOver ? 'outline-2 outline-dashed outline-(--accent)' : ''} disabled:cursor-default`}>
                 {cells[i]}
-                {pin === 1 && !solved && <Check size={10} strokeWidth={4} className="absolute right-[3px] top-[3px] text-[#7ee2ae]" />}
-                {pin === 2 && !solved && <span className="absolute left-[4px] top-[4px] h-1.5 w-1.5 rounded-full bg-[#ffc23d] sm:h-2 sm:w-2" />}
+                {fix && <Lock size={9} strokeWidth={3} className="absolute right-[3px] top-[3px] text-white/55" />}
+                {pin === 1 && !fix && !solved && <Check size={10} strokeWidth={4} className="absolute right-[3px] top-[3px] text-[#7ee2ae]" />}
+                {pin === 2 && !fix && !solved && <span className="absolute left-[4px] top-[4px] h-1.5 w-1.5 rounded-full bg-[#ffc23d] sm:h-2 sm:w-2" />}
               </button>
             );
           }),

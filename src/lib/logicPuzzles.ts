@@ -17,7 +17,7 @@ export type BinairoBoard = { kind: 'binairo'; size: number; seed: number; givens
 export type OneStrokeBoard = { kind: 'onestroke'; size: number; seed: number; numbers: number[]; answer: number[] };
 export type ColorLinkBoard = { kind: 'colorlink'; size: number; seed: number; ends: number[]; answer: number[] };
 /** 마방진 스왑: marks are the numbers in the cells (1…n²), starting from `start`; `swaps` undo the scramble (for the replay). */
-export type MagicSwapBoard = { kind: 'magicswap'; size: number; seed: number; start: number[]; answer: number[]; swaps: [number, number][] };
+export type MagicSwapBoard = { kind: 'magicswap'; size: number; seed: number; start: number[]; answer: number[]; swaps: [number, number][]; fixed: number[] };
 export type LogicBoard = MasyuBoard | NonoBoard | StarBoard | BinairoBoard | OneStrokeBoard | ColorLinkBoard | MagicSwapBoard;
 
 export type LogicSpec = {
@@ -75,8 +75,8 @@ export function buildBoard(game: LogicGameId, size: number, seed: number): Logic
     const { numbers, answer } = onestroke.generate(size, seed);
     board = { kind: 'onestroke', size, seed, numbers, answer };
   } else if (game === 'magicswap') {
-    const { start, answer, swaps } = magicswap.generate(size, seed);
-    board = { kind: 'magicswap', size, seed, start, answer, swaps };
+    const { start, answer, swaps, fixed } = magicswap.generate(size, seed);
+    board = { kind: 'magicswap', size, seed, start, answer, swaps, fixed };
   } else {
     const { ends, answer } = colorlink.generate(size, seed);
     board = { kind: 'colorlink', size, seed, ends, answer };
@@ -96,8 +96,8 @@ export const emptyMarks = (b: LogicBoard) => (b.kind === 'binairo' ? b.givens.sl
 /** The starting stones as moves at 0 ms, so the server's replay (which starts from an empty board) sees them too. */
 export const startSteps = (b: LogicBoard): [number, number, number][] => (b.kind === 'binairo' ? b.givens.flatMap((v, i) => (v ? [[i, v, 0] as [number, number, number]] : []))
   : b.kind === 'magicswap' ? b.start.map((v, i) => [i, v, 0] as [number, number, number]) : []);
-/** Cells the player may not change (비나이로's starting stones). */
-export const isFixed = (b: LogicBoard, i: number) => b.kind === 'binairo' && b.givens[i] !== 0;
+/** Cells the player may not change (비나이로's starting stones, 마방진 스왑's three locked tiles). */
+export const isFixed = (b: LogicBoard, i: number) => (b.kind === 'binairo' && b.givens[i] !== 0) || (b.kind === 'magicswap' && b.fixed.includes(i));
 
 export function solved(b: LogicBoard, marks: ArrayLike<number>): boolean {
   if (b.kind === 'masyu') return masyu.isSolved({ id: b.seed, size: b.size, pearls: b.pearls }, marks);
@@ -105,7 +105,7 @@ export function solved(b: LogicBoard, marks: ArrayLike<number>): boolean {
   if (b.kind === 'starbattle') return starbattle.isSolved({ id: b.seed, size: b.size, regions: b.regions }, marks);
   if (b.kind === 'binairo') return binairo.isSolved({ size: b.size, givens: b.givens, signs: b.signs }, marks);
   if (b.kind === 'onestroke') return onestroke.isSolved({ size: b.size, numbers: b.numbers }, marks);
-  if (b.kind === 'magicswap') return magicswap.isMagic(b.size, marks);
+  if (b.kind === 'magicswap') return magicswap.isSolvedWith(b.size, marks, b.start, b.fixed);
   return colorlink.isSolved({ size: b.size, ends: b.ends }, marks);
 }
 

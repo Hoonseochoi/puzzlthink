@@ -1,11 +1,14 @@
 // 마방진 스왑: a magic square (every row, column and both diagonals add up to the same number) with a few pairs of
-// tiles swapped. Swap tiles back until every line adds up again. Any magic arrangement counts, not only the planted one.
+// tiles swapped. Swap tiles back until every line adds up again. Three tiles are fixed (never swapped, never movable), so a
+// magic square learnt by heart does not fit; any magic arrangement that keeps them counts, not only the planted one.
 // Boards are built from (size, seed) with a deterministic generator, so the browser, rooms and the pool script agree.
 
 export const MAGIC_SIZES = [5, 6, 7] as const;
 export const MAGIC_CHALLENGE_SIZE = 7;
 /** Pairs swapped away from the magic square, by size. */
 export const SCRAMBLE: Record<number, number> = { 5: 3, 6: 4, 7: 6 };
+/** Tiles locked in place on every board (each in its own row and column, none of them scrambled). */
+export const FIXED = 3;
 
 /** What every line must add up to: n(n² + 1) / 2 (65 · 111 · 175). */
 export const magicSum = (n: number) => (n * (n * n + 1)) / 2;
@@ -42,6 +45,10 @@ export function linesRight(n: number, cells: ArrayLike<number>) {
   const m = magicSum(n), s = lineSums(n, cells);
   return s.rows.filter((v) => v === m).length + s.cols.filter((v) => v === m).length + (s.down === m ? 1 : 0) + (s.up === m ? 1 : 0);
 }
+
+/** Solved board: a magic square with the fixed tiles where they started. */
+export const isSolvedWith = (n: number, cells: ArrayLike<number>, start: ArrayLike<number>, fixed: readonly number[]) =>
+  fixed.every((i) => cells[i] === start[i]) && isMagic(n, cells);
 
 /** Solved: the cells hold 1…n² once each and all 2n + 2 lines add up. */
 export function isMagic(n: number, cells: ArrayLike<number>) {
@@ -116,7 +123,7 @@ function vary(n: number, sq: number[], rand: () => number) {
   return next;
 }
 
-export type MagicPuzzle = { answer: number[]; start: number[]; swaps: [number, number][] };
+export type MagicPuzzle = { answer: number[]; start: number[]; swaps: [number, number][]; fixed: number[] };
 
 /** A magic square, then `SCRAMBLE[n]` swaps of distinct cells (each pair different numbers); the start is never magic. */
 export function generate(n: number, seed: number): MagicPuzzle {
@@ -133,10 +140,19 @@ export function generate(n: number, seed: number): MagicPuzzle {
     // Every swap must show in the sums (a swap inside one row and one column pair could hide), and the start must not be magic.
     if (linesRight(n, start) > n) continue;
     if (isMagic(n, start)) continue;
-    return { answer, start, swaps };
+    // Drawn after the scramble, so a seed keeps the board it had before fixed tiles existed.
+    const moved = new Set(cells), fixed: number[] = [];
+    for (const i of shuffle(Array.from({ length: n * n }, (_, k) => k), rand)) {
+      if (fixed.length === FIXED) break;
+      if (moved.has(i) || fixed.some((f) => Math.floor(f / n) === Math.floor(i / n) || f % n === i % n)) continue;
+      fixed.push(i);
+    }
+    return { answer, start, swaps, fixed: fixed.sort((a, b) => a - b) };
   }
 }
 
 /** The pool stores a board's start as comma-separated numbers (the server replays swaps from it). */
 export const encodeCells = (cells: ArrayLike<number>) => Array.from(cells).join(',');
+/** Pool row: the start, then `|` and the fixed cell indexes (rows from before fixed tiles have no `|`). */
+export const encodePool = (p: MagicPuzzle) => `${encodeCells(p.start)}|${p.fixed.join(',')}`;
 export const decodeCells = (text: string) => text.split(',').map((x) => Number(x));
