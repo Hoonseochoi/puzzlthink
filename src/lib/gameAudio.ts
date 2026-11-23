@@ -69,3 +69,20 @@ export function playRevolverShot() {
   tone(context, 155, 0.18, 0.16, 'sawtooth');
   noise(context, 0.2, 0.12, 0.08);
 }
+
+const MERGE_MUTE_KEY = 'puzzlthink_2048_mute';
+export function mergeSoundOn() { try { return localStorage.getItem(MERGE_MUTE_KEY) !== '1'; } catch { return true; } }
+export function setMergeSound(on: boolean) { try { localStorage.setItem(MERGE_MUTE_KEY, on ? '0' : '1'); } catch { /* Optional. */ } }
+
+/** 2048: a soft marimba-like note on a merge, a little higher for every bigger block (pentatonic, so it stays calm). */
+export function playMergeNote(value: number) {
+  if (!mergeSoundOn()) return;
+  const context = getContext();
+  if (!context) return;
+  const steps = [0, 2, 4, 7, 9];
+  const n = Math.max(0, Math.round(Math.log2(value)) - 2);
+  const semis = steps[n % 5] + 12 * Math.floor(n / 5);
+  const f = 392 * 2 ** (semis / 12);
+  tone(context, f, 0.32, 0.07, 'sine');
+  tone(context, f * 2, 0.16, 0.018, 'triangle');
+}

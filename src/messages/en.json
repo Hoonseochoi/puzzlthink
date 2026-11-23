@@ -1,5 +1,6 @@
 {
   "Common": {
+    "merge2048": "2048",
     "fourThree": "4 Player 3 In a Row",
     "monorail": "Monorail",
     "games": "Games",
@@ -186,12 +187,15 @@
     ]
   },
   "Home": {
+    "merge2048Meta": "Free play · 10-min challenge · 2–4 friends",
+    "merge2048Description": "Slide matching blocks together and watch the little squares grow into shiny stones. A calm puzzle for a tired brain — take your time to 2048.",
+    "tag_healing": "HEALING",
     "fourThreeDescription": "A 4×4 board of stacking pieces. Team up to stop the Special Guest's line while racing to make three in a row yourself.",
     "fourThreeMeta": "vs AI (4 players) · Friends 2–3 · The Devil's Plan prize match",
     "monorailDescription": "Place straight and curved tiles to close one loop. Fight for the final tile—or call Impossible.",
     "monorailMeta": "AI, friend & open 1v1",
     "metaTitle": "PUZZLTHINK — Devil's Plan & The Genius brain games, logic puzzles",
-    "metaDescription": "29 free browser games: brain games known from The Devil's Plan and The Genius (Monorail, Wall Go, Two-Sided Poker, Heavy 13) and logic puzzles (Magic Square Swap, Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu, Nonogram) with map-steal challenge rankings. Play the AI, friends or open matches. Unofficial fan-made service.",
+    "metaDescription": "30 free browser games: brain games known from The Devil's Plan and The Genius (Monorail, Wall Go, Two-Sided Poker, Heavy 13) and logic puzzles (Magic Square Swap, Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu, Nonogram) with map-steal challenge rankings. Play the AI, friends or open matches. Unofficial fan-made service.",
     "eyebrow": "BRAIN GAMES · WITH FRIENDS",
     "title1": "Games worth thinking about,",
     "title2": "with your friends",
@@ -1641,6 +1645,7 @@
     "close": "Close"
   },
   "Records": {
+    "chMerge2048": "2048 10-min challenge",
     "metaTitle": "Records · Hall of Fame",
     "metaDescription": "See PUZZLTHINK records for AI and open matches, rankings and the Hall of Fame, and update your nickname.",
     "title": "Records",
@@ -1893,7 +1898,7 @@
   },
   "Games": {
     "metaTitle": "All games — The Devil's Plan & The Genius games and logic puzzles",
-    "metaDescription": "From Monorail, Wall Go, Two-Sided Poker, Heavy 13 and Nemo Count to Magic Square Swap, Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu and Nonogram: compare all 29 PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
+    "metaDescription": "From Monorail, Wall Go, Two-Sided Poker, Heavy 13 and Nemo Count to Magic Square Swap, Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu and Nonogram: compare all 30 PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
     "eyebrow": "GAME GUIDE",
     "title": "About the games",
     "intro": "Every PUZZLTHINK game on one page. See how many players it takes, how a game runs and what you need to know, then jump right in. All games are free with no sign-up.",
@@ -1912,6 +1917,22 @@
     "unsupported": "Not available",
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
     "games": {
+      "merge2048": {
+        "tagline": "Slide matching numbers together and grow the little square characters into stones on your way to 2048 — a calm number puzzle.",
+        "players": "1 player or 2–4 friends",
+        "pace": "Free play · 10-min challenge · 5 or 10-min friend race",
+        "level": "Easy to start (the corner trick takes you further)",
+        "solo": "Free play (undo, saved as you go) · 10-min challenge ranking",
+        "friend": "2–4 players start together on the same block order; after 5 or 10 minutes the biggest block wins",
+        "ai": "Free play · 10-min challenge",
+        "rules": [
+          "On a 4×4 board, push up, down, left or right and every block slides as far as it can.",
+          "Two equal blocks that meet merge into one worth double, and the new number is added to your score. A block merges once per move.",
+          "After every move a new 2 (sometimes a 4) appears in an empty cell.",
+          "When the board is full and nothing can move, the game ends. 2–64 are square characters, from 128 they grow into stones, and 2048 wears a crown."
+        ],
+        "origin": "Built on the rules of 2048, the open-source puzzle released in 2014, with PUZZLTHINK's square and stone characters, a 10-minute challenge and live friend races added."
+      },
       "fourThree": {
         "tagline": "A 4×4 board where pieces stack up to three high. Three players hold off the Special Guest while racing to show three in a row from above.",
         "players": "4 (you + 2 allies + Special Guest AI)",
@@ -2389,6 +2410,10 @@
     "attached": "Sent along: the game, page address, browser and screen size"
   },
   "GameGate": {
+    "short_m2Room": "2–4",
+    "m2Room": "Create a friend room (2–4)",
+    "m2Challenge": "10-minute challenge (scored)",
+    "m2Free": "Free play (relaxed)",
     "ftAi": "4 players · stop the Guest with 2 ally AIs",
     "ftRoom": "Create a room (2–3 people + Guest AI)",
     "short_ftRoom": "2–3",
@@ -7124,5 +7149,195 @@
       }
     ],
     "disclaimer": "A free web puzzle made by PUZZLTHINK. Magic squares are an old mathematical puzzle and not tied to any company's game."
+  },
+  "Merge2048": {
+    "metaTitle": "2048 — a calm merge puzzle with characters · play 2048 with friends",
+    "metaDescription": "Slide and merge matching numbers in 2048, redrawn with PUZZLTHINK characters: squares that grow into stones. Relaxed free play with undo, a 10-minute challenge ranking, and 5 or 10-minute races with 2–4 friends. Free, no sign-up.",
+    "keywords": [
+      "2048",
+      "2048 game",
+      "2048 online",
+      "2048 multiplayer",
+      "2048 with friends",
+      "relaxing puzzle",
+      "merge puzzle",
+      "number puzzle",
+      "brain game"
+    ],
+    "subtitle": "HEALING · MERGE PUZZLE",
+    "mode_free": "Free play",
+    "mode_challenge": "10-min challenge",
+    "newGame": "New game",
+    "restart": "Restart",
+    "sound": "Sound on/off",
+    "score": "SCORE",
+    "best": "BEST",
+    "bestChallenge": "CHALLENGE BEST",
+    "timeLeft": "TIME",
+    "biggest": "BIGGEST",
+    "challengeTitle": "How many points in 10 minutes?",
+    "challengeDesc": "Score as much as you can in 10 minutes. Every merge adds the new number to your score. The run is recorded when the board gets stuck or the 10 minutes are up.",
+    "bestScore": "Best: {n} points",
+    "startChallenge": "Start the challenge",
+    "evolve": "128! Your square became a stone",
+    "toastNew": "New block {n}!",
+    "toastLegend": "{n}! A legendary stone",
+    "won": "You made 2048!",
+    "wonDesc": "The gold stone wears its crown. Fancy going for an even bigger block?",
+    "keepGoing": "Keep going",
+    "points": "{n} pts",
+    "doneBiggest": "Biggest block {n}",
+    "again": "Play again",
+    "controls": "Arrow keys · WASD · swipe on the board",
+    "undo": "Undo",
+    "collection": "Block collection",
+    "collectionHint": "2–64 are squares; from 128 they grow into stones. 2048 wears a crown, then come the black and the white stone.",
+    "quickRules": "Quick rules",
+    "quick1": "Each push slides every block as far as it can go.",
+    "quick2": "Two equal blocks that meet merge into double, and that adds to your score.",
+    "quick3": "After every move a 2 or a 4 appears in an empty cell.",
+    "quick4": "No moves left ends the game. Keeping your biggest block in one corner helps."
+  },
+  "Merge2048Online": {
+    "metaTitle": "Play 2048 with friends",
+    "metaDescription": "Race 2–4 friends for 5 or 10 minutes to build the biggest block, by invite link or 4-digit code.",
+    "guest": "Guest",
+    "me": "me",
+    "emptySeat": "Empty seat",
+    "shareText": "Let's race at 2048 on PUZZLTHINK!",
+    "unconfigured": "The online server is not set up.",
+    "connectionError": "Could not reach the server. Please try again shortly.",
+    "roomNotFound": "Room not found. Check the link or invite code.",
+    "hostOffline": "The host stepped away. The game resumes when they return.",
+    "back": "Back to 2048",
+    "connecting": "Connecting to the room…",
+    "lobbyTitle": "Waiting for friends (2–4)",
+    "inviteTitle": "Invite",
+    "inviteDesc": "Send the link or share the 4-digit invite code. Up to 4 players.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "start": "Start · {n} players · {m} min",
+    "needPlayers": "You can start once 2 or more are here",
+    "roomFull": "The room is full. You are watching.",
+    "waitingHost": "Waiting for the host to start…",
+    "timeLimit": "Time limit",
+    "minutes": "{n} min",
+    "hostSets": "The host picks the settings.",
+    "rulesTitle": "Race rules",
+    "room1": "Everyone starts at once on the same board, and the blocks come in the same order for all.",
+    "room2": "Your board is big; your friends' boards show small, live.",
+    "room3": "When time is up, the biggest block wins! Level blocks go to the higher score.",
+    "room4": "A stuck board stops where it is. Calm beats fast.",
+    "getReady": "GET READY",
+    "stuck": "No more moves",
+    "stuckDesc": "Your result stays as it is. Watch the others finish.",
+    "stuckShort": "DONE",
+    "friends": "Friends",
+    "rankNote": "Ranked by biggest block, then score. The crown marks the current leader.",
+    "spectating": "You are watching. You can join from the next round.",
+    "finalTitle": "Final ranking",
+    "place1": "1st place! Well done",
+    "place2": "2nd place",
+    "place3": "3rd place",
+    "place4": "4th place",
+    "leave": "Leave",
+    "rematch": "Play again",
+    "rematchWait": "Waiting for the host",
+    "joined": "{name} joined",
+    "left": "{name} left"
+  },
+  "Merge2048Tutorial": {
+    "s1Title": "Push to slide",
+    "s1Desc": "Use the arrow keys or swipe: every block slides as far as it can that way. Each move adds one new block in an empty cell.",
+    "s2Title": "Equal numbers merge",
+    "s2Desc": "Two equal blocks that bump into each other become one worth double. A merged block smiles.",
+    "s3Title": "From square to stone",
+    "s3Desc": "2–64 are square characters; from 128 they become shiny stone characters. 2048 is the gold stone with a crown!",
+    "s4Title": "Challenge and friend race",
+    "s4Desc": "Your 10-minute challenge score goes on the ranking. With 2–4 friends, race for 5 or 10 minutes to build the biggest block."
+  },
+  "Merge2048Guide": {
+    "eyebrow": "2048 GUIDE",
+    "title": "2048 — a calm number puzzle, from square to stone",
+    "intro": "2048 is a puzzle where you slide matching number blocks together to make bigger numbers. The rules take a minute to learn, but how you keep the board tidy makes all the difference. PUZZLTHINK's 2048 draws every block as a character with a face: small numbers are squares, from 128 they grow into shiny stones, and 2048 wears a crown. Play at your own pace in free play, take the 10-minute challenge, or race friends live.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "The board has 4×4 = 16 cells. It starts with two blocks, each a 2 or a 4.",
+      "Push up, down, left or right and every block slides that way until it can go no further.",
+      "When two blocks with the same number meet they merge into one worth double, and the new number is added to your score.",
+      "A block merges only once per move: 2·2·2·2 pushed left becomes 4·4, not 8.",
+      "If anything moved, a new block (a 2 at 90 %, a 4 at 10 %) appears in an empty cell. A push that moves nothing does nothing.",
+      "With no empty cell and no equal neighbours left, the game is over."
+    ],
+    "specialTitle": "What's new in PUZZLTHINK 2048",
+    "special": [
+      {
+        "title": "Block characters and a collection",
+        "body": "2, 4, 8, 16, 32 and 64 are pastel square characters; 128, 256, 512 and 1024 are stones. 2048 is the gold stone with a crown, 4096 the black stone and 8192 the white stone. Every block you have ever made fills in your collection."
+      },
+      {
+        "title": "Free play is the relaxed mode",
+        "body": "No clock, one-step undo, and the board saves itself so you can come back later. The soft merge sound can be turned off at the top right."
+      },
+      {
+        "title": "10-minute challenge",
+        "body": "Your score in 10 minutes goes on the challenge ranking in Records. No undo, and a stuck board ends the run. Leaving the tab often during a run voids the record."
+      },
+      {
+        "title": "Live friend race",
+        "body": "2–4 players start from the same seed, so the blocks come in the same order for everyone. Your board shows big and your friends' small, live; after 5 or 10 minutes the biggest block wins, and level blocks go to the higher score."
+      }
+    ],
+    "strategyTitle": "Tips — pick one corner as home",
+    "strategyIntro": "Most people who reach the big numbers play the same way. The key is never to scatter the board.",
+    "strategies": [
+      {
+        "tag": "Corner",
+        "title": "Keep the biggest block in a corner",
+        "body": "Choose a corner, say bottom-left, and keep your biggest block there. Use the direction that pulls it out of the corner (up, in this case) only when you must."
+      },
+      {
+        "tag": "Row",
+        "title": "Line up one row by size",
+        "body": "Keep the corner row in order, like 512·256·128·64. Merges then chain from the end and build a big block in one go."
+      },
+      {
+        "tag": "Two ways",
+        "title": "Use mostly two directions",
+        "body": "Alternate between two directions such as left and down, and use a third only now and then. Using all four drags the big blocks into the middle."
+      },
+      {
+        "tag": "Race",
+        "title": "The board before the clock",
+        "body": "In a friend race, not getting stuck matters more than pushing fast. A stuck board freezes your result, so take risks only when time is nearly up."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Where can I play 2048?",
+        "a": "On PUZZLTHINK's 2048 page, in any desktop or mobile browser, with no sign-up or install. Use the arrow keys or WASD on a computer, or swipe on the board on a phone."
+      },
+      {
+        "q": "Does the game end at 2048?",
+        "a": "No. Making 2048 shows a celebration; press keep going to try for 4096, 8192 and beyond."
+      },
+      {
+        "q": "How do I play with friends?",
+        "a": "Create a friend room to get an invite link and a 4-digit code. Once 2–4 players are in, the host picks 5 or 10 minutes and starts."
+      },
+      {
+        "q": "Is the friend race fair?",
+        "a": "Yes. Everyone starts from the same seed, so the first board and the order of new blocks are the same; only your moves make the boards differ."
+      },
+      {
+        "q": "Where are my records kept?",
+        "a": "Signed in, your 10-minute challenge scores go on the challenge ranking in Records, and friend and open matches go into your match history. Your free-play best is kept in this browser."
+      }
+    ],
+    "disclaimer": "A free web puzzle made by PUZZLTHINK. The basic rules of 2048 come from the open-source game released in 2014; the characters and modes are PUZZLTHINK's own."
   }
 }
