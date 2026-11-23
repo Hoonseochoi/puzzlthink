@@ -4954,6 +4954,8 @@
     "updateTag": "UPDATE",
     "updateTitle": "Slitherlink update",
     "updateDate": "Updated November 23, 2026",
+    "update_drag": "Drag with the pen to draw in one stroke",
+    "update_dragDesc": "In pen mode, drag along the dots and every edge you cross becomes a line. Start on a line and the drag erases lines instead. One stroke is one undo step.",
     "update_tap": "✕ only with the ✕ button",
     "update_tapDesc": "Drawing lines is unchanged. Tapping a line again now clears it instead of making a ✕. You can place a ✕ only after choosing the ✕ button.",
     "update_undo": "New Undo button",
@@ -4965,7 +4967,7 @@
     "hint": "Hint (3×3 area)",
     "hintPick": "Tap an area",
     "hintHelp": "Tap the board: the answer for the 3×3 dots around that spot is filled in.",
-    "help_pen": "Tap between two dots to draw a line; tap again to clear it. ✕ only comes from the ✕ button. (Ctrl/⌘+Z to undo)",
+    "help_pen": "Tap between two dots to draw a line; tap again to clear it. Drag to draw in one stroke. ✕ only comes from the ✕ button. (Ctrl/⌘+Z to undo)",
     "help_eraser": "Tap a line or ✕ to erase it.",
     "help_marker": "Tap between two dots to mark ✕ where the loop does not go.",
     "giveUp": "Give up and show the answer",
@@ -5070,7 +5072,7 @@
     "special": [
       {
         "title": "Pen",
-        "body": "Tap between two neighboring dots to draw a line. Tap the same spot again to clear it (line ↔ empty). A ✕ only goes down with the ✕ button. Undo, or Ctrl/⌘+Z, steps back one change at a time."
+        "body": "Tap between two neighboring dots to draw a line. Tap the same spot again to clear it (line ↔ empty), or drag to draw every edge you cross in one stroke (starting on a line erases). A ✕ only goes down with the ✕ button. Undo, or Ctrl/⌘+Z, steps back one change at a time."
       },
       {
         "title": "Eraser · Clear all",

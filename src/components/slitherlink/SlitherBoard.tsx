@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type Mark, type Puzzle, edgeAt, geometry, hEdge, vEdge } from '@/lib/slitherlink';
 
 export type Tool = 'pen' | 'eraser' | 'marker' | 'hint';
@@ -38,7 +38,7 @@ export function useUndoKey(onUndo: () => void) {
 }
 
 /**
- * The dotted board. Tap between two dots to change that edge: with the pen a tap toggles empty ↔ line (a ✕ is cleared);
+ * The dotted board. Tap between two dots to change that edge: with the pen a tap toggles empty ↔ line (a ✕ is cleared) and a drag draws a line over every empty edge it crosses (started on a line, it erases lines);
  * the eraser clears and only the marker toggles ✕. With the hint tool, a tap picks the 3×3-dot area around it.
  * `onEdges` gets the [edge, value] pairs of one tap.
  */
@@ -56,6 +56,10 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
   const svgRef = useRef<SVGSVGElement>(null);
   // Where the pointer went down: a tap counts only if it ends near there (a scroll or slip is ignored).
   const press = useRef<Point | null>(null);
+  // Pen drag: one stroke draws lines over every empty edge it crosses (or, started on a line, erases lines). Committed in one step on release.
+  const stroke = useRef<{ erase: boolean; seen: Set<number>; changes: Map<number, Mark> } | null>(null);
+  const [preview, setPreview] = useState<Map<number, Mark> | null>(null);
+  const last = useRef<Point | null>(null);
 
   const toBoard = (e: React.PointerEvent): Point => {
     const box = svgRef.current!.getBoundingClientRect();
@@ -79,11 +83,43 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
 
   const onDown = (e: React.PointerEvent) => {
     if (readOnly) return;
-    press.current = toBoard(e);
+    press.current = toBoard(e); last.current = press.current; stroke.current = null;
+    if (tool === 'pen') svgRef.current?.setPointerCapture?.(e.pointerId);
+  };
+  /** Add the edge under `p` to the stroke (draw on empty, or erase lines when the stroke began on a line). */
+  const strokeAt = (st: NonNullable<typeof stroke.current>, p: Point) => {
+    const edge = nearEdge(p);
+    if (edge < 0 || locked?.has(edge) || st.seen.has(edge)) return;
+    st.seen.add(edge);
+    const now = marks[edge];
+    if (st.erase ? now === 1 : now === 0) st.changes.set(edge, st.erase ? 0 : 1);
+  };
+  const onMove = (e: React.PointerEvent) => {
+    const start = press.current;
+    if (!start || readOnly || tool !== 'pen') return;
+    const p = toBoard(e);
+    if (!stroke.current) {
+      if (Math.hypot(p.x - start.x, p.y - start.y) <= 0.45) return;
+      const first = nearEdge(start);
+      stroke.current = { erase: first >= 0 && marks[first] === 1, seen: new Set(), changes: new Map() };
+      strokeAt(stroke.current, start);
+    }
+    const from = last.current ?? start;
+    const steps = Math.max(1, Math.ceil(Math.hypot(p.x - from.x, p.y - from.y) / 0.15));
+    for (let i = 1; i <= steps; i++) strokeAt(stroke.current, { x: from.x + ((p.x - from.x) * i) / steps, y: from.y + ((p.y - from.y) * i) / steps });
+    last.current = p;
+    setPreview(new Map(stroke.current.changes));
   };
   const onUp = (e: React.PointerEvent) => {
     const start = press.current;
     press.current = null;
+    const st = stroke.current;
+    stroke.current = null; last.current = null;
+    if (st) {
+      setPreview(null);
+      if (!readOnly && st.changes.size) onEdges?.([...st.changes]);
+      return;
+    }
     if (!start || readOnly) return;
     const p = toBoard(e);
     if (Math.hypot(p.x - start.x, p.y - start.y) > 0.45) return;
@@ -105,6 +141,7 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
     return <path key={key} d={`M${cx - s} ${cy - s}L${cx + s} ${cy + s}M${cx + s} ${cy - s}L${cx - s} ${cy + s}`} stroke={color} strokeWidth={0.045} strokeLinecap="round" />;
   };
 
+  const shown = preview ? marks.map((m, i) => preview.get(i) ?? m) : marks;
   const solutionSet = solutionUpTo ? new Set(solutionUpTo) : null;
   const area = flashArea ? { r: Math.max(0, Math.min(puzzle.rows - 2, flashArea.r)), c: Math.max(0, Math.min(puzzle.cols - 2, flashArea.c)) } : null;
 
@@ -113,7 +150,7 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
       ref={svgRef} viewBox={`0 0 ${n} ${n}`} role="img" aria-label="board"
       className={`mx-auto block aspect-square w-full max-w-[min(100%,calc(100svh-290px))] lg:max-w-[min(100%,calc(100svh-250px))] touch-none select-none rounded-[10px] ${readOnly ? '' : tool === 'hint' ? 'cursor-help' : 'cursor-pointer'}`}
       style={{ background: BG }}
-      onPointerDown={onDown} onPointerUp={onUp} onPointerCancel={() => { press.current = null; }}
+      onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { press.current = null; stroke.current = null; setPreview(null); }}
     >
       {area && <rect x={area.c + 0.5 - 0.18} y={area.r + 0.5 - 0.18} width={2.36} height={2.36} rx={0.18} fill={HINT} opacity={0.16} stroke={HINT} strokeWidth={0.04} />}
       {puzzle.clues.map((v, cell) => {
@@ -121,8 +158,8 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
         const r = Math.floor(cell / puzzle.cols), c = cell % puzzle.cols;
         return <text key={`n${cell}`} x={c + 1} y={r + 1.03} textAnchor="middle" dominantBaseline="middle" fontSize={0.56} fontFamily="Georgia, 'Times New Roman', serif" fontWeight={600} fill={NUM}>{v}</text>;
       })}
-      {marks.map((m, edge) => m === 1 ? lineFor(edge, locked?.has(edge) ? HINT : LINE, 0.1, `l${edge}`, dimLines ? 0.25 : 1) : null)}
-      {marks.map((m, edge) => m === 2 ? crossFor(edge, `x${edge}`, locked?.has(edge) ? HINT : '#8a83b8') : null)}
+      {shown.map((m, edge) => m === 1 ? lineFor(edge, locked?.has(edge) ? HINT : LINE, 0.1, `l${edge}`, dimLines ? 0.25 : 1) : null)}
+      {shown.map((m, edge) => m === 2 ? crossFor(edge, `x${edge}`, locked?.has(edge) ? HINT : '#8a83b8') : null)}
       {solutionSet && [...solutionSet].map((edge) => lineFor(edge, SOLUTION, 0.12, `s${edge}`))}
       {Array.from({ length: n * n }, (_, i) => <circle key={`d${i}`} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.075} fill={DOT} />)}
     </svg>
