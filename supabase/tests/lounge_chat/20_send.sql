@@ -17,8 +17,8 @@ select 'anon send', pg_temp.as_user(null, '안녕');
 set role anon; select 'anon direct', has_function_privilege('anon', 'public.lounge_send(text,text)', 'execute'), has_table_privilege('anon', 'public.lounge_messages', 'select'); reset role;
 \echo '--- normal message passes and is broadcast'
 select 'A hello', pg_temp.as_user('00000000-0000-0000-0000-00000000000a', '  안녕하세요   같이 해요 ');
-select 'stored', name, game, body from public.lounge_messages order by id desc limit 1;
-select 'broadcast', topic, event, private, payload->>'name', payload->>'game', payload->>'text', payload ? 'sender', payload ? 'user_id' from realtime.sent order by n desc limit 1;
+select 'stored', name, game, pieces, body from public.lounge_messages order by id desc limit 1;
+select 'broadcast', topic, event, private, payload->>'name', payload->>'game', payload->>'pieces', payload->>'text', payload ? 'sender', payload ? 'user_id' from realtime.sent order by n desc limit 1;
 \echo '--- 1. rate limit 3s'
 select 'A again at once', pg_temp.as_user('00000000-0000-0000-0000-00000000000a', '두번째 메시지');
 select pg_temp.wait(2); select 'A after 2s', pg_temp.as_user('00000000-0000-0000-0000-00000000000a', '두번째 메시지');

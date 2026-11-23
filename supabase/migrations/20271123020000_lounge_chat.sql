@@ -20,6 +20,7 @@ create table if not exists public.lounge_messages (
   user_id uuid not null references auth.users (id) on delete cascade,
   name text not null,
   game text,
+  pieces integer not null default 0, -- 피스 경쟁전 pieces when sent (hard-AI wins, 30 per game)
   body text not null,
   created_at timestamptz not null default now()
 );
@@ -218,6 +219,19 @@ begin
 end; $$;
 revoke all on function public.lounge_remove(bigint) from public, anon, authenticated;
 
+-- 피스 경쟁전 pieces, counted the same way as competition_ranking: one per win against the hard AI,
+-- at most 30 per game, 러시안 룰렛 and 인디언 포커 not counted.
+create or replace function public.lounge_pieces(p_user uuid)
+returns integer language sql stable security definer set search_path = public as $$
+  select coalesce(sum(least(n, 30)), 0)::int from (
+    select count(*) as n from public.game_results r
+     where r.user_id = p_user and r.mode = 'ai' and r.result = 'win'
+       and coalesce(r.detail ->> 'difficulty', r.detail ->> 'level', '') = 'hard'
+       and r.game not in ('russian_roulette', 'indian_poker')
+     group by r.game) t;
+$$;
+revoke all on function public.lounge_pieces(uuid) from public, anon, authenticated;
+
 -- A player's public id in the lounge (for "mine" and muting): not the account id.
 create or replace function public.lounge_sender(p_user uuid)
 returns text language sql immutable set search_path = public as $$
@@ -229,7 +243,7 @@ $$;
 create or replace function public.lounge_state()
 returns jsonb language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
-    'messages', coalesce((select jsonb_agg(jsonb_build_object('id', id, 'sender', public.lounge_sender(user_id), 'name', name, 'game', game, 'text', body,
+    'messages', coalesce((select jsonb_agg(jsonb_build_object('id', id, 'sender', public.lounge_sender(user_id), 'name', name, 'game', game, 'pieces', pieces, 'text', body,
                                                                 'at', (extract(epoch from created_at) * 1000)::bigint) order by id)
                             from (select * from public.lounge_messages order by id desc limit 50) m), '[]'::jsonb),
     'me', case when auth.uid() is null then null else public.lounge_sender(auth.uid()) end,
@@ -257,6 +271,7 @@ declare
   ban_reason text;
   bad text;
   nick text;
+  v_pieces int;
   new_id bigint;
   sent_at timestamptz := now();
 begin
@@ -298,14 +313,15 @@ begin
   end if;
 
   select left(coalesce(nullif(btrim(nickname), ''), 'Player'), 16) into nick from public.profiles where id = me;
-  insert into public.lounge_messages (user_id, name, game, body, created_at) values (me, coalesce(nick, 'Player'), v_game, v_body, sent_at) returning id into new_id;
+  v_pieces := public.lounge_pieces(me);
+  insert into public.lounge_messages (user_id, name, game, pieces, body, created_at) values (me, coalesce(nick, 'Player'), v_game, v_pieces, v_body, sent_at) returning id into new_id;
   insert into public.lounge_send_log (user_id, norm, at) values (me, v_norm, sent_at);
 
   -- Keep the last 50 messages and ten minutes of send log.
   delete from public.lounge_messages where id <= new_id - 50;
   delete from public.lounge_send_log where user_id = me and at < now() - interval '10 minutes';
 
-  perform realtime.send(jsonb_build_object('id', new_id, 'sender', public.lounge_sender(me), 'name', coalesce(nick, 'Player'), 'game', v_game, 'text', v_body,
+  perform realtime.send(jsonb_build_object('id', new_id, 'sender', public.lounge_sender(me), 'name', coalesce(nick, 'Player'), 'game', v_game, 'pieces', v_pieces, 'text', v_body,
                                            'at', (extract(epoch from sent_at) * 1000)::bigint), 'msg', 'lounge', false);
   return jsonb_build_object('ok', true, 'id', new_id);
 end; $$;

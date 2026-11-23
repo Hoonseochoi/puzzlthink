@@ -7,7 +7,7 @@ import { getSupabase } from './supabase';
 export const LOUNGE_MAX_LEN = 200;
 export const LOUNGE_KEEP = 50;
 
-export type LoungeMessage = { id: number; sender: string; name: string; game: string | null; text: string; at: number };
+export type LoungeMessage = { id: number; sender: string; name: string; game: string | null; pieces?: number; text: string; at: number };
 export type LoungeBan = { until: number; reason: string };
 export type LoungeState = { messages: LoungeMessage[]; me: string | null; ban: LoungeBan | null };
 export type LoungeReason =

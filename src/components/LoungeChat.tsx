@@ -8,6 +8,7 @@ import { chatPrefs, chatPrefsServer, chatSnapshot, clearMuted, isMuted, setMuted
 import { LOUNGE_KEEP, LOUNGE_MAX_LEN, type LoungeBan, type LoungeMessage, type LoungeReason, isLoungeMessage, loadLounge, loungeOff, loungeOffServer, reportLounge, sendLounge, setLoungeOff, subscribeLoungeOff, visibilityStore } from '@/lib/lounge';
 import { useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
+import { Piece } from './CompetitionBoard';
 
 type Notice = { reason: LoungeReason | 'reported'; wait: number; n: number };
 let noticeSeq = 0;
@@ -15,7 +16,7 @@ let noticeSeq = 0;
 /**
  * Lounge (라운지): one chat shared by the whole site, on the home page and every game page, mostly to find
  * people for open rooms. Same look as the room chat (a tab on the right edge opens a drawer); in an open room
- * its tab sits under the room chat's. Each name shows the game that person is on, and a pinned card from the
+ * its tab sits under the room chat's. Each line reads "[piece]n 닉네임(게임) : message", and a pinned card from the
  * lounge host Viky gives the rules. It joins Realtime only while this page is visible and the lounge is on;
  * the database decides what may be sent (see src/lib/lounge.ts).
  */
@@ -150,7 +151,7 @@ export default function LoungeChat({ game }: { game: string | null }) {
           {off ? (
             <p className="flex flex-1 items-center justify-center break-keep px-6 text-center text-xs leading-5 text-white/45">{t('offDesc')}</p>
           ) : (
-            <div ref={listRef} className="flex-1 space-y-1.5 overflow-y-auto px-3 py-2.5">
+            <div ref={listRef} className="flex-1 space-y-0.5 overflow-y-auto px-2 py-2.5">
               {/* Pinned welcome from the lounge host, with the rules. */}
               <div className="mb-3 rounded-xl border border-white/10 bg-white/[.04] p-2.5">
                 <div className="flex items-center gap-2">
@@ -165,23 +166,23 @@ export default function LoungeChat({ game }: { game: string | null }) {
                 </ul>
               </div>
               {shown.length === 0 && <p className="break-keep pt-2 text-center text-xs leading-5 text-white/35">{t('empty')}</p>}
+              {/* One line each: [piece]×n 닉네임(게임) : message */}
               {shown.map((m) => {
                 const label = gameName(m.game);
                 const mine = m.sender === me;
                 return (
-                  <div key={m.id} className={`group flex items-start gap-1 text-[13px] leading-5 ${mine ? 'flex-col items-end' : ''}`}>
-                    {mine ? (
+                  <div key={m.id} className={`group flex items-start gap-1 rounded-lg px-1.5 py-1 text-[13px] leading-5 ${mine ? 'bg-(--accent,#e8b04a)/10' : 'hover:bg-white/[.04]'}`}>
+                    <p className="min-w-0 flex-1 break-words">
+                      <span className="mr-1 inline-flex translate-y-[1px] items-center gap-0.5 align-baseline font-mono text-[11px] font-black text-[#e8c25e]"><Piece size={9} />{m.pieces ?? 0}</span>
+                      <b className={`text-[12px] ${mine ? 'text-(--accent,#e8b04a)' : 'text-white/70'}`}>{m.name}</b>
+                      {label && <span className="text-[11px] text-white/35">({label})</span>}
+                      <span className="mx-1 text-white/30">:</span>
+                      <span className="text-white/90">{m.text}</span>
+                    </p>
+                    {!mine && (
                       <>
-                        {label && <span className="px-1 text-[10px] text-white/35">{label}</span>}
-                        <p className="max-w-[85%] break-words rounded-2xl rounded-br-sm bg-(--accent,#e8b04a) px-2.5 py-1 text-(--accent-ink,#1c1406)">{m.text}</p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="min-w-0 max-w-[80%] break-words rounded-2xl rounded-bl-sm bg-white/[.07] px-2.5 py-1">
-                          <b className="mr-1.5 text-[12px] text-white/55">{m.name}{label && <span className="font-normal text-white/35">({label})</span>}</b>{m.text}
-                        </p>
-                        <button type="button" onClick={() => report(m)} disabled={!user || reported.has(m.id)} className="mt-1 shrink-0 rounded p-0.5 text-white/25 hover:bg-white/10 hover:text-[#ffb35c] disabled:opacity-30" aria-label={t('report')} title={reported.has(m.id) ? t('reportedOne') : t('report')}><Flag size={12} /></button>
-                        <button type="button" onClick={() => setMuted({ from: m.sender }, true)} className="mt-1 shrink-0 rounded p-0.5 text-white/25 hover:bg-white/10 hover:text-[#ff8b96]" aria-label={t('mute', { name: m.name })} title={t('mute', { name: m.name })}><Ban size={12} /></button>
+                        <button type="button" onClick={() => report(m)} disabled={!user || reported.has(m.id)} className="mt-0.5 shrink-0 rounded p-0.5 text-white/25 hover:bg-white/10 hover:text-[#ffb35c] disabled:opacity-30" aria-label={t('report')} title={reported.has(m.id) ? t('reportedOne') : t('report')}><Flag size={12} /></button>
+                        <button type="button" onClick={() => setMuted({ from: m.sender }, true)} className="mt-0.5 shrink-0 rounded p-0.5 text-white/25 hover:bg-white/10 hover:text-[#ff8b96]" aria-label={t('mute', { name: m.name })} title={t('mute', { name: m.name })}><Ban size={12} /></button>
                       </>
                     )}
                   </div>
