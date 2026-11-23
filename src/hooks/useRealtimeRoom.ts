@@ -7,7 +7,7 @@ import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
 import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypto';
 import { setRoomOpen, setRoomOpponents } from '@/lib/stats';
 import { isOpenRoom, pingLiveRoom } from '@/lib/openRooms';
-import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatPeers } from '@/lib/roomChat';
+import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatPeers, setRoomPlaying } from '@/lib/roomChat';
 
 /**
  * Host-authoritative room over Supabase Realtime (broadcast + presence).
@@ -332,6 +332,11 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   // people, or an open room once it has started (waiting open rooms are listed on their own).
   const openRoom = isOpenRoom(code);
   const started = !!state && state.phase !== 'lobby';
+  // The site-wide lounge hides while the match is on (it shows again in the lobby, next to the room chat).
+  useEffect(() => {
+    setRoomPlaying(started);
+    return () => setRoomPlaying(false);
+  }, [started]);
   const live = !!me?.isHost && status === 'online' && peers.length >= 2 && (!openRoom || started);
   useEffect(() => {
     if (!live) return;

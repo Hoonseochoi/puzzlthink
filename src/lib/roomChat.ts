@@ -41,6 +41,15 @@ export function pushChat(token: number, message: ChatMessage) {
   emit();
 }
 
+/** Whether a room's match is on (past its waiting lobby): the lounge chat stays out of the way then. */
+let playing = false;
+export const roomPlaying = () => playing;
+export function setRoomPlaying(value: boolean) {
+  if (playing === value) return;
+  playing = value;
+  emit();
+}
+
 /** Who is in the room (for names and quick reactions). */
 export function setChatPeers(token: number, peers: ChatPeer[]) {
   if (room?.token !== token) return;
