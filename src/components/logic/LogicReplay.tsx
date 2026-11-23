@@ -6,7 +6,7 @@ import { accentVars } from '@/components/ui/gameUi';
 import { useLocale, useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight, Clapperboard, Gauge, Pause, Play, RotateCcw, X } from 'lucide-react';
 import { LOGIC, emptyMarks } from '@/lib/logicPuzzles';
-import { type Replay, type ReplayGame, buildReplay } from '@/lib/logicReplay';
+import { type Replay, type ReplayFocus, type ReplayGame, buildReplay } from '@/lib/logicReplay';
 import { geometry as slitherGeometry } from '@/lib/slitherlink';
 import SlitherBoard from '@/components/slitherlink/SlitherBoard';
 import BinairoBoard from './BinairoBoard';
@@ -25,7 +25,7 @@ type ReplayBoardData = Replay['board'];
 const specOf = (game: ReplayGame) => (game === 'slitherlink' ? { accent: '#8f7cff', ink: '#ffffff', catalog: 'slitherlink' } : LOGIC[game]);
 const blankMarks = (b: ReplayBoardData) => (b.kind === 'slitherlink' ? new Array<number>(slitherGeometry(b.puzzle.rows, b.puzzle.cols).edgeCount).fill(0) : emptyMarks(b));
 
-function ReplayBoard({ board, marks, done }: { board: ReplayBoardData; marks: number[]; done: boolean }) {
+function ReplayBoard({ board, marks, done, focus }: { board: ReplayBoardData; marks: number[]; done: boolean; focus?: ReplayFocus }) {
   switch (board.kind) {
     case 'slitherlink': return <SlitherBoard puzzle={board.puzzle} marks={marks as (0 | 1 | 2)[]} tool="pen" readOnly />;
     case 'masyu': return <MasyuBoard board={board} marks={marks} readOnly />;
@@ -33,7 +33,7 @@ function ReplayBoard({ board, marks, done }: { board: ReplayBoardData; marks: nu
     case 'starbattle': return <StarBoard board={board} marks={marks} readOnly solved={done} />;
     case 'binairo': return <BinairoBoard board={board} marks={marks} readOnly solved={done} />;
     case 'onestroke': return <OneStrokeBoard board={board} marks={marks} readOnly solved={done} />;
-    case 'magicswap': return <MagicSwapBoard board={board} marks={marks} readOnly solved={done} />;
+    case 'magicswap': return <MagicSwapBoard board={board} marks={marks} readOnly solved={done} focus={done ? undefined : focus ?? {}} />;
     default: return <ColorLinkBoard board={board} marks={marks} readOnly solved={done} />;
   }
 }
@@ -103,6 +103,14 @@ function ReplayDialog({ game, onClose }: { game: ReplayGame; onClose: () => void
   useLayoutEffect(() => {
     const measure = () => {
       const w = wrap.current, svg = w?.querySelector('svg[aria-label="board"]') as SVGSVGElement | null;
+      // HTML boards (마방진 스왑): pin to the tile itself.
+      const tile = w && note?.at !== undefined ? w.querySelector<HTMLElement>(`[data-cell="${note.at}"]`) : null;
+      if (w && tile && !svg) {
+        const box = tile.getBoundingClientRect(), outer = w.getBoundingClientRect();
+        const y = box.top - outer.top + box.height / 2;
+        setPin({ x: box.left - outer.left + box.width / 2, y, below: y < outer.height / 2 });
+        return;
+      }
       if (!w || !svg || !note || note.at === undefined) { setPin(null); return; }
       const box = svg.getBoundingClientRect(), outer = w.getBoundingClientRect();
       const f = cellFraction(board, svg, note.at);
@@ -128,7 +136,7 @@ function ReplayDialog({ game, onClose }: { game: ReplayGame; onClose: () => void
         </div>
 
         <div ref={wrap} className="relative mx-4 mt-3 [&_svg[aria-label=board]]:max-w-[min(100%,calc(100svh-290px))]">
-          <ReplayBoard board={board} marks={marks} done={done} />
+          <ReplayBoard board={board} marks={marks} done={done} focus={step > 0 ? frames[step - 1].focus : undefined} />
           {pin && note && (
             <>
               <span className="pointer-events-none absolute h-9 w-9 -translate-x-1/2 -translate-y-1/2 animate-ping rounded-full border-2 border-(--accent)" style={{ left: pin.x, top: pin.y }} />
@@ -168,9 +176,10 @@ function ReplayDialog({ game, onClose }: { game: ReplayGame; onClose: () => void
  * Button that opens the replay. `variant`: a full-width card button, a small chip, or `learn` — the
  * "플레이 영상으로 배우기" box beside the game page's "처음이라면?" guide button.
  */
-export default function LogicReplayButton({ game, variant = 'card' }: { game: ReplayGame; variant?: 'card' | 'chip' | 'learn' }) {
+export default function LogicReplayButton({ game, variant = 'card', onOpen }: { game: ReplayGame; variant?: 'card' | 'chip' | 'learn'; onOpen?: () => void }) {
   const t = useTranslations('Logic');
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(false);
+  const setOpen = (v: boolean) => { setOpenState(v); if (v) onOpen?.(); };
   return (
     <>
       {variant === 'learn'

@@ -19,7 +19,7 @@ let gestureSeq = 1;
  * is from the magic sum (or the sums themselves); both diagonals sit under the board. ✓ locks a tile, ● marks a
  * suspect; a long press cycles ✓ → ● → none whatever the tool.
  */
-export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false, solved = false, showAnswer = false, demo }: {
+export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false, solved = false, showAnswer = false, demo, focus }: {
   board: Board;
   marks: number[];
   onMarks?: (changes: [number, number][], gesture: number) => void;
@@ -28,6 +28,8 @@ export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false
   showAnswer?: boolean;
   /** Tutorial pictures: a selected tile and notes, without input. */
   demo?: { sel?: number; target?: number; pins?: Record<number, Pin>; sums?: boolean };
+  /** Replay: the tile picked up, where it goes, and the pair just swapped (full-size board, no input). */
+  focus?: { sel?: number; target?: number; swapped?: [number, number] };
 }) {
   const t = useTranslations('Logic');
   const n = board.size;
@@ -48,8 +50,9 @@ export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false
   useEffect(() => { if (readOnly) setSel(-1); }, [readOnly]); // eslint-disable-line react-hooks/set-state-in-effect -- drop the lifted tile when input stops
 
   const shownPins = demo?.pins ? Array.from({ length: n * n }, (_, i) => demo.pins![i] ?? 0) : pins;
-  const shownSel = demo ? demo.sel ?? -1 : sel;
-  const shownOver = demo ? demo.target ?? -1 : over;
+  const shownSel = demo ? demo.sel ?? -1 : focus ? focus.sel ?? -1 : sel;
+  const shownOver = demo ? demo.target ?? -1 : focus ? focus.target ?? -1 : over;
+  const fresh = focus?.swapped ?? null;
   const showSums = demo?.sums ?? sums;
   const live = !readOnly && !demo && !!onMarks;
   const s = lineSums(n, cells);
@@ -135,7 +138,7 @@ export default function MagicSwapBoard({ board, marks, onMarks, readOnly = false
               <button key={i} type="button" data-cell={i} disabled={!live} onPointerDown={(e) => onDown(e, i)} onContextMenu={(e) => e.preventDefault()}
                 aria-label={`${r + 1}-${c + 1}: ${cells[i]}`} aria-pressed={isSel}
                 className={`relative flex aspect-square items-center justify-center rounded-[7px] font-black tabular-nums transition-transform duration-100 sm:rounded-[10px] ${tile}
-                  ${solved ? 'bg-(--accent)/25 text-white ring-1 ring-(--accent)/60' : isSel ? 'z-10 scale-[1.07] bg-(--accent) text-(--accent-ink) shadow-[0_6px_18px_rgba(0,0,0,.45)]' : lineHl ? 'bg-white/[0.12] text-white' : 'bg-white/[0.06] text-white/90'}
+                  ${solved ? 'bg-(--accent)/25 text-white ring-1 ring-(--accent)/60' : fresh?.includes(i) ? 'animate-[logic-pop_.45s_ease] bg-[#7ee2ae]/25 text-white ring-2 ring-[#7ee2ae]' : isSel ? 'z-10 scale-[1.07] bg-(--accent) text-(--accent-ink) shadow-[0_6px_18px_rgba(0,0,0,.45)]' : lineHl ? 'bg-white/[0.12] text-white' : 'bg-white/[0.06] text-white/90'}
                   ${pin === 1 && !solved ? 'ring-2 ring-[#7ee2ae]/80' : ''} ${i === shownOver ? 'outline-2 outline-dashed outline-(--accent)' : ''} disabled:cursor-default`}>
                 {cells[i]}
                 {pin === 1 && !solved && <Check size={10} strokeWidth={4} className="absolute right-[3px] top-[3px] text-[#7ee2ae]" />}

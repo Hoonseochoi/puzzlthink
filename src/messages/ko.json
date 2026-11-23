@@ -6184,7 +6184,8 @@
     "magicShowSum": "합계 보기",
     "magicShowDiff": "차이 보기",
     "magicReset": "처음 배치",
-    "magicTutorial": "튜토리얼 다시 보기"
+    "magicTutorial": "튜토리얼 다시 보기",
+    "magicReplayTip": "막막하면 실제로 어떻게 푸는지 1분 풀이 복기로 먼저 보세요."
   },
   "LogicOnline": {
     "metaTitle": "{game} 같이 풀래? 초대장이 왔어요",
@@ -7082,7 +7083,7 @@
     "close": "닫기",
     "prev": "이전",
     "next": "다음",
-    "start": "시작하기",
+    "start": "시작하기", "replayLead": "실제 풀이가 궁금하면",
     "s1Title": "모든 줄의 합을 맞추는 퍼즐",
     "s1Desc": "가로·세로·대각선의 합이 모두 같은 판이 마방진이에요. 5×5는 모든 줄이 65가 되면 완성!",
     "s2Title": "몇 쌍이 뒤바뀌어 있어요",

@@ -6038,7 +6038,8 @@
     "magicShowSum": "Show sums",
     "magicShowDiff": "Show diffs",
     "magicReset": "Start over",
-    "magicTutorial": "How to play"
+    "magicTutorial": "How to play",
+    "magicReplayTip": "Stuck? Watch a one-minute replay of how a board is actually solved."
   },
   "LogicOnline": {
     "metaTitle": "Solve {game} together? You are invited",
@@ -6918,7 +6919,7 @@
     "close": "Close",
     "prev": "Back",
     "next": "Next",
-    "start": "Start",
+    "start": "Start", "replayLead": "See a real solve",
     "s1Title": "Make every line add up",
     "s1Desc": "In a magic square every row, column and diagonal has the same sum. On 5×5, every line adding up to 65 means you're done!",
     "s2Title": "A few pairs are swapped",
