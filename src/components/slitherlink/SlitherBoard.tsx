@@ -38,8 +38,8 @@ export function useUndoKey(onUndo: () => void) {
 }
 
 /**
- * The dotted board. Tap between two dots to change that edge: with the pen a tap cycles empty → line → ✕ → empty;
- * the eraser clears and the marker toggles ✕. With the hint tool, a tap picks the 3×3-dot area around it.
+ * The dotted board. Tap between two dots to change that edge: with the pen a tap toggles empty ↔ line (a ✕ is cleared);
+ * the eraser clears and only the marker toggles ✕. With the hint tool, a tap picks the 3×3-dot area around it.
  * `onEdges` gets the [edge, value] pairs of one tap.
  */
 export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onHint, solutionUpTo = null, dimLines = false, readOnly = false, flashArea = null }: {
@@ -74,7 +74,7 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
   const valueFor = (edge: number): Mark => {
     if (tool === 'eraser') return 0;
     if (tool === 'marker') return marks[edge] === 2 ? 0 : 2;
-    return marks[edge] === 0 ? 1 : marks[edge] === 1 ? 2 : 0;
+    return marks[edge] === 0 ? 1 : 0;
   };
 
   const onDown = (e: React.PointerEvent) => {
