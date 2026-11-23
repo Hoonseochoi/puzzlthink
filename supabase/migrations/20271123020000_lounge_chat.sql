@@ -1,7 +1,7 @@
 -- Lounge chat ("라운지"): one site-wide room, on the home page and every game page (entry screen, AI games,
 -- challenges, open-room waiting), mostly for finding people for open rooms. No admin needed to run it.
 -- Every rule is checked here, in lounge_send (SECURITY DEFINER); the client only shows the reason.
---   1. Signed-in players only; one message per 3 seconds and at most 10 per 5 minutes.
+--   1. Signed-in players only; one message per 3 seconds and at most 10 per minute.
 --   2. Nearly the same text again within 5 minutes is refused; a third time is a 1-hour chat ban.
 --   3. Swearing and sexual words (Korean and English, with spaces, symbols, digits, Latin letters or 자모
 --      slipped between the letters, and 초성). The word list is the table lounge_words: edit it there.
@@ -20,7 +20,6 @@ create table if not exists public.lounge_messages (
   user_id uuid not null references auth.users (id) on delete cascade,
   name text not null,
   game text,
-  pieces integer not null default 0, -- 피스 경쟁전 pieces when sent (hard-AI wins, 30 per game)
   body text not null,
   created_at timestamptz not null default now()
 );
@@ -57,6 +56,15 @@ create table if not exists public.lounge_reports (
 );
 create index if not exists lounge_reports_user on public.lounge_reports (reported_user, created_at desc);
 alter table public.lounge_reports enable row level security;
+
+-- Site operators: shown as "퍼띵 운영자" in another colour, not held to the rate limits, the repeat check or
+-- the link rule (word and personal-info checks still apply), and reports against them do not ban.
+-- Rows are added by hand on the live DB (by account id), never in a migration.
+create table if not exists public.lounge_staff (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.lounge_staff enable row level security;
 
 -- The word list. kind: 'profanity' | 'sexual' block; 'allow' is removed from the text before checking
 -- (everyday words that contain a blocked one, e.g. 시발점). Words are matched inside each word of the
@@ -153,7 +161,7 @@ begin
 end; $$;
 
 -- What a message may not contain, as a reason code, or null when it is fine.
-create or replace function public.lounge_check(p_body text)
+create or replace function public.lounge_check(p_body text, p_staff boolean default false)
 returns text language plpgsql stable set search_path = public as $$
 declare
   low text := lower(normalize(coalesce(p_body, ''), NFKC));
@@ -190,11 +198,13 @@ begin
   end if;
 
   -- Links (other than this site).
-  if regexp_replace(low, '(https?://)?(www\.)?puzzlthink\.com\S*', '', 'g') ~ '(https?://|www\.|\m[a-z0-9\-]+\.(com|net|org|kr|io|gg|me|ly|xyz|site|link)\M)' then
+  if not p_staff and regexp_replace(low, '(https?://)?(www\.)?puzzlthink\.com\S*', '', 'g') ~ '(https?://|www\.|\m[a-z0-9\-]+\.(com|net|org|kr|io|gg|me|ly|xyz|site|link)\M)' then
     return 'link';
   end if;
 
   -- 3. Words, inside each word of the message, on several forms of it, with allowed words taken out first.
+  -- Links that got this far (this site, or staff) are left out, so https://example.com is not "s ex".
+  low := regexp_replace(low, '(https?://|www\.)\S+|\m[a-z0-9\-]+(\.[a-z0-9\-]+)*\.(com|net|org|kr|io|gg|me|ly|xyz|site|link)\M\S*', ' ', 'g');
   foreach f in array array['raw', 'leet', 'bare', 'squash', 'hangul', 'latin'] loop
     form := public.lounge_words_form(low, f);
     for w in select public.lounge_words_form(lower(word), f) as word from public.lounge_words where kind = 'allow' loop -- same form, so Sussex is not 'susex'
@@ -206,7 +216,7 @@ begin
   end loop;
   return null;
 end; $$;
-revoke all on function public.lounge_check(text) from public, anon, authenticated;
+revoke all on function public.lounge_check(text, boolean) from public, anon, authenticated;
 
 -- Removes a message everywhere (history and open screens).
 create or replace function public.lounge_remove(p_id bigint)
@@ -219,19 +229,6 @@ begin
 end; $$;
 revoke all on function public.lounge_remove(bigint) from public, anon, authenticated;
 
--- 피스 경쟁전 pieces, counted the same way as competition_ranking: one per win against the hard AI,
--- at most 30 per game, 러시안 룰렛 and 인디언 포커 not counted.
-create or replace function public.lounge_pieces(p_user uuid)
-returns integer language sql stable security definer set search_path = public as $$
-  select coalesce(sum(least(n, 30)), 0)::int from (
-    select count(*) as n from public.game_results r
-     where r.user_id = p_user and r.mode = 'ai' and r.result = 'win'
-       and coalesce(r.detail ->> 'difficulty', r.detail ->> 'level', '') = 'hard'
-       and r.game not in ('russian_roulette', 'indian_poker')
-     group by r.game) t;
-$$;
-revoke all on function public.lounge_pieces(uuid) from public, anon, authenticated;
-
 -- A player's public id in the lounge (for "mine" and muting): not the account id.
 create or replace function public.lounge_sender(p_user uuid)
 returns text language sql immutable set search_path = public as $$
@@ -243,7 +240,7 @@ $$;
 create or replace function public.lounge_state()
 returns jsonb language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
-    'messages', coalesce((select jsonb_agg(jsonb_build_object('id', id, 'sender', public.lounge_sender(user_id), 'name', name, 'game', game, 'pieces', pieces, 'text', body,
+    'messages', coalesce((select jsonb_agg(jsonb_build_object('id', id, 'sender', public.lounge_sender(user_id), 'name', name, 'game', game, 'staff', exists (select 1 from public.lounge_staff st where st.user_id = m.user_id), 'text', body,
                                                                 'at', (extract(epoch from created_at) * 1000)::bigint) order by id)
                             from (select * from public.lounge_messages order by id desc limit 50) m), '[]'::jsonb),
     'me', case when auth.uid() is null then null else public.lounge_sender(auth.uid()) end,
@@ -271,7 +268,7 @@ declare
   ban_reason text;
   bad text;
   nick text;
-  v_pieces int;
+  v_staff boolean;
   new_id bigint;
   sent_at timestamptz := now();
 begin
@@ -284,16 +281,18 @@ begin
   select until, reason into ban, ban_reason from public.lounge_bans where user_id = me and until > now();
   if ban is not null then return jsonb_build_object('ok', false, 'reason', 'banned', 'until', ban, 'ban_reason', ban_reason); end if;
 
+  v_staff := exists (select 1 from public.lounge_staff where user_id = me);
+
   select max(at) into last_at from public.lounge_send_log where user_id = me and accepted;
-  if last_at is not null and now() - last_at < interval '3 seconds' then
+  if not v_staff and last_at is not null and now() - last_at < interval '3 seconds' then
     return jsonb_build_object('ok', false, 'reason', 'fast', 'wait_ms', ceil(extract(epoch from (last_at + interval '3 seconds' - now())) * 1000)::int);
   end if;
-  select count(*), min(at) into recent, oldest from public.lounge_send_log where user_id = me and accepted and at > now() - interval '5 minutes';
-  if recent >= 10 then
-    return jsonb_build_object('ok', false, 'reason', 'quota', 'wait_ms', ceil(extract(epoch from (oldest + interval '5 minutes' - now())) * 1000)::int);
+  select count(*), min(at) into recent, oldest from public.lounge_send_log where user_id = me and accepted and at > now() - interval '1 minute';
+  if not v_staff and recent >= 10 then
+    return jsonb_build_object('ok', false, 'reason', 'quota', 'wait_ms', ceil(extract(epoch from (oldest + interval '1 minute' - now())) * 1000)::int);
   end if;
 
-  bad := public.lounge_check(v_body);
+  bad := public.lounge_check(v_body, v_staff);
   if bad is not null then return jsonb_build_object('ok', false, 'reason', bad); end if;
 
   -- Spam: nearly the same text = same letters once repeats are squashed, or one contains the other.
@@ -302,6 +301,7 @@ begin
     from public.lounge_send_log l
    where l.user_id = me and l.at > now() - interval '5 minutes'
      and (l.norm = v_norm or (char_length(v_norm) >= 4 and char_length(l.norm) >= 4 and (position(l.norm in v_norm) > 0 or position(v_norm in l.norm) > 0)));
+  if v_staff then n_similar := 0; end if;
   if n_similar >= 2 then
     insert into public.lounge_bans (user_id, until, reason) values (me, now() + interval '1 hour', 'repeat')
       on conflict (user_id) do update set until = greatest(public.lounge_bans.until, excluded.until), reason = excluded.reason, created_at = now();
@@ -313,15 +313,14 @@ begin
   end if;
 
   select left(coalesce(nullif(btrim(nickname), ''), 'Player'), 16) into nick from public.profiles where id = me;
-  v_pieces := public.lounge_pieces(me);
-  insert into public.lounge_messages (user_id, name, game, pieces, body, created_at) values (me, coalesce(nick, 'Player'), v_game, v_pieces, v_body, sent_at) returning id into new_id;
+  insert into public.lounge_messages (user_id, name, game, body, created_at) values (me, coalesce(nick, 'Player'), v_game, v_body, sent_at) returning id into new_id;
   insert into public.lounge_send_log (user_id, norm, at) values (me, v_norm, sent_at);
 
   -- Keep the last 50 messages and ten minutes of send log.
   delete from public.lounge_messages where id <= new_id - 50;
   delete from public.lounge_send_log where user_id = me and at < now() - interval '10 minutes';
 
-  perform realtime.send(jsonb_build_object('id', new_id, 'sender', public.lounge_sender(me), 'name', coalesce(nick, 'Player'), 'game', v_game, 'pieces', v_pieces, 'text', v_body,
+  perform realtime.send(jsonb_build_object('id', new_id, 'sender', public.lounge_sender(me), 'name', coalesce(nick, 'Player'), 'game', v_game, 'staff', v_staff, 'text', v_body,
                                            'at', (extract(epoch from sent_at) * 1000)::bigint), 'msg', 'lounge', false);
   return jsonb_build_object('ok', true, 'id', new_id);
 end; $$;
@@ -342,6 +341,7 @@ begin
   select * into m from public.lounge_messages where id = p_id;
   if m.id is null then return jsonb_build_object('ok', false, 'reason', 'gone'); end if;
   if m.user_id = me then return jsonb_build_object('ok', false, 'reason', 'self'); end if;
+  if exists (select 1 from public.lounge_staff where user_id = m.user_id) then return jsonb_build_object('ok', true); end if;
   perform pg_advisory_xact_lock(hashtext('lounge-report:' || m.user_id::text));
   insert into public.lounge_reports (message_id, reporter, reported_user, body) values (m.id, me, m.user_id, m.body)
     on conflict (message_id, reporter) do nothing;

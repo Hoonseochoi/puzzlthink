@@ -8,7 +8,6 @@ import { chatPrefs, chatPrefsServer, chatSnapshot, clearMuted, isMuted, setMuted
 import { LOUNGE_KEEP, LOUNGE_MAX_LEN, type LoungeBan, type LoungeMessage, type LoungeReason, isLoungeMessage, loadLounge, loungeOff, loungeOffServer, reportLounge, sendLounge, setLoungeOff, subscribeLoungeOff, visibilityStore } from '@/lib/lounge';
 import { useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
-import { Piece } from './CompetitionBoard';
 
 type Notice = { reason: LoungeReason | 'reported'; wait: number; n: number };
 let noticeSeq = 0;
@@ -16,7 +15,7 @@ let noticeSeq = 0;
 /**
  * Lounge (라운지): one chat shared by the whole site, on the home page and every game page, mostly to find
  * people for open rooms. Same look as the room chat (a tab on the right edge opens a drawer); in an open room
- * its tab sits under the room chat's. Each line reads "[piece]n 닉네임(게임) : message", and a pinned card from the
+ * its tab sits under the room chat's. Each line reads "닉네임(게임) : message"; site operators get a "퍼띵 운영자" badge and their own colour, and a pinned card from the
  * lounge host Viky gives the rules. It joins Realtime only while this page is visible and the lounge is on;
  * the database decides what may be sent (see src/lib/lounge.ts).
  */
@@ -166,20 +165,20 @@ export default function LoungeChat({ game }: { game: string | null }) {
                 </ul>
               </div>
               {shown.length === 0 && <p className="break-keep pt-2 text-center text-xs leading-5 text-white/35">{t('empty')}</p>}
-              {/* One line each: [piece]×n 닉네임(게임) : message */}
+              {/* One line each: 닉네임(게임) : message, operators with a badge and their own colour. */}
               {shown.map((m) => {
                 const label = gameName(m.game);
                 const mine = m.sender === me;
                 return (
-                  <div key={m.id} className={`group flex items-start gap-1 rounded-lg px-1.5 py-1 text-[13px] leading-5 ${mine ? 'bg-(--accent,#e8b04a)/10' : 'hover:bg-white/[.04]'}`}>
+                  <div key={m.id} className={`group flex items-start gap-1 rounded-lg px-1.5 py-1 text-[13px] leading-5 ${m.staff ? 'border border-[#5ec8ff]/30 bg-[#5ec8ff]/10' : mine ? 'bg-(--accent,#e8b04a)/10' : 'hover:bg-white/[.04]'}`}>
                     <p className="min-w-0 flex-1 break-words">
-                      <span className="mr-1 inline-flex translate-y-[1px] items-center gap-0.5 align-baseline font-mono text-[11px] font-black text-[#e8c25e]"><Piece size={9} />{m.pieces ?? 0}</span>
-                      <b className={`text-[12px] ${mine ? 'text-(--accent,#e8b04a)' : 'text-white/70'}`}>{m.name}</b>
+                      {m.staff && <span className="mr-1 rounded bg-[#5ec8ff] px-1 py-px align-[1px] text-[9.5px] font-black text-[#04121c]">{t('staffBadge')}</span>}
+                      <b className={`text-[12px] ${m.staff ? 'text-[#7fd6ff]' : mine ? 'text-(--accent,#e8b04a)' : 'text-white/70'}`}>{m.name}</b>
                       {label && <span className="text-[11px] text-white/35">({label})</span>}
                       <span className="mx-1 text-white/30">:</span>
-                      <span className="text-white/90">{m.text}</span>
+                      <span className={m.staff ? 'font-bold text-[#dff4ff]' : 'text-white/90'}>{m.text}</span>
                     </p>
-                    {!mine && (
+                    {!mine && !m.staff && (
                       <>
                         <button type="button" onClick={() => report(m)} disabled={!user || reported.has(m.id)} className="mt-0.5 shrink-0 rounded p-0.5 text-white/25 hover:bg-white/10 hover:text-[#ffb35c] disabled:opacity-30" aria-label={t('report')} title={reported.has(m.id) ? t('reportedOne') : t('report')}><Flag size={12} /></button>
                         <button type="button" onClick={() => setMuted({ from: m.sender }, true)} className="mt-0.5 shrink-0 rounded p-0.5 text-white/25 hover:bg-white/10 hover:text-[#ff8b96]" aria-label={t('mute', { name: m.name })} title={t('mute', { name: m.name })}><Ban size={12} /></button>

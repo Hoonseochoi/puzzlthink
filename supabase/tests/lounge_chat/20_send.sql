@@ -17,8 +17,8 @@ select 'anon send', pg_temp.as_user(null, '안녕');
 set role anon; select 'anon direct', has_function_privilege('anon', 'public.lounge_send(text,text)', 'execute'), has_table_privilege('anon', 'public.lounge_messages', 'select'); reset role;
 \echo '--- normal message passes and is broadcast'
 select 'A hello', pg_temp.as_user('00000000-0000-0000-0000-00000000000a', '  안녕하세요   같이 해요 ');
-select 'stored', name, game, pieces, body from public.lounge_messages order by id desc limit 1;
-select 'broadcast', topic, event, private, payload->>'name', payload->>'game', payload->>'pieces', payload->>'text', payload ? 'sender', payload ? 'user_id' from realtime.sent order by n desc limit 1;
+select 'stored', name, game, body from public.lounge_messages order by id desc limit 1;
+select 'broadcast', topic, event, private, payload->>'name', payload->>'game', payload->>'staff', payload->>'text', payload ? 'sender', payload ? 'user_id' from realtime.sent order by n desc limit 1;
 \echo '--- 1. rate limit 3s'
 select 'A again at once', pg_temp.as_user('00000000-0000-0000-0000-00000000000a', '두번째 메시지');
 select pg_temp.wait(2); select 'A after 2s', pg_temp.as_user('00000000-0000-0000-0000-00000000000a', '두번째 메시지');
@@ -51,15 +51,15 @@ set role authenticated; select set_config('test.uid', '00000000-0000-0000-0000-0
 \echo '--- same text 6 minutes apart is fine'
 select pg_temp.wait(5); select 'D 1', pg_temp.as_user('00000000-0000-0000-0000-00000000000d', '벽바둑2 오픈방 같이 해요');
 select pg_temp.wait(360); select 'D 2 (6 min later)', pg_temp.as_user('00000000-0000-0000-0000-00000000000d', '벽바둑2 오픈방 같이 해요');
-\echo '--- 1. quota: at most 10 in 5 minutes'
+\echo '--- 1. quota: at most 10 in a minute'
 delete from public.lounge_bans; delete from public.lounge_send_log;
 do $$ declare i int; r jsonb; begin
   for i in 1..11 loop
-    update public.lounge_send_log set at = at - interval '20 seconds';
+    update public.lounge_send_log set at = at - interval '4 seconds';
     r := pg_temp.as_user('00000000-0000-0000-0000-00000000000b', '메시지 ' || md5(i::text));
     if not (r->>'ok')::boolean then raise notice 'quota: message % -> %', i, r; end if;
   end loop; end $$;
-select pg_temp.wait(110); select 'B after the oldest leaves the window', pg_temp.as_user('00000000-0000-0000-0000-00000000000b', '이제 보낼 수 있다');
+select pg_temp.wait(25); select 'B after the oldest leaves the window', pg_temp.as_user('00000000-0000-0000-0000-00000000000b', '이제 보낼 수 있다');
 \echo '--- keep only the last 50'
 delete from public.lounge_bans; delete from public.lounge_send_log;
 do $$ declare i int; begin for i in 1..60 loop delete from public.lounge_send_log; perform pg_temp.as_user('00000000-0000-0000-0000-00000000000a', 'history ' || i || ' ' || md5(i::text)); end loop; end $$;
@@ -81,6 +81,23 @@ reset role;
 select 'A banned', reason, until between now() + interval '9 minutes' and now() + interval '11 minutes' from public.lounge_bans where user_id = '00000000-0000-0000-0000-00000000000a';
 select 'both messages removed', (select count(*) from public.lounge_messages where id in (:m1, :m2)) = 0, (select string_agg(event || ':' || (payload->>'id'), ',' order by n) from (select * from realtime.sent order by n desc limit 2) x);
 select 'A tries to send', pg_temp.as_user('00000000-0000-0000-0000-00000000000a', '왜요') - 'until';
+\echo '--- staff: no rate limits, links allowed, words still checked, reports do not ban'
+delete from public.lounge_bans; delete from public.lounge_send_log;
+insert into public.lounge_staff values ('00000000-0000-0000-0000-00000000000d');
+select 'staff 1', pg_temp.as_user('00000000-0000-0000-0000-00000000000d', '공지: 오픈방 이벤트 https://example.com/event');
+select 'staff 2 at once, same text', pg_temp.as_user('00000000-0000-0000-0000-00000000000d', '공지: 오픈방 이벤트 https://example.com/event');
+select 'staff 3', pg_temp.as_user('00000000-0000-0000-0000-00000000000d', '공지: 오픈방 이벤트 https://example.com/event');
+select 'staff swear', pg_temp.as_user('00000000-0000-0000-0000-00000000000d', '시발');
+select 'staff flag in broadcast', payload->>'staff' from realtime.sent where event = 'msg' order by n desc limit 1;
+select 'staff flag in state', (select count(*) from jsonb_array_elements(public.lounge_state()->'messages') e where (e->>'staff')::boolean);
+select max(id) as sid from public.lounge_messages where user_id = '00000000-0000-0000-0000-00000000000d' \gset
+set role authenticated;
+select set_config('test.uid', '00000000-0000-0000-0000-00000000000a', false); select public.lounge_report(:sid);
+select set_config('test.uid', '00000000-0000-0000-0000-00000000000b', false); select public.lounge_report(:sid);
+select set_config('test.uid', '00000000-0000-0000-0000-00000000000c', false); select 'staff reported x3', public.lounge_report(:sid);
+reset role;
+select 'staff not banned, message kept', not exists (select 1 from public.lounge_bans where user_id = '00000000-0000-0000-0000-00000000000d'), exists (select 1 from public.lounge_messages where id = :sid);
+delete from public.lounge_staff;
 \echo '--- admin'
 select pg_temp.wait(5); select pg_temp.as_user('00000000-0000-0000-0000-00000000000b', '관리자 테스트')->>'id' as mid2 \gset
 set role anon;
