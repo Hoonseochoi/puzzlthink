@@ -44,8 +44,8 @@ export default function MagicSwapTutorial() {
 
   if (!open || !board) return null;
 
-  // Step 3: the solved square with one clean swap (different row, column, both on the ↘ diagonal), so its lines read +d / −d.
-  const pa = 6, pb = 18;
+  // Step 3: the solved square with one clean swap (different row, column, both on the ↙ diagonal, no fixed tile), so its lines read +d / −d.
+  const pa = 8, pb = 16;
   const one = board.answer.slice();
   [one[pa], one[pb]] = [one[pb], one[pa]];
   const d = Math.abs(one[pa] - one[pb]);

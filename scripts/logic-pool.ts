@@ -34,7 +34,7 @@ const seeds = (count: number) => {
   return [...set];
 };
 
-/** One pool row per seed: (game, seed, challenge size, answer string). 마방진 스왑 stores its scrambled start instead (any magic square wins). */
+/** One pool row per seed: (game, seed, challenge size, answer string). 마방진 스왑 stores its scrambled start and `|` fixed cells instead (any magic square keeping them wins). */
 const BUILD: Record<Game, { size: number; answer: (seed: number) => string }> = {
   masyu: { size: masyu.MASYU_CHALLENGE_SIZE, answer: (seed) => masyu.encodeLines(masyu.generate(masyu.MASYU_CHALLENGE_SIZE, seed).lines, masyu.geometry(masyu.MASYU_CHALLENGE_SIZE).edgeCount) },
   nonogram: { size: nonogram.NONO_CHALLENGE_SIZE, answer: (seed) => nonogram.encodeCells(nonogram.generate(nonogram.NONO_CHALLENGE_SIZE, seed).grid, nonogram.NONO_CHALLENGE_SIZE ** 2) },
@@ -42,7 +42,7 @@ const BUILD: Record<Game, { size: number; answer: (seed: number) => string }> = 
   binairo: { size: binairo.BINAIRO_CHALLENGE_SIZE, answer: (seed) => binairo.encodeCells(binairo.generate(binairo.BINAIRO_CHALLENGE_SIZE, seed).answer) },
   onestroke: { size: onestroke.ONESTROKE_CHALLENGE_SIZE, answer: (seed) => onestroke.encodeEdges(onestroke.generate(onestroke.ONESTROKE_CHALLENGE_SIZE, seed).answer) },
   colorlink: { size: colorlink.COLORLINK_CHALLENGE_SIZE, answer: (seed) => colorlink.encodeEdges(colorlink.generate(colorlink.COLORLINK_CHALLENGE_SIZE, seed).answer) },
-  magicswap: { size: magicswap.MAGIC_CHALLENGE_SIZE, answer: (seed) => magicswap.encodeCells(magicswap.generate(magicswap.MAGIC_CHALLENGE_SIZE, seed).start) },
+  magicswap: { size: magicswap.MAGIC_CHALLENGE_SIZE, answer: (seed) => magicswap.encodePool(magicswap.generate(magicswap.MAGIC_CHALLENGE_SIZE, seed)) },
 };
 
 const out: string[] = ['begin;'];

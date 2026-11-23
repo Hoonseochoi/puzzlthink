@@ -2335,7 +2335,7 @@
         "ai": "New 7×7 map (ranked) · steal a map · practice by size",
         "rules": [
           "Done when every row, column and diagonal hits the target sum.",
-          "All you can do is swap two tiles.",
+          "All you can do is swap two tiles (not the three 🔒 fixed ones).",
           "The + and − at each line's end show how far it is off."
         ],
         "origin": "Magic squares go back to the Lo Shu legend and appear in Joseon mathematician Choi Seok-jeong's Gusuryak. PUZZLTHINK turned them into a puzzle of swapping scrambled tiles back."
@@ -6027,8 +6027,8 @@
       "Drag to fill a run; use ✕ mode for empty cells.",
       "One answer, solvable by logic alone."
     ],
-    "help_magicswap": "Tap two tiles, or drag one onto another, to swap them. Long-press to cycle ✓ sure (locked) → ● suspect → none. The numbers at the edge say how far each line is over (+) or under (−).",
-    "rules_magicswap": ["Done when every row, column and both diagonals hit the target sum (65 on 5×5, 111 on 6×6, 175 on 7×7).", "The numbers 1 to n² appear once each, and a few pairs have traded places.", "All you can do is swap two tiles, as often as you like.", "Where a +d line meets a −d line, look for two numbers d apart.", "Any arrangement where every line adds up counts, not only the original."],
+    "help_magicswap": "Tap two tiles, or drag one onto another, to swap them. 🔒 tiles are fixed. Long-press to cycle ✓ sure (locked) → ● suspect → none. The numbers at the edge say how far each line is over (+) or under (−).",
+    "rules_magicswap": ["Done when every row, column and both diagonals hit the target sum (65 on 5×5, 111 on 6×6, 175 on 7×7).", "The numbers 1 to n² appear once each, and a few pairs have traded places.", "All you can do is swap two tiles, as often as you like.", "Where a +d line meets a −d line, look for two numbers d apart.", "The three 🔒 tiles are fixed from the start and never move. Any arrangement that keeps them and makes every line add up counts, not only the original."],
     "magicTarget": "Target",
     "magicScrambled": "{n} pairs swapped",
     "magicDiag": "diagonal",
@@ -6038,6 +6038,7 @@
     "magicShowSum": "Show sums",
     "magicShowDiff": "Show diffs",
     "magicReset": "Start over",
+    "magicFixed": "fixed",
     "magicTutorial": "How to play",
     "magicReplayTip": "Stuck? Watch a one-minute replay of how a board is actually solved."
   },
@@ -6923,7 +6924,7 @@
     "s1Title": "Make every line add up",
     "s1Desc": "In a magic square every row, column and diagonal has the same sum. On 5×5, every line adding up to 65 means you're done!",
     "s2Title": "A few pairs are swapped",
-    "s2Desc": "On this board {n} pairs traded places, so {off} lines are off. The + and − at the edge say how far each line is over or under.",
+    "s2Desc": "On this board {n} pairs traded places, so {off} lines are off. The + and − at the edge say how far each line is over or under. The three 🔒 tiles are fixed; leave them be.",
     "s3Title": "Tap two tiles to swap",
     "s3Desc": "Tap a tile and then another, or drag one onto another, to swap them. Where a +{d} line meets a −{d} line, look for two numbers {d} apart.",
     "s4Title": "Sure ✓ and suspect ●",
@@ -6951,8 +6952,8 @@
     "rulesTitle": "Rules",
     "rules": [
       "Done when every row, column and both diagonals hit the target (65 on 5×5, 111 on 6×6, 175 on 7×7).",
-      "The numbers 1 to n² appear once each; all you can do is swap two tiles.",
-      "Any arrangement where every line adds up counts, not only the original."
+      "The numbers 1 to n² appear once each; all you can do is swap two tiles. The three 🔒 tiles are fixed and never move.",
+      "Any arrangement that keeps the fixed tiles and makes every line add up counts, not only the original."
     ],
     "specialTitle": "Controls",
     "special": [
@@ -7009,7 +7010,7 @@
       },
       {
         "q": "Do I have to rebuild the original square?",
-        "a": "No. Any arrangement of 1 to n² where every row, column and diagonal adds up counts."
+        "a": "No. Any arrangement that keeps the three 🔒 fixed tiles and makes every row, column and diagonal add up counts. The fixed tiles change from board to board, so copying a magic square learnt by heart does not work."
       },
       {
         "q": "How are challenge records kept fair?",

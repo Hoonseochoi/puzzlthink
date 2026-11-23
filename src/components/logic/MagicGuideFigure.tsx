@@ -15,7 +15,7 @@ export default function MagicGuideFigure({ id }: { id: MagicFigureId }) {
     const n = 5, M = magicSum(n), a = b.answer;
     const swapped = (i: number, j: number) => { const g = a.slice(); [g[i], g[j]] = [g[j], g[i]]; return g; };
     if (id === 'hero') return { board: b, marks: a, demo: {}, solved: true };
-    if (id === 'magicPair') return { board: b, marks: swapped(6, 18), demo: { sel: 6, target: 18 } };
+    if (id === 'magicPair') return { board: b, marks: swapped(8, 16), demo: { sel: 8, target: 16 } };
     if (id === 'magicSame') return { board: b, marks: swapped(5, 8), demo: { sel: 5, target: 8 } };
     if (id === 'magicDiag') {
       // Rows 0 and 1 traded whole: every row and column still adds up, the diagonals do not.
