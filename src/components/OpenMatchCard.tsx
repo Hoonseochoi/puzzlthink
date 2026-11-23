@@ -17,7 +17,7 @@ const colorOf = (id: string) => GAMES.find((game) => game.id === id)?.color ?? '
  * A square tile that shows a home-card picture at whatever size the tile has: the picture is laid out
  * in a 300px box, measured, then scaled so it fills about 90% of the tile, centred.
  */
-function FitTile({ title, children }: { title: string; children: ReactNode }) {
+export function FitTile({ title, children, className = 'rounded-lg bg-white/[.06] ring-1 ring-white/10 sm:rounded-xl' }: { title: string; children: ReactNode; className?: string }) {
   const outer = useRef<HTMLDivElement>(null);
   const inner = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
@@ -35,7 +35,7 @@ function FitTile({ title, children }: { title: string; children: ReactNode }) {
     return () => ro.disconnect();
   }, []);
   return (
-    <div ref={outer} className="relative aspect-square overflow-hidden rounded-lg bg-white/[.06] ring-1 ring-white/10 sm:rounded-xl" title={title}>
+    <div ref={outer} className={`relative aspect-square overflow-hidden ${className}`} title={title}>
       <div ref={inner} className="absolute left-1/2 top-1/2 flex w-[300px] items-center justify-center" style={{ transform: `translate(-50%, -50%) scale(${scale})`, opacity: scale ? 1 : 0 }}>
         {children}
       </div>

@@ -40,6 +40,7 @@
     "hallCongratsView": "See the Hall of Fame",
     "hallCongratsClose": "Close",
     "gamesIntro": "About games",
+    "gameList": "All games",
     "footerGames": "All games",
     "logicHub": "Logic puzzles",
     "contactPartnership": "Contact & partnerships",
@@ -1882,6 +1883,12 @@
     "iosStep2": "2. Choose 'Add to Home Screen'",
     "afterGameTitle": "Next round, straight from your home screen 📲",
     "afterGameDesc": "Install it and it opens in one tap next time · free"
+  },
+  "GameList": {
+    "metaTitle": "All games — PUZZLTHINK brain games and logic puzzles",
+    "metaDescription": "Every PUZZLTHINK brain game and logic puzzle at a glance. Tap one to start.",
+    "title": "All games",
+    "intro": "Tap a game to start."
   },
   "Games": {
     "metaTitle": "All games — The Devil's Plan & The Genius games and logic puzzles",
