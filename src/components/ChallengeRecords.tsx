@@ -11,13 +11,13 @@ import { GAME_LABEL } from './HallCelebration';
 import RankMove from './RankMove';
 import { byGameOrder } from './recordOrder';
 
-type Board = 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
+type Board = 'magicswap' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
 type Row = { rank: number; nickname: string; avatar_url: string | null; score: number; sub: number | null; prev_rank?: number | null };
 type Card = { key: string; game: GameId; boards: Board[]; title: string };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const NEMO: Board[] = ['nemo_hard', 'nemo_normal', 'nemo_easy'];
-const BOARDS: Board[] = ['slither', 'binairo', 'onestroke', 'colorlink', 'starbattle', 'masyu', 'nonogram', 'gyulhap10', 'gyulhap5', 'hexagon', ...NEMO];
+const BOARDS: Board[] = ['magicswap', 'slither', 'binairo', 'onestroke', 'colorlink', 'starbattle', 'masyu', 'nonogram', 'gyulhap10', 'gyulhap5', 'hexagon', ...NEMO];
 const clock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
 
 /** Solo challenges in 기록실: a top-3 board per challenge, then my own best runs. Games follow the site order; boards nobody is on yet go last. */
@@ -43,6 +43,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { key: 'binairo', game: 'binairo', boards: ['binairo'], title: t('chBinairo') },
     { key: 'onestroke', game: 'onestroke', boards: ['onestroke'], title: t('chOnestroke') },
     { key: 'colorlink', game: 'colorlink', boards: ['colorlink'], title: t('chColorlink') },
+    { key: 'magicswap', game: 'magicswap', boards: ['magicswap'], title: t('chMagicswap') },
     { key: 'starbattle', game: 'starbattle', boards: ['starbattle'], title: t('chStarbattle') },
     { key: 'masyu', game: 'masyu', boards: ['masyu'], title: t('chMasyu') },
     { key: 'nonogram', game: 'nonogram', boards: ['nonogram'], title: t('chNonogram') },
@@ -51,7 +52,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { key: 'nemo', game: 'nemo_count', boards: NEMO, title: t('chNemo') },
     { key: 'hexagon', game: 'hexagon', boards: ['hexagon'], title: t('chHexagon') },
   ];
-  const stat = (b: Board, r: Row) => b === 'slither' || b === 'binairo' || b === 'onestroke' || b === 'colorlink' || b === 'starbattle' || b === 'masyu' || b === 'nonogram' ? t('chMaps', { n: r.score })
+  const stat = (b: Board, r: Row) => b === 'slither' || b === 'binairo' || b === 'onestroke' || b === 'colorlink' || b === 'magicswap' || b === 'starbattle' || b === 'masyu' || b === 'nonogram' ? t('chMaps', { n: r.score })
     : b.startsWith('nemo') ? t('chCorrect', { n: r.score }) : t('chScore', { n: r.score });
   const filled = (c: Card) => c.boards.some((b) => (tops[b]?.length ?? 0) > 0);
   const ordered = byGameOrder(cards, (c) => c.game, filled);
@@ -71,7 +72,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
       return { clears: wins.length, fastest: times.length ? Math.min(...times) : null };
     };
     return {
-      binairo: clearsOf('binairo'), onestroke: clearsOf('onestroke'), colorlink: clearsOf('colorlink'), starbattle: clearsOf('starbattle'), masyu: clearsOf('masyu'), nonogram: clearsOf('nonogram'),
+      binairo: clearsOf('binairo'), onestroke: clearsOf('onestroke'), colorlink: clearsOf('colorlink'), magicswap: clearsOf('magicswap'), starbattle: clearsOf('starbattle'), masyu: clearsOf('masyu'), nonogram: clearsOf('nonogram'),
       slither: { clears: slitherClears.length, fastest: fastest.length ? Math.min(...fastest) : null },
       gyulhap10: pick('gyulhap', (d) => d.mode === 'challenge10', 'score'),
       gyulhap5: pick('gyulhap', (d) => d.mode === 'challenge5', 'score'),
@@ -85,6 +86,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { game: 'binairo' as GameId, title: t('chBinairo'), line: mine.binairo.clears ? t('mySlither', { n: mine.binairo.clears, time: mine.binairo.fastest ? clock(mine.binairo.fastest) : '—' }) : null },
     { game: 'onestroke' as GameId, title: t('chOnestroke'), line: mine.onestroke.clears ? t('mySlither', { n: mine.onestroke.clears, time: mine.onestroke.fastest ? clock(mine.onestroke.fastest) : '—' }) : null },
     { game: 'colorlink' as GameId, title: t('chColorlink'), line: mine.colorlink.clears ? t('mySlither', { n: mine.colorlink.clears, time: mine.colorlink.fastest ? clock(mine.colorlink.fastest) : '—' }) : null },
+    { game: 'magicswap' as GameId, title: t('chMagicswap'), line: mine.magicswap.clears ? t('mySlither', { n: mine.magicswap.clears, time: mine.magicswap.fastest ? clock(mine.magicswap.fastest) : '—' }) : null },
     { game: 'starbattle' as GameId, title: t('chStarbattle'), line: mine.starbattle.clears ? t('mySlither', { n: mine.starbattle.clears, time: mine.starbattle.fastest ? clock(mine.starbattle.fastest) : '—' }) : null },
     { game: 'masyu' as GameId, title: t('chMasyu'), line: mine.masyu.clears ? t('mySlither', { n: mine.masyu.clears, time: mine.masyu.fastest ? clock(mine.masyu.fastest) : '—' }) : null },
     { game: 'nonogram' as GameId, title: t('chNonogram'), line: mine.nonogram.clears ? t('mySlither', { n: mine.nonogram.clears, time: mine.nonogram.fastest ? clock(mine.nonogram.fastest) : '—' }) : null },

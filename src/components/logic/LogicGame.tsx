@@ -21,6 +21,8 @@ import StarBoard from './StarBoard';
 import BinairoBoard from './BinairoBoard';
 import OneStrokeBoard from './OneStrokeBoard';
 import ColorLinkBoard from './ColorLinkBoard';
+import MagicSwapBoard from './MagicSwapBoard';
+import MagicSwapTutorial from './MagicSwapTutorial';
 import LogicRulesTip from './LogicRulesTip';
 import LogicReplayButton from './LogicReplay';
 import LogicHistory from './LogicHistory';
@@ -42,7 +44,7 @@ const readMode = (): Mode => {
 type Move = { gesture: number; undo: [number, number][] };
 
 /**
- * 마슈 · 노노그램 · 스타배틀, the 슬리더링크 way.
+ * 마슈 · 노노그램 · 스타배틀 · 마방진 스왑 …, the 슬리더링크 way.
  * - 새로운 맵: a fresh board from the server, timed; clearing it makes the board yours (ranked by boards owned).
  * - 맵 뺏기: someone's board within their time (one try per board); beat it to take it over.
  * - 연습: any size, give up to see the answer.
@@ -264,7 +266,9 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
           ? <BinairoBoard board={board} marks={phase === 'gaveUp' ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved' || phase === 'gaveUp'} />
           : board.kind === 'onestroke'
             ? <OneStrokeBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved'} showAnswer={phase === 'gaveUp'} />
-            : <ColorLinkBoard board={board} marks={phase === 'gaveUp' ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved' || phase === 'gaveUp'} />);
+            : board.kind === 'magicswap'
+              ? <MagicSwapBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved'} showAnswer={phase === 'gaveUp'} />
+              : <ColorLinkBoard board={board} marks={phase === 'gaveUp' ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={phase !== 'play'} solved={phase === 'solved' || phase === 'gaveUp'} />);
 
   const rankingPanel = (
     <section className={PANEL}>
@@ -290,6 +294,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
   return (
     <div className={SHELL} style={{ ...accentVars(spec.accent, spec.ink), backgroundImage: fog(spec.fog) }}>
       <Shards tint={spec.shard} />
+      {game === 'magicswap' && <MagicSwapTutorial />}
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={name} subtitle={spec.latin}>
         <BugReport /><LanguageSwitcher compact dark />
         {mode === 'practice' && <button type="button" onClick={() => startPractice(size)} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newBoard')}</span></button>}
@@ -390,7 +395,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                       <button type="button" onClick={() => setTool('cross')} aria-pressed={tool === 'cross'} className={`flex flex-col items-center gap-1 py-2.5 ${seg(tool === 'cross')}`}><X size={17} />{t('toolCross')}</button>
                     </>}
                     <button type="button" onClick={undo} disabled={!undoCount} title={t('undoKey')} className={`flex flex-col items-center gap-1 py-2.5 ${seg(false)} disabled:opacity-35`}><Undo2 size={17} />{t('toolUndo')}</button>
-                    <button type="button" onClick={clearAll} className={`flex flex-col items-center gap-1 py-2.5 ${confirmClear ? 'rounded-md bg-[#e5484d]/20 text-xs font-extrabold text-[#ff8f8f] ring-1 ring-[#e5484d]/50' : seg(false)}`}><Trash2 size={17} />{confirmClear ? t('clearConfirm') : t('toolClear')}</button>
+                    <button type="button" onClick={clearAll} className={`flex flex-col items-center gap-1 py-2.5 ${confirmClear ? 'rounded-md bg-[#e5484d]/20 text-xs font-extrabold text-[#ff8f8f] ring-1 ring-[#e5484d]/50' : seg(false)}`}><Trash2 size={17} />{confirmClear ? t('clearConfirm') : t(game === 'magicswap' ? 'magicReset' : 'toolClear')}</button>
                   </div>
                   <button type="button" onClick={giveUp} className={`w-full py-2.5 ${BTN}`}><Flag size={14} />{mode === 'practice' ? t('giveUpPractice') : t('giveUpChallenge')}</button>
                   <p className="break-keep text-center text-[11px] leading-5 text-white/40">{t(`help_${game}${game === 'nonogram' ? `_${tool}` : ''}`)}</p>

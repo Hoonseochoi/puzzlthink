@@ -94,7 +94,8 @@
     "nineMensMorris": "Nine Men's Morris",
     "backupAddress": "Backup address if the site won't open",
     "flipOmok": "Flip Omok",
-    "serverNotice": "At peak hours, friend and open rooms may be hard to use due to server load. Thanks for bearing with it 🙏"
+    "serverNotice": "At peak hours, friend and open rooms may be hard to use due to server load. Thanks for bearing with it 🙏",
+    "magicswap": "Magic Square Swap"
   },
   "BlindGomoku": {
     "metaTitle": "Blind Gomoku online — The Devil's Plan 1 hidden-colour gomoku",
@@ -190,7 +191,7 @@
     "monorailDescription": "Place straight and curved tiles to close one loop. Fight for the final tile—or call Impossible.",
     "monorailMeta": "AI, friend & open 1v1",
     "metaTitle": "PUZZLTHINK — Devil's Plan & The Genius brain games, logic puzzles",
-    "metaDescription": "28 free browser games: brain games known from The Devil's Plan and The Genius (Monorail, Wall Go, Two-Sided Poker, Heavy 13) and logic puzzles (Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu, Nonogram) with map-steal challenge rankings. Play the AI, friends or open matches. Unofficial fan-made service.",
+    "metaDescription": "29 free browser games: brain games known from The Devil's Plan and The Genius (Monorail, Wall Go, Two-Sided Poker, Heavy 13) and logic puzzles (Magic Square Swap, Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu, Nonogram) with map-steal challenge rankings. Play the AI, friends or open matches. Unofficial fan-made service.",
     "eyebrow": "BRAIN GAMES · WITH FRIENDS",
     "title1": "Games worth thinking about,",
     "title2": "with your friends",
@@ -388,7 +389,9 @@
     "podiumChallengeLabel": "{game} challenge top 3",
     "podiumMaps": "{n} boards",
     "podiumScore": "{n} pts",
-    "podiumCorrect": "{n} solved"
+    "podiumCorrect": "{n} solved",
+    "magicswapDescription": "In a magic square every row, column and diagonal adds up the same, but a few tiles got swapped! Use the + and − on each line to find the culprits and swap them back. Claim new maps and steal others'.",
+    "magicswapMeta": "Challenge · steal maps · 2–6 friends"
   },
   "WallGo": {
     "metaTitle": "Wall Go online — The Devil's Plan 3 territory game vs AI or friends",
@@ -1710,7 +1713,8 @@
     "competitionEmpty": "Nobody has beaten the hard AI yet. Take the first piece!",
     "competitionNotYet": "No pieces yet. Beat the hard AI in any game to join the ranking.",
     "piecesOf": "{name}: {n} pieces",
-    "me": "me"
+    "me": "me",
+    "chMagicswap": "Magic Square maps"
   },
   "RussianJanggi": {
     "metaTitle": "Russian Janggi online — The Society Game 2 stacking tic-tac-toe",
@@ -1874,7 +1878,7 @@
   },
   "Games": {
     "metaTitle": "All games — The Devil's Plan & The Genius games and logic puzzles",
-    "metaDescription": "From Monorail, Wall Go, Two-Sided Poker, Heavy 13 and Nemo Count to Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu and Nonogram: compare all 28 PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
+    "metaDescription": "From Monorail, Wall Go, Two-Sided Poker, Heavy 13 and Nemo Count to Magic Square Swap, Slitherlink, Binairo, One Stroke, Color Link, Star Battle, Masyu and Nonogram: compare all 29 PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
     "eyebrow": "GAME GUIDE",
     "title": "About the games",
     "intro": "Every PUZZLTHINK game on one page. See how many players it takes, how a game runs and what you need to know, then jump right in. All games are free with no sign-up.",
@@ -2320,6 +2324,21 @@
         "origin": "An original rule set made by the PUZZLTHINK developer, mixing Omok with Othello (Reversi). It keeps the usual Omok rules: exactly five wins, no double threes.",
         "ai": "Medium · Hard",
         "friend": "1:1 by link or 4-digit code, 15–60s turns"
+      },
+      "magicswap": {
+        "tagline": "A magic square, where every row, column and diagonal has the same sum, with a few pairs of numbers swapped. Use the + and − on each line to find the two culprit tiles and swap them back. Claim new maps, steal others' and race up to 6 friends.",
+        "players": "1 player or 2–6 friends",
+        "pace": "1–5 min a board",
+        "level": "5×5 · 6×6 · 7×7 (random magic squares, scrambled)",
+        "solo": "New 7×7 map (ranked) · steal a map · practice by size",
+        "friend": "2–6 race on the same board · first to finish wins",
+        "ai": "New 7×7 map (ranked) · steal a map · practice by size",
+        "rules": [
+          "Done when every row, column and diagonal hits the target sum.",
+          "All you can do is swap two tiles.",
+          "The + and − at each line's end show how far it is off."
+        ],
+        "origin": "Magic squares go back to the Lo Shu legend and appear in Joseon mathematician Choi Seok-jeong's Gusuryak. PUZZLTHINK turned them into a puzzle of swapping scrambled tiles back."
       }
     },
     "keywords": [
@@ -2428,7 +2447,8 @@
     "logicRoom": "Create a room (2–4)",
     "short_logicRoom": "2–4",
     "slitherRoom": "Create a room (2–4)",
-    "short_slitherRoom": "2–4"
+    "short_slitherRoom": "2–4",
+    "magicswapPractice": "Practice (5×5 · 6×6 · 7×7)"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -6006,7 +6026,19 @@
       "All lines match = done, and the picture lights up.",
       "Drag to fill a run; use ✕ mode for empty cells.",
       "One answer, solvable by logic alone."
-    ]
+    ],
+    "help_magicswap": "Tap two tiles, or drag one onto another, to swap them. Long-press to cycle ✓ sure (locked) → ● suspect → none. The numbers at the edge say how far each line is over (+) or under (−).",
+    "rules_magicswap": ["Done when every row, column and both diagonals hit the target sum (65 on 5×5, 111 on 6×6, 175 on 7×7).", "The numbers 1 to n² appear once each, and a few pairs have traded places.", "All you can do is swap two tiles, as often as you like.", "Where a +d line meets a −d line, look for two numbers d apart.", "Any arrangement where every line adds up counts, not only the original."],
+    "magicTarget": "Target",
+    "magicScrambled": "{n} pairs swapped",
+    "magicDiag": "diagonal",
+    "magicToolSwap": "Swap",
+    "magicToolCheck": "Sure",
+    "magicToolSuspect": "Suspect",
+    "magicShowSum": "Show sums",
+    "magicShowDiff": "Show diffs",
+    "magicReset": "Start over",
+    "magicTutorial": "How to play"
   },
   "LogicOnline": {
     "metaTitle": "Solve {game} together? You are invited",
@@ -6026,7 +6058,6 @@
     "startCount": "Start with {n}",
     "startLocked": "Start once 2 or more have joined",
     "startHint": "Everyone solves the same board at once. First to finish wins.",
-    "roomFull": "The room is full (4 max).",
     "waitingHost": "Waiting for the host to start…",
     "race": "Finish first!",
     "youWin": "You finished first! 🎉",
@@ -6053,7 +6084,9 @@
       "If everyone else gives up, the last one standing wins."
     ],
     "youWinForfeit": "Everyone else gave up: you win!",
-    "winnerForfeit": "{name} stayed to the end and won"
+    "winnerForfeit": "{name} stayed to the end and won",
+    "sumsN": "{n} lines right",
+    "roomFull": "The room is full ({max} max)."
   },
   "MasyuGuide": {
     "metaTitle": "Masyu Online Free — Pearl Loop Puzzle with Map Ranking",
@@ -6879,5 +6912,109 @@
       }
     ],
     "disclaimer": "PUZZLTHINK is an unofficial fan-made service, not affiliated with the broadcaster. Rules are based on the show and adjusted for play on the web."
+  },
+  "MagicSwapTutorial": {
+    "title": "HOW TO PLAY",
+    "close": "Close",
+    "prev": "Back",
+    "next": "Next",
+    "start": "Start",
+    "s1Title": "Make every line add up",
+    "s1Desc": "In a magic square every row, column and diagonal has the same sum. On 5×5, every line adding up to 65 means you're done!",
+    "s2Title": "A few pairs are swapped",
+    "s2Desc": "On this board {n} pairs traded places, so {off} lines are off. The + and − at the edge say how far each line is over or under.",
+    "s3Title": "Tap two tiles to swap",
+    "s3Desc": "Tap a tile and then another, or drag one onto another, to swap them. Where a +{d} line meets a −{d} line, look for two numbers {d} apart.",
+    "s4Title": "Sure ✓ and suspect ●",
+    "s4Desc": "Mark tiles you're sure of with ✓ (they lock) and doubtful ones with ●. A long press cycles ✓ → ● → none. Undo and Start over are there too."
+  },
+  "MagicSwapGuide": {
+    "metaTitle": "Magic Square Swap Online Free — Number Sum Puzzle | Map Ranking",
+    "metaDescription": "Swap tiles back so every row, column and diagonal of the magic square adds up again. Random 5×5, 6×6 and 7×7 boards, claim and steal maps for the ranking, race 2–6 friends. Free.",
+    "keywords": [
+      "magic square",
+      "magic square puzzle",
+      "magic square game",
+      "number puzzle",
+      "sum puzzle",
+      "logic puzzle online"
+    ],
+    "alternateNames": [
+      "Magic Square Swap",
+      "Magic Square",
+      "마방진"
+    ],
+    "eyebrow": "MAGIC SQUARE GUIDE",
+    "title": "Magic Square Swap — find the swapped pair",
+    "intro": "A magic square is a grid where every row, column and diagonal adds up to the same number. Magic Square Swap starts from one with a few pairs of numbers traded. Read how far each line is off, work out which tiles were swapped, and swap them back.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Done when every row, column and both diagonals hit the target (65 on 5×5, 111 on 6×6, 175 on 7×7).",
+      "The numbers 1 to n² appear once each; all you can do is swap two tiles.",
+      "Any arrangement where every line adds up counts, not only the original."
+    ],
+    "specialTitle": "Controls",
+    "special": [
+      {
+        "title": "Tap twice or drag",
+        "body": "Tap a tile to lift it; its row and column light up. Tap another tile, or drag onto it, to swap. Tap the same tile again to cancel."
+      },
+      {
+        "title": "Line differences",
+        "body": "The right edge and the bottom show how far each line is over (+) or under (−); a green ✓ means it adds up. Switch to sums to see the totals."
+      },
+      {
+        "title": "Sure ✓ and suspect ●",
+        "body": "A ✓ locks a tile against swaps; a ● marks a suspect. A long press cycles ✓ → ● → none."
+      },
+      {
+        "title": "Undo and start over",
+        "body": "Step back one swap at a time with undo or Ctrl/⌘+Z, or return to the starting board."
+      },
+      {
+        "title": "Claim and steal maps",
+        "body": "Clear a new 7×7 map and it is yours. Solve someone else's map faster than their time and you take it. The ranking counts the maps you hold."
+      }
+    ],
+    "strategyTitle": "Key strategies",
+    "strategyIntro": "The full illustrated guide is behind the \"New here?\" button above.",
+    "strategies": [
+      {
+        "tag": "Basics",
+        "title": "Where +d meets −d",
+        "body": "With a row at +4 and another at −4, swap two numbers 4 apart between them."
+      },
+      {
+        "tag": "Basics",
+        "title": "Swaps inside one line",
+        "body": "If a row adds up but two columns are +d and −d, the swap is inside that row."
+      },
+      {
+        "tag": "Finish",
+        "title": "Mind the diagonals",
+        "body": "Swapping a tile on a diagonal changes its sum too. Check both diagonals at the end."
+      },
+      {
+        "tag": "Notes",
+        "title": "Lock what is right",
+        "body": "Lock tiles whose row and column both add up; the candidates left stand out."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What is Magic Square Swap?",
+        "a": "A magic square with a few pairs swapped. Swap tiles until every line has the same sum again."
+      },
+      {
+        "q": "Do I have to rebuild the original square?",
+        "a": "No. Any arrangement of 1 to n² where every row, column and diagonal adds up counts."
+      },
+      {
+        "q": "How are challenge records kept fair?",
+        "a": "The server hands out the board and keeps the time. A clear is replayed on the server from the starting board, and each board can be tried once. Leaving the tab often during a run voids the clear."
+      }
+    ],
+    "disclaimer": "A free web puzzle made by PUZZLTHINK. Magic squares are an old mathematical puzzle and not tied to any company's game."
   }
 }

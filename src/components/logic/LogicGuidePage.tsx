@@ -6,6 +6,7 @@ import { breadcrumbJsonLd, faqJsonLd, SITE_URL } from '@/lib/seo';
 import { FIGURES, GUIDE_COPY } from '@/lib/logicGuide';
 import { type LogicGameId, LOGIC, buildBoard } from '@/lib/logicPuzzles';
 import LogicDiagram, { type Figure, type Seg } from './LogicDiagram';
+import MagicGuideFigure, { type MagicFigureId } from './MagicGuideFigure';
 import LogicReplayButton from './LogicReplay';
 
 const card = 'rounded-[18px] border border-white/10 bg-white/[0.035]';
@@ -35,7 +36,7 @@ function exampleStar(): Figure {
 }
 
 /** A solved 6×6 board of the newer puzzles, for the rules section. */
-function exampleOf(game: 'binairo' | 'onestroke' | 'colorlink'): Figure {
+function exampleOf(game: 'binairo' | 'onestroke' | 'colorlink' | 'magicswap'): Figure {
   const b = buildBoard(game, 6, 20270109);
   const n = 6;
   const segs = (answer: number[]) => answer.flatMap((v, e) => {
@@ -62,7 +63,8 @@ export default function LogicGuidePage({ game, locale }: { game: LogicGameId; lo
   const c = GUIDE_COPY[game][locale === 'en' ? 'en' : 'ko'];
   const path = `${spec.path}/guide`;
   const toc = [{ id: 'rules', title: c.rulesTitle }, ...c.sections.map((s) => ({ id: s.id, title: s.title })), { id: 'mistakes', title: c.mistakesTitle }, { id: 'faq', title: c.faqTitle }];
-  const hero: Figure = game === 'masyu' ? exampleMasyu() : game === 'starbattle' ? exampleStar() : game === 'nonogram' ? FIGURES.overlap : exampleOf(game);
+  const magic = game === 'magicswap';
+  const hero: Figure | null = magic ? null : game === 'masyu' ? exampleMasyu() : game === 'starbattle' ? exampleStar() : game === 'nonogram' ? FIGURES.overlap : exampleOf(game);
   // Board-shaped pictures sit beside the text; nonogram lines are wide and go above it.
   const square = game !== 'nonogram';
   const principleFigs: Partial<Record<LogicGameId, [string, string]>> = { masyu: ['ruleBlack', 'ruleWhite'], starbattle: ['ruleLines', 'ruleTouch'] };
@@ -96,13 +98,14 @@ export default function LogicGuidePage({ game, locale }: { game: LogicGameId; lo
             <ol className="space-y-3">
               {c.rules.map((rule, i) => <li key={rule} className="flex gap-3 break-keep text-[15px] leading-7 text-white/75"><span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-(--accent) text-xs font-black text-black/80">{i + 1}</span>{rule}</li>)}
             </ol>
-            <div className="mx-auto w-full max-w-[260px]"><LogicDiagram fig={hero} label={c.title} id="hero" /></div>
+            <div className="mx-auto w-full max-w-[260px]">{hero ? <LogicDiagram fig={hero} label={c.title} id="hero" /> : <MagicGuideFigure id="hero" />}</div>
           </div>
           <h3 className="mt-10 text-lg font-black">{c.principleTitle}</h3>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {c.principles.map((p, i) => (
               <div key={p.title} className={`p-5 ${card}`}>
                 {principleFigs[game] && <div className="mb-4 max-w-[220px]"><LogicDiagram fig={FIGURES[principleFigs[game]![i]]} label={p.title} id={`pr${i}`} /></div>}
+                {magic && <div className="mb-4 max-w-[220px]"><MagicGuideFigure id={i === 0 ? 'magicPair' : 'magicSame'} /></div>}
                 <p className="font-black text-(--accent)">{p.title}</p>
                 <p className="mt-2 break-keep text-sm leading-7 text-white/60">{p.body}</p>
               </div>
@@ -118,7 +121,7 @@ export default function LogicGuidePage({ game, locale }: { game: LogicGameId; lo
               <div className="mt-6 space-y-4">
                 {section.techs.map((tech) => (
                   <div key={tech.id} className={`grid items-center gap-5 p-5 ${square ? 'sm:grid-cols-[180px_1fr]' : ''} ${card}`}>
-                    <div className={`mx-auto w-full ${square ? 'max-w-[200px]' : 'max-w-[420px]'}`}><LogicDiagram fig={FIGURES[tech.id]} label={tech.title} id={tech.id} /></div>
+                    <div className={`mx-auto w-full ${square ? 'max-w-[200px]' : 'max-w-[420px]'}`}>{magic ? <MagicGuideFigure id={tech.id as MagicFigureId} /> : <LogicDiagram fig={FIGURES[tech.id]} label={tech.title} id={tech.id} />}</div>
                     <div><h3 className="text-base font-black">{tech.title}</h3><p className="mt-2 break-keep text-sm leading-7 text-white/60">{tech.body}</p></div>
                   </div>
                 ))}
@@ -139,7 +142,7 @@ export default function LogicGuidePage({ game, locale }: { game: LogicGameId; lo
           </div>
         </section>
 
-        <section className="mt-12 rounded-[22px] p-7 text-center" style={{ background: `linear-gradient(135deg, ${accent}, ${({ masyu: '#b8233a', starbattle: '#c9821a', nonogram: '#1f8a4c', binairo: '#1b56b8', onestroke: '#c4560a', colorlink: '#0f7d73' } as const)[game]})` }}>
+        <section className="mt-12 rounded-[22px] p-7 text-center" style={{ background: `linear-gradient(135deg, ${accent}, ${({ masyu: '#b8233a', starbattle: '#c9821a', nonogram: '#1f8a4c', binairo: '#1b56b8', onestroke: '#c4560a', colorlink: '#0f7d73', magicswap: '#8f1f86' } as const)[game]})` }}>
           <h2 className="text-2xl font-black text-white">{c.ctaTitle}</h2>
           <p className="mx-auto mt-2 max-w-md break-keep text-sm leading-7 text-white/90">{c.ctaBody}</p>
           <Link href={spec.path} className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-black text-[#17201e] hover:brightness-95"><Play size={16} fill="currentColor" />{c.ctaPlay}</Link>

@@ -1,4 +1,4 @@
-// 마슈 · 노노그램 friend / open rooms: 2–4 players race on the same board; the first correct answer wins.
+// 마슈 · 노노그램 … friend / open rooms: 2–4 players (마방진 스왑: 2–6) race on the same board; the first correct answer wins.
 // The host checks every claimed answer against the board built from the shared seed.
 import { type LogicGameId, LOGIC, buildBoard, decodeMarks, newSeed, solved } from './logicPuzzles';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
@@ -30,20 +30,24 @@ export type LogicAction =
   | { t: 'noop' };
 
 export function createLogicRoom(game: LogicGameId, host: Peer): LogicRoom {
-  const seats: Seat[] = [{ id: host.id, name: host.name }, null, null, null];
   const spec = LOGIC[game];
+  const max = maxPlayers(game);
+  const seats: Seat[] = [{ id: host.id, name: host.name }, ...Array<Seat>(max - 1).fill(null)];
   return {
-    game, sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, playerCount: 4, ai: [false, false, false, false],
-    size: spec.roomSizes[1], seed: 0, startedAt: 0, progress: [0, 0, 0, 0], solvedMs: [null, null, null, null], gaveUp: [false, false, false, false], winners: [],
+    game, sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, playerCount: max, ai: Array(max).fill(false),
+    size: spec.roomSizes[1], seed: 0, startedAt: 0, progress: Array(max).fill(0), solvedMs: Array(max).fill(null), gaveUp: Array(max).fill(false), winners: [],
   };
 }
+
+/** Most players in a room of this game (마방진 스왑 takes 6, the others 4). */
+export const maxPlayers = (game: LogicGameId) => LOGIC[game].maxPlayers ?? 4;
 
 export const syncLogicSeats = (state: LogicRoom, peers: Peer[]) => syncSeats(state, peers);
 export const roomBoard = (state: Pick<LogicRoom, 'game' | 'size' | 'seed'>) => buildBoard(state.game, state.size, state.seed);
 
 function startRoom(state: LogicRoom): LogicRoom | null {
   const occupied = state.seats.filter((seat): seat is NonNullable<Seat> => !!seat);
-  if (occupied.length < 2 || occupied.length > 4) return null;
+  if (occupied.length < 2 || occupied.length > maxPlayers(state.game)) return null;
   const n = occupied.length;
   return {
     ...state, sid: newSid(), seats: occupied, phase: 'playing', playerCount: n, seed: newSeed(), startedAt: Date.now(),

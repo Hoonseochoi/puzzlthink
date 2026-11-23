@@ -1,6 +1,6 @@
 // Builds the logic-puzzle challenge pool: seeds with their one answer, as SQL for the logic_pool table.
 // Usage: node scripts/logic-pool.ts batch=4 binairo=3000 onestroke=3000 colorlink=3000 > pool.sql
-//        games: masyu, nonogram, starbattle, binairo, onestroke, colorlink (a new batch number = new seeds)
+//        games: masyu, nonogram, starbattle, binairo, onestroke, colorlink, magicswap (a new batch number = new seeds)
 //        then apply pool.sql to the database (rows already there are kept: on conflict do nothing).
 // The old positional form still works: [masyu] [nonogram] [batch] [starbattle].
 // Uses the same engines the browser uses, so a seed builds the same board on both sides.
@@ -10,8 +10,9 @@ import * as starbattle from '../src/lib/starbattle.ts';
 import * as binairo from '../src/lib/binairo.ts';
 import * as onestroke from '../src/lib/onestroke.ts';
 import * as colorlink from '../src/lib/colorlink.ts';
+import * as magicswap from '../src/lib/magicswap.ts';
 
-type Game = 'masyu' | 'nonogram' | 'starbattle' | 'binairo' | 'onestroke' | 'colorlink';
+type Game = 'masyu' | 'nonogram' | 'starbattle' | 'binairo' | 'onestroke' | 'colorlink' | 'magicswap';
 const args = process.argv.slice(2);
 const counts: Partial<Record<Game, number>> = {};
 let batch = 1;
@@ -33,7 +34,7 @@ const seeds = (count: number) => {
   return [...set];
 };
 
-/** One pool row per seed: (game, seed, challenge size, answer string). */
+/** One pool row per seed: (game, seed, challenge size, answer string). 마방진 스왑 stores its scrambled start instead (any magic square wins). */
 const BUILD: Record<Game, { size: number; answer: (seed: number) => string }> = {
   masyu: { size: masyu.MASYU_CHALLENGE_SIZE, answer: (seed) => masyu.encodeLines(masyu.generate(masyu.MASYU_CHALLENGE_SIZE, seed).lines, masyu.geometry(masyu.MASYU_CHALLENGE_SIZE).edgeCount) },
   nonogram: { size: nonogram.NONO_CHALLENGE_SIZE, answer: (seed) => nonogram.encodeCells(nonogram.generate(nonogram.NONO_CHALLENGE_SIZE, seed).grid, nonogram.NONO_CHALLENGE_SIZE ** 2) },
@@ -41,6 +42,7 @@ const BUILD: Record<Game, { size: number; answer: (seed: number) => string }> = 
   binairo: { size: binairo.BINAIRO_CHALLENGE_SIZE, answer: (seed) => binairo.encodeCells(binairo.generate(binairo.BINAIRO_CHALLENGE_SIZE, seed).answer) },
   onestroke: { size: onestroke.ONESTROKE_CHALLENGE_SIZE, answer: (seed) => onestroke.encodeEdges(onestroke.generate(onestroke.ONESTROKE_CHALLENGE_SIZE, seed).answer) },
   colorlink: { size: colorlink.COLORLINK_CHALLENGE_SIZE, answer: (seed) => colorlink.encodeEdges(colorlink.generate(colorlink.COLORLINK_CHALLENGE_SIZE, seed).answer) },
+  magicswap: { size: magicswap.MAGIC_CHALLENGE_SIZE, answer: (seed) => magicswap.encodeCells(magicswap.generate(magicswap.MAGIC_CHALLENGE_SIZE, seed).start) },
 };
 
 const out: string[] = ['begin;'];

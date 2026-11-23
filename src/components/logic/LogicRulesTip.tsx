@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { accentVars } from '@/components/ui/gameUi';
 import { useTranslations } from 'next-intl';
-import { BookOpen, CircleHelp, X } from 'lucide-react';
+import { BookOpen, CircleHelp, GraduationCap, X } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { type LogicGameId, LOGIC } from '@/lib/logicPuzzles';
 import LogicReplayButton from './LogicReplay';
+import { openMagicTutorial } from './MagicSwapTutorial';
 
 /**
  * The in-game "?" button of the logic puzzles: opens the rules, the controls and the key tips over the board,
@@ -46,7 +47,10 @@ export default function LogicRulesTip({ game, running = false }: { game: LogicGa
             <p className="mt-4 text-[11px] font-black tracking-[0.12em] text-white/40">{t('tipHelp')}</p>
             <p className="mt-1 break-keep text-[12px] leading-5 text-white/60">{t(`help_${game}${game === 'nonogram' ? '_fill' : ''}`)}</p>
             {running && <p className="mt-3 rounded-lg bg-(--accent)/10 px-3 py-2 text-[11px] font-bold text-(--accent)">{t('tipClock')}</p>}
-            <div className="mt-4 flex justify-center"><LogicReplayButton game={game} variant="chip" /></div>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <LogicReplayButton game={game} variant="chip" />
+              {game === 'magicswap' && <button type="button" onClick={() => { setOpen(false); openMagicTutorial(); }} className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-black text-white/85 hover:bg-white/15"><GraduationCap size={13} />{t('magicTutorial')}</button>}
+            </div>
             <Link href={`${spec.path}/guide`} target="_blank" className="mt-4 flex items-center justify-center gap-1.5 rounded-xl bg-white/10 py-2.5 text-xs font-black text-white/85 hover:bg-white/15"><BookOpen size={14} />{t('tipGuide')}</Link>
           </div>
         </div>,

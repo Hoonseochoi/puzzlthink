@@ -7,7 +7,7 @@ import { getSupabase } from './supabase';
 import type { GameId } from './stats';
 
 /** The map-challenge games, by home-card href. */
-export const CHALLENGE_RATE_HREFS = new Set<string>(['slitherlink', 'binairo', 'onestroke', 'colorlink', 'starbattle', 'masyu', 'nonogram'].map((g) => CERT_GAMES[g as GameId].href));
+export const CHALLENGE_RATE_HREFS = new Set<string>(['magicswap', 'slitherlink', 'binairo', 'onestroke', 'colorlink', 'starbattle', 'masyu', 'nonogram'].map((g) => CERT_GAMES[g as GameId].href));
 
 export type ClearRate = { attempts: number; clears: number; pct: number; level: 'easy' | 'medium' | 'hard' };
 const level = (pct: number): ClearRate['level'] => (pct >= 50 ? 'easy' : pct >= 25 ? 'medium' : 'hard');

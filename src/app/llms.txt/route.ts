@@ -12,6 +12,7 @@ const GUIDES: [string, string][] = [
   ['/binairo/guide', '비나이로 공략 (Binairo guide)'],
   ['/one-stroke/guide', '한붓길 공략 (One Stroke guide)'],
   ['/color-link/guide', '컬러 잇기 공략 (Color Link guide)'],
+  ['/magic-square/guide', '마방진 스왑 공략 (Magic Square Swap guide)'],
   ['/star-battle/guide', '스타배틀 공략 (Star Battle guide)'],
   ['/masyu/guide', '마슈 공략 (Masyu guide)'],
   ['/nonogram/guide', '노노그램 공략 (Nonogram guide)'],
