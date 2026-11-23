@@ -61,5 +61,21 @@ export const setLoungeOff = (value: boolean) => {
   offListeners.forEach((fn) => fn());
 };
 
+// The floating button: hidden (shrunk to a small icon) or not, and whether the UPDATE tag was seen.
+// "seen" is true on the server so the tag never flashes in before the browser knows.
+const MINI_KEY = 'puzzlthink_lounge_mini';
+const SEEN_KEY = 'puzzlthink_lounge_seen';
+const readFlag = (key: string) => { try { return localStorage.getItem(key) === '1'; } catch { return false; } };
+const writeFlag = (key: string, value: boolean) => {
+  try { localStorage.setItem(key, value ? '1' : '0'); } catch { /* optional */ }
+  offListeners.forEach((fn) => fn());
+};
+export const loungeMini = () => readFlag(MINI_KEY);
+export const loungeSeen = () => readFlag(SEEN_KEY);
+export const setLoungeMini = (value: boolean) => writeFlag(MINI_KEY, value);
+export const markLoungeSeen = () => { if (!readFlag(SEEN_KEY)) writeFlag(SEEN_KEY, true); };
+export const falseOnServer = () => false;
+export const trueOnServer = () => true;
+
 const subscribeVisibility = (fn: () => void) => { document.addEventListener('visibilitychange', fn); return () => document.removeEventListener('visibilitychange', fn); };
 export const visibilityStore = [subscribeVisibility, () => document.visibilityState === 'visible', () => false] as const;
