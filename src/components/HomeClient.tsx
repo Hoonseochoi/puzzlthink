@@ -10,9 +10,9 @@ import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
 import VisitCounter from './VisitCounter';
 import PieceRaceBanner from './PieceRaceBanner';
-import { Pedestal } from './piggyBank/PiggyParts';
-import OpenMatchCard from './OpenMatchCard';
-import type { GameId } from '@/lib/gameCatalog';
+import OpenMatchCard, { FitTile } from './OpenMatchCard';
+import { Heavy13Art, IndianPokerArt, PiggyBankArt } from './GameArt';
+import { GAMES, type GameId } from '@/lib/gameCatalog';
 import TwoSidedPokerPreview from './twoSidedPoker/TwoSidedPokerPreview';
 import { BinairoPreview, ColorLinkPreview, MagicSwapPreview, MasyuPreview, NonogramPreview, OneStrokePreview, StarBattlePreview } from './logic/LogicPreview';
 import { HallPodium, useHallPodiums } from './HallPodium';
@@ -103,27 +103,6 @@ function BlindGomokuPreview() {
 }
 
 /** The 돼지 저금통 table at 300×300: four stepped boxes with gold pigs around the clock. */
-export function PiggyBankArt() {
-  const box = (upper: number | null, lower: number | null, pos: string, active = false) => (
-    <div className={`absolute ${pos}`}><Pedestal small upper={upper} lower={lower} active={active} buzz={false} /></div>
-  );
-  return (
-    <div className="relative h-[300px] w-[300px] overflow-hidden rounded-[28px] border-4 border-[#17201e] shadow-2xl" style={{ background: 'radial-gradient(ellipse at 50% 45%, #4a5278 0%, #2b3150 55%, #181b2e 100%)' }}>
-      <div className="pointer-events-none absolute inset-0 opacity-[.18]" style={{ backgroundImage: 'radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 2px), radial-gradient(circle at 70% 60%, #fff 0 1px, transparent 2px)', backgroundSize: '38px 38px, 53px 53px' }} />
-      {box(1, 3, 'left-[100px] top-[4px]', true)}
-      {box(null, 4, 'left-[4px] top-[108px]')}
-      {box(null, 2, 'right-[4px] top-[108px]')}
-      {box(null, 5, 'left-[100px] bottom-[6px]')}
-      <div className="absolute left-1/2 top-1/2 flex h-[58px] w-[58px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] border-[#ffd84a] bg-[#1a1c2c] font-mono text-xl font-black text-white">10</div>
-      <span className="absolute left-[178px] top-[10px] rounded-lg bg-[#efe9ff] px-1.5 py-0.5 text-[11px] font-black text-[#2b2f4a] shadow">흑6</span>
-    </div>
-  );
-}
-
-function PiggyBankPreview() {
-  return <div className="relative h-24 w-24 sm:h-[300px] sm:w-[300px]"><div className="absolute left-0 top-0 origin-top-left scale-[.32] sm:scale-100"><PiggyBankArt /></div></div>;
-}
-
 function HexagonPreview() {
   // The first broadcast board (rows 3-4-5-4-3) with the line Q-R-S (1+1+3 = target 5) picked out.
   const nums = [1, 6, 3, 2, 4, 5, 6, 2, 5, 2, 1, 3, 4, 5, 3, 5, 1, 1, 3];
@@ -194,16 +173,6 @@ function JanggiPreview() {
   </div>;
 }
 
-function Heavy13Preview() {
-  const stands: [string, number[]][] = [['#f0524f', [6, 5]], ['#34c47c', [3, 2, 4]], ['#4f7cf0', [5]]];
-  return <div className="grid w-full grid-cols-3 gap-1 rounded-xl border-[3px] border-[#17201e] bg-[#14161b] p-1.5 shadow-xl sm:w-[66%] sm:gap-2 sm:rounded-2xl sm:border-4 sm:p-3 sm:shadow-2xl">
-    {stands.map(([color, cubes]) => <div key={color} className="flex flex-col rounded-md p-1 sm:rounded-xl sm:p-2" style={{ background: `${color}22`, border: `1px solid ${color}66` }}>
-      <span className="font-mono text-[10px] font-black text-white sm:text-xl">{cubes.reduce((a, b) => a + b, 0)}<span className="text-[7px] text-white/40 sm:text-[10px]">/13</span></span>
-      <div className="mt-1 grid h-12 grid-cols-2 content-end gap-0.5 sm:h-28 sm:gap-1">{[...cubes.keys()].reduce<number[][]>((rows, i) => (i % 2 ? rows[rows.length - 1].push(i) : rows.push([i]), rows), []).reverse().flat().map((i) => <span key={i} className={`flex aspect-square items-center justify-center rounded-[3px] text-[7px] font-black text-[#2a2118] sm:rounded-md sm:text-xs ${i % 2 === 0 && i === cubes.length - 1 ? 'col-start-1' : ''}`} style={{ background: 'linear-gradient(#f1e6cf,#bfa883)' }}>{cubes[i]}</span>)}</div>
-    </div>)}
-  </div>;
-}
-
 function RussianRoulettePreview() {
   return <div className="relative flex aspect-square w-full items-center justify-center rounded-full border-[3px] border-[#17201e] bg-[#111722] shadow-xl sm:w-[62%] sm:border-4 sm:shadow-2xl"><span className="absolute left-1/2 top-[2%] h-[28%] w-1.5 -translate-x-1/2 rounded-full bg-[#65e5ff] shadow-[0_0_12px_#65e5ff]" /><div className="relative h-[64%] w-[64%] rounded-full border-4 border-[#34404d] bg-[#202a36] shadow-[inset_0_0_24px_#000]">{Array.from({ length: 6 }, (_, i) => { const angle = (i * 60 - 90) * Math.PI / 180; return <i key={i} className={`absolute h-[24%] w-[24%] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 ${i === 1 || i === 4 ? 'border-[#ffcf58] bg-[#c98b2e]' : 'border-white/10 bg-[#080c12]'}`} style={{ left: `${50 + Math.cos(angle) * 33}%`, top: `${50 + Math.sin(angle) * 33}%` }} />; })}<b className="absolute left-1/2 top-1/2 h-[22%] w-[22%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#080c12]" /></div></div>;
 }
@@ -228,10 +197,6 @@ function GyulhapPreview() {
     ['#111318', '#ff4d5e', '[clip-path:polygon(50%_0,100%_100%,0_100%)]'], ['#f4efe4', '#ffd449', 'rounded-[8%]'], ['#777b83', '#21a5ff', 'rounded-full'],
   ];
   return <div className="grid aspect-square w-full grid-cols-3 gap-1 rounded-xl border-[3px] border-[#17201e] bg-[#15161b] p-1 shadow-xl sm:w-[62%] sm:gap-2 sm:border-4 sm:p-2">{cards.map(([bg, ink, shape], i) => <span key={i} className="relative flex items-center justify-center rounded-md" style={{ background: bg }}><i className={`h-[48%] w-[48%] ${shape}`} style={{ background: ink }} /></span>)}</div>;
-}
-
-function IndianPokerPreview() {
-  return <div className="flex w-full items-center justify-center gap-2 rounded-xl border-[3px] border-[#17201e] bg-[#174a3d] py-4 shadow-xl sm:w-[66%] sm:gap-4 sm:border-4 sm:py-8"><span className="flex h-20 w-14 items-center justify-center rounded-lg bg-[#fffaf0] text-3xl font-black shadow-lg sm:h-36 sm:w-24 sm:text-6xl">?</span><span className="font-mono text-xs font-black text-[#e6b94f] sm:text-xl">VS</span><span className="flex h-20 w-14 items-center justify-center rounded-lg bg-[#fffaf0] text-3xl font-black shadow-lg sm:h-36 sm:w-24 sm:text-6xl">8</span></div>;
 }
 
 /** Neutral genre tag for each game card. */
@@ -262,9 +227,9 @@ export function GamePreview({ id }: { id: GameId }) {
     case 'wallgo2': return <WallGo2Preview />;
     case 'slitherlink': return <SlitherPreview />;
     case 'gyulhap': return <GyulhapPreview />;
-    case 'indianPoker': return <IndianPokerPreview />;
+    case 'indianPoker': return <IndianPokerArt />;
     case 'hexagon': return <HexagonPreview />;
-    case 'piggyBank': return <PiggyBankPreview />;
+    case 'piggyBank': return <PiggyBankArt />;
     case 'nemoCount': return <NemoCountPreview />;
     case 'blackWhite': return <BlackWhitePreview />;
     case 'blackWhite2': return <BlackWhite2Preview />;
@@ -272,7 +237,7 @@ export function GamePreview({ id }: { id: GameId }) {
     case 'blindGomoku': return <BlindGomokuPreview />;
     case 'wallgo': return <WallGoPreview />;
     case 'russianRoulette': return <RussianRoulettePreview />;
-    case 'heavy13': return <Heavy13Preview />;
+    case 'heavy13': return <Heavy13Art />;
     case 'janggi': return <JanggiPreview />;
     case 'russianJanggi': return <RussianJanggiPreview />;
     case 'sudoku': return <SudokuPreview />;
@@ -321,15 +286,16 @@ export default function HomeClient() {
     <div className="mx-auto max-w-3xl text-center"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/50 backdrop-blur"><Sparkles size={12} className="text-[#ff6b4a]" /> {t('eyebrow')}</div><h1 className="text-balance break-keep text-[2.4rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-7xl sm:leading-[0.98]">{t('title1')}<br />{t('title2')}</h1><p className="mx-auto mt-4 max-w-xl break-keep text-sm leading-6 text-black/55 sm:mt-6 sm:text-base sm:leading-7">{t('description1')}<br className="hidden sm:block" /> {t('description2')}</p><VisitCounter /></div>
     <PieceRaceBanner />
     <div className="mt-8 grid gap-2.5 sm:mt-12 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">{/* The open-match card is tall: it spans two rows so the cards beside it keep their own height. */}<div className="grid md:row-span-2"><OpenMatchCard previews={{
-      magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerPreview />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
-      blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Preview />,
+      magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} /></div>{games.map((game) => (
       <div key={game.title} className={`group relative flex flex-col overflow-hidden rounded-[20px] border bg-[#f9f7f1] ${'hype' in game ? 'hype-card border-[#ff6a3d]/45' : 'border-black/10'} p-3 shadow-[0_12px_36px_rgba(30,38,36,0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_56px_rgba(30,38,36,0.13)] sm:rounded-[26px] sm:p-5`}>
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{'updated' in game && <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#3ddc97] to-[#2bb8ff] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#06231a]" title={t('updatedTitle')}><Sparkles size={11} />{t('updated')}</span>}{CHALLENGE_RATE_HREFS.has(game.href) ? (rates?.get(game.href) && <span title={t('clearRateTitle', { c: rates.get(game.href)!.clears, n: rates.get(game.href)!.attempts })} className={`rounded-full px-3 py-1 text-[10px] font-black tracking-[0.04em] ${CLEAR_TONE[rates.get(game.href)!.level]}`}>{t('clearRate', { pct: rates.get(game.href)!.pct, level: t(`clearLevel_${rates.get(game.href)!.level}`) })}</span>) : 'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}</span>{podiums?.get(game.href)?.entries.length ? <HallPodium entries={podiums.get(game.href)!.entries} label={t(podiums.get(game.href)!.kind === 'wins' ? 'podiumLabel' : 'podiumChallengeLabel', { game: game.display })} stat={(n) => t(PODIUM_STAT[podiums.get(game.href)!.kind], { n })} /> : podiums && game.tag === 'logicPuzzle' ? <HallPodium entries={[]} label={t('podiumChallengeLabel', { game: game.display })} stat={(n) => t(PODIUM_STAT.maps, { n })} /> : <span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span>}</div>
           <div className="mt-2 flex items-center gap-3 sm:mt-1 sm:block">
-            <div className="flex h-[76px] w-[76px] shrink-0 items-center justify-center sm:h-[230px] sm:w-auto">{game.illustration === 'magicswap' ? <MagicSwapPreview /> : game.illustration === 'fourThree' ? <FourThreePreview /> : game.illustration === 'binairo' ? <BinairoPreview /> : game.illustration === 'onestroke' ? <OneStrokePreview /> : game.illustration === 'colorlink' ? <ColorLinkPreview /> : game.illustration === 'starbattle' ? <StarBattlePreview /> : game.illustration === 'masyu' ? <MasyuPreview /> : game.illustration === 'nonogram' ? <NonogramPreview /> : game.illustration === 'monorail' ? <MonorailPreview /> : game.illustration === 'twoSidedPoker' ? <TwoSidedPokerPreview /> : game.illustration === 'flipOmok' ? <FlipOmokPreview /> : game.illustration === 'morris' ? <MorrisPreview /> : game.illustration === 'slitherlink' ? <SlitherPreview /> : game.illustration === 'gyulhap' ? <GyulhapPreview /> : game.illustration === 'indianPoker' ? <IndianPokerPreview /> : game.illustration === 'hexagon' ? <HexagonPreview /> : game.illustration === 'piggyBank' ? <PiggyBankPreview /> : game.illustration === 'nemoCount' ? <NemoCountPreview /> : game.illustration === 'laserJanggi' ? <LaserJanggiPreview /> : game.illustration === 'blackWhite' ? <BlackWhitePreview /> : game.illustration === 'blackWhite2' ? <BlackWhite2Preview /> : game.illustration === 'blindGomoku' ? <BlindGomokuPreview /> : game.illustration === 'wallgo' ? <WallGoPreview /> : game.illustration === 'wallgo2' ? <WallGo2Preview /> : game.illustration === 'roulette' ? <RussianRoulettePreview /> : game.illustration === 'janggi' ? <JanggiPreview /> : game.illustration === 'heavy13' ? <Heavy13Preview /> : game.illustration === 'rjanggi' ? <RussianJanggiPreview /> : <SudokuPreview />}</div>
+            {/* The picture is laid out at 300px and scaled to fit its box (76px on phones, 230px from sm). */}
+            <div className="h-[76px] w-[76px] shrink-0 sm:mx-auto sm:h-[230px] sm:w-[230px]"><FitTile title={game.display} className="h-full w-full"><GamePreview id={GAMES.find((g) => g.href === game.href)!.id} /></FitTile></div>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
               <div className="min-w-0"><h2 className="text-xl font-black tracking-[-0.04em] sm:text-2xl">{game.display}</h2><p className="mt-0.5 line-clamp-2 max-w-sm break-keep text-[12.5px] leading-[18px] text-black/50 sm:mt-1.5 sm:line-clamp-3 sm:text-[13px] sm:leading-5">{game.description}</p><div className="mt-1.5 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-3">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
               <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={18} /></span>
