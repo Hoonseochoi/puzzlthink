@@ -229,8 +229,8 @@ export function PokerStage({ view, names, canAct, onBet, onFold, kicker, waitTex
   const current = Math.max(...bets);
   const max = view.max;
   const toCall = Math.max(0, current - bets[0]);
-  const targets = view.opened ? [current, current + 1, current + 3, max] : [1, 3, 5, max];
-  const uniqueTargets = [...new Set(targets.filter((n) => n >= (view.opened ? current : 1) && n <= max))];
+  const targets = view.opened ? [current, current + 1, current + 3, max] : [current + 1, current + 2, current + 4, max];
+  const uniqueTargets = [...new Set(targets.filter((n) => n >= (view.opened ? current : current + 1) && n <= max))];
   const needPct = toCall > 0 ? Math.round((toCall / (livePot + toCall)) * 100) : 0;
 
   return (
@@ -262,7 +262,7 @@ export function PokerStage({ view, names, canAct, onBet, onFold, kicker, waitTex
         {phase === 'playing' && (
           <div className={`grid grid-cols-3 gap-1.5 rounded-[14px] border px-2 py-2 text-center transition sm:px-3 ${myTurn ? 'border-(--accent)/45 bg-(--accent)/10' : 'border-white/10 bg-black/25 opacity-70'}`}>
             <div><p className="text-[9px] font-black tracking-[.14em] text-white/40">{t('fx.potLabel')}</p><p className="font-mono text-lg font-black text-[#ffcf3f]">{livePot}</p></div>
-            <div><p className="text-[9px] font-black tracking-[.14em] text-white/40">{view.opened ? t('fx.toCallLabel') : t('fx.openLabel')}</p><p className="font-mono text-lg font-black text-white">{view.opened ? (toCall > 0 ? `+${toCall}` : '0') : `1~${max}`}</p></div>
+            <div><p className="text-[9px] font-black tracking-[.14em] text-white/40">{view.opened ? t('fx.toCallLabel') : t('fx.openLabel')}</p><p className="font-mono text-lg font-black text-white">{view.opened ? (toCall > 0 ? `+${toCall}` : '0') : `${current + 1}~${max}`}</p></div>
             <div><p className="text-[9px] font-black tracking-[.14em] text-white/40">{toCall > 0 ? t('fx.needLabel') : t('fx.maxLabel')}</p><p className="font-mono text-lg font-black text-white">{toCall > 0 ? `${needPct}%` : max}</p></div>
           </div>
         )}
