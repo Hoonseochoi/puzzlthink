@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
-import { Ban, Flag, MessageCircleOff, Send, Users, X } from 'lucide-react';
+import { Ban, ChevronRight, Flag, MessageCircle, MessageCircleOff, Send, X } from 'lucide-react';
 import { getSupabase } from '@/lib/supabase';
-import { chatPrefs, chatPrefsServer, chatSnapshot, clearMuted, isMuted, setMuted, subscribeChat } from '@/lib/roomChat';
-import { LOUNGE_KEEP, LOUNGE_MAX_LEN, type LoungeBan, type LoungeMessage, type LoungeReason, isLoungeMessage, loadLounge, loungeOff, loungeOffServer, reportLounge, sendLounge, setLoungeOff, subscribeLoungeOff, visibilityStore } from '@/lib/lounge';
+import { chatPrefs, chatPrefsServer, clearMuted, isMuted, setMuted, subscribeChat } from '@/lib/roomChat';
+import { LOUNGE_KEEP, LOUNGE_MAX_LEN, type LoungeBan, type LoungeMessage, type LoungeReason, isLoungeMessage, falseOnServer, loadLounge, loungeMini, loungeOff, loungeOffServer, loungeSeen, markLoungeSeen, setLoungeMini, trueOnServer, reportLounge, sendLounge, setLoungeOff, subscribeLoungeOff, visibilityStore } from '@/lib/lounge';
 import { useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
 
@@ -14,10 +14,11 @@ let noticeSeq = 0;
 
 /**
  * Lounge (라운지): one chat shared by the whole site, on the home page and every game page, mostly to find
- * people for open rooms. Same look as the room chat (a tab on the right edge opens a drawer); in an open room
- * its tab sits under the room chat's. Each line reads "닉네임(게임) : message"; site operators get a "퍼띵 운영자" badge and their own colour, and a pinned card from the
- * lounge host Viky gives the rules. It joins Realtime only while this page is visible and the lounge is on;
- * the database decides what may be sent (see src/lib/lounge.ts).
+ * people for open rooms. A translucent button in the bottom-right corner (with an UPDATE tag until the lounge
+ * is first opened) opens a drawer like the room chat's; "hide" shrinks it to a small faint icon.
+ * Each line reads "닉네임(게임) : message"; site operators get a "퍼띵 운영자" badge and their own colour, and a
+ * pinned card from the lounge host Viky gives the rules. It joins Realtime only while this page is visible and
+ * the lounge is on; the database decides what may be sent (see src/lib/lounge.ts).
  */
 export default function LoungeChat({ game }: { game: string | null }) {
   const t = useTranslations('Lounge');
@@ -26,7 +27,8 @@ export default function LoungeChat({ game }: { game: string | null }) {
   const prefs = useSyncExternalStore(subscribeChat, chatPrefs, chatPrefsServer);
   const off = useSyncExternalStore(subscribeLoungeOff, loungeOff, loungeOffServer);
   const visible = useSyncExternalStore(...visibilityStore);
-  const roomChat = useSyncExternalStore(subscribeChat, chatSnapshot, () => null);
+  const mini = useSyncExternalStore(subscribeLoungeOff, loungeMini, falseOnServer);
+  const seen = useSyncExternalStore(subscribeLoungeOff, loungeSeen, trueOnServer);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<LoungeMessage[]>([]);
   const [me, setMe] = useState<string | null>(null);
@@ -39,8 +41,8 @@ export default function LoungeChat({ game }: { game: string | null }) {
   const [now, setNow] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
   // Read by the Realtime handler (counts unread messages from others while the drawer is closed).
-  const seen = useRef({ open: false, me: null as string | null, muted: [] as string[] });
-  useEffect(() => { seen.current = { open, me, muted: prefs.muted }; });
+  const live = useRef({ open: false, me: null as string | null, muted: [] as string[] });
+  useEffect(() => { live.current = { open, me, muted: prefs.muted }; });
 
   // Join while visible and on; history (last 50) is reloaded on every join so nothing is missed.
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function LoungeChat({ game }: { game: string | null }) {
       .on('broadcast', { event: 'msg' }, ({ payload }) => {
         if (!isLoungeMessage(payload)) return;
         setMessages((list) => (list.some((m) => m.id === payload.id) ? list : [...list, payload].slice(-LOUNGE_KEEP)));
-        const s = seen.current;
+        const s = live.current;
         if (!s.open && payload.sender !== s.me && !isMuted(s.muted, { from: payload.sender })) setUnread((n) => n + 1);
       })
       .on('broadcast', { event: 'del' }, ({ payload }) => {
@@ -90,7 +92,7 @@ export default function LoungeChat({ game }: { game: string | null }) {
     if (open && list) list.scrollTop = list.scrollHeight;
   }, [open, shown.length]);
 
-  const toggle = useCallback((value: boolean) => { setOpen(value); setUnread(0); }, []);
+  const toggle = useCallback((value: boolean) => { setOpen(value); setUnread(0); if (value) markLoungeSeen(); }, []);
   const turn = (value: boolean) => { setLoungeOff(value); if (value) { setMessages([]); setUnread(0); } };
 
   const send = async (event: React.FormEvent) => {
@@ -127,13 +129,31 @@ export default function LoungeChat({ game }: { game: string | null }) {
 
   return (
     <>
-      {/* Tab on the right edge, the room chat's spot; under the room chat's tab when a room is open. */}
-      <button type="button" onClick={() => { if (off) turn(false); toggle(!open); }} aria-label={t('open')} aria-expanded={open}
-        className={`fixed right-0 z-40 ${roomChat ? 'top-[calc(60%+5.5rem)] lg:top-[calc(46%+5.5rem)]' : 'top-[60%] lg:top-[46%]'} flex flex-col items-center gap-1 rounded-l-xl border border-r-0 border-white/15 bg-[#0d0d11]/95 px-2 py-3 text-[10px] font-black text-white shadow-[0_0_18px_rgba(0,0,0,.35)] backdrop-blur`}>
-        {off ? <MessageCircleOff size={14} className="text-white/45" /> : <Users size={14} className="text-(--accent,#e8b04a)" />}
-        <span className="[writing-mode:vertical-rl]">{t('title')}</span>
-        {!off && !open && unread > 0 && <span className="absolute -left-2 -top-2 min-w-5 rounded-full bg-[#ff4d5e] px-1 text-center text-[10px] font-black leading-5 text-white shadow-[0_0_10px_rgba(255,77,94,.5)]">{unread > 9 ? '9+' : unread}</span>}
-      </button>
+      {/* Floating button in the bottom-right corner, just above the "지금 N명 접속 중" pill (both move up over a
+          game entry screen's start bar). Hidden, it shrinks to a small faint icon that brings it back. */}
+      <div className={`fixed bottom-[calc(2.6rem+env(safe-area-inset-bottom))] right-3 z-40 [body:has([data-gate-bar])_&]:bottom-[calc(6.6rem+env(safe-area-inset-bottom))] ${open ? 'pointer-events-none opacity-0' : ''}`}>
+        {mini ? (
+          <button type="button" onClick={() => setLoungeMini(false)} aria-label={t('show')} title={t('show')}
+            className="relative grid h-7 w-7 place-items-center rounded-full border border-white/10 bg-black/35 text-white/60 opacity-70 backdrop-blur-md transition hover:opacity-100">
+            <MessageCircle size={13} />
+            {!off && unread > 0 && <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-[#ff4d5e]" />}
+          </button>
+        ) : (
+          <div className="relative flex items-center">
+            {!seen && <span className="pointer-events-none absolute -top-2.5 left-1.5 rounded-full bg-[#ff4d5e] px-1.5 py-px text-[8.5px] font-black tracking-wide text-white shadow-[0_0_10px_rgba(255,77,94,.45)]">UPDATE</span>}
+            <button type="button" onClick={() => { if (off) turn(false); toggle(true); }} aria-label={t('open')}
+              className="flex items-center gap-1.5 rounded-l-full rounded-r-md border border-white/15 bg-black/45 py-1.5 pl-3 pr-2.5 text-[12px] font-black text-white/90 shadow-[0_4px_16px_rgba(0,0,0,.25)] backdrop-blur-md transition hover:bg-black/60">
+              {off ? <MessageCircleOff size={14} className="text-white/45" /> : <MessageCircle size={14} className="text-(--accent,#e8b04a)" />}
+              {t('title')}
+              {!off && unread > 0 && <span className="min-w-4 rounded-full bg-[#ff4d5e] px-1 text-center text-[10px] leading-4 text-white">{unread > 9 ? '9+' : unread}</span>}
+            </button>
+            <button type="button" onClick={() => setLoungeMini(true)} aria-label={t('hide')} title={t('hide')}
+              className="ml-px grid h-[30px] place-items-center rounded-l-md rounded-r-full border border-white/15 bg-black/45 pl-1 pr-1.5 text-white/50 backdrop-blur-md transition hover:bg-black/60 hover:text-white">
+              <ChevronRight size={13} />
+            </button>
+          </div>
+        )}
+      </div>
 
       <div className="pointer-events-none fixed inset-0 z-50">
         <div onClick={() => toggle(false)} className={`absolute inset-0 bg-black/40 transition-opacity lg:hidden ${open ? 'pointer-events-auto opacity-100' : 'opacity-0'}`} />
