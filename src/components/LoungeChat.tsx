@@ -40,6 +40,9 @@ export default function LoungeChat({ game }: { game: string | null }) {
   const [reported, setReported] = useState<Set<number>>(() => new Set());
   const [unread, setUnread] = useState(0);
   const [now, setNow] = useState(0);
+  // Swipe right on the open drawer to close it: how far it is being dragged, and where the touch began.
+  const [dragX, setDragX] = useState(0);
+  const touch = useRef<{ x: number; y: number; horizontal: boolean | null } | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   // Read by the Realtime handler (counts unread messages from others while the drawer is closed).
   const live = useRef({ open: false, me: null as string | null, muted: [] as string[] });
@@ -141,7 +144,7 @@ export default function LoungeChat({ game }: { game: string | null }) {
           </button>
         ) : (
           <div className="relative flex items-center">
-            {!seen && <span className="pointer-events-none absolute -top-2.5 left-1.5 rounded-full bg-[#ff4d5e] px-1.5 py-px text-[8.5px] font-black tracking-wide text-white shadow-[0_0_10px_rgba(255,77,94,.45)]">UPDATE</span>}
+            {!seen && <span className="pointer-events-none absolute -top-[19px] left-0.5 rounded-full bg-[#ff4d5e] px-1.5 py-px text-[8.5px] font-black tracking-wide text-white shadow-[0_0_10px_rgba(255,77,94,.45)]">UPDATE</span>}
             <button type="button" onClick={() => { if (off) turn(false); toggle(true); }} aria-label={t('open')}
               className="flex items-center gap-1.5 rounded-l-full rounded-r-md border border-white/15 bg-black/45 py-1.5 pl-3 pr-2.5 text-[12px] font-black text-white/90 shadow-[0_4px_16px_rgba(0,0,0,.25)] backdrop-blur-md transition hover:bg-black/60">
               {off ? <MessageCircleOff size={14} className="text-white/45" /> : <MessageCircle size={14} className="text-(--accent,#e8b04a)" />}
@@ -158,7 +161,21 @@ export default function LoungeChat({ game }: { game: string | null }) {
 
       <div className="pointer-events-none fixed inset-0 z-50">
         <div onClick={() => toggle(false)} className={`absolute inset-0 bg-black/40 transition-opacity lg:hidden ${open ? 'pointer-events-auto opacity-100' : 'opacity-0'}`} />
-        <aside className={`${open ? 'pointer-events-auto' : ''} absolute bottom-0 right-0 top-0 flex w-[84vw] max-w-[320px] flex-col border-l border-white/10 bg-[#0d0d11]/97 text-[#e6e9f0] shadow-2xl backdrop-blur transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+        <aside
+          onTouchStart={(event) => { const p = event.touches[0]; touch.current = { x: p.clientX, y: p.clientY, horizontal: null }; }}
+          onTouchMove={(event) => {
+            const start = touch.current;
+            if (!start) return;
+            const p = event.touches[0];
+            const dx = p.clientX - start.x, dy = p.clientY - start.y;
+            // Decide once per touch whether this is a sideways swipe; vertical moves keep scrolling the list.
+            if (start.horizontal === null && Math.abs(dx) + Math.abs(dy) > 8) start.horizontal = Math.abs(dx) > Math.abs(dy) * 1.2;
+            if (start.horizontal) setDragX(Math.max(0, dx));
+          }}
+          onTouchEnd={() => { if (touch.current?.horizontal && dragX > 70) toggle(false); touch.current = null; setDragX(0); }}
+          onTouchCancel={() => { touch.current = null; setDragX(0); }}
+          style={dragX > 0 ? { transform: `translateX(${dragX}px)`, transition: 'none' } : undefined}
+          className={`${open ? 'pointer-events-auto' : ''} absolute bottom-0 right-0 top-0 flex w-[84vw] max-w-[320px] flex-col border-l border-white/10 bg-[#0d0d11]/97 text-[#e6e9f0] shadow-2xl backdrop-blur transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="flex items-center gap-2 border-b border-white/10 px-3 py-3">
             <div className="min-w-0 flex-1">
               <p className="text-sm font-black">{t('title')}</p>
