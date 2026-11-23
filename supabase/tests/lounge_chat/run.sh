@@ -9,6 +9,6 @@ trap 'docker rm -f "$name" >/dev/null' EXIT
 until docker exec "$name" pg_isready -U postgres -q; do sleep 1; done; sleep 1
 psql() { docker exec -i "$name" psql -U postgres -q "$@"; }
 psql -v ON_ERROR_STOP=1 < 00_stub.sql
-psql -v ON_ERROR_STOP=1 < ../../migrations/20271123020000_lounge_chat.sql
+for f in ../../migrations/20271123020000_lounge_chat.sql ../../migrations/20271123030000_lounge_pieces.sql; do psql -v ON_ERROR_STOP=1 < "$f"; done
 psql < 10_check.sql | grep -E 'FAIL|pass|^ +[0-9]+ \|'
 psql < 20_send.sql 2>&1 | grep -v '^ *$\|^ 0000'

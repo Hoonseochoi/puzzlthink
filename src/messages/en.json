@@ -3962,6 +3962,7 @@
     "hide": "Hide the lounge button",
     "show": "Show the lounge button",
     "staffBadge": "PUZZLTHINK staff",
+    "pieces": "{n} pieces",
     "hostHello": "This is the PUZZLTHINK lounge. Find people for open matches or chat freely about the games! Only the last 50 messages are kept; older ones are deleted automatically. Spamming or swearing can get your chat restricted.",
     "login": "Sign in to chat in the lounge.",
     "banned": "You're muted for now. You can send again in {m} min.",
