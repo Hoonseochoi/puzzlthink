@@ -8,6 +8,7 @@ import type { GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
 import { type OpenRoomRow, listOpenRooms, saveTitle } from '@/lib/openRooms';
 import OpenRoomPanel from './OpenRoomPanel';
+import LoungeChat from './LoungeChat';
 import OpenPracticeShell from './OpenPractice';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
@@ -110,8 +111,9 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   };
 
   if (started) {
-    if (!openRoom) return <>{children}</>;
-    return <div style={accentVars(accent, ink)}><div className="lg:pl-[272px]"><OpenPracticeShell game={game}>{children}</OpenPracticeShell></div><OpenRoomPanel game={game} code={openRoom.code} variant={openRoom.variant} /></div>;
+    // The site-wide lounge chat shows on every screen of a game page; in an open room it sits under the room chat.
+    if (!openRoom) return <>{children}<LoungeChat game={game} /></>;
+    return <div style={accentVars(accent, ink)}><div className="lg:pl-[272px]"><OpenPracticeShell game={game}>{children}</OpenPracticeShell></div><OpenRoomPanel game={game} code={openRoom.code} variant={openRoom.variant} /><LoungeChat game={game} /></div>;
   }
 
   const dark = tone === 'dark';
@@ -250,6 +252,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
           </div>
         </div>
       </div>
+      <LoungeChat game={game} />
     </div>
   );
 }
