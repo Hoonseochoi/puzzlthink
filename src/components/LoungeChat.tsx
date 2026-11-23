@@ -140,16 +140,16 @@ export default function LoungeChat({ game }: { game: string | null }) {
           <button type="button" onClick={() => setLoungeMini(false)} aria-label={t('show')} title={t('show')}
             className="relative grid h-7 w-7 place-items-center rounded-full border border-white/10 bg-black/35 text-white/60 opacity-70 backdrop-blur-md transition hover:opacity-100">
             <MessageCircle size={13} />
-            {!off && unread > 0 && <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-[#ff4d5e]" />}
+            {!off && unread > 0 && <UnreadBadge n={unread} className="-right-2 -top-2" />}
           </button>
         ) : (
           <div className="relative flex items-center">
             {!seen && <span className="pointer-events-none absolute -top-[19px] left-0.5 rounded-full bg-[#ff4d5e] px-1.5 py-px text-[8.5px] font-black tracking-wide text-white shadow-[0_0_10px_rgba(255,77,94,.45)]">UPDATE</span>}
             <button type="button" onClick={() => { if (off) turn(false); toggle(true); }} aria-label={t('open')}
-              className="flex items-center gap-1.5 rounded-l-full rounded-r-md border border-white/15 bg-black/45 py-1.5 pl-3 pr-2.5 text-[12px] font-black text-white/90 shadow-[0_4px_16px_rgba(0,0,0,.25)] backdrop-blur-md transition hover:bg-black/60">
+              className="relative flex items-center gap-1.5 rounded-l-full rounded-r-md border border-white/15 bg-black/45 py-1.5 pl-3 pr-2.5 text-[12px] font-black text-white/90 shadow-[0_4px_16px_rgba(0,0,0,.25)] backdrop-blur-md transition hover:bg-black/60">
               {off ? <MessageCircleOff size={14} className="text-white/45" /> : <MessageCircle size={14} className="text-(--accent,#e8b04a)" />}
               {t('title')}
-              {!off && unread > 0 && <span className="min-w-4 rounded-full bg-[#ff4d5e] px-1 text-center text-[10px] leading-4 text-white">{unread > 9 ? '9+' : unread}</span>}
+              {!off && unread > 0 && <UnreadBadge n={unread} className="-right-2 -top-2.5" />}
             </button>
             <button type="button" onClick={() => setLoungeMini(true)} aria-label={t('hide')} title={t('hide')}
               className="ml-px grid h-[30px] place-items-center rounded-l-md rounded-r-full border border-white/15 bg-black/45 pl-1 pr-1.5 text-white/50 backdrop-blur-md transition hover:bg-black/60 hover:text-white">
@@ -275,4 +275,13 @@ function sentAt(at: number) {
   const d = new Date(at);
   const hm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   return d.toDateString() === new Date().toDateString() ? hm : `${d.getMonth() + 1}/${d.getDate()} ${hm}`;
+}
+
+/** Red count of new messages on top of the lounge button; 99+ past 99. */
+function UnreadBadge({ n, className }: { n: number; className: string }) {
+  return (
+    <span className={`pointer-events-none absolute min-w-[18px] rounded-full border border-[#0d0d11]/60 bg-[#ff3b4f] px-1 text-center font-mono text-[10px] font-black leading-[16px] text-white shadow-[0_0_10px_rgba(255,59,79,.55)] ${className}`}>
+      {n > 99 ? '99+' : n}
+    </span>
+  );
 }
