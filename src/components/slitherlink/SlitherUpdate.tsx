@@ -5,7 +5,8 @@ import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { MousePointerClick, Sparkles, Undo2, X } from 'lucide-react';
 
-const ITEMS = [['tap', MousePointerClick], ['undo', Undo2]] as const;
+// Newest first; each item carries the small date tag (same size on every item).
+const ITEMS = [['tap', MousePointerClick, '11/23'], ['undo', Undo2, '11/22']] as const;
 
 /** "업데이트" badge for the Slitherlink header: tap for what changed in the latest update (from player feedback). */
 export default function SlitherUpdate() {
@@ -25,11 +26,11 @@ export default function SlitherUpdate() {
           </div>
           <p className="mt-1 text-[11px] font-bold text-black/40">{t('updateDate')}</p>
           <ul className="mt-4 space-y-2.5">
-            {ITEMS.map(([key, Icon]) => (
+            {ITEMS.map(([key, Icon, day]) => (
               <li key={key} className="flex gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3">
                 <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#5b45c9] text-white"><Icon size={14} /></span>
                 <div className="min-w-0">
-                  <p className="break-keep text-sm font-black">{t(`update_${key}`)}</p>
+                  <p className="break-keep text-sm font-black"><span className="mr-1.5 inline-block rounded-full bg-[#5b45c9]/10 px-1.5 py-0.5 align-middle text-[10px] font-black leading-none text-[#5b45c9]">{day}</span>{t(`update_${key}`)}</p>
                   <p className="mt-0.5 break-keep text-xs leading-5 text-black/55">{t(`update_${key}Desc`)}</p>
                 </div>
               </li>

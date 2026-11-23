@@ -4953,9 +4953,9 @@
     "undoKey": "Undo (Ctrl/⌘+Z)",
     "updateTag": "UPDATE",
     "updateTitle": "Slitherlink update",
-    "updateDate": "Updated November 22, 2026",
-    "update_tap": "Lines are drawn by tapping again",
-    "update_tapDesc": "Each tap between two dots cycles line → ✕ → clear. A ✕ now takes a second tap on a line.",
+    "updateDate": "Updated November 23, 2026",
+    "update_tap": "✕ only with the ✕ button",
+    "update_tapDesc": "Drawing lines is unchanged. Tapping a line again now clears it instead of making a ✕. You can place a ✕ only after choosing the ✕ button.",
     "update_undo": "New Undo button",
     "update_undoDesc": "Step back one change at a time, as many times as you like. On a keyboard, press Ctrl/⌘+Z.",
     "updateThanks": "Made from a player's feedback. Thank you!",
@@ -4965,7 +4965,7 @@
     "hint": "Hint (3×3 area)",
     "hintPick": "Tap an area",
     "hintHelp": "Tap the board: the answer for the 3×3 dots around that spot is filled in.",
-    "help_pen": "Tap between two dots to draw a line. Tap again for ✕, and once more to clear it. (Ctrl/⌘+Z to undo)",
+    "help_pen": "Tap between two dots to draw a line; tap again to clear it. ✕ only comes from the ✕ button. (Ctrl/⌘+Z to undo)",
     "help_eraser": "Tap a line or ✕ to erase it.",
     "help_marker": "Tap between two dots to mark ✕ where the loop does not go.",
     "giveUp": "Give up and show the answer",
@@ -5070,7 +5070,7 @@
     "special": [
       {
         "title": "Pen",
-        "body": "Tap between two neighboring dots to draw a line. Tap the same spot again for ✕, and once more to clear it (line → ✕ → empty). Undo, or Ctrl/⌘+Z, steps back one change at a time."
+        "body": "Tap between two neighboring dots to draw a line. Tap the same spot again to clear it (line ↔ empty). A ✕ only goes down with the ✕ button. Undo, or Ctrl/⌘+Z, steps back one change at a time."
       },
       {
         "title": "Eraser · Clear all",
