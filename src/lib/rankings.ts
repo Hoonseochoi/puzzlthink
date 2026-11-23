@@ -17,7 +17,7 @@ export const gameFromSlug = (slug: string): GameId | null =>
 export const rankPath = (locale: string, game: GameId) => `/${locale}/ranking/${rankSlug(game)}`;
 export const rankImagePath = (game: GameId, locale: string) => `/api/ranking/${rankSlug(game)}?l=${locale === 'en' ? 'en' : 'ko'}`;
 /** Games ranked by wins against AI (네모 세기 and 결합 use solo challenges instead). */
-export const hasHall = (game: GameId) => game !== 'nemo_count' && game !== 'gyulhap' && game !== 'slitherlink' && game !== 'masyu' && game !== 'nonogram' && game !== 'starbattle' && game !== 'binairo' && game !== 'onestroke' && game !== 'colorlink' && game !== 'magicswap';
+export const hasHall = (game: GameId) => game !== 'nemo_count' && game !== 'gyulhap' && game !== 'slitherlink' && game !== 'masyu' && game !== 'nonogram' && game !== 'starbattle' && game !== 'binairo' && game !== 'onestroke' && game !== 'colorlink' && game !== 'magicswap' && game !== 'merge2048';
 /** Open-match ranking (every game but Sudoku). */
 export const hasOpen = (game: GameId) => game !== 'sudoku';
 
