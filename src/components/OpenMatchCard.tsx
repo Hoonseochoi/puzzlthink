@@ -7,7 +7,6 @@ import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { type LiveRoomRow, type OpenRoomAnyRow, listAllOpenRooms, listLiveRooms, saveTitle } from '@/lib/openRooms';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
-import ServerLoadNotice from './ServerLoadNotice';
 import { GAME_MODES, openRoomHref } from './gameModes';
 
 /** Games that have friend rooms, in home-page order. */
@@ -108,7 +107,6 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
         {ROOM_GAMES.map((game) => <FitTile key={game.id} title={tc(game.id)}>{previews[game.id]}</FitTile>)}
       </div>
 
-      <ServerLoadNotice className="relative mt-3" />
       <div className="relative mt-4 flex items-end justify-between gap-3 sm:mt-6">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">

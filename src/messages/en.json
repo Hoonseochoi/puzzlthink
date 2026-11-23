@@ -77,9 +77,9 @@
     "shareNow": "Share",
     "coffeeNudge": "Enjoyed it? Buy the developer a coffee ☕",
     "celebrationSupport": "🏆 Congrats! If you enjoyed this, a coffee helps with server costs ☕",
-    "supportBannerTitle": "The servers are full — the site may have to close",
-    "supportBannerBody": "Players have surged and over 10,000 games are being played. Server costs have grown a lot, so voluntary support is open. Please chip in toward more servers to keep the games running!",
-    "supportBannerShort": "Peak hours overload our small server · We’re raising funds for a bigger one",
+    "supportBannerTitle": "PUZZLTHINK runs on support",
+    "supportBannerBody": "Every game is free, and server costs are covered by voluntary support. If you enjoyed playing, please chip in!",
+    "supportBannerShort": "Every game is free · Help us cover server costs",
     "supportCta": "Voluntary support",
     "supportNote": "Support only pays for servers and gives no perks. Every game stays free either way.",
     "supportDismiss": "Hide for today",
@@ -94,7 +94,6 @@
     "nineMensMorris": "Nine Men's Morris",
     "backupAddress": "Backup address if the site won't open",
     "flipOmok": "Flip Omok",
-    "serverNotice": "At peak hours, friend and open rooms may be hard to use due to server load. Thanks for bearing with it 🙏",
     "magicswap": "Magic Square Swap"
   },
   "BlindGomoku": {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { getSupabase } from '@/lib/supabase';
-import { Coffee, Heart, ServerCrash, X } from 'lucide-react';
+import { Coffee, Heart, X } from 'lucide-react';
 
 /** Voluntary support goes through CTEE: supporters see only "PUZZLTHINK", never the developer's name or account. */
 export const SUPPORT_URL = 'https://ctee.kr/place/puzzlthink/donation';
@@ -27,13 +27,13 @@ export default function SupportLink() {
   );
 }
 
-/** After a game: why support is needed now (server costs), with a clear button. Never replaces "play again". */
+/** After a game: support keeps the free games running (server costs), with a clear button. Never replaces "play again". */
 export function CoffeeNudge({ tone = 'dark', className = '' }: { tone?: 'light' | 'dark'; className?: string }) {
   const t = useTranslations('Common');
   const dark = tone === 'dark';
   return (
     <div className={`rounded-[18px] border p-4 text-left ${dark ? 'border-[#ff8a65]/25 bg-[#ff6b4a]/[0.08]' : 'border-[#e8590c]/20 bg-[#fff4ec]'} ${className}`}>
-      <p className={`flex items-center gap-1.5 text-[13px] font-black ${dark ? 'text-[#ffb199]' : 'text-[#c2410c]'}`}><ServerCrash size={15} className="shrink-0" />{t('supportBannerTitle')}</p>
+      <p className={`flex items-center gap-1.5 text-[13px] font-black ${dark ? 'text-[#ffb199]' : 'text-[#c2410c]'}`}><Heart size={15} className="shrink-0" />{t('supportBannerTitle')}</p>
       <p className={`mt-1.5 break-keep text-[12px] leading-5 ${dark ? 'text-white/65' : 'text-black/60'}`}>{t('supportBannerBody')}</p>
       <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackSupportClick('result')}
         className="mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-[#ff6b4a] px-4 py-2.5 text-[13px] font-black text-white transition hover:bg-[#ff5530]">
@@ -57,7 +57,7 @@ export function HeaderSupportButton({ full = false }: { full?: boolean }) {
 
 const BANNER_DAY_KEY = 'puzzlthink_support_banner_day';
 
-/** Slim notice above the header: the servers are full, please help. Hidden for the rest of the day once closed. */
+/** Slim notice above the header: the games are free, support covers the servers. Hidden for the rest of the day once closed. */
 export function SupportBanner() {
   const t = useTranslations('Common');
   const [hidden, setHidden] = useState(true);
@@ -73,7 +73,7 @@ export function SupportBanner() {
     <div className="bg-[#17201e] text-white">
       <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2">
         <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackSupportClick('banner')} className="flex min-w-0 flex-1 items-center justify-center gap-2 text-[12px] font-bold">
-          <ServerCrash size={14} className="shrink-0 text-[#ff8a65]" />
+          <Heart size={14} className="shrink-0 text-[#ff8a65]" />
           <span className="min-w-0 truncate">{t('supportBannerShort')}</span>
           <span className="shrink-0 rounded-full bg-[#ff6b4a] px-2.5 py-0.5 text-[11px] font-black">{t('supportCta')} →</span>
         </a>
