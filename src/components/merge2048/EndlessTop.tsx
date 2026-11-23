@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronRight, Medal } from 'lucide-react';
-import { Stone } from '@/components/StoneAvatar';
 import { Link } from '@/i18n/routing';
 import { getSupabase } from '@/lib/supabase';
+import RankBlock, { blockOfSub } from './RankBlock';
 
-type Row = { rank: number; nickname: string; score: number };
+type Row = { rank: number; nickname: string; score: number; sub: number | null };
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 /** 챌린지 도전 top 5 beside the board (the full list is on /ranking/2048). `refresh` reloads it after a run is recorded. */
@@ -35,7 +35,7 @@ export default function EndlessTop({ refresh = 0 }: { refresh?: number }) {
               {rows.map((r, i) => (
                 <li key={`${r.nickname}-${i}`} className="flex items-center gap-2 rounded-md bg-black/25 px-2.5 py-1.5 text-xs">
                   <span className="w-5 text-center font-black">{MEDALS[i] ?? i + 1}</span>
-                  <Stone name={r.nickname} size={18} />
+                  <RankBlock block={blockOfSub(r.sub)} name={r.nickname} size={26} />
                   <span className="min-w-0 flex-1 truncate font-bold text-white/80">{r.nickname}</span>
                   <span className="font-mono font-black text-(--accent)">{r.score.toLocaleString()}</span>
                 </li>

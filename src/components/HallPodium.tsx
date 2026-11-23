@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import StoneAvatar from './StoneAvatar';
+import RankBlock, { blockOfSub } from './merge2048/RankBlock';
 import { CERT_GAMES } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
 import { fetchHallOfFame, type GameId } from '@/lib/stats';
 
 /** What the number under each name means: AI wins, or a solo challenge's score. */
 export type PodiumKind = 'wins' | 'maps' | 'score' | 'correct';
-export type PodiumEntry = { rank: number; nickname: string; n: number };
+export type PodiumEntry = { rank: number; nickname: string; n: number; block?: number | null }; // block: a 2048 ranker's final block
 export type GamePodium = { kind: PodiumKind; entries: PodiumEntry[] };
 type Podium = Map<string, GamePodium>; // game href → its top three
 
@@ -35,7 +36,7 @@ async function challengePodiums(): Promise<[string, GamePodium][]> {
   const tops = new Map(await Promise.all(boards.map(async (b) => {
     const { data } = await supabase.rpc('challenge_top', { p_board: b, p_limit: 3 });
     // Ties share a rank (two players on 15 maps are both 1st): the podium places them in list order instead.
-    return [b, ((data as { rank: number; nickname: string; score: number }[] | null) ?? []).map((r, i) => ({ rank: i + 1, nickname: r.nickname, n: r.score }))] as const;
+    return [b, ((data as { rank: number; nickname: string; score: number; sub: number | null }[] | null) ?? []).map((r, i) => ({ rank: i + 1, nickname: r.nickname, n: r.score, block: b === 'merge2048' ? blockOfSub(r.sub) : null }))] as const;
   })));
   const out: [string, GamePodium][] = [];
   for (const c of CHALLENGES) {
@@ -89,7 +90,7 @@ export function HallPodium({ entries, label, stat }: { entries: PodiumEntry[]; l
         return (
           <div key={rank} className={`flex flex-col items-center ${rank === 1 ? 'w-[42px] sm:w-[50px]' : 'w-[36px] sm:w-[44px]'}`}>
             {e ? <>
-              <StoneAvatar name={e.nickname} size={s.stone} />
+              {e.block ? <RankBlock block={e.block} name={e.nickname} size={s.stone + 3} /> : <StoneAvatar name={e.nickname} size={s.stone} />}
               <span className="mt-0.5 w-full truncate text-center text-[8.5px] font-black leading-tight tracking-tight text-black/70">{e.nickname}</span>
               <span className="text-[8px] font-bold leading-tight text-black/35">{stat(e.n)}</span>
             </> : <span className="mb-[22px] h-[17px] w-[17px] rounded-full border border-dashed border-black/15" />}

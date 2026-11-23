@@ -11,6 +11,7 @@ import { pageMetadata } from '@/lib/seo';
 import type { GameId } from '@/lib/stats';
 import RankMove from '@/components/RankMove';
 import StoneAvatar from '@/components/StoneAvatar';
+import RankBlock, { blockOfSub } from '@/components/merge2048/RankBlock';
 import JsonLd from '@/components/JsonLd';
 import { breadcrumbJsonLd } from '@/lib/seo';
 
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return { ...base, openGraph: { ...base.openGraph, images: [image] }, twitter: { ...base.twitter, images: [image.url] } };
 }
 
-function Board({ title, desc, icon, empty, rows }: { title: string; desc: string; icon: React.ReactNode; empty: string; rows: { rank: number; name: string; stat: string; prev?: number | null }[] }) {
+function Board({ title, desc, icon, empty, rows }: { title: string; desc: string; icon: React.ReactNode; empty: string; rows: { rank: number; name: string; stat: string; prev?: number | null; pic?: React.ReactNode }[] }) {
   return (
     <section className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-5">
       <h2 className="flex items-center gap-2 text-lg font-black">{icon}{title}</h2>
@@ -38,6 +39,7 @@ function Board({ title, desc, icon, empty, rows }: { title: string; desc: string
           {rows.map((r) => (
             <li key={r.rank} className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm ${r.rank <= 3 ? 'bg-white font-black shadow-sm' : 'bg-white/50'}`}>
               <span className="w-7 text-center font-mono">{MEDAL[r.rank - 1] ?? r.rank}</span>
+              {r.pic}
               <span className="min-w-0 flex-1 truncate">{r.name}</span>
               <span className="font-mono text-xs text-black/60">{r.stat}</span>
               <RankMove rank={r.rank} prev={r.prev} />
@@ -49,7 +51,7 @@ function Board({ title, desc, icon, empty, rows }: { title: string; desc: string
   );
 }
 
-type PodiumRow = { rank: number; name: string; stat: string };
+type PodiumRow = { rank: number; name: string; stat: string; block?: number | null };
 
 /** The top three on steps, 2nd · 1st · 3rd (empty steps wait for a name). */
 function Podium({ rows, color, title, empty }: { rows: PodiumRow[]; color: string; title: string; empty: string }) {
@@ -69,7 +71,7 @@ function Podium({ rows, color, title, empty }: { rows: PodiumRow[]; color: strin
           return (
             <div key={place} className="flex min-w-0 flex-col items-center text-center">
               {r ? <>
-                <span className={place === 1 ? 'drop-shadow-[0_0_16px_rgba(255,196,60,.65)]' : ''}><StoneAvatar name={r.name} size={place === 1 ? 60 : 46} /></span>
+                <span className={place === 1 ? 'drop-shadow-[0_0_16px_rgba(255,196,60,.65)]' : ''}>{r.block ? <RankBlock block={r.block} name={r.name} size={place === 1 ? 64 : 50} /> : <StoneAvatar name={r.name} size={place === 1 ? 60 : 46} />}</span>
                 <span className="mt-1.5 w-full truncate px-1 text-xs font-black sm:text-sm">{r.name}</span>
                 <span className="mt-0.5 text-[11px] font-bold text-white/55">{r.stat}</span>
               </> : <>
@@ -99,7 +101,7 @@ export default async function RankingPage({ params }: Params) {
   const nemoTop = r.nemo && (r.nemo.hard.length ? r.nemo.hard : r.nemo.normal.length ? r.nemo.normal : r.nemo.easy);
   const top: { title: string; rows: PodiumRow[] } = r.maps
     ? { title: t('mapsTitle'), rows: r.maps.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('maps', { n: x.score }) })) }
-    : r.scores ? { title: t('scoresTitle'), rows: r.scores.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }) })) }
+    : r.scores ? { title: t('scoresTitle'), rows: r.scores.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }), block: blockOfSub(x.sub) })) }
     : hasHall(game) && r.hall.length ? { title: t('hallTitle'), rows: r.hall.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('wins', { w: x.wins, g: x.games }) })) }
     : nemoTop ? { title: t('nemoTitle', { level: t(`level_${nemoTop === r.nemo!.hard ? 'hard' : nemoTop === r.nemo!.normal ? 'normal' : 'easy'}`) }), rows: nemoTop.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: `${x.correct}` })) }
     : hasOpen(game) && r.open.length ? { title: t('openTitle'), rows: r.open.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname ?? 'Player', stat: t('wld', { w: x.wins, l: x.losses, d: x.draws }) })) }
@@ -124,7 +126,7 @@ export default async function RankingPage({ params }: Params) {
         <div className="mt-6 grid gap-4">
           {r.scores && (
             <Board title={t('scoresTitle')} desc={t('scoresDesc')} icon={<InfinityIcon size={18} style={{ color: CERT_GAMES[game].color }} />} empty={t('emptyScores')}
-              rows={r.scores.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }), prev: x.prev_rank }))} />
+              rows={r.scores.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }), prev: x.prev_rank, pic: <RankBlock block={blockOfSub(x.sub)} name={x.nickname} size={30} /> }))} />
           )}
           {r.maps && (
             <Board title={t('mapsTitle')} desc={t('mapsDesc')} icon={<MapIcon size={18} style={{ color: CERT_GAMES[game].color }} />} empty={t('emptyMaps')}

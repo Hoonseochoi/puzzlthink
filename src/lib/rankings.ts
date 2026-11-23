@@ -5,7 +5,7 @@ import type { GameId } from './stats';
 export type HallRow = { game: GameId; rank: number; nickname: string; avatar_url: string | null; wins: number; games: number; prev_rank?: number | null };
 export type OpenRow = { rank: number; nickname: string | null; wins: number; losses: number; draws: number; prev_rank?: number | null };
 export type NemoRow = { rank: number; nickname: string; correct: number; avg_ms: number | null };
-export type MapRow = { rank: number; nickname: string; score: number; prev_rank?: number | null };
+export type MapRow = { rank: number; nickname: string; score: number; sub?: number | null; prev_rank?: number | null };
 export type GameRanking = { game: GameId; hall: HallRow[]; open: OpenRow[]; nemo: Record<'hard' | 'normal' | 'easy', NemoRow[]> | null; maps: MapRow[] | null; scores: MapRow[] | null };
 /** Logic puzzles ranked by maps owned (새로운 맵 · 맵 뺏기); the value is their challenge board. */
 /** Games ranked by their best solo score (2048 챌린지 도전); the value is their challenge board. */

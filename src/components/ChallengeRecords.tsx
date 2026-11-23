@@ -10,6 +10,7 @@ import { CERT_GAMES } from '@/lib/hardClear';
 import { GAME_LABEL } from './HallCelebration';
 import RankMove from './RankMove';
 import { byGameOrder } from './recordOrder';
+import RankBlock, { blockOfSub } from './merge2048/RankBlock';
 
 type Board = 'merge2048' | 'magicswap' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
 type Row = { rank: number; nickname: string; avatar_url: string | null; score: number; sub: number | null; prev_rank?: number | null };
@@ -126,6 +127,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
                       <li key={i} className={`flex items-center gap-2.5 rounded-2xl px-2.5 py-2 ${r ? 'bg-white' : 'border border-dashed border-black/10'}`}>
                         <span className="w-6 text-center text-lg">{MEDALS[i]}</span>
                         {r ? <>
+                          {board === 'merge2048' && <RankBlock block={blockOfSub(r.sub)} name={r.nickname} size={26} />}
                           <span className="min-w-0 flex-1 truncate text-xs font-extrabold">{r.nickname}</span>
                           <span className="shrink-0 font-mono text-[11px] font-black text-black/55">{stat(board, r)}</span>
                           <RankMove rank={r.rank} prev={r.prev_rank} />
