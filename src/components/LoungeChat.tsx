@@ -17,7 +17,7 @@ let noticeSeq = 0;
  * people for open rooms. A translucent button in the bottom-right corner (with an UPDATE tag until the lounge
  * is first opened) opens a drawer like the room chat's; "hide" shrinks it to a small faint icon.
  * Each line reads "닉네임(게임) : message"; site operators get a "퍼띵 운영자" badge and their own colour, and a
- * pinned card from the lounge host Viky gives the rules. It joins Realtime only while this page is visible and
+ * pinned card from the lounge host Viky says hello. It joins Realtime only while this page is visible and
  * the lounge is on; the database decides what may be sent (see src/lib/lounge.ts).
  */
 export default function LoungeChat({ game }: { game: string | null }) {
@@ -171,7 +171,7 @@ export default function LoungeChat({ game }: { game: string | null }) {
             <p className="flex flex-1 items-center justify-center break-keep px-6 text-center text-xs leading-5 text-white/45">{t('offDesc')}</p>
           ) : (
             <div ref={listRef} className="flex-1 space-y-0.5 overflow-y-auto px-2 py-2.5">
-              {/* Pinned welcome from the lounge host, with the rules. */}
+              {/* Pinned welcome from the lounge host. */}
               <div className="mb-3 rounded-xl border border-white/10 bg-white/[.04] p-2.5">
                 <div className="flex items-center gap-2">
                   <img src="/lounge/viky.jpg" alt={t('hostName')} width={36} height={36} className="h-9 w-9 shrink-0 rounded-[10px] object-cover" />
@@ -180,9 +180,6 @@ export default function LoungeChat({ game }: { game: string | null }) {
                     <p className="break-keep text-[11px] leading-4 text-white/70">{t('hostHello')}</p>
                   </div>
                 </div>
-                <ul className="mt-2 space-y-0.5 break-keep text-[10.5px] leading-4 text-white/50">
-                  {(['rule1', 'rule2', 'rule3', 'rule4'] as const).map((key) => <li key={key}>· {t(key)}</li>)}
-                </ul>
               </div>
               {shown.length === 0 && <p className="break-keep pt-2 text-center text-xs leading-5 text-white/35">{t('empty')}</p>}
               {/* One line each: 닉네임(게임) : message, operators with a badge and their own colour. */}
