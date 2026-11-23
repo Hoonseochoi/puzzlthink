@@ -8,8 +8,8 @@ export const generateStaticParams = () => [{ locale: 'ko' }, { locale: 'en' }];
 export const alt = 'PUZZLTHINK 2048';
 
 const COPY = {
-  ko: { kicker: '힐링 퍼즐', title: '2048', sub: '같은 네모끼리 밀어 합치면 바둑알로 진화해요', modes: ['자유 플레이 · 10분 챌린지', '친구 2~4명 5·10분 대결'] },
-  en: { kicker: 'Healing puzzle', title: '2048', sub: 'Merge matching squares and watch them grow into stones', modes: ['Free play · 10-min challenge', '2–4 friends, 5 or 10-min race'] },
+  ko: { kicker: '힐링 퍼즐', title: '2048', sub: '같은 네모끼리 밀어 합치면 바둑알로 진화해요', modes: ['자유 플레이 · 챌린지 도전 랭킹', '친구 2~4명 5·10분 대결'] },
+  en: { kicker: 'Healing puzzle', title: '2048', sub: 'Merge matching squares and watch them grow into stones', modes: ['Free play · challenge ranking', '2–4 friends, 5 or 10-min race'] },
 };
 
 // Same colours as the board characters (M2Parts).

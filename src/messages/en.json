@@ -187,7 +187,7 @@
     ]
   },
   "Home": {
-    "merge2048Meta": "Free play · 10-min challenge · 2–4 friends",
+    "merge2048Meta": "Free play · challenge ranking · 2–4 friends",
     "merge2048Description": "Slide matching blocks together and watch the little squares grow into shiny stones. A calm puzzle for a tired brain — take your time to 2048.",
     "tag_healing": "HEALING",
     "fourThreeDescription": "A 4×4 board of stacking pieces. Team up to stop the Special Guest's line while racing to make three in a row yourself.",
@@ -1645,7 +1645,7 @@
     "close": "Close"
   },
   "Records": {
-    "chMerge2048": "2048 10-min challenge",
+    "chMerge2048": "2048 challenge run",
     "metaTitle": "Records · Hall of Fame",
     "metaDescription": "See PUZZLTHINK records for AI and open matches, rankings and the Hall of Fame, and update your nickname.",
     "title": "Records",
@@ -1920,18 +1920,18 @@
       "merge2048": {
         "tagline": "Slide matching numbers together and grow the little square characters into stones on your way to 2048 — a calm number puzzle.",
         "players": "1 player or 2–4 friends",
-        "pace": "Free play · 10-min challenge · 5 or 10-min friend race",
+        "pace": "Free play · challenge run (until stuck) · 5 or 10-min friend race",
         "level": "Easy to start (the corner trick takes you further)",
-        "solo": "Free play (undo, saved as you go) · 10-min challenge ranking",
+        "solo": "Free play (undo, saved as you go) · challenge-run score ranking",
         "friend": "2–4 players start together on the same block order; after 5 or 10 minutes the biggest block wins",
-        "ai": "Free play · 10-min challenge",
+        "ai": "Free play · challenge run",
         "rules": [
           "On a 4×4 board, push up, down, left or right and every block slides as far as it can.",
           "Two equal blocks that meet merge into one worth double, and the new number is added to your score. A block merges once per move.",
           "After every move a new 2 (sometimes a 4) appears in an empty cell.",
           "When the board is full and nothing can move, the game ends. 2–64 are square characters, from 128 they grow into stones, and 2048 wears a crown."
         ],
-        "origin": "Built on the rules of 2048, the open-source puzzle released in 2014, with PUZZLTHINK's square and stone characters, a 10-minute challenge and live friend races added."
+        "origin": "Built on the rules of 2048, the open-source puzzle released in 2014, with PUZZLTHINK's square and stone characters, an challenge-run ranking and live friend races added."
       },
       "fourThree": {
         "tagline": "A 4×4 board where pieces stack up to three high. Three players hold off the Special Guest while racing to show three in a row from above.",
@@ -2412,7 +2412,7 @@
   "GameGate": {
     "short_m2Room": "2–4",
     "m2Room": "Create a friend room (2–4)",
-    "m2Challenge": "10-minute challenge (scored)",
+    "m2Endless": "Challenge run (ranked)",
     "m2Free": "Free play (relaxed)",
     "ftAi": "4 players · stop the Guest with 2 ally AIs",
     "ftRoom": "Create a room (2–3 people + Guest AI)",
@@ -5030,6 +5030,10 @@
     "disclaimer": "An unofficial fan-made web game, not affiliated with any broadcaster or production company."
   },
   "Ranking": {
+    "scoresTitle": "Challenge-run score ranking",
+    "scoresDesc": "Best score of one board played until no move was left.",
+    "emptyScores": "No scores yet. Finish one challenge run and you're first!",
+    "points": "{n} pts",
     "metaTitle": "{game} Ranking — Hall of Fame & open matches",
     "metaDescription": "See the {game} Hall of Fame and open-match ranking, then play and get your name on it. No sign-up needed.",
     "title": "{game} Ranking",
@@ -7153,8 +7157,36 @@
     "disclaimer": "A free web puzzle made by PUZZLTHINK. Magic squares are an old mathematical puzzle and not tied to any company's game."
   },
   "Merge2048": {
+    "closeResult": "Close and see the board",
+    "resultFree": "Nicely done today",
+    "resultChallenge": "Challenge run over!",
+    "resultNewBest": "New best!",
+    "movesLabel": "MOVES",
+    "rankTitle": "Where this score lands",
+    "rankLoading": "Checking your place…",
+    "rankUnavailable": "Could not load the ranking. Check the ranking page.",
+    "placeN": "#{n}",
+    "placeOf": "of {n} players",
+    "myRankLine": "My rank #{rank} · my best {best}",
+    "tryChallengeTitle": "Good enough for the ranking",
+    "tryChallengeDesc": "A challenge run has no undo and goes until you're stuck; that score is ranked.",
+    "tryChallenge": "Try a challenge run",
+    "showResult": "See result",
+    "mode_endless": "Challenge run",
+    "bestEndless": "CHALLENGE BEST",
+    "endlessTitle": "Until you're stuck: the challenge run",
+    "endlessDesc": "No clock and no undo: keep one board going until no move is left. That score goes on the 2048 ranking. The board saves itself, so you can come back to it later.",
+    "startEndless": "Start a new challenge run",
+    "continueRun": "Continue",
+    "giveUpConfirm": "Give up the challenge run in progress and start over? It will not be recorded.",
+    "seeRanking": "See the ranking",
+    "recorded": "Recorded on the ranking (when signed in)",
+    "rankingTitle": "Challenge ranking",
+    "seeAll": "All",
+    "rankingEmpty": "No scores yet. Finish one run and you're first!",
+    "rankingNote": "Each player's best score counts. Sign in to be recorded.",
     "metaTitle": "2048 — a calm merge puzzle with characters · play 2048 with friends",
-    "metaDescription": "Slide and merge matching numbers in 2048, redrawn with PUZZLTHINK characters: squares that grow into stones. Relaxed free play with undo, a 10-minute challenge ranking, and 5 or 10-minute races with 2–4 friends. Free, no sign-up.",
+    "metaDescription": "Slide and merge matching numbers in 2048, redrawn with PUZZLTHINK characters: squares that grow into stones. Relaxed free play with undo, an challenge-run score ranking (play until no move is left), and 5 or 10-minute races with 2–4 friends. Free, no sign-up.",
     "keywords": [
       "2048",
       "2048 game",
@@ -7168,19 +7200,14 @@
     ],
     "subtitle": "HEALING · MERGE PUZZLE",
     "mode_free": "Free play",
-    "mode_challenge": "10-min challenge",
     "newGame": "New game",
     "restart": "Restart",
     "sound": "Sound on/off",
     "score": "SCORE",
     "best": "BEST",
-    "bestChallenge": "CHALLENGE BEST",
     "timeLeft": "TIME",
     "biggest": "BIGGEST",
-    "challengeTitle": "How many points in 10 minutes?",
-    "challengeDesc": "Score as much as you can in 10 minutes. Every merge adds the new number to your score. The run is recorded when the board gets stuck or the 10 minutes are up.",
     "bestScore": "Best: {n} points",
-    "startChallenge": "Start the challenge",
     "evolve": "128! Your square became a stone",
     "toastNew": "New block {n}!",
     "toastLegend": "{n}! A legendary stone",
@@ -7258,13 +7285,13 @@
     "s2Desc": "Two equal blocks that bump into each other become one worth double. A merged block smiles.",
     "s3Title": "From square to stone",
     "s3Desc": "2–64 are square characters; from 128 they become shiny stone characters. 2048 is the gold stone with a crown!",
-    "s4Title": "Challenge and friend race",
-    "s4Desc": "Your 10-minute challenge score goes on the ranking. With 2–4 friends, race for 5 or 10 minutes to build the biggest block."
+    "s4Title": "Challenge run and friend race",
+    "s4Desc": "An challenge run goes on until no move is left, and that score goes on the ranking. With 2–4 friends, race for 5 or 10 minutes to build the biggest block."
   },
   "Merge2048Guide": {
     "eyebrow": "2048 GUIDE",
     "title": "2048 — a calm number puzzle, from square to stone",
-    "intro": "2048 is a puzzle where you slide matching number blocks together to make bigger numbers. The rules take a minute to learn, but how you keep the board tidy makes all the difference. PUZZLTHINK's 2048 draws every block as a character with a face: small numbers are squares, from 128 they grow into shiny stones, and 2048 wears a crown. Play at your own pace in free play, take the 10-minute challenge, or race friends live.",
+    "intro": "2048 is a puzzle where you slide matching number blocks together to make bigger numbers. The rules take a minute to learn, but how you keep the board tidy makes all the difference. PUZZLTHINK's 2048 draws every block as a character with a face: small numbers are squares, from 128 they grow into shiny stones, and 2048 wears a crown. Play at your own pace in free play, go for the ranking in an challenge run, or race friends live.",
     "rulesTitle": "Rules",
     "rules": [
       "The board has 4×4 = 16 cells. It starts with two blocks, each a 2 or a 4.",
@@ -7285,8 +7312,8 @@
         "body": "No clock, one-step undo, and the board saves itself so you can come back later. The soft merge sound can be turned off at the top right."
       },
       {
-        "title": "10-minute challenge",
-        "body": "Your score in 10 minutes goes on the challenge ranking in Records. No undo, and a stuck board ends the run. Leaving the tab often during a run voids the record."
+        "title": "Challenge-run ranking",
+        "body": "No clock: one board goes on until no move is left, and that score goes on the 2048 ranking. No undo, but the board saves itself, so a reload or a later visit picks up where you left off. Starting over gives up the run in progress without recording it."
       },
       {
         "title": "Live friend race",
@@ -7337,7 +7364,7 @@
       },
       {
         "q": "Where are my records kept?",
-        "a": "Signed in, your 10-minute challenge scores go on the challenge ranking in Records, and friend and open matches go into your match history. Your free-play best is kept in this browser."
+        "a": "Signed in, your challenge-run scores go on the 2048 ranking and the challenge ranking in Records, and friend and open matches go into your match history. Your free-play best is kept in this browser."
       }
     ],
     "disclaimer": "A free web puzzle made by PUZZLTHINK. The basic rules of 2048 come from the open-source game released in 2014; the characters and modes are PUZZLTHINK's own."
