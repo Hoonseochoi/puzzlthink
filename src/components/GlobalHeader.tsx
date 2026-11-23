@@ -11,7 +11,7 @@ import GamesMenu from './GamesMenu';
 import { HeaderSupportButton } from './SupportLink';
 import { TopBannerSlot } from './ads/HiddenLogAd';
 
-const HIDE_ON = ['/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker', '/masyu', '/nonogram', '/star-battle', '/binairo', '/one-stroke', '/color-link'];
+const HIDE_ON = ['/magic-square', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker', '/masyu', '/nonogram', '/star-battle', '/binairo', '/one-stroke', '/color-link'];
 const NAV_LINK = 'rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black';
 const MOBILE_LINK = 'rounded-xl px-4 py-3 text-sm font-extrabold hover:bg-white';
 

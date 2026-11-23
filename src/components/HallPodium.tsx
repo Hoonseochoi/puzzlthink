@@ -18,6 +18,7 @@ const CHALLENGES: { game: GameId; boards: string[]; kind: PodiumKind }[] = [
   { game: 'binairo', boards: ['binairo'], kind: 'maps' },
   { game: 'onestroke', boards: ['onestroke'], kind: 'maps' },
   { game: 'colorlink', boards: ['colorlink'], kind: 'maps' },
+  { game: 'magicswap', boards: ['magicswap'], kind: 'maps' },
   { game: 'starbattle', boards: ['starbattle'], kind: 'maps' },
   { game: 'masyu', boards: ['masyu'], kind: 'maps' },
   { game: 'nonogram', boards: ['nonogram'], kind: 'maps' },

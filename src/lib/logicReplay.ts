@@ -3,6 +3,7 @@
 import { type LogicBoard, type LogicGameId, buildBoard } from './logicPuzzles';
 import { solveLine } from './nonogram';
 import { geometry as masyuGeometry } from './masyu';
+import { lineSums, linesRight, magicSum } from './magicswap';
 import { type Puzzle as SlitherPuzzle, generatePuzzle as slitherPuzzle, geometry as slitherGeometry } from './slitherlink';
 
 export type ReplayNote = { ko: string; en: string; at?: number };
@@ -21,6 +22,7 @@ const DEMO: Record<LogicGameId, { size: number; seed: number }> = {
   masyu: { size: 6, seed: 20270109 },
   onestroke: { size: 6, seed: 20270111 },
   colorlink: { size: 6, seed: 20270111 },
+  magicswap: { size: 5, seed: 20271124 },
 };
 
 const rc = (n: number, i: number) => [Math.floor(i / n) + 1, (i % n) + 1] as const;
@@ -430,6 +432,32 @@ function slitherSolve(p: SlitherPuzzle): { frames: ReplayFrame[]; solved: boolea
   return { frames, solved: false };
 }
 
+// ── 마방진 스왑: undo the scramble one pair at a time, the pair that fixes the most lines first ──
+function magicReplay(b: Extract<LogicBoard, { kind: 'magicswap' }>): ReplayFrame[] {
+  const n = b.size, M = magicSum(n), g = b.start.slice();
+  const frames: ReplayFrame[] = [{ changes: [], note: { ko: `줄마다 합이 ${M}이어야 해요. 끝의 +, − 숫자는 목표보다 얼마나 크거나 작은지예요.`, en: `Every line must add up to ${M}. The + and − at the edge say how far each line is off.` } }];
+  const left = b.swaps.slice();
+  while (left.length) {
+    let best = 0, bestScore = -1;
+    left.forEach(([i, j], k) => { const t = g.slice(); [t[i], t[j]] = [t[j], t[i]]; const sc = linesRight(n, t); if (sc > bestScore) { bestScore = sc; best = k; } });
+    const [i, j] = left.splice(best, 1)[0];
+    const [ri] = rc(n, i), [rj, cj] = rc(n, j);
+    const s = lineSums(n, g), d = Math.abs(g[i] - g[j]);
+    const rowOff = s.rows[ri - 1] - M, sign = (v: number) => (v > 0 ? `+${v}` : `${v}`);
+    const changes: [number, number][] = [[i, g[j]], [j, g[i]]];
+    [g[i], g[j]] = [g[j], g[i]];
+    frames.push({
+      changes, note: frames.length <= 2 ? {
+        ko: `${ri}행(${sign(rowOff)})의 ${g[j]}와 ${rj}행 ${cj}열의 ${g[i]}를 바꿔요. 차이가 ${d}라서 두 줄이 함께 맞춰져요.`,
+        en: `Row ${ri} is ${sign(rowOff)}: swap its ${g[j]} with the ${g[i]} at row ${rj}, column ${cj}. They differ by ${d}, so both lines line up.`,
+        at: i,
+      } : undefined,
+    });
+  }
+  frames.push({ changes: [], note: { ko: `완성! 가로·세로·대각선 ${2 * n + 2}줄이 모두 ${M}이에요.`, en: `Done! All ${2 * n + 2} lines add up to ${M}.` } });
+  return frames;
+}
+
 let slitherSeed: number | null = null;
 /** The first 9×9-dot board the step solver finishes (searched once, then cached). */
 function findSlitherSeed(): number {
@@ -456,7 +484,8 @@ export function buildReplay(game: ReplayGame): Replay {
       : board.kind === 'starbattle' ? starReplay(board)
         : board.kind === 'masyu' ? masyuReplay(board)
           : board.kind === 'onestroke' ? oneStrokeReplay(board)
-            : colorLinkReplay(board);
+            : board.kind === 'magicswap' ? magicReplay(board)
+              : colorLinkReplay(board);
   const replay = { board, frames };
   cache.set(game, replay);
   return replay;

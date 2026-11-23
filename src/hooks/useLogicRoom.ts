@@ -17,13 +17,14 @@ export const NONOGRAM_ROOM = engine('nonogram');
 export const STARBATTLE_ROOM = engine('starbattle');
 const ENGINES: Record<LogicGameId, RoomEngine<LogicRoom, LogicAction>> = {
   masyu: MASYU_ROOM, nonogram: NONOGRAM_ROOM, starbattle: STARBATTLE_ROOM,
-  binairo: engine('binairo'), onestroke: engine('onestroke'), colorlink: engine('colorlink'),
+  binairo: engine('binairo'), onestroke: engine('onestroke'), colorlink: engine('colorlink'), magicswap: engine('magicswap'),
 };
 /** Room helpers for the games added later (one engine each, same as above). */
 export const prepareLogicRoom = (game: LogicGameId) => prepareRoom(ENGINES[game].channel, ENGINES[game].storage, game);
 export const useBinairoRoom = (code: string, defaultName: string) => useRealtimeRoom(ENGINES.binairo, code, defaultName);
 export const useOneStrokeRoom = (code: string, defaultName: string) => useRealtimeRoom(ENGINES.onestroke, code, defaultName);
 export const useColorLinkRoom = (code: string, defaultName: string) => useRealtimeRoom(ENGINES.colorlink, code, defaultName);
+export const useMagicSwapRoom = (code: string, defaultName: string) => useRealtimeRoom(ENGINES.magicswap, code, defaultName);
 
 export const prepareMasyuRoom = () => prepareRoom(MASYU_ROOM.channel, MASYU_ROOM.storage, 'masyu');
 export const prepareNonogramRoom = () => prepareRoom(NONOGRAM_ROOM.channel, NONOGRAM_ROOM.storage, 'nonogram');

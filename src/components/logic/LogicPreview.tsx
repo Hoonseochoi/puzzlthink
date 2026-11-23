@@ -133,3 +133,30 @@ export function ColorLinkPreview() {
     </svg>
   </div>;
 }
+
+/** Home card art: a 5×5 마방진 one swap from done, the two culprit tiles lit and every other line ✓ at 65. */
+export function MagicSwapPreview() {
+  const b = buildBoard('magicswap', 5, 20271123);
+  if (b.kind !== 'magicswap') return null;
+  const n = 5;
+  const [a, c] = b.swaps[0];
+  const cells = b.answer.slice();
+  [cells[a], cells[c]] = [cells[c], cells[a]];
+  const W = n + 0.9;
+  const rowOk = (r: number) => cells.slice(r * n, r * n + n).reduce((x, y) => x + y, 0) === 65;
+  const colOk = (k: number) => Array.from({ length: n }, (_, r) => cells[r * n + k]).reduce((x, y) => x + y, 0) === 65;
+  return <div className="w-full rotate-[-2deg] rounded-xl bg-gradient-to-br from-[#f59ae8] to-[#a8279c] p-1.5 shadow-xl sm:w-[66%] sm:rounded-[22px] sm:p-3 sm:shadow-2xl">
+    <svg viewBox={`-0.1 -0.1 ${W + 0.1} ${W + 0.1}`} className="block w-full rounded-[6px] bg-[#1c1420] sm:rounded-[14px]">
+      {cells.map((v, i) => {
+        const x = i % n, y = Math.floor(i / n), hot = i === a || i === c;
+        return <g key={i}>
+          <rect x={x + 0.06} y={y + 0.06} width={0.88} height={0.88} rx={0.14} fill={hot ? '#e45bd6' : '#ffffff'} opacity={hot ? 1 : 0.1} />
+          <text x={x + 0.5} y={y + 0.64} textAnchor="middle" fontSize={0.42} fontWeight={900} fill="#ffffff">{v}</text>
+        </g>;
+      })}
+      {Array.from({ length: n }, (_, r) => <text key={`r${r}`} x={n + 0.45} y={r + 0.62} textAnchor="middle" fontSize={0.3} fontWeight={900} fill={rowOk(r) ? '#7ee2ae' : '#ff9a9a'}>{rowOk(r) ? '✓' : '±'}</text>)}
+      {Array.from({ length: n }, (_, k) => <text key={`c${k}`} x={k + 0.5} y={n + 0.55} textAnchor="middle" fontSize={0.3} fontWeight={900} fill={colOk(k) ? '#7ee2ae' : '#ff9a9a'}>{colOk(k) ? '✓' : '±'}</text>)}
+      <text x={n + 0.45} y={n + 0.55} textAnchor="middle" fontSize={0.26} fontWeight={900} fill="#f59ae8">65</text>
+    </svg>
+  </div>;
+}

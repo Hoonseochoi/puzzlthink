@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { BookOpen, Play, Trophy } from 'lucide-react';
 import JsonLd from '@/components/JsonLd';
-import { BinairoPreview, ColorLinkPreview, MasyuPreview, NonogramPreview, OneStrokePreview, StarBattlePreview } from '@/components/logic/LogicPreview';
+import { BinairoPreview, ColorLinkPreview, MagicSwapPreview, MasyuPreview, NonogramPreview, OneStrokePreview, StarBattlePreview } from '@/components/logic/LogicPreview';
 import { Link } from '@/i18n/routing';
 import { CERT_GAMES } from '@/lib/hardClear';
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata, SITE_URL } from '@/lib/seo';
@@ -13,6 +13,7 @@ type Puzzle = { id: GameId; common: string; desc: string; href: string; guide: s
 
 // The logic puzzles, easiest rules first. Sudoku's guide is the long guide on its own page.
 const PUZZLES: Puzzle[] = [
+  { id: 'magicswap', common: 'magicswap', desc: 'magicswapDescription', href: '/magic-square', guide: '/magic-square/guide', rank: '/ranking/magic-square', art: <MagicSwapPreview /> },
   { id: 'binairo', common: 'binairo', desc: 'binairoDescription', href: '/binairo', guide: '/binairo/guide', rank: '/ranking/binairo', art: <BinairoPreview /> },
   { id: 'onestroke', common: 'onestroke', desc: 'onestrokeDescription', href: '/one-stroke', guide: '/one-stroke/guide', rank: '/ranking/one-stroke', art: <OneStrokePreview /> },
   { id: 'colorlink', common: 'colorlink', desc: 'colorlinkDescription', href: '/color-link', guide: '/color-link/guide', rank: '/ranking/color-link', art: <ColorLinkPreview /> },

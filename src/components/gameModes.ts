@@ -29,7 +29,7 @@ import { prepareLaserJanggiRoom } from '@/hooks/useLaserJanggiRoom';
 import { prepareBlackWhiteRoom } from '@/hooks/useBlackWhiteRoom';
 import { prepareBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
 import { prepareMonorailRoom, useMonorailRoom } from '@/hooks/useMonorailRoom';
-import { prepareLogicRoom, prepareMasyuRoom, prepareNonogramRoom, prepareStarBattleRoom, useBinairoRoom, useColorLinkRoom, useMasyuRoom, useOneStrokeRoom, useNonogramRoom, useStarBattleRoom } from '@/hooks/useLogicRoom';
+import { prepareLogicRoom, prepareMasyuRoom, prepareNonogramRoom, prepareStarBattleRoom, useBinairoRoom, useColorLinkRoom, useMagicSwapRoom, useMasyuRoom, useOneStrokeRoom, useNonogramRoom, useStarBattleRoom } from '@/hooks/useLogicRoom';
 import { prepareFourThreeRoom, useFourThreeRoom } from '@/hooks/useFourThreeRoom';
 import { prepareTwoSidedPokerRoom, useTwoSidedPokerRoom } from '@/hooks/useTwoSidedPokerRoom';
 
@@ -64,6 +64,10 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
   onestroke: {
     path: '/one-stroke', solo: true, ai: [{ label: 'logicNew', query: 'mode=challenge' }, { label: 'logicBeat', query: 'mode=beat' }, { label: 'onestrokePractice', query: 'mode=practice' }],
     rooms: [{ label: 'logicRoom', create: () => prepareLogicRoom('onestroke'), openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useOneStrokeRoom,
+  },
+  magicswap: {
+    path: '/magic-square', solo: true, ai: [{ label: 'logicNew', query: 'mode=challenge' }, { label: 'logicBeat', query: 'mode=beat' }, { label: 'magicswapPractice', query: 'mode=practice' }],
+    rooms: [{ label: 'logicRoom', create: () => prepareLogicRoom('magicswap'), openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useMagicSwapRoom,
   },
   colorlink: {
     path: '/color-link', solo: true, ai: [{ label: 'logicNew', query: 'mode=challenge' }, { label: 'logicBeat', query: 'mode=beat' }, { label: 'colorlinkPractice', query: 'mode=practice' }],

@@ -706,6 +706,105 @@ const LINK_EN: GuideCopy = {
   ],
 };
 
+// ── 마방진 스왑 (pictures are live boards: see MagicGuideFigure) ──
+const MAGIC_KO: GuideCopy = {
+  metaTitle: '마방진 스왑 공략 — 뒤바뀐 숫자 찾는 법 | PUZZLTHINK',
+  metaDescription: '마방진 스왑 처음이라면? +d·−d 줄의 교차점, 한 줄 안의 교환, 대각선 확인, 확정 표시로 후보 줄이기까지 그림으로 정리했어요.',
+  keywords: ['마방진', '마방진 스왑', '마방진 공략', '마방진 푸는 법', '숫자 퍼즐', '합 맞추기 퍼즐', '논리 퍼즐'],
+  back: '마방진 스왑으로 돌아가기', eyebrow: 'MAGIC SQUARE GUIDE', title: '마방진 스왑 공략', lead: '틀린 줄의 차이가 범인을 가리켜요.',
+  intro: '마방진은 가로·세로·대각선의 합이 모두 같은 숫자 판이에요. 마방진 스왑은 완성된 마방진에서 몇 쌍을 바꿔 놓은 판으로 시작해요. 두 칸을 바꾸면 그 두 칸이 지나는 줄의 합이 정확히 두 수의 차이만큼 오르내리기 때문에, 줄 끝의 +, − 숫자만 잘 읽으면 어떤 두 칸이 뒤바뀌었는지 좁혀 갈 수 있어요.',
+  tocTitle: '목차', rulesTitle: '기본 규칙',
+  rules: [
+    '가로·세로·대각선의 합이 모두 목표 합이 되면 완성이에요. 5×5는 65, 6×6은 111, 7×7은 175예요.',
+    '1부터 n²까지 숫자가 한 번씩 있고, 할 수 있는 건 두 칸의 자리를 바꾸는 것뿐이에요.',
+    '원래 배치와 달라도 모든 줄의 합이 맞으면 정답이에요.',
+  ],
+  principleTitle: '두 가지 원리',
+  principles: [
+    { title: '차이만큼 움직여요', body: '7과 11을 바꾸면 7이 있던 줄은 4 커지고, 11이 있던 줄은 4 작아져요. 그래서 +4 줄과 −4 줄은 같은 교환으로 함께 맞춰질 때가 많아요.' },
+    { title: '같은 줄 안의 교환은 그 줄을 안 바꿔요', body: '같은 가로줄 안의 두 칸을 바꾸면 가로줄 합은 그대로예요. 대신 두 세로줄이 ±d로 움직이죠.' },
+  ],
+  sections: [
+    { id: 'basic', title: '기본 기술', intro: '틀린 줄 두 개를 짝지어 보세요.', techs: [
+      { id: 'magicPair', title: '+d 줄과 −d 줄의 교차점', body: '+4인 가로줄과 −4인 가로줄이 있으면 두 줄에서 4 차이 나는 두 수를 찾아요. 그 두 칸의 세로줄도 ±4로 틀려 있다면 거의 확실한 범인이에요.' },
+      { id: 'magicSame', title: '한 줄 안의 교환', body: '가로줄은 다 맞는데 세로줄 두 개가 +d, −d라면 범인은 같은 가로줄 안에 있어요. 세로줄 두 개에서 d만큼 차이 나는 같은 행의 두 칸을 바꾸세요.' },
+    ] },
+    { id: 'middle', title: '중급 기술', intro: '줄 여러 개가 함께 틀렸을 때.', techs: [
+      { id: 'magicNotes', title: '확정으로 후보 줄이기', body: '가로·세로가 모두 맞는 칸에 ✓를 붙여 두면 교환이 잠기고, 남은 후보 칸이 한눈에 보여요. 수상한 칸에는 ●를 찍어 두세요.' },
+      { id: 'magicDiag', title: '마지막은 대각선', body: '가로·세로를 다 맞춰도 대각선이 남을 수 있어요. 대각선 위의 칸을 바꾸면 대각선 합도 함께 변하니, 끝으로 ↘ ↙ 두 줄을 확인하세요.' },
+    ] },
+  ],
+  mistakesTitle: '자주 하는 실수',
+  mistakes: [
+    '아무 칸이나 바꿔 보기 — 맞던 줄까지 틀어져요. 틀린 줄이 만나는 칸부터 보세요.',
+    '+d만 보고 바꾸기 — 짝이 되는 −d 줄이 있는지 먼저 확인하세요.',
+    '대각선 잊기 — 가로·세로가 다 맞아도 대각선이 남으면 완성이 아니에요.',
+  ],
+  tipsTitle: '빠르게 푸는 꿀팁',
+  tips: [
+    '한 칸을 누르면 그 칸의 가로·세로줄이 옅게 강조돼요. 바꿀 후보를 비교하기 좋아요.',
+    '끌어다 놓아도 바뀌어요. 길게 누르면 ✓ → ● → 없음.',
+    '합계 보기로 바꾸면 줄 합 자체를 볼 수 있어요.',
+    '틀어졌으면 되돌리기(Ctrl/⌘+Z)나 처음 배치로 돌아가세요.',
+  ],
+  ctaTitle: '이제 직접 바꿔 볼까요?', ctaBody: '연습 5×5로 감을 잡고, 7×7 챌린지에서 새 맵을 차지해 보세요. 남의 맵을 그 사람보다 빨리 풀면 뺏을 수도 있어요.', ctaPlay: '마방진 스왑 하러 가기',
+  faqTitle: '자주 묻는 질문',
+  faq: [
+    { q: '마방진 스왑은 어떤 퍼즐인가요?', a: '완성된 마방진에서 몇 쌍이 뒤바뀐 판을, 두 칸씩 바꿔서 다시 모든 줄의 합이 같게 만드는 퍼즐이에요.' },
+    { q: '원래 배치와 똑같이 맞춰야 하나요?', a: '아니요. 1부터 n²까지 숫자가 한 번씩 있고 가로·세로·대각선의 합이 모두 맞으면 어떤 배치든 정답이에요.' },
+    { q: '챌린지 기록은 어떻게 매겨지나요?', a: '새로운 맵을 풀면 그 맵의 주인이 되고, 다른 사람이 더 빨리 풀면 맵을 뺏겨요. 랭킹은 지금 가진 맵 개수로 정해져요.' },
+  ],
+};
+
+const MAGIC_EN: GuideCopy = {
+  metaTitle: 'Magic Square Swap Guide — How to Find the Swapped Numbers | PUZZLTHINK',
+  metaDescription: 'New to Magic Square Swap? Where +d meets −d, swaps inside one line, checking the diagonals and locking what is right, explained with pictures.',
+  keywords: ['magic square', 'magic square swap', 'magic square puzzle', 'how to solve magic square', 'number puzzle', 'logic puzzle'],
+  back: 'Back to Magic Square Swap', eyebrow: 'MAGIC SQUARE GUIDE', title: 'Magic Square Swap Guide', lead: 'The lines that are off point at the culprits.',
+  intro: 'A magic square is a grid where every row, column and diagonal has the same sum. Magic Square Swap starts from one with a few pairs traded. Swapping two tiles moves their lines by exactly the difference of the two numbers, so reading the + and − at each line\'s end narrows down which tiles were swapped.',
+  tocTitle: 'Contents', rulesTitle: 'Rules',
+  rules: [
+    'Done when every row, column and both diagonals hit the target: 65 on 5×5, 111 on 6×6, 175 on 7×7.',
+    'The numbers 1 to n² appear once each; all you can do is swap two tiles.',
+    'Any arrangement where every line adds up counts, not only the original.',
+  ],
+  principleTitle: 'Two principles',
+  principles: [
+    { title: 'Lines move by the difference', body: 'Swap 7 and 11 and the 7\'s line goes up by 4 while the 11\'s goes down by 4. A +4 line and a −4 line are often fixed by the same swap.' },
+    { title: 'A swap inside a line keeps that line', body: 'Swapping two tiles in the same row leaves the row\'s sum alone; their two columns move by ±d instead.' },
+  ],
+  sections: [
+    { id: 'basic', title: 'Basic techniques', intro: 'Pair up the lines that are off.', techs: [
+      { id: 'magicPair', title: 'Where +d meets −d', body: 'With a row at +4 and one at −4, look for two numbers 4 apart between them. If their columns are ±4 too, you have almost certainly found the pair.' },
+      { id: 'magicSame', title: 'A swap inside one line', body: 'If every row adds up but two columns are +d and −d, the pair sits in one row: swap the two tiles of that row that are d apart.' },
+    ] },
+    { id: 'middle', title: 'Intermediate techniques', intro: 'When several lines are off at once.', techs: [
+      { id: 'magicNotes', title: 'Lock what is right', body: 'Put a ✓ on tiles whose row and column both add up; they lock and the candidates left stand out. Mark doubtful tiles with ●.' },
+      { id: 'magicDiag', title: 'Diagonals last', body: 'Rows and columns can all add up while a diagonal is still off. Tiles on a diagonal move its sum too, so check ↘ and ↙ at the end.' },
+    ] },
+  ],
+  mistakesTitle: 'Common mistakes',
+  mistakes: [
+    'Swapping at random — lines that were right go wrong. Start where the lines that are off cross.',
+    'Acting on a +d alone — first check there is a matching −d line.',
+    'Forgetting the diagonals — rows and columns right is not done if a diagonal is off.',
+  ],
+  tipsTitle: 'Tips for speed',
+  tips: [
+    'Tapping a tile lights up its row and column, handy for comparing candidates.',
+    'Dragging swaps too. A long press cycles ✓ → ● → none.',
+    'Switch to sums to see each line\'s total.',
+    'Went wrong? Undo (Ctrl/⌘+Z) or start over.',
+  ],
+  ctaTitle: 'Ready to swap?', ctaBody: 'Warm up on 5×5 practice, then claim new maps in the 7×7 challenge. Solve someone else\'s map faster than them and it becomes yours.', ctaPlay: 'Play Magic Square Swap',
+  faqTitle: 'FAQ',
+  faq: [
+    { q: 'What is Magic Square Swap?', a: 'A magic square with a few pairs swapped. Swap tiles until every line has the same sum again.' },
+    { q: 'Do I have to rebuild the original square?', a: 'No. Any arrangement of 1 to n² where every row, column and diagonal adds up counts.' },
+    { q: 'How does the challenge ranking work?', a: 'Clear a new map and it is yours. If someone solves it faster than your time, they take it. The ranking counts the maps you own.' },
+  ],
+};
+
 export const GUIDE_COPY: Record<LogicGameId, Record<'ko' | 'en', GuideCopy>> = {
   masyu: { ko: MASYU_KO, en: MASYU_EN },
   nonogram: { ko: NONO_KO, en: NONO_EN },
@@ -713,4 +812,5 @@ export const GUIDE_COPY: Record<LogicGameId, Record<'ko' | 'en', GuideCopy>> = {
   binairo: { ko: BIN_KO, en: BIN_EN },
   onestroke: { ko: PATH_KO, en: PATH_EN },
   colorlink: { ko: LINK_KO, en: LINK_EN },
+  magicswap: { ko: MAGIC_KO, en: MAGIC_EN },
 };

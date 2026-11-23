@@ -11,7 +11,7 @@ import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL
 import { useUndoKey } from '@/components/slitherlink/SlitherBoard';
 import { useLogicRoom } from '@/hooks/useLogicRoom';
 import { type LogicGameId, LOGIC, emptyMarks, encodeMarks, formatClock, progressOf, solved } from '@/lib/logicPuzzles';
-import { roomBoard } from '@/lib/logicRoom';
+import { maxPlayers, roomBoard } from '@/lib/logicRoom';
 import { reportGame } from '@/lib/stats';
 import MasyuBoard from './MasyuBoard';
 import NonogramBoard, { type NonoTool } from './NonogramBoard';
@@ -19,14 +19,16 @@ import StarBoard from './StarBoard';
 import BinairoBoard from './BinairoBoard';
 import OneStrokeBoard from './OneStrokeBoard';
 import ColorLinkBoard from './ColorLinkBoard';
+import MagicSwapBoard from './MagicSwapBoard';
+import MagicSwapTutorial from './MagicSwapTutorial';
 import LogicRulesTip from './LogicRulesTip';
 
-const COLORS = ['#ff4d5e', '#3f8cff', '#3fcf6a', '#ffd23f'];
+const COLORS = ['#ff4d5e', '#3f8cff', '#3fcf6a', '#ffd23f', '#e45bd6', '#ff8a2b'];
 
 /** My work for one game (reset when the host starts a new one), with one undo entry per tap or drag. */
 type Local = { sid: string; marks: number[]; moves: { gesture: number; undo: [number, number][] }[] };
 
-/** 마슈 · 노노그램 친구방 / 공개방: 2–4 players race on the same board; the first correct answer wins. */
+/** 마슈 · 노노그램 … 친구방 / 공개방: 2–4 players (마방진 스왑 2–6) race on the same board; the first correct answer wins. */
 export default function LogicRoomView({ game, code }: { game: LogicGameId; code: string }) {
   const spec = LOGIC[game];
   const t = useTranslations('LogicOnline');
@@ -34,6 +36,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
   const tc = useTranslations('Common');
   const locale = useLocale();
   const name = tc(spec.catalog);
+  const max = maxPlayers(game);
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, hostOnline, me, mySeat, dispatch, rename } = useLogicRoom(game, code, defaultName);
   const [now, setNow] = useState(0);
@@ -126,7 +129,8 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
   const marks = local.marks.length && board ? local.marks : board ? emptyMarks(board) : [];
 
   return <div className={SHELL} style={shell}>
-    <GameHeader backHref={spec.path} backLabel={name} title={name} subtitle={`ONLINE · 2–4 · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+    {game === 'magicswap' && <MagicSwapTutorial />}
+    <GameHeader backHref={spec.path} backLabel={name} title={name} subtitle={`ONLINE · 2–${max} · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}>
       <section className={STAGE}>
@@ -141,7 +145,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
           <form onSubmit={(e) => { e.preventDefault(); rename(nick); setNick(''); }} className="flex gap-2"><input className={INPUT} value={nick} onChange={(e) => setNick(e.target.value)} placeholder={me?.name ?? ''} maxLength={16} /><button className={BTN}>{t('rename')}</button></form>
           {me?.isHost
             ? <><button disabled={activeCount < 2} onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3 disabled:opacity-35`}><Swords size={15} />{activeCount >= 2 ? t('startCount', { n: activeCount }) : t('startLocked')}</button><p className="text-center text-[11px] text-white/40">{t('startHint')}</p></>
-            : <p className="text-center text-sm text-white/45">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>}
+            : <p className="text-center text-sm text-white/45">{mySeat === null ? t('roomFull', { max }) : t('waitingHost')}</p>}
         </div> : board && <>
           {board.kind === 'masyu'
             ? <MasyuBoard board={board} marks={showAnswer ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} />
@@ -153,7 +157,9 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
                   ? <BinairoBoard board={board} marks={showAnswer ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} solved={showAnswer || (state.phase === 'finished' && winner === mySeat)} />
                   : board.kind === 'onestroke'
                     ? <OneStrokeBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} showAnswer={showAnswer} solved={state.phase === 'finished' && winner === mySeat} />
-                    : <ColorLinkBoard board={board} marks={showAnswer ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} solved={showAnswer || (state.phase === 'finished' && winner === mySeat)} />}
+                    : board.kind === 'magicswap'
+                      ? <MagicSwapBoard board={board} marks={marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} showAnswer={showAnswer} solved={state.phase === 'finished' && winner === mySeat} />
+                      : <ColorLinkBoard board={board} marks={showAnswer ? board.answer : marks} onMarks={(c, g) => apply(c, g)} readOnly={!iPlay || showAnswer} solved={showAnswer || (state.phase === 'finished' && winner === mySeat)} />}
           {iPlay ? (
             <div className="mx-auto mt-3 max-w-[560px] space-y-2">
               <div className={`grid gap-1.5 ${game === 'nonogram' ? 'grid-cols-4' : 'grid-cols-2'}`}>
@@ -162,7 +168,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
                   <button type="button" onClick={() => setTool('cross')} aria-pressed={tool === 'cross'} className={`flex flex-col items-center gap-1 py-2.5 ${seg(tool === 'cross')}`}><X size={17} />{tl('toolCross')}</button>
                 </>}
                 <button ref={undoBtn} type="button" onClick={undo} disabled={!local.moves.length} title={tl('undoKey')} className={`flex flex-col items-center gap-1 py-2.5 ${seg(false)} disabled:opacity-35`}><Undo2 size={17} />{tl('toolUndo')}</button>
-                <button type="button" onClick={clearAll} className={`flex flex-col items-center gap-1 py-2.5 ${confirmClear ? 'rounded-md bg-[#e5484d]/20 text-xs font-extrabold text-[#ff8f8f] ring-1 ring-[#e5484d]/50' : seg(false)}`}><Trash2 size={17} />{confirmClear ? tl('clearConfirm') : tl('toolClear')}</button>
+                <button type="button" onClick={clearAll} className={`flex flex-col items-center gap-1 py-2.5 ${confirmClear ? 'rounded-md bg-[#e5484d]/20 text-xs font-extrabold text-[#ff8f8f] ring-1 ring-[#e5484d]/50' : seg(false)}`}><Trash2 size={17} />{confirmClear ? tl('clearConfirm') : tl(game === 'magicswap' ? 'magicReset' : 'toolClear')}</button>
               </div>
               <button type="button" onClick={() => window.confirm(t('giveUpConfirm')) && dispatch({ t: 'giveUp' })} className={`w-full py-2.5 ${BTN}`}><Flag size={14} />{tl('giveUpChallenge')}</button>
               <p className="break-keep text-center text-[11px] leading-5 text-white/40">{tl(`help_${game}${game === 'nonogram' ? `_${tool}` : ''}`)}</p>
@@ -178,8 +184,8 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
 
       <aside className="flex flex-col gap-4">
         <section className={PANEL}>
-          <div className="mb-3 flex items-center justify-between"><p className={PANEL_TITLE}>{t('players')}</p><span className={CHIP}><Users size={12} />{activeCount}/4</span></div>
-          {Array.from({ length: state.phase === 'lobby' ? 4 : state.playerCount }, (_, seat) => {
+          <div className="mb-3 flex items-center justify-between"><p className={PANEL_TITLE}>{t('players')}</p><span className={CHIP}><Users size={12} />{activeCount}/{max}</span></div>
+          {Array.from({ length: state.phase === 'lobby' ? max : state.playerCount }, (_, seat) => {
             const done = state.phase !== 'lobby' ? state.solvedMs[seat] : null;
             const out = state.phase !== 'lobby' && state.gaveUp[seat];
             return <div key={seat} data-chat-seat={state.seats[seat]?.id} className={`${playerRow(state.winners.includes(seat))} mb-2`}>

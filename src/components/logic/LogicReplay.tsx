@@ -15,6 +15,7 @@ import MasyuBoard from './MasyuBoard';
 import NonogramBoard from './NonogramBoard';
 import OneStrokeBoard from './OneStrokeBoard';
 import StarBoard from './StarBoard';
+import MagicSwapBoard from './MagicSwapBoard';
 
 /** How long a move stays on screen: notes get time to be read, plain moves go quickly. */
 const HOLD_NOTE = 2600, HOLD_CELL = 420, HOLD_EDGE = 260;
@@ -32,6 +33,7 @@ function ReplayBoard({ board, marks, done }: { board: ReplayBoardData; marks: nu
     case 'starbattle': return <StarBoard board={board} marks={marks} readOnly solved={done} />;
     case 'binairo': return <BinairoBoard board={board} marks={marks} readOnly solved={done} />;
     case 'onestroke': return <OneStrokeBoard board={board} marks={marks} readOnly solved={done} />;
+    case 'magicswap': return <MagicSwapBoard board={board} marks={marks} readOnly solved={done} />;
     default: return <ColorLinkBoard board={board} marks={marks} readOnly solved={done} />;
   }
 }
