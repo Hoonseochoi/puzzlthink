@@ -23,6 +23,7 @@ export default function GlobalHeader() {
   if (HIDE_ON.some((segment) => pathname.includes(segment))) return null;
 
   const links = [
+    { href: '/game-list', label: t('gameList') },
     { href: '/records', label: t('records') },
     { href: '/games', label: t('gamesIntro') },
   ] as const;

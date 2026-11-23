@@ -40,6 +40,7 @@
     "hallCongratsView": "명예의 전당 보기",
     "hallCongratsClose": "닫기",
     "gamesIntro": "게임소개",
+    "gameList": "게임 리스트",
     "footerGames": "게임 바로가기",
     "logicHub": "논리 퍼즐",
     "contactPartnership": "문의·협업",
@@ -1950,6 +1951,12 @@
     "iosStep2": "2. '홈 화면에 추가'를 선택하세요",
     "afterGameTitle": "한 판 더 할 땐 앱으로 바로! 📲",
     "afterGameDesc": "홈 화면에 설치하면 다음엔 한 번에 열려요 · 무료"
+  },
+  "GameList": {
+    "metaTitle": "게임 리스트 — PUZZLTHINK 두뇌 게임·논리 퍼즐 전체",
+    "metaDescription": "PUZZLTHINK의 두뇌 게임과 논리 퍼즐을 한눈에. 눌러서 바로 시작하세요.",
+    "title": "게임 리스트",
+    "intro": "눌러서 바로 시작하세요."
   },
   "Games": {
     "metaTitle": "게임 소개 — 데블스 플랜·더 지니어스 게임과 논리 퍼즐 규칙 한눈에",
