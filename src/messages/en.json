@@ -2410,6 +2410,7 @@
     "attached": "Sent along: the game, page address, browser and screen size"
   },
   "GameGate": {
+    "startGame": "Start",
     "short_m2Room": "2–4",
     "m2Room": "Create a friend room (2–4)",
     "m2Endless": "Challenge run (ranked)",
@@ -7157,6 +7158,11 @@
     "disclaimer": "A free web puzzle made by PUZZLTHINK. Magic squares are an old mathematical puzzle and not tied to any company's game."
   },
   "Merge2048": {
+    "legend_2048": "gold stone",
+    "legend_4096": "black stone king",
+    "legend_8192": "white stone king",
+    "legend_16384": "aurora stone",
+    "legend_cosmic": "cosmic stone",
     "closeResult": "Close and see the board",
     "resultFree": "Nicely done today",
     "resultChallenge": "Challenge run over!",
@@ -7210,7 +7216,7 @@
     "bestScore": "Best: {n} points",
     "evolve": "128! Your square became a stone",
     "toastNew": "New block {n}!",
-    "toastLegend": "{n}! A legendary stone",
+    "toastLegend": "{n}! The {name} appears",
     "won": "You made 2048!",
     "wonDesc": "The gold stone wears its crown. Fancy going for an even bigger block?",
     "keepGoing": "Keep going",
@@ -7220,7 +7226,7 @@
     "controls": "Arrow keys · WASD · swipe on the board",
     "undo": "Undo",
     "collection": "Block collection",
-    "collectionHint": "2–64 are squares; from 128 they grow into stones. 2048 wears a crown, then come the black and the white stone.",
+    "collectionHint": "2–64 are squares; from 128 they grow into stones. From 2048 every block is a crowned legend: 2048 gold stone, 4096 black stone king, 8192 white stone king, 16384 aurora stone.",
     "quickRules": "Quick rules",
     "quick1": "Each push slides every block as far as it can go.",
     "quick2": "Two equal blocks that meet merge into double, and that adds to your score.",
@@ -7305,7 +7311,7 @@
     "special": [
       {
         "title": "Block characters and a collection",
-        "body": "2, 4, 8, 16, 32 and 64 are pastel square characters; 128, 256, 512 and 1024 are stones. 2048 is the gold stone with a crown, 4096 the black stone and 8192 the white stone. Every block you have ever made fills in your collection."
+        "body": "2, 4, 8, 16, 32 and 64 are pastel square characters; 128, 256, 512 and 1024 are stones. From 2048 every block is a crowned legend: the gold stone at 2048, the black stone king at 4096 (silver crown, starlight), the white stone king at 8192 (gold crown, halo), the aurora stone at 16384 (jewelled crown), and a cosmic stone beyond. Every block you have ever made fills in your collection."
       },
       {
         "title": "Free play is the relaxed mode",

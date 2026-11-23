@@ -114,3 +114,9 @@ button:disabled { cursor: default; }
   .m2-slide { transition: none; }
   .m2-spawn, .m2-pop, .m2-float, .m2-breathe { animation: none; }
 }
+/* 2048 legend blocks: starlight twinkles, the halo breathes. */
+.m2-twinkle path { animation: m2Twinkle 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.m2-halo { animation: m2Halo 3s ease-in-out infinite; }
+@keyframes m2Twinkle { 0%, 100% { opacity: .25; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes m2Halo { 0%, 100% { stroke-opacity: .25; } 50% { stroke-opacity: .7; } }
+@media (prefers-reduced-motion: reduce) { .m2-twinkle path, .m2-halo { animation: none; } }

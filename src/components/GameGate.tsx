@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { BookOpen, Bot, DoorOpen, House, KeyRound, Link2, Loader2, Play, RefreshCw, UserRound, UsersRound } from 'lucide-react';
+import { BookOpen, Bot, ChevronUp, DoorOpen, House, KeyRound, Link2, Loader2, Play, RefreshCw, UserRound, UsersRound } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import type { GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
@@ -45,6 +45,8 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   const [openRooms, setOpenRooms] = useState<OpenRoomRow[] | null>(null);
   const [listTick, setListTick] = useState(0);
   const [roomTitle, setRoomTitle] = useState(''); // title for the open room about to be created
+  const [menuOpen, setMenuOpen] = useState(false); // the bottom bar's start menu
+  const menuRef = useRef<HTMLDivElement>(null);
   const { user, configured } = useAuth();
   const signedIn = !!user || !configured; // open rooms need an account so results are kept for both sides
 
@@ -108,6 +110,16 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     if (!isRoomCode(value)) { setCodeError(true); return; }
     router.push(`${modes.path}/room/${value}`);
   };
+
+  // The start menu closes on a tap outside it or Escape.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDown = (event: PointerEvent) => { if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false); };
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuOpen(false); };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('pointerdown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [menuOpen]);
 
   if (started) {
     if (!openRoom) return <>{children}</>;
@@ -241,12 +253,45 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
 
 
       {/* Always-visible start while reading. */}
-      <div data-gate-bar className={`fixed inset-x-0 bottom-0 z-30 border-t px-4 py-3 backdrop-blur ${dark ? 'border-white/10 bg-black/75' : 'border-black/10 bg-[#f3f0e8]/90'}`}>
+      <div data-gate-bar className={`fixed inset-x-0 bottom-0 ${menuOpen ? 'z-[60]' : 'z-30'} border-t px-4 py-3 backdrop-blur ${dark ? 'border-white/10 bg-black/75' : 'border-black/10 bg-[#f3f0e8]/90'}`}>
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
           <p className={`hidden text-xs font-bold sm:block ${muted}`}>{t('startHint')}</p>
           <div className="flex w-full gap-2 sm:w-auto">
             {hasRooms && <a href="#play-modes" className={`flex-1 sm:flex-none ${secondary} !py-2.5`}><UsersRound size={15} />{t('friendTitle')}</a>}
-            <button type="button" onClick={() => start(modes.ai[0].query)} className={`flex-1 sm:flex-none ${primary} !py-2.5`}><Play size={15} fill="currentColor" />{t(modes.solo ? 'soloPlay' : 'aiPlay')}</button>
+            {/* Every way to start, in one menu (a game with a single way just starts). */}
+            {modes.ai.length + modes.rooms.length <= 1 ? (
+              <button type="button" onClick={() => start(modes.ai[0].query)} className={`flex-1 sm:flex-none ${primary} !py-2.5`}><Play size={15} fill="currentColor" />{t(modes.solo ? 'soloPlay' : 'aiPlay')}</button>
+            ) : (
+              <div ref={menuRef} className="relative flex flex-1 sm:flex-none">
+                <button type="button" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)} className={`w-full ${primary} !py-2.5`}>
+                  <Play size={15} fill="currentColor" />{t('startGame')}<ChevronUp size={15} className={`transition ${menuOpen ? '' : 'rotate-180'}`} />
+                </button>
+                {menuOpen && (
+                  <div role="menu" className={`absolute bottom-full right-0 mb-2 w-[min(320px,calc(100vw-2rem))] overflow-hidden rounded-[14px] border p-2 shadow-[0_18px_50px_rgba(0,0,0,.45)] ${dark ? 'border-white/12 bg-[#16161c]' : 'border-black/10 bg-white'}`}>
+                    <p className={`flex items-center gap-1.5 px-2 pb-1 pt-1 text-[10px] font-black tracking-[0.14em] ${muted}`}>{modes.solo ? <UserRound size={12} /> : <Bot size={12} />}{t(modes.solo ? 'soloTitle' : 'aiTitle')}</p>
+                    {modes.ai.map((option, i) => (
+                      <button key={option.label} type="button" role="menuitem" onClick={() => { setMenuOpen(false); start(option.query); }}
+                        className={`flex w-full items-center gap-2 rounded-[10px] px-3 py-3 text-left text-sm font-black transition ${i === 0 ? 'bg-(--accent) text-(--accent-ink)' : dark ? 'text-white/85 hover:bg-white/8' : 'text-black/75 hover:bg-black/5'}`}>
+                        <Play size={14} fill="currentColor" className="shrink-0" />{t(option.label)}
+                      </button>
+                    ))}
+                    {hasRooms && <>
+                      <p className={`mt-2 flex items-center gap-1.5 border-t px-2 pb-1 pt-3 text-[10px] font-black tracking-[0.14em] ${dark ? 'border-white/10' : 'border-black/10'} ${muted}`}><UsersRound size={12} />{t('friendTitle')}</p>
+                      {modes.rooms.map((room) => (
+                        <button key={room.label} type="button" role="menuitem" disabled={creating !== null} onClick={() => createRoom(room.label, room.create)}
+                          className={`flex w-full items-center gap-2 rounded-[10px] px-3 py-3 text-left text-sm font-black transition disabled:opacity-50 ${dark ? 'text-white/85 hover:bg-white/8' : 'text-black/75 hover:bg-black/5'}`}>
+                          {creating === room.label ? <Loader2 size={14} className="shrink-0 animate-spin" /> : <Link2 size={14} className="shrink-0" />}{creating === room.label ? t('creating') : t(room.label)}
+                        </button>
+                      ))}
+                      <a href="#play-modes" role="menuitem" onClick={() => setMenuOpen(false)}
+                        className={`flex w-full items-center gap-2 rounded-[10px] px-3 py-3 text-sm font-bold transition ${dark ? 'text-white/60 hover:bg-white/8' : 'text-black/55 hover:bg-black/5'}`}>
+                        <KeyRound size={14} className="shrink-0" />{t('joinTitle')}
+                      </a>
+                    </>}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

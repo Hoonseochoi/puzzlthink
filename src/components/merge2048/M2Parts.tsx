@@ -8,10 +8,20 @@ export const M2_INK = '#2a0f17';
 
 /**
  * Block characters. Small numbers are 네모 characters (a soft rounded square with two eyes, like the 벽바둑 pieces);
- * from 128 they grow into 바둑알 characters (a glossy stone, like the ranking avatars). 2048 is the gold stone with
- * a crown, then the black stone and the white stone; past that an aurora stone.
+ * from 128 they grow into 바둑알 characters (a glossy stone, like the ranking avatars). From 2048 every block is a
+ * crowned "legend": 2048 the gold stone, 4096 the black stone king (silver crown, starlight), 8192 the white stone
+ * king (gold crown, halo), 16384 (2¹⁴) the aurora stone (jewelled crown, halo and starlight); past that a cosmic stone.
  */
-type Look = { shape: 'square' | 'stone'; hi: string; mid: string; lo: string; ink: string; eye: string; crown?: boolean; aurora?: boolean };
+type Crown = 'gold' | 'silver' | 'gem';
+type Look = {
+  shape: 'square' | 'stone'; hi: string; mid: string; lo: string; ink: string; eye: string;
+  crown?: Crown; aurora?: boolean; cosmic?: boolean; halo?: string; stars?: string;
+};
+const CROWN: Record<Crown, { fill: string; stroke: string; jewel: string }> = {
+  gold: { fill: '#ffd23f', stroke: '#7d5306', jewel: '#ff5b6e' },
+  silver: { fill: '#eef1f6', stroke: '#5d6573', jewel: '#5aa9ff' },
+  gem: { fill: '', stroke: '#3c2f9e', jewel: '#ffffff' }, // filled with the aurora gradient
+};
 const LOOKS: Record<number, Look> = {
   2: { shape: 'square', hi: '#fffaf0', mid: '#ffefc2', lo: '#f2d58a', ink: '#7a5a12', eye: '#5c4310' }, // butter
   4: { shape: 'square', hi: '#fff1e8', mid: '#ffd6bf', lo: '#f0a985', ink: '#8a4425', eye: '#6b3018' }, // peach
@@ -23,14 +33,17 @@ const LOOKS: Record<number, Look> = {
   256: { shape: 'stone', hi: '#a9d4ff', mid: '#3f9dff', lo: '#1a5fc0', ink: '#ffffff', eye: '#ffffff' }, // sky
   512: { shape: 'stone', hi: '#a6f3e9', mid: '#20c3b0', lo: '#0c7a6e', ink: '#ffffff', eye: '#ffffff' }, // mint
   1024: { shape: 'stone', hi: '#b5f5c4', mid: '#35c46a', lo: '#167d3b', ink: '#ffffff', eye: '#ffffff' }, // green
-  2048: { shape: 'stone', hi: '#fff6c4', mid: '#f2c53d', lo: '#a8740c', ink: '#3b2604', eye: '#3b2604', crown: true }, // gold
-  4096: { shape: 'stone', hi: '#5a5d66', mid: '#1d1f25', lo: '#050507', ink: '#ffffff', eye: '#ffffff' }, // black stone
-  8192: { shape: 'stone', hi: '#ffffff', mid: '#eceae4', lo: '#b9b5aa', ink: '#17201e', eye: '#17201e' }, // white stone
+  2048: { shape: 'stone', hi: '#fff6c4', mid: '#f2c53d', lo: '#a8740c', ink: '#3b2604', eye: '#3b2604', crown: 'gold' }, // gold stone
+  4096: { shape: 'stone', hi: '#5a5d66', mid: '#1d1f25', lo: '#050507', ink: '#ffffff', eye: '#ffffff', crown: 'silver', stars: '#ffffff' }, // black stone king
+  8192: { shape: 'stone', hi: '#ffffff', mid: '#eceae4', lo: '#b9b5aa', ink: '#17201e', eye: '#17201e', crown: 'gold', halo: '#f2c53d' }, // white stone king
+  16384: { shape: 'stone', hi: '#ffffff', mid: '#b48cff', lo: '#4b3ab8', ink: '#ffffff', eye: '#ffffff', aurora: true, crown: 'gem', halo: '#b48cff', stars: '#fff3b8' }, // aurora stone
 };
-const AURORA: Look = { shape: 'stone', hi: '#ffffff', mid: '#b48cff', lo: '#4b3ab8', ink: '#ffffff', eye: '#ffffff', aurora: true };
-export const lookOf = (v: number) => LOOKS[v] ?? AURORA;
-/** The evolution chain shown in the block collection. */
-export const CHAIN = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192];
+const COSMIC: Look = { shape: 'stone', hi: '#7b6cff', mid: '#241a5c', lo: '#07051a', ink: '#ffffff', eye: '#ffffff', cosmic: true, crown: 'gem', halo: '#7cf2ff', stars: '#ffffff' };
+export const lookOf = (v: number) => LOOKS[v] ?? COSMIC;
+/** The evolution chain shown in the block collection (up to 2¹⁴). */
+export const CHAIN = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384];
+/** Name key (Merge2048 messages) of a legend block, 2048 and up. */
+export const legendKey = (v: number) => (v >= 32768 ? 'legend_cosmic' : `legend_${v}`);
 
 const fontFor = (v: number, stone: boolean) => {
   const n = String(v).length;
@@ -66,16 +79,18 @@ export function BlockFace({ v, happy = false, plain = false }: { v: number; happ
             <stop offset="100%" stopColor={look.mid} />
           </linearGradient>
         )}
-        {look.aurora && (
+        {(look.aurora || look.crown === 'gem') && (
           <linearGradient id={`a${id}`} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#7cf2ff" /><stop offset="35%" stopColor="#b48cff" /><stop offset="70%" stopColor="#ff8fd1" /><stop offset="100%" stopColor="#ffd36b" />
           </linearGradient>
         )}
       </defs>
+      {look.halo && <circle cx="50" cy={cy} r={r + 5.5} fill="none" stroke={look.halo} strokeOpacity=".55" strokeWidth="3" className="m2-halo" />}
       {stone ? <>
         <circle cx="50" cy={cy + 3.5} r={r} fill="rgba(23,32,30,.22)" />
         <circle cx="50" cy={cy} r={r} fill={look.aurora ? `url(#a${id})` : `url(#g${id})`} stroke={look.lo} strokeWidth="1.6" />
         {look.aurora && <circle cx="50" cy={cy} r={r} fill={`url(#g${id})`} opacity=".35" />}
+        {look.cosmic && [[36, 70, 1.4], [62, 74, 1], [70, 58, 1.6], [30, 54, 0.9], [55, 86, 1.2], [44, 80, 0.8]].map(([x, y, sr], i) => <circle key={i} cx={x} cy={y} r={sr} fill="#ffffff" opacity=".85" />)}
         <ellipse cx={50 - r * 0.38} cy={cy - r * 0.5} rx={r * 0.22} ry={r * 0.12} fill="#ffffff" opacity=".45" transform={`rotate(-30 ${50 - r * 0.38} ${cy - r * 0.5})`} />
       </> : <>
         <rect x="4" y="8" width="92" height="90" rx="22" fill={look.lo} />
@@ -84,8 +99,16 @@ export function BlockFace({ v, happy = false, plain = false }: { v: number; happ
       </>}
       {look.crown && (
         <g>
-          <path d="M31 22 L35 4 L43 14 L50 1 L57 14 L65 4 L69 22 Z" fill="#ffd23f" stroke="#7d5306" strokeWidth="2.2" strokeLinejoin="round" />
-          <circle cx="50" cy="12" r="2.8" fill="#ff5b6e" />
+          <path d="M31 22 L35 4 L43 14 L50 1 L57 14 L65 4 L69 22 Z" fill={look.crown === 'gem' ? `url(#a${id})` : CROWN[look.crown].fill} stroke={CROWN[look.crown].stroke} strokeWidth="2.2" strokeLinejoin="round" />
+          <circle cx="50" cy="12" r="2.8" fill={CROWN[look.crown].jewel} />
+          {look.crown === 'gem' && <><circle cx="37" cy="16" r="1.8" fill="#ffffff" /><circle cx="63" cy="16" r="1.8" fill="#ffffff" /></>}
+        </g>
+      )}
+      {look.stars && !plain && (
+        <g className="m2-twinkle" fill={look.stars}>
+          {[[12, 30, 5], [89, 44, 4], [84, 90, 3.5], [16, 86, 3]].map(([x, y, k], i) => (
+            <path key={i} d={`M${x} ${y - k} L${x + k * 0.3} ${y - k * 0.3} L${x + k} ${y} L${x + k * 0.3} ${y + k * 0.3} L${x} ${y + k} L${x - k * 0.3} ${y + k * 0.3} L${x - k} ${y} L${x - k * 0.3} ${y - k * 0.3} Z`} style={{ animationDelay: `${i * 0.4}s` }} />
+          ))}
         </g>
       )}
       {!plain && <>

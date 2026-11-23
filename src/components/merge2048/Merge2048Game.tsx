@@ -12,7 +12,7 @@ import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL_TITLE, SHELL, STAGE, accentVars, f
 import { mergeSoundOn, setMergeSound, unlockGameAudio } from '@/lib/gameAudio';
 import { type Dir, type M2State, isState, maxTile, newGame, randomSeed } from '@/lib/merge2048';
 import { reportGame } from '@/lib/stats';
-import { BlockCollection, BlockFace, M2Board, M2_ACCENT, M2_INK, StatBox, useM2Input } from './M2Parts';
+import { BlockCollection, BlockFace, M2Board, M2_ACCENT, M2_INK, StatBox, legendKey, useM2Input } from './M2Parts';
 import EndlessTop from './EndlessTop';
 import Merge2048Result, { type M2Place } from './Merge2048Result';
 import { getSupabase } from '@/lib/supabase';
@@ -221,7 +221,7 @@ export default function Merge2048Game() {
               <M2Board tiles={game.tiles} ghosts={view.ghosts} merged={view.merged} spawned={view.spawned} boardRef={boardRef} dim={phase === 'done'}>
                 {toastOn && (
                   <div key={toast!.at} className="bw-result pointer-events-none absolute left-1/2 top-[6%] z-30 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-[#17201e]/90 py-1.5 pl-1.5 pr-3.5 text-xs font-black text-white shadow-xl">
-                    <span className="h-7 w-7"><BlockFace v={toast!.v} happy /></span>{t(toast!.v === 128 ? 'evolve' : toast!.v >= 2048 ? 'toastLegend' : 'toastNew', { n: toast!.v })}
+                    <span className="h-7 w-7"><BlockFace v={toast!.v} happy /></span>{toast!.v >= 2048 ? t('toastLegend', { n: toast!.v, name: t(legendKey(toast!.v)) }) : t(toast!.v === 128 ? 'evolve' : 'toastNew', { n: toast!.v })}
                   </div>
                 )}
                 {won && phase === 'playing' && (
