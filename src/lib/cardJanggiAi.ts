@@ -363,7 +363,6 @@ export function chooseMove(g: CjGame, me: CjSeat, budgetMs = 1300): CjAiMove | n
   if (g.phase !== 'move' || card < 0) return null;
   const root = legalMoves(g.board, actor, card);
   if (!root.length) return null;
-  const op = 1 - me;
   // Immediate wins (or, for the opponent, moves to avoid).
   const winning = root.filter(([from, to]) => g.board[to] === kingOf(1 - actor) || (isKing(g.board[from]) && to === goalOf(actor)));
   if (actor === me && winning.length) return { from: winning[0][0], to: winning[0][1] };
@@ -371,6 +370,20 @@ export function chooseMove(g: CjGame, me: CjSeat, budgetMs = 1300): CjAiMove | n
   if (actor !== me && winning.length < root.length) candidates = root.filter((m) => !winning.includes(m));
   if (candidates.length === 1) return { from: candidates[0][0], to: candidates[0][1] };
 
+  const scores = scoreMoves(g, me, candidates, budgetMs);
+  let pick = 0;
+  for (let i = 1; i < candidates.length; i += 1) if (actor === me ? scores[i] > scores[pick] : scores[i] < scores[pick]) pick = i;
+  return { from: candidates[pick][0], to: candidates[pick][1] };
+}
+
+/**
+ * Average win chance for `me` after each candidate move of the side to move (over every order the other side's
+ * face-down cards could be in), from the deepest search finished within the budget.
+ */
+function scoreMoves(g: CjGame, me: CjSeat, candidates: [number, number][], budgetMs: number): number[] {
+  const actor = g.turn;
+  const card = currentCard(g, actor);
+  const op = 1 - me;
   const myRest = (g.seq[me] ?? []).slice(g.pos[me]);
   const worlds = oppWorlds(g, op, 24);
   deadline = Date.now() + budgetMs; nodes = 0; aborted = false;
@@ -407,20 +420,42 @@ export function chooseMove(g: CjGame, me: CjSeat, budgetMs = 1300): CjAiMove | n
         if (aborted) break;
         if (v > best) best = v;
         if (Math.abs(v) <= WON) allForced = false;
-        const mine = actor === me ? v : -v; // score for the AI
+        const mine = actor === me ? v : -v; // score for `me`
         prob[i] += winProb(mine) * weight; raw[i] += clampWin(mine) * weight;
       }
       if (aborted) break;
     }
     if (aborted) break;
-    result = prob.map((p, i) => p + raw[i] * 1e-9);
+    result = prob.map((p, i) => p / worlds.length + raw[i] * 1e-9);
     reached = depth;
     if (allForced) break;
   }
-  const scores = result ?? candidates.map(() => 0);
-  let pick = 0;
-  for (let i = 1; i < candidates.length; i += 1) if (actor === me ? scores[i] > scores[pick] : scores[i] < scores[pick]) pick = i;
-  return { from: candidates[pick][0], to: candidates[pick][1] };
+  return result ?? candidates.map(() => 0);
+}
+
+export type CjJudgement = { played: [number, number]; better: [number, number]; playedChance: number; betterChance: number; missedWin: boolean };
+
+/**
+ * After a game: was the move `played` (by the side to move in `g`, seen as that side saw it) clearly worse than
+ * the best one? Returns the better move when the search finds a clearly higher win chance, or a missed immediate win.
+ */
+export function judgeMove(g: CjGame, played: [number, number], budgetMs = 300): CjJudgement | null {
+  const actor = g.turn as CjSeat;
+  const card = currentCard(g, actor);
+  if (g.phase !== 'move' || card < 0) return null;
+  const root = legalMoves(g.board, actor, card);
+  if (root.length < 2) return null;
+  const wins = (m: [number, number]) => g.board[m[1]] === kingOf(1 - actor) || (isKing(g.board[m[0]]) && m[1] === goalOf(actor));
+  const winning = root.find(wins);
+  if (winning && !wins(played)) return { played, better: winning, playedChance: 0, betterChance: 1, missedWin: true };
+  const scores = scoreMoves(g, actor, root, budgetMs);
+  const at = root.findIndex(([f, t]) => f === played[0] && t === played[1]);
+  if (at < 0) return null;
+  let best = 0;
+  for (let i = 1; i < root.length; i += 1) if (scores[i] > scores[best]) best = i;
+  const gap = scores[best] - scores[at];
+  if (best === at || gap < 0.28) return null;
+  return { played, better: root[best], playedChance: scores[at], betterChance: scores[best], missedWin: false };
 }
 
 /** The AI's layout for the cycle it has to lay out now. */

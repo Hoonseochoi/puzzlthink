@@ -19,7 +19,7 @@ export interface CatalogGame {
 
 export const GAMES: readonly CatalogGame[] = [
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
-  { id: 'cardJanggi', href: '/card-janggi', color: '#b07cff', hasGuide: false },
+  { id: 'cardJanggi', href: '/card-janggi', color: '#b07cff', hasGuide: true },
   { id: 'hitStay', href: '/hit-stay', color: '#6f7dff', hasGuide: false },
   { id: 'pointOmok', href: '/point-omok', color: '#ff5d8f', hasGuide: true },
   { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true, hell: { query: 'mode=two', live: true } },

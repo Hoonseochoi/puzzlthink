@@ -8,8 +8,8 @@ export const generateStaticParams = () => [{ locale: 'ko' }, { locale: 'en' }];
 export const alt = 'PUZZLTHINK Card Janggi';
 
 const COPY = {
-  ko: { kicker: '데블스 플랜 3 · 결승', title: '카드 장기', sub: '행마 카드 5장의 순서를 몰래 정해 상대 큰 말을 잡거나 진영에 먼저 들어가라', modes: ['AI 1:1', '친구 1:1', '오픈 1:1'] },
-  en: { kicker: "The Devil's Plan 3 · Final", title: 'Card Janggi', sub: 'Lay out five movement cards in secret. Take the enemy king or reach its square first', modes: ['vs AI', 'Friend 1:1', 'Open 1:1'] },
+  ko: { kicker: '데블스 플랜 3 결승전', title: '카드 장기', sub: '행마 카드 5장의 순서를 몰래 정해 상대 큰 말을 잡거나 진영에 먼저 들어가라', modes: ['AI 1:1', '친구 1:1', '오픈 1:1'] },
+  en: { kicker: "The Devil's Plan 3 final", title: 'Card Janggi', sub: 'Lay out five movement cards in secret. Take the enemy king or reach its square first', modes: ['vs AI', 'Friend 1:1', 'Open 1:1'] },
 };
 
 // 5 columns × 6 rows: 1 red small, 2 red king, -1 blue small, -2 blue king.

@@ -91,7 +91,7 @@ export function pieceIds(g: CjGame): Map<number, number> {
  * The board, turned so that `viewer`'s side is at the bottom: 5 columns × 6 rows on screen.
  * Engine x (0–5, seat 0's side first) runs up the screen for seat 0 and down for seat 1.
  */
-export function CjBoard({ g, viewer, selected, targets = [], selectable = [], onCell, flash, labels }: {
+export function CjBoard({ g, viewer, selected, targets = [], selectable = [], onCell, flash, labels, hints = [], hintSeat = viewer }: {
   g: CjGame;
   viewer: number;
   selected?: number | null;
@@ -100,6 +100,8 @@ export function CjBoard({ g, viewer, selected, targets = [], selectable = [], on
   onCell?: (cell: number) => void;
   flash?: { cell: number; key: string } | null;
   labels: { goal: string; home: string };
+  hints?: number[]; // squares a previewed card reaches (from `hintSeat`'s pieces)
+  hintSeat?: number;
 }) {
   const flip = viewer === 1;
   // screen (col c, row r) → engine cell
@@ -135,6 +137,9 @@ export function CjBoard({ g, viewer, selected, targets = [], selectable = [], on
                 </span>
               )}
               {canPick && selected !== cell && <span className="absolute inset-[5%] rounded-[10px] border-2 border-white/35" />}
+              {hints.includes(cell) && (g.board[cell]
+                ? <span className="absolute inset-[4%] z-[1] rounded-[10px] border-[3px]" style={{ borderColor: hintSeat === viewer ? '#5ee7ff' : '#ff4f5e', boxShadow: `0 0 12px ${hintSeat === viewer ? '#5ee7ff' : '#ff4f5e'}` }} />
+                : <span className="absolute left-1/2 top-1/2 h-[26%] w-[26%] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: hintSeat === viewer ? '#5ee7ff' : '#ff8a96', boxShadow: `0 0 10px ${hintSeat === viewer ? '#5ee7ff' : '#ff4f5e'}` }} />)}
             </button>
           );
         }))}
@@ -159,4 +164,11 @@ export function CjBoard({ g, viewer, selected, targets = [], selectable = [], on
       </div>
     </div>
   );
+}
+
+/** Square name from `viewer`'s side: columns a–e left to right, rows 1–6 from the bottom. */
+export function squareName(cell: number, viewer: number) {
+  const c = viewer === 1 ? CJ_H - 1 - yOf(cell) : yOf(cell);
+  const r = viewer === 1 ? CJ_W - xOf(cell) : xOf(cell) + 1;
+  return `${'abcde'[c]}${r}`;
 }

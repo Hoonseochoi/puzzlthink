@@ -2,6 +2,8 @@
 // Plays whole matches through the room reducer (random players, with timeouts thrown in) and checks round flow,
 // match end, the timeout rule (the opponent moves the late player's piece), idle loss, and what a guest's view holds.
 import { type CjSeat, currentCard, legalMoves, layoutSize, randomLayout } from '../src/lib/cardJanggi';
+import { judgeMove } from '../src/lib/cardJanggiAi';
+import { checkTips, positionBefore, spotsFor } from '../src/lib/cardJanggiTips';
 import { type CjRoom, CJ_IDLE_LOSS, cjPrivateFor, cjWaitingOn, cjWithPrivate, createCjRoom, redactCjRoom, reduceCjRoom } from '../src/lib/cardJanggiRoom';
 
 const n = Number(process.argv[2] ?? 200);
@@ -90,3 +92,31 @@ for (let m = 0; m < n; m += 1) {
   winsBy[String(s.winner)] += 1;
 }
 console.log(`ok · ${matches} matches, ${rounds} rounds · proxy moves ${proxies} · timed-out layouts ${layoutsTimed} · idle losses ${idleLosses} · winners ${JSON.stringify(winsBy)}`);
+
+// Tips: every recorded position of a finished match rebuilds, and as the mover saw it.
+{
+  let s = createCjRoom({ id: 'a', name: 'A', at: 0 });
+  s = { ...s, seats: [{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }] };
+  s = reduceCjRoom(s, { t: 'start' }, 0, true)!;
+  while (s.phase !== 'finished') {
+    if (s.phase === 'between') { s = reduceCjRoom(expire(s), { t: 'next' }, null, true)!; continue; }
+    const g = s.game;
+    if (g.phase === 'arrange') { for (const seat of cjWaitingOn(s) as CjSeat[]) s = reduceCjRoom(s, { t: 'arrange', order: randomLayout(s.game, seat) }, seat, true)!; continue; }
+    const moves = legalMoves(g.board, g.turn, currentCard(g, g.turn));
+    const [from, to] = moves[Math.floor(Math.random() * moves.length)];
+    s = reduceCjRoom(s, { t: 'move', from, to }, g.turn, true)!;
+  }
+  let positions = 0;
+  s.results.forEach((r) => (r.history ?? []).forEach((m, k) => {
+    const before = positionBefore(r, k);
+    if (!before) fail(`position ${k} did not rebuild`);
+    if (currentCard(before!, m.seat) !== m.card) fail(`card mismatch at ${k}`);
+    if (!m.pass && !legalMoves(before!.board, m.seat, m.card).some(([f, t]) => f === m.from && t === m.to)) fail(`move ${k} not legal in rebuilt position`);
+    before!.seq[1 - m.seat].forEach((c, i) => { if (c >= 0 && i > before!.pos[1 - m.seat]) fail('rebuilt position shows hidden cards'); });
+    positions += 1;
+  }));
+  const spots = spotsFor(s.results, 0, 3);
+  const t0 = Date.now();
+  const judged = spots.map((spot) => judgeMove(spot.before, spot.played, 200));
+  console.log(`tips ok · ${positions} positions rebuilt · ${spots.length} spots judged in ${Date.now() - t0}ms · found ${judged.filter(Boolean).length} · checks ${JSON.stringify(checkTips(s.results, 0))}`);
+}

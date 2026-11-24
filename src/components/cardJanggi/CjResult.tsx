@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { CjRoom } from '@/lib/cardJanggiRoom';
@@ -8,6 +8,8 @@ import { reportGame } from '@/lib/stats';
 import ResultActions from '../ResultActions';
 import { KICKER, MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 import { type CjCopy, sideColor } from './copy';
+import { CjTips } from './CjTips';
+import { TipsButton } from '../ui/TipsModal';
 
 /** One record per match for this player: the match result, how many rounds, and why it ended. */
 export function useCjReport(room: CjRoom | null, mySeat: number | null, mode: 'ai' | 'friend') {
@@ -31,6 +33,8 @@ export default function CjResult({ room, mySeat, names, t, onAgain, waitingLabel
   const won = mySeat !== null && room.winner === mySeat;
   const title = room.winner === 'draw' ? t.matchDraw : mySeat === null ? t.winnerIs(names[room.winner as number]) : won ? t.matchWin : t.matchLose;
   const why = room.reason === 'resign' || room.reason === 'idle' ? (won ? t.reason : t.reasonLost)[room.reason] : null;
+  const [tipsOpen, setTipsOpen] = useState(false);
+  const canTip = mySeat !== null && room.results.some((r) => r.history?.some((m) => m.seat === mySeat && !m.pass));
   return (
     <div className={`${MODAL_BACKDROP} !z-[80]`}>
       <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`${MODAL} text-white`}>
@@ -55,8 +59,10 @@ export default function CjResult({ room, mySeat, names, t, onAgain, waitingLabel
             );
           })}
         </ol>
+        {canTip && <TipsButton label={t.tipsButton} onOpen={() => setTipsOpen(true)} />}
         <div className="mt-5"><ResultActions won={mySeat === null ? undefined : won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath={path} exitPath={path} primaryClass={RESULT_PRIMARY} /></div>
       </motion.div>
+      {tipsOpen && mySeat !== null && <CjTips results={room.results} seat={mySeat} t={t} onClose={() => setTipsOpen(false)} />}
     </div>
   );
 }

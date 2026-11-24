@@ -19,7 +19,8 @@ export const CJ_IDLE_LOSS = 3;
 /** The round result stays up this long before the next round's layouts start. */
 export const CJ_BETWEEN_MS = 4500;
 
-export type CjRoundResult = { first: CjSeat; winner: CjSeat | 'draw'; reason: CjGame['reason']; plies: number };
+/** A finished round. `history` and `layouts` (every layout each side made, in order) let the tips replay it. */
+export type CjRoundResult = { first: CjSeat; winner: CjSeat | 'draw'; reason: CjGame['reason']; plies: number; history?: CjGame['history']; layouts?: number[][][] };
 
 export type CjRoom = BaseRoom & {
   phase: 'lobby' | 'playing' | 'between' | 'finished';
@@ -66,7 +67,8 @@ function withGame(state: CjRoom, game: CjGame, now: number, proxy = false): CjRo
 
 function endRound(state: CjRoom, now: number): CjRoom {
   const g = state.game;
-  const result: CjRoundResult = { first: g.first, winner: g.winner ?? 'draw', reason: g.reason, plies: g.ply };
+  const layouts = [0, 1].map((s) => [...(g.past?.[s] ?? []), ...(g.seq[s]?.length ? [g.seq[s]] : [])]);
+  const result: CjRoundResult = { first: g.first, winner: g.winner ?? 'draw', reason: g.reason, plies: g.ply, history: g.history, layouts };
   const wins: [number, number] = [state.wins[0] + (g.winner === 0 ? 1 : 0), state.wins[1] + (g.winner === 1 ? 1 : 0)];
   const results = [...state.results, result];
   const decided = wins[0] >= CJ_WINS || wins[1] >= CJ_WINS;

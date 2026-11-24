@@ -113,6 +113,7 @@ export type CjGame = {
   turn: CjSeat; // whose move it is (in 'arrange': who moves once the layout is in)
   arranging: [boolean, boolean]; // who has to lay out their cards now
   seq: number[][]; // each side's current layout; -1 = a face-down card this browser may not see
+  past?: number[][][]; // each side's earlier layouts this round (all played, so public)
   pos: [number, number]; // index of each side's next card (the face-up one)
   cycle: [number, number]; // layouts made so far this round
   ply: number;
@@ -126,7 +127,7 @@ export const layoutSize = (g: Pick<CjGame, 'cycle' | 'first'>, seat: number) => 
 
 export function newRound(first: CjSeat): CjGame {
   return {
-    board: startBoard(), first, phase: 'arrange', turn: first, arranging: [true, true], seq: [[], []], pos: [0, 0], cycle: [0, 0],
+    board: startBoard(), first, phase: 'arrange', turn: first, arranging: [true, true], seq: [[], []], past: [[], []], pos: [0, 0], cycle: [0, 0],
     ply: 0, history: [], winner: null, reason: null,
   };
 }
@@ -177,7 +178,8 @@ export function arrange(g: CjGame, seat: CjSeat, order: number[]): CjGame | null
   if (!validLayout(g, seat, order)) return null;
   const arranging = setAt(g.arranging, seat, false);
   const seq = g.seq.map((s, i) => (i === seat ? [...order] : s));
-  const next: CjGame = { ...g, seq, pos: setAt(g.pos, seat, 0), cycle: setAt(g.cycle, seat, g.cycle[seat] + 1), arranging };
+  const past = (g.past ?? [[], []]).map((cycles, i) => (i === seat && g.seq[seat].length ? [...cycles, g.seq[seat]] : cycles));
+  const next: CjGame = { ...g, seq, past, pos: setAt(g.pos, seat, 0), cycle: setAt(g.cycle, seat, g.cycle[seat] + 1), arranging };
   return arranging[0] || arranging[1] ? next : settle({ ...next, phase: 'move' });
 }
 

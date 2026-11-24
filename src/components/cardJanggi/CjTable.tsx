@@ -4,11 +4,12 @@ import { type ReactNode, useEffect, useRef, useState, useSyncExternalStore } fro
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bot, Dices, Eraser, Flag, Loader2, Lock, Timer } from 'lucide-react';
-import { CJ_CARDS, CJ_H, CJ_W, type CjGame, cardsLeft, currentCard, isKing, layoutSize, other, redactGame, seatOfPiece, startBoard, targetsOf, xOf, yOf } from '@/lib/cardJanggi';
+import { CJ_CARDS, type CjGame, cardsLeft, currentCard, isKing, layoutSize, other, redactGame, seatOfPiece, startBoard, targetsOf } from '@/lib/cardJanggi';
 import { type CjAction, type CjRoom, CJ_BETWEEN_MS, CJ_COIN_MS, CJ_LAYOUT_SEC, cjWaitingOn } from '@/lib/cardJanggiRoom';
 import { PANEL, PANEL_TITLE, accentVars } from '../ui/gameUi';
 import { CJ_ACCENT, CJ_INK, type CjCopy, sideColor } from './copy';
-import { CARD_EMOJI, CjBoard, CjCardBack, CjCardFace, CjCardSlot, CjPiece } from './CjParts';
+import { CARD_EMOJI, CjBoard, CjCardBack, CjCardFace, CjCardSlot, CjPiece, squareName } from './CjParts';
+import { CjRulesTip } from './CjTips';
 
 type Props = {
   room: CjRoom;
@@ -94,6 +95,14 @@ export default function CjTable({ room, mySeat, onAction, t, names, thinking = f
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [arranging, seconds, draftKey]);
 
+  // Card preview: tap a face-up card (long-press while laying out) to light up the squares it reaches.
+  const [peekState, setPeek] = useState<{ key: string; card: number; seat: number } | null>(null);
+  const peek = peekState?.key === moveKey ? peekState : null;
+  const togglePeek = (card: number, seat: number) => setPeek(peek && peek.card === card && peek.seat === seat ? null : { key: moveKey, card, seat });
+  const hints = peek ? [...new Set(g.board.flatMap((p, cell) => (
+    p && seatOfPiece(p) === peek.seat && (shownSel === null || seatOfPiece(g.board[shownSel] ?? 0) !== peek.seat || shownSel === cell) ? targetsOf(g.board, cell, peek.card) : []
+  )))] : [];
+
   const last = g.history[g.history.length - 1];
   const flash = last && !last.pass && last.cap ? { cell: last.to, key: `${room.round}-${g.ply}` } : null;
   // The dock is fixed to the bottom: the page leaves room for it, and the board shrinks so everything fits one screen.
@@ -103,12 +112,19 @@ export default function CjTable({ room, mySeat, onAction, t, names, thinking = f
   return (
     <div className="mx-auto grid w-full max-w-[1100px] gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
       <div className="mx-auto flex w-full min-w-0 max-w-[480px] flex-col gap-2" style={{ paddingBottom: dockH + 8 }}>
-        <SideBar room={room} g={g} seat={opp} me={false} name={names[opp]} t={t} acting={waiting.includes(opp)} seconds={seconds} thinking={thinking && waiting.includes(opp)} />
-        <div className="mx-auto w-full" style={{ maxWidth: `min(100%, calc((100dvh - ${reserve}px) * 0.833))` }}>
-          <CjBoard g={g} viewer={viewer} selected={shownSel} targets={shownTargets} selectable={selectable} onCell={moving ? tapCell : undefined} flash={flash} labels={{ goal: t.goal, home: t.home }} />
+        <SideBar room={room} g={g} seat={opp} me={false} name={names[opp]} t={t} acting={waiting.includes(opp)} seconds={seconds} thinking={thinking && waiting.includes(opp)} onPeek={togglePeek} peek={peek} />
+        <div className="relative mx-auto w-full" style={{ maxWidth: `min(100%, calc((100dvh - ${reserve}px) * 0.833))` }}>
+          <CjBoard g={g} viewer={viewer} selected={shownSel} targets={shownTargets} selectable={selectable} onCell={moving || peek ? (cell) => { if (peek) setPeek(null); tapCell(cell); } : undefined}
+            flash={flash} labels={{ goal: t.goal, home: t.home }} hints={hints} hintSeat={peek?.seat} />
+          <div className="absolute -top-2.5 right-2 z-[2]"><CjRulesTip t={t} seat={viewer} /></div>
+          {peek && (
+            <button type="button" onClick={() => setPeek(null)} className="absolute -top-2.5 left-2 z-[2] flex max-w-[70%] items-center gap-1 truncate rounded-full bg-black/80 px-2.5 py-1 text-[10.5px] font-black ring-1" style={{ color: peek.seat === viewer ? '#5ee7ff' : '#ff8a96', ['--tw-ring-color' as string]: peek.seat === viewer ? '#5ee7ff66' : '#ff4f5e66' }}>
+              <span className="truncate">{(peek.seat === viewer ? t.peekMine : t.peekTheirs)(`${CARD_EMOJI[peek.card]} ${t.cards[peek.card]}`)}</span><span className="text-white/50">✕</span>
+            </button>
+          )}
         </div>
         <SideBar room={room} g={g} seat={viewer} me={mySeat !== null} name={names[viewer]} t={t} acting={waiting.includes(viewer)} seconds={seconds}
-          draft={arranging ? draft : null} draftSize={size} onTake={take} thinking={thinking && waiting.includes(viewer)} />
+          draft={arranging ? draft : null} draftSize={size} onTake={take} thinking={thinking && waiting.includes(viewer)} onPeek={togglePeek} peek={peek} />
         <section className={`${PANEL} lg:hidden`}><LogList g={g} t={t} viewer={viewer} names={names} /></section>
       </div>
 
@@ -123,7 +139,7 @@ export default function CjTable({ room, mySeat, onAction, t, names, thinking = f
 
       <Layer>
         {mySeat !== null && (room.phase === 'playing' || room.phase === 'between') && (
-          <Dock room={room} g={g} t={t} seat={mySeat} seconds={seconds} myTurn={myTurn} arranging={arranging} moving={moving} thinking={thinking}
+          <Dock room={room} g={g} t={t} seat={mySeat} seconds={seconds} myTurn={myTurn} arranging={arranging} moving={moving} thinking={thinking} onPeek={(card) => togglePeek(card, mySeat)}
             draft={draft} size={size} onPut={put} onClear={() => setDraft({ key: draftKey, order: [] })} onRandom={() => setDraft({ key: draftKey, order: fillRandom([]) })}
             onSubmit={() => { sent.current = draftKey; submit(draft); }} selected={shownSel} onResign={onResign} onHeight={setDockH} />
         )}
@@ -144,9 +160,9 @@ function Layer({ children }: { children: ReactNode }) {
 }
 
 /** One side: name, 선/후, round wins and its cards this cycle (used · face-up · face-down or, for you, the rest). */
-function SideBar({ room, g, seat, me, name, t, acting, seconds, thinking, draft = null, draftSize = 5, onTake }: {
+function SideBar({ room, g, seat, me, name, t, acting, seconds, thinking, draft = null, draftSize = 5, onTake, onPeek, peek }: {
   room: CjRoom; g: CjGame; seat: number; me: boolean; name: string; t: CjCopy; acting: boolean; seconds: number | null; thinking: boolean;
-  draft?: number[] | null; draftSize?: number; onTake?: (i: number) => void;
+  draft?: number[] | null; draftSize?: number; onTake?: (i: number) => void; onPeek: (card: number, seat: number) => void; peek: { card: number; seat: number } | null;
 }) {
   const color = sideColor(seat);
   const seq = g.seq[seat] ?? [];
@@ -182,7 +198,7 @@ function SideBar({ room, g, seat, me, name, t, acting, seconds, thinking, draft 
             return (
               <span key={i} className="relative flex flex-col items-center">
                 {card >= 0
-                  ? <CjCardFace card={card} seat={seat} size={now ? cardSize + 6 : cardSize} name={t.cards[card]} dim={used} glow={now} />
+                  ? <button type="button" onClick={() => onPeek(card, seat)} aria-label={`${t.cards[card]} · ${t.cardMoves[card]}`} className={`rounded-[8px] ${peek?.card === card && peek.seat === seat ? 'ring-2 ring-[#5ee7ff]' : ''}`}><CjCardFace card={card} seat={seat} size={now ? cardSize + 6 : cardSize} name={t.cards[card]} dim={used} glow={now} /></button>
                   : <CjCardBack seat={seat} size={cardSize} label={String(i + 1)} />}
                 {now && <span className="absolute -top-1.5 rounded bg-white px-1 text-[8px] font-black leading-[12px] text-black">NOW</span>}
               </span>
@@ -195,10 +211,14 @@ function SideBar({ room, g, seat, me, name, t, acting, seconds, thinking, draft 
   );
 }
 
-function Dock({ room, g, t, seat, seconds, myTurn, arranging, moving, thinking, draft, size, onPut, onClear, onRandom, onSubmit, selected, onResign, onHeight }: {
+function Dock({ room, g, t, seat, seconds, myTurn, arranging, moving, thinking, draft, size, onPut, onClear, onRandom, onSubmit, selected, onResign, onHeight, onPeek }: {
   room: CjRoom; g: CjGame; t: CjCopy; seat: number; seconds: number | null; myTurn: boolean; arranging: boolean; moving: boolean; thinking: boolean;
-  draft: number[]; size: number; onPut: (c: number) => void; onClear: () => void; onRandom: () => void; onSubmit: () => void; selected: number | null; onResign?: () => void; onHeight: (h: number) => void;
+  draft: number[]; size: number; onPut: (c: number) => void; onClear: () => void; onRandom: () => void; onSubmit: () => void; selected: number | null; onResign?: () => void; onHeight: (h: number) => void; onPeek: (card: number) => void;
 }) {
+  // A long press on a card in the layout picker previews its moves instead of adding it.
+  const press = useRef<{ timer: number; fired: boolean } | null>(null);
+  const startPress = (card: number) => { const p = { timer: window.setTimeout(() => { p.fired = true; onPeek(card); try { navigator.vibrate?.(12); } catch { /* optional */ } }, 420), fired: false }; press.current = p; };
+  const endPress = () => { if (press.current) window.clearTimeout(press.current.timer); };
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
@@ -231,7 +251,9 @@ function Dock({ room, g, t, seat, seconds, myTurn, arranging, moving, thinking, 
               {CJ_CARDS.map((c) => {
                 const usedAt = draft.indexOf(c);
                 return (
-                  <button key={c} type="button" onClick={() => onPut(c)} disabled={usedAt >= 0 || draft.length >= size} className="relative flex flex-1 flex-col items-center rounded-[9px] p-0.5 transition active:scale-95 disabled:opacity-100">
+                  <button key={c} type="button" onPointerDown={() => startPress(c)} onPointerUp={endPress} onPointerLeave={endPress} onContextMenu={(e) => e.preventDefault()}
+                    onClick={() => { const fired = press.current?.fired; press.current = null; if (fired) return; if (usedAt < 0 && draft.length < size) onPut(c); }}
+                    aria-disabled={usedAt >= 0 || draft.length >= size} className="relative flex flex-1 select-none flex-col items-center rounded-[9px] p-0.5 transition [-webkit-touch-callout:none] active:scale-95">
                     <CjCardFace card={c} seat={seat} size={58} name={t.cards[c]} dim={usedAt >= 0} />
                     <span className="mt-0.5 text-[8.5px] font-bold leading-tight text-white/45">{t.cardMoves[c]}</span>
                     {usedAt >= 0 && <span className="absolute left-1/2 top-[30%] flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full bg-white font-mono text-xs font-black text-black shadow">{usedAt + 1}</span>}
@@ -312,13 +334,6 @@ function RoundBanner({ room, viewer, t, now, spectator, names }: { room: CjRoom;
       </motion.div>
     </motion.div>
   );
-}
-
-/** Square name from `viewer`'s side: columns a–e left to right, rows 1–6 from the bottom. */
-export function squareName(cell: number, viewer: number) {
-  const c = viewer === 1 ? CJ_H - 1 - yOf(cell) : yOf(cell);
-  const r = viewer === 1 ? CJ_W - xOf(cell) : xOf(cell) + 1;
-  return `${'abcde'[c]}${r}`;
 }
 
 function LogList({ g, t, viewer, names }: { g: CjGame; t: CjCopy; viewer: number; names: [string, string] }) {
