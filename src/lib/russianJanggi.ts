@@ -10,7 +10,8 @@ export type Size = 0 | 1 | 2; // small, medium, large
 export type Piece = { owner: Side; size: Size };
 export type Action = { kind: 'place'; size: Size; to: number } | { kind: 'move'; from: number; to: number } | { kind: 'pass' };
 export type Reason = 'line' | 'draw' | 'limit' | 'resign' | 'timeout' | 'abandon';
-export type Difficulty = 'easy' | 'normal' | 'hard';
+// 'hell' (매우 어려움) is its own engine in russianJanggiHell.ts, run in a Web Worker via russianJanggiHellClient.ts.
+export type Difficulty = 'easy' | 'normal' | 'hard' | 'hell';
 
 export type RJState = {
   board: Piece[][]; // per cell, bottom → top
@@ -268,6 +269,7 @@ export function turningPointAt(game: RJState, index: number, budgetMs = 300): Tu
   return { index, before, played: game.moves[index], better: best.action, outcome: best.value >= 900 ? 'win' : 'save' };
 }
 
+/** easy / normal / hard. 'hell' is played by russianJanggiHell.ts; asked here it plays like hard. */
 export function chooseAiAction(state: RJState, difficulty: Difficulty): Action {
   const side = state.turn;
   const moves = legalActions(state, side);
@@ -290,8 +292,8 @@ export function chooseAiAction(state: RJState, difficulty: Difficulty): Action {
     if (safe.length) return pick(safe).action;
   }
   // Hard now plays about like the old normal (which people beat ~20% of the time), a touch noisier.
-  const scored = difficulty === 'hard' ? rootScores(state, 300, 2) : rootScores(state, 120, 2);
-  const noise = difficulty === 'hard' ? 9 : 12;
+  const scored = difficulty === 'hard' || difficulty === 'hell' ? rootScores(state, 300, 2) : rootScores(state, 120, 2);
+  const noise = difficulty === 'hard' || difficulty === 'hell' ? 9 : 12;
   const ranked = scored.map((x) => ({ ...x, value: x.value + (Math.abs(x.value) >= 900 ? 0 : Math.random() * noise) })).sort((a, b) => b.value - a.value);
   return ranked[0].action;
 }

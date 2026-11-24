@@ -3,8 +3,9 @@
 import BugReport from '@/components/BugReport';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { BookOpen, Check, Clock3, Flag, Infinity, RotateCcw, Sparkles } from 'lucide-react';
+import { BookOpen, Check, Clock3, Flag, Flame, Infinity, RotateCcw, Sparkles } from 'lucide-react';
 import { type Action, type Difficulty, type JanggiState, type Side, HANJA, cellName, chooseAiAction, finish, initialState, playableActions, playAction } from '@/lib/janggi';
+import { requestHellAction } from '@/lib/janggiHellClient';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiTable from './JanggiTable';
@@ -15,6 +16,7 @@ import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, CHIP, DIAMOND, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, seg, timer } from '../ui/gameUi';
 import { GOLD, JANGGI_FOG, SIDE_COLORS, hanjaFont } from './theme';
+import { HELL_HINT, hellSeg } from './hellStyle';
 
 const RECORD_KEY = 'puzzlthink_janggi_records';
 const TUTORIAL_KEY = 'puzzlthink_janggi_tutorial_seen';
@@ -23,8 +25,15 @@ const TURN_CHOICES = [0, 90, 60, 30] as const; // 0 = no clock
 type TurnChoice = (typeof TURN_CHOICES)[number];
 type ClockView = { game: JanggiState; deadline: number; turnSec: number; paused: boolean; timeouts: number; play: (action: Action, auto?: boolean) => void; timeOut: () => void };
 export const RESULT_DELAY_MS = 2000;
-const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
+const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard']; // 'hell' gets its own row below
 type FirstChoice = 'me' | 'ai' | 'random';
+/** A level named in the link (e.g. `?difficulty=hell#play` from the 헬모드 page), if it is one of ours. */
+const linkedDifficulty = (): Difficulty | null => {
+  try {
+    const level = new URLSearchParams(window.location.search).get('difficulty');
+    return level === 'hell' || (DIFFICULTIES as string[]).includes(level ?? '') ? (level as Difficulty) : null;
+  } catch { return null; }
+};
 type MatchRecord = { won: boolean; draw: boolean; difficulty: Difficulty; date: string };
 
 export function describeAction(t: (key: string, values?: Record<string, string | number>) => string, before: JanggiState, action: Action, player: string) {
@@ -69,7 +78,7 @@ export default function JanggiGame() {
       try { setRecords(JSON.parse(localStorage.getItem(RECORD_KEY) || '[]')); } catch { /* Optional history. */ }
       try { if (!localStorage.getItem(TUTORIAL_KEY)) setShowTutorial(true); } catch { /* Optional. */ }
       try { const saved = Number(localStorage.getItem(TURN_KEY)); if ((TURN_CHOICES as readonly number[]).includes(saved)) setTurnSec(saved as TurnChoice); } catch { /* Optional. */ }
-      newGame('random');
+      newGame('random', linkedDifficulty() ?? 'normal'); // ?difficulty=hell from the 헬모드 page
     }, 0);
     // Turn clock: when my time runs out a random legal move is played; three in a row loses on time.
     const tick = window.setInterval(() => {
@@ -112,6 +121,16 @@ export default function JanggiGame() {
   // AI turn.
   useEffect(() => {
     if (over || game.turn !== 1 || showTutorial) return;
+    if (difficulty === 'hell') {
+      // Searched in a Web Worker for about a second; the board stays live meanwhile.
+      let cancelled = false;
+      const started = Date.now();
+      requestHellAction(game).then((action) => {
+        const wait = Math.max(0, 350 - (Date.now() - started));
+        window.setTimeout(() => { if (!cancelled && action) play(action); }, wait);
+      });
+      return () => { cancelled = true; };
+    }
     const timer = window.setTimeout(() => {
       const action = chooseAiAction(game, difficulty);
       if (action) play(action);
@@ -176,7 +195,10 @@ export default function JanggiGame() {
         <aside className="flex flex-col gap-4">
           <section className={PANEL}>
             <h2 className={PANEL_TITLE}>{t('difficulty')}</h2>
-            <div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => newGame(firstChoice, level)} className={`p-2.5 ${seg(difficulty === level)}`}>{t(`difficulty_${level}`)}</button>)}</div>
+            <div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => newGame(firstChoice, level)} className={`p-2.5 ${seg(difficulty === level)}`}>{t(`difficulty_${level}`)}</button>)}
+              <button onClick={() => newGame(firstChoice, 'hell')} className={`col-span-3 p-2.5 ${hellSeg(difficulty === 'hell')}`}><Flame size={13} />{t('difficulty_hell')}</button>
+            </div>
+            {difficulty === 'hell' && <p className={HELL_HINT}>{t('hellHint')}</p>}
             <h2 className={`${PANEL_TITLE} mt-4`}>{t('firstPlayer')}</h2>
             <div className="mt-3 grid grid-cols-3 gap-2">{(['me', 'ai', 'random'] as FirstChoice[]).map((choice) => <button key={choice} onClick={() => newGame(choice)} className={`p-2.5 ${seg(firstChoice === choice)}`}>{t(`first_${choice}`)}</button>)}</div>
             <h2 className={`${PANEL_TITLE} mt-4`}>{t('turnTime')}</h2>

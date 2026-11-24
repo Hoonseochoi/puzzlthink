@@ -959,6 +959,8 @@
     "difficulty_easy": "Easy",
     "difficulty_normal": "Normal",
     "difficulty_hard": "Hard",
+    "difficulty_hell": "Very Hard",
+    "hellHint": "Very Hard: the AI reads a dozen-plus moves ahead each turn and never misses a king capture or a winning camp entry.",
     "firstPlayer": "First move",
     "first_me": "Me",
     "first_ai": "AI",
@@ -1152,6 +1154,10 @@
       {
         "q": "Is it free?",
         "a": "Yes, every game is free."
+      },
+      {
+        "q": "How strong is the 'Very Hard' AI?",
+        "a": "The Very Hard AI reads a dozen-plus moves ahead each turn for about a second and a half (about one second on phones), and calculates king captures, camp entries and the no-third-repetition rule exactly. Against the Hard AI, swapping who moves first, it won more than nine games in ten over hundreds of games. The thinking runs in the background, so the board never freezes."
       }
     ],
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Genius or its broadcaster. Show names are used only to describe the games."
@@ -1769,6 +1775,8 @@
     "difficulty_easy": "Easy",
     "difficulty_normal": "Normal",
     "difficulty_hard": "Hard",
+    "difficulty_hell": "Very Hard",
+    "hellHint": "Very Hard: the AI reads almost to the end each turn and never misses a winning line.",
     "firstPlayer": "First move",
     "first_me": "Me",
     "first_ai": "AI",
@@ -2676,6 +2684,10 @@
       {
         "q": "Does going first help?",
         "a": "A little, because the first player can take the center. In the AI game you can choose who goes first: you, the AI, or random."
+      },
+      {
+        "q": "How strong is the 'Very Hard' AI?",
+        "a": "The Very Hard AI reads almost to the end of the game each turn for about a second and a half (about one second on phones). Russian Janggi has no dice or other luck, so once it sees a winning line it plays it out exactly; in a lost position it picks the move whose refutation is hardest to find. Against the Hard AI, swapping who moves first, it won more than nine games in ten over hundreds of games."
       }
     ],
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Society Game, tvN or the makers of Gobblet Gobblers. Show and game names are used only to describe the games.",
