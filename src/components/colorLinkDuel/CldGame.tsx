@@ -74,7 +74,7 @@ export default function CldGame() {
       setThinking(true);
       const started = Date.now();
       if (aiTurn) {
-        const answer = await askAi({ kind: 'turn', board: room.board, opening: room.placements === 0, seed: Math.floor(Math.random() * 1e9), thinkMs: 1800 });
+        const answer = await askAi({ kind: 'turn', board: room.board, opening: room.placements === 0, seed: Math.floor(Math.random() * 1e9), thinkMs: 900 });
         await sleep(Math.max(0, 1300 - (Date.now() - started)));
         if (cancelled) return;
         setThinking(false);

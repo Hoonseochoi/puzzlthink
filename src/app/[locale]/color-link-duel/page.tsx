@@ -11,8 +11,8 @@ import { breadcrumbJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 const meta = (korean: boolean) => ({
   title: korean ? '컬러 링크 — 데블스 플랜 3 결승, 이을 수 없는 판을 만드는 쪽이 진다' : "Color Link Duel — The Devil's Plan 3 final: don't be the one who breaks the board",
   description: korean
-    ? '7×7 판에 14가지 색 말을 번갈아 놓는 1:1 두뇌 대결. 같은 색끼리 겹치지 않게 이을 수 없는 판이 되면 불가능 선언, 5분 안에 증명하지 못하면 패배. AI 어려움·친구·공개방.'
-    : 'A 1:1 duel: take turns placing stones of 14 colors on a 7×7 board. Break the board so the colors cannot be joined and get called out — prove it in 5 minutes or lose. Hard AI, friends or open rooms.',
+    ? '7×7 판에 14가지 색 말을 번갈아 놓는 1:1 두뇌 대결. 같은 색끼리 겹치지 않게 이을 수 없는 판이 되면 불가능 선언, 2분 안에 증명하지 못하면 패배. AI 어려움·친구·공개방.'
+    : 'A 1:1 duel: take turns placing stones of 14 colors on a 7×7 board. Break the board so the colors cannot be joined and get called out — prove it in 2 minutes or lose. Hard AI, friends or open rooms.',
 });
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
