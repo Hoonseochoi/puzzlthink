@@ -439,6 +439,8 @@
     "difficultyEasy": "Easy",
     "difficultyNormal": "Normal",
     "difficultyHard": "Hard",
+    "difficultyHell": "Very Hard",
+    "difficultyHellHint": "1:1 only · reads several turns ahead",
     "record": "My record",
     "recordGames": "Games",
     "recordWins": "Wins",
@@ -798,7 +800,7 @@
       },
       {
         "q": "Is there a 2-player (1:1) mode?",
-        "a": "Yes. You can play a 3-player game against two AI opponents, or a 1:1 duel with 4 pieces each, like round 2 on the show. AI difficulty can be Easy, Normal, or Hard."
+        "a": "Yes. You can play a 3-player game against two AI opponents, or a 1:1 duel with 4 pieces each, like round 2 on the show. AI difficulty can be Easy, Normal, or Hard, and 1:1 also has Very Hard, an AI that reads several turns ahead."
       }
     ],
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius, or their broadcasters. Show names are used only to describe the games.",
@@ -5392,7 +5394,7 @@
       },
       {
         "q": "Can I play alone?",
-        "a": "Yes. Play 3-player against 2 AI or 1:1 against 1 AI, on easy, normal or hard."
+        "a": "Yes. Play 3-player against 2 AI or 1:1 against 1 AI, on easy, normal or hard. 1:1 also has Very Hard, an AI that reads several turns ahead."
       },
       {
         "q": "How do I play with friends?",
