@@ -372,8 +372,8 @@ const READ = 0.4;
 const STYLE: Record<HsStyle, { risk: number; raise: number; bluff: number; slow: number; hitBias: number }> = {
   calc: { risk: 0.64, raise: 1, bluff: 0.03, slow: 0.1, hitBias: 0 },
   shark: { risk: 0.68, raise: 1.06, bluff: 0.1, slow: 0, hitBias: 0 },
-  rock: { risk: 0.56, raise: 0.94, bluff: 0, slow: 0.05, hitBias: -0.015 },
-  gambler: { risk: 0.7, raise: 1.03, bluff: 0.07, slow: 0, hitBias: 0.02 },
+  rock: { risk: 0.56, raise: 0.94, bluff: 0, slow: 0.05, hitBias: -0.03 },
+  gambler: { risk: 0.7, raise: 1.03, bluff: 0.07, slow: 0, hitBias: 0.04 },
   fox: { risk: 0.64, raise: 1, bluff: 0.09, slow: 0.4, hitBias: 0 },
 };
 
@@ -392,7 +392,10 @@ export function chooseHsAction(g: HitStay, seat: number, style: HsStyle): HsActi
   if (g.phase === 'hit') {
     const hit = winChance(g, seat, SIMS, 'hit');
     const stay = winChance(g, seat, SIMS, 'stay');
-    return hit + st.hitBias > stay + 0.005 ? { kind: 'hit' } : { kind: 'stay' };
+    // The lean only tips a close call: it shrinks to nothing when the round is already lost (both ~0) or won
+    // (STAY ~1), so a hopeless hand stays instead of drawing until the deck runs out.
+    const lean = st.hitBias * 2 * Math.min(hit, stay, 1 - stay);
+    return hit + lean > stay + 0.005 ? { kind: 'hit' } : { kind: 'stay' };
   }
 
   // Betting: expected utility of each move with the estimated chance to win the pot.
