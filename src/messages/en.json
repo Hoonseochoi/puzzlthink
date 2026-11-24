@@ -191,7 +191,7 @@
     ]
   },
   "Home": {
-    "hellTag": "VERY HARD",
+    "hellTag": "HELL MODE ON",
     "merge2048Meta": "Free play · challenge ranking · 2–4 friends",
     "merge2048Description": "Slide matching blocks together and watch the little squares grow into shiny stones. A calm puzzle for a tired brain — take your time to 2048.",
     "tag_healing": "HEALING",
@@ -7398,6 +7398,8 @@
     "disclaimer": "A free web puzzle made by PUZZLTHINK. The basic rules of 2048 come from the open-source game released in 2014; the characters and modes are PUZZLTHINK's own."
   },
   "Hell": {
+    "aiRecord": "{w}W {l}L",
+    "aiRecordDraw": "{w}W {l}L {d}D",
     "metaTitle": "AI Hell Mode · Take on the Very Hard AI",
     "metaDescription": "Take on the strongest AI in Wallgo II, Wallgo, 12 Janggi, Russian Janggi and Blind Gomoku. Every win is a black piece, and your first win in a game earns a numbered clear certificate.",
     "eyebrow": "AI HELL MODE",

@@ -195,7 +195,7 @@
     ]
   },
   "Home": {
-    "hellTag": "매우 어려움",
+    "hellTag": "헬 모드 ON",
     "merge2048Meta": "자유 플레이·챌린지 도전 랭킹 · 친구 2~4명",
     "merge2048Description": "같은 네모끼리 밀어서 합치면 쑥쑥 자라 바둑알로 진화해요. 지친 머리를 쉬게 하는 힐링 퍼즐, 2048까지 천천히.",
     "tag_healing": "힐링",
@@ -7565,6 +7565,8 @@
     "disclaimer": "PUZZLTHINK가 만든 무료 웹 퍼즐입니다. 2048의 기본 규칙은 2014년 공개된 오픈소스 게임에서 왔으며, 캐릭터와 모드는 PUZZLTHINK가 새로 만들었습니다."
   },
   "Hell": {
+    "aiRecord": "{w}승 {l}패",
+    "aiRecordDraw": "{w}승 {l}패 {d}무",
     "metaTitle": "AI 헬모드 · 매우 어려움 AI 도전",
     "metaDescription": "벽바둑 II·벽바둑·십이장기·러시아장기·블라인드 오목의 가장 강한 AI, 매우 어려움에 도전하세요. 이길 때마다 블랙피스 1개, 처음 이기면 번호가 새겨진 클리어 인증서를 받아요.",
     "eyebrow": "AI HELL MODE",

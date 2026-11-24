@@ -24,6 +24,8 @@ export default function HellPageClient() {
   const locale = useLocale();
   const { user } = useAuth();
   const [clears, setClears] = useState<Map<GameId, number> | null>(null);
+  // The hell AI's own record per game (AI wins = players' losses).
+  const [aiRecord, setAiRecord] = useState<Map<GameId, { w: number; l: number; d: number }> | null>(null);
   const [certs, setCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
   const ranking = useBlackPieceRanking(10);
   const me = ranking?.find((r) => r.is_me) ?? null;
@@ -32,6 +34,9 @@ export default function HellPageClient() {
     let alive = true;
     getSupabase()?.rpc('hell_clear_counts').then(({ data }) => {
       if (alive && Array.isArray(data)) setClears(new Map((data as { game: GameId; clears: number }[]).map((r) => [r.game, r.clears])));
+    });
+    getSupabase()?.rpc('hell_ai_record').then(({ data }) => {
+      if (alive && Array.isArray(data)) setAiRecord(new Map((data as { game: GameId; ai_wins: number; ai_losses: number; draws: number }[]).map((r) => [r.game, { w: r.ai_wins, l: r.ai_losses, d: r.draws }])));
     });
     return () => { alive = false; };
   }, []);
@@ -74,6 +79,7 @@ export default function HellPageClient() {
         <ul className="mt-3 grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3">
           {HELL_GAMES.map((game) => {
             const n = clears?.get(game.stat);
+            const rec = aiRecord ? (aiRecord.get(game.stat) ?? { w: 0, l: 0, d: 0 }) : null;
             const body = (
               <>
                 <div className="relative">
@@ -82,7 +88,8 @@ export default function HellPageClient() {
                   {game.hell.query && <span className="absolute left-2 top-2 rounded-full bg-black/80 px-2 py-0.5 text-[10px] font-black text-[#ff8ea0] ring-1 ring-[#ff3355]/50">{t('duelOnly')}</span>}
                 </div>
                 <p className="mt-2.5 truncate px-1 text-sm font-black sm:text-base">{tc(game.id)}</p>
-                <p className="px-1 text-[11px] font-bold text-white/45">{!game.hell.live ? t('soonDesc') : n ? t('clears', { n }) : t('noClears')}</p>
+                {game.hell.live && <p className="mt-0.5 flex items-center gap-1.5 px-1 font-mono text-[13px] font-black text-[#ff5a74] sm:text-sm"><span className="rounded bg-[#ff3355]/15 px-1.5 py-0.5 text-[10px] tracking-[0.1em] text-[#ff8ea0] ring-1 ring-[#ff3355]/40">AI</span>{rec ? (rec.d ? t('aiRecordDraw', { w: rec.w, l: rec.l, d: rec.d }) : t('aiRecord', { w: rec.w, l: rec.l })) : '—'}</p>}
+                <p className="mt-0.5 px-1 text-[11px] font-bold text-white/45">{!game.hell.live ? t('soonDesc') : n ? t('clears', { n }) : t('noClears')}</p>
                 {game.hell.live
                   ? <span className="hell-btn mt-2.5 flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-black text-white sm:text-sm">{t('challenge')}<ArrowRight size={14} /></span>
                   : <span className="mt-2.5 flex items-center justify-center gap-1.5 rounded-xl border border-white/10 px-3 py-2.5 text-xs font-black text-white/40 sm:text-sm"><Lock size={13} />{t('soon')}</span>}
