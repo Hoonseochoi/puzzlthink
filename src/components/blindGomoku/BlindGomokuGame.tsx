@@ -13,16 +13,26 @@ import { STONE_COLORS, chooseAiMove, coordinateLabel, playableColors, findWinnin
 import BlindGomokuBoard from './BlindGomokuBoard';
 import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
+import { askHellMove, hellThinkMs } from './hellAi';
 
 type Phase = 'human' | 'ai' | 'finished';
 const ACCENT = '#ffd166';
+const LEVELS: GomokuDifficulty[] = ['easy', 'normal', 'hard', 'hell'];
+const linkedDifficulty = () => {
+  if (typeof window === 'undefined') return null;
+  const level = new URLSearchParams(window.location.search).get('difficulty') as GomokuDifficulty | null;
+  return level && LEVELS.includes(level) ? level : null;
+};
+const AI_DELAY = 620; // the AI never answers faster than this, so its stone doesn't snap in
 
 export default function BlindGomokuGame() {
   const t = useTranslations('BlindGomoku');
   const [moves, setMoves] = useState<GomokuMove[]>([]);
   const [phase, setPhase] = useState<Phase>('human');
   const [selectedColor, setSelectedColor] = useState<StoneColor>('red');
-  const [difficulty, setDifficulty] = useState<GomokuDifficulty>('normal');
+  // A link can pick the level, e.g. /blind-gomoku?difficulty=hell#play from the hell-mode page
+  // (GameGate renders the game only in the browser, so reading the URL here is safe).
+  const [difficulty, setDifficulty] = useState<GomokuDifficulty>(() => linkedDifficulty() ?? 'normal');
   const [colorCount, setColorCount] = useState(STONE_COLORS.length);
   const [mustChange, setMustChange] = useState(false);
   const [revealUses, setRevealUses] = useState(2);
@@ -72,8 +82,7 @@ export default function BlindGomokuGame() {
 
   useEffect(() => {
     if (phase !== 'ai') return;
-    const timer = window.setTimeout(() => {
-      const position = chooseAiMove(moves, difficulty);
+    const play = (position: { row: number; col: number }) => {
       const copiedColor = moves.at(-1)!.color;
       const move: GomokuMove = { ...position, owner: 'white', color: copiedColor, turn: moves.length + 1 };
       const nextMoves = [...moves, move];
@@ -81,8 +90,19 @@ export default function BlindGomokuGame() {
       if (line) finish(nextMoves, 'white', line);
       else if (nextMoves.length === 225) finish(nextMoves, 'draw', null);
       else { setMoves(nextMoves); setPhase('human'); }
-    }, 620);
-    return () => window.clearTimeout(timer);
+    };
+    let timer = 0;
+    let cancelled = false;
+    if (difficulty === 'hell') {
+      // 매우 어려움 thinks in a Web Worker for about a second and a half.
+      const started = performance.now();
+      askHellMove(moves, hellThinkMs()).then((position) => {
+        if (!cancelled) timer = window.setTimeout(() => play(position), Math.max(0, AI_DELAY - (performance.now() - started)));
+      });
+    } else {
+      timer = window.setTimeout(() => play(chooseAiMove(moves, difficulty)), AI_DELAY);
+    }
+    return () => { cancelled = true; window.clearTimeout(timer); };
     // `moves` is the exact position handed to the AI when the phase changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
@@ -143,9 +163,13 @@ export default function BlindGomokuGame() {
 
         <aside className="flex flex-col gap-4">
           <section className={PANEL}>
-            <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('difficulty')}</p><span className="text-[10px] font-bold text-white/35">{t(`memory.${difficulty}`)}</span></div>
+            <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('difficulty')}</p><span className={`text-[10px] font-bold ${difficulty === 'hell' ? 'text-[#ff5c7a]/80' : 'text-white/35'}`}>{t(`memory.${difficulty}`)}</span></div>
             <div className="mt-3 grid grid-cols-3 gap-1.5">
               {(['easy', 'normal', 'hard'] as GomokuDifficulty[]).map((level) => <button key={level} type="button" disabled={moves.length > 0} onClick={() => setDifficulty(level)} className={`rounded-md px-2 py-2.5 text-xs font-black transition ${difficulty === level ? 'bg-[#ffd166] text-[#17120a] shadow-[0_0_14px_rgba(255,209,102,.32)]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{t(`difficultyLevels.${level}`)}</button>)}
+              <button type="button" disabled={moves.length > 0} aria-pressed={difficulty === 'hell'} onClick={() => setDifficulty('hell')}
+                className={`col-span-3 flex items-center justify-center gap-2 rounded-md border px-2 py-2.5 text-xs font-black transition ${difficulty === 'hell' ? 'border-[#ff2d55] bg-[#2a050c] text-[#ff4d6d] shadow-[0_0_18px_rgba(255,45,85,.5),inset_0_0_12px_rgba(255,45,85,.25)] [text-shadow:0_0_8px_rgba(255,45,85,.8)]' : 'border-[#ff2d55]/30 bg-[#ff2d55]/[.05] text-[#ff5c7a]/70 hover:border-[#ff2d55]/60 hover:text-[#ff6b86] disabled:opacity-35'}`}>
+                {t('difficultyLevels.hell')}<span className="rounded-sm border border-current px-1 font-mono text-[9px] tracking-[.18em] opacity-80">HELL</span>
+              </button>
             </div>
             {moves.length > 0 && <p className="mt-2 text-[10px] leading-4 text-white/35">{t('difficultyLocked')}</p>}
           </section>
