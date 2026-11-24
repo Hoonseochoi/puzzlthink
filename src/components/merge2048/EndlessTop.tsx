@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl';
 import { ChevronRight, Medal } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { getSupabase } from '@/lib/supabase';
-import RankBlock, { blockOfSub } from './RankBlock';
+import RankBlock from './RankBlock';
+import { blockOfSub } from '@/lib/merge2048';
 
 type Row = { rank: number; nickname: string; score: number; sub: number | null };
 const MEDALS = ['🥇', '🥈', '🥉'];

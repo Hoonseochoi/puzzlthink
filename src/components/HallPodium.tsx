@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import StoneAvatar from './StoneAvatar';
-import RankBlock, { blockOfSub } from './merge2048/RankBlock';
+import RankBlock from './merge2048/RankBlock';
+import { blockOfSub } from '@/lib/merge2048';
 import { CERT_GAMES } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
 import { fetchHallOfFame, type GameId } from '@/lib/stats';

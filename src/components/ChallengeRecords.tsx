@@ -10,7 +10,8 @@ import { CERT_GAMES } from '@/lib/hardClear';
 import { GAME_LABEL } from './HallCelebration';
 import RankMove from './RankMove';
 import { byGameOrder } from './recordOrder';
-import RankBlock, { blockOfSub } from './merge2048/RankBlock';
+import RankBlock from './merge2048/RankBlock';
+import { blockOfSub } from '@/lib/merge2048';
 
 type Board = 'merge2048' | 'magicswap' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
 type Row = { rank: number; nickname: string; avatar_url: string | null; score: number; sub: number | null; prev_rank?: number | null };
