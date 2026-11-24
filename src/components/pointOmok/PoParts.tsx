@@ -116,7 +116,7 @@ function HoldButton({ onStep, disabled, label, children }: { onStep: () => void;
       onClick={onStep}
       onPointerDown={(event) => { if (event.pointerType !== 'mouse' || event.button === 0) start(); }}
       onPointerUp={stop} onPointerLeave={stop} onPointerCancel={stop} onContextMenu={(event) => event.preventDefault()}
-      className="flex h-12 w-14 shrink-0 touch-manipulation items-center justify-center rounded-[12px] border border-white/12 bg-white/[.06] text-white transition active:scale-95 active:bg-(--accent) active:text-(--accent-ink) disabled:opacity-25 disabled:active:scale-100 sm:h-11 sm:w-12"
+      className="flex h-11 w-12 shrink-0 touch-manipulation items-center justify-center rounded-[11px] border border-white/12 bg-white/[.06] text-white transition active:scale-95 active:bg-(--accent) active:text-(--accent-ink) disabled:opacity-25 disabled:active:scale-100"
     >{children}</button>
   );
 }
@@ -127,15 +127,15 @@ export function BidRow({ index, cell, value, onChange, max, locked, labels }: {
   labels: { minus: string; plus: string; rest: string; point: string };
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-[14px] border border-white/10 bg-black/35 p-2">
-      <div className="flex w-12 shrink-0 flex-col items-center">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-(--accent)/25 font-mono text-sm font-black text-white ring-2 ring-(--accent)">{POINT_MARKS[index]}</span>
-        <span className="mt-0.5 font-mono text-[10px] text-white/40">{coordinate(cell)}</span>
+    <div className="flex items-center gap-1.5 rounded-[12px] border border-white/10 bg-black/35 p-1 sm:gap-2 sm:p-1.5">
+      <div className="flex w-10 shrink-0 flex-col items-center">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-(--accent)/25 font-mono text-xs font-black text-white ring-2 ring-(--accent)">{POINT_MARKS[index]}</span>
+        <span className="font-mono text-[9px] leading-3 text-white/40">{coordinate(cell)}</span>
       </div>
       <HoldButton label={`${labels.point} ${POINT_MARKS[index]} ${labels.minus}`} disabled={locked || value <= 1} onStep={() => onChange(Math.max(1, value - 1))}><Minus size={22} strokeWidth={3} /></HoldButton>
-      <output aria-live="polite" className="min-w-0 flex-1 text-center font-mono text-3xl font-black tabular-nums text-white">{value}</output>
+      <output aria-live="polite" className="min-w-0 flex-1 text-center font-mono text-[26px] font-black tabular-nums text-white">{value}</output>
       <HoldButton label={`${labels.point} ${POINT_MARKS[index]} ${labels.plus}`} disabled={locked || value >= max} onStep={() => onChange(Math.min(max, value + 1))}><Plus size={22} strokeWidth={3} /></HoldButton>
-      <button type="button" disabled={locked || value >= max} onClick={() => onChange(max)} className="h-12 shrink-0 rounded-[12px] border border-(--accent)/40 px-2 text-[10px] font-black leading-tight text-(--accent) transition active:scale-95 disabled:opacity-25 sm:h-11">{labels.rest}</button>
+      <button type="button" disabled={locked || value >= max} onClick={() => onChange(max)} className="h-11 w-14 shrink-0 rounded-[11px] border border-(--accent)/40 px-1 text-[10px] font-black leading-tight text-(--accent) transition active:scale-95 disabled:opacity-25">{labels.rest}</button>
     </div>
   );
 }
@@ -148,7 +148,7 @@ export function BudgetStrip({ budget, bets }: { budget: number; bets: number[] }
   const carry = Math.floor((budget - units.length) / 2);
   for (let k = 0; units.length < budget; k += 1) units.push(k < carry ? 'bg-[#7ff0bf]/70' : 'bg-white/10');
   return (
-    <div className="flex h-3 w-full gap-[2px]" aria-hidden>
+    <div className="flex h-2 w-full gap-[2px]" aria-hidden>
       {units.map((tint, i) => <span key={i} className={`h-full flex-1 rounded-[2px] ${tint}`} />)}
     </div>
   );

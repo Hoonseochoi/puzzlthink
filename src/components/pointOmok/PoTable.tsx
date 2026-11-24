@@ -46,11 +46,12 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
   const lines = useMemo(() => (finished ? fiveLines(state.board) : null), [finished, state.board]);
   const verified = finished && mySeat !== null && !!state.secret?.salts ? poBidsCheck(state, opp) : null;
   const myName = (seat: number) => (seat === mySeat ? t('you') : names[seat]);
+  const bidding = state.phase === 'bid' && mySeat !== null; // phones: compact table, smaller board
 
-  // When it is time to bid on a phone, bring the steppers into view.
+  // When it is time to bid on a phone, the board shrinks to fit the screen with the steppers: bring both into view.
   useEffect(() => {
     if (state.phase !== 'bid' || mySeat === null || window.innerWidth >= 1024) return;
-    const timer = window.setTimeout(() => panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250);
+    const timer = window.setTimeout(() => boardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 250);
     return () => window.clearTimeout(timer);
   }, [state.phase, state.round, mySeat]);
   // When it is this player's turn to pick on a phone, bring the board back up once the last reveal has played.
@@ -92,7 +93,7 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
 
   const actionPanel = (
     <div className="space-y-3">
-      {showing && last && mySeat !== null && (
+      {showing && last && mySeat !== null && !bidding && (
         <section key={state.shownAt} className="po-card-in rounded-[14px] border border-(--accent)/45 bg-(--accent)/[.08] p-4">
           <p className={KICKER}>{t('roundResult', { n: state.rounds.length })}</p>
           <div className="mt-3 grid grid-cols-3 gap-2">
@@ -131,36 +132,31 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
       )}
 
       {state.phase === 'bid' && mySeat !== null && state.triple && (
-        <section className={`${PANEL} !p-3 sm:!p-4`}>
+        <section className={`${PANEL} !p-2.5 sm:!p-4`}>
           {!bid.ready ? <p className="flex items-center gap-2 text-sm text-white/55"><Loader2 size={15} className="animate-spin" />{t('syncing')}</p> : <>
-            <div className="flex items-end justify-between gap-2 px-1">
-              <div>
-                <p className={PANEL_TITLE}>{t('myPoints')}</p>
-                <p className="font-mono text-2xl font-black text-white">{bid.budget}<span className="ml-1 text-xs text-white/40">P</span></p>
-              </div>
-              <div className="text-right">
-                <p className="font-mono text-xs font-bold text-white/60">{t('spentLeft', { spent, left })}</p>
-                <p className="font-mono text-xs font-black text-[#7ff0bf]">{t('carryNext', { n: carry })}</p>
-              </div>
+            <div className="flex items-center justify-between gap-2 px-1">
+              <p className="flex items-baseline gap-1.5"><span className={PANEL_TITLE}>{t('myPoints')}</span><span className="font-mono text-xl font-black text-white">{bid.budget}</span><span className="text-[10px] font-bold text-white/40">P</span></p>
+              <p className="text-right font-mono text-[11px] font-bold leading-4 text-white/60">{t('spentLeft', { spent, left })} · <span className="font-black text-[#7ff0bf]">{t('carryNext', { n: carry })}</span></p>
             </div>
-            <div className="mt-2 px-1"><BudgetStrip budget={bid.budget} bets={bid.bets} /></div>
-            <div className="mt-3 space-y-2">
+            <div className="mt-1.5 px-1"><BudgetStrip budget={bid.budget} bets={bid.bets} /></div>
+            <div className="mt-2 space-y-1.5">
               {state.triple.map((cell, i) => (
                 <BidRow key={cell} index={i} cell={cell} value={bid.bets[i]} locked={bid.locked}
                   max={bid.bets[i] + left} onChange={(v) => bid.setBet(i, v)}
                   labels={{ minus: t('minus'), plus: t('plus'), rest: t('allRest'), point: t('point') }} />
               ))}
             </div>
-            {!bid.locked && (
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                <button type="button" onClick={() => bid.setAll([1, 1, 1])} className={`${BTN} py-2.5`}>{t('presetMin')}</button>
-                <button type="button" onClick={() => { const b = Math.floor(bid.budget / 3); const r = bid.budget - b * 3; bid.setAll([b + (r > 0 ? 1 : 0), b + (r > 1 ? 1 : 0), b]); }} className={`${BTN} py-2.5`}>{t('presetEven')}</button>
-              </div>
-            )}
-            <p className="mt-2 px-1 text-[11px] leading-4 text-white/40">{t('bidRule')}</p>
             {bid.locked
-              ? <p className="mt-3 flex items-center justify-center gap-2 rounded-md border border-[#7ff0bf]/35 bg-[#7ff0bf]/10 py-3 text-sm font-black text-[#9ff5cf]"><Lock size={15} />{state.commits[opp] !== null ? t('bothLocked') : t('waitBid', { name: names[opp] })}</p>
-              : <button type="button" onClick={bid.lock} className={`${BTN_ACCENT} mt-3 w-full py-4 text-base`}><Lock size={17} />{t('lockBid')}</button>}
+              ? <p className="mt-2 flex items-center justify-center gap-2 rounded-md border border-[#7ff0bf]/35 bg-[#7ff0bf]/10 py-3 text-sm font-black text-[#9ff5cf]"><Lock size={15} />{state.commits[opp] !== null ? t('bothLocked') : t('waitBid', { name: names[opp] })}</p>
+              : (
+                <div className="mt-2 grid grid-cols-[auto_auto_1fr] gap-1.5">
+                  <button type="button" onClick={() => bid.setAll([1, 1, 1])} className={`${BTN} px-2.5 py-3 text-[11px]`}>{t('presetMin')}</button>
+                  <button type="button" onClick={() => { const b = Math.floor(bid.budget / 3); const r = bid.budget - b * 3; bid.setAll([b + (r > 0 ? 1 : 0), b + (r > 1 ? 1 : 0), b]); }} className={`${BTN} px-2.5 py-3 text-[11px]`}>{t('presetEven')}</button>
+                  <button type="button" onClick={bid.lock} className={`${BTN_ACCENT} py-3 text-sm`}><Lock size={16} />{t('lockBid')}</button>
+                </div>
+              )}
+            <p className="mt-2 px-1 text-[11px] leading-4 text-white/40 max-lg:hidden">{t('bidRule')}</p>
+            <p className="mt-1.5 flex items-center justify-between gap-2 px-1 text-[10px] text-white/40 lg:hidden"><span>{t('bidRuleShort')}</span><span className={state.commits[opp] !== null ? 'font-bold text-[#7ff0bf]' : ''}>{names[opp]} · {state.commits[opp] !== null ? t('statusLocked') : t('statusBidding')}</span></p>
           </>}
         </section>
       )}
@@ -195,7 +191,7 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
         {playing && <div className="mx-1 mb-2 h-1 overflow-hidden rounded-full bg-white/10 sm:mx-2"><div className="h-full bg-(--accent) transition-[width] duration-300" style={{ width: `${(seconds / PO_SECONDS) * 100}%` }} /></div>}
 
         {/* Both players: colour, who chooses, and only this player's own points. */}
-        <div className="mb-2 grid grid-cols-2 gap-2 sm:mb-3">
+        <div className={`mb-2 grid grid-cols-2 gap-2 sm:mb-3 ${bidding ? 'max-lg:hidden' : ''}`}>
           {([viewer, opp] as const).map((seat) => (
             <div key={seat} className={`flex items-center gap-2 rounded-[10px] border px-2.5 py-2 ${playing && state.chooser === seat ? 'border-(--accent)/55 bg-(--accent)/[.07]' : 'border-white/10 bg-black/30'}`}>
               <span className="h-6 w-6 shrink-0"><PoStone seat={seat} /></span>
@@ -209,6 +205,8 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
           ))}
         </div>
 
+        {/* While bidding on a phone the board shrinks so the steppers fit on the same screen. */}
+        <div className={`mx-auto w-full transition-[max-width] duration-500 ${bidding ? 'max-lg:max-w-[var(--po-board)]' : ''}`} style={{ ['--po-board' as string]: 'max(200px, min(100%, calc(100svh - 418px)))' }}>
         <PoBoardView
           board={state.board}
           triple={state.phase === 'bid' || state.phase === 'reveal' ? state.triple : null}
@@ -220,8 +218,9 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
           onTap={tap}
           stoneLabel={(seat) => (seat === 0 ? t('black') : t('white'))}
         />
+        </div>
         {mySeat === null && state.phase !== 'lobby' && <p className="mt-3 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
-        <div ref={panelRef} className="mt-3 scroll-mt-3 lg:hidden">{actionPanel}</div>
+        <div ref={panelRef} className={`${bidding ? 'mt-2' : 'mt-3'} lg:hidden`}>{actionPanel}</div>
       </section>
 
       <aside className="flex flex-col gap-4">

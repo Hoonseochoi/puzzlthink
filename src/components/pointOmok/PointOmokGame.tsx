@@ -12,6 +12,7 @@ import { BTN, BTN_ACCENT, KICKER, MODAL_BACKDROP, PANEL, PANEL_TITLE, RESULT_PRI
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { PO_ROOM } from '@/hooks/usePointOmokRoom';
 import { reportGame } from '@/lib/stats';
+import { setRoomPlaying } from '@/lib/roomChat';
 import { PO_LEVELS, chooseBets, chooseTriple, type PoAiView, type PoLevel } from '@/lib/pointOmokAi';
 import { type PoRoom, PO_SHOW_MS, budgetOf, createPoRoom, reducePoRoom } from '@/lib/pointOmokRoom';
 import PoTable from './PoTable';
@@ -80,6 +81,14 @@ export default function PointOmokGame() {
     // The AI is asked once per turn: when the phase, round or its own lock changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.phase, state?.round, state?.sid, state?.commits[AI]]);
+
+  // The floating lounge button steps aside while a match is on (it would sit over the bid buttons on a phone).
+  const live = !!state && state.phase !== 'finished';
+  useEffect(() => {
+    if (!live) return;
+    setRoomPlaying(true);
+    return () => setRoomPlaying(false);
+  }, [live]);
 
   // One record per match.
   useEffect(() => {
