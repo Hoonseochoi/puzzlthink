@@ -86,11 +86,11 @@ export function splitValues(board: PoBoard, triple: PoTriple, me: PoSeat, base =
       after += windowScore(work, id, me);
       if (!full) { const v = work[WINDOWS[id][0]]; if (v >= 0 && WINDOWS[id].every((cell) => work[cell] === v)) full = true; }
     }
-    if (full) {
-      const [a, b] = countFives(work);
-      const mine = me === 0 ? a : b, theirs = me === 0 ? b : a;
-      out.push(mine > theirs ? WIN : theirs > mine ? -WIN : 0);
-    } else out.push(base - before + after);
+    const [a, b] = full ? countFives(work) : [0, 0];
+    const mine = me === 0 ? a : b, theirs = me === 0 ? b : a;
+    // A full window inside a run of six is no five (overlines do not count): then it is just a position.
+    if (mine || theirs) out.push(mine > theirs ? WIN : theirs > mine ? -WIN : 0);
+    else out.push(base - before + after);
   }
   triple.forEach((cell) => { work[cell] = -1; });
   return out;

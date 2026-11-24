@@ -7534,7 +7534,7 @@
       "Each point gets the stone of whoever bid more. On a tie it goes to the player who did not choose this round.",
       "Only half of what you keep (rounded down) carries over. Bid 3·1·1, keep 5: 2 carry over and next round you have 10+2 = 12.",
       "Bids and points left are hidden from the other player. When the game ends, every bid is shown.",
-      "After the three stones land, a player with a five (five or more, overlines count) wins. If both have one, more fives wins; the same number is a draw. One unbroken line counts once.",
+      "After the three stones land, a player with a five (exactly five; six or more in a row does not count) wins. If both have one, more fives wins; the same number is a draw.",
       "No three empty points in a row left is a draw. Run out of time choosing and the points are picked for you; bidding, and 1·1·1 is bid. Three rounds in a row on the clock loses."
     ],
     "understood": "Got it",
@@ -7652,7 +7652,7 @@
     "s4Title": "Keep some, carry half",
     "s4Desc": "You don't have to spend it all. Half of what you keep (rounded down) is added next round, so saving up for the decisive point is a plan too.",
     "s5Title": "Most fives wins",
-    "s5Desc": "After the three stones land, a player with a five (or longer) wins. If both make one in the same round, more fives wins; the same number is a draw."
+    "s5Desc": "After the three stones land, a player with a five (exactly five; overlines don't count) wins. If both make one in the same round, more fives wins; the same number is a draw."
   },
   "PointOmokGuide": {
     "eyebrow": "POINT OMOK · GUIDE",
@@ -7666,7 +7666,7 @@
       "Each point gets the stone of whoever bid more on it. On a tie, the player who did not choose this round gets it.",
       "Only half of the points you keep (rounded down) carry over to the next round.",
       "Once all three stones are down, a player with a five wins. If both have one, more fives wins; the same number is a draw.",
-      "Overlines (six or more) count as a five, and one unbroken line in one direction counts once. If no three empty points in a row are left, it is a draw."
+      "Only exactly five counts. Six or more in a row (an overline) is not a five, so adding a stone to a five takes it away. If no three empty points in a row are left, it is a draw."
     ],
     "specialTitle": "Situations that trip people up",
     "special": [

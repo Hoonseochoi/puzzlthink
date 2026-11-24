@@ -8,7 +8,7 @@
 //   1 on each of the three points. Half of what is left (rounded down) carries over to the next round.
 // - Higher bid takes the point. On a tie the player who did NOT choose the points this round takes it.
 // - The three stones go down together (their order means nothing). Afterwards, whoever has more fives wins.
-//   A five is a line of five or more stones in one direction (an overline counts); one unbroken line counts once.
+//   A five is exactly five stones in a row in one direction: six or more (an overline) is not a five. Each five counts once.
 //   Same number of fives (one or more each) is a draw, and so is a board with no three empty points in a row left.
 // - The first chooser is drawn at random; after that the players take turns choosing.
 
@@ -90,10 +90,10 @@ export function extensions(board: PoBoard, picked: number[]): number[] {
   return [...found];
 }
 
-/** A line of five or more of one seat's stones: its two end cells. */
+/** A line of exactly five of one seat's stones: its two end cells. */
 export type PoLine = { seat: PoSeat; from: number; to: number; length: number };
 
-/** Every five (or longer) on the board; an unbroken line counts once. */
+/** Every five on the board. A run of six or more (an overline) is not a five. */
 export function fiveLines(board: PoBoard): PoLine[] {
   const lines: PoLine[] = [];
   for (const [dr, dc] of PO_DIRS) {
@@ -104,7 +104,7 @@ export function fiveLines(board: PoBoard): PoLine[] {
       if (onBoard(pr, pc) && board[cellAt(pr, pc)] === seat) continue; // not the start of the run
       let n = 1;
       while (onBoard(r + dr * n, c + dc * n) && board[cellAt(r + dr * n, c + dc * n)] === seat) n += 1;
-      if (n >= 5) lines.push({ seat: seat as PoSeat, from: cellAt(r, c), to: cellAt(r + dr * (n - 1), c + dc * (n - 1)), length: n });
+      if (n === 5) lines.push({ seat: seat as PoSeat, from: cellAt(r, c), to: cellAt(r + dr * (n - 1), c + dc * (n - 1)), length: n });
     }
   }
   return lines;
