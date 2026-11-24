@@ -11,10 +11,18 @@ export const LINK_COLORS = [
   { fill: '#f05aa8', hi: '#ff9fcf', lo: '#a82a6b', eye: '#ffffff' },
 ];
 
-/** A coloured PUZZLTHINK stone with eyes (^ ^ when happy, slanted inside a red ring when worried). */
-export function ColorStone({ id, k, cx, cy, r, mood }: { id: string; k: number; cx: number; cy: number; r: number; mood: 'idle' | 'happy' | 'worried' }) {
-  const c = LINK_COLORS[(k - 1) % LINK_COLORS.length];
-  const ew = r * 0.2, eh = r * 0.38, ex = r * 0.3, ey = cy - r * 0.12;
+export type StoneColor = { fill: string; hi: string; lo: string; eye: string };
+
+/**
+ * A coloured PUZZLTHINK stone with eyes (^ ^ when happy, slanted inside a red ring when worried).
+ * `color` overrides the 컬러 잇기 palette; `label` (컬러 링크's A–N) sits under smaller eyes.
+ */
+export function ColorStone({ id, k, cx, cy, r, mood, color, label }: {
+  id: string; k: number; cx: number; cy: number; r: number; mood: 'idle' | 'happy' | 'worried'; color?: StoneColor; label?: string;
+}) {
+  const c = color ?? LINK_COLORS[(k - 1) % LINK_COLORS.length];
+  const small = !!label;
+  const ew = r * (small ? 0.13 : 0.2), eh = r * (small ? 0.24 : 0.38), ex = r * (small ? 0.24 : 0.3), ey = cy - r * (small ? 0.48 : 0.12);
   return (
     <g>
       <defs><radialGradient id={`${id}-${k}`} cx="35%" cy="30%" r="75%"><stop offset="0%" stopColor={c.hi} /><stop offset="55%" stopColor={c.fill} /><stop offset="100%" stopColor={c.lo} /></radialGradient></defs>
@@ -32,6 +40,7 @@ export function ColorStone({ id, k, cx, cy, r, mood }: { id: string; k: number; 
           <rect x={cx + ex - ew / 2} y={ey - eh / 2} width={ew} height={eh} rx={ew / 2} transform={mood === 'worried' ? `rotate(-25 ${cx + ex} ${ey})` : undefined} />
         </g>
       )}
+      {label && <text x={cx} y={cy + r * 0.5} textAnchor="middle" fontSize={r * 1.02} fontWeight={900} fill={c.eye} stroke={c.lo} strokeWidth={r * 0.05} paintOrder="stroke" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>{label}</text>}
       <ellipse cx={cx - r * 0.42} cy={cy - r * 0.5} rx={r * 0.18} ry={r * 0.1} fill="#ffffff" opacity={0.5} transform={`rotate(-35 ${cx - r * 0.42} ${cy - r * 0.5})`} />
     </g>
   );
