@@ -1,6 +1,6 @@
 {
   "Common": {
-    "hitStay": "HIT, STAY",
+    "hitStay": "Hit,Stay",
     "hellMode": "Very Hard",
     "hellModeGo": "Play Very Hard",
     "merge2048": "2048",
@@ -200,8 +200,10 @@
     "tag_healing": "HEALING",
     "fourThreeDescription": "A 4×4 board of stacking pieces. Team up to stop the Special Guest's line while racing to make three in a row yourself.",
     "fourThreeMeta": "vs AI (4 players) · Friends 2–3 · The Devil's Plan prize match",
+    "hitStayDescription": "Get your card total closest to the limit the die sets. HIT or STAY, bet your chips, and outlast four others.",
+    "hitStayMeta": "5 players · 4 AI, friends or open rooms · The Devil's Plan 3",
     "pointOmokDescription": "Put up three points, split 10 points over them in secret, and the higher bid gets the stone. Only half of what you keep carries over.",
-    "pointOmokMeta": "AI Normal & Hard · friend & open 1:1 · The Devil's Plan 4",
+    "pointOmokMeta": "AI Normal & Hard · friend & open 1:1 · The Devil's Plan 3",
     "monorailDescription": "Place straight and curved tiles to close one loop. Fight for the final tile—or call Impossible.",
     "monorailMeta": "AI, friend & open 1v1",
     "metaTitle": "PUZZLTHINK — Devil's Plan & The Genius brain games, logic puzzles",
@@ -1938,7 +1940,7 @@
     "unsupported": "Not available",
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
     "games": {
-      "hitStay": {"tagline": "Bring your card total closest to the limit. Take one more (HIT) or stop (STAY), and decide how many chips to risk — a five-player survival betting game.", "players": "5 (empty seats are AI)", "pace": "20–45 s per turn with friends · no clock vs AI", "level": "4 AI, all at full strength", "ai": "5 players (4 AI)", "friend": "Link or 4-digit code, empty seats are AI", "rules": ["35 number cards (one 7, two 6s … seven 1s, seven -1s). 30 chips each; the ante is 1 and goes up by 1 every 10 rounds.", "Each round the dealer rolls an eight-sided die (5–12) for the limit. Everyone gets three cards and shows one.", "From the first player: bet (call, raise, fold) → HIT (a face-up card) or STAY in turn → bet again. No bet may exceed the smallest stack.", "Closest to the limit takes the pot; on equal sums more cards wins. Over the limit is last. At 0 chips you are out; the last one standing wins."], "origin": "Built on the rules of the semifinal main match HIT, STAY from a survival game show."},
+      "hitStay": {"tagline": "Bring your card total closest to the limit. Take one more (HIT) or stop (STAY), and decide how many chips to risk — a five-player survival betting game.", "players": "5 (empty seats are AI)", "pace": "20–45 s per turn with friends · no clock vs AI", "level": "4 AI, all at full strength", "ai": "5 players (4 AI)", "friend": "Link or 4-digit code, empty seats are AI", "rules": ["35 number cards (one 7, two 6s … seven 1s, seven -1s). 30 chips each; the ante is 1 and goes up by 1 every 10 rounds.", "Each round the dealer rolls an eight-sided die (5–12) for the limit. Everyone gets three cards and shows one.", "From the first player: bet (call, raise, fold) → HIT (a face-up card) or STAY in turn → bet again. No bet may exceed the smallest stack.", "Closest to the limit takes the pot; on equal sums more cards wins. Over the limit is last. At 0 chips you are out; the last one standing wins."], "origin": "An unofficial fan-made web version of Hit,Stay, the semifinal main match of Netflix's The Devil's Plan: Dead Again (season 3), with the show's rules."},
       "merge2048": {
         "tagline": "Slide matching numbers together and grow the little square characters into stones on your way to 2048 — a calm number puzzle.",
         "players": "1 player or 2–4 friends",
@@ -1967,7 +1969,7 @@
           "Only half of the points you keep (rounded down) carry over. Bid 3·1·1, keep 5, and 2 carry over: 12 points next round.",
           "After the three stones land, a player with a five wins. If both have one, more fives wins; the same number is a draw."
         ],
-        "origin": "An unofficial fan-made web version of Point Omok, the final match of the exile in Netflix's The Devil's Plan season 4. Instead of the longest survivor choosing first, the first chooser is drawn at random.",
+        "origin": "An unofficial fan-made web version of Point Omok, the final match of the exile in Netflix's The Devil's Plan: Dead Again (season 3). Instead of the longest survivor choosing first, the first chooser is drawn at random.",
         "ai": "1:1 against a Normal or Hard AI whose bidding style changes every game (it never sees your bids)",
         "friend": "1:1 by link, 4-digit code or open room; 90 s to choose and to bid"
       },
@@ -7537,11 +7539,11 @@
       }
     ],
     "metaTitle": "Point Omok — gomoku with secret bids",
-    "metaDescription": "Play Point Omok from The Devil's Plan 4 free. Put up three points, split 10 points in secret, and make five with the stones you win. AI Normal and Hard, friend and open 1:1.",
+    "metaDescription": "Play Point Omok from The Devil's Plan: Dead Again (season 3) free. Put up three points, split 10 points in secret, and make five with the stones you win. AI Normal and Hard, friend and open 1:1.",
     "keywords": [
       "Point Omok",
       "Point Gomoku",
-      "The Devil's Plan 4",
+      "The Devil's Plan 3",
       "Devil's Plan point omok",
       "bidding gomoku",
       "gomoku online",
@@ -7709,7 +7711,7 @@
   "PointOmokGuide": {
     "eyebrow": "POINT OMOK · GUIDE",
     "title": "Point Omok rules and strategy",
-    "intro": "Point Omok is an unofficial fan-made web version of the final match of the exile in Netflix's The Devil's Plan season 4. Instead of taking turns placing stones, each round three points are put up and both players bid for them in secret; the higher bid takes the point. It is gomoku plus bidding psychology and point management. Play it against the AI, or 1:1 with a friend by invite link, 4-digit code or open room.",
+    "intro": "Point Omok is an unofficial fan-made web version of the final match of the exile in Netflix's The Devil's Plan: Dead Again (season 3). Instead of taking turns placing stones, each round three points are put up and both players bid for them in secret; the higher bid takes the point. It is gomoku plus bidding psychology and point management. Play it against the AI, or 1:1 with a friend by invite link, 4-digit code or open room.",
     "rulesTitle": "Basic rules",
     "rules": [
       "Two players on a 15×15 board repeat choose → bid → place every round.",
@@ -7767,7 +7769,7 @@
     "faq": [
       {
         "q": "What is Point Omok?",
-        "a": "A gomoku variant from the final match of the exile in The Devil's Plan season 4. Players bid in secret for three points; the higher bid gets the stone, and a five wins."
+        "a": "A gomoku variant from the final match of the exile in The Devil's Plan season 3. Players bid in secret for three points; the higher bid gets the stone, and a five wins."
       },
       {
         "q": "What happens to points I don't spend?",

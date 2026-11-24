@@ -23,7 +23,7 @@ export default async function PointOmokPage({ params }: { params: Promise<{ loca
   const faq = g.raw('faq') as { q: string; a: string }[];
   return <>
     <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
-      gameJsonLd({ locale, path: '/point-omok', name: t('metaTitle'), alternateName: ['포인트 오목', '포인트오목', '배팅 오목', 'Point Omok', 'Point Gomoku'], description: t('metaDescription'), genre: ['Strategy', 'Board game'], players: { min: 1, max: 2 }, show: 'dp4' }),
+      gameJsonLd({ locale, path: '/point-omok', name: t('metaTitle'), alternateName: ['포인트 오목', '포인트오목', '배팅 오목', 'Point Omok', 'Point Gomoku'], description: t('metaDescription'), genre: ['Strategy', 'Board game'], players: { min: 1, max: 2 }, show: 'dp3' }),
       faqJsonLd(faq),
       breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('metaTitle').split(' — ')[0], path: '/point-omok' }]),
     ] }} />

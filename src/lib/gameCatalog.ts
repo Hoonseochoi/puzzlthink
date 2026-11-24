@@ -1,5 +1,5 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
-// Order: by plays on 2026-11-23 (KST), most played first; 포인트 오목 (new) is pinned 2nd, 마방진 스왑 4th and 2048 (new) 6th.
+// Order: by plays on 2026-11-23 (KST), most played first; Hit,Stay (new) is pinned 2nd, 포인트 오목 (new) 3rd, 마방진 스왑 5th and 2048 (new) 7th.
 export type GameId = 'hitStay' | 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 
 export interface CatalogGame {
@@ -19,6 +19,7 @@ export interface CatalogGame {
 
 export const GAMES: readonly CatalogGame[] = [
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
+  { id: 'hitStay', href: '/hit-stay', color: '#6f7dff', hasGuide: false },
   { id: 'pointOmok', href: '/point-omok', color: '#ff5d8f', hasGuide: true },
   { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true, hell: { query: 'mode=two', live: true } },
   { id: 'magicswap', href: '/magic-square', color: '#e45bd6', hasGuide: true },

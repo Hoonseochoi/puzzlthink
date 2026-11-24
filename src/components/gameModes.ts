@@ -60,7 +60,6 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
     path: '/point-omok', ai: [{ label: 'poNormal', query: 'difficulty=normal' }, { label: 'poHard', query: 'difficulty=hard' }],
     rooms: [{ label: 'roomTwo', create: preparePointOmokRoom }], useRoom: usePointOmokRoom,
   },
-  // Not in the game list yet (see GAMES): reachable at /hit-stay only.
   hitStay: { path: '/hit-stay', ai: [{ label: 'hsAi' }], rooms: [{ label: 'hsRoom', create: prepareHitStayRoom, openMin: 2 }], useRoom: useHitStayRoom },
   merge2048: {
     path: '/2048', solo: true, ai: [{ label: 'm2Free', query: 'mode=free' }, { label: 'm2Endless', query: 'mode=endless' }],

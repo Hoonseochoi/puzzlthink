@@ -50,16 +50,17 @@ export function HsCard({ value, size = 'md', lifted = false, tag, dim = false, d
  * The limit die: an eight-sided die seen face on. On a new round it tumbles through the faces
  * for a moment and lands on the limit.
  */
-export function HsDie({ value, rollKey, size = 64 }: { value: number; rollKey: number; size?: number }) {
+export function HsDie({ value, rollKey, size = 64, still = false }: { value: number; rollKey: number; size?: number; still?: boolean }) {
   const [shown, setShown] = useState(value);
   const [rolling, setRolling] = useState(false);
   useEffect(() => {
+    if (still) return;
     let step = 0;
     const start = window.setTimeout(() => setRolling(true), 0);
     const tick = window.setInterval(() => { step += 1; setShown(HS_DIE[(step * 3 + value) % HS_DIE.length]); }, 85);
     const stop = window.setTimeout(() => { window.clearInterval(tick); setShown(value); setRolling(false); }, 1400);
     return () => { window.clearTimeout(start); window.clearInterval(tick); window.clearTimeout(stop); };
-  }, [rollKey, value]);
+  }, [rollKey, value, still]);
   return (
     <motion.span
       className="relative inline-block" style={{ width: size, height: size }}

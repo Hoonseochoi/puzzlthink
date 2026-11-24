@@ -25,6 +25,7 @@ import { FtBoard } from './fourThree/FourThreeParts';
 import type { Board } from '@/lib/fourThree';
 import { newMonorail } from '@/lib/monorail';
 import Merge2048Preview from './merge2048/Merge2048Preview';
+import { HitStayTile } from './hitStay/HitStayPreview';
 
 function MiniFace({ color, shape = 'circle' }: { color: string; shape?: 'circle' | 'square' | 'hex' }) {
   const shapeClass = shape === 'circle' ? 'rounded-full' : shape === 'square' ? 'rounded-[35%]' : '[clip-path:polygon(25%_5%,75%_5%,100%_50%,75%_95%,25%_95%,0_50%)]';
@@ -229,6 +230,7 @@ const PODIUM_STAT = { wins: 'podiumWins', maps: 'podiumMaps', score: 'podiumScor
 /** A game's home-card picture, by catalog id (also used by the game list page). */
 export function GamePreview({ id }: { id: GameId }) {
   switch (id) {
+    case 'hitStay': return <HitStayTile />;
     case 'pointOmok': return <PointOmokPreview />;
     case 'magicswap': return <MagicSwapPreview />;
     case 'fourThree': return <FourThreePreview />;
@@ -268,9 +270,10 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const podiums = useHallPodiums();
   const rates = useChallengeRates();
-  // Order: by plays on 2026-11-23 (KST), most played first, 포인트 오목 2nd, 마방진 스왑 4th and 2048 6th (same order as the game catalog).
+  // Order: by plays on 2026-11-23 (KST), most played first, Hit,Stay 2nd, 포인트 오목 3rd, 마방진 스왑 5th and 2048 7th (same order as the game catalog).
   const games = [
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true, updated: true },
+    { title: 'HIT, STAY', display: tc('hitStay'), description: t('hitStayDescription'), href: '/hit-stay', tag: 'brainSurvival', meta: t('hitStayMeta'), color: '#6f7dff', illustration: 'hitStay', new: true },
     { title: 'POINT OMOK', display: tc('pointOmok'), description: t('pointOmokDescription'), href: '/point-omok', tag: 'pointStrategy', meta: t('pointOmokMeta'), color: '#ff5d8f', illustration: 'pointOmok', new: true },
     { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
     { title: 'MAGIC SQUARE', display: tc('magicswap'), description: t('magicswapDescription'), href: '/magic-square', tag: 'logicPuzzle', meta: t('magicswapMeta'), color: '#e45bd6', illustration: 'magicswap', new: true },
@@ -309,7 +312,7 @@ export default function HomeClient() {
     {HELL_LIVE.length > 0 && <HellLaunchBanner />}
     <PieceRaceBanner />
     <div className="mt-8 grid gap-2.5 sm:mt-12 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">{/* The open-match card is tall: it spans two rows so the cards beside it keep their own height. */}<div className="grid md:row-span-2"><OpenMatchCard previews={{
-      pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      hitStay: <HitStayTile />, pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} /></div>{games.map((game) => (

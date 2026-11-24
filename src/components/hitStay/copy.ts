@@ -8,10 +8,10 @@ export const HS_HIT = '#ff4d6d';
 export const HS_ROOT_STYLE: CSSProperties = { ...accentVars(HS_ACCENT, HS_INK), backgroundImage: fog('111, 125, 255') };
 
 const ko = {
-  title: 'HIT, STAY',
+  title: 'Hit,Stay',
   subtitle: 'MAIN MATCH',
   you: '나',
-  back: 'HIT, STAY',
+  back: 'Hit,Stay',
   rules: '규칙',
   sound: '소리',
   phase: { pick: '카드 공개', bet1: '1차 베팅', hit: 'HIT · STAY', bet2: '2차 베팅', showdown: '승부', finished: '게임 종료' } as Record<string, string>,
@@ -109,7 +109,7 @@ const ko = {
   copy: '링크 복사',
   copied: '복사됨',
   share: '공유',
-  shareText: 'HIT, STAY 한 판 하자! 한계 숫자에 가장 가깝게.',
+  shareText: 'Hit,Stay 한 판 하자! 한계 숫자에 가장 가깝게.',
   aiSeat: 'AI 대기',
   nickname: '닉네임',
   rename: '변경',
@@ -221,7 +221,7 @@ const en: HsCopy = {
   copy: 'Copy link',
   copied: 'Copied',
   share: 'Share',
-  shareText: 'Play HIT, STAY with me — get closest to the limit.',
+  shareText: 'Play Hit,Stay with me — get closest to the limit.',
   aiSeat: 'AI seat',
   nickname: 'Nickname',
   rename: 'Rename',
