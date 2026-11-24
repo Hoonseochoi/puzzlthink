@@ -127,9 +127,9 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
   const directionLabel = (direction: Direction) => t(direction);
   const addLog = (message: string) => setHistory((items) => [message, ...items].slice(0, 8));
 
-  const saveRecord = (result: PlayerId[], resultTerritory: ReturnType<typeof getTerritory>) => {
+  const saveRecord = (result: PlayerId[], resultTerritory: ReturnType<typeof getTerritory>, finalPieces: Piece[], finalWalls: Set<string>) => {
     const record: MatchRecord = { id: Date.now(), won: result.includes(0), score: resultTerritory.scores[0], difficulty, date: new Date().toISOString(), mode: modeId };
-    reportGame(`${GAME}-ai-${record.id}`, GAME, 'ai', !result.includes(0) ? 'loss' : result.length > 1 ? 'draw' : 'win', { players: MODES[modeId].players.length, difficulty, score: resultTerritory.scores[0] });
+    reportGame(`${GAME}-ai-${record.id}`, GAME, 'ai', !result.includes(0) ? 'loss' : result.length > 1 ? 'draw' : 'win', { players: MODES[modeId].players.length, difficulty, score: resultTerritory.scores[0], replay: wallgoReplay([...frames, { pieces: finalPieces, walls: [...finalWalls] }]) });
     setRecords((current) => {
       const next = [record, ...current].slice(0, 30);
       localStorage.setItem(RECORD_KEY, JSON.stringify(next));
@@ -178,7 +178,7 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
     setSelectedPieceId(null); setMovedPieceId(null); setTurnStep('move'); setSeconds(90); setPendingBreak(null); setUndoMove(null);
     if (nextTerritory.separated || noOneCanMove(nextPieces, nextWalls, mode, breakAvailable)) {
       const result = modeWinners(nextTerritory, mode);
-      setWinner(result[0]); setWinners(result); setPhase('finished'); saveRecord(result, nextTerritory);
+      setWinner(result[0]); setWinners(result); setPhase('finished'); saveRecord(result, nextTerritory, nextPieces, nextWalls);
       addLog(result.length > 1 ? t('logCoWinners', { players: result.map((p) => playerNames[p]).join(', ') }) : t('logWinner', { player: playerNames[result[0]] }));
       return;
     }
@@ -391,4 +391,9 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
 export function KindPicker({ left, value, onChange, label, names }: { left: PieceKind[]; value: PieceKind; onChange: (kind: PieceKind) => void; label: string; names: Record<PieceKind, string> }) {
   const kinds = (['square', 'circle'] as PieceKind[]).filter((kind) => left.includes(kind));
   return <div className="mx-auto mb-3 flex max-w-[680px] items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-black/40 px-3 py-2"><span className="text-[11px] font-bold text-white/55">{label}</span><div className="flex gap-1.5">{kinds.map((kind) => <button key={kind} type="button" onClick={() => onChange(kind)} aria-pressed={value === kind} className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-extrabold transition ${value === kind ? 'bg-[#e0283a] text-white shadow-[0_0_14px_rgba(224,40,58,.4)]' : 'border border-white/10 bg-white/[0.03] text-white/55 hover:text-white'}`}><i className={`h-3 w-3 border-2 border-current ${kind === 'circle' ? 'rounded-full' : 'rounded-[2px]'}`} />{names[kind]}</button>)}</div></div>;
+}
+
+/** 복기 for a 매우 어려움 win: each step as [player, kind, row, col] per piece plus the wall keys (stats.ts keeps it only for hell wins). */
+function wallgoReplay(frames: { pieces: Piece[]; walls: string[] }[]) {
+  return frames.map((f) => ({ p: f.pieces.map((x) => [x.player, x.kind ?? null, x.row, x.col]), w: f.walls }));
 }

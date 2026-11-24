@@ -145,7 +145,7 @@ export default function JanggiGame() {
     const record: MatchRecord = { won: game.winner === 0, draw: game.winner === null, difficulty, date: new Date().toISOString() };
     const timer = window.setTimeout(() => {
       setSaved(true);
-      reportGame(`janggi-ai-${record.date}`, 'janggi', 'ai', game.winner === null ? 'draw' : game.winner === 0 ? 'win' : 'loss', { difficulty, reason: game.reason, moves: game.ply });
+      reportGame(`janggi-ai-${record.date}`, 'janggi', 'ai', game.winner === null ? 'draw' : game.winner === 0 ? 'win' : 'loss', { difficulty, reason: game.reason, moves: game.ply, replay: { first: game.first, moves: game.moves ?? [] } });
       setRecords((current) => {
         const next = [record, ...current].slice(0, 50);
         try { localStorage.setItem(RECORD_KEY, JSON.stringify(next)); } catch { /* Optional. */ }
