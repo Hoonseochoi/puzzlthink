@@ -120,3 +120,4 @@ button:disabled { cursor: default; }
 @keyframes m2Twinkle { 0%, 100% { opacity: .25; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
 @keyframes m2Halo { 0%, 100% { stroke-opacity: .25; } 50% { stroke-opacity: .7; } }
 @media (prefers-reduced-motion: reduce) { .m2-twinkle path, .m2-halo { animation: none; } }
+@keyframes maintScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
