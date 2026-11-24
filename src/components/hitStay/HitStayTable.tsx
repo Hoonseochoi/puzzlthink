@@ -22,6 +22,11 @@ type Props = {
 
 const NEVER = Number.MAX_SAFE_INTEGER / 2;
 
+/** A short buzz on phones; browsers only allow it after the player has tapped the page. */
+function buzz(pattern: number | number[]) {
+  try { if (navigator.userActivation?.hasBeenActive) navigator.vibrate?.(pattern); } catch { /* optional */ }
+}
+
 /** Seconds left on the turn clock, or null when there is none. */
 function useCountdown(deadline: number, on: boolean) {
   const [now, setNow] = useState(() => Date.now());
@@ -82,7 +87,7 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
   // A tap on the phone when it becomes your turn.
   const wasMyTurn = useRef(false);
   useEffect(() => {
-    if (myTurn && !wasMyTurn.current) { try { navigator.vibrate?.(28); } catch { /* optional */ } }
+    if (myTurn && !wasMyTurn.current) buzz(28);
     wasMyTurn.current = myTurn;
   }, [myTurn]);
 
@@ -376,7 +381,7 @@ function Dock({ g, room, seat, myTurn, seconds, t, act, waiting, nameOf, pick, o
   const warning = (betting || hitting) && !!room.turnSec && seconds !== null && seconds <= HS_WARN_SEC;
   const warned = useRef(false);
   useEffect(() => {
-    if (warning && !warned.current) { try { navigator.vibrate?.([60, 60, 60]); } catch { /* optional */ } }
+    if (warning && !warned.current) buzz([60, 60, 60]);
     warned.current = warning;
   }, [warning]);
 
