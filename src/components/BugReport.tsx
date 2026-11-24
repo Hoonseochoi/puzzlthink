@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocale, useTranslations } from 'next-intl';
 import { Bug, Check, Loader2, X } from 'lucide-react';
 import { usePathname } from '@/i18n/routing';
@@ -117,9 +118,9 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
           : 'inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white/70 px-3 py-2 text-xs font-extrabold text-black/70 transition hover:bg-white'}>
         <Bug size={14} /><span className="hidden sm:inline">{t('button')}</span>
       </button>
-      {open && (
+      {open && createPortal(
         <div className="fixed inset-0 z-[95] flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center" role="dialog" aria-modal="true" aria-labelledby="bug-report-title" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
-          <div className="w-full max-w-md rounded-[22px] border border-black/10 bg-[#f9f7f1] p-5 text-[#17201e] shadow-2xl sm:p-6">
+          <div className="max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto rounded-[22px] border border-black/10 bg-[#f9f7f1] p-5 text-[#17201e] shadow-2xl sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 id="bug-report-title" className="flex items-center gap-2 text-lg font-black"><Bug size={18} className="text-[#ff6b4a]" />{t('title')}</h2>
@@ -167,7 +168,8 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
               </form>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );
