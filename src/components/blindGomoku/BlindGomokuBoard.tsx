@@ -44,7 +44,7 @@ function GridFace({ moves, revealed, lastMove, winningLine, interactive, preview
             key={key}
             type="button"
             disabled={!canPlace}
-            aria-label={move ? `${coordinateLabel(row, col)} ${move.owner}` : coordinateLabel(row, col)}
+            aria-label={move && revealed ? `${coordinateLabel(row, col)} ${move.owner}` : coordinateLabel(row, col)}
             onClick={() => onPlace(row, col)}
             className={`group absolute z-10 h-[6.35%] w-[6.35%] -translate-x-1/2 -translate-y-1/2 rounded-full outline-none ${canPlace ? 'cursor-pointer focus-visible:ring-2 focus-visible:ring-[#ffd76b]' : ''}`}
             style={{ left: `${point(col)}%`, top: `${point(row)}%` }}
@@ -87,7 +87,8 @@ export default function BlindGomokuBoard({ moves, flipped, interactive, previewC
           <GridFace moves={moves} revealed={false} lastMove={lastMove} interactive={interactive} previewColor={previewColor} onPlace={onPlace} />
         </div>
         <div aria-hidden={!flipped} className="absolute inset-0 rounded-[10px] bg-gradient-to-br from-[#ffd166] via-[#26313f] to-[#67e8ff] p-[3px] shadow-[0_24px_60px_rgba(0,0,0,.78),0_0_32px_rgba(255,209,102,.14)] [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <GridFace moves={moves} revealed lastMove={lastMove} winningLine={winningLine} interactive={false} previewColor={previewColor} onPlace={onPlace} />
+          {/* The face-up side is only built while it is shown, so the page never holds whose stone is whose. */}
+          <GridFace moves={flipped ? moves : []} revealed lastMove={lastMove} winningLine={flipped ? winningLine : null} interactive={false} previewColor={previewColor} onPlace={onPlace} />
         </div>
       </div>
     </div>

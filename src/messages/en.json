@@ -177,6 +177,7 @@
     "flipToColors": "Colour side",
     "flipToTruth": "Black & white side",
     "colorRule": "Colour rule",
+    "hellColorsLocked": "Very Hard is always played with 2 colours: with more, matching colour pairs make positions easy to remember.",
     "colorCountValue": "{count} colours",
     "mustChange": "New colour every turn",
     "mustChangeDesc": "You can't reuse your last colour",
