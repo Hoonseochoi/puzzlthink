@@ -8,8 +8,9 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 /** tier 'hell' = 매우 어려움 certificate (its own numbering, id starts with 'h'). */
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number; tier: 'hard' | 'hell' };
 
-type Href = '/hit-stay' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/card-janggi' | '/hit-stay' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
+  card_janggi: { ko: '카드 장기', en: 'Card Janggi', href: '/card-janggi', color: '#b07cff' },
   hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay', href: '/hit-stay', color: '#6f7dff' },
   point_omok: { ko: '포인트 오목', en: 'Point Omok', href: '/point-omok', color: '#ff5d8f' },
   merge2048: { ko: '2048', en: '2048', href: '/2048', color: '#ff8fa3' },

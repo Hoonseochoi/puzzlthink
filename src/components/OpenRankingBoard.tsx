@@ -11,7 +11,7 @@ import { byGameOrder } from './recordOrder';
 
 const GAMES: { id: GameId; color: string }[] = [
   { id: 'slitherlink', color: '#8f7cff' }, { id: 'gyulhap', color: '#ffcf3f' }, { id: 'indian_poker', color: '#e6b94f' },
-  { id: 'hit_stay', color: '#6f7dff' }, { id: 'point_omok', color: '#ff5d8f' }, { id: 'merge2048', color: '#ff8fa3' }, { id: 'hexagon', color: '#e8b04a' }, { id: 'piggy_bank', color: '#e0a91c' }, { id: 'heavy13', color: '#c9a061' }, { id: 'russian_roulette', color: '#238ca8' }, { id: 'nemo_count', color: '#7d86a8' },
+  { id: 'card_janggi', color: '#b07cff' }, { id: 'hit_stay', color: '#6f7dff' }, { id: 'point_omok', color: '#ff5d8f' }, { id: 'merge2048', color: '#ff8fa3' }, { id: 'hexagon', color: '#e8b04a' }, { id: 'piggy_bank', color: '#e0a91c' }, { id: 'heavy13', color: '#c9a061' }, { id: 'russian_roulette', color: '#238ca8' }, { id: 'nemo_count', color: '#7d86a8' },
   { id: 'wallgo', color: '#ff6b4a' }, { id: 'wallgo2', color: '#e0283a' }, { id: 'nine_mens_morris', color: '#3ec9d6' }, { id: 'flip_omok', color: '#3fb8ff' }, { id: 'four_three', color: '#ffb52e' }, { id: 'black_white', color: '#2b2b31' }, { id: 'black_white_2', color: '#ef3340' },
   { id: 'laser_janggi', color: '#28b9d7' }, { id: 'russian_janggi', color: '#e2283c' }, { id: 'blind_gomoku', color: '#d39b2f' }, { id: 'janggi', color: '#e8a33c' },
 ];
