@@ -268,14 +268,14 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const podiums = useHallPodiums();
   const rates = useChallengeRates();
-  // Order: by plays on 2026-11-23 (KST), most played first, 마방진 스왑 3rd and 2048 5th, 포인트 오목 6th (same order as the game catalog).
+  // Order: by plays on 2026-11-23 (KST), most played first, 포인트 오목 2nd, 마방진 스왑 4th and 2048 6th (same order as the game catalog).
   const games = [
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true, updated: true },
+    { title: 'POINT OMOK', display: tc('pointOmok'), description: t('pointOmokDescription'), href: '/point-omok', tag: 'pointStrategy', meta: t('pointOmokMeta'), color: '#ff5d8f', illustration: 'pointOmok', new: true },
     { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
     { title: 'MAGIC SQUARE', display: tc('magicswap'), description: t('magicswapDescription'), href: '/magic-square', tag: 'logicPuzzle', meta: t('magicswapMeta'), color: '#e45bd6', illustration: 'magicswap', new: true },
     { title: 'COLOR LINK', display: tc('colorlink'), description: t('colorlinkDescription'), href: '/color-link', tag: 'logicPuzzle', meta: t('colorlinkMeta'), color: '#21c2b5', illustration: 'colorlink', new: true },
     { title: '2048', display: tc('merge2048'), description: t('merge2048Description'), href: '/2048', tag: 'healing', meta: t('merge2048Meta'), color: '#ff8fa3', illustration: 'merge2048', new: true },
-    { title: 'POINT OMOK', display: tc('pointOmok'), description: t('pointOmokDescription'), href: '/point-omok', tag: 'pointStrategy', meta: t('pointOmokMeta'), color: '#ff5d8f', illustration: 'pointOmok', new: true },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'ONE STROKE', display: tc('onestroke'), description: t('onestrokeDescription'), href: '/one-stroke', tag: 'logicPuzzle', meta: t('onestrokeMeta'), color: '#ff8a2b', illustration: 'onestroke', new: true },
     { title: 'STAR BATTLE', display: tc('starbattle'), description: t('starbattleDescription'), href: '/star-battle', tag: 'logicPuzzle', meta: t('starbattleMeta'), color: '#ffc23d', illustration: 'starbattle', new: true },
