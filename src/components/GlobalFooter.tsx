@@ -6,7 +6,7 @@ import SupportLink from './SupportLink';
 import { BACKUP_HOST, BACKUP_URL } from '@/lib/backupSite';
 import { GAMES } from '@/lib/gameCatalog';
 
-const HIDE_ON = ['/2048', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/gyulhap', '/indian-poker', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker'];
+const HIDE_ON = ['/point-omok', '/2048', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/gyulhap', '/indian-poker', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker'];
 
 export default function GlobalFooter() {
   const pathname = usePathname();

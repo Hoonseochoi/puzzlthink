@@ -105,6 +105,20 @@ function BlindGomokuPreview() {
   </div>;
 }
 
+/** 포인트 오목: a board corner with black and white stones and three points put up for bidding. */
+function PointOmokPreview() {
+  const stones = new Map<number, 0 | 1>([[1, 0], [6, 1], [7, 0], [8, 1], [11, 0], [12, 0], [13, 1], [16, 1], [18, 0]]);
+  const points = [21, 22, 23];
+  return <div className="relative grid aspect-square w-full grid-cols-5 overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[#12131a] p-2 shadow-xl ring-1 ring-[#ff5d8f]/30 sm:w-[62%] sm:rounded-2xl sm:border-4 sm:p-3 sm:shadow-2xl">
+    <div className="absolute inset-[12%]" style={{ backgroundImage: 'linear-gradient(to right, transparent 49%, rgba(201,207,227,.3) 49%, rgba(201,207,227,.3) 51%, transparent 51%), linear-gradient(to bottom, transparent 49%, rgba(201,207,227,.3) 49%, rgba(201,207,227,.3) 51%, transparent 51%)', backgroundSize: '25% 25%' }} />
+    {Array.from({ length: 25 }, (_, index) => <span key={index} className="relative z-10 flex items-center justify-center">
+      {stones.has(index) && <b className={`absolute inset-[14%] rounded-full shadow-md ${stones.get(index) === 0 ? 'bg-[radial-gradient(circle_at_34%_30%,#5a5f6b,#15171c_45%,#050507)]' : 'bg-[radial-gradient(circle_at_34%_30%,#fff,#e9ecf2_45%,#aab1be)]'}`} />}
+      {points.includes(index) && <b className="absolute inset-[16%] flex items-center justify-center rounded-full bg-[#ff5d8f]/30 font-mono text-xs font-black text-white ring-2 ring-[#ff5d8f]">{points.indexOf(index) + 1}</b>}
+    </span>)}
+    <span className="absolute right-2 top-2 z-20 rounded-full bg-[#17201e] px-2 py-1 text-[7px] font-black tracking-wider text-[#ff5d8f] sm:right-3 sm:top-3 sm:text-[9px]">10P</span>
+  </div>;
+}
+
 /** The 돼지 저금통 table at 300×300: four stepped boxes with gold pigs around the clock. */
 function HexagonPreview() {
   // The first broadcast board (rows 3-4-5-4-3) with the line Q-R-S (1+1+3 = target 5) picked out.
@@ -215,6 +229,7 @@ const PODIUM_STAT = { wins: 'podiumWins', maps: 'podiumMaps', score: 'podiumScor
 /** A game's home-card picture, by catalog id (also used by the game list page). */
 export function GamePreview({ id }: { id: GameId }) {
   switch (id) {
+    case 'pointOmok': return <PointOmokPreview />;
     case 'magicswap': return <MagicSwapPreview />;
     case 'fourThree': return <FourThreePreview />;
     case 'binairo': return <BinairoPreview />;
@@ -253,13 +268,14 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const podiums = useHallPodiums();
   const rates = useChallengeRates();
-  // Order: by plays on 2026-11-23 (KST), most played first, 마방진 스왑 3rd and 2048 5th (same order as the game catalog).
+  // Order: by plays on 2026-11-23 (KST), most played first, 마방진 스왑 3rd and 2048 5th, 포인트 오목 6th (same order as the game catalog).
   const games = [
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true, updated: true },
     { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
     { title: 'MAGIC SQUARE', display: tc('magicswap'), description: t('magicswapDescription'), href: '/magic-square', tag: 'logicPuzzle', meta: t('magicswapMeta'), color: '#e45bd6', illustration: 'magicswap', new: true },
     { title: 'COLOR LINK', display: tc('colorlink'), description: t('colorlinkDescription'), href: '/color-link', tag: 'logicPuzzle', meta: t('colorlinkMeta'), color: '#21c2b5', illustration: 'colorlink', new: true },
     { title: '2048', display: tc('merge2048'), description: t('merge2048Description'), href: '/2048', tag: 'healing', meta: t('merge2048Meta'), color: '#ff8fa3', illustration: 'merge2048', new: true },
+    { title: 'POINT OMOK', display: tc('pointOmok'), description: t('pointOmokDescription'), href: '/point-omok', tag: 'pointStrategy', meta: t('pointOmokMeta'), color: '#ff5d8f', illustration: 'pointOmok', new: true },
     { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
     { title: 'ONE STROKE', display: tc('onestroke'), description: t('onestrokeDescription'), href: '/one-stroke', tag: 'logicPuzzle', meta: t('onestrokeMeta'), color: '#ff8a2b', illustration: 'onestroke', new: true },
     { title: 'STAR BATTLE', display: tc('starbattle'), description: t('starbattleDescription'), href: '/star-battle', tag: 'logicPuzzle', meta: t('starbattleMeta'), color: '#ffc23d', illustration: 'starbattle', new: true },
@@ -293,7 +309,7 @@ export default function HomeClient() {
     {HELL_LIVE.length > 0 && <HellLaunchBanner />}
     <PieceRaceBanner />
     <div className="mt-8 grid gap-2.5 sm:mt-12 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">{/* The open-match card is tall: it spans two rows so the cards beside it keep their own height. */}<div className="grid md:row-span-2"><OpenMatchCard previews={{
-      merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} /></div>{games.map((game) => (

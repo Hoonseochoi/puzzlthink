@@ -4,6 +4,7 @@
     "hellModeGo": "Play Very Hard",
     "merge2048": "2048",
     "fourThree": "4 Player 3 In a Row",
+    "pointOmok": "Point Omok",
     "monorail": "Monorail",
     "games": "Games",
     "wallgo": "Wallgo",
@@ -198,6 +199,8 @@
     "tag_healing": "HEALING",
     "fourThreeDescription": "A 4×4 board of stacking pieces. Team up to stop the Special Guest's line while racing to make three in a row yourself.",
     "fourThreeMeta": "vs AI (4 players) · Friends 2–3 · The Devil's Plan prize match",
+    "pointOmokDescription": "Put up three points, split 10 points over them in secret, and the higher bid gets the stone. Only half of what you keep carries over.",
+    "pointOmokMeta": "AI in 3 levels · friend & open 1:1 · The Devil's Plan 4",
     "monorailDescription": "Place straight and curved tiles to close one loop. Fight for the final tile—or call Impossible.",
     "monorailMeta": "AI, friend & open 1v1",
     "metaTitle": "PUZZLTHINK — Devil's Plan & The Genius brain games, logic puzzles",
@@ -1950,6 +1953,22 @@
         ],
         "origin": "Built on the rules of 2048, the open-source puzzle released in 2014, with PUZZLTHINK's square and stone characters, an challenge-run ranking and live friend races added."
       },
+      "pointOmok": {
+        "tagline": "Gomoku where you buy your stones with points. Read how much the other side will bid, and decide whether to save or spend.",
+        "players": "2 (1:1 against the AI or a friend)",
+        "pace": "90 s to choose · 90 s to bid, each round",
+        "level": "AI: Easy · Normal · Hard",
+        "rules": [
+          "Each round the chooser puts up three empty points in a row (across, down or diagonal). The first chooser is drawn at random; after that the players take turns.",
+          "Both players get 10 points every round and split them over the three points in secret: at least 1 on each, whole numbers only.",
+          "Each point gets the stone of whoever bid more on it; on a tie, the player who did not choose this round. Bids and points left are hidden from the other player.",
+          "Only half of the points you keep (rounded down) carry over. Bid 3·1·1, keep 5, and 2 carry over: 12 points next round.",
+          "After the three stones land, a player with a five wins. If both have one, more fives wins; the same number is a draw."
+        ],
+        "origin": "An unofficial fan-made web version of Point Omok, the final match of the exile in Netflix's The Devil's Plan season 4. Instead of the longest survivor choosing first, the first chooser is drawn at random.",
+        "ai": "1:1 against an Easy, Normal or Hard AI (it never sees your bids)",
+        "friend": "1:1 by link, 4-digit code or open room; 90 s to choose and to bid"
+      },
       "fourThree": {
         "tagline": "A 4×4 board where pieces stack up to three high. Three players hold off the Special Guest while racing to show three in a row from above.",
         "players": "4 (you + 2 allies + Special Guest AI)",
@@ -2434,6 +2453,9 @@
     "m2Free": "Free play (relaxed)",
     "ftAi": "4 players · stop the Guest with 2 ally AIs",
     "ftRoom": "Create a room (2–3 people + Guest AI)",
+    "poNormal": "AI 1:1 · Normal",
+    "poHard": "AI 1:1 · Hard",
+    "poEasy": "AI 1:1 · Easy",
     "short_ftRoom": "2–3",
     "start": "Start game",
     "howToPlay": "See how to play",
@@ -7469,5 +7491,253 @@
     "pageSub": "Cleared {date} · {total} cleared so far",
     "certChallenge": "Take on Very Hard yourself",
     "certNote": "Numbered in the order signed-in players first beat the Very Hard AI (separate from the Hard certificates). Only the nickname is shown. PUZZLTHINK is an unofficial fan-made game site, not affiliated with any broadcaster."
+  },
+  "PointOmok": {
+    "metaTitle": "Point Omok — gomoku with secret bids",
+    "metaDescription": "Play Point Omok from The Devil's Plan 4 free. Put up three points, split 10 points in secret, and make five with the stones you win. AI in three levels, friend and open 1:1.",
+    "keywords": [
+      "Point Omok",
+      "Point Gomoku",
+      "The Devil's Plan 4",
+      "Devil's Plan point omok",
+      "bidding gomoku",
+      "gomoku online",
+      "포인트 오목"
+    ],
+    "title": "POINT OMOK",
+    "subtitle": "POINT OMOK · 1:1",
+    "you": "You",
+    "black": "black",
+    "white": "white",
+    "levels": {
+      "easy": "Easy",
+      "normal": "Normal",
+      "hard": "Hard"
+    },
+    "levelNotes": {
+      "easy": "Loose, spread-out bids",
+      "normal": "Piles onto urgent points",
+      "hard": "Estimates your points"
+    },
+    "difficulty": "AI level",
+    "aiFair": "The AI sees the board, past results and its own bids only — never your bids or points.",
+    "levelRestart": "Changing the level starts a new game. Change it?",
+    "newGame": "New game",
+    "newGameConfirm": "End this game and start a new one?",
+    "rules": "Rules",
+    "rulesKicker": "HOW TO PLAY",
+    "rulesTitle": "Point Omok rules",
+    "fullRules": [
+      "1:1 on a 15×15 board. Every round is choose → bid → place.",
+      "Within 90 seconds the chooser puts up three empty points in a row (across, down or diagonal). Round 1's chooser is random; then the players take turns.",
+      "Both players get 10 points every round and split them over the three points within 90 seconds: at least 1 on each, whole numbers only.",
+      "Each point gets the stone of whoever bid more. On a tie it goes to the player who did not choose this round.",
+      "Only half of what you keep (rounded down) carries over. Bid 3·1·1, keep 5: 2 carry over and next round you have 10+2 = 12.",
+      "Bids and points left are hidden from the other player. When the game ends, every bid is shown.",
+      "After the three stones land, a player with a five (five or more, overlines count) wins. If both have one, more fives wins; the same number is a draw. One unbroken line counts once.",
+      "No three empty points in a row left is a draw. Run out of time choosing and the points are picked for you; bidding, and 1·1·1 is bid. Three rounds in a row on the clock loses."
+    ],
+    "understood": "Got it",
+    "resignConfirm": "Resign this game?",
+    "resign": "Resign",
+    "draw": "Draw",
+    "winnerIs": "{name} wins",
+    "youWin": "You win!",
+    "youLose": "You lose",
+    "chooseYou": "Pick three points",
+    "chooseThem": "{name} is picking three points",
+    "bidWatch": "Both players are bidding",
+    "bidLocked": "Bid locked · waiting for the other player",
+    "bidYou": "Split your points over the three points",
+    "revealing": "Revealing bids…",
+    "statusChoosing": "choosing",
+    "statusLocked": "bid locked",
+    "statusBidding": "bidding",
+    "statusRevealing": "revealing",
+    "roundResult": "ROUND {n} RESULT",
+    "took": "Yours",
+    "lostPoint": "Theirs",
+    "myBid": "Bid {n}",
+    "pickTitle": "Pick three points",
+    "pickHint": "Tap three empty points in a row (across, down or diagonal). Dashed circles show where the line can go on.",
+    "pickInvalid": "They must be three empty points in a row.",
+    "pickClear": "Clear",
+    "pickConfirm": "Put up these three",
+    "waitChoose": "{name} is picking three points.",
+    "nextBudget": "Your points this round: {n}P",
+    "syncing": "Loading your points…",
+    "myPoints": "Your points",
+    "spentLeft": "Bid {spent} · left {left}",
+    "carryNext": "+{n} next round",
+    "minus": "minus 1",
+    "plus": "plus 1",
+    "allRest": "All the rest",
+    "point": "point",
+    "presetMin": "1·1·1 (minimum)",
+    "presetEven": "Split evenly",
+    "bidRule": "At least 1P per point · whole numbers · half of what you keep (rounded down) carries over. Hold a button to count faster.",
+    "bothLocked": "Both locked! Revealing soon",
+    "waitBid": "Locked · waiting for {name}",
+    "lockBid": "Lock bid",
+    "finalTitle": "Final result",
+    "byResign": "Ended by resignation",
+    "byTimeout": "Out of time three rounds in a row",
+    "byFull": "No three points in a row are left",
+    "fivesScore": "Fives {a} : {b}",
+    "verified": "The other player's bids match what they locked (hash check)",
+    "verifyFailed": "The other player's bids failed the check",
+    "showResult": "Show result",
+    "resultKicker": "RESULT",
+    "roundKicker": "ROUND {n}",
+    "chooserBadge": "Chooser",
+    "pointsHidden": "points hidden",
+    "spectating": "Watching · bids are shown when the game ends",
+    "historyTitle": "Rounds",
+    "chose": "{name} chose",
+    "autoBid": "auto 1·1·1",
+    "historyHidden": "The numbers are your bids. The other player's bids are shown when the game ends.",
+    "historyShown": "Your bids / their bids",
+    "quickRules": "Key rules",
+    "quick": [
+      "The chooser puts up three empty points in a row.",
+      "10 points a round, at least 1 on each point, in secret.",
+      "Higher bid gets the stone; a tie goes to the non-chooser.",
+      "Half of what you keep carries over. More fives wins!"
+    ],
+    "close": "Close",
+    "roundsPlayed": "{n} rounds"
+  },
+  "PointOmokOnline": {
+    "metaTitle": "Point Omok invite — play 1:1",
+    "metaDescription": "Open the link and play Point Omok 1:1: split your points in secret over three points, and the higher bid gets the stone. Free, no sign-up.",
+    "guest": "Guest",
+    "me": "me",
+    "emptySeat": "Empty seat",
+    "host": "Host",
+    "ready": "Joined",
+    "waiting": "Waiting for a friend",
+    "connecting": "Connecting to the room…",
+    "unconfigured": "The realtime server is not set up yet.",
+    "connectionError": "Could not reach the realtime server. Please reload.",
+    "roomNotFound": "Room not found. Check that the host is still online.",
+    "hostOffline": "The host lost connection. The game goes on when they return.",
+    "back": "Back to Point Omok",
+    "inviteTitle": "Invite link",
+    "inviteDesc": "Send the link or tell your friend the 4-digit code. They take the other seat as soon as they join.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "shareText": "Let's play Point Omok on PUZZLTHINK!",
+    "nickname": "Nickname",
+    "rename": "Rename",
+    "start": "Start",
+    "startLocked": "Waiting for a friend",
+    "startLockedHint": "The start button lights up when your friend joins",
+    "startReady": "Your friend is here! Start the game",
+    "waitingHost": "Waiting for the host to start.",
+    "roomFull": "Both seats are taken. You are watching.",
+    "players": "Players",
+    "joined": "{name} joined",
+    "left": "{name} left",
+    "firstChooser": "Round 1's chooser is drawn at random at the start. Bids are locked as a hash first and only sent once both are locked.",
+    "rematchWait": "Waiting for the host to start again"
+  },
+  "PointOmokTutorial": {
+    "s1Title": "Pick three points",
+    "s1Desc": "The chooser puts up three empty points in a row: across, down or diagonal. Round 1's chooser is random; then the players take turns.",
+    "s2Title": "Split 10 points in secret",
+    "s2Desc": "Both players get 10 points and split them over the three points: at least 1 on each, whole numbers. Nobody sees your numbers.",
+    "s3Title": "Higher bid gets the stone",
+    "s3Desc": "Each point gets the stone of whoever bid more; a tie goes to the player who did not choose. Here ① is 5:4 for black, ② is a 3:3 tie for white (the non-chooser) and ③ is 2:3 for white.",
+    "s4Title": "Keep some, carry half",
+    "s4Desc": "You don't have to spend it all. Half of what you keep (rounded down) is added next round, so saving up for the decisive point is a plan too.",
+    "s5Title": "Most fives wins",
+    "s5Desc": "After the three stones land, a player with a five (or longer) wins. If both make one in the same round, more fives wins; the same number is a draw."
+  },
+  "PointOmokGuide": {
+    "eyebrow": "POINT OMOK · GUIDE",
+    "title": "Point Omok rules and strategy",
+    "intro": "Point Omok is an unofficial fan-made web version of the final match of the exile in Netflix's The Devil's Plan season 4. Instead of taking turns placing stones, each round three points are put up and both players bid for them in secret; the higher bid takes the point. It is gomoku plus bidding psychology and point management. Play it against the AI, or 1:1 with a friend by invite link, 4-digit code or open room.",
+    "rulesTitle": "Basic rules",
+    "rules": [
+      "Two players on a 15×15 board repeat choose → bid → place every round.",
+      "Within 90 seconds the chooser puts up three empty points in a row (across, down or diagonal). The first chooser is random; from round 2 the players take turns.",
+      "Both players get 10 points every round and split them over the three points within 90 seconds: at least 1 on each, whole numbers only.",
+      "Each point gets the stone of whoever bid more on it. On a tie, the player who did not choose this round gets it.",
+      "Only half of the points you keep (rounded down) carry over to the next round.",
+      "Once all three stones are down, a player with a five wins. If both have one, more fives wins; the same number is a draw.",
+      "Overlines (six or more) count as a five, and one unbroken line in one direction counts once. If no three empty points in a row are left, it is a draw."
+    ],
+    "specialTitle": "Situations that trip people up",
+    "special": [
+      {
+        "title": "The three stones land together",
+        "body": "All three stones go down at once and their order means nothing. If both players make a five in the same round, it is decided by how many fives, not by who was first."
+      },
+      {
+        "title": "Ties go to the non-chooser",
+        "body": "The chooser picks where, but loses ties. If you put up your own winning point, you have to bid clearly more than the other player."
+      },
+      {
+        "title": "The other player's points are hidden",
+        "body": "You never see how much the other player bid or kept. You can only work it out from past results; every bid is shown when the game ends."
+      },
+      {
+        "title": "When time runs out",
+        "body": "Out of time choosing, three points next to the stones are picked for you; out of time bidding, whatever is on your steppers is locked. In a friend game, a bid that never arrives counts as 1·1·1."
+      }
+    ],
+    "strategyTitle": "Tips — save, read, pile on",
+    "strategyIntro": "In Point Omok, when to bid matters as much as where. Here are common ideas.",
+    "strategies": [
+      {
+        "tag": "Budget",
+        "title": "Save on quiet rounds",
+        "body": "Bid just 1·1·1 on a round that decides nothing, keep 7 and carry 3. Save for a few rounds and you can clearly outbid the other player when it counts."
+      },
+      {
+        "tag": "Choose",
+        "title": "Put your winning point in the line",
+        "body": "As the chooser, include a point where you can make five. The other player must bid big to stop it, which makes the other two points cheap."
+      },
+      {
+        "tag": "Read",
+        "title": "Count their points",
+        "body": "A point they took means they bid at least as much as you. With 10 a round and half of the rest carried over, past results tell you their most possible points quite exactly."
+      },
+      {
+        "tag": "Mind games",
+        "title": "Pile on or spread out",
+        "body": "Piling on one point nearly secures it but gives up the other two. Read where they want to win, and put just 1 on the point they want least."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What is Point Omok?",
+        "a": "A gomoku variant from the final match of the exile in The Devil's Plan season 4. Players bid in secret for three points; the higher bid gets the stone, and a five wins."
+      },
+      {
+        "q": "What happens to points I don't spend?",
+        "a": "Half of them (rounded down) carry over. Bid 3·1·1 and keep 5, and 2 carry over: 12 points next round."
+      },
+      {
+        "q": "Whose stone is it on a tie?",
+        "a": "The stone of the player who did not choose the three points that round."
+      },
+      {
+        "q": "Does the AI see my bids?",
+        "a": "No. It decides from the board, past results and its own bids. The Hard AI estimates your points from the grant and carry rules and past results."
+      },
+      {
+        "q": "Can my friend see my bid early?",
+        "a": "No. A bid is first locked as a hash (a fingerprint) and only sent once both players have locked. When the game ends every bid is shown and can be checked against what was locked."
+      },
+      {
+        "q": "How many can play?",
+        "a": "It is 1:1: against the AI, with a friend by link or 4-digit code, or with someone new in an open room."
+      }
+    ],
+    "disclaimer": "Point Omok is PUZZLTHINK's own web remake inspired by a game shown on TV; it is not affiliated with any broadcaster or producer."
   }
 }

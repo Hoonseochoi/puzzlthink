@@ -1,11 +1,11 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
-// Order: by plays on 2026-11-23 (KST), most played first; 마방진 스왑 is pinned 3rd and 2048 (new) 5th.
-export type GameId = 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
+// Order: by plays on 2026-11-23 (KST), most played first; 마방진 스왑 is pinned 3rd, 2048 (new) 5th and 포인트 오목 (new) 6th.
+export type GameId = 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 
 export interface CatalogGame {
   id: GameId;
   /** Route of the playable page. */
-  href: '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+  href: '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
   /** Accent color, matching the home page cards. */
   color: string;
   /** Whether the game page renders a long-form guide below the board (anchored at #guide). */
@@ -23,6 +23,7 @@ export const GAMES: readonly CatalogGame[] = [
   { id: 'magicswap', href: '/magic-square', color: '#e45bd6', hasGuide: true },
   { id: 'colorlink', href: '/color-link', color: '#21c2b5', hasGuide: true },
   { id: 'merge2048', href: '/2048', color: '#ff8fa3', hasGuide: true },
+  { id: 'pointOmok', href: '/point-omok', color: '#ff5d8f', hasGuide: true },
   { id: 'wallgo', href: '/wallgo', color: '#ff6b4a', hasGuide: true, hell: { query: 'mode=two', live: true } },
   { id: 'onestroke', href: '/one-stroke', color: '#ff8a2b', hasGuide: true },
   { id: 'starbattle', href: '/star-battle', color: '#ffc23d', hasGuide: true },
