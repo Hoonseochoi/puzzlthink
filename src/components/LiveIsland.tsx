@@ -8,10 +8,10 @@ import { CERT_GAMES } from '@/lib/hardClear';
 import type { GameId } from '@/lib/stats';
 import { GAME_LABEL } from './HallCelebration';
 
-type LiveEvent = { id: number; kind: 'slither_claim' | 'slither_take' | 'open_win' | 'hall_rank' | 'hard_clear'; game: GameId | null; name: string; other: string | null; value: number | null };
+type LiveEvent = { id: number; kind: 'slither_claim' | 'slither_take' | 'open_win' | 'hall_rank' | 'hard_clear' | 'hell_clear'; game: GameId | null; name: string; other: string | null; value: number | null };
 type Stage = 'pill' | 'open' | 'closing';
 
-const ICON: Record<LiveEvent['kind'], string> = { slither_claim: '🔗', slither_take: '⚔️', open_win: '🔥', hall_rank: '🏆', hard_clear: '👑' };
+const ICON: Record<LiveEvent['kind'], string> = { slither_claim: '🔗', slither_take: '⚔️', open_win: '🔥', hall_rank: '🏆', hard_clear: '👑', hell_clear: '💀' };
 const OPEN_MS = 4600;
 const MAX_QUEUE = 4;
 
@@ -59,7 +59,8 @@ export default function LiveIsland() {
     : current.kind === 'slither_take' ? (current.other ? ((current.value ?? 0) >= 2 ? t('slitherTakeN', { name: current.name, other: current.other, n: current.value ?? 2 }) : t('slitherTake', { name: current.name, other: current.other })) : t('slitherTakeAnon', { name: current.name }))
       : current.kind === 'open_win' ? t('openWin', { name: current.name, game })
         : current.kind === 'hall_rank' ? t('hallRank', { name: current.name, game, rank: current.value ?? 1 })
-          : t('hardClear', { name: current.name, game, n: current.value ?? 1 });
+          : current.kind === 'hell_clear' ? t('hellClear', { name: current.name, game, n: current.value ?? 1 })
+            : t('hardClear', { name: current.name, game, n: current.value ?? 1 });
   const href = current.game && CERT_GAMES[current.game] ? (current.kind === 'slither_take' || current.kind === 'slither_claim' ? '/slitherlink?mode=beat#play' : CERT_GAMES[current.game].href) : '/';
   const open = stage === 'open';
 

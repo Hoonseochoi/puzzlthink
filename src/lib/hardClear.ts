@@ -5,7 +5,8 @@ export const HARD_CLEAR_EVENT = 'puzzlthink:hard-clear';
 /** id/no are missing when the player is signed out (they get a number after signing in). */
 export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs: number };
 
-export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number };
+/** tier 'hell' = 매우 어려움 certificate (its own numbering, id starts with 'h'). */
+export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number; tier: 'hard' | 'hell' };
 
 type Href = '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
@@ -62,15 +63,16 @@ export const certImagePath = (id: string, locale: string) => `/api/cert/${id}?l=
 export async function fetchCert(id: string): Promise<Cert | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key || !/^[0-9a-f]{12}$/.test(id)) return null;
+  const hell = /^h[0-9a-f]{12}$/.test(id);
+  if (!url || !key || (!hell && !/^[0-9a-f]{12}$/.test(id))) return null;
   try {
-    const res = await fetch(`${url}/rest/v1/rpc/hard_clear_cert`, {
+    const res = await fetch(`${url}/rest/v1/rpc/${hell ? 'hell_clear_cert' : 'hard_clear_cert'}`, {
       method: 'POST', headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_id: id }), next: { revalidate: 60 },
     });
     if (!res.ok) return null;
-    const rows = (await res.json()) as Cert[];
-    return rows[0] ?? null;
+    const rows = (await res.json()) as Omit<Cert, 'tier'>[];
+    return rows[0] ? { ...rows[0], tier: hell ? 'hell' : 'hard' } : null;
   } catch { return null; }
 }
 

@@ -120,3 +120,21 @@ button:disabled { cursor: default; }
 @keyframes m2Twinkle { 0%, 100% { opacity: .25; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
 @keyframes m2Halo { 0%, 100% { stroke-opacity: .25; } 50% { stroke-opacity: .7; } }
 @media (prefers-reduced-motion: reduce) { .m2-twinkle path, .m2-halo { animation: none; } }
+
+/* AI 헬모드: dark neon red/magenta. Scanlines over a surface, a slow neon pulse, and a rare short glitch on titles. */
+.hell-surface { background-color: #07060a; background-image: radial-gradient(ellipse 70% 55% at 50% -10%, rgba(255, 32, 72, .22), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(255, 43, 214, .12), transparent 70%); }
+.hell-scan { position: relative; isolation: isolate; }
+.hell-scan::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.035) 0 1px, transparent 1px 3px); }
+.hell-neon { color: #ff3355; text-shadow: 0 0 6px rgba(255, 51, 85, .85), 0 0 22px rgba(255, 51, 85, .55), 0 0 44px rgba(255, 43, 214, .35); }
+.hell-edge { box-shadow: 0 0 0 1px rgba(255, 51, 85, .45), 0 0 26px rgba(255, 51, 85, .22), inset 0 0 30px rgba(255, 51, 85, .07); }
+.hell-btn { background: linear-gradient(100deg, #ff2448, #e0129b); box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset, 0 0 22px rgba(255, 36, 72, .55); animation: hellPulse 2.6s ease-in-out infinite; }
+@keyframes hellPulse { 0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset, 0 0 16px rgba(255, 36, 72, .45); } 50% { box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset, 0 0 32px rgba(255, 36, 72, .8), 0 0 56px rgba(224, 18, 155, .35); } }
+.hell-glitch { position: relative; display: inline-block; }
+.hell-glitch::before, .hell-glitch::after { content: attr(data-text); position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+.hell-glitch::before { color: #ff2bd6; animation: hellGlitchA 7s steps(1) infinite; }
+.hell-glitch::after { color: #3df2ff; animation: hellGlitchB 7s steps(1) infinite; }
+@keyframes hellGlitchA { 0%, 91%, 100% { opacity: 0; transform: none; clip-path: inset(0 0 0 0); } 92% { opacity: .8; transform: translate(-3px, -1px); clip-path: inset(12% 0 58% 0); } 94% { opacity: .8; transform: translate(3px, 1px); clip-path: inset(62% 0 8% 0); } 96% { opacity: 0; } }
+@keyframes hellGlitchB { 0%, 92%, 100% { opacity: 0; transform: none; clip-path: inset(0 0 0 0); } 93% { opacity: .7; transform: translate(3px, 0); clip-path: inset(40% 0 30% 0); } 95% { opacity: .7; transform: translate(-2px, 1px); clip-path: inset(5% 0 75% 0); } 97% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .hell-btn, .hell-glitch::before, .hell-glitch::after { animation: none; }
+}

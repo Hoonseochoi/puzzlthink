@@ -1,5 +1,7 @@
 {
   "Common": {
+    "hellMode": "매우 어려움",
+    "hellModeGo": "매우 어려움 하러가기",
     "merge2048": "2048",
     "fourThree": "4인 3목",
     "monorail": "모노레일",
@@ -193,6 +195,7 @@
     ]
   },
   "Home": {
+    "hellTag": "매우 어려움",
     "merge2048Meta": "자유 플레이·챌린지 도전 랭킹 · 친구 2~4명",
     "merge2048Description": "같은 네모끼리 밀어서 합치면 쑥쑥 자라 바둑알로 진화해요. 지친 머리를 쉬게 하는 힐링 퍼즐, 2048까지 천천히.",
     "tag_healing": "힐링",
@@ -1717,6 +1720,7 @@
     "close": "닫기"
   },
   "Records": {
+    "blackPieceTab": "블랙피스",
     "chMerge2048": "2048 챌린지 도전",
     "metaTitle": "기록실 · 명예의 전당",
     "metaDescription": "PUZZLTHINK 게임별 AI 대전·오픈 대전 전적과 랭킹, 명예의 전당을 확인하고 닉네임을 변경하세요.",
@@ -5138,6 +5142,7 @@
     "disclaimer": "방송사·제작진과 무관한 비공식 팬 메이드 웹 게임입니다."
   },
   "Ranking": {
+    "hellChallenge": "매우 어려움 도전",
     "scoresTitle": "챌린지 도전 점수 랭킹",
     "scoresDesc": "더 이상 밀 수 없을 때까지 한 판을 이어 간 최고 점수 기준이에요.",
     "emptyScores": "아직 기록이 없어요. 챌린지 도전 한 판만 끝내도 바로 1등이에요!",
@@ -5430,6 +5435,7 @@
     "winnerForfeit": "{name}님이 끝까지 남아 이겼어요"
   },
   "Live": {
+    "hellClear": "{name}님이 {game} 매우 어려움을 {n}번째로 클리어!",
     "slitherClaim": "{name}님이 슬리더링크 새 맵을 차지했어요 · {time}",
     "slitherTakeN": "{name}님이 {other}님의 맵을 {n}번째 뺏었어요!",
     "slitherTake": "{name}님이 {other}님의 맵을 뺏었어요!",
@@ -7557,5 +7563,73 @@
       }
     ],
     "disclaimer": "PUZZLTHINK가 만든 무료 웹 퍼즐입니다. 2048의 기본 규칙은 2014년 공개된 오픈소스 게임에서 왔으며, 캐릭터와 모드는 PUZZLTHINK가 새로 만들었습니다."
+  },
+  "Hell": {
+    "metaTitle": "AI 헬모드 · 매우 어려움 AI 도전",
+    "metaDescription": "벽바둑 II·벽바둑·십이장기·러시아장기·블라인드 오목의 가장 강한 AI, 매우 어려움에 도전하세요. 이길 때마다 블랙피스 1개, 처음 이기면 번호가 새겨진 클리어 인증서를 받아요.",
+    "eyebrow": "AI HELL MODE",
+    "title": "AI 헬모드",
+    "subtitle": "매우 어려움. 이길 자신이 있는 사람만 들어오세요.",
+    "intro": "벽바둑 II·벽바둑·십이장기·러시아장기·블라인드 오목에 지금까지 가장 강한 AI가 들어왔어요. 한 판 이길 때마다 블랙피스 1개가 쌓이고, 게임마다 처음 이기면 매우 어려움 클리어 인증서를 받아요.",
+    "warn": "WARNING · 이 AI는 봐주지 않아요",
+    "ruleTitle": "블랙피스 경쟁전 규칙",
+    "rule1": "매우 어려움 AI 1승 = 블랙피스 1개",
+    "rule2": "상한 없이 계속 쌓여요",
+    "rule3": "벽바둑·벽바둑 II는 1:1 판만 인정해요",
+    "rule4": "같은 게임에서는 앞선 승리와 1분 이상 떨어진 승리만 인정해요",
+    "rule5": "게임마다 처음 이기면 번호가 새겨진 매우 어려움 인증서를 받아요",
+    "separate": "블랙피스는 기존 피스 경쟁전·어려움 인증서와 따로 세요. 로그인한 기록만 순위에 올라가요.",
+    "gamesTitle": "매우 어려움이 있는 게임",
+    "challenge": "매우 어려움 도전",
+    "soon": "준비 중",
+    "soonDesc": "곧 열려요",
+    "duelOnly": "1:1",
+    "clears": "{n}명 클리어",
+    "noClears": "아직 아무도 못 깼어요",
+    "myTitle": "내 기록",
+    "mySignIn": "로그인하면 블랙피스와 인증서가 내 기록에 저장돼요.",
+    "myPieces": "내 블랙피스",
+    "myRankLabel": "내 순위",
+    "myRank": "{rank}위",
+    "myNone": "아직 블랙피스가 없어요. 첫 승리를 노려 보세요.",
+    "myCerts": "내 매우 어려움 인증서",
+    "myCertsEmpty": "아직 없어요. 처음 이기면 번호가 새겨져요.",
+    "viewAll": "기록실에서 전체 순위 보기",
+    "boardTitle": "블랙피스 경쟁전",
+    "boardDesc": "매우 어려움 AI를 이길 때마다 블랙피스 1개. 가장 많이 모은 순서이고, 같으면 먼저 모은 사람이 앞서요. 누르면 게임별 승리가 보여요.",
+    "rankChangeHint": "▲▼는 오늘 0시(한국 시간) 대비 순위 변동이에요.",
+    "loading": "불러오는 중…",
+    "topEmpty": "아직 블랙피스를 모은 사람이 없어요. 첫 번째 주인공이 되어 보세요.",
+    "notYet": "아직 블랙피스가 없어요. 매우 어려움에서 첫 승을 거둬 보세요.",
+    "piecesOf": "{name} 님의 블랙피스 {n}개",
+    "me": "나",
+    "emptySpot": "비어 있어요",
+    "bannerBadge": "NEW · 출시",
+    "bannerTitle": "AI 헬모드 출시",
+    "bannerDesc": "지금까지 가장 강한 AI, 매우 어려움이 열렸어요. 이기면 블랙피스, 처음 이기면 번호가 새겨진 인증서. 블랙피스 경쟁전 포디움의 주인을 가려요.",
+    "bannerRule": "매우 어려움 1승 = 블랙피스 1개 · 상한 없음",
+    "bannerCta": "매우 어려움 하러가기",
+    "bannerTop": "블랙피스 TOP 3",
+    "listTitle": "매우 어려움이 있는 게임만 보기",
+    "listDesc": "AI 헬모드 · {n}개 게임",
+    "certEyebrow": "VERY HARD CLEAR",
+    "popupTitle": "{n}번째 매우 어려움 클리어!",
+    "popupTitleSignedOut": "매우 어려움 클리어!",
+    "popupDesc": "{label} · 전체 {n}번째 클리어예요. 매우 어려움 인증서가 발급됐어요!",
+    "popupDescSignedOut": "{label}에서 이겼어요. 믿기 어려운 기록이에요!",
+    "popupNudge": "블랙피스 1개도 쌓였어요. 다음 판도 이겨 보세요.",
+    "signInPrompt": "로그인하면 이 판이 저장되고, 블랙피스와 몇 번째로 클리어했는지 번호가 새겨진 매우 어려움 인증서를 받아요.",
+    "openPage": "인증 페이지 보기",
+    "close": "닫기",
+    "imageLoading": "인증서 만드는 중…",
+    "imageAlt": "{label} {n}번째 클리어 인증서",
+    "shareText": "{label} {n}번째 클리어 인증! 너도 깰 수 있어?",
+    "certMetaTitle": "{name} · {label} {n}번째 클리어",
+    "certMetaDescription": "PUZZLTHINK {label} 클리어 인증서. 나도 매우 어려움에 도전해 보세요!",
+    "notFound": "인증서를 찾을 수 없어요",
+    "pageTitle": "{name} 님, {label} {n}번째 클리어",
+    "pageSub": "{date} 클리어 · 지금까지 {total}명 클리어",
+    "certChallenge": "나도 매우 어려움 도전하기",
+    "certNote": "로그인한 플레이어가 매우 어려움 AI를 처음 이긴 순서대로 번호가 매겨져요(어려움 인증서와 번호가 따로예요). 인증서에는 닉네임만 표시돼요. PUZZLTHINK는 방송사·제작사와 무관한 비공식 팬 게임 사이트예요."
   }
 }
