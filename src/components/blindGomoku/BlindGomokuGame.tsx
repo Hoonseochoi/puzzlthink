@@ -23,6 +23,7 @@ const linkedDifficulty = () => {
   const level = new URLSearchParams(window.location.search).get('difficulty') as GomokuDifficulty | null;
   return level && LEVELS.includes(level) ? level : null;
 };
+const HELL_COLORS = 2;
 const AI_DELAY = 620; // the AI never answers faster than this, so its stone doesn't snap in
 
 export default function BlindGomokuGame() {
@@ -33,7 +34,10 @@ export default function BlindGomokuGame() {
   // A link can pick the level, e.g. /blind-gomoku?difficulty=hell#play from the hell-mode page
   // (GameGate renders the game only in the browser, so reading the URL here is safe).
   const [difficulty, setDifficulty] = useState<GomokuDifficulty>(() => linkedDifficulty() ?? 'normal');
-  const [colorCount, setColorCount] = useState(STONE_COLORS.length);
+  const [pickedColorCount, setColorCount] = useState(STONE_COLORS.length);
+  // 매우 어려움 is played with 2 colours only: with more, each colour pairs one of my stones with the AI's copy,
+  // which makes positions easy to remember.
+  const colorCount = difficulty === 'hell' ? HELL_COLORS : pickedColorCount;
   const [mustChange, setMustChange] = useState(false);
   const [revealUses, setRevealUses] = useState(2);
   const [revealSeconds, setRevealSeconds] = useState(0);
@@ -177,12 +181,13 @@ export default function BlindGomokuGame() {
           <section className={PANEL}>
             <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('colorRule')}</p><span className="text-[10px] font-bold text-white/35">{t('colorCountValue', { count: colorCount })}</span></div>
             <div className="mt-3 grid grid-cols-6 gap-1.5">
-              {[2, 3, 4, 5, 6, 7].map((n) => <button key={n} type="button" disabled={moves.length > 0} aria-pressed={colorCount === n} onClick={() => setColorCount(n)} className={`rounded-md py-2 font-mono text-xs font-black transition ${colorCount === n ? 'bg-[#ffd166] text-[#17120a]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{n}</button>)}
+              {[2, 3, 4, 5, 6, 7].map((n) => <button key={n} type="button" disabled={moves.length > 0 || difficulty === 'hell'} aria-pressed={colorCount === n} onClick={() => setColorCount(n)} className={`rounded-md py-2 font-mono text-xs font-black transition ${colorCount === n ? 'bg-[#ffd166] text-[#17120a]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{n}</button>)}
             </div>
             <label className={`mt-3 flex items-center justify-between gap-3 rounded-md border border-white/10 bg-black/25 px-3 py-2.5 text-xs font-bold ${moves.length > 0 ? 'opacity-50' : 'cursor-pointer'}`}>
               <span>{t('mustChange')}<span className="mt-0.5 block text-[10px] font-medium text-white/40">{t('mustChangeDesc')}</span></span>
               <input type="checkbox" checked={mustChange} disabled={moves.length > 0} onChange={(event) => setMustChange(event.target.checked)} className="h-4 w-4 accent-[#ffd166]" />
             </label>
+            {difficulty === 'hell' && <p className="mt-2 text-[10px] font-bold leading-4 text-[#ff8ea0]">{t('hellColorsLocked')}</p>}
             <p className="mt-2 text-[10px] leading-4 text-white/35">{t('colorRuleHint')}</p>
           </section>
 

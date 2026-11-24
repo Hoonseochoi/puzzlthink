@@ -177,6 +177,7 @@
     "flipToColors": "겉색 면으로",
     "flipToTruth": "흑백 면으로",
     "colorRule": "색 규칙",
+    "hellColorsLocked": "매우 어려움은 2색으로 고정돼요. 색이 많으면 같은 색 짝으로 위치를 외우기 쉬워져서예요.",
     "colorCountValue": "색 {count}개",
     "mustChange": "매 턴 다른 색",
     "mustChangeDesc": "직전에 쓴 색은 다시 못 써요",
