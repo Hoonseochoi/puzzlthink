@@ -1,7 +1,7 @@
 // Room-level checks for 카드 장기: `npx tsx scripts/card-janggi-room-test.ts [matches]`
 // Plays whole matches through the room reducer (random players, with timeouts thrown in) and checks round flow,
 // match end, the timeout rule (the opponent moves the late player's piece), idle loss, and what a guest's view holds.
-import { type CjSeat, currentCard, legalMoves, layoutSize, randomLayout } from '../src/lib/cardJanggi';
+import { CJ_MAX_ROUNDS, CJ_WINS, type CjSeat, currentCard, legalMoves, layoutSize, randomLayout } from '../src/lib/cardJanggi';
 import { judgeMove } from '../src/lib/cardJanggiAi';
 import { checkTips, positionBefore, spotsFor } from '../src/lib/cardJanggiTips';
 import { type CjRoom, CJ_IDLE_LOSS, cjPrivateFor, cjWaitingOn, cjWithPrivate, createCjRoom, redactCjRoom, reduceCjRoom } from '../src/lib/cardJanggiRoom';
@@ -86,7 +86,8 @@ for (let m = 0; m < n; m += 1) {
     }
   }
   rounds += 1; matches += 1;
-  if (s.reason === 'rounds' && s.winner !== 'draw' && s.wins[s.winner as number] < 2 && s.results.length < 5) fail('match ended early', s);
+  if (s.reason === 'rounds' && s.winner !== 'draw' && s.wins[s.winner as number] < CJ_WINS && s.results.length < CJ_MAX_ROUNDS) fail('match ended early', s);
+  if (s.reason === 'rounds' && s.results.length !== 1) fail('one-round match ran more than one round', s);
   if (lazy >= 0 && s.winner !== 1 - lazy) fail(`lazy player ${lazy} did not lose (${s.reason})`, s);
   if (s.idle.some((v, i) => v > CJ_IDLE_LOSS && i !== lazy)) fail('idle count past the limit', s);
   winsBy[String(s.winner)] += 1;

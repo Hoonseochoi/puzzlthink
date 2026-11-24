@@ -16,7 +16,7 @@
 // card. A player who has just used their last card lays out all five again at once and turns the first one up; the
 // other player then moves (so 선 always sees 후's new first card before using its own last one, and vice versa).
 // Moving onto an enemy piece takes it. A round is won by taking the enemy 왕 or by moving your own 왕 onto the square
-// the enemy 왕 started on. First to two rounds (three at most) wins the match.
+// the enemy 왕 started on. The match is a single round (PUZZLTHINK: one round, for quick games).
 //
 // Calls the show left open (ours):
 // - A card with no legal move is used up without a move (rare: only when every piece is boxed in).
@@ -28,8 +28,8 @@ export const CJ_W = 6;
 export const CJ_H = 5;
 export const CJ_CELLS = CJ_W * CJ_H;
 export const CJ_MAX_PLY = 60;
-export const CJ_WINS = 2;
-export const CJ_MAX_ROUNDS = 5;
+export const CJ_WINS = 1;
+export const CJ_MAX_ROUNDS = 1;
 
 export type CjSeat = 0 | 1;
 /** 0 rat 쥐 · 1 horse 말 · 2 monkey 원숭이 · 3 elephant 코끼리 · 4 giraffe 기린 */

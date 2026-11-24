@@ -144,7 +144,7 @@ const ko = {
     '라운드 시작에 둘 다 카드 순서를 몰래 정해요. 선공은 5장 모두, 후공은 첫 묶음만 5장 중 4장. 첫 카드는 동시에 공개.',
     '선공부터 번갈아, 공개된 카드대로 원하는 말 1개를 움직이고 다음 카드를 공개해요. 상대 말이 있는 칸으로 가면 잡아요.',
     '마지막 카드를 쓰면 바로 5장 순서를 다시 정하고 첫 카드만 공개해요. 그래서 상대는 내 새 첫 카드를 보고 마지막 카드를 써요.',
-    '한 수 90초. 시간 안에 못 두면 그 카드대로 상대가 내 말을 대신 움직여요. 3라운드 중 2승 먼저 하면 승리(선공은 라운드마다 교대).',
+    '한 수 90초. 시간 안에 못 두면 그 카드대로 상대가 내 말을 대신 움직여요. 단판 승부: 한 라운드를 이기면 바로 승리(선공은 동전 던지기).',
   ],
   notes: '이 사이트의 정리: 움직일 수 없는 카드는 그냥 넘어가요 · 기린은 2칸 점프, 코끼리는 막히면 멈춰요 · 한 라운드 60수가 넘으면 남은 말이 많은 쪽 승리(같으면 무승부 라운드).',
 };
@@ -282,7 +282,7 @@ const en: CjCopy = {
     'At the start of a round both lay out their cards face down: first player all five, second player four of five (first cycle only). The first cards are turned up together.',
     'Turns alternate from the first player: move any one piece as the face-up card allows, then turn up your next card. Moving onto an enemy piece takes it.',
     'After your last card, lay out all five again at once and turn up only the first. So your opponent sees your new first card before using their last one.',
-    '90 seconds per move; miss it and your opponent moves your piece with your card. Best of three rounds; the first player alternates.',
+    '90 seconds per move; miss it and your opponent moves your piece with your card. One round decides the match; a coin toss picks the first player.',
   ],
   notes: 'Our calls: a card with no legal move is passed · the giraffe jumps, the elephant stops at the first piece · past 60 moves in a round, more pieces left wins (equal = drawn round).',
 };
