@@ -1,6 +1,5 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
-// Order: by plays on 2026-11-22 (KST), most played first; 마방진 스왑 (new) sits on top, above 슬리더링크;
-// 2048 (new) is pinned 5th and 인디언 포커 (updated) 6th.
+// Order: by plays on 2026-11-23 (KST), most played first; 마방진 스왑 is pinned 3rd and 2048 (new) 5th.
 export type GameId = 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 
 export interface CatalogGame {
@@ -14,34 +13,34 @@ export interface CatalogGame {
 }
 
 export const GAMES: readonly CatalogGame[] = [
-  { id: 'magicswap', href: '/magic-square', color: '#e45bd6', hasGuide: true },
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
   { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true },
-  { id: 'wallgo', href: '/wallgo', color: '#ff6b4a', hasGuide: true },
-  { id: 'merge2048', href: '/2048', color: '#ff8fa3', hasGuide: true },
-  { id: 'indianPoker', href: '/indian-poker', color: '#e6b94f', hasGuide: true },
+  { id: 'magicswap', href: '/magic-square', color: '#e45bd6', hasGuide: true },
   { id: 'colorlink', href: '/color-link', color: '#21c2b5', hasGuide: true },
-  { id: 'heavy13', href: '/heavy13', color: '#c9a061', hasGuide: true },
-  { id: 'janggi', href: '/janggi', color: '#e8a33c', hasGuide: true },
-  { id: 'monorail', href: '/monorail', color: '#f3b64a', hasGuide: true },
-  { id: 'russianJanggi', href: '/russian-janggi', color: '#e2283c', hasGuide: true },
-  { id: 'starbattle', href: '/star-battle', color: '#ffc23d', hasGuide: true },
-  { id: 'twoSidedPoker', href: '/two-sided-poker', color: '#9b87ff', hasGuide: false },
+  { id: 'merge2048', href: '/2048', color: '#ff8fa3', hasGuide: true },
+  { id: 'wallgo', href: '/wallgo', color: '#ff6b4a', hasGuide: true },
   { id: 'onestroke', href: '/one-stroke', color: '#ff8a2b', hasGuide: true },
+  { id: 'starbattle', href: '/star-battle', color: '#ffc23d', hasGuide: true },
+  { id: 'janggi', href: '/janggi', color: '#e8a33c', hasGuide: true },
+  { id: 'heavy13', href: '/heavy13', color: '#c9a061', hasGuide: true },
+  { id: 'russianJanggi', href: '/russian-janggi', color: '#e2283c', hasGuide: true },
+  { id: 'twoSidedPoker', href: '/two-sided-poker', color: '#9b87ff', hasGuide: false },
+  { id: 'monorail', href: '/monorail', color: '#f3b64a', hasGuide: true },
+  { id: 'indianPoker', href: '/indian-poker', color: '#e6b94f', hasGuide: true },
   { id: 'blackWhite', href: '/black-white', color: '#2b2b31', hasGuide: true },
-  { id: 'blindGomoku', href: '/blind-gomoku', color: '#d39b2f', hasGuide: true },
-  { id: 'flipOmok', href: '/flip-omok', color: '#3fb8ff', hasGuide: true },
   { id: 'nonogram', href: '/nonogram', color: '#3fcf6a', hasGuide: true },
-  { id: 'nemoCount', href: '/nemo-count', color: '#7d86a8', hasGuide: true },
-  { id: 'blackWhite2', href: '/black-white-2', color: '#ef3340', hasGuide: true },
-  { id: 'nineMensMorris', href: '/nine-mens-morris', color: '#3ec9d6', hasGuide: true },
-  { id: 'russianRoulette', href: '/russian-roulette', color: '#238ca8', hasGuide: true },
+  { id: 'flipOmok', href: '/flip-omok', color: '#3fb8ff', hasGuide: true },
   { id: 'binairo', href: '/binairo', color: '#3f8cff', hasGuide: true },
-  { id: 'gyulhap', href: '/gyulhap', color: '#ffcf3f', hasGuide: true },
-  { id: 'sudoku', href: '/play', color: '#4b7bff', hasGuide: true },
-  { id: 'laserJanggi', href: '/laser-janggi', color: '#28b9d7', hasGuide: true },
+  { id: 'blackWhite2', href: '/black-white-2', color: '#ef3340', hasGuide: true },
+  { id: 'blindGomoku', href: '/blind-gomoku', color: '#d39b2f', hasGuide: true },
+  { id: 'nineMensMorris', href: '/nine-mens-morris', color: '#3ec9d6', hasGuide: true },
   { id: 'masyu', href: '/masyu', color: '#ff4d5e', hasGuide: true },
+  { id: 'russianRoulette', href: '/russian-roulette', color: '#238ca8', hasGuide: true },
+  { id: 'nemoCount', href: '/nemo-count', color: '#7d86a8', hasGuide: true },
   { id: 'fourThree', href: '/four-three', color: '#ffb52e', hasGuide: true },
-  { id: 'hexagon', href: '/hexagon', color: '#e8b04a', hasGuide: true },
+  { id: 'sudoku', href: '/play', color: '#4b7bff', hasGuide: true },
+  { id: 'gyulhap', href: '/gyulhap', color: '#ffcf3f', hasGuide: true },
+  { id: 'laserJanggi', href: '/laser-janggi', color: '#28b9d7', hasGuide: true },
   { id: 'piggyBank', href: '/piggy-bank', color: '#e0a91c', hasGuide: true },
+  { id: 'hexagon', href: '/hexagon', color: '#e8b04a', hasGuide: true },
 ];

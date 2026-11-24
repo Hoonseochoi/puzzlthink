@@ -61,7 +61,7 @@ def site_data(day):
     url = e["NEXT_PUBLIC_SUPABASE_URL"] + "/rest/v1/rpc/admin_report"
     key = e.get("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY") or e.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
     body = json.dumps({"p_token": open(TOKEN_FILE).read().strip(), "p_day": str(day)}).encode()
-    req = urllib.request.Request(url, data=body, headers={"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+    req = urllib.request.Request(url, data=body, headers={"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json", "User-Agent": "puzzlthink-report"})
     return json.load(urllib.request.urlopen(req, timeout=30))
 
 
