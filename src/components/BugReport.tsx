@@ -35,6 +35,7 @@ const GAMES: { path: string; id: string; label: string }[] = [
   { path: '/point-omok', id: 'point_omok', label: 'pointOmok' },
   { path: '/card-janggi', id: 'card_janggi', label: 'cardJanggi' },
   { path: '/hit-stay', id: 'hit_stay', label: 'hitStay' },
+  { path: '/color-link-duel', id: 'color_link_duel', label: 'colorLinkDuel' },
   { path: '/star-battle', id: 'starbattle', label: 'starbattle' },
   { path: '/masyu', id: 'masyu', label: 'masyu' },
   { path: '/nonogram', id: 'nonogram', label: 'nonogram' },
