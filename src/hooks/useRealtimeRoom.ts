@@ -29,6 +29,8 @@ export type RoomEngine<S extends BaseRoom, A> = {
   // Per-seat secrets, delivered end-to-end encrypted to that seat's browser only.
   privateFor?: (state: S, seat: number) => unknown;
   withPrivate?: (state: S, secret: unknown, seat: number) => S;
+  // Guest actions that only the host may read (e.g. a hidden bid), sent end-to-end encrypted to the host.
+  sealed?: (action: A) => boolean;
 };
 
 const CLIENT_KEY = 'puzzlthink_client_id';
@@ -225,6 +227,12 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     channel.on('broadcast', { event: 'action' }, ({ payload }) => {
       if (meRef.current?.isHost) apply(payload.action as A, payload.from as string);
     });
+    channel.on('broadcast', { event: 'sealed' }, ({ payload }) => {
+      if (!meRef.current?.isHost || typeof payload?.from !== 'string') return;
+      const pub = peerPubs.current.get(payload.from);
+      if (!pub) return;
+      keyFor(pub).then((key) => open<A>(key, payload)).then((action) => apply(action, payload.from)).catch(() => { /* not readable */ });
+    });
     channel.on('broadcast', { event: 'hello' }, () => {
       if (meRef.current?.isHost && stateRef.current) { channel.send({ type: 'broadcast', event: 'state', payload: engine.redact ? engine.redact(stateRef.current) : stateRef.current }); sendSecrets(stateRef.current); }
     });
@@ -288,9 +296,16 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   const dispatch = useCallback((action: A) => {
     const identity = meRef.current;
     if (!identity) return;
-    if (identity.isHost) apply(action, identity.id);
-    else channelRef.current?.send({ type: 'broadcast', event: 'action', payload: { from: identity.id, action } });
-  }, [apply]);
+    if (identity.isHost) { apply(action, identity.id); return; }
+    const hostPub = peerPubs.current.get('__host__');
+    if (engine.sealed?.(action) && keysRef.current && hostPub) {
+      keyFor(hostPub).then((key) => seal(key, action)).then((box) => {
+        channelRef.current?.send({ type: 'broadcast', event: 'sealed', payload: { from: identity.id, ...box } });
+      }).catch(() => { /* key not usable: the host's clock settles it */ });
+      return;
+    }
+    channelRef.current?.send({ type: 'broadcast', event: 'action', payload: { from: identity.id, action } });
+  }, [apply, engine, keyFor]);
 
   /** A quick reaction shown over this player's name for a few seconds (sent through presence, no chat log). */
   const lastEmote = useRef(0);

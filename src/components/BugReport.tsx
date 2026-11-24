@@ -32,6 +32,7 @@ const GAMES: { path: string; id: string; label: string }[] = [
   { path: '/color-link', id: 'colorlink', label: 'colorlink' },
   { path: '/magic-square', id: 'magicswap', label: 'magicswap' },
   { path: '/2048', id: 'merge2048', label: 'merge2048' },
+  { path: '/point-omok', id: 'point_omok', label: 'pointOmok' },
   { path: '/star-battle', id: 'starbattle', label: 'starbattle' },
   { path: '/masyu', id: 'masyu', label: 'masyu' },
   { path: '/nonogram', id: 'nonogram', label: 'nonogram' },

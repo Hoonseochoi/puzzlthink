@@ -32,6 +32,15 @@ button:disabled { cursor: default; }
 .hall-pop { animation: hallPop .55s cubic-bezier(.2,.9,.3,1.2) both; }
 @keyframes blindWinLine { from { stroke-dashoffset: 140; } to { stroke-dashoffset: 0; } }
 .blind-gomoku-win-line { stroke-dasharray: 140; animation: blindWinLine 1.15s .55s cubic-bezier(.2,.8,.2,1) both; filter: drop-shadow(0 0 3px rgba(255,51,77,.9)); }
+/* 포인트 오목: stones of a round drop together, a flash ring marks each point, the chosen points breathe. */
+@keyframes poDrop { 0% { opacity: 0; transform: translateY(-40%) scale(1.5); } 60% { opacity: 1; transform: translateY(3%) scale(.96); } 100% { transform: none; } }
+@keyframes poFlash { 0% { opacity: .95; transform: scale(.6); } 100% { opacity: 0; transform: scale(2.3); } }
+@keyframes poBreathe { 0%, 100% { box-shadow: 0 0 0 2px var(--accent), 0 0 10px var(--accent-glow); } 50% { box-shadow: 0 0 0 3px var(--accent), 0 0 20px var(--accent); } }
+@keyframes poCardIn { 0% { opacity: 0; transform: rotateX(80deg) translateY(8px); } 100% { opacity: 1; transform: none; } }
+.po-drop { animation: poDrop .55s cubic-bezier(.2,.9,.3,1.15) both; }
+.po-flash { animation: poFlash .8s ease-out both; }
+.po-breathe { animation: poBreathe 1.6s ease-in-out infinite; }
+.po-card-in { animation: poCardIn .5s cubic-bezier(.2,.9,.3,1.1) both; }
 @keyframes laserBeam { from { stroke-dasharray: 130; stroke-dashoffset: 130; opacity: 0; } 20% { opacity: 1; } to { stroke-dasharray: 130; stroke-dashoffset: 0; opacity: 1; } }
 @keyframes laserHit { 0% { opacity: 0; transform: scale(.2); } 45% { opacity: 1; } 100% { opacity: 0; transform: scale(2.4); } }
 .laser-janggi-beam { animation: laserBeam .42s cubic-bezier(.2,.8,.2,1) both; }
@@ -68,6 +77,7 @@ button:disabled { cursor: default; }
 .ip-allin::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.5) 50%, transparent 70%); transform: translateX(-120%); animation: hypeShine 2.4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
   .blind-gomoku-win-line { animation: none; stroke-dashoffset: 0; }
+  .po-drop, .po-flash, .po-breathe, .po-card-in { animation: none; }
   .laser-janggi-beam, .laser-janggi-hit { animation: none; }
   .nemo-highlight { animation: none; }
   .bw-lay, .bw-flip, .bw-result { animation: none; }

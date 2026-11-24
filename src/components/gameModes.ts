@@ -32,6 +32,7 @@ import { prepareMonorailRoom, useMonorailRoom } from '@/hooks/useMonorailRoom';
 import { prepareLogicRoom, prepareMasyuRoom, prepareNonogramRoom, prepareStarBattleRoom, useBinairoRoom, useColorLinkRoom, useMagicSwapRoom, useMasyuRoom, useOneStrokeRoom, useNonogramRoom, useStarBattleRoom } from '@/hooks/useLogicRoom';
 import { prepareFourThreeRoom, useFourThreeRoom } from '@/hooks/useFourThreeRoom';
 import { prepareMerge2048Room, useMerge2048Room } from '@/hooks/useMerge2048Room';
+import { preparePointOmokRoom, usePointOmokRoom } from '@/hooks/usePointOmokRoom';
 import { prepareTwoSidedPokerRoom, useTwoSidedPokerRoom } from '@/hooks/useTwoSidedPokerRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
@@ -54,6 +55,10 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  pointOmok: {
+    path: '/point-omok', ai: [{ label: 'poNormal', query: 'difficulty=normal' }, { label: 'poHard', query: 'difficulty=hard' }, { label: 'poEasy', query: 'difficulty=easy' }],
+    rooms: [{ label: 'roomTwo', create: preparePointOmokRoom }], useRoom: usePointOmokRoom,
+  },
   merge2048: {
     path: '/2048', solo: true, ai: [{ label: 'm2Free', query: 'mode=free' }, { label: 'm2Endless', query: 'mode=endless' }],
     rooms: [{ label: 'm2Room', create: prepareMerge2048Room, openMin: 2, play: 'mode=free', fillAi: false }], useRoom: useMerge2048Room,
