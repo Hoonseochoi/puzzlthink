@@ -7493,6 +7493,45 @@
     "certNote": "Numbered in the order signed-in players first beat the Very Hard AI (separate from the Hard certificates). Only the nickname is shown. PUZZLTHINK is an unofficial fan-made game site, not affiliated with any broadcaster."
   },
   "PointOmok": {
+    "tipButton": "Rules",
+    "tipHelp": "How to play",
+    "helpControls": [
+      "Picking: tap an empty point and dashed circles show where the line can go on. Tap three points in a row, then 'Put up these three'.",
+      "Bidding: split with −/+ on each point; hold a button to count faster. 'All in' puts everything left on that point.",
+      "The strip on top is your points: coloured units are your bids, green ones the part that carries over.",
+      "'Lock bid' can't be undone. When time runs out, whatever is on the steppers is locked.",
+      "The other player's bids and points stay hidden until the end. The numbers in the round list are your own bids."
+    ],
+    "them": "Them",
+    "tipsButton": "Winning tips",
+    "tipsTitle": "The round that decided it",
+    "tipsRound": "ROUND {n} · {who} chose",
+    "tipsBudget": "you had {n}P",
+    "tipsBids": "you {me} : them {them}",
+    "tipsNeed": "{n} would have won it",
+    "tipsChoseNote": "You chose this round, so ties went to them. When you put up your own winning point, bid clearly more than they can.",
+    "tipsTheyChoseNote": "They chose this round, so ties went to you: matching their bid on their winning point was enough to stop it.",
+    "tipsNoRound": "This game did not end on a five (time-out or resignation). See the tips below.",
+    "tipsWaste": "You kept points in {saved} of {rounds} rounds, and the carry rule threw away {wasted}P in all.",
+    "tipsGeneral": "Winning tips",
+    "tipsList": [
+      {
+        "title": "Count their ceiling",
+        "body": "A point they took means they bid at least as much as you (more, if they chose). With 10 a round and half of the rest carried over, past results tell you the most they can bid now."
+      },
+      {
+        "title": "1·1·1 on quiet rounds",
+        "body": "1·1·1 keeps 7 and carries 3. Save for two or three rounds and you can outbid them where it counts."
+      },
+      {
+        "title": "Put your winning point in the line",
+        "body": "When you choose, include the point that makes your five. They must bid big to stop it, which makes the other two points cheap."
+      },
+      {
+        "title": "Six in a row is not a five",
+        "body": "Only exactly five counts. If the point next to your five is put up, letting them have it can be the safer play."
+      }
+    ],
     "metaTitle": "Point Omok — gomoku with secret bids",
     "metaDescription": "Play Point Omok from The Devil's Plan 4 free. Put up three points, split 10 points in secret, and make five with the stones you win. AI in three levels, friend and open 1:1.",
     "keywords": [

@@ -8,6 +8,7 @@ import { PO_SECONDS, carryOf, extensions, fiveLines, isLegalTriple, lineOrder, s
 import { type PoAction, type PoRoom, PO_SHOW_MS, budgetOf, isPlaying, knowsBudget, poBidsCheck } from '@/lib/pointOmokRoom';
 import { BidRow, BudgetStrip, POINT_MARKS, PoBoardView, PoStone } from './PoParts';
 import { useBidLock } from './useBidLock';
+import { PoLossTips, PoRulesTip } from './PoTips';
 
 /**
  * The 포인트 오목 table, shared by the AI game and 1:1 rooms. It renders only public facts plus this player's own
@@ -183,7 +184,7 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
       <section ref={boardRef} className={`${STAGE} scroll-mt-2`}>
         <div className="mb-2 flex items-end justify-between gap-3 px-1 sm:mb-3 sm:px-2">
           <div className="min-w-0">
-            <p className={KICKER}>{finished ? t('resultKicker') : state.phase === 'lobby' ? 'LOBBY' : t('roundKicker', { n: state.round })}</p>
+            <div className="flex items-center gap-2"><p className={KICKER}>{finished ? t('resultKicker') : state.phase === 'lobby' ? 'LOBBY' : t('roundKicker', { n: state.round })}</p><PoRulesTip /></div>
             <h1 className={`mt-1 ${HEADING}`}>{heading}</h1>
           </div>
           {playing && <div className={`flex min-w-[72px] items-center justify-center gap-1.5 rounded-md px-3 py-2 font-mono text-sm font-bold ${seconds <= 10 ? 'animate-pulse bg-(--accent) text-(--accent-ink)' : 'border border-white/15 bg-black/60 text-[#c9cfdc]'}`}><Clock3 size={14} />{`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`}</div>}
@@ -264,6 +265,7 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
             <h2 id="po-result-title" className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{heading}</h2>
             <p className="mt-2 text-sm text-white/55">{state.reason === 'resign' ? t('byResign') : state.reason === 'timeout' ? t('byTimeout') : state.reason === 'full' ? t('byFull') : t('fivesScore', { a: state.fives[viewer], b: state.fives[opp] })}</p>
             <p className="mt-1 text-xs text-white/40">{t('roundsPlayed', { n: state.rounds.length })}</p>
+            {mySeat !== null && state.winner === opp && <PoLossTips state={state} mySeat={mySeat} />}
             {resultActions}
           </div>
         </div>
