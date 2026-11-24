@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDown, Menu, Trophy, X } from 'lucide-react';
+import { ChevronDown, Menu, Skull, Trophy, X } from 'lucide-react';
 import { usePathname, Link } from '@/i18n/routing';
 import { GAMES } from '@/lib/gameCatalog';
+import { HELL_LIVE } from '@/lib/hell';
 import LanguageSwitcher from './LanguageSwitcher';
 import AuthButton from './AuthButton';
 import GamesMenu from './GamesMenu';
@@ -14,6 +15,8 @@ import { TopBannerSlot } from './ads/HiddenLogAd';
 const HIDE_ON = ['/2048', '/magic-square', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker', '/masyu', '/nonogram', '/star-battle', '/binairo', '/one-stroke', '/color-link'];
 const NAV_LINK = 'rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black';
 const MOBILE_LINK = 'rounded-xl px-4 py-3 text-sm font-extrabold hover:bg-white';
+/** '매우 어려움 하러가기' (AI 헬모드), shown once a hell AI is live. */
+const HELL_LINK = 'flex items-center gap-1.5 rounded-full bg-[#07060a] px-3.5 py-2 text-xs font-black text-[#ff3355] shadow-[0_0_12px_rgba(255,51,85,.35)] ring-1 ring-[#ff3355]/50 transition hover:shadow-[0_0_20px_rgba(255,51,85,.6)]';
 
 export default function GlobalHeader() {
   const pathname = usePathname();
@@ -40,6 +43,7 @@ export default function GlobalHeader() {
 
         <nav className="hidden items-center gap-1 md:flex">
           <GamesMenu variant="nav" />
+          {HELL_LIVE.length > 0 && <Link href="/hell" className={HELL_LINK}><Skull size={13} />{t('hellMode')}</Link>}
           {links.map((item) => <Link key={item.href} href={item.href} className={NAV_LINK}>{item.label}</Link>)}
         </nav>
 
@@ -72,6 +76,7 @@ export default function GlobalHeader() {
                 ))}
               </ul>
             )}
+            {HELL_LIVE.length > 0 && <Link href="/hell" onClick={closeMenu} className={`${HELL_LINK} my-1 w-fit !px-4 !py-3 !text-sm`}><Skull size={15} />{t('hellModeGo')}</Link>}
             {links.map((item) => <Link key={item.href} href={item.href} onClick={closeMenu} className={MOBILE_LINK}>{item.label}</Link>)}
             <div className="mt-2 flex flex-col gap-2 border-t border-black/[0.07] pt-3"><HeaderSupportButton full /><AuthButton full source="header_menu" /><LanguageSwitcher /></div>
           </nav>

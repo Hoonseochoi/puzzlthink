@@ -1,5 +1,7 @@
 {
   "Common": {
+    "hellMode": "Very Hard",
+    "hellModeGo": "Play Very Hard",
     "merge2048": "2048",
     "fourThree": "4 Player 3 In a Row",
     "monorail": "Monorail",
@@ -189,6 +191,7 @@
     ]
   },
   "Home": {
+    "hellTag": "VERY HARD",
     "merge2048Meta": "Free play · challenge ranking · 2–4 friends",
     "merge2048Description": "Slide matching blocks together and watch the little squares grow into shiny stones. A calm puzzle for a tired brain — take your time to 2048.",
     "tag_healing": "HEALING",
@@ -1655,6 +1658,7 @@
     "close": "Close"
   },
   "Records": {
+    "blackPieceTab": "Black pieces",
     "chMerge2048": "2048 challenge run",
     "metaTitle": "Records · Hall of Fame",
     "metaDescription": "See PUZZLTHINK records for AI and open matches, rankings and the Hall of Fame, and update your nickname.",
@@ -5047,6 +5051,7 @@
     "disclaimer": "An unofficial fan-made web game, not affiliated with any broadcaster or production company."
   },
   "Ranking": {
+    "hellChallenge": "Take on Very Hard",
     "scoresTitle": "Challenge-run score ranking",
     "scoresDesc": "Best score of one board played until no move was left.",
     "emptyScores": "No scores yet. Finish one challenge run and you're first!",
@@ -5333,6 +5338,7 @@
     "winnerForfeit": "{name} outlasted everyone and wins"
   },
   "Live": {
+    "hellClear": "{name} is the No. {n} player to beat {game} on Very Hard!",
     "slitherClaim": "{name} claimed a new Slitherlink board · {time}",
     "slitherTakeN": "{name} took {other}’s board for the {n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} time!",
     "slitherTake": "{name} took {other}’s board!",
@@ -7390,5 +7396,73 @@
       }
     ],
     "disclaimer": "A free web puzzle made by PUZZLTHINK. The basic rules of 2048 come from the open-source game released in 2014; the characters and modes are PUZZLTHINK's own."
+  },
+  "Hell": {
+    "metaTitle": "AI Hell Mode · Take on the Very Hard AI",
+    "metaDescription": "Take on the strongest AI in Wallgo II, Wallgo, 12 Janggi, Russian Janggi and Blind Gomoku. Every win is a black piece, and your first win in a game earns a numbered clear certificate.",
+    "eyebrow": "AI HELL MODE",
+    "title": "AI Hell Mode",
+    "subtitle": "Very Hard. Come in only if you think you can win.",
+    "intro": "Wallgo II, Wallgo, 12 Janggi, Russian Janggi and Blind Gomoku now have our strongest AI yet. Each win adds one black piece, and your first win in each game earns a Very Hard clear certificate.",
+    "warn": "WARNING · THIS AI SHOWS NO MERCY",
+    "ruleTitle": "Black piece race rules",
+    "rule1": "1 win against the Very Hard AI = 1 black piece",
+    "rule2": "No cap: they keep adding up",
+    "rule3": "Wallgo and Wallgo II count 1:1 games only",
+    "rule4": "In the same game, a win counts only if it comes at least 1 minute after the previous one",
+    "rule5": "Your first win in each game earns a numbered Very Hard certificate",
+    "separate": "Black pieces are counted apart from the piece race and the Hard certificates. Only signed-in games are ranked.",
+    "gamesTitle": "Games with Very Hard",
+    "challenge": "Take on Very Hard",
+    "soon": "Coming soon",
+    "soonDesc": "Opening soon",
+    "duelOnly": "1:1",
+    "clears": "{n} cleared",
+    "noClears": "Nobody has beaten it yet",
+    "myTitle": "My record",
+    "mySignIn": "Sign in to keep your black pieces and certificates.",
+    "myPieces": "My black pieces",
+    "myRankLabel": "My rank",
+    "myRank": "#{rank}",
+    "myNone": "No black pieces yet. Go for your first win.",
+    "myCerts": "My Very Hard certificates",
+    "myCertsEmpty": "None yet. Your first win gets a number.",
+    "viewAll": "Full standings in the records",
+    "boardTitle": "Black piece race",
+    "boardDesc": "One black piece for every win against the Very Hard AI. Most pieces first; on a tie, whoever got there first. Tap a player to see their wins by game.",
+    "rankChangeHint": "▲▼ = change since midnight today (KST).",
+    "loading": "Loading…",
+    "topEmpty": "Nobody has a black piece yet. Be the first.",
+    "notYet": "No black pieces yet. Win your first Very Hard game.",
+    "piecesOf": "{name}'s {n} black pieces",
+    "me": "Me",
+    "emptySpot": "Empty",
+    "bannerBadge": "NEW · OUT NOW",
+    "bannerTitle": "AI Hell Mode is here",
+    "bannerDesc": "Our strongest AI yet, Very Hard, is open. Win for black pieces; your first win earns a numbered certificate. Who will top the black piece podium?",
+    "bannerRule": "1 Very Hard win = 1 black piece · no cap",
+    "bannerCta": "Play Very Hard",
+    "bannerTop": "BLACK PIECE TOP 3",
+    "listTitle": "Only games with Very Hard",
+    "listDesc": "AI Hell Mode · {n} games",
+    "certEyebrow": "VERY HARD CLEAR",
+    "popupTitle": "No. {n} Very Hard clear!",
+    "popupTitleSignedOut": "Very Hard cleared!",
+    "popupDesc": "{label} · you are the No. {n} player to beat it. Your Very Hard certificate is ready!",
+    "popupDescSignedOut": "You beat {label}. That is hard to believe!",
+    "popupNudge": "One black piece added, too. Win the next one.",
+    "signInPrompt": "Sign in to save this game, your black piece and a Very Hard certificate with your clear number.",
+    "openPage": "View the certificate page",
+    "close": "Close",
+    "imageLoading": "Making your certificate…",
+    "imageAlt": "{label} No. {n} clear certificate",
+    "shareText": "I am the No. {n} player to clear {label}! Can you?",
+    "certMetaTitle": "{name} · No. {n} to clear {label}",
+    "certMetaDescription": "PUZZLTHINK {label} clear certificate. Take on Very Hard yourself!",
+    "notFound": "Certificate not found",
+    "pageTitle": "{name}, No. {n} to clear {label}",
+    "pageSub": "Cleared {date} · {total} cleared so far",
+    "certChallenge": "Take on Very Hard yourself",
+    "certNote": "Numbered in the order signed-in players first beat the Very Hard AI (separate from the Hard certificates). Only the nickname is shown. PUZZLTHINK is an unofficial fan-made game site, not affiliated with any broadcaster."
   }
 }

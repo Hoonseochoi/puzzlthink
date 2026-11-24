@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { GAMES } from '@/lib/gameCatalog';
 import { gameFromSlug } from '@/lib/rankings';
+import { HELL_LIVE } from '@/lib/hell';
 
 const BASE_URL = 'https://www.puzzlthink.com';
 const locales = ['ko', 'en'] as const;
@@ -11,6 +12,8 @@ const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekl
   ...GAME_PATHS.map((path) => ({ path, priority: 0.9, changeFrequency: 'weekly' as const })),
   { path: '/games', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/game-list', priority: 0.7, changeFrequency: 'weekly' },
+  // AI 헬모드: listed once a hell AI is live.
+  ...(HELL_LIVE.length ? [{ path: '/hell', priority: 0.8, changeFrequency: 'daily' as const }] : []),
   { path: '/logic-puzzles', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/slitherlink/guide', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/masyu/guide', priority: 0.7, changeFrequency: 'monthly' },

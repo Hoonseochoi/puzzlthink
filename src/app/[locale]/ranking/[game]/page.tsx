@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Crown, DoorOpen, Infinity as InfinityIcon, Map as MapIcon, Swords, Timer, Trophy } from 'lucide-react';
+import { Crown, DoorOpen, Infinity as InfinityIcon, Map as MapIcon, Skull, Swords, Timer, Trophy } from 'lucide-react';
 import ShareButtons from '@/components/ShareButtons';
 import { Link } from '@/i18n/routing';
 import { CERT_GAMES } from '@/lib/hardClear';
+import { HELL_LIVE, hellHref } from '@/lib/hell';
 import { formatMs } from '@/lib/nemoCount';
 import { type GameRanking, fetchGameRanking, gameFromSlug, hasHall, hasOpen, rankImagePath, rankPath, rankSlug } from '@/lib/rankings';
 import { pageMetadata } from '@/lib/seo';
@@ -119,6 +120,7 @@ export default async function RankingPage({ params }: Params) {
         <p className="mt-3 max-w-2xl break-keep text-sm leading-6 text-black/55">{t('intro', { game: name })}</p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Link href={CERT_GAMES[game].href} className="flex items-center gap-2 rounded-2xl bg-[#17201e] px-5 py-3 text-sm font-black text-white"><Swords size={16} />{t('challenge', { game: name })}</Link>
+          {HELL_LIVE.some((g) => g.stat === game) && <a href={`/${locale}${hellHref(HELL_LIVE.find((g) => g.stat === game)!)}`} className="flex items-center gap-2 rounded-2xl bg-[#07060a] px-5 py-3 text-sm font-black text-[#ff3355] shadow-[0_0_16px_rgba(255,51,85,.4)] ring-1 ring-[#ff3355]/60"><Skull size={16} />{t('hellChallenge')}</a>}
           <Link href="/records" className="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-5 py-3 text-sm font-bold text-black/70">{t('myRecords')}</Link>
         </div>
 

@@ -10,20 +10,25 @@ export interface CatalogGame {
   color: string;
   /** Whether the game page renders a long-form guide below the board (anchored at #guide). */
   hasGuide: boolean;
+  /**
+   * AI 헬모드 ('매우 어려움', difficulty id 'hell'). `query` is put before `difficulty=hell` on the start link
+   * (벽바둑 counts 1:1 only). `live` = the hell AI is on main (all five since #173–#175); while false the game shows as 준비 중 and no link points at it.
+   */
+  hell?: { query?: string; live: boolean };
 }
 
 export const GAMES: readonly CatalogGame[] = [
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
-  { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true },
+  { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true, hell: { query: 'mode=two', live: true } },
   { id: 'magicswap', href: '/magic-square', color: '#e45bd6', hasGuide: true },
   { id: 'colorlink', href: '/color-link', color: '#21c2b5', hasGuide: true },
   { id: 'merge2048', href: '/2048', color: '#ff8fa3', hasGuide: true },
-  { id: 'wallgo', href: '/wallgo', color: '#ff6b4a', hasGuide: true },
+  { id: 'wallgo', href: '/wallgo', color: '#ff6b4a', hasGuide: true, hell: { query: 'mode=two', live: true } },
   { id: 'onestroke', href: '/one-stroke', color: '#ff8a2b', hasGuide: true },
   { id: 'starbattle', href: '/star-battle', color: '#ffc23d', hasGuide: true },
-  { id: 'janggi', href: '/janggi', color: '#e8a33c', hasGuide: true },
+  { id: 'janggi', href: '/janggi', color: '#e8a33c', hasGuide: true, hell: { live: true } },
   { id: 'heavy13', href: '/heavy13', color: '#c9a061', hasGuide: true },
-  { id: 'russianJanggi', href: '/russian-janggi', color: '#e2283c', hasGuide: true },
+  { id: 'russianJanggi', href: '/russian-janggi', color: '#e2283c', hasGuide: true, hell: { live: true } },
   { id: 'twoSidedPoker', href: '/two-sided-poker', color: '#9b87ff', hasGuide: false },
   { id: 'monorail', href: '/monorail', color: '#f3b64a', hasGuide: true },
   { id: 'indianPoker', href: '/indian-poker', color: '#e6b94f', hasGuide: true },
@@ -32,7 +37,7 @@ export const GAMES: readonly CatalogGame[] = [
   { id: 'flipOmok', href: '/flip-omok', color: '#3fb8ff', hasGuide: true },
   { id: 'binairo', href: '/binairo', color: '#3f8cff', hasGuide: true },
   { id: 'blackWhite2', href: '/black-white-2', color: '#ef3340', hasGuide: true },
-  { id: 'blindGomoku', href: '/blind-gomoku', color: '#d39b2f', hasGuide: true },
+  { id: 'blindGomoku', href: '/blind-gomoku', color: '#d39b2f', hasGuide: true, hell: { live: true } },
   { id: 'nineMensMorris', href: '/nine-mens-morris', color: '#3ec9d6', hasGuide: true },
   { id: 'masyu', href: '/masyu', color: '#ff4d5e', hasGuide: true },
   { id: 'russianRoulette', href: '/russian-roulette', color: '#238ca8', hasGuide: true },
