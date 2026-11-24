@@ -200,7 +200,7 @@
     "fourThreeDescription": "A 4×4 board of stacking pieces. Team up to stop the Special Guest's line while racing to make three in a row yourself.",
     "fourThreeMeta": "vs AI (4 players) · Friends 2–3 · The Devil's Plan prize match",
     "pointOmokDescription": "Put up three points, split 10 points over them in secret, and the higher bid gets the stone. Only half of what you keep carries over.",
-    "pointOmokMeta": "AI in 3 levels · friend & open 1:1 · The Devil's Plan 4",
+    "pointOmokMeta": "AI Normal & Hard · friend & open 1:1 · The Devil's Plan 4",
     "monorailDescription": "Place straight and curved tiles to close one loop. Fight for the final tile—or call Impossible.",
     "monorailMeta": "AI, friend & open 1v1",
     "metaTitle": "PUZZLTHINK — Devil's Plan & The Genius brain games, logic puzzles",
@@ -1957,7 +1957,7 @@
         "tagline": "Gomoku where you buy your stones with points. Read how much the other side will bid, and decide whether to save or spend.",
         "players": "2 (1:1 against the AI or a friend)",
         "pace": "90 s to choose · 90 s to bid, each round",
-        "level": "AI: Easy · Normal · Hard",
+        "level": "AI: Normal · Hard (one of 6 bidding styles at random)",
         "rules": [
           "Each round the chooser puts up three empty points in a row (across, down or diagonal). The first chooser is drawn at random; after that the players take turns.",
           "Both players get 10 points every round and split them over the three points in secret: at least 1 on each, whole numbers only.",
@@ -1966,7 +1966,7 @@
           "After the three stones land, a player with a five wins. If both have one, more fives wins; the same number is a draw."
         ],
         "origin": "An unofficial fan-made web version of Point Omok, the final match of the exile in Netflix's The Devil's Plan season 4. Instead of the longest survivor choosing first, the first chooser is drawn at random.",
-        "ai": "1:1 against an Easy, Normal or Hard AI (it never sees your bids)",
+        "ai": "1:1 against a Normal or Hard AI whose bidding style changes every game (it never sees your bids)",
         "friend": "1:1 by link, 4-digit code or open room; 90 s to choose and to bid"
       },
       "fourThree": {
@@ -2455,7 +2455,6 @@
     "ftRoom": "Create a room (2–3 people + Guest AI)",
     "poNormal": "AI 1:1 · Normal",
     "poHard": "AI 1:1 · Hard",
-    "poEasy": "AI 1:1 · Easy",
     "short_ftRoom": "2–3",
     "start": "Start game",
     "howToPlay": "See how to play",
@@ -7533,7 +7532,7 @@
       }
     ],
     "metaTitle": "Point Omok — gomoku with secret bids",
-    "metaDescription": "Play Point Omok from The Devil's Plan 4 free. Put up three points, split 10 points in secret, and make five with the stones you win. AI in three levels, friend and open 1:1.",
+    "metaDescription": "Play Point Omok from The Devil's Plan 4 free. Put up three points, split 10 points in secret, and make five with the stones you win. AI Normal and Hard, friend and open 1:1.",
     "keywords": [
       "Point Omok",
       "Point Gomoku",
@@ -7549,14 +7548,22 @@
     "black": "black",
     "white": "white",
     "levels": {
-      "easy": "Easy",
       "normal": "Normal",
       "hard": "Hard"
     },
     "levelNotes": {
-      "easy": "Loose, spread-out bids",
       "normal": "Piles onto urgent points",
       "hard": "Estimates your points"
+    },
+    "styleHint": "The AI's bidding style is drawn at random each game and shown when it ends.",
+    "styleReveal": "AI bidding style this game: {style}",
+    "styles": {
+      "balanced": { "name": "Balanced", "desc": "Spends some, keeps some." },
+      "saver": { "name": "Saver", "desc": "Saves on quiet rounds and spends big where it counts." },
+      "aggressive": { "name": "Aggressive", "desc": "Keeps almost nothing and bids nearly everything." },
+      "sniper": { "name": "Sniper", "desc": "Piles onto one point and puts 1 on the others." },
+      "spread": { "name": "Spreader", "desc": "Splits evenly over the three points." },
+      "bluffer": { "name": "Wildcard", "desc": "Picks loosely among good bids, hard to predict." }
     },
     "difficulty": "AI level",
     "aiFair": "The AI sees the board, past results and its own bids only — never your bids or points.",
@@ -7764,6 +7771,10 @@
       {
         "q": "Whose stone is it on a tie?",
         "a": "The stone of the player who did not choose the three points that round."
+      },
+      {
+        "q": "Does the AI always bid the same way?",
+        "a": "No. Each game draws one style at random (Balanced, Saver, Aggressive, Sniper, Spreader or Wildcard), and now and then a round is played in another. When a five is at stake, every style bids to win. The style is shown when the game ends."
       },
       {
         "q": "Does the AI see my bids?",

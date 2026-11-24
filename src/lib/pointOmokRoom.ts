@@ -12,7 +12,7 @@ import {
   PO_SECONDS, budgetAfter, emptyBoard, fallbackTriple, isLegalTriple, lineOrder, other, outcomeOf, placeStones, pointOwners, validBets,
   type PoBets, type PoBoard, type PoSeat, type PoTriple,
 } from './pointOmok';
-import type { PoLevel, PoPublicRound } from './pointOmokAi';
+import { type PoLevel, type PoPublicRound, type PoStyle, randomStyle } from './pointOmokAi';
 import { sha256 } from './sha256';
 
 export const PO_REVEAL_SECONDS = 15; // to send a locked bid once both are in
@@ -29,6 +29,7 @@ export type PoRoom = BaseRoom & {
   phase: PoPhase;
   ai: boolean[];
   level: PoLevel;
+  aiStyle?: PoStyle; // AI matches: the bidding style drawn for this match (shown once it is over)
   board: PoBoard;
   round: number; // 1-based, the round being played
   first: PoSeat; // chooser of round 1 (drawn at random)
@@ -70,7 +71,7 @@ function fresh(state: PoRoom): PoRoom {
 export function createPoRoom(host: Peer, opts: { ai?: boolean; level?: PoLevel; aiName?: string } = {}): PoRoom {
   const seats: Seat[] = [{ id: host.id, name: host.name }, opts.ai ? { id: 'ai', name: opts.aiName ?? 'AI' } : null];
   return fresh({
-    sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, ai: [false, !!opts.ai], level: opts.level ?? 'normal',
+    sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, ai: [false, !!opts.ai], level: opts.level ?? 'normal', ...(opts.ai ? { aiStyle: randomStyle() } : {}),
     board: emptyBoard(), round: 1, first: 0, chooser: 0, triple: null, commits: [null, null], revealed: [false, false], rounds: [],
     idle: [0, 0], autoPicked: false, shownAt: 0, winner: null, reason: null, fives: [0, 0],
   });
