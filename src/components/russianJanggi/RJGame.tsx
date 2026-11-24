@@ -124,7 +124,7 @@ export default function RJGame() {
     const record: MatchRecord = { won: game.winner === 0, draw: game.winner === null, difficulty, date: new Date().toISOString() };
     const timer = window.setTimeout(() => {
       setSaved(true);
-      reportGame(`russian_janggi-ai-${record.date}`, 'russian_janggi', 'ai', record.draw ? 'draw' : record.won ? 'win' : 'loss', { difficulty, reason: game.reason, moves: game.ply });
+      reportGame(`russian_janggi-ai-${record.date}`, 'russian_janggi', 'ai', record.draw ? 'draw' : record.won ? 'win' : 'loss', { difficulty, reason: game.reason, moves: game.ply, replay: { first: game.first, moves: game.moves ?? [] } });
       setRecords((current) => {
         const next = [record, ...current].slice(0, 50);
         try { localStorage.setItem(RECORD_KEY, JSON.stringify(next)); } catch { /* Optional. */ }
@@ -132,7 +132,7 @@ export default function RJGame() {
       });
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [over, saved, game.winner, game.reason, game.ply, difficulty]);
+  }, [over, saved, game.winner, game.reason, game.ply, game.first, game.moves, difficulty]);
 
   const wins = records.filter((r) => r.won).length;
   const status = over ? t('gameOver') : game.turn === 0 ? t('yourTurn') : t('aiThinking');

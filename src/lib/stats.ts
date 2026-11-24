@@ -85,6 +85,8 @@ async function insertResult(supabase: Supabase, userId: string, game: GameId, mo
 export async function reportGame(key: string, game: GameId, mode: GameMode, result: GameResult, detail: Record<string, unknown> = {}, opts: { revealDelayMs?: number } = {}) {
   if (isOpenRoomPractice()) return;
   if (reported.has(key)) return;
+  // 복기 (`detail.replay`) is kept only for a human win against the 매우 어려움 AI; every other result drops it.
+  if ('replay' in detail && !isHellClear(game, mode, result, detail)) { const { replay: _drop, ...rest } = detail; void _drop; detail = rest; }
   reported.add(key);
   window.dispatchEvent(new Event('puzzlthink:game-finished')); // e.g. the one-time "install as app" card
   const opponents = mode === 'friend' ? roomOpponents : [];

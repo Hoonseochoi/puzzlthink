@@ -46,7 +46,7 @@ export default function BlindGomokuGame() {
   const finish = (nextMoves: GomokuMove[], result: StoneOwner | 'draw', line: WinningLine | null) => {
     // One record per game (the key holds the game number and length, so a rerender can't count it twice).
     reportGame(`blind_gomoku-ai-${gameNo}-${nextMoves.length}-${Date.now()}`, 'blind_gomoku', 'ai', result === 'draw' ? 'draw' : result === 'black' ? 'win' : 'loss',
-      { difficulty, colors: colorCount, mustChange, moves: nextMoves.length, peeksUsed: 2 - revealUses });
+      { difficulty, colors: colorCount, mustChange, moves: nextMoves.length, peeksUsed: 2 - revealUses, replay: nextMoves.map((m) => [m.owner === 'black' ? 0 : 1, m.row, m.col, m.color]) });
     setMoves(nextMoves);
     setWinner(result);
     setWinningLine(line);
