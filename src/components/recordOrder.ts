@@ -3,7 +3,7 @@ import { GAMES } from '@/lib/gameCatalog';
 import { STATS_ID } from '@/lib/openRooms';
 import type { GameId } from '@/lib/stats';
 
-const ORDER = new Map<GameId, number>(GAMES.map((g, i) => [STATS_ID[g.id], i]));
+const ORDER = new Map<GameId, number>(GAMES.flatMap((g, i): [GameId, number][] => (g.id === 'hitStay' ? [] : [[STATS_ID[g.id], i]])));
 
 /** Sorts by game order, filled items first (stable within each group). */
 export function byGameOrder<T>(items: T[], gameOf: (item: T) => GameId, filled: (item: T) => boolean): T[] {

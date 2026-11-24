@@ -4,8 +4,8 @@ import { getSupabase } from './supabase';
 import type { GameId as CatalogId } from './gameCatalog';
 import type { GameId as StatsId } from './stats';
 
-/** Records name each game differently from the catalog. */
-export const STATS_ID: Record<CatalogId, StatsId> = {
+/** Records name each game differently from the catalog. HIT, STAY is not recorded yet (no records table entry), so it has none. */
+export const STATS_ID: Record<Exclude<CatalogId, 'hitStay'>, StatsId> = {
   pointOmok: 'point_omok', merge2048: 'merge2048', magicswap: 'magicswap', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram', twoSidedPoker: 'two_sided_poker', monorail: 'monorail',
   fourThree: 'four_three', flipOmok: 'flip_omok', nineMensMorris: 'nine_mens_morris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indianPoker: 'indian_poker',
   hexagon: 'hexagon', piggyBank: 'piggy_bank', nemoCount: 'nemo_count', blackWhite: 'black_white', blackWhite2: 'black_white_2', laserJanggi: 'laser_janggi', blindGomoku: 'blind_gomoku',

@@ -1,5 +1,6 @@
 {
   "Common": {
+    "hitStay": "HIT, STAY",
     "hellMode": "Very Hard",
     "hellModeGo": "Play Very Hard",
     "merge2048": "2048",
@@ -1937,6 +1938,7 @@
     "unsupported": "Not available",
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
     "games": {
+      "hitStay": {"tagline": "Bring your card total closest to the limit. Take one more (HIT) or stop (STAY), and decide how many chips to risk — a five-player survival betting game.", "players": "5 (empty seats are AI)", "pace": "20–45 s per turn with friends · no clock vs AI", "level": "4 AI, all at full strength", "ai": "5 players (4 AI)", "friend": "Link or 4-digit code, empty seats are AI", "rules": ["35 number cards (one 7, two 6s … seven 1s, seven -1s). 30 chips each; the ante is 1 and goes up by 1 every 10 rounds.", "Each round the dealer rolls an eight-sided die (5–12) for the limit. Everyone gets three cards and shows one.", "From the first player: bet (call, raise, fold) → HIT (a face-up card) or STAY in turn → bet again. No bet may exceed the smallest stack.", "Closest to the limit takes the pot; on equal sums more cards wins. Over the limit is last. At 0 chips you are out; the last one standing wins."], "origin": "Built on the rules of the semifinal main match HIT, STAY from a survival game show."},
       "merge2048": {
         "tagline": "Slide matching numbers together and grow the little square characters into stones on your way to 2048 — a calm number puzzle.",
         "players": "1 player or 2–4 friends",
@@ -2446,6 +2448,9 @@
     "attached": "Sent along: the game, page address, browser and screen size"
   },
   "GameGate": {
+    "hsAi": "5 players · vs 4 AI",
+    "hsRoom": "Create a room (2–5 + AI)",
+    "short_hsRoom": "2–5",
     "startGame": "Start",
     "short_m2Room": "2–4",
     "m2Room": "Create a friend room (2–4)",

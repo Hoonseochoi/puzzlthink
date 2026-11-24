@@ -1,11 +1,11 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
 // Order: by plays on 2026-11-23 (KST), most played first; 포인트 오목 (new) is pinned 2nd, 마방진 스왑 4th and 2048 (new) 6th.
-export type GameId = 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
+export type GameId = 'hitStay' | 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 
 export interface CatalogGame {
   id: GameId;
   /** Route of the playable page. */
-  href: '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+  href: '/hit-stay' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
   /** Accent color, matching the home page cards. */
   color: string;
   /** Whether the game page renders a long-form guide below the board (anchored at #guide). */
