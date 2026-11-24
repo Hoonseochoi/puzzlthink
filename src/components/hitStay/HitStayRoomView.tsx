@@ -2,23 +2,23 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, Trophy, UserRound, WifiOff } from 'lucide-react';
+import { BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, Timer, Trophy, UserRound, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import BugReport from '@/components/BugReport';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { useHitStayRoom } from '@/hooks/useHitStayRoom';
 import type { HitStayRoom } from '@/lib/hitStayRoom';
-import { HS_TURN_OPTIONS } from '@/lib/hitStayRoom';
+import { HS_PICK_SEC, HS_TURN_SEC } from '@/lib/hitStayRoom';
 import { HS_PERSONA, HS_PLAYERS, HS_STYLES } from '@/lib/hitStay';
 import LanguageSwitcher from '../LanguageSwitcher';
 import RoomAlerts from '../RoomAlerts';
 import AwayBanner from '../ui/AwayBanner';
 import GameHeader from '../ui/GameHeader';
-import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, WELL, seg } from '../ui/gameUi';
+import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, WELL } from '../ui/gameUi';
 import { HS_ACCENT, HS_ROOT_STYLE, hsCopy } from './copy';
 import { HitStayRules } from './HitStayGame';
 import { HsAvatar } from './HitStayParts';
-import HitStayResult from './HitStayResult';
+import HitStayResult, { hsMyPlace, useHitStayReport } from './HitStayResult';
 import HitStayTable from './HitStayTable';
 
 /** A 5-seat HIT, STAY table with friends (or an open room); seats nobody takes are played by the AI. */
@@ -33,7 +33,7 @@ export default function HitStayRoomView({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
-  const [closedSid, setClosedSid] = useState<string | null>(null);
+  const [closedKey, setClosedKey] = useState<string | null>(null);
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
   useEffect(() => {
@@ -48,6 +48,10 @@ export default function HitStayRoomView({ code }: { code: string }) {
   const shareLink = async () => { if (navigator.share) { try { await navigator.share({ title: `PUZZLTHINK ${t.title}`, text: t.shareText, url: shareUrl }); return; } catch { /* cancelled */ } } copyLink(); };
   const notice = status === 'unconfigured' ? t.unconfigured : status === 'error' ? t.connectionError : !state && waitedLong ? t.roomNotFound : state && !me?.isHost && !hostOnline ? t.hostOffline : null;
   const finished = state?.phase === 'finished';
+  // My result shows once my place is settled: at the end, or as soon as I am knocked out.
+  const done = !!state && (finished || hsMyPlace(state, mySeat) !== null);
+  const resultKey = state ? `${state.game.gid}-${finished}` : '';
+  useHitStayReport(state, mySeat, 'friend');
 
   return (
     <div className={SHELL} style={HS_ROOT_STYLE}>
@@ -66,25 +70,25 @@ export default function HitStayRoomView({ code }: { code: string }) {
       ) : state.phase === 'lobby' ? (
         <Lobby state={state} code={code} me={me} mySeat={mySeat} online={online} humans={humans} t={t} en={en}
           copied={copied} onCopy={copyLink} onShare={shareLink} nameDraft={nameDraft} setNameDraft={setNameDraft}
-          onRename={() => { rename(nameDraft); setNameDraft(''); }} onStart={() => dispatch({ t: 'start' })} onTurnSec={(s) => dispatch({ t: 'config', turnSec: s })} />
+          onRename={() => { rename(nameDraft); setNameDraft(''); }} onStart={() => dispatch({ t: 'start' })} />
       ) : (
         <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">
           <HitStayTable room={state} mySeat={mySeat} onAction={dispatch} t={t} locale={locale} />
-          {finished && closedSid === state.sid && (
-            <div className="mx-auto mt-2 max-w-[760px]"><button type="button" onClick={() => setClosedSid(null)} className={`${BTN} w-full py-3`}><Trophy size={14} />{t.showResult}</button></div>
+          {done && closedKey === resultKey && (
+            <div className="mx-auto mt-2 max-w-[760px]"><button type="button" onClick={() => setClosedKey(null)} className={`${BTN} w-full py-3`}><Trophy size={14} />{t.showResult}</button></div>
           )}
         </main>
       )}
-      {finished && closedSid !== state.sid && <HitStayResult room={state} mySeat={mySeat} t={t} locale={locale} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t.rematchWait} onClose={() => setClosedSid(state.sid)} />}
+      {done && closedKey !== resultKey && <HitStayResult room={state} mySeat={mySeat} t={t} locale={locale} onAgain={me?.isHost && finished ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t.rematchWait} onClose={() => setClosedKey(resultKey)} />}
       {rulesOpen && <HitStayRules t={t} locale={locale} onClose={() => setRulesOpen(false)} />}
     </div>
   );
 }
 
-function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart, onTurnSec }: {
+function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart }: {
   state: HitStayRoom; code: string; me: { id: string; name: string; isHost: boolean } | null; mySeat: number | null; online: Set<string>; humans: number;
   t: ReturnType<typeof hsCopy>; en: boolean; copied: boolean; onCopy: () => void; onShare: () => void;
-  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void; onTurnSec: (s: (typeof HS_TURN_OPTIONS)[number]) => void;
+  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void;
 }) {
   return (
     <main className="relative z-10 mx-auto grid w-full max-w-[1050px] gap-4 px-3 py-4 sm:px-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-8">
@@ -115,7 +119,10 @@ function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy,
       <aside className="space-y-4">
         <section className={PANEL}>
           <p className={PANEL_TITLE}>{t.turnTime}</p>
-          <div className="mt-3 grid grid-cols-3 gap-2">{HS_TURN_OPTIONS.map((s) => <button key={s} type="button" disabled={!me?.isHost} onClick={() => onTurnSec(s)} className={`py-2 ${seg(state.turnSec === s)}`}>{s}s</button>)}</div>
+          <ul className="mt-3 space-y-2 text-xs leading-5 text-white/65">
+            <li className="flex gap-2"><Timer size={14} className="mt-0.5 shrink-0 text-(--accent)" /><span className="break-keep">{t.pickRule(HS_PICK_SEC)}</span></li>
+            <li className="flex gap-2"><Bot size={14} className="mt-0.5 shrink-0 text-[#ffb547]" /><span className="break-keep">{t.idleRule(HS_TURN_SEC)}</span></li>
+          </ul>
           <p className={`${PANEL_TITLE} mt-5`}>{t.aiPersonas}</p>
           <div className="mt-3 flex flex-wrap gap-1.5">{HS_STYLES.map((style) => { const p = HS_PERSONA[style]; return <span key={style} className="flex items-center gap-1.5 rounded-full border border-white/10 py-1 pl-1 pr-2.5 text-[11px] font-bold"><HsAvatar name={en ? p.nameEn : p.name} color={p.color} size={18} />{en ? p.nameEn : p.name}</span>; })}</div>
           <p className="mt-2 text-[10px] leading-4 text-white/35">{t.personaNote}</p>

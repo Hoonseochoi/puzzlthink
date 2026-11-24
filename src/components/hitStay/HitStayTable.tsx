@@ -3,13 +3,14 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronUp, Eye, EyeOff, Hand, Layers, Minus, Plus, Timer } from 'lucide-react';
+import { Bot, ChevronUp, Eye, EyeOff, Hand, Layers, Minus, Plus, ScanEye, Timer } from 'lucide-react';
 import { type HitStay, type HsEvent, HS_PERSONA, HS_PLAYERS, hsPot, hsTotal, hsVisible } from '@/lib/hitStay';
-import { type HitStayRoom, type HitStayRoomAction, HS_SHOWDOWN_MS, hsWaitingOn } from '@/lib/hitStayRoom';
+import { type HitStayRoom, type HitStayRoomAction, HS_SHOWDOWN_MS, HS_TURN_SEC, HS_WARN_SEC, hsWaitingOn } from '@/lib/hitStayRoom';
 import { DIAMOND, PANEL, PANEL_TITLE } from '../ui/gameUi';
 import { HS_ACCENT, HS_HIT, HS_INK, type HsCopy } from './copy';
 import { accentVars } from '../ui/gameUi';
 import { HsAvatar, HsCard, HsChip, HsDie } from './HitStayParts';
+import HitStayHands from './HitStayHands';
 
 type Props = {
   room: HitStayRoom;
@@ -43,7 +44,8 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
   const personaOf = (s: number) => (room.seats[s]?.id.startsWith('ai-') && room.style[s] ? HS_PERSONA[room.style[s]!] : null);
   const waiting = hsWaitingOn(g);
   const myTurn = mySeat !== null && room.phase === 'playing' && waiting.includes(mySeat) && !room.ai[mySeat];
-  const seconds = useCountdown(room.deadline, room.phase === 'playing' && !!room.turnSec);
+  // Picking the face-up card is timed in every mode; bets and HIT/STAY only in rooms.
+  const seconds = useCountdown(room.deadline, room.phase === 'playing' && (!!room.turnSec || g.phase === 'pick'));
   const pot = hsPot(g);
   const others = useMemo(() => Array.from({ length: HS_PLAYERS }, (_, i) => ((mySeat ?? -1) + 1 + i) % HS_PLAYERS).filter((s) => s !== mySeat), [mySeat]);
 
@@ -55,15 +57,22 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
   const last = g.log[0];
   const [stamp, setStamp] = useState<{ seq: number; event: HsEvent } | null>(null);
   const seenSeq = useRef(g.seq);
+  // The hide timer outlives later moves: the next move used to cancel it and leave the stamp up for good.
+  const hideTimer = useRef<number | null>(null);
   useEffect(() => {
     if (seenSeq.current === g.seq) return;
     seenSeq.current = g.seq;
-    if (!last || !('seat' in last) || last.k === 'open' || last.k === 'out') return;
-    const shown = { seq: g.seq, event: last };
+    const stampable = !!last && 'seat' in last && last.k !== 'open' && last.k !== 'out';
+    const shown = stampable ? { seq: g.seq, event: last } : null;
+    // A move without a stamp (a new round, a card shown, the showdown) clears the old one right away.
     const show = window.setTimeout(() => setStamp(shown), 0);
-    const hide = window.setTimeout(() => setStamp((cur) => (cur?.seq === shown.seq ? null : cur)), 1500);
-    return () => { window.clearTimeout(show); window.clearTimeout(hide); };
+    if (shown) {
+      if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
+      hideTimer.current = window.setTimeout(() => setStamp((cur) => (cur?.seq === shown.seq ? null : cur)), 1500);
+    }
+    return () => window.clearTimeout(show);
   }, [g.seq, last]);
+  useEffect(() => () => { if (hideTimer.current !== null) window.clearTimeout(hideTimer.current); }, []);
 
   // A tap on the phone when it becomes your turn.
   const wasMyTurn = useRef(false);
@@ -76,6 +85,8 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
   // The card picked to show (tapped in the hand, confirmed in the dock).
   const [chosen, setChosen] = useState<{ round: number; index: number } | null>(null);
   const pick = chosen?.round === g.round ? chosen.index : null;
+  const [handsOpen, setHandsOpen] = useState(false);
+  const openHands = () => setHandsOpen(true);
   const showdown = g.phase === 'showdown' || g.phase === 'finished' ? g.showdown : null;
 
   return (
@@ -83,7 +94,7 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
       <div className="flex min-w-0 flex-col gap-2.5 pb-[calc(env(safe-area-inset-bottom)+96px)] sm:gap-3 lg:pb-6">
         {/* Bet board (top left) and the limit die */}
         <div className="grid grid-cols-[minmax(0,1fr)_118px] gap-2 sm:grid-cols-[minmax(0,1fr)_170px] sm:gap-2.5">
-          <BetBoard g={g} room={room} nameOf={nameOf} mySeat={mySeat} waiting={waiting} t={t} pot={pot} />
+          <BetBoard g={g} room={room} nameOf={nameOf} mySeat={mySeat} waiting={waiting} t={t} pot={pot} onHands={openHands} />
           <LimitPanel g={g} rollKey={rollKey} t={t} />
         </div>
 
@@ -110,7 +121,8 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
       </aside>
 
       <Layer>
-        {mySeat !== null && room.phase !== 'finished' && <Dock g={g} room={room} seat={mySeat} myTurn={myTurn} seconds={seconds} t={t} act={act} waiting={waiting} nameOf={nameOf} pick={pick} />}
+        {mySeat !== null && room.phase !== 'finished' && <Dock g={g} room={room} seat={mySeat} myTurn={myTurn} seconds={seconds} t={t} act={act} waiting={waiting} nameOf={nameOf} pick={pick} onHands={openHands} />}
+        <AnimatePresence>{handsOpen && <HitStayHands key="hands" g={g} mySeat={mySeat} t={t} nameOf={nameOf} colorOf={(s) => personaOf(s)?.color} onClose={() => setHandsOpen(false)} />}</AnimatePresence>
         <AnimatePresence>{showdown && g.phase === 'showdown' && <ShowdownSheet key={g.round} g={g} t={t} nameOf={nameOf} mySeat={mySeat} />}</AnimatePresence>
       </Layer>
     </div>
@@ -130,13 +142,13 @@ function Layer({ children }: { children: ReactNode }) {
 
 /* ------------------------------------------------------------------ bet board */
 
-function BetBoard({ g, room, nameOf, mySeat, waiting, t, pot }: {
-  g: HitStay; room: HitStayRoom; nameOf: (s: number) => string; mySeat: number | null; waiting: number[]; t: HsCopy; pot: number;
+function BetBoard({ g, room, nameOf, mySeat, waiting, t, pot, onHands }: {
+  g: HitStay; room: HitStayRoom; nameOf: (s: number) => string; mySeat: number | null; waiting: number[]; t: HsCopy; pot: number; onHands: () => void;
 }) {
   const order = Array.from({ length: HS_PLAYERS }, (_, i) => (g.first + i) % HS_PLAYERS);
   return (
     <section className="rounded-[14px] border border-white/10 bg-[#121217]/90 p-2 backdrop-blur sm:p-3">
-      <div className="mb-1 flex items-center justify-between"><p className={PANEL_TITLE}>{t.betBoard}</p><span className="font-mono text-[9px] font-black text-white/30">{t.phase[g.phase]}</span></div>
+      <div className="mb-1 flex items-center justify-between gap-1"><p className={PANEL_TITLE}>{t.betBoard}</p><button type="button" onClick={onHands} className="flex items-center gap-1 rounded-md border border-(--accent)/40 bg-(--accent)/10 px-1.5 py-[3px] text-[10px] font-black text-[#c9cfff] active:scale-95"><ScanEye size={12} />{t.handsButton}</button></div>
       <ul className="space-y-[3px]">
         {order.map((s) => {
           const acting = room.phase === 'playing' && waiting.includes(s) && g.phase !== 'pick';
@@ -339,9 +351,9 @@ function MyHand({ g, seat, t, myTurn, pick, onChoose, stamp }: {
 
 /* ------------------------------------------------------------------ action dock */
 
-function Dock({ g, room, seat, myTurn, seconds, t, act, waiting, nameOf, pick }: {
+function Dock({ g, room, seat, myTurn, seconds, t, act, waiting, nameOf, pick, onHands }: {
   g: HitStay; room: HitStayRoom; seat: number; myTurn: boolean; seconds: number | null; t: HsCopy;
-  act: (action: HitStayRoomAction) => void; waiting: number[]; nameOf: (s: number) => string; pick: number | null;
+  act: (action: HitStayRoomAction) => void; waiting: number[]; nameOf: (s: number) => string; pick: number | null; onHands: () => void;
 }) {
   const [raiseOpen, setRaiseOpen] = useState(false);
   const [raiseTo, setRaiseTo] = useState(0);
@@ -355,6 +367,13 @@ function Dock({ g, room, seat, myTurn, seconds, t, act, waiting, nameOf, pick }:
   const target = Math.min(g.cap, Math.max(minRaise, raiseTo));
   const overlay = hitting && peek !== g.seq;
   if (!betting && raiseOpen) setRaiseOpen(false);
+  // Rooms: the last seconds of a bet or HIT/STAY warn that the AI is about to take the seat.
+  const warning = (betting || hitting) && !!room.turnSec && seconds !== null && seconds <= HS_WARN_SEC;
+  const warned = useRef(false);
+  useEffect(() => {
+    if (warning && !warned.current) { try { navigator.vibrate?.([60, 60, 60]); } catch { /* optional */ } }
+    warned.current = warning;
+  }, [warning]);
 
   const openRaise = () => { setRaiseTo(Math.min(g.cap, g.level + Math.max(1, g.ante))); setRaiseOpen(true); };
   const send = (action: Parameters<typeof act>[0]) => { setRaiseOpen(false); act(action); };
@@ -363,11 +382,12 @@ function Dock({ g, room, seat, myTurn, seconds, t, act, waiting, nameOf, pick }:
     <>
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0b0b0e]/92 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5 backdrop-blur-md">
         <div className="mx-auto max-w-[760px]">
+          <AnimatePresence>{warning && <IdleWarning key="warn" seconds={seconds!} t={t} />}</AnimatePresence>
           {picking ? (
             <div className="flex items-center gap-2">
               <div className="min-w-0 flex-1">
                 <p className="text-[12px] font-black text-(--accent)">{t.dealerPick}</p>
-                <p className="text-[10px] font-bold text-white/40">{pick === null ? t.pickTap : t.pickReady}{seconds !== null && <b className={`ml-1.5 font-mono ${seconds <= 5 ? 'text-[#ff4d6d]' : 'text-white/60'}`}>{seconds}s</b>}</p>
+                <p className="text-[10px] font-bold text-white/40">{pick === null ? t.pickTap : t.pickReady}{seconds !== null && <b className={`ml-1.5 font-mono ${seconds <= 3 ? 'animate-pulse text-[#ff4d6d]' : 'text-white/60'}`}>· {t.autoPickIn(seconds)}</b>}</p>
               </div>
               <button type="button" disabled={pick === null} onClick={() => pick !== null && act({ t: 'act', action: { kind: 'open', index: pick } })} className="h-14 shrink-0 rounded-[12px] bg-(--accent) px-5 text-sm font-black text-(--accent-ink) shadow-[0_0_18px_var(--accent-glow)] transition active:scale-[.98] disabled:opacity-35 disabled:shadow-none">{t.pickConfirm}</button>
             </div>
@@ -415,11 +435,14 @@ function Dock({ g, room, seat, myTurn, seconds, t, act, waiting, nameOf, pick }:
               <button type="button" onClick={() => act({ t: 'act', action: { kind: 'hit' } })} className="h-14 rounded-[12px] font-mono text-lg font-black tracking-[0.12em] text-white shadow-[0_0_24px_rgba(255,77,109,.45)]" style={{ background: HS_HIT }}>HIT</button>
             </div>
           ) : (
-            <WaitBar g={g} room={room} seat={seat} t={t} waiting={waiting} nameOf={nameOf} seconds={seconds} />
+            <div className="flex gap-2">
+              <div className="min-w-0 flex-1"><WaitBar g={g} room={room} seat={seat} t={t} waiting={waiting} nameOf={nameOf} seconds={seconds} /></div>
+              <button type="button" onClick={onHands} className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-[12px] border border-(--accent)/40 bg-(--accent)/10 text-[10px] font-black text-[#c9cfff] active:scale-95"><ScanEye size={17} />{t.handsButton}</button>
+            </div>
           )}
         </div>
       </div>
-      <AnimatePresence>{overlay && <DealerAsk key={`ask-${g.seq}`} g={g} seat={seat} t={t} seconds={seconds} onHit={() => act({ t: 'act', action: { kind: 'hit' } })} onStay={() => act({ t: 'act', action: { kind: 'stay' } })} onPeek={() => setPeek(g.seq)} />}</AnimatePresence>
+      <AnimatePresence>{overlay && <DealerAsk key={`ask-${g.seq}`} g={g} seat={seat} t={t} seconds={seconds} warning={warning} onHit={() => act({ t: 'act', action: { kind: 'hit' } })} onStay={() => act({ t: 'act', action: { kind: 'stay' } })} onPeek={() => setPeek(g.seq)} />}</AnimatePresence>
     </>
   );
 }
@@ -450,8 +473,8 @@ function WaitBar({ g, room, seat, t, waiting, nameOf, seconds }: {
 
 /* ------------------------------------------------------------------ the dealer's question */
 
-function DealerAsk({ g, seat, t, seconds, onHit, onStay, onPeek }: {
-  g: HitStay; seat: number; t: HsCopy; seconds: number | null; onHit: () => void; onStay: () => void; onPeek: () => void;
+function DealerAsk({ g, seat, t, seconds, warning, onHit, onStay, onPeek }: {
+  g: HitStay; seat: number; t: HsCopy; seconds: number | null; warning: boolean; onHit: () => void; onStay: () => void; onPeek: () => void;
 }) {
   const hand = g.hands[seat];
   const total = hsTotal(hand);
@@ -484,7 +507,7 @@ function DealerAsk({ g, seat, t, seconds, onHit, onStay, onPeek }: {
             {ring !== null && (
               <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90">
                 <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="5" />
-                <motion.circle cx="50" cy="50" r="46" fill="none" stroke={ring <= 5 ? HS_HIT : '#6f7dff'} strokeWidth="5" strokeLinecap="round" strokeDasharray={289} animate={{ strokeDashoffset: 289 * (1 - Math.min(1, ring / 45)) }} />
+                <motion.circle cx="50" cy="50" r="46" fill="none" stroke={ring <= 5 ? HS_HIT : '#6f7dff'} strokeWidth="5" strokeLinecap="round" strokeDasharray={289} animate={{ strokeDashoffset: 289 * (1 - Math.min(1, ring / HS_TURN_SEC)) }} />
               </svg>
             )}
             <motion.div animate={{ scale: [1, 1.06, 1] }} transition={{ duration: diff <= 2 ? 0.55 : 0.9, repeat: Infinity }} className="text-center">
@@ -494,6 +517,7 @@ function DealerAsk({ g, seat, t, seconds, onHit, onStay, onPeek }: {
             </motion.div>
           </div>
           <div className="mb-5 flex justify-center gap-1.5">{hand.map((c, i) => <HsCard key={i} value={c} size="md" delay={0.15 + i * 0.05} />)}</div>
+          <AnimatePresence>{warning && seconds !== null && <IdleWarning key="warn" seconds={seconds} t={t} />}</AnimatePresence>
           <p className={`mb-4 text-center text-xs font-bold ${diff < 0 ? 'text-[#ff7a8f]' : diff === 0 ? 'text-[#ffd36b]' : 'text-white/55'}`}>{diff < 0 ? t.over(-diff) : diff === 0 ? t.exact : t.toLimit(diff)}</p>
           <div className="grid grid-cols-2 gap-3">
             <motion.button type="button" onClick={onStay} initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.55 }} whileTap={{ scale: 0.96 }} className="flex h-[84px] flex-col items-center justify-center rounded-[16px] border-2 border-[#b9c3ff]/50 bg-[linear-gradient(180deg,#232a66,#141842)]">
@@ -505,6 +529,18 @@ function DealerAsk({ g, seat, t, seconds, onHit, onStay, onPeek }: {
           </div>
         </div>
       </div>
+    </motion.div>
+  );
+}
+
+/** Rooms: "choose now or the AI takes over", in the last seconds of a turn. */
+function IdleWarning({ seconds, t }: { seconds: number; t: HsCopy }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 8, height: 0 }} animate={{ opacity: 1, y: 0, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden" role="alert">
+      <motion.p animate={{ backgroundColor: ['rgba(255,181,71,.10)', 'rgba(255,181,71,.24)', 'rgba(255,181,71,.10)'] }} transition={{ duration: 1, repeat: Infinity }}
+        className="mb-2 flex items-center gap-2 rounded-[10px] border border-[#ffb547]/60 px-3 py-2 text-xs font-black text-[#ffd79a]">
+        <Bot size={15} className="shrink-0 text-[#ffb547]" /><span className="min-w-0 flex-1 break-keep">{t.idleWarn(seconds)}</span><b className="font-mono text-base text-[#ffb547]">{seconds}</b>
+      </motion.p>
     </motion.div>
   );
 }

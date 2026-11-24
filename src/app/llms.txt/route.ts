@@ -19,12 +19,9 @@ const GUIDES: [string, string][] = [
   ['/nonogram/guide', '노노그램 공략 (Nonogram guide)'],
 ];
 
-const UNRECORDED: Record<string, { ko: string; en: string }> = { '/hit-stay': { ko: '힛스테이', en: 'Hit,Stay' } };
-
 export function GET() {
   const games = GAMES.map((g) => {
-    // Games without a records entry (Hit,Stay) are named here.
-    const c = CERT_GAMES[STATS_ID[g.href]] ?? UNRECORDED[g.href] ?? { ko: g.href.slice(1), en: g.href.slice(1) };
+    const c = CERT_GAMES[STATS_ID[g.href]];
     return `- [${c.ko} (${c.en})](${SITE_URL}/ko${g.href}): ${SITE_URL}/en${g.href}`;
   });
   const body = [

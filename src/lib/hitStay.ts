@@ -63,9 +63,15 @@ export type HsShowdown = {
   out: number[]; // seats knocked out this round
 };
 /** One finished round, for the result screen. */
-export type HsRoundLog = { round: number; limit: number; first: number; winners: number[]; pot: number; chips: number[] };
+export type HsRoundLog = {
+  round: number; limit: number; first: number; winners: number[]; pot: number; chips: number[];
+  hands?: (number | null)[][]; // what everyone could see at the end (hidden cards of folded hands stay null)
+  folded?: boolean[]; // out of this round (folded, or already knocked out)
+  payouts?: number[];
+};
 
 export type HitStay = {
+  gid: string; // one match (a rematch in the same room gets a new one)
   round: number;
   first: number; // 선: acts first in every betting and HIT/STAY turn
   limit: number;
@@ -113,7 +119,7 @@ const nextAlive = (g: { out: boolean[] }, after: number) => ring(after + 1).find
 
 export function newHitStay(): HitStay {
   const base: HitStay = {
-    round: 0, first: Math.floor(Math.random() * HS_PLAYERS), limit: 0, ante: 1, cap: HS_START_CHIPS, phase: 'pick', turn: -1,
+    gid: Math.random().toString(36).slice(2, 10), round: 0, first: Math.floor(Math.random() * HS_PLAYERS), limit: 0, ante: 1, cap: HS_START_CHIPS, phase: 'pick', turn: -1,
     chips: Array(HS_PLAYERS).fill(HS_START_CHIPS), out: Array(HS_PLAYERS).fill(false), place: Array(HS_PLAYERS).fill(null),
     hands: Array.from({ length: HS_PLAYERS }, () => []), openIdx: Array(HS_PLAYERS).fill(null),
     folded: Array(HS_PLAYERS).fill(false), stayed: Array(HS_PLAYERS).fill(false), bets: Array(HS_PLAYERS).fill(0),
@@ -214,7 +220,10 @@ function showdown(g: HitStay): HitStay {
   const next: HitStay = {
     ...g, phase: left.length <= 1 ? 'finished' : 'showdown', turn: -1, chips, out, place,
     showdown: { entries, winners, payouts, pot, byFold, out: busted },
-    rounds: [...g.rounds, { round: g.round, limit: g.limit, first: g.first, winners, pot, chips }],
+    rounds: [...g.rounds, {
+      round: g.round, limit: g.limit, first: g.first, winners, pot, chips, payouts, folded: g.folded.slice(),
+      hands: g.hands.map((hand, s) => hand.map((c, i) => (i >= 3 || g.openIdx[s] === i || (!byFold && live.includes(s)) ? c : null))),
+    }],
   };
   return { ...next, log: push(next, ...events) };
 }

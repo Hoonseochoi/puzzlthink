@@ -14,7 +14,7 @@ import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL_TITLE, SHELL } from '../ui/gameUi';
 import { HS_ROOT_STYLE, type HsCopy, hsCopy } from './copy';
 import { HsAvatar } from './HitStayParts';
-import HitStayResult from './HitStayResult';
+import HitStayResult, { hsMyPlace, useHitStayReport } from './HitStayResult';
 import HitStayTable from './HitStayTable';
 
 /** HIT, STAY against four AI players, all in this browser. */
@@ -24,8 +24,12 @@ export default function HitStayGame() {
   const create = useCallback(() => createHitStayRoom({ id: 'me', name: t.you, at: 0 }, { solo: true }), [t.you]);
   const { state, dispatch, reset } = useLocalRoom(HIT_STAY_ROOM, create);
   const [rulesOpen, setRulesOpen] = useState(false);
-  const [closedSid, setClosedSid] = useState<string | null>(null);
+  const [closedKey, setClosedKey] = useState<string | null>(null);
   const finished = state?.phase === 'finished';
+  // My result shows once my place is settled: at the end, or as soon as I am knocked out.
+  const done = !!state && (finished || hsMyPlace(state, 0) !== null);
+  const resultKey = state ? `${state.game.gid}-${finished}` : '';
+  useHitStayReport(state, 0, 'ai');
   // The site lounge button would sit over the hand and the action dock: hidden while the table is open.
   useEffect(() => { setRoomPlaying(true); return () => setRoomPlaying(false); }, []);
 
@@ -34,18 +38,18 @@ export default function HitStayGame() {
       <GameHeader backHref="/hit-stay" backLabel={t.back} title={t.title} titleClass="font-black [font-family:Georgia,serif] !text-[14px] !tracking-[0.02em] min-[400px]:!text-lg sm:!text-xl sm:!tracking-[0.06em]" subtitle="SOLO · AI 4">
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <BugReport /><LanguageSwitcher compact dark />
-        <button type="button" onClick={() => { setClosedSid(null); reset(); }} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>
+        <button type="button" onClick={() => { setClosedKey(null); reset(); }} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>
       </GameHeader>
       <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">
         {state && <HitStayTable room={state} mySeat={0} onAction={dispatch} t={t} locale={locale} />}
-        {finished && closedSid === state.sid && (
+        {done && closedKey === resultKey && (
           <div className="mx-auto mt-2 grid max-w-[760px] grid-cols-2 gap-2">
-            <button type="button" onClick={() => setClosedSid(null)} className={`${BTN} py-3`}><Trophy size={14} />{t.showResult}</button>
-            <button type="button" onClick={() => { setClosedSid(null); reset(); }} className={`${BTN_ACCENT} py-3`}><RotateCcw size={14} />{t.again}</button>
+            <button type="button" onClick={() => setClosedKey(null)} className={`${BTN} py-3`}><Trophy size={14} />{t.showResult}</button>
+            <button type="button" onClick={() => { setClosedKey(null); reset(); }} className={`${BTN_ACCENT} py-3`}><RotateCcw size={14} />{t.again}</button>
           </div>
         )}
       </main>
-      {finished && closedSid !== state.sid && <HitStayResult room={state} mySeat={0} t={t} locale={locale} onAgain={() => { setClosedSid(null); reset(); }} onClose={() => setClosedSid(state.sid)} />}
+      {done && closedKey !== resultKey && <HitStayResult room={state} mySeat={0} t={t} locale={locale} onAgain={() => { setClosedKey(null); reset(); }} onClose={() => setClosedKey(resultKey)} />}
       {rulesOpen && <HitStayRules t={t} locale={locale} onClose={() => setRulesOpen(false)} />}
     </div>
   );

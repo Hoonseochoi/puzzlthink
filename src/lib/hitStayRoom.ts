@@ -1,12 +1,19 @@
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
-import { type AwayFields, clearMiss, giveBack, humansBack, noteMiss, resetAway, seatDueForAway, takeOver, trackPresence } from './roomAway';
+import { type AwayFields, clearMiss, giveBack, humansBack, resetAway, seatDueForAway, takeOver, trackPresence } from './roomAway';
 import {
   type HitStay, type HsAction, type HsStyle, HS_PERSONA, HS_PLAYERS, HS_STYLES,
   applyHsAction, chooseHsAction, hitStaySecret, hsPicking, hsTimeoutAction, newHitStay, redactHitStay, startRound, withHitStaySecret,
 } from './hitStay';
 
-export const HS_TURN_OPTIONS = [20, 30, 45] as const;
-export type HsTurnSec = (typeof HS_TURN_OPTIONS)[number] | 0;
+/** Seconds to pick the face-up card (every mode); then a random one is shown. */
+export const HS_PICK_SEC = 10;
+/**
+ * Seconds a player in a friend or open room has for a bet or HIT/STAY. The last HS_WARN_SEC of them show a
+ * warning; when they run out the AI takes the seat (and plays that move) until the player comes back.
+ */
+export const HS_TURN_SEC = 30;
+export const HS_WARN_SEC = 10;
+export type HsTurnSec = typeof HS_TURN_SEC | 0;
 /** How long the showdown stays on screen before the next round is dealt. */
 export const HS_SHOWDOWN_MS = 5200;
 /** Pauses after a move so everyone can follow it (a HIT/STAY gets the longest look). */
@@ -22,7 +29,6 @@ export type HitStayRoom = BaseRoom & AwayFields & {
 };
 
 export type HitStayRoomAction =
-  | { t: 'config'; turnSec?: HsTurnSec }
   | { t: 'start' }
   | { t: 'act'; action: HsAction }
   | { t: 'ai' }
@@ -36,7 +42,7 @@ export function createHitStayRoom(host: Peer, opts: { solo?: boolean } = {}): Hi
   seats[0] = { id: host.id, name: host.name };
   const room: HitStayRoom = {
     sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, holdUntil: 0,
-    ai: Array(HS_PLAYERS).fill(false), style: Array(HS_PLAYERS).fill(null), turnSec: opts.solo ? 0 : 30,
+    ai: Array(HS_PLAYERS).fill(false), style: Array(HS_PLAYERS).fill(null), turnSec: opts.solo ? 0 : HS_TURN_SEC,
     game: newHitStay(),
   };
   return opts.solo ? startRoom(room, false) : room;
@@ -66,16 +72,19 @@ function startRoom(state: HitStayRoom, shuffleHumans = true): HitStayRoom {
 const shuffleStyles = () => [...HS_STYLES].sort(() => Math.random() - 0.5);
 const styleOf = (state: HitStayRoom, seat: number): HsStyle => state.style?.[seat] ?? 'calc';
 
-/** Puts a new game state in and resets the clocks: the turn clock runs only while a human has to act. */
+/**
+ * Puts a new game state in and resets the clocks. Picking the face-up card always has HS_PICK_SEC;
+ * bets and HIT/STAY are timed in rooms only (solo play has no clock there).
+ */
 function withGame(state: HitStayRoom, game: HitStay, hold: number): HitStayRoom {
   const done = game.phase === 'finished';
-  const timed = !!state.turnSec && !done && game.phase !== 'showdown';
+  const seconds = done || game.phase === 'showdown' ? 0 : game.phase === 'pick' ? HS_PICK_SEC : state.turnSec;
   const now = Date.now();
   return {
     ...state, game, phase: done ? 'finished' : 'playing',
     holdUntil: now + (game.phase === 'showdown' || game.phase === 'finished' ? HS_SHOWDOWN_MS : hold),
     // A new round starts with the limit roll, so its clock starts after that.
-    deadline: timed ? now + hold + state.turnSec * 1000 : Number.MAX_SAFE_INTEGER,
+    deadline: seconds ? now + hold + seconds * 1000 : Number.MAX_SAFE_INTEGER,
   };
 }
 
@@ -95,9 +104,6 @@ export function reduceHitStayRoom(state: HitStayRoom, action: HitStayRoomAction,
   let next: HitStayRoom | null = null;
   const g = state.game;
   switch (action.t) {
-    case 'config':
-      if (isHost && state.phase === 'lobby') next = { ...state, turnSec: action.turnSec ?? state.turnSec };
-      break;
     case 'start':
       if (!isHost || state.phase === 'playing') break;
       { const base = humansBack(state); next = startRoom(state.phase === 'finished' ? { ...base, seats: base.seats.map((value, i) => (base.ai[i] ? null : value)) } : state, !!state.turnSec); }
@@ -130,18 +136,21 @@ export function reduceHitStayRoom(state: HitStayRoom, action: HitStayRoomAction,
       next = withGame(state, startRound(g), HOLD_MS.round);
       break;
     case 'timeout': {
-      if (!isHost || state.phase !== 'playing' || !state.turnSec || Date.now() < state.deadline) break;
+      if (!isHost || state.phase !== 'playing' || Date.now() < state.deadline) break;
       const late = hsWaitingOn(g).filter((s) => !state.ai[s]);
       if (!late.length) break;
       let counted = state;
-      let game: HitStay | null = g;
+      let game: HitStay = g;
       for (const s of late) {
-        counted = noteMiss(counted, s);
-        // A seat the AI just took over plays this move at the room's level; otherwise the safe default.
-        const move: HsAction = counted.ai[s] ? chooseHsAction(game!, s, styleOf(state, s)) : hsTimeoutAction(game!, s);
-        game = applyHsAction(game!, s, move) ?? game;
+        // Not picking in time just shows a random card. Sitting out a bet or HIT/STAY in a room hands the seat
+        // to the AI (the player gets it back with "rejoin"), so one idle player cannot stall the table.
+        const idle = g.phase !== 'pick' && !!state.turnSec;
+        if (idle) counted = takeOver(counted, s);
+        const move: HsAction = idle ? chooseHsAction(game, s, styleOf(state, s)) : hsTimeoutAction(game, s);
+        game = applyHsAction(game, s, move) ?? game;
       }
-      if (game && game !== g) next = withGame(counted, game, HOLD_MS.bet);
+      if (game !== g) next = withGame(counted, game, HOLD_MS.bet);
+      else if (counted !== state) next = counted;
       break;
     }
     case 'away':
