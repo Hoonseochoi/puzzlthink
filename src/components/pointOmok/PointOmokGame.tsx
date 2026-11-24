@@ -49,7 +49,7 @@ function aiView(state: PoRoom): PoAiView {
   return {
     board: state.board, me: AI, chooser: state.chooser, triple: state.triple,
     rounds: state.rounds.map(({ chooser, triple, owners }) => ({ chooser, triple, owners })),
-    myBets: state.secret?.bets[AI] ?? [], budget: budgetOf(state, AI), level: state.level,
+    myBets: state.secret?.bets[AI] ?? [], budget: budgetOf(state, AI), level: state.level, style: state.aiStyle,
   };
 }
 
@@ -94,7 +94,7 @@ export default function PointOmokGame() {
   useEffect(() => {
     if (!state || state.phase !== 'finished') return;
     reportGame(`point_omok-ai-${state.sid}-${state.rounds.length}`, 'point_omok', 'ai', state.winner === 'draw' ? 'draw' : state.winner === 0 ? 'win' : 'loss',
-      { difficulty: state.level, rounds: state.rounds.length, fives: state.fives, reason: state.reason });
+      { difficulty: state.level, style: state.aiStyle, rounds: state.rounds.length, fives: state.fives, reason: state.reason });
   }, [state]);
 
   const started = !!state && state.rounds.length > 0;
@@ -121,10 +121,10 @@ export default function PointOmokGame() {
           asideExtra={(
             <section className={PANEL}>
               <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('difficulty')}</p><span className="text-[10px] font-bold text-white/35">{t(`levelNotes.${level}`)}</span></div>
-              <div className="mt-3 grid grid-cols-3 gap-1.5">
+              <div className="mt-3 grid grid-cols-2 gap-1.5">
                 {PO_LEVELS.map((lv) => <button key={lv} type="button" aria-pressed={level === lv} onClick={() => pickLevel(lv)} className={`py-2.5 ${seg(level === lv)}`}>{t(`levels.${lv}`)}</button>)}
               </div>
-              <p className="mt-2 text-[10px] leading-4 text-white/35">{t('aiFair')}</p>
+              <p className="mt-2 text-[10px] leading-4 text-white/35">{t('aiFair')} {t('styleHint')}</p>
             </section>
           )}
         />

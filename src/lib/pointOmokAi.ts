@@ -12,8 +12,27 @@ import {
   type PoBets, type PoBoard, type PoSeat, type PoTriple,
 } from './pointOmok';
 
-export type PoLevel = 'easy' | 'normal' | 'hard';
-export const PO_LEVELS: PoLevel[] = ['easy', 'normal', 'hard'];
+export type PoLevel = 'normal' | 'hard';
+export const PO_LEVELS: PoLevel[] = ['normal', 'hard'];
+
+/**
+ * Bidding styles. Each AI match draws one at random (and now and then plays a round in another), so its bids
+ * cannot be read from one game to the next. A style only bends the quiet rounds: when a five is at stake the
+ * expected value dominates and every style fights for it.
+ * - carry: how much it values points carried over · spend: share of its points it tends to bid (보통)
+ * - focus: >1 piles onto one point, <1 spreads evenly · temp: how loosely it picks among its best bids
+ */
+export type PoStyle = 'balanced' | 'saver' | 'aggressive' | 'sniper' | 'spread' | 'bluffer';
+export const PO_STYLES: PoStyle[] = ['balanced', 'saver', 'aggressive', 'sniper', 'spread', 'bluffer'];
+const STYLE: Record<PoStyle, { carry: number; spend: [number, number]; focus: number; temp: number }> = {
+  balanced: { carry: 1, spend: [0.65, 0.9], focus: 1, temp: 0.25 },
+  saver: { carry: 1.9, spend: [0.45, 0.7], focus: 1, temp: 0.25 },
+  aggressive: { carry: 0.35, spend: [0.9, 1], focus: 1, temp: 0.2 },
+  sniper: { carry: 1, spend: [0.7, 1], focus: 2.2, temp: 0.3 },
+  spread: { carry: 0.9, spend: [0.65, 0.9], focus: 0.6, temp: 0.25 },
+  bluffer: { carry: 1.1, spend: [0.5, 1], focus: 1, temp: 0.55 },
+};
+export const randomStyle = (): PoStyle => PO_STYLES[Math.floor(Math.random() * PO_STYLES.length)];
 
 export type PoPublicRound = { chooser: PoSeat; triple: PoTriple; owners: PoSeat[] };
 export type PoAiView = {
@@ -25,6 +44,7 @@ export type PoAiView = {
   myBets: number[][]; // the AI's own bids, one per finished round
   budget: number; // the AI's points this round
   level: PoLevel;
+  style?: PoStyle; // the match's bidding style (balanced when left out)
   seed?: number;
 };
 
@@ -141,18 +161,6 @@ function pickSoft<T>(items: T[], scores: number[], temperature: number, rand: ()
 export function chooseTriple(view: PoAiView): PoTriple {
   const rand = rng(view.seed ?? Math.floor(Math.random() * 2 ** 31));
   const pool = candidates(view.board);
-  if (view.level === 'easy') {
-    // Mostly next to its own stones, otherwise anywhere near the play.
-    const own = pool.filter((t) => t.some((cell) => {
-      for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, -1], [-1, 1]]) {
-        const r = rowOf(cell) + dr, c = colOf(cell) + dc;
-        if (onBoard(r, c) && view.board[cellAt(r, c)] === view.me) return true;
-      }
-      return false;
-    }));
-    const from = own.length && rand() < 0.7 ? own : pool;
-    return from[Math.floor(rand() * from.length)];
-  }
   const base = evaluate(view.board, view.me);
   // The chooser loses ties, so it expects slightly less than half of each point.
   const p = view.level === 'hard' ? 0.45 : 0.5;
@@ -229,13 +237,13 @@ export function chooseBets(view: PoAiView): PoBets {
   const m = marginals(values);
   const worth = m.map((x) => Math.max(0, x));
 
-  if (view.level === 'easy') {
-    const bids = sampleBid(budget, [1, 1, 1], 0.55 + rand() * 0.45, rand);
-    return bids as PoBets;
-  }
+  // The match's style, or now and then (one round in seven) another one, so a pattern never settles.
+  const styleId = rand() < 1 / 7 ? PO_STYLES[Math.floor(rand() * PO_STYLES.length)] : view.style ?? 'balanced';
+  const style = STYLE[styleId];
   if (view.level === 'normal') {
     const urgent = worth.some((x) => x >= WIN / 4);
-    const bids = sampleBid(budget, worth.map((x) => Math.min(x, 600) + 8), urgent ? 1 : 0.65 + rand() * 0.25, rand);
+    const [lo, hi] = style.spend;
+    const bids = sampleBid(budget, worth.map((x) => Math.pow(Math.min(x, 600) + 8, style.focus)), urgent ? 1 : lo + rand() * (hi - lo), rand);
     return bids as PoBets;
   }
 
@@ -252,7 +260,9 @@ export function chooseBets(view: PoAiView): PoBets {
   }
   // A carried point is worth about one point of bidding next round (already halved by the carry rule).
   const scale = Math.max(4, Math.min(400, worth.reduce((a, b) => a + Math.min(b, 400), 0) / 3));
-  const lambda = (scale / 3.2) * 0.55;
+  const lambda = (scale / 3.2) * 0.55 * style.carry;
+  // Style lean in quiet rounds: piling onto one point (focus > 1) or spreading out (focus < 1).
+  const lean = (style.focus - 1) * scale * 0.6;
   const options = allSplits(budget);
   const evs = options.map((bets) => {
     let total = 0;
@@ -261,10 +271,10 @@ export function chooseBets(view: PoAiView): PoBets {
       for (let i = 0; i < 3; i += 1) if (bets[i] > o[i] || (bets[i] === o[i] && !iChose)) mask |= 1 << i;
       total += values[mask];
     }
-    return total / samples.length + lambda * carryOf(budget, sum(bets));
+    return total / samples.length + lambda * carryOf(budget, sum(bets)) + lean * (Math.max(...bets) - Math.min(...bets)) / budget;
   });
   const order = evs.map((ev, i) => ({ ev, i })).sort((a, b) => b.ev - a.ev).slice(0, 8);
   const spread = Math.abs(order[0].ev - order[order.length - 1].ev) || 1;
-  const pick = pickSoft(order.map((x) => options[x.i]), order.map((x) => x.ev), spread * 0.25, rand);
+  const pick = pickSoft(order.map((x) => options[x.i]), order.map((x) => x.ev), spread * style.temp, rand);
   return pick;
 }

@@ -265,6 +265,7 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
             <h2 id="po-result-title" className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{heading}</h2>
             <p className="mt-2 text-sm text-white/55">{state.reason === 'resign' ? t('byResign') : state.reason === 'timeout' ? t('byTimeout') : state.reason === 'full' ? t('byFull') : t('fivesScore', { a: state.fives[viewer], b: state.fives[opp] })}</p>
             <p className="mt-1 text-xs text-white/40">{t('roundsPlayed', { n: state.rounds.length })}</p>
+            {state.aiStyle && <p className="mt-3 rounded-md border border-(--accent)/30 bg-(--accent)/[.07] px-3 py-2 text-xs text-white/70">{t('styleReveal', { style: t(`styles.${state.aiStyle}.name`) })}<span className="mt-0.5 block text-[11px] text-white/45">{t(`styles.${state.aiStyle}.desc`)}</span></p>}
             {mySeat !== null && state.winner === opp && <PoLossTips state={state} mySeat={mySeat} />}
             {resultActions}
           </div>
