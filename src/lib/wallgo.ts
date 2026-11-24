@@ -2,7 +2,8 @@ export const BOARD_SIZE = 7;
 
 export type PlayerId = 0 | 1 | 2;
 export type Direction = 'up' | 'right' | 'down' | 'left';
-export type AiDifficulty = 'easy' | 'normal' | 'hard';
+/** 'hell' (매우 어려움) is 1:1 only and runs in src/lib/wallgoHell.ts; elsewhere it plays like 'hard'. */
+export type AiDifficulty = 'easy' | 'normal' | 'hard' | 'hell';
 export type Position = { row: number; col: number };
 /** 벽바둑 II gives every player a square piece (straight 1–2) and a round piece (1, then may turn 90° for 1 more). */
 export type PieceKind = 'square' | 'circle';
@@ -411,7 +412,7 @@ export function chooseBotPlacement(pieces: Piece[], player: PlayerId, difficulty
     const est = estimateTerritory(next, walls, mode.players);
     const rivals = Math.max(0, ...mode.players.filter((p) => p !== player).map((p) => est[p]));
     const center = Math.abs(position.row - 3) + Math.abs(position.col - 3);
-    return { position, value: est[player] * 2 - rivals - center * 0.3 + Math.random() * (difficulty === 'hard' ? 0.3 : 1.5) };
+    return { position, value: est[player] * 2 - rivals - center * 0.3 + Math.random() * (difficulty === 'hard' || difficulty === 'hell' ? 0.3 : 1.5) };
   });
   scored.sort((a, b) => b.value - a.value);
   return scored[0]?.position ?? { row: 3, col: 3 };

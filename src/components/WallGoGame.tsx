@@ -31,7 +31,9 @@ import {
   nextPlayerOf,
   noOneCanMove,
   placementOrder,
+  sameMove,
 } from '@/lib/wallgo';
+import { askHell, cancelHell } from '@/lib/wallgoHellClient';
 import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
 import ResultActions from './ResultActions';
@@ -44,6 +46,9 @@ import { accentVars, MODAL_BACKDROP } from './ui/gameUi';
 import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
 
 const DIFFICULTIES: AiDifficulty[] = ['easy', 'normal', 'hard'];
+/** 매우 어려움 is 1:1 only. */
+const HELL_BUTTON = 'bg-[#1a0306] text-[#ff2b45] ring-1 ring-[#ff1f3d] shadow-[0_0_22px_rgba(255,25,60,.55),inset_0_0_14px_rgba(255,25,60,.25)]';
+const HELL_BUTTON_IDLE = 'border border-[#ff1f3d]/35 bg-[#120205] text-[#ff4d5e]/75 hover:text-[#ff2b45] hover:shadow-[0_0_14px_rgba(255,25,60,.35)]';
 type MatchRecord = { id: number; won: boolean; score: number; difficulty: AiDifficulty; date: string; mode?: ModeId };
 
 /** 벽바둑 (variant 1) and 벽바둑 II (variant 2) vs AI. II: square/round pieces, no staying put, the wall break crosses a wall on the path. */
@@ -132,8 +137,10 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
     });
   };
 
-  const resetGame = (nextDifficulty: AiDifficulty = difficulty, nextModeId: ModeId = modeId) => {
+  const resetGame = (wantedDifficulty: AiDifficulty = difficulty, nextModeId: ModeId = modeId) => {
     const nextMode = MODES[nextModeId];
+    const nextDifficulty: AiDifficulty = wantedDifficulty === 'hell' && nextModeId !== 'two' ? 'hard' : wantedDifficulty;
+    cancelHell();
     const first: PlayerId = nextModeId === 'two' ? (Math.random() < 0.5 ? 0 : 1) : 0;
     const nextOrder = placementOrder(nextMode, first);
     try { localStorage.setItem(MODE_KEY, nextModeId); } catch { /* Optional preference. */ }
@@ -152,8 +159,12 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
       const params = new URLSearchParams(window.location.search);
       const requested = params.get('mode');
       const wanted = requested === 'two' || requested === 'three' ? requested : localStorage.getItem(MODE_KEY);
-      if (wanted === 'two') resetGame(difficulty, 'two');
-      if (requested) { params.delete('mode'); window.history.replaceState(null, '', `${window.location.pathname}${params.size ? `?${params}` : ''}${window.location.hash}`); }
+      // ?difficulty=hell (헬모드 links) starts the 1:1 매우 어려움 game directly.
+      const hell = params.get('difficulty') === 'hell' && wanted === 'two';
+      if (wanted === 'two') resetGame(hell ? 'hell' : difficulty, 'two');
+      const linked = params.has('difficulty');
+      params.delete('difficulty');
+      if (requested || linked) { params.delete('mode'); window.history.replaceState(null, '', `${window.location.pathname}${params.size ? `?${params}` : ''}${window.location.hash}`); }
       if (requested === 'three') try { localStorage.setItem(MODE_KEY, 'three'); } catch { /* Optional preference. */ }
       if (!localStorage.getItem(TUTORIAL_KEY)) setShowTutorial(true);
     }, 0);
@@ -188,22 +199,34 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
     if (phase !== 'placement') return;
     const player = order[placementIndex];
     if (player === 0) return;
-    const timer = window.setTimeout(() => {
-      const position = chooseBotPlacement(pieces, player, difficulty, mode);
+    let cancelled = false, searching = false;
+    const place = (position: { row: number; col: number }, kind: PieceKind | undefined) => {
       const count = pieces.filter((piece) => piece.player === player).length;
-      const kind = chooseBotKind(mode, pieces, player);
       const nextPieces: Piece[] = [...pieces, { id: `${player}-${count}`, player, ...position, ...(kind ? { kind } : {}) }];
       addLog(t('logPlaced', { player: playerNames[player], cell: `${String.fromCharCode(65 + position.col)}${position.row + 1}` }));
       advancePlacement(nextPieces);
-    }, difficulty === 'easy' ? 380 : 560);
-    return () => window.clearTimeout(timer);
+    };
+    const timer = window.setTimeout(() => {
+      if (difficulty === 'hell' && modeId === 'two') {
+        searching = true;
+        void askHell({ variant, pieces, walls: [], toMove: player, placeQueue: order.slice(placementIndex), firstMover: order[0] }).then((result) => {
+          searching = false;
+          if (cancelled) return;
+          if (result?.type === 'place' && !isOccupied(pieces, result.position)) place(result.position, result.kind ?? chooseBotKind(mode, pieces, player));
+          else place(chooseBotPlacement(pieces, player, 'hard', mode), chooseBotKind(mode, pieces, player));
+        });
+        return;
+      }
+      place(chooseBotPlacement(pieces, player, difficulty, mode), chooseBotKind(mode, pieces, player));
+    }, difficulty === 'easy' ? 380 : difficulty === 'hell' ? 260 : 560);
+    return () => { cancelled = true; window.clearTimeout(timer); if (searching) cancelHell(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, placementIndex, pieces, order]);
 
   useEffect(() => {
     if (phase !== 'playing' || currentPlayer === 0) return;
-    const timer = window.setTimeout(() => {
-      const action = chooseBotAction(pieces, walls, currentPlayer, canBreak(currentPlayer), difficulty, mode);
+    let cancelled = false, searching = false;
+    const act = (action: ReturnType<typeof chooseBotAction>) => {
       if (!action) {
         const next = nextPlayerOf(mode, currentPlayer);
         addLog(t('logSkipped', { player: playerNames[currentPlayer] })); setCurrentPlayer(next);
@@ -215,8 +238,25 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
         player: playerNames[currentPlayer], breakText: action.move.brokenWall ? t('logBroke') : '',
         cell: `${String.fromCharCode(65 + action.move.to.col)}${action.move.to.row + 1}`, direction: directionLabel(action.direction),
       }));
-    }, difficulty === 'easy' ? 420 : difficulty === 'hard' ? 900 : 700);
-    return () => window.clearTimeout(timer);
+    };
+    const timer = window.setTimeout(() => {
+      if (difficulty === 'hell' && modeId === 'two') {
+        searching = true;
+        void askHell({ variant, pieces, walls: [...walls], toMove: currentPlayer, placeQueue: [], firstMover: order[0] }).then((result) => {
+          searching = false;
+          if (cancelled) return;
+          // The search works on its own board copy: check its answer against the rules before playing it.
+          const legal = result?.type === 'move' ? getMoveOptions(pieces, walls, currentPlayer, false, mode.variant).find((move) => sameMove(move, result.move.pieceId, result.move.to)) : undefined;
+          const moved = legal && applyMove(pieces, walls, legal);
+          if (result?.type === 'move' && legal && moved && getWallOptions(moved.pieces, moved.walls, legal.pieceId).some((option) => option.key === result.wall)) {
+            act({ move: legal, wall: result.wall, direction: result.direction, pieces: moved.pieces, walls: new Set(moved.walls).add(result.wall), value: result.score });
+          } else act(chooseBotAction(pieces, walls, currentPlayer, false, 'hard', mode));
+        });
+        return;
+      }
+      act(chooseBotAction(pieces, walls, currentPlayer, canBreak(currentPlayer), difficulty, mode));
+    }, difficulty === 'easy' ? 420 : difficulty === 'hell' ? 300 : difficulty === 'hard' ? 900 : 700);
+    return () => { cancelled = true; window.clearTimeout(timer); if (searching) cancelHell(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, currentPlayer, pieces, walls, breakAvailable, difficulty, modeId]);
 
@@ -336,7 +376,7 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
       <aside className="flex flex-col gap-4">
         <section className={`hidden lg:block ${PANEL}`}><div className="mb-3 flex items-center justify-between"><h2 className={PANEL_TITLE}>{t('players')}</h2><span className="rounded-md border border-white/10 px-2.5 py-1 text-[10px] font-bold text-white/60">{t(modeId === 'two' ? 'twoPlayers' : 'threePlayers')}</span></div><div className="space-y-2">{mode.players.map((player) => <div key={player} className={`flex items-center gap-3 rounded-[10px] border p-3 ${currentPlayer === player && phase !== 'finished' ? 'border-[#e0283a]/50 bg-white/[0.04] shadow-[inset_0_0_20px_rgba(224,40,58,.08)]' : 'border-transparent'}`}><WallGoCharacter player={player} className="h-10 shrink-0" /><div className="min-w-0 flex-1"><div className="flex items-center gap-1.5"><p className="text-sm font-extrabold">{playerNames[player]}</p>{player !== 0 && <span className="text-[9px] font-black text-white/30">AI</span>}</div><p className="text-[11px] text-white/45">{t('areaPieces', { area: territory.scores[player], pieces: pieces.filter((piece) => piece.player === player).length, total: piecesPerPlayer })}</p></div>{mode.wallBreak && <div className="text-right"><p className="text-[9px] font-bold text-white/35">{t('break')}</p><p className={`text-xs font-black ${breakAvailable[player] ? 'text-[#ff4d5e]' : 'text-white/25'}`}>{t(breakAvailable[player] ? 'ready' : 'used')}</p></div>}</div>)}</div></section>
         <section className={PANEL}><h2 className={PANEL_TITLE}>{t('mode')}</h2><div className="mt-3 grid grid-cols-2 gap-2">{(['three', 'two'] as ModeId[]).map((id) => <button key={id} onClick={() => resetGame(difficulty, id)} className={`rounded-md p-2.5 text-left transition ${modeId === id ? 'bg-[#e0283a] text-white shadow-[0_0_14px_rgba(224,40,58,.4)]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}><span className="block text-xs font-extrabold">{t(id === 'two' ? 'modeTwo' : 'modeThree')}</span><span className="mt-0.5 block text-[10px] opacity-70">{tv(id === 'two' ? 'modeTwoDesc' : 'modeThreeDesc')}</span></button>)}</div></section>
-        <section className={PANEL}><h2 className={PANEL_TITLE}>{t('difficulty')}</h2><div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => resetGame(level)} className={`rounded-md p-2.5 text-xs font-extrabold transition ${difficulty === level ? 'bg-[#e0283a] text-white shadow-[0_0_14px_rgba(224,40,58,.4)]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}>{t(`difficulty${level[0].toUpperCase()}${level.slice(1)}`)}</button>)}</div></section>
+        <section className={PANEL}><h2 className={PANEL_TITLE}>{t('difficulty')}</h2><div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => resetGame(level)} className={`rounded-md p-2.5 text-xs font-extrabold transition ${difficulty === level ? 'bg-[#e0283a] text-white shadow-[0_0_14px_rgba(224,40,58,.4)]' : 'border border-white/10 bg-white/[0.03] text-white/50 hover:text-white'}`}>{t(`difficulty${level[0].toUpperCase()}${level.slice(1)}`)}</button>)}{modeId === 'two' && <button onClick={() => resetGame('hell')} aria-pressed={difficulty === 'hell'} className={`col-span-3 flex items-center justify-between gap-2 rounded-md px-3 py-2.5 text-left transition ${difficulty === 'hell' ? HELL_BUTTON : HELL_BUTTON_IDLE}`}><span className="text-xs font-black tracking-[0.06em] [text-shadow:0_0_10px_rgba(255,30,60,.7)]">{t('difficultyHell')}</span><span className="text-[10px] font-bold opacity-70">{t('difficultyHellHint')}</span></button>}</div></section>
         <section className="rounded-[14px] border border-[#e0283a]/30 bg-black/60 p-5"><div className="mb-4 flex items-center gap-2"><Sparkles size={15} className="text-[#ff4d5e]" /><h2 className={PANEL_TITLE}>{t('howToPlay')}</h2></div><ol className="space-y-3 text-xs leading-relaxed text-white/65">{(modeId === 'two' ? ['duelRule1', 'rule1', 'rule2', 'duelRule3'] : ['rule1', 'rule2', 'rule3']).map((key, index) => <li key={key} className="flex gap-3"><span className="font-mono text-[#ff4d5e]">0{index + 1}</span><span>{tv(key)}</span></li>)}</ol></section>
         <section className={`grid grid-cols-3 gap-2 ${PANEL}`}><h2 className={`col-span-3 ${PANEL_TITLE}`}>{t('record')}</h2>{games ? <><div><p className="text-[10px] text-white/35">{t('recordGames')}</p><p className="text-xl font-black">{games}</p></div><div><p className="text-[10px] text-white/35">{t('recordWins')}</p><p className="text-xl font-black text-[#ff4d5e]">{wins}</p></div><div><p className="text-[10px] text-white/35">{t('recordRate')}</p><p className="text-xl font-black">{Math.round(wins / games * 100)}%</p></div></> : <p className="col-span-3 text-xs text-white/40">{t('recordEmpty')}</p>}</section>
         <section className={`min-h-[142px] ${PANEL}`}><h2 className={`mb-3 ${PANEL_TITLE}`}>{t('matchLog')}</h2><div className="space-y-2">{history.slice(0,4).map((item,index) => <div key={`${item}-${index}`} className="flex gap-2 text-[11px] leading-relaxed text-white/55">{index === 0 ? <span className="mt-1 h-1.5 w-1.5 shrink-0 rotate-45 bg-[#e0283a]" /> : <Check size={11} className="mt-0.5 shrink-0 text-white/25" />}<span>{item}</span></div>)}</div></section>
