@@ -176,7 +176,8 @@ export function finish(state: JanggiState, winner: Side, reason: WinReason): Jan
 
 // ---------- AI ----------
 
-export type Difficulty = 'easy' | 'normal' | 'hard';
+// 'hell' (매우 어려움) is its own engine in janggiHell.ts, run in a Web Worker via janggiHellClient.ts.
+export type Difficulty = 'easy' | 'normal' | 'hard' | 'hell';
 const VALUE: Record<PieceType, number> = { ja: 1, sang: 3, jang: 4, hu: 4.5, wang: 0 };
 const WIN = 10_000;
 
@@ -267,6 +268,7 @@ export function turningPointAt(game: JanggiState, index: number, budgetMs = 300)
   return { index, before, played: moves[index], better: best.action, outcome: best.value >= WIN ? 'win' : 'save' };
 }
 
+/** easy / normal / hard. 'hell' is played by janggiHell.ts; asked here it plays like hard. */
 export function chooseAiAction(state: JanggiState, difficulty: Difficulty = 'normal'): Action | null {
   // The repetition ban is checked here at the root only; the search below looks at piece rules.
   const actions = playableActions(state);
@@ -275,7 +277,7 @@ export function chooseAiAction(state: JanggiState, difficulty: Difficulty = 'nor
   // hard stops at five plies with a little noise (it was close to unbeatable at seven).
   const maxDepth = difficulty === 'easy' ? 1 : difficulty === 'normal' ? 4 : 5;
   const noise = difficulty === 'easy' ? 2.5 : difficulty === 'normal' ? 0.35 : 0.2;
-  const deadline = Date.now() + (difficulty === 'hard' ? 700 : 450);
+  const deadline = Date.now() + (difficulty === 'hard' || difficulty === 'hell' ? 700 : 450);
   let scored: { action: Action; value: number }[] = actions.map((action) => ({ action, value: 0 }));
   for (let depth = 1; depth <= maxDepth; depth += 1) {
     const round = order(state, actions.slice()).map((action) => ({ action, value: -negamax(applyAction(state, action), depth - 1, -Infinity, Infinity, deadline) }));

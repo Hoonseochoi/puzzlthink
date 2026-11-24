@@ -3,8 +3,9 @@
 import BugReport from '@/components/BugReport';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, Clock3, Flag, Infinity, RotateCcw, Sparkles } from 'lucide-react';
+import { Check, Clock3, Flag, Flame, Infinity, RotateCcw, Sparkles } from 'lucide-react';
 import { type Action, type Difficulty, type RJState, type Side, TURN_SECONDS, applyAction, chooseAiAction, finish, initialState, isOver } from '@/lib/russianJanggi';
+import { requestHellAction } from '@/lib/russianJanggiHellClient';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
@@ -17,12 +18,20 @@ import RJPiece from './RJPiece';
 import TurnClock from './TurnClock';
 import { describeAction } from './describe';
 import { RJ_PANEL, RJ_ROOT, RJ_SHARD, RJ_TITLE, SIDE_COLORS } from './theme';
+import { HELL_HINT, hellSeg } from '../janggi/hellStyle';
 
 const RECORD_KEY = 'puzzlthink_rjanggi_records';
 const TIMED_KEY = 'puzzlthink_rjanggi_timed';
 export const RESULT_DELAY_MS = 2000;
-const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
+const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard']; // 'hell' gets its own row below
 type FirstChoice = 'me' | 'ai' | 'random';
+/** A level named in the link (e.g. `?difficulty=hell#play` from the 헬모드 page), if it is one of ours. */
+const linkedDifficulty = (): Difficulty | null => {
+  try {
+    const level = new URLSearchParams(window.location.search).get('difficulty');
+    return level === 'hell' || (DIFFICULTIES as string[]).includes(level ?? '') ? (level as Difficulty) : null;
+  } catch { return null; }
+};
 type MatchRecord = { won: boolean; draw: boolean; difficulty: Difficulty; date: string };
 
 export default function RJGame() {
@@ -78,7 +87,7 @@ export default function RJGame() {
     const boot = window.setTimeout(() => {
       try { setRecords(JSON.parse(localStorage.getItem(RECORD_KEY) || '[]')); } catch { /* Optional history. */ }
       try { if (localStorage.getItem(TIMED_KEY) === '0') setTimed(false); } catch { /* Optional. */ }
-      newGame('random');
+      newGame('random', linkedDifficulty() ?? 'normal'); // ?difficulty=hell from the 헬모드 page
     }, 0);
     // Clock: when my 10 seconds run out, the turn passes (rule ⑤).
     const tick = window.setInterval(() => {
@@ -94,6 +103,16 @@ export default function RJGame() {
   // AI turn.
   useEffect(() => {
     if (over || game.turn !== 1) return;
+    if (difficulty === 'hell') {
+      // Searched in a Web Worker for about a second; the board stays live meanwhile.
+      let cancelled = false;
+      const started = Date.now();
+      requestHellAction(game).then((action) => {
+        const wait = Math.max(0, 350 - (Date.now() - started));
+        window.setTimeout(() => { if (!cancelled) play(action); }, wait);
+      });
+      return () => { cancelled = true; };
+    }
     const timer = window.setTimeout(() => play(chooseAiAction(game, difficulty)), difficulty === 'hard' ? 350 : 700);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,7 +166,10 @@ export default function RJGame() {
         <aside className="flex flex-col gap-4">
           <section className={RJ_PANEL}>
             <h2 className={RJ_TITLE}>{t('difficulty')}</h2>
-            <div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => newGame(firstChoice, level)} className={`p-2.5 ${seg(difficulty === level)}`}>{t(`difficulty_${level}`)}</button>)}</div>
+            <div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => newGame(firstChoice, level)} className={`p-2.5 ${seg(difficulty === level)}`}>{t(`difficulty_${level}`)}</button>)}
+              <button onClick={() => newGame(firstChoice, 'hell')} className={`col-span-3 p-2.5 ${hellSeg(difficulty === 'hell')}`}><Flame size={13} />{t('difficulty_hell')}</button>
+            </div>
+            {difficulty === 'hell' && <p className={HELL_HINT}>{t('hellHint')}</p>}
             <h2 className={`${RJ_TITLE} mt-4`}>{t('firstPlayer')}</h2>
             <div className="mt-3 grid grid-cols-3 gap-2">{(['me', 'ai', 'random'] as FirstChoice[]).map((choice) => <button key={choice} onClick={() => newGame(choice)} className={`p-2.5 ${seg(firstChoice === choice)}`}>{t(`first_${choice}`)}</button>)}</div>
             <h2 className={`${RJ_TITLE} mt-4`}>{t('timeLimit')}</h2>
