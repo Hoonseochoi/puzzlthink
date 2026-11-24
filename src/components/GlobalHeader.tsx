@@ -10,7 +10,6 @@ import AuthButton from './AuthButton';
 import GamesMenu from './GamesMenu';
 import { HeaderSupportButton } from './SupportLink';
 import { TopBannerSlot } from './ads/HiddenLogAd';
-import MaintenanceBand from './MaintenanceBand';
 
 const HIDE_ON = ['/2048', '/magic-square', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker', '/masyu', '/nonogram', '/star-battle', '/binairo', '/one-stroke', '/color-link'];
 const NAV_LINK = 'rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black';
@@ -21,7 +20,7 @@ export default function GlobalHeader() {
   const t = useTranslations('Common');
   const [open, setOpen] = useState(false);
   const [gamesOpen, setGamesOpen] = useState(true);
-  if (HIDE_ON.some((segment) => pathname.includes(segment))) return <MaintenanceBand />;
+  if (HIDE_ON.some((segment) => pathname.includes(segment))) return null;
 
   const links = [
     { href: '/game-list', label: t('gameList') },
@@ -55,7 +54,6 @@ export default function GlobalHeader() {
         <Link href="/records" onClick={closeMenu} className="ml-auto mr-1 flex items-center gap-1.5 rounded-xl border border-black/10 bg-white/70 px-3 py-1.5 text-xs font-extrabold text-black/75 transition hover:bg-white md:hidden"><Trophy size={14} className="text-[#e8a33c]" />{t('records')}</Link>
         <button type="button" aria-label={t('menu')} aria-expanded={open} onClick={() => setOpen((value) => !value)} className="rounded-xl p-2 transition hover:bg-white md:hidden">{open ? <X size={20} /> : <Menu size={20} />}</button>
       </div>
-      <MaintenanceBand />
 
       {open && (
         <div className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-black/[0.07] bg-[#f8f6ef] px-5 py-4 md:hidden">
