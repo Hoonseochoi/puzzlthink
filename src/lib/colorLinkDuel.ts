@@ -14,8 +14,8 @@ export const CLD_COLORS = 14;
 /** Cells on a line, both stones included. */
 export const CLD_MIN = 6;
 export const CLD_LETTERS = 'ABCDEFGHIJKLMN';
-export const CLD_ROUNDS = 5;
-export const CLD_TARGET = 3;
+export const CLD_ROUNDS = 1;
+export const CLD_TARGET = 1;
 
 /** `board[cell]` = colour 1…14, 0 empty. */
 export type CldBoard = number[];

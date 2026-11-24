@@ -11,8 +11,8 @@ import {
   CLD_COLORS, CLD_CELLS, CLD_TARGET, type CldBoard, type CldPaths, checkProof, emptyBoard, legalPlacement, place, stonesToPlace,
 } from './colorLinkDuel';
 
-export const CLD_TURN_SEC = 180;
-export const CLD_PROOF_SEC = 300;
+export const CLD_TURN_SEC = 60;
+export const CLD_PROOF_SEC = 120;
 export const CLD_CHOOSE_SEC = 30;
 /** Between rounds: the result stays up until both press "next round" or this runs out. */
 export const CLD_BREAK_SEC = 25;
