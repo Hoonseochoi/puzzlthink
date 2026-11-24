@@ -5664,6 +5664,8 @@
     "disclaimer": "Nine Men's Morris is a traditional board game. PUZZLTHINK rebuilt it for the web after the show's rules; it is not affiliated with the broadcaster or producers."
   },
   "PieceRace": {
+    "shortTitle": "Piece race",
+    "top": "PIECE TOP 3",
     "badge": "OPEN",
     "title": "Piece Race is open — now it is you vs you",
     "desc": "Every win against the hard AI earns one piece, up to 30 per game (Russian Roulette and Indian Poker excluded) — the more games you conquer, the higher you climb. Collect the most and stand on the podium in Records.",
