@@ -124,3 +124,7 @@ export function isState(value: unknown): value is M2State {
   return !!s && Array.isArray(s.tiles) && typeof s.score === 'number' && typeof s.rng === 'number' && typeof s.nextId === 'number'
     && s.tiles.every((t) => Number.isInteger(t.r) && Number.isInteger(t.c) && Number.isInteger(t.v) && t.v >= 2);
 }
+
+/** The block a run on the 2048 challenge board is stored with: the board's `sub` holds minus the run's biggest block.
+ * Kept out of the client components so the server-rendered ranking page can call it. */
+export const blockOfSub = (sub: number | null | undefined) => (typeof sub === 'number' && sub < 0 ? -sub : null);

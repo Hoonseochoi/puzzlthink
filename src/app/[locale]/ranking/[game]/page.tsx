@@ -11,7 +11,8 @@ import { pageMetadata } from '@/lib/seo';
 import type { GameId } from '@/lib/stats';
 import RankMove from '@/components/RankMove';
 import StoneAvatar from '@/components/StoneAvatar';
-import RankBlock, { blockOfSub } from '@/components/merge2048/RankBlock';
+import RankBlock from '@/components/merge2048/RankBlock';
+import { blockOfSub } from '@/lib/merge2048';
 import JsonLd from '@/components/JsonLd';
 import { breadcrumbJsonLd } from '@/lib/seo';
 
