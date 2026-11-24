@@ -45,8 +45,8 @@ export default function HellPageClient() {
       <div className="mx-auto max-w-5xl">
         {/* Hero */}
         <section className="hell-scan relative overflow-hidden rounded-[28px] border border-[#ff3355]/30 bg-black/40 px-5 py-9 text-center sm:px-10 sm:py-14">
-          <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#ff2448]/25 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-[#e0129b]/20 blur-3xl" />
+          <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#ff2448]/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-[#e0129b]/8 blur-3xl" />
           <p className="relative inline-flex items-center gap-2 rounded-full border border-[#ff3355]/50 bg-[#ff3355]/10 px-3 py-1 text-[10px] font-black tracking-[0.3em] text-[#ff8ea0]"><Skull size={12} />{t('eyebrow')}</p>
           <h1 className="relative mt-4 text-[3rem] font-black leading-none tracking-[-0.05em] sm:text-8xl">
             <span className="hell-glitch hell-neon" data-text={t('title')}>{t('title')}</span>

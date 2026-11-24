@@ -122,13 +122,13 @@ button:disabled { cursor: default; }
 @media (prefers-reduced-motion: reduce) { .m2-twinkle path, .m2-halo { animation: none; } }
 
 /* AI 헬모드: dark neon red/magenta. Scanlines over a surface, a slow neon pulse, and a rare short glitch on titles. */
-.hell-surface { background-color: #07060a; background-image: radial-gradient(ellipse 70% 55% at 50% -10%, rgba(255, 32, 72, .22), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(255, 43, 214, .12), transparent 70%); }
+.hell-surface { background-color: #07060a; background-image: radial-gradient(ellipse 70% 55% at 50% -10%, rgba(255, 32, 72, .12), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(255, 43, 214, .06), transparent 70%); }
 .hell-scan { position: relative; isolation: isolate; }
 .hell-scan::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.035) 0 1px, transparent 1px 3px); }
-.hell-neon { color: #ff3355; text-shadow: 0 0 6px rgba(255, 51, 85, .85), 0 0 22px rgba(255, 51, 85, .55), 0 0 44px rgba(255, 43, 214, .35); }
-.hell-edge { box-shadow: 0 0 0 1px rgba(255, 51, 85, .45), 0 0 26px rgba(255, 51, 85, .22), inset 0 0 30px rgba(255, 51, 85, .07); }
-.hell-btn { background: linear-gradient(100deg, #ff2448, #e0129b); box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset, 0 0 22px rgba(255, 36, 72, .55); animation: hellPulse 2.6s ease-in-out infinite; }
-@keyframes hellPulse { 0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset, 0 0 16px rgba(255, 36, 72, .45); } 50% { box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset, 0 0 32px rgba(255, 36, 72, .8), 0 0 56px rgba(224, 18, 155, .35); } }
+.hell-neon { color: #ff3355; text-shadow: 0 0 2px rgba(255, 51, 85, .6), 0 0 10px rgba(255, 51, 85, .25); }
+.hell-edge { box-shadow: 0 0 0 1px rgba(255, 51, 85, .35), 0 0 12px rgba(255, 51, 85, .1); }
+.hell-btn { background: linear-gradient(100deg, #e8213f, #c4128a); box-shadow: 0 0 0 1px rgba(255,255,255,.1) inset, 0 0 10px rgba(255, 36, 72, .3); animation: hellPulse 3.2s ease-in-out infinite; }
+@keyframes hellPulse { 0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,.1) inset, 0 0 8px rgba(255, 36, 72, .25); } 50% { box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 0 14px rgba(255, 36, 72, .4); } }
 .hell-glitch { position: relative; display: inline-block; }
 .hell-glitch::before, .hell-glitch::after { content: attr(data-text); position: absolute; inset: 0; pointer-events: none; opacity: 0; }
 .hell-glitch::before { color: #ff2bd6; animation: hellGlitchA 7s steps(1) infinite; }

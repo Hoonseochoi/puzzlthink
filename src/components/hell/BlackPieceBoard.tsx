@@ -86,11 +86,11 @@ export default function BlackPieceBoard({ limit = 50, heading = true }: { limit?
               if (!row) return <div key={place} />;
               return (
                 <button key={place} type="button" onClick={() => toggle(row.rank)} aria-expanded={open === row.rank} className="group flex min-w-0 flex-col items-center text-center">
-                  <span className={`rounded-full ${place === 1 ? 'drop-shadow-[0_0_16px_rgba(255,51,85,.8)]' : ''} ${row.is_me ? 'ring-2 ring-[#ff2bd6] ring-offset-2 ring-offset-[#07060a]' : ''}`}><Stone name={row.nickname} size={place === 1 ? 64 : 50} /></span>
+                  <span className={`rounded-full ${place === 1 ? 'drop-shadow-[0_0_8px_rgba(255,51,85,.45)]' : ''} ${row.is_me ? 'ring-2 ring-[#ff2bd6] ring-offset-2 ring-offset-[#07060a]' : ''}`}><Stone name={row.nickname} size={place === 1 ? 64 : 50} /></span>
                   <span className="mt-1.5 w-full truncate px-1 text-xs font-black sm:text-sm">{row.nickname}</span>
                   <BlackPieceCount n={row.pieces} size={13} className="mt-0.5 text-sm sm:text-base" />
                   <span className="mt-1"><RankMove rank={row.rank} prev={row.prev_rank} dark /></span>
-                  <span className={`mt-2 flex w-full items-start justify-center rounded-t-2xl border-x border-t border-[#ff3355]/40 bg-gradient-to-b pt-2 font-black text-white shadow-[0_0_24px_rgba(255,36,72,.25)] transition group-hover:brightness-125 ${block}`}><span className="hell-neon text-3xl !text-white sm:text-4xl">{place}</span></span>
+                  <span className={`mt-2 flex w-full items-start justify-center rounded-t-2xl border-x border-t border-[#ff3355]/40 bg-gradient-to-b pt-2 font-black text-white shadow-[0_0_12px_rgba(255,36,72,.12)] transition group-hover:brightness-125 ${block}`}><span className="hell-neon text-3xl !text-white sm:text-4xl">{place}</span></span>
                 </button>
               );
             })}

@@ -4,7 +4,7 @@ import { useId } from 'react';
 export function BlackPiece({ size = 18, glow = true }: { size?: number; glow?: boolean }) {
   const id = useId().replace(/:/g, '');
   return (
-    <svg viewBox="0 0 44 28" width={size * 1.57} height={size} className={`inline-block shrink-0 ${glow ? 'drop-shadow-[0_0_4px_rgba(255,51,85,.75)]' : ''}`} aria-hidden>
+    <svg viewBox="0 0 44 28" width={size * 1.57} height={size} className={`inline-block shrink-0 ${glow ? 'drop-shadow-[0_0_2px_rgba(255,51,85,.5)]' : ''}`} aria-hidden>
       <defs>
         <linearGradient id={`bp-${id}`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#4a4652" />

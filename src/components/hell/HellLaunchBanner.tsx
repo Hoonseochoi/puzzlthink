@@ -17,8 +17,8 @@ export default function HellLaunchBanner() {
   const podium = [top[1], top[0], top[2]];
 
   return (
-    <Link href="/hell" className="hell-surface hell-scan group relative mt-6 block overflow-hidden rounded-[22px] border border-[#ff3355]/45 p-4 text-white shadow-[0_0_0_1px_rgba(255,51,85,.15),0_18px_60px_rgba(255,36,72,0.28)] transition hover:-translate-y-1 sm:mt-12 sm:rounded-[32px] sm:p-7">
-      <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-[#ff2448]/25 blur-3xl" />
+    <Link href="/hell" className="hell-surface hell-scan group relative mt-6 block overflow-hidden rounded-[22px] border border-[#ff3355]/45 p-4 text-white shadow-[0_0_0_1px_rgba(255,51,85,.12),0_14px_36px_rgba(255,36,72,0.14)] transition hover:-translate-y-1 sm:mt-12 sm:rounded-[32px] sm:p-7">
+      <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-[#ff2448]/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-6 right-4 rotate-[-14deg] opacity-[.18]"><BlackPiece size={150} /></div>
       <div className="relative grid grid-cols-[minmax(0,1fr)_112px] items-center gap-3 sm:grid-cols-[minmax(0,1fr)_280px] sm:gap-5">
         <div className="min-w-0">
