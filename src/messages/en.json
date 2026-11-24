@@ -1,5 +1,6 @@
 {
   "Common": {
+    "cardJanggi": "Card Janggi",
     "hitStay": "Hit,Stay",
     "hellMode": "Very Hard",
     "hellModeGo": "Play Very Hard",
@@ -200,6 +201,8 @@
     "tag_healing": "HEALING",
     "fourThreeDescription": "A 4×4 board of stacking pieces. Team up to stop the Special Guest's line while racing to make three in a row yourself.",
     "fourThreeMeta": "vs AI (4 players) · Friends 2–3 · The Devil's Plan prize match",
+    "cardJanggiDescription": "Lay out five movement cards in secret and play them in that order: take the enemy king or reach its square first. The Devil's Plan 3 final.",
+    "cardJanggiMeta": "Hard AI · friend · open room 1:1 · The Devil's Plan 3",
     "hitStayDescription": "Get your card total closest to the limit the die sets. HIT or STAY, bet your chips, and outlast four others.",
     "hitStayMeta": "5 players · 4 AI, friends or open rooms · The Devil's Plan 3",
     "pointOmokDescription": "Put up three points, split 10 points over them in secret, and the higher bid gets the stone. Only half of what you keep carries over.",
@@ -1940,6 +1943,7 @@
     "unsupported": "Not available",
     "disclaimer": "PUZZLTHINK is an unofficial fan project and is not affiliated with The Devil's Plan, The Genius or their broadcasters. Show titles are used only to describe the games.",
     "games": {
+      "cardJanggi": {"tagline": "Janggi played only as your five secret movement cards allow — rat, horse, monkey, elephant, giraffe. Read your opponent's next card, then take their king or reach its square first.", "players": "2 (1:1 against the AI or a friend)", "pace": "90 s to lay out cards · 90 s per move (miss it and your opponent moves for you)", "level": "One AI level: Hard · searches every order your hidden cards could be in", "ai": "1:1 against the Hard AI (it never sees your face-down cards)", "friend": "1:1 by link, 4-digit code or open room; 90 s per move", "rules": ["A 6×5 board; each side has one king and three small pieces on fixed starting squares.", "Five movement cards: Rat (1 step orthogonally) · Horse (knight) · Monkey (any neighbour) · Elephant (bishop) · Giraffe (jump 2 orthogonally).", "A coin decides who goes first in round 1 (then it alternates). Both lay out their cards face down at once: first player all five, second player four of five in their first cycle.", "Turns alternate from the first player: move any piece as your face-up card allows, then turn up the next. Moving onto an enemy piece takes it. After your last card, lay out all five again.", "Take the enemy king, or move your king onto the square it started on, to win the round. First to two rounds wins the match."], "origin": "An unofficial fan-made web version of Card Janggi, match 1 of the final in Netflix's The Devil's Plan: Dead Again (season 3). The show's practice session with a spectator is replaced by the rules and AI play."},
       "hitStay": {"tagline": "Bring your card total closest to the limit. Take one more (HIT) or stop (STAY), and decide how many chips to risk — a five-player survival betting game.", "players": "5 (empty seats are AI)", "pace": "10 s to show a card · 30 s per turn in rooms (then the AI takes over)", "level": "4 AI, all at full strength", "ai": "5 players (4 AI)", "friend": "Link or 4-digit code, empty seats are AI", "rules": ["35 number cards (one 7, two 6s … seven 1s, seven -1s). 30 chips each; the ante is 1 and goes up by 1 every 10 rounds.", "Each round the dealer rolls an eight-sided die (5–12) for the limit. Everyone gets three cards and shows one.", "From the first player: bet (call, raise, fold) → HIT (a face-up card) or STAY in turn → bet again. No bet may exceed the smallest stack.", "Closest to the limit takes the pot; on equal sums more cards wins. Over the limit is last. At 0 chips you are out; the last one standing wins."], "origin": "An unofficial fan-made web version of Hit,Stay, the semifinal main match of Netflix's The Devil's Plan: Dead Again (season 3), with the show's rules."},
       "merge2048": {
         "tagline": "Slide matching numbers together and grow the little square characters into stones on your way to 2048 — a calm number puzzle.",
@@ -2450,6 +2454,7 @@
     "attached": "Sent along: the game, page address, browser and screen size"
   },
   "GameGate": {
+    "cjAi": "AI 1:1 · Hard",
     "hsAi": "5 players · vs 4 AI",
     "hsRoom": "Create a room (2–5 + AI)",
     "short_hsRoom": "2–5",
@@ -7797,5 +7802,116 @@
       }
     ],
     "disclaimer": "Point Omok is PUZZLTHINK's own web remake inspired by a game shown on TV; it is not affiliated with any broadcaster or producer."
+  },
+  "CardJanggi": {
+    "metaTitle": "Card Janggi — The Devil's Plan 3 final, match 1: rules and free online play",
+    "metaDescription": "Play Card Janggi, match 1 of the final in The Devil's Plan: Dead Again (season 3). Lay out five movement cards in secret — rat, horse, monkey, elephant, giraffe — then take the enemy king or reach its square first. Rules, a hard AI, friend and open 1:1.",
+    "keywords": [
+      "Card Janggi",
+      "The Devil's Plan 3 final",
+      "Devil's Plan Dead Again final",
+      "The Devil's Plan season 3 final game",
+      "Card Janggi rules",
+      "movement card game",
+      "카드 장기",
+      "데블스 플랜 3 결승전"
+    ]
+  },
+  "CardJanggiGuide": {
+    "eyebrow": "CARD JANGGI · GUIDE",
+    "title": "Card Janggi rules and strategy — The Devil's Plan 3 final, match 1",
+    "intro": "Card Janggi was match 1 of the final in Netflix's The Devil's Plan: Dead Again (season 3). Pieces move as in janggi or chess, but which move you get is set in advance by the secret order of your five movement cards. Your opponent's next card is face up and the rest are hidden, so you play two battles at once: the move now and the order of your cards. On PUZZLTHINK you can play it by the show's rules against a hard AI, a friend or an open-room opponent.",
+    "rulesTitle": "Card Janggi rules",
+    "rules": [
+      "Two players on a 6×5 board. Each has one king and three small pieces, set out on the same starting squares as on the show.",
+      "Five movement cards, the same for both: Rat (1 step orthogonally), Horse (a chess knight's jump), Monkey (1 step any direction), Elephant (a bishop slide until blocked) and Giraffe (a jump of exactly 2 orthogonally).",
+      "A coin decides who goes first in round 1; after that the first player alternates.",
+      "At the start of a round both lay out their cards face down. The first player uses all five; the second player picks four of five (first cycle only). The first cards are turned up together.",
+      "Turns alternate from the first player: move any one piece as the face-up card allows, then turn up your next card. Moving onto an enemy piece takes it; you cannot move onto your own.",
+      "When you use your last card, you lay out all five again right away and turn up only the first. So the second player re-lays first, and the first player sees that new first card before using their last one.",
+      "90 seconds per move. If you do not play your card in time, your opponent moves one of your pieces with it.",
+      "Take the enemy king, or move your king onto the square the enemy king started on, to win the round. First to two rounds wins."
+    ],
+    "specialTitle": "Edge cases",
+    "special": [
+      {
+        "title": "No legal move",
+        "body": "If the face-up card cannot move any of your pieces, it is used up without a move. The show never hit this case; this is PUZZLTHINK's call."
+      },
+      {
+        "title": "Giraffe and elephant",
+        "body": "The giraffe jumps over anything to the square exactly two away. The elephant slides diagonally and stops at the first piece, which it may take if it is an enemy."
+      },
+      {
+        "title": "The second player's four cards",
+        "body": "Only in the first cycle does the second player use four of five. That puts them one move ahead in the cycle, and from then on the 'see their new first card before your last card' rhythm keeps going."
+      },
+      {
+        "title": "Rounds that do not end",
+        "body": "Past 60 moves in a round, the side with more pieces wins; with equal pieces it is a drawn round, which counts for nobody (at most five rounds)."
+      }
+    ],
+    "strategyTitle": "Card Janggi strategy",
+    "strategyIntro": "Your opponent's next card is always visible, and you can count which cards they have left. Start from those two facts: work out every square they can reach next move.",
+    "strategies": [
+      {
+        "tag": "Defence",
+        "title": "Keep your king out of their face-up card's reach",
+        "body": "If any enemy piece can land on your king with their face-up card, move it or block now. Check whole diagonals for the elephant and all eight L-squares for the horse."
+      },
+      {
+        "tag": "Layout",
+        "title": "Order your cards two moves ahead",
+        "body": "Your first card plays on today's board; your second plays where the first one leaves you. Keep flexible cards such as the monkey for later and put the giraffe or elephant up front only when you can see a clear use."
+      },
+      {
+        "tag": "Second",
+        "title": "The card you leave out is a weapon",
+        "body": "Going second, you drop one card in the first cycle. Drop the one least useful on this board, and use the earlier re-layout to press on your opponent's last card."
+      },
+      {
+        "tag": "Block",
+        "title": "Block paths and your home square",
+        "body": "You lose if their king reaches your king's starting square. A small piece near that square blocks the way in or takes the king that tries to enter."
+      },
+      {
+        "tag": "Count",
+        "title": "Count their cards",
+        "body": "No card repeats within a cycle. Strike out what they have used and their next options shrink; the last one or two cards are almost certain."
+      },
+      {
+        "tag": "Attack",
+        "title": "Time your last card",
+        "body": "Going first, you play your last card after seeing their new first card. A finishing card at the end of your layout lets you strike knowing how they can answer."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What are the rules of Card Janggi from The Devil's Plan 3 final?",
+        "a": "On a 6×5 board each side has one king and three small pieces and moves only as its secret order of five cards (rat, horse, monkey, elephant, giraffe) allows. Take the enemy king or reach its starting square to win a round; two rounds win the match."
+      },
+      {
+        "q": "What was the final of The Devil's Plan: Dead Again?",
+        "a": "Card Janggi was match 1 of the season 3 final. This page is an unofficial fan-made web version you can play against the AI or a friend."
+      },
+      {
+        "q": "How do first and second player differ?",
+        "a": "The first player uses all five cards; the second uses four of five in the first cycle. After that both use five, and whoever plays their last card re-lays at once and turns up the first. The coin decides round 1; then it alternates."
+      },
+      {
+        "q": "What happens on a timeout?",
+        "a": "If you do not play your card within 90 seconds, your opponent moves your piece with it (the AI picks against the AI; in rooms your opponent has 20 seconds). Three time-outs in a row lose the match."
+      },
+      {
+        "q": "Does the AI see my card order?",
+        "a": "No. It sees exactly what you would: your used cards and your face-up next card. It weighs every order your hidden cards could be in and plays the best move on average."
+      },
+      {
+        "q": "How do I play with a friend?",
+        "a": "Create a 1:1 room and send the link or the 4-digit code. Open rooms match you with anyone, and results go into the records rankings."
+      }
+    ],
+    "disclaimer": "Card Janggi is PUZZLTHINK's web remake of a game format shown on TV and is not affiliated with the broadcaster or producers."
   }
 }
