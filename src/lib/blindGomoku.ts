@@ -2,13 +2,16 @@ export const BOARD_SIZE = 15;
 
 export type StoneOwner = 'black' | 'white';
 export type StoneColor = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'pink';
-export type GomokuDifficulty = 'easy' | 'normal' | 'hard';
+export type GomokuDifficulty = 'easy' | 'normal' | 'hard' | 'hell';
 
 export const DIFFICULTY_MEMORY: Record<GomokuDifficulty, number> = {
   // Tuned from play data toward ~80% / 50% / 25% human wins (normal was 22%, hard 8%).
   easy: 3,
   normal: 8,
   hard: 24,
+  // 매우 어려움 remembers the whole game. Its moves come from the search engine in blindGomokuHell.ts (run in a
+  // Web Worker); chooseAiMove(…, 'hell') is only the quick fallback with the same full memory.
+  hell: Infinity,
 };
 
 export interface GomokuMove {

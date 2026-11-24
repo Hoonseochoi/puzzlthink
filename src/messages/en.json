@@ -126,12 +126,14 @@
     "difficultyLevels": {
       "easy": "LOW",
       "normal": "MID",
-      "hard": "HIGH"
+      "hard": "HIGH",
+      "hell": "VERY HARD"
     },
     "memory": {
       "easy": "last 3 moves",
       "normal": "last 8 moves",
-      "hard": "last 24 moves"
+      "hard": "last 24 moves",
+      "hell": "every move + reading ahead"
     },
     "difficultyLocked": "Difficulty is locked after the opening move.",
     "handicap": "Human handicap",
@@ -2820,7 +2822,7 @@
       },
       {
         "title": "The AI's memory",
-        "body": "AI difficulty is memory: easy remembers the last 3 moves, normal the last 8, hard the last 24. Building on old stones can catch the AI out."
+        "body": "AI difficulty is memory: easy remembers the last 3 moves, normal the last 8, hard the last 24. Building on old stones can catch the AI out. Very Hard (Hell) remembers every move in order (it never peeks underneath) and reads several moves ahead, including chains of fours and open threes."
       }
     ],
     "strategyTitle": "Tips — remember, mislead, check",
@@ -2854,7 +2856,7 @@
       {
         "tag": "vs AI",
         "title": "Revive old stones",
-        "body": "The AI forgets old moves (even hard keeps only the last 24). Finishing a line that connects to your early stones often goes unblocked."
+        "body": "The AI forgets old moves (even hard keeps only the last 24; Very Hard is the exception). Finishing a line that connects to your early stones often goes unblocked."
       },
       {
         "tag": "Replay",
