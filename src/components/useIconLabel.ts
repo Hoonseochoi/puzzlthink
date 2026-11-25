@@ -14,6 +14,7 @@ export function useIconLabel() {
     if (!ref) return icon;
     if (ref.kind === 'piece') return t('pieceLabel', { week: ref.week, place: ref.place, name: tr.has(`stoneChampName.w${ref.week}_${ref.place}`) ? tr(`stoneChampName.w${ref.week}_${ref.place}`) : '' });
     if (ref.kind === 'hell') return t('hellLabel', { week: ref.week, place: ref.place, name: t(`hellName${ref.place}`) });
+    if (ref.kind === 'open') return t('openLabel', { place: ref.place });
     if (ref.kind === 'm2048') return t('m2048', { n: ref.tier });
     return t('crown', { game: CERT_GAMES[ref.game][locale === 'en' ? 'en' : 'ko'] });
   };

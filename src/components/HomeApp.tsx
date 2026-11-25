@@ -12,7 +12,7 @@ import { ChevronRight, Crown, Flame, Play, Puzzle, Skull, Swords, Trophy, Zap } 
 import { Link } from '@/i18n/routing';
 import { GAMES, type CatalogGame, type GameId } from '@/lib/gameCatalog';
 import { CERT_GAMES } from '@/lib/hardClear';
-import { STATS_ID, listAllOpenRooms } from '@/lib/openRooms';
+import { listAllOpenRooms } from '@/lib/openRooms';
 import { getSupabase } from '@/lib/supabase';
 import type { GameId as StatsGameId } from '@/lib/stats';
 import { useAuth } from './AuthProvider';
@@ -71,24 +71,28 @@ function useMe(userId: string | null): Me {
 }
 
 type RaceRow = { rank: number; nickname: string; pieces: number; is_me: boolean };
-type Races = { piece: RaceRow[]; black: RaceRow[] };
-/** This week's 피스 and 블랙피스 boards: the top three, plus my own row when signed in. */
+type Races = { piece: RaceRow[]; black: RaceRow[]; open: RaceRow[] };
+/** This week's 피스 and 블랙피스 boards and the 오픈 대전 total-wins board: the top three, plus my own row when signed in. */
 function useRaces(userId: string | null): Races {
-  const [races, setRaces] = useState<Races>({ piece: [], black: [] });
+  const [races, setRaces] = useState<Races>({ piece: [], black: [], open: [] });
   useEffect(() => {
     const supabase = getSupabase();
     if (!supabase) return;
     let alive = true;
     const rows = (d: unknown) => (Array.isArray(d) ? (d as RaceRow[]).map((r) => ({ rank: r.rank, nickname: r.nickname, pieces: Number(r.pieces), is_me: !!r.is_me })) : []);
-    Promise.all([supabase.rpc('competition_ranking', { p_limit: 3 }), supabase.rpc('black_piece_ranking', { p_limit: 3 })])
-      .then(([piece, black]) => { if (alive) setRaces({ piece: rows(piece.data), black: rows(black.data) }); }).catch(() => {});
+    Promise.all([supabase.rpc('competition_ranking', { p_limit: 3 }), supabase.rpc('black_piece_ranking', { p_limit: 3 }), supabase.rpc('open_total_ranking', { p_limit: 3 })])
+      .then(([piece, black, open]) => {
+        if (!alive) return;
+        const wins = Array.isArray(open.data) ? (open.data as { rank: number; nickname: string; wins: number; is_me: boolean }[]).map((r) => ({ rank: r.rank, nickname: r.nickname, pieces: r.wins, is_me: !!r.is_me })) : [];
+        setRaces({ piece: rows(piece.data), black: rows(black.data), open: wins });
+      }).catch(() => {});
     return () => { alive = false; };
   }, [userId]);
   return races;
 }
 
 /** A race's top three on its banner: 2nd · 1st · 3rd, each wearing the icon that place wins. */
-function RacePodium({ rows, icon, accent }: { rows: RaceRow[]; icon: (place: 1 | 2 | 3) => string; accent: string }) {
+function RacePodium({ rows, icon, accent, count = (n) => `×${n}` }: { rows: RaceRow[]; icon: (place: 1 | 2 | 3) => string; accent: string; count?: (n: number) => string }) {
   const top = new Map(rows.filter((r) => r.rank <= 3).map((r) => [r.rank, r]));
   return (
     <span className="relative flex shrink-0 items-end gap-1">
@@ -98,7 +102,7 @@ function RacePodium({ rows, icon, accent }: { rows: RaceRow[]; icon: (place: 1 |
           <span key={place} className={`flex w-[52px] flex-col items-center ${place === 1 ? '' : 'pb-0.5'} ${r ? '' : 'opacity-40'}`}>
             <Stone name={r?.nickname ?? String(place)} size={place === 1 ? 44 : 34} icon={icon(place)} />
             <span className="mt-1 w-full truncate text-center text-[9.5px] font-black leading-tight text-white/90">{r?.nickname ?? '—'}</span>
-            <span className="flex items-center gap-0.5 text-[9px] font-black leading-tight" style={{ color: accent }}><span className="flex h-[11px] w-[11px] items-center justify-center rounded-full text-[7.5px] text-black/70" style={{ background: MEDAL[place - 1] }}>{place}</span>{r ? `×${r.pieces}` : ''}</span>
+            <span className="flex items-center gap-0.5 text-[9px] font-black leading-tight" style={{ color: accent }}><span className="flex h-[11px] w-[11px] items-center justify-center rounded-full text-[7.5px] text-black/70" style={{ background: MEDAL[place - 1] }}>{place}</span>{r ? count(r.pieces) : ''}</span>
           </span>
         );
       })}
@@ -246,20 +250,10 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const [cat, setCat] = useState<Cat>('all');
   const [ev, setEv] = useState(0);
   const [rooms, setRooms] = useState<number | null>(null);
-  const [roomGames, setRoomGames] = useState<{ game: CatalogGame; n: number }[]>([]);
   const [day, setDay] = useState(0);
   useEffect(() => {
     let alive = true;
-    listAllOpenRooms().then((list) => {
-      if (!alive || !list) return;
-      setRooms(list.length);
-      const count = new Map<CatalogGame, number>();
-      for (const row of list) {
-        const g = GAMES.find((x) => x.id === row.game || STATS_ID[x.id] === row.game);
-        if (g) count.set(g, (count.get(g) ?? 0) + 1);
-      }
-      setRoomGames([...count].map(([game, n]) => ({ game, n })).sort((a, b) => b.n - a.n).slice(0, 3));
-    });
+    listAllOpenRooms().then((list) => { if (alive && list) setRooms(list.length); });
     const id = window.setTimeout(() => setDay(Math.floor((Date.now() + 9 * 3600_000) / 86_400_000)), 0); // changes at midnight KST
     return () => { alive = false; window.clearTimeout(id); };
   }, []);
@@ -273,18 +267,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const [pieceLive] = useState(() => Date.now() < PIECE_WEEKS[2].ends);
   const heroPodium = hero ? podiums?.get(hero.href) : undefined;
 
-  // 오픈 대전 has no single ranking: its banner shows the three games with the most open rooms.
-  const openSide = roomGames.length ? (
-    <span className="relative flex shrink-0 items-end gap-1.5">
-      {roomGames.map(({ game, n }) => (
-        <span key={game.id} className="flex w-[50px] flex-col items-center">
-          <span className="h-[42px] w-[42px] overflow-hidden rounded-[12px] bg-black/40 ring-1 ring-white/20"><FitTile title={tc(game.id)} className="h-full w-full"><Preview id={game.id} /></FitTile></span>
-          <span className="mt-1 w-full truncate text-center text-[9.5px] font-black leading-tight text-white/90">{tc(game.id)}</span>
-          <span className="text-[9px] font-black leading-tight text-[#b9c1ff]">{th('roomsN', { n })}</span>
-        </span>
-      ))}
-    </span>
-  ) : null;
+  const openSide = <RacePodium rows={races.open} icon={(p) => `o-${p}`} accent="#b9c1ff" count={(n) => th('winsN', { n })} />;
 
   const events = [
     { key: 'hell', icon: <Skull size={15} />, eyebrow: 'AI HELL MODE', title: th('evHellTitle'), sub: th('evHellSub'), cta: th('evHellCta'), bg: 'linear-gradient(135deg, #2a0812 0%, #07060a 70%)', accent: '#ff3355', href: '/hell' as const, hash: undefined, side: <RacePodium rows={races.black} icon={(p) => `h1-${p}`} accent="#ff8ea0" /> },

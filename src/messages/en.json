@@ -5749,6 +5749,8 @@
     "hellRule": "Black Piece 7-day week top 3 · given every week · kept for good",
     "m2048Title": "2048",
     "m2048Rule": "Make a 2048, 4096, 8192… block in 2048 · every block you reach is kept for good",
+    "openTitle": "Open match champions",
+    "openRule": "Top 3 by total open-match wins across every game · the icon moves with the place",
     "crownTitle": "Game #1",
     "crownRule": "Each game's ranking #1 · moves to the new #1 when you lose it",
     "noHolder": "No holder"
@@ -5777,6 +5779,7 @@
     "won2048": "{n} icon unlocked!",
     "won2048SignIn": "Sign in to get the 2048 icon",
     "collectionLink": "Icon collection",
+    "openLabel": "Open match #{place}",
     "collectionLinkSub": "See every icon you can earn",
     "collectionLinkOwned": "{n} owned · see all"
   },
@@ -8575,6 +8578,7 @@
       "evOpenSub": "Jump into an open room",
       "evOpenRooms": "{n} open rooms now · jump in",
       "roomsN": "{n} rooms",
+      "winsN": "{n} wins",
       "evOpenCta": "See rooms"
   },
   "TabBar": {
