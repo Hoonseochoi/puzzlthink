@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowRight, Check, Crown, Gamepad2, Palette, Skull, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, Crown, Gamepad2, Palette, Skull, Sparkles, Swords } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import type { GameId } from '@/lib/stats';
 import { CERT_GAMES } from '@/lib/hardClear';
@@ -28,11 +28,15 @@ export default function IconCollection() {
   const { user } = useAuth();
   const [owned, setOwned] = useState<Set<string>>(new Set());
   const [holders, setHolders] = useState<Map<string, string>>(new Map());
+  const [openTop, setOpenTop] = useState<Map<number, string>>(new Map());
 
   useEffect(() => {
     let alive = true;
     getSupabase()?.rpc('game_crowns_public').then(({ data }) => {
       if (alive && Array.isArray(data)) setHolders(new Map((data as { game: string; nickname: string }[]).map((r) => [r.game, r.nickname])));
+    });
+    getSupabase()?.rpc('open_total_ranking', { p_limit: 3 }).then(({ data }) => {
+      if (alive && Array.isArray(data)) setOpenTop(new Map((data as { rank: number; nickname: string }[]).filter((r) => r.rank <= 3).map((r) => [r.rank, r.nickname])));
     });
     return () => { alive = false; };
   }, []);
@@ -103,6 +107,9 @@ export default function IconCollection() {
               <span className="mt-0.5 text-[10px] font-bold text-[#ff8ea0]">{t('place', { n: place })}</span>
             </li>
           ))}</ul>, true)}
+
+        {section('open', <Swords size={18} className="text-[#5b6cff]" />, t('openTitle'), t('openRule'),
+          <ul className={grid}>{([1, 2, 3] as const).map((place) => cell(`o-${place}`, ti('openLabel', { place }), openTop.get(place) ?? t('noHolder')))}</ul>)}
 
         {section('m2048', <Sparkles size={18} className="text-[#e8b730]" />, t('m2048Title'), t('m2048Rule'),
           <ul className={grid}>{M2048_TIERS.map((n) => cell(`m${n}`, ti('m2048', { n })))}</ul>)}

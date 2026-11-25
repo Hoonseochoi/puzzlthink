@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Ban, ChevronRight, Flag, MessageCircle, MessageCircleOff, Send, X } from 'lucide-react';
 import { getSupabase } from '@/lib/supabase';
 import { usePathname } from '@/i18n/routing';
+import { LOUNGE_OPEN_EVENT, isGamePath, setLoungeUnread, useOnlineCount } from '@/lib/siteBus';
 import { GAMES } from '@/lib/gameCatalog';
 import { chatPrefs, chatPrefsServer, clearMuted, isMuted, roomPlaying, setMuted, subscribeChat } from '@/lib/roomChat';
 import { LOUNGE_KEEP, LOUNGE_MAX_LEN, type LoungeBan, type LoungeMessage, type LoungeReason, isLoungeMessage, falseOnServer, loadLounge, loungeMini, loungeOff, loungeOffServer, loungeSeen, markLoungeSeen, setLoungeMini, trueOnServer, reportLounge, sendLounge, setLoungeOff, subscribeLoungeOff, visibilityStore } from '@/lib/lounge';
@@ -105,6 +106,15 @@ export default function LoungeChat() {
 
   const toggle = useCallback((value: boolean) => { setOpen(value); setUnread(0); if (value) markLoungeSeen(); }, []);
   const turn = (value: boolean) => { setLoungeOff(value); if (value) { setMessages([]); setUnread(0); } };
+  // The phone tab bar's lounge button opens the drawer and shows the unread count.
+  useEffect(() => {
+    const onOpen = () => { setLoungeOff(false); toggle(true); };
+    window.addEventListener(LOUNGE_OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(LOUNGE_OPEN_EVENT, onOpen);
+  }, [toggle]);
+  useEffect(() => { setLoungeUnread(off ? 0 : unread); }, [off, unread]);
+  const online = useOnlineCount();
+  const inGame = isGamePath(pathname);
 
   const send = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -143,7 +153,17 @@ export default function LoungeChat() {
     <>
       {/* Floating button in the bottom-right corner, just above the "지금 N명 접속 중" pill (both move up over a
           game entry screen's start bar). Hidden, it shrinks to a small faint icon that brings it back. */}
-      <div className={`fixed bottom-[calc(2.6rem+env(safe-area-inset-bottom))] right-3 z-40 [body:has([data-gate-bar])_&]:bottom-[calc(6.6rem+env(safe-area-inset-bottom))] ${open ? 'pointer-events-none opacity-0' : ''}`}>
+      {/* Phones: the tab bar holds the lounge button outside games; inside a game it is a slim handle on the right
+          edge (under the room chat's handle), with the online count. */}
+      {inGame && (
+        <button type="button" onClick={() => { if (off) turn(false); toggle(true); }} aria-label={t('open')}
+          className={`fixed right-0 top-[74%] z-40 flex flex-col items-center gap-0.5 rounded-l-xl border border-r-0 border-white/15 bg-[#0d0d11]/85 px-1.5 py-2 text-white shadow-[0_0_18px_rgba(0,0,0,.35)] backdrop-blur-md transition sm:hidden ${open ? 'pointer-events-none opacity-0' : mini ? 'opacity-55' : ''}`}>
+          {off ? <MessageCircleOff size={15} className="text-white/45" /> : <MessageCircle size={15} className="text-(--accent,#e8b04a)" />}
+          {online != null && <span className="flex items-center gap-[3px] text-[9px] font-black leading-none text-white/75"><i className="h-1 w-1 rounded-full bg-[#34c47c]" />{online > 999 ? '999+' : online}</span>}
+          {!off && unread > 0 && <UnreadBadge n={unread} className="-left-2 -top-2" />}
+        </button>
+      )}
+      <div className={`max-sm:hidden fixed bottom-[calc(2.6rem+env(safe-area-inset-bottom))] right-3 z-40 [body:has([data-gate-bar])_&]:bottom-[calc(6.6rem+env(safe-area-inset-bottom))] ${open ? 'pointer-events-none opacity-0' : ''}`}>
         {mini ? (
           <button type="button" onClick={() => setLoungeMini(false)} aria-label={t('show')} title={t('show')}
             className="relative grid h-7 w-7 place-items-center rounded-full border border-white/10 bg-black/35 text-white/60 opacity-70 backdrop-blur-md transition hover:opacity-100">

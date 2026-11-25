@@ -2,6 +2,7 @@
  * Earned profile icons beyond the 피스 경쟁전 champion stones (those live in StoneAvatar):
  * - h{week}-{place}: 블랙피스 경쟁전 weekly top three — obsidian stones with horns and a hellfire halo.
  * - m{block}: made that block in 2048 (m2048, m4096 … m131072) — the block's tile with our two eyes; each tier has its own look.
+ * - o-{place}: 오픈 대전 total-wins top three — a duelist stone over crossed swords with a laurel; held while in that place.
  * - c-{game}: a game's ranking #1 — a stone in the game's colour, a gold crown and the game's emblem.
  * All drawn in a 100×100 box like the stones, so they swap in anywhere a stone is shown.
  */
@@ -12,6 +13,7 @@ export type IconRef =
   | { kind: 'piece'; week: number; place: 1 | 2 | 3 }
   | { kind: 'hell'; week: number; place: 1 | 2 | 3 }
   | { kind: 'm2048'; tier: number }
+  | { kind: 'open'; place: 1 | 2 | 3 }
   | { kind: 'crown'; game: GameId };
 
 /** The 2048 block icons, smallest first: one per block from 2048 up to the biggest a 4×4 board can hold. */
@@ -24,6 +26,8 @@ export function parseIcon(stone: string | null | undefined): IconRef | null {
   if (m) return (M2048_TIERS as readonly number[]).includes(Number(m[1])) ? { kind: 'm2048', tier: Number(m[1]) } : null;
   const wh = /^([wh])(\d{1,3})-([123])$/.exec(stone);
   if (wh) return { kind: wh[1] === 'w' ? 'piece' : 'hell', week: Number(wh[2]), place: Number(wh[3]) as 1 | 2 | 3 };
+  const o = /^o-([123])$/.exec(stone);
+  if (o) return { kind: 'open', place: Number(o[1]) as 1 | 2 | 3 };
   const c = /^c-([a-z0-9_]+)$/.exec(stone);
   if (c && c[1] in CERT_GAMES) return { kind: 'crown', game: c[1] as GameId };
   return null;
@@ -116,6 +120,66 @@ export function Tile2048({ id, name, size, tier = 2048 }: { id: string; name: st
       {k.gem && <circle cx="28" cy="11" r="1.8" fill={k.gem} />}
       <path d="M87 24 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill={k.spark} />
       <path d="M8 60 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5z" fill={k.spark} />
+    </svg>
+  );
+}
+
+// ─── 오픈 대전 (open match) ──────────────────────────────────────────────────────────────────────────────────────
+
+type OpenLook = { metal: [string, string, string]; rim: string; stone: [string, string, string]; eye: string; band: string; glow: string };
+export const OPEN_LOOKS: Record<1 | 2 | 3, OpenLook> = {
+  1: { metal: ['#fff3b0', '#f2c53d', '#a8740c'], rim: '#6b4a06', stone: ['#8fa2ff', '#3b47c9', '#141a5c'], eye: '#ffffff', band: '#ffd23f', glow: '#ffd76a' },
+  2: { metal: ['#ffffff', '#c9d0dc', '#7c8594'], rim: '#4c5563', stone: ['#7fd4ff', '#2277c4', '#0c2f5c'], eye: '#ffffff', band: '#dfe5ee', glow: '#bcd4ff' },
+  3: { metal: ['#ffd9b5', '#d18a52', '#8a4f24'], rim: '#5a3113', stone: ['#b79bff', '#6a3fc4', '#28135c'], eye: '#ffffff', band: '#e0a070', glow: '#e5b48a' },
+};
+
+/** The duelist: a stone with a headband over two crossed swords, a laurel around it and the place on a shield. */
+export function OpenStone({ id, name, size, place }: { id: string; name: string; size: number; place: 1 | 2 | 3 }) {
+  const k = OPEN_LOOKS[place];
+  const sword = (flip: boolean) => (
+    <g transform={flip ? 'translate(100 0) scale(-1 1)' : undefined}>
+      <path d="M14 6 L20 6 L62 70 L55 76 Z" fill={`url(#om-${id})`} stroke={k.rim} strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M17 8 L57 70" stroke="#ffffff" strokeOpacity=".7" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M48 80 L68 62" stroke={k.rim} strokeWidth="6.5" strokeLinecap="round" />
+      <path d="M48 80 L68 62" stroke={k.band} strokeWidth="3.6" strokeLinecap="round" />
+      <path d="M62 76 L70 87" stroke={k.rim} strokeWidth="6" strokeLinecap="round" />
+      <circle cx="71.5" cy="89" r="3.6" fill={k.band} stroke={k.rim} strokeWidth="1.4" />
+    </g>
+  );
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={name}>
+      <defs>
+        <linearGradient id={`om-${id}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={k.metal[0]} /><stop offset="50%" stopColor={k.metal[1]} /><stop offset="100%" stopColor={k.metal[2]} />
+        </linearGradient>
+        <radialGradient id={`os-${id}`} cx="36%" cy="28%" r="80%">
+          <stop offset="0%" stopColor={k.stone[0]} /><stop offset="55%" stopColor={k.stone[1]} /><stop offset="100%" stopColor={k.stone[2]} />
+        </radialGradient>
+        <radialGradient id={`og-${id}`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={k.glow} stopOpacity=".65" /><stop offset="100%" stopColor={k.glow} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="52" r="50" fill={`url(#og-${id})`} />
+      {sword(false)}{sword(true)}
+      {/* laurel */}
+      <g fill={k.band} stroke={k.rim} strokeWidth=".9">
+        {[0, 1, 2, 3].map((i) => <ellipse key={`l${i}`} cx="0" cy="0" rx="4.2" ry="8" transform={`translate(${17 + i * 3.5} ${44 + i * 11}) rotate(${-28 + i * 16})`} />)}
+        {[0, 1, 2, 3].map((i) => <ellipse key={`r${i}`} cx="0" cy="0" rx="4.2" ry="8" transform={`translate(${83 - i * 3.5} ${44 + i * 11}) rotate(${28 - i * 16})`} />)}
+      </g>
+      <circle cx="50" cy="55" r="31" fill="rgba(0,0,0,.3)" />
+      <circle cx="50" cy="52" r="31" fill={`url(#os-${id})`} stroke={k.rim} strokeWidth="2.2" />
+      <path d="M30 34 Q38 25 50 24" fill="none" stroke="#ffffff" strokeOpacity=".65" strokeWidth="3" strokeLinecap="round" />
+      {/* headband with a knot */}
+      <path d="M19.5 44 Q50 33 80.5 44 L80 51 Q50 40 20 51 Z" fill={k.band} stroke={k.rim} strokeWidth="1.3" strokeLinejoin="round" />
+      <path d="M80 46 L92 40 L89 48 L94 54 L81 51 Z" fill={k.band} stroke={k.rim} strokeWidth="1.3" strokeLinejoin="round" />
+      {/* determined eyes */}
+      <rect x="38" y="52" width="7.5" height="13" rx="3.7" fill={k.eye} />
+      <rect x="54.5" y="52" width="7.5" height="13" rx="3.7" fill={k.eye} />
+      <path d="M35 51 L47 54 M65 51 L53 54" stroke={k.stone[2]} strokeWidth="2.6" strokeLinecap="round" />
+      {/* place shield */}
+      <path d="M40 76 H60 V86 Q60 94 50 98 Q40 94 40 86 Z" fill={`url(#om-${id})`} stroke={k.rim} strokeWidth="1.6" strokeLinejoin="round" />
+      <text x="50" y="91" textAnchor="middle" fontSize="13" fontWeight="900" fontFamily="ui-rounded, system-ui, sans-serif" fill={k.rim}>{place}</text>
+      <path d="M88 20 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill={k.glow} />
     </svg>
   );
 }

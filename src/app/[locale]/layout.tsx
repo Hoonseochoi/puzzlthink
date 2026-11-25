@@ -13,6 +13,7 @@ import IconUnlock from '@/components/IconUnlock';
 import OpenResultCelebration from '@/components/OpenResultCelebration';
 import NicknamePrompt from '@/components/NicknamePrompt';
 import GlobalFooter from '@/components/GlobalFooter';
+import MobileTabBar from '@/components/MobileTabBar';
 import InstallBanner from '@/components/InstallBanner';
 import OnlineCount from '@/components/OnlineCount';
 import LiveIsland from '@/components/LiveIsland';
@@ -99,6 +100,7 @@ export default async function LocaleLayout({
           <GlobalHeader />
           {children}
           <GlobalFooter />
+          <MobileTabBar />
           <HallCelebration />
           <HardClearCelebration />
           <HellClearCelebration />
