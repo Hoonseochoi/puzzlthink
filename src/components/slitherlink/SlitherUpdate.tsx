@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { MousePointerClick, PenLine, Sparkles, Undo2, X } from 'lucide-react';
+import { History, MousePointerClick, PenLine, Sparkles, Undo2, X } from 'lucide-react';
 
 // Newest first; each item carries the small date tag (same size on every item).
-const ITEMS = [['drag', PenLine, '11/23'], ['tap', MousePointerClick, '11/23'], ['undo', Undo2, '11/22']] as const;
+const ITEMS = [['replayAnswer', History, '11/25'], ['drag', PenLine, '11/23'], ['tap', MousePointerClick, '11/23'], ['undo', Undo2, '11/22']] as const;
 
 /** "업데이트" badge for the Slitherlink header: tap for what changed in the latest update (from player feedback). */
 export default function SlitherUpdate() {
