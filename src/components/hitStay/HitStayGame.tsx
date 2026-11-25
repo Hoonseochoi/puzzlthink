@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { BookOpen, RotateCcw, Trophy, X } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import GameUpdates from '@/components/GameUpdates';
 import { HIT_STAY_ROOM } from '@/hooks/useHitStayRoom';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { HS_PERSONA, HS_STYLES } from '@/lib/hitStay';
@@ -37,7 +38,7 @@ export default function HitStayGame() {
     <div className={SHELL} style={HS_ROOT_STYLE}>
       <GameHeader backHref="/hit-stay" backLabel={t.back} title={t.title} titleClass="font-black [font-family:Georgia,serif] !text-[14px] !tracking-[0.02em] min-[400px]:!text-lg sm:!text-xl sm:!tracking-[0.06em]" subtitle="SOLO · AI 4">
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="hit_stay" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => { setClosedKey(null); reset(); }} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>
       </GameHeader>
       <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">

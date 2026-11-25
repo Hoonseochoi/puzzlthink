@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl';
 import { BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, Timer, Trophy, UserRound, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import BugReport from '@/components/BugReport';
+import GameUpdates from '@/components/GameUpdates';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { useHitStayRoom } from '@/hooks/useHitStayRoom';
 import type { HitStayRoom } from '@/lib/hitStayRoom';
@@ -58,7 +59,7 @@ export default function HitStayRoomView({ code }: { code: string }) {
       <RoomAlerts alerts={alerts} accent={HS_ACCENT} joinText={t.joined} leaveText={t.left} />
       <GameHeader backHref="/hit-stay" backLabel={t.back} title={t.title} titleClass="font-black [font-family:Georgia,serif] !text-[14px] !tracking-[0.02em] min-[400px]:!text-lg sm:!text-xl sm:!tracking-[0.06em]" subtitle={<span className="font-mono">{t.online} · {code}</span>}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="hit_stay" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <p className="relative z-10 mx-auto mt-3 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ff948d]"><WifiOff size={14} />{notice}</p>}
       {state?.phase === 'playing' && <AwayBanner seats={state.seats} away={state.away} mySeat={mySeat} onRejoin={() => dispatch({ t: 'rejoin' })} />}
