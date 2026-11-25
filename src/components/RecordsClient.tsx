@@ -10,6 +10,7 @@ import { getSupabase } from '@/lib/supabase';
 import AuthButton from './AuthButton';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
 import StoneAvatar from './StoneAvatar';
+import StonePicker from './StonePicker';
 import OpenRankingBoard from './OpenRankingBoard';
 import RankMove from './RankMove';
 import ChallengeRecords from './ChallengeRecords';
@@ -186,6 +187,7 @@ export default function RecordsClient() {
               {nameTaken && <p className="mt-2 text-xs font-bold text-[#c2410c]">{t('nicknameTaken')}</p>}
               <p className="mt-2 break-keep text-[11px] font-bold text-black/55">{t('nicknameNote')}</p>
               <p className="mt-1 flex items-center gap-1.5 text-[11px] text-black/40"><Crown size={11} />{t('privacyNote')}</p>
+              <StonePicker name={profile?.nickname || displayName(user)} />
 
               <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
                 <section className="flex items-center gap-4 rounded-[24px] border border-black/10 bg-[#f9f7f1] p-5">

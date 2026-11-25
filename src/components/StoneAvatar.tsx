@@ -106,6 +106,54 @@ export function useChampion(name: string, known?: Champion | null) {
   return known !== undefined ? known : place;
 }
 
+/** The four colours anyone can pick in 기록실 › 닉네임 (champion stones are picked as 'w{week}-{place}'). */
+export const STONE_COLORS = ['black', 'white', 'red', 'blue'] as const;
+export type StoneColor = typeof STONE_COLORS[number];
+const COLOR_TONE: Record<StoneColor, Tone> = { black: TONES[0], white: TONES[1], red: TONES[2], blue: TONES[7] };
+/** A champion stone choice ('w1-1') as a week and place, or null for a colour. */
+export const championOf = (stone: string | null | undefined): Champion | null => {
+  const m = stone ? /^w(\d{1,3})-([123])$/.exec(stone) : null;
+  return m ? { week: Number(m[1]), place: Number(m[2]) as 1 | 2 | 3 } : null;
+};
+
+// Stones players picked themselves, by nickname. Refetched (and every avatar redrawn) after a player changes theirs.
+let choicesPromise: Promise<Map<string, string>> | null = null;
+const choiceListeners = new Set<() => void>();
+function loadChoices() {
+  choicesPromise ??= (async () => {
+    const supabase = getSupabase();
+    const map = new Map<string, string>();
+    if (!supabase) return map;
+    const { data } = await supabase.rpc('stone_choices_public');
+    if (Array.isArray(data)) for (const r of data as { nickname: string; stone: string }[]) map.set(r.nickname, r.stone);
+    return map;
+  })();
+  return choicesPromise;
+}
+/** Call after saving a stone: every avatar on the page picks up the new choice. */
+export function refreshStoneChoices() {
+  choicesPromise = null;
+  choiceListeners.forEach((fn) => fn());
+}
+
+/** The stone this nickname picked ('red', 'w1-1', …), or null. Pass `known` to skip the lookup. */
+export function useStoneChoice(name: string, known?: string | null) {
+  const [choice, setChoice] = useState<string | null>(null);
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    const bump = () => setVersion((v) => v + 1);
+    choiceListeners.add(bump);
+    return () => { choiceListeners.delete(bump); };
+  }, []);
+  useEffect(() => {
+    if (known !== undefined || !name) return;
+    let alive = true;
+    loadChoices().then((m) => { if (alive) setChoice(m.get(name) ?? null); });
+    return () => { alive = false; };
+  }, [name, known, version]);
+  return known !== undefined ? known : choice;
+}
+
 /** The player's 피스 경쟁전 rank (1–10), or null. Pass `known` when the caller already has it. */
 export function usePieceRank(name: string, known?: number | null) {
   const [rank, setRank] = useState<number | null>(known ?? null);
@@ -119,16 +167,22 @@ export function usePieceRank(name: string, known?: number | null) {
 }
 
 /**
- * The stone itself; `pieceRank` 1–10 makes it a ranker's stone. A past week's champion (looked up by nickname
- * unless `champion` is given) always wears the platinum crown, which outranks the current-week look.
+ * The stone itself. What it looks like, first match wins:
+ * - `champion` given (a preview): that champion stone.
+ * - the player picked a stone (looked up by nickname unless `stone` is given): that champion stone, or that colour
+ *   (a current 피스 경쟁전 top-10 rank still shows its metal look over a colour);
+ * - nothing picked: a past week's champion stone if they have one, else the rank look or the nickname's colour.
  */
-export function Stone({ name, size, pieceRank = null, champion }: { name: string; size: number; pieceRank?: number | null; champion?: Champion | null }) {
+export function Stone({ name, size, pieceRank = null, champion, stone }: { name: string; size: number; pieceRank?: number | null; champion?: Champion | null; stone?: string | null }) {
   const id = useId().replace(/:/g, '');
-  const champ = useChampion(name, champion);
+  const choice = useStoneChoice(name, stone);
+  const earned = useChampion(name, champion);
+  const champ = champion !== undefined ? champion : choice ? championOf(choice) : earned;
   if (champ) return <ChampionStone id={id} name={name} size={size} champion={champ} />;
   const ranker = pieceRank != null && pieceRank <= 10;
   const crown = ranker && pieceRank <= 3;
-  const tone = crown ? METAL[pieceRank as 1 | 2 | 3] : ranker ? METAL.gold : toneFor(name || '?');
+  const picked = choice && choice in COLOR_TONE ? COLOR_TONE[choice as StoneColor] : null;
+  const tone = crown ? METAL[pieceRank as 1 | 2 | 3] : ranker ? METAL.gold : picked ?? toneFor(name || '?');
   // A crowned stone sits a little lower so the crown fits inside the same box.
   const cy = crown ? 58 : 50, r = crown ? 40 : 46;
   return (
