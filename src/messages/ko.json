@@ -5830,6 +5830,15 @@
     "disclaimer": "나인 멘스 모리스는 오래된 전통 보드게임으로, PUZZLTHINK가 방송 규칙을 참고해 웹용으로 다시 만든 것이며 방송사·제작사와 관련이 없습니다."
   },
   "IconCollection": {
+    "holdersTitle": "획득자 (최근 순)",
+    "holdersCount": "{n}명 획득",
+    "holdersTotal": "획득자 {n}명",
+    "holdersOne": "획득자 {name}",
+    "holdersNone": "아직 획득한 사람이 없어요. 첫 번째가 되어 보세요!",
+    "holdersMore": "외 {n}명",
+    "goRanking": "랭킹 보기",
+    "goGame": "게임 하러 가기",
+    "close": "닫기",
     "metaTitle": "아이콘 컬렉션 — PUZZLTHINK 프로필 아이콘 모음",
     "metaDescription": "게임별 어려움 클리어, 친구·오픈 대전 승리, 플레이 타임 10~100시간부터 피스·블랙피스 경쟁전 챔피언, 2048, 게임별 랭킹 1위까지. 프로필 아이콘과 얻는 조건을 한눈에 보세요.",
     "title": "아이콘 컬렉션",

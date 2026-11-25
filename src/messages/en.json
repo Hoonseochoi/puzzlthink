@@ -5738,6 +5738,15 @@
     "disclaimer": "Nine Men's Morris is a traditional board game. PUZZLTHINK rebuilt it for the web after the show's rules; it is not affiliated with the broadcaster or producers."
   },
   "IconCollection": {
+    "holdersTitle": "Earned by (newest first)",
+    "holdersCount": "{n} players",
+    "holdersTotal": "{n} players have it",
+    "holdersOne": "Held by {name}",
+    "holdersNone": "Nobody has earned this yet. Be the first!",
+    "holdersMore": "and {n} more",
+    "goRanking": "See the ranking",
+    "goGame": "Play the game",
+    "close": "Close",
     "metaTitle": "Icon collection — PUZZLTHINK profile icons",
     "metaDescription": "Hard clears for every game, friend and open match wins, 10 to 100 hours of play, contest champions, 2048 and every game's #1: all profile icons by theme, with how to get each.",
     "title": "Icon collection",
