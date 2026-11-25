@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const korean = locale !== 'en';
   return pageMetadata({
     locale, path: '/gradation',
-    title: korean ? '그라데이션 — 데블스 플랜 3 감옥 매치, 1:1 숫자 큐브 심리전' : 'Gradation — The Devil\'s Plan 3 prison match, a 1:1 number cube mind game',
+    title: korean ? '그라데이션 — 데블스플랜3 감옥매치, 룰 정리하고 온라인 무료로 한판' : 'Gradation — The Devil\'s Plan 3 prison match, a 1:1 number cube mind game',
     description: korean
       ? '데블스 플랜: 데드 어게인(시즌 3) 6일차 감옥 매치 그라데이션을 무료로. 숫자 큐브 7개를 오름차순·합 30 이하로 그라데이션 통에 숨기고, 통의 색만 보고 한 통씩 맞대결하세요. AI 4명(어려움)·친구·공개방 1:1.'
       : 'Play Gradation, the day-6 prison match of The Devil\'s Plan: Dead Again (season 3), free. Hide seven number cubes in shaded cups, rising and summing to 30 or less, and duel cup by cup seeing only shades. Four hard AI, friends or open 1:1 rooms.',

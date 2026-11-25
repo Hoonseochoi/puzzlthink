@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const korean = locale !== 'en';
   return pageMetadata({
     locale, path: '/hit-stay',
-    title: korean ? 'Hit,Stay (힛스테이) — 데블스 플랜 3 준결승 메인매치, 5인 베팅 카드 게임' : 'Hit,Stay — The Devil\'s Plan 3 semifinal main match, a five-player betting card game',
+    title: korean ? '힛스테이 (Hit,Stay) — 데블스플랜3 준결승 메인매치, 룰 정리·온라인 무료' : 'Hit,Stay — The Devil\'s Plan 3 semifinal main match, a five-player betting card game',
     description: korean
       ? '데블스 플랜: 데드 어게인(시즌 3) 준결승 메인매치 힛스테이를 무료로. 8면체 주사위가 정한 한계 숫자에 카드 합을 가장 가깝게, HIT 할지 STAY 할지 정하고 칩을 걸어 살아남으세요. AI 4명·친구·공개방 5인전.'
       : 'Play Hit,Stay from the semifinal of The Devil\'s Plan: Dead Again (season 3) free. Get your card total closest to the die\'s limit, HIT or STAY, and bet to survive. Five players: four AI, friends or open rooms.',
