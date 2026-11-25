@@ -2,6 +2,7 @@
   "Common": {
     "cardJanggi": "Card Janggi",
     "colorLinkDuel": "Color Link Duel",
+    "hiddenWord": "Hidden Word",
     "hitStay": "Hit,Stay",
     "gradation": "Gradation",
     "equationSignal": "Equation Signal",
@@ -208,6 +209,8 @@
     "fourThreeMeta": "vs AI (4 players) · Friends 2–3 · The Devil's Plan prize match",
     "cardJanggiDescription": "Lay out five movement cards in secret and play them in that order: take the enemy king or reach its square first. The Devil's Plan 3 final.",
     "cardJanggiMeta": "Hard AI · friend · open room 1:1 · The Devil's Plan 3",
+    "hiddenWordDescription": "Hide your word and find the opponent's from the similarity of each hint. A word-deduction point match (Korean words).",
+    "hiddenWordMeta": "AI point match · points ranking",
     "hitStayDescription": "Get your card total closest to the limit the die sets. HIT or STAY, bet your chips, and outlast four others.",
     "hitStayMeta": "5 players · 4 AI, friends or open rooms · The Devil's Plan 3",
     "gradationDescription": "Hide seven number cubes in your cups, rising and summing to 30 or less, then duel one cup at a time. Your opponent sees only the cup's shade: is that dark cup a 0 or a 9?",
@@ -1683,6 +1686,7 @@
   "Records": {
     "blackPieceTab": "Black pieces",
     "chMerge2048": "2048 challenge run",
+    "chHiddenWord": "Hidden Word points ranking",
     "metaTitle": "Records · Hall of Fame",
     "metaDescription": "See PUZZLTHINK records for AI and open matches, rankings and the Hall of Fame, and update your nickname.",
     "title": "Records",
@@ -1986,6 +1990,7 @@
     "games": {
       "cardJanggi": {"tagline": "Janggi played only as your five secret movement cards allow — rat, horse, monkey, elephant, giraffe. Read your opponent's next card, then take their king or reach its square first.", "players": "2 (1:1 against the AI or a friend)", "pace": "90 s to lay out cards · 90 s per move (miss it and your opponent moves for you)", "level": "One AI level: Hard · searches every order your hidden cards could be in", "ai": "1:1 against the Hard AI (it never sees your face-down cards)", "friend": "1:1 by link, 4-digit code or open room; 90 s per move", "rules": ["A 6×5 board; each side has one king and three small pieces on fixed starting squares.", "Five movement cards: Rat (1 step orthogonally) · Horse (knight) · Monkey (any neighbour) · Elephant (bishop) · Giraffe (jump 2 orthogonally).", "You choose to go first or second (in rooms a coin toss picks who chooses). Both lay out their cards face down at once: first player all five, second player four of five in their first cycle.", "Turns alternate from the first player: move any piece as your face-up card allows, then turn up the next. Moving onto an enemy piece takes it. After your last card, lay out all five again.", "Take the enemy king, or move your king onto the square it started on, to win the round. One round decides the match."], "origin": "An unofficial fan-made web version of Card Janggi, match 1 of the final in Netflix's The Devil's Plan: Dead Again (season 3). The show's practice session with a spectator is replaced by the rules and AI play."},
       "colorLinkDuel": {"tagline": "A 1:1 duel on 13 boards, from the classic 7×7 to heart, donut and four rooms: take turns placing stones of 14 colors while every same-colored pair stays joinable without crossing. When your opponent breaks it, call it impossible!", "players": "2 (AI or a friend)", "pace": "1 min per placement · 2 min to prove · one round", "level": "Hard AI (always plays its best)", "ai": "AI 1:1 · Hard", "friend": "Link or 4-digit code, open rooms", "rules": ["Take turns placing stones of 14 colors (A–N, two each) on a board: the classic 7×7 or one of 12 shaped 9×9–11×11 boards (the host picks one or random; the AI game deals a random board of the chosen difficulty). The opener places 1; after that, 2 of different colors within 1 minute.", "If every same-colored pair were joined by a line, no two lines may cross or share a cell. Each line is 6+ cells, stones included; a color with one stone down must still be joinable to its partner.", "Think your opponent’s board cannot be joined? Call it impossible. They get 2 minutes to draw every line: prove it and they score, fail and you do.", "You choose to go first or second (in rooms a coin toss picks who chooses). One round: the first point wins."], "origin": "An unofficial fan-made web version of Color Link, match 2 of the final of Netflix's The Devil's Plan: Dead Again (season 3). Not the solo puzzle Color Link: this one is a two-player duel."},
+      "hiddenWord": {"tagline": "Find the opponent's word from similarity numbers alone, and guard yours while still giving a 95% hint. Played with Korean words.", "players": "1 (vs the AI MORA)", "pace": "2 rounds · 5–8 min a match", "level": "One AI that reasons from meaning", "ai": "Point match, 2 rounds", "friend": "Coming later", "rules": ["Pick one of six envelopes for five nouns; each round one of them is your hidden word.", "Defense: give related words as hints, each shown with its similarity. A hint at 95% or more ends the hints and MORA answers. Each miss pays you 1, 2, then 3 points.", "Attack: read MORA's hints and find her word. Stage 1 pays 6, stage 2 3, stage 3 1. A chance lets you write a second answer.", "Round 2 doubles every point. Your total points over finished matches make the ranking."], "origin": "An unofficial fan game based on the Hidden Word rules seen in Netflix's The Devil's Plan, rebuilt as a one-on-one point match against an AI."},
       "hitStay": {"tagline": "Bring your card total closest to the limit. Take one more (HIT) or stop (STAY), and decide how many chips to risk — a five-player survival betting game.", "players": "5 (empty seats are AI)", "pace": "10 s to show a card · 30 s per turn in rooms (then the AI takes over)", "level": "4 AI, all at full strength", "ai": "5 players (4 AI)", "friend": "Link or 4-digit code, empty seats are AI", "rules": ["35 number cards (one 7, two 6s … seven 1s, seven -1s). 30 chips each; the ante is 1 and goes up by 1 every 2 rounds (1, 1, 2, 2, … 8), then by 5 every 2 rounds from round 16 (13, 18, …).", "Each round the dealer rolls an eight-sided die (5–12) for the limit. Everyone gets three cards and shows one.", "From the first player: bet (call, raise, fold) → HIT (a face-up card) or STAY in turn → bet again. No bet may exceed the smallest stack.", "Closest to the limit takes the pot; on equal sums more cards wins. Over the limit is last. At 0 chips you are out; the last one standing wins."], "origin": "An unofficial fan-made web version of Hit,Stay, the semifinal main match of Netflix's The Devil's Plan: Dead Again (season 3), with the show's rules."},
       "gradation": {"tagline": "Hide seven number cubes in a rack of shaded cups, rising and summing to 30 or less, then duel cup by cup seeing only shades.", "players": "2 players (1:1)", "pace": "5 min to place · 30 s per cup in rooms", "level": "4 AI players · all hard, one drawn each match", "ai": "1:1 (one of 4 AI at random)", "friend": "Link or 4-digit code, 1:1", "rules": ["Seven cups: dark at both ends and lighter toward the middle (dark · grey · light · white · light · grey · dark).", "Put 7 of your cubes (0–9, two of each) one per cup: rising left to right, total 30 or less, within 5 minutes.", "The lead player hands in a cup; the other side sees only its shade and answers with a cup. Higher cube scores 1, a tie scores nothing.", "The round winner leads next (a tie keeps the lead). After 7 rounds the higher score wins; a tie means new rows and a rematch."], "origin": "An unofficial fan version of \"Gradation\", the day-6 prison match of Netflix's The Devil's Plan: Dead Again (season 3), played by the show's rules — as a single match instead of the show's two-wins-in-a-row format."},
       "equationSignal": {"tagline": "A deduction game about a hidden 9-cell equation. Hand in any equation and each cell lights up green, yellow or red; nine greens solve it.", "players": "1 player, or 2–4 friends", "pace": "1–3 minutes an equation · 10-minute challenge", "level": "Arithmetic + deduction (digits 0–9, + − × ÷ = ^)", "solo": "Practice · 10-minute challenge (ranked)", "friend": "2–4 players, the same equation at once, points by solving order, link or 4-digit code", "ai": "Practice · 10-minute challenge", "rules": ["The answer is a true 9-cell equation made of digits 0–9 and the signs +, −, ×, ÷, = and ^ (power).", "Hand in any nine digits and signs. A guess does not have to be true, and signs may sit side by side.", "Each cell lights up. Green: right symbol, right place. Yellow: in the equation, another place. Red: not in it (or more copies than it has).", "Nine greens win. Powers come first, then × ÷, then + −, and no number in the answer starts with 0."], "origin": "An unofficial fan game based on Equation Signal, the third game of the final of Netflix's The Devil's Plan: Dead Again (season 3). On the show the two finalists wrote each other's equations; here the equations are generated, so one to four can play."},
@@ -2504,6 +2509,7 @@
     "cldNormal": "AI 1:1 · Normal",
     "cldHard": "AI 1:1 · Hard",
     "cldHell": "AI 1:1 · Very Hard",
+    "hwAi": "Point match vs MORA (2 rounds)",
     "hsAi": "5 players · vs 4 AI",
     "hsRoom": "Create a room (1:1 to 5 · AI on/off)",
     "short_hsRoom": "2–5",
@@ -5145,6 +5151,8 @@
     "hellChallenge": "Take on Very Hard",
     "scoresTitle": "Challenge-run score ranking",
     "scoresDescSolo": "Best score of one solo challenge run. The #1 holds this game's #1 icon.",
+    "pointsTitle": "Points ranking",
+    "pointsDesc": "Your points from every finished AI match, added up. #1 holds this game's #1 icon.",
     "scoresDesc": "Best score of one board played until no move was left.",
     "emptyScores": "No scores yet. Finish one challenge run and you're first!",
     "points": "{n} pts",
@@ -8118,6 +8126,88 @@
       }
     ],
     "disclaimer": "Gradation is an unofficial fan game inspired by a game from Netflix's The Devil's Plan: Dead Again and is not affiliated with Netflix or the producers."
+  },
+  "HiddenWordGuide": {
+    "eyebrow": "HIDDEN WORD GUIDE",
+    "title": "Hidden Word online — the similarity word game from The Devil's Plan",
+    "intro": "Hidden Word is a word duel run by one number: similarity. The setter gives words related to a hidden word, and each hint shows how close it is, from 0 to 100%. This version is based on the game seen in Netflix's The Devil's Plan and plays as a one-on-one point match against the AI MORA, taking turns to set and to guess. The words are Korean.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "A match is two rounds. Each round you set once (defense) and guess MORA's word once (attack); the order is drawn at random.",
+      "At the start you pick one of six envelopes holding five common nouns. One is your hidden word in round 1, one of the other four in round 2.",
+      "Hints: the setter gives Korean nouns. Each hint shows its similarity to the hidden word, and a hint at 95% or more ends the hint phase at once.",
+      "A stage allows five hints and two minutes. If none reaches 95%, the word closest to the hidden word is revealed instead.",
+      "Answers: when the hints end the other side answers. A miss pays the setter and starts the next stage, up to three: 1, 2, then 3 points.",
+      "The guesser earns more the earlier the answer: 6, 3, then 1. Once per word a chance lets you write a second answer.",
+      "Round 2 doubles every point. When the match ends your points are added to the ranking."
+    ],
+    "specialTitle": "Easy to miss",
+    "special": [
+      {
+        "title": "Low hints are shown too",
+        "body": "A word you hoped was 95% but scored 80% still goes on the board. Every hint is a clue, so lead with the ones you are sure of."
+      },
+      {
+        "title": "Wrong answers show their similarity",
+        "body": "Yours and MORA's. A wrong answer at 88% says the word is a close relative."
+      },
+      {
+        "title": "The hidden word itself is not a hint",
+        "body": "A compound containing it is allowed, but it gives the answer away."
+      },
+      {
+        "title": "Out of time, the closest word is revealed",
+        "body": "After five hints or two minutes, the closest word on the association list is shown and the other side answers."
+      }
+    ],
+    "strategyTitle": "Strategy",
+    "strategyIntro": "MORA does not read a score table: she picks the word that best fits the meaning of the hints. Play her like a person and confuse her.",
+    "strategies": [
+      {
+        "tag": "DEFENSE",
+        "title": "Pick hints that fit several words",
+        "body": "For 포도 (grape), 와인 (wine) passes 95% but points to one answer. 과일 (fruit) fits apple, strawberry and watermelon just as well."
+      },
+      {
+        "tag": "DEFENSE",
+        "title": "Words with two meanings are shields",
+        "body": "배 (pear, ship, belly) or 눈 (eye, snow) can pass 95% with a hint from the other meaning, sending the guess to the wrong family."
+      },
+      {
+        "tag": "ATTACK",
+        "title": "Low hints give the direction",
+        "body": "Look at where the 78% and 85% hints point together, not just at the 96% one. MORA's hints narrow down stage by stage."
+      },
+      {
+        "tag": "ATTACK",
+        "title": "Spend the chance in stage 2",
+        "body": "Stage 1 has too many candidates and stage 3 pays 1. With two candidates left in stage 2 the chance is worth the most."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "How is similarity computed?",
+        "a": "From precomputed word vectors (how often words appear together and how close their meanings are), dictionary relations, and an association list written for each hidden word, blended into 0–100%. No AI model is called during play."
+      },
+      {
+        "q": "Which words can I give?",
+        "a": "Korean words without spaces, up to eight syllables: about 74,000 nouns and noun forms."
+      },
+      {
+        "q": "Does MORA know my word?",
+        "a": "No. She sees only the hints and their numbers and reasons from how related words are. Her own word never leaves the server before the turn ends."
+      },
+      {
+        "q": "How does the ranking work?",
+        "a": "It adds up your points from every match you finish while signed in, win or lose."
+      },
+      {
+        "q": "Can I play with friends?",
+        "a": "Only the AI point match is open for now."
+      }
+    ],
+    "disclaimer": "Hidden Word on PUZZLTHINK is an unofficial fan game inspired by a televised game and is not affiliated with the programme or its producers."
   },
   "HitStayGuide": {
     "eyebrow": "HIT, STAY GUIDE",

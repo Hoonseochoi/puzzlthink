@@ -13,13 +13,13 @@ import { byGameOrder } from './recordOrder';
 import RankBlock from './merge2048/RankBlock';
 import { blockOfSub } from '@/lib/merge2048';
 
-type Board = 'merge2048' | 'magicswap' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'eqsignal' | 'eqtower' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
+type Board = 'hidden_word' | 'merge2048' | 'magicswap' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'eqsignal' | 'eqtower' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
 type Row = { rank: number; nickname: string; avatar_url: string | null; score: number; sub: number | null; prev_rank?: number | null };
 type Card = { key: string; game: GameId; boards: Board[]; title: string };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const NEMO: Board[] = ['nemo_hard', 'nemo_normal', 'nemo_easy'];
-const BOARDS: Board[] = ['magicswap', 'slither', 'binairo', 'onestroke', 'colorlink', 'starbattle', 'masyu', 'nonogram', 'gyulhap10', 'gyulhap5', 'hexagon', 'eqsignal', 'eqtower', 'merge2048', ...NEMO];
+const BOARDS: Board[] = ['magicswap', 'slither', 'binairo', 'onestroke', 'colorlink', 'starbattle', 'masyu', 'nonogram', 'gyulhap10', 'gyulhap5', 'hexagon', 'eqsignal', 'eqtower', 'merge2048', 'hidden_word', ...NEMO];
 const clock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
 
 /** Solo challenges in 기록실: a top-3 board per challenge, then my own best runs. Games follow the site order; boards nobody is on yet go last. */
@@ -56,6 +56,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { key: 'eqsignal', game: 'equation_signal', boards: ['eqsignal'], title: t('chEqSignal') },
     { key: 'eqtower', game: 'equation_tower', boards: ['eqtower'], title: t('chEqTower') },
     { key: 'merge2048', game: 'merge2048', boards: ['merge2048'], title: t('chMerge2048') },
+    { key: 'hidden_word', game: 'hidden_word', boards: ['hidden_word'], title: t('chHiddenWord') },
   ];
   const stat = (b: Board, r: Row) => b === 'slither' || b === 'binairo' || b === 'onestroke' || b === 'colorlink' || b === 'magicswap' || b === 'starbattle' || b === 'masyu' || b === 'nonogram' ? t('chMaps', { n: r.score })
     : b.startsWith('nemo') ? t('chCorrect', { n: r.score }) : t('chScore', { n: r.score });
@@ -85,6 +86,9 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
       eqsignal: pick('equation_signal', (d) => d.mode === 'challenge', 'score'),
       eqtower: pick('equation_tower', (d) => d.mode === 'challenge', 'score'),
       merge2048: pick('merge2048', (d) => d.mode === 'endless', 'score'),
+      // 히든 워드 ranks by total 승점: every finished AI match adds its points
+      hiddenWord: solo.filter((r) => r.game === 'hidden_word').reduce((sum, r) => sum + (Number.isFinite(num(r.detail.score)) ? num(r.detail.score) : 0), 0),
+      hiddenWordGames: solo.filter((r) => r.game === 'hidden_word').length,
       nemo: Object.fromEntries(['easy', 'normal', 'hard'].map((lv) => [lv, pick('nemo_count', (d) => d.difficulty === lv, 'correct')])) as Record<string, number | null>,
     };
   }, [results]);
@@ -105,6 +109,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { game: 'equation_signal' as GameId, title: t('chEqSignal'), line: mine.eqsignal !== null ? t('chScore', { n: mine.eqsignal }) : null },
     { game: 'equation_tower' as GameId, title: t('chEqTower'), line: mine.eqtower !== null ? t('chScore', { n: mine.eqtower }) : null },
     { game: 'merge2048' as GameId, title: t('chMerge2048'), line: mine.merge2048 !== null ? t('chScore', { n: mine.merge2048 }) : null },
+    { game: 'hidden_word' as GameId, title: t('chHiddenWord'), line: mine.hiddenWordGames ? t('chScore', { n: mine.hiddenWord }) : null },
   ], (c) => c.game, (c) => c.line !== null);
 
   return (

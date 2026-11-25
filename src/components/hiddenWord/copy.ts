@@ -1,0 +1,112 @@
+import type { CSSProperties } from 'react';
+import { accentVars, fog } from '../ui/gameUi';
+
+/** Lime on ink: the similarity gauge's "close" colour. */
+export const HW_ACCENT = '#a8ef70';
+export const HW_INK = '#0e1a10';
+export const HW_GOLD = '#ffc857';
+export const HW_ROOT_STYLE: CSSProperties = { ...accentVars(HW_ACCENT, HW_INK), backgroundImage: fog('168, 239, 112') };
+
+const ko = {
+  title: 'HIDDEN WORD', subtitle: 'AI 승점전', back: '히든 워드', you: '나', ai: '모라',
+  rules: '규칙', ranking: '랭킹', again: '새 대전', close: '닫기', retry: '다시 시도', next: '다음 턴', toResult: '결과 보기',
+  loading: '딜러룸을 준비하고 있어요…', offline: '게임 서버에 연결하지 못했어요.',
+  round: (n: number) => `ROUND ${n}`, double: '승점 2배',
+  turnSet: '수비 · 내가 출제', turnGuess: '공격 · 내가 추리',
+  envelopeTitle: '봉투를 하나 고르세요', envelopeDesc: '봉투마다 명사 5개가 들어 있어요. 이 중 두 단어가 이번 대전의 내 히든 워드가 됩니다.',
+  envelope: (n: number) => `${n}번 봉투`,
+  pickTitle: '이번 라운드의 히든 워드', pickDesc: '모라가 맞히기 어려울 것 같은 단어를 고르세요. 힌트는 유사도 95% 이상이 나와야 끝나요.',
+  pickConfirm: (word: string) => `‘${word}’(으)로 출제`,
+  myWord: '내 히든 워드', aiWord: '모라의 히든 워드', sealed: '봉인됨',
+  stage: (n: number) => `${n}차`, stagePoints: (n: number) => `+${n}`,
+  board: '공개된 힌트', boardEmpty: '아직 공개된 힌트가 없어요.',
+  hintPlaceholder: '힌트 단어 (한글 명사)', hintSend: '힌트 제시',
+  hintHelp: (cut: number) => `유사도 ${cut}% 이상이 나오면 힌트가 끝나고 모라가 답을 냅니다. 낮은 힌트도 모두 공개돼요.`,
+  hintsLeft: (n: number) => `남은 힌트 ${n}개`,
+  hintLast: '마지막 힌트예요. 95%를 못 넘기면 가장 가까운 단어가 공개됩니다.',
+  guessPlaceholder: '히든 워드라고 생각하는 단어', guessSend: '정답 제출',
+  chance: '찬스', chanceOn: '찬스 사용 · 답 2개', chanceUsed: '찬스 사용함', chanceHelp: '찬스는 단어마다 한 번, 답을 하나 더 적을 수 있어요.',
+  secondPlaceholder: '두 번째 답',
+  guessHelp: '틀려도 내 답의 유사도가 공개돼요. 빨리 맞힐수록 승점이 큽니다.',
+  aiThinking: '모라가 추리하는 중…', aiHinting: '모라가 힌트를 고르는 중…',
+  revealed: '시간·횟수 초과로 공개', cutPassed: '컷 통과',
+  aiAnswer: '모라의 답', myAnswer: '내 답', pass: '무응답',
+  defended: (n: number) => `방어 성공 +${n}`, missed: (n: number) => `오답 · 모라 +${n}`,
+  correct: '정답!', wrong: '오답',
+  endSetHeld: '끝까지 지켜냈어요!', endSetLost: (stage: number) => `모라가 ${stage}차에 맞혔어요`,
+  endGuessWon: (stage: number) => `${stage}차에 맞혔어요!`, endGuessLost: '끝내 못 맞혔어요',
+  theWord: '히든 워드', gained: (who: string, n: number) => `${who} +${n}`,
+  overWin: '승리', overLoss: '패배', overDraw: '무승부', finalScore: '최종 승점',
+  recorded: '이번 승점이 랭킹에 더해졌어요.', loginToRecord: '로그인하고 대전하면 승점이 랭킹에 쌓여요.',
+  history: '대전 기록', histSet: '출제', histGuess: '추리', histHeld: '방어', histSolved: (stage: number) => `${stage}차 정답`, histFailed: '실패',
+  rankTitle: '승점 랭킹', rankDesc: '끝낸 대전의 내 승점을 모두 더해 겨뤄요.', rankEmpty: '아직 기록이 없어요. 첫 주인공이 되어 보세요.',
+  rankPoints: (n: number) => `${n}점`, rankGames: (n: number, w: number) => `${n}판 ${w}승`, rankBest: (n: number) => `최고 ${n}`, rankMe: '나',
+  timeLeft: '남은 시간',
+  errors: {
+    invalid: '한글 단어만 입력할 수 있어요 (띄어쓰기 없이 8자까지).', secret: '히든 워드 자체는 힌트로 낼 수 없어요.',
+    duplicate: '이미 나온 단어예요.', unknown: '사전에 없는 단어예요. 다른 명사를 적어 주세요.',
+    missing: '대전을 찾을 수 없어요. 새 대전을 시작해 주세요.', unavailable: '잠시 후 다시 시도해 주세요.',
+  } as Record<string, string>,
+  quick: [
+    '봉투 6개 중 하나를 고르면 명사 5개를 받습니다. 라운드마다 그중 하나가 내 히든 워드가 돼요.',
+    '수비(내가 출제): 히든 워드와 관련된 단어를 힌트로 냅니다. 힌트마다 유사도가 공개되고, 95% 이상이 나오면 힌트가 끝나요. 5개 안에 못 내면 가장 가까운 단어가 공개됩니다.',
+    '힌트가 끝나면 모라가 답을 냅니다. 틀리면 내가 승점을 얻고 다음 차로 — 1차 +1, 2차 +2, 3차 +3.',
+    '공격(내가 추리): 모라의 힌트와 유사도를 보고 히든 워드를 맞힙니다. 1차에 맞히면 6점, 2차 3점, 3차 1점. 찬스는 단어마다 한 번, 답을 하나 더 적을 수 있어요.',
+    '오답은 그 단어의 유사도가 공개됩니다. 2라운드는 모든 승점이 2배. 내 승점 합계로 랭킹을 겨룹니다.',
+  ],
+  aboutSim: '유사도는 미리 계산해 둔 단어 벡터(문맥·의미)와 우리말샘 관련어, AI가 만든 연상표를 합쳐 0~100%로 나타냅니다.',
+};
+
+const en: typeof ko = {
+  ...ko,
+  subtitle: 'AI POINT MATCH', back: 'Hidden Word', you: 'You', ai: 'MORA',
+  rules: 'Rules', ranking: 'Ranking', again: 'New match', close: 'Close', retry: 'Retry', next: 'Next turn', toResult: 'See result',
+  loading: 'Setting up the dealer room…', offline: 'Could not reach the game server.',
+  double: 'Double points',
+  turnSet: 'Defense · you set', turnGuess: 'Attack · you guess',
+  envelopeTitle: 'Pick an envelope', envelopeDesc: 'Each holds five Korean nouns. Two of them become your hidden words this match.',
+  envelope: (n: number) => `Envelope ${n}`,
+  pickTitle: 'Your hidden word this round', pickDesc: 'Pick the word MORA will find hardest. Your hints end once one reaches 95% similarity.',
+  pickConfirm: (word: string) => `Set ‘${word}’`,
+  myWord: 'Your hidden word', aiWord: "MORA's hidden word", sealed: 'Sealed',
+  stage: (n: number) => `Stage ${n}`,
+  board: 'Hints so far', boardEmpty: 'No hints yet.',
+  hintPlaceholder: 'Hint word (Korean noun)', hintSend: 'Give hint',
+  hintHelp: (cut: number) => `A hint at ${cut}% or more ends the hint phase and MORA answers. Lower hints are shown too.`,
+  hintsLeft: (n: number) => `${n} hints left`,
+  hintLast: 'Last hint. If it stays under 95%, the closest word is revealed.',
+  guessPlaceholder: 'Your answer (Korean word)', guessSend: 'Answer',
+  chance: 'Chance', chanceOn: 'Chance on · two answers', chanceUsed: 'Chance used', chanceHelp: 'Once per word, the chance lets you write a second answer.',
+  secondPlaceholder: 'Second answer',
+  guessHelp: 'A wrong answer still shows its similarity. The earlier you get it, the more points.',
+  aiThinking: 'MORA is thinking…', aiHinting: 'MORA is picking hints…',
+  revealed: 'Revealed (out of hints or time)', cutPassed: 'Cut passed',
+  aiAnswer: "MORA's answer", myAnswer: 'Your answer', pass: 'No answer',
+  defended: (n: number) => `Held +${n}`, missed: (n: number) => `Wrong · MORA +${n}`,
+  correct: 'Correct!', wrong: 'Wrong',
+  endSetHeld: 'You held it to the end!', endSetLost: (stage: number) => `MORA got it in stage ${stage}`,
+  endGuessWon: (stage: number) => `Got it in stage ${stage}!`, endGuessLost: 'You did not get it',
+  theWord: 'Hidden word',
+  overWin: 'You win', overLoss: 'You lose', overDraw: 'Draw', finalScore: 'Final points',
+  recorded: 'These points were added to the ranking.', loginToRecord: 'Sign in before a match to bank your points in the ranking.',
+  history: 'Match log', histSet: 'Set', histGuess: 'Guess', histHeld: 'Held', histSolved: (stage: number) => `Stage ${stage}`, histFailed: 'Missed',
+  rankTitle: 'Points ranking', rankDesc: 'Your points from every finished match, added up.', rankEmpty: 'No records yet. Be the first.',
+  rankPoints: (n: number) => `${n} pts`, rankGames: (n: number, w: number) => `${n} played · ${w} won`, rankBest: (n: number) => `best ${n}`, rankMe: 'You',
+  timeLeft: 'Time left',
+  errors: {
+    invalid: 'Korean words only (no spaces, up to 8 syllables).', secret: 'The hidden word itself cannot be a hint.',
+    duplicate: 'That word is already on the board.', unknown: 'Not in the dictionary. Try another noun.',
+    missing: 'Match not found. Start a new one.', unavailable: 'Please try again in a moment.',
+  },
+  quick: [
+    'Pick one of six envelopes to get five Korean nouns. Each round one of them is your hidden word.',
+    'Defense (you set): give words related to your hidden word. Each hint shows its similarity; one at 95% or more ends the hints. Miss it in five and the closest word is revealed.',
+    'Then MORA answers. If it is wrong you score and the next stage starts: +1, +2, +3.',
+    "Attack (you guess): read MORA's hints and their similarity. Stage 1 is worth 6, stage 2 3, stage 3 1. Once per word your chance lets you write a second answer.",
+    'A wrong answer shows its similarity. Round 2 doubles every point. Your total points make the ranking.',
+  ],
+  aboutSim: 'Similarity blends precomputed word vectors (context and meaning), dictionary relations and AI-written association lists into 0–100%.',
+};
+
+export type HwCopy = typeof ko;
+export const hwCopy = (locale: string): HwCopy => (locale === 'en' ? en : ko);
