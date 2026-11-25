@@ -66,6 +66,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
     items: [
       {
+        date: '11/26', icon: Scale,
+        ko: { title: '블록은 소수 2·3·5·7, 탑은 3~5층', desc: '블록의 숫자가 소수 네 가지(2, 3, 5, 7)로만 나와요. 목표 층수도 2층 없이 3~5층만 나옵니다.' },
+        en: { title: 'Prime blocks (2, 3, 5, 7) and towers of 3 to 5', desc: 'Blocks now carry only the four primes 2, 3, 5 and 7, and the asked height is always 3 to 5 blocks, never 2.' },
+      },
+      {
         date: '11/26', icon: Sparkles,
         ko: { title: '자리가 4칸으로 늘었어요', desc: '블록을 놓을 자리가 3칸에서 4칸이 됐어요. 옮길 여유가 생겨서 더 다양한 방법으로 탑을 쌓을 수 있어요.' },
         en: { title: 'Four stacks instead of three', desc: 'There are now four places to put blocks, so there is more room to move and more ways to build a tower.' },

@@ -8558,7 +8558,7 @@
       },
       {
         "q": "What blocks are there?",
-        "a": "This site uses nine: three plain numbers and six signed blocks (two +, two −, one ×, one ÷). The show did not publish its exact set, so this one is our own."
+        "a": "This site uses nine: three plain numbers and six signed blocks (two +, two −, one ×, one ÷). Every block carries one of four primes (2, 3, 5, 7), and towers are 3 to 5 blocks high. The show did not publish its exact set, so this one is our own."
       },
       {
         "q": "In what order is the tower worked out?",

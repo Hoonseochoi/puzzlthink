@@ -15,13 +15,13 @@ const Column = ({ blocks, win = false }: { blocks: Block[]; win?: boolean }) => 
 
 const TEXT = {
   ko: [
-    ['블록 9개', '숫자만 있는 블록 3개와 기호(+ − × ÷)가 붙은 블록 6개가 4자리에 나뉘어 쌓여 있어요.'],
+    ['블록 9개', '블록에는 소수 2·3·5·7만 적혀 있어요. 숫자만 있는 블록 3개와 기호(+ − × ÷)가 붙은 블록 6개가 4자리에 나뉘어 쌓여 있어요.'],
     ['한 번의 이동', '한 자리의 위에서부터 원하는 개수를 들어 다른 자리에 놓아요. 묶음을 위아래로 뒤집어 놓을 수 있고, 제자리에서 뒤집기만 해도 1회예요.'],
     ['위에서 아래로 계산', '탑의 맨 위는 기호 없는 숫자, 그 아래는 모두 기호 블록. 위에서부터 차례대로 계산해요: 5, ×2, +3 → 5×2+3 = 13.'],
-    ['타깃 넘버 완성', '목표 층수와 정확히 같은 높이로 타깃 넘버를 만들면 라운드 완성. 탑 상태는 다음 라운드로 이어지니, 다음 판에 쓸 블록도 생각해 두세요.'],
+    ['타깃 넘버 완성', '목표 층수(3~5층)와 정확히 같은 높이로 타깃 넘버를 만들면 라운드 완성. 탑 상태는 다음 라운드로 이어지니, 다음 판에 쓸 블록도 생각해 두세요.'],
   ],
   en: [
-    ['Nine blocks', 'Three plain number blocks and six blocks with a sign (+ − × ÷), stacked across four spots.'],
+    ['Nine blocks', 'Every block carries a prime: 2, 3, 5 or 7. Three plain number blocks and six with a sign (+ − × ÷), stacked across four spots.'],
     ['One move', 'Lift any number of blocks off the top of a stack and set them on another. You may turn the bundle upside down; flipping in place is a move too.'],
     ['Worked out top down', 'A tower has a plain number on top and signed blocks under it, worked out from the top: 5, ×2, +3 → 5×2+3 = 13.'],
     ['Hit the target', 'Build a tower of exactly the asked height worth the target to finish the round. The stacks carry over, so keep the next round in mind.'],

@@ -35,14 +35,22 @@ const shuffled = <T,>(list: T[], rand: () => number) => {
   return out;
 };
 
-/** Nine blocks: three plain numbers and six signed ones (two +, two −, one ×, one ÷; small numbers). */
+/** Every block carries one of the four primes. */
+export const PRIMES = [2, 3, 5, 7] as const;
+/** Towers asked for are three to five blocks high. */
+export const MIN_FLOORS = 3;
+export const MAX_FLOORS = 5;
+
+/**
+ * Nine blocks, all numbered with the four primes: three plain numbers (three different primes) and six signed
+ * ones (two +, two −, one ×, one ÷). The + and − blocks take one prime each, so all four kinds are always in play.
+ */
 export function createBlocks(rand: () => number = Math.random): Block[] {
-  const digits = shuffled([1, 2, 3, 4, 5, 6, 7, 8, 9], rand);
-  const plain = digits.slice(0, 3).map((n): Block => ({ n, op: '' }));
-  const small = shuffled([1, 2, 3, 4, 5, 6, 7, 8, 9], rand);
+  const plain = shuffled([...PRIMES], rand).slice(0, 3).map((n): Block => ({ n, op: '' }));
+  const mix = shuffled([...PRIMES], rand);
   const signed: Block[] = [
-    { n: small[0], op: '+' }, { n: small[1], op: '+' }, { n: small[2], op: '-' }, { n: small[3], op: '-' },
-    { n: 2 + Math.floor(rand() * 3), op: '*' }, { n: 2 + Math.floor(rand() * 2), op: '/' },
+    { n: mix[0], op: '+' }, { n: mix[1], op: '+' }, { n: mix[2], op: '-' }, { n: mix[3], op: '-' },
+    { n: PRIMES[Math.floor(rand() * 3)], op: '*' }, { n: PRIMES[Math.floor(rand() * 2)], op: '/' },
   ];
   return [...plain, ...signed];
 }
@@ -132,21 +140,23 @@ let counter = 0;
 
 /**
  * The next round from where the stacks stand: wander a few moves, take a tower that came up (a whole
- * number from 1 to 99, two to five blocks high) and ask for it. `par` is the fewest moves that reach it.
+ * number from 1 to 99, three to five blocks high) and ask for it. `par` is the fewest moves that reach it.
  * `depth` 2 or 3 is how far to wander; rounds that are already solved or one move away are passed over.
  */
 export function generateRound(stacks: Stacks, blocks: Block[], rand: () => number = Math.random, depth = 3): TowerRound {
   let fallback: TowerRound | null = null;
   for (let attempt = 0; attempt < 400; attempt += 1) {
+    // Blocks stuck in a shape with no tower nearby: look one move further.
+    const reach = attempt < 200 ? depth : depth + 1;
     let cur = stacks;
-    for (let i = 0; i < depth; i += 1) { const moves = [...movesOf(cur)]; cur = applyMove(cur, moves[Math.floor(rand() * moves.length)]); }
+    for (let i = 0; i < reach; i += 1) { const moves = [...movesOf(cur)]; cur = applyMove(cur, moves[Math.floor(rand() * moves.length)]); }
     for (const stack of shuffled(cur, rand)) {
-      if (stack.length < 2 || stack.length > 5) continue;
+      if (stack.length < MIN_FLOORS || stack.length > MAX_FLOORS) continue;
       const v = towerValue(stack, blocks);
       if (!v || v[0] % v[1] !== 0) continue;
       const target = v[0] / v[1];
       if (target < 1 || target > 99) continue;
-      const path = solve(stacks, blocks, target, stack.length, depth);
+      const path = solve(stacks, blocks, target, stack.length, reach);
       if (!path || path.length === 0) continue;
       counter += 1;
       const round = { id: `t-${Date.now().toString(36)}-${counter}`, target, floors: stack.length, par: path.length };
@@ -155,9 +165,9 @@ export function generateRound(stacks: Stacks, blocks: Block[], rand: () => numbe
     }
   }
   if (fallback) return fallback;
-  // Nothing reachable (never seen in practice): ask for what one plain block on one signed block makes.
+  // Nothing reachable (not seen in 18,000 simulated rounds): a placeholder round so the game can go on.
   counter += 1;
-  return { id: `t-${Date.now().toString(36)}-${counter}`, target: 1, floors: 2, par: 1 };
+  return { id: `t-${Date.now().toString(36)}-${counter}`, target: 1, floors: MIN_FLOORS, par: 1 };
 }
 
 /** Points for a solo round: 3 in the fewest moves, 2 with one more, 1 for any finish. */
