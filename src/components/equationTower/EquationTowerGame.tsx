@@ -29,8 +29,8 @@ export default function EquationTowerGame() {
   const [mode, setMode] = useState<Mode>(readMode);
   const [phase, setPhase] = useState<Phase>('intro');
   const [blocks, setBlocks] = useState<Block[]>([]);
-  const [stacks, setStacks] = useState<Stacks>([[], [], []]);
-  const [origin, setOrigin] = useState<Stacks>([[], [], []]); // the stacks when this round began
+  const [stacks, setStacks] = useState<Stacks>([[], [], [], []]);
+  const [origin, setOrigin] = useState<Stacks>([[], [], [], []]); // the stacks when this round began
   const [round, setRound] = useState<TowerRound | null>(null);
   const [index, setIndex] = useState(0);
   const [moves, setMoves] = useState(0);

@@ -1,5 +1,5 @@
 // 수식의 탑 (Tower of Equations), the fifth prison match of 「데블스 플랜: 데드 어게인」.
-// Number blocks stand in three stacks. Some are plain numbers, the others carry a sign (+3, ×2 …).
+// Number blocks stand in four stacks. Some are plain numbers, the others carry a sign (+3, ×2 …).
 // A move lifts any number of blocks off the top of one stack, optionally turns the bundle upside down,
 // and sets it down on any stack (turning it over in place is a move too). Each round names a target
 // number and a height: build a tower of exactly that height that reads, from the top down, as a sum
@@ -7,7 +7,7 @@
 // tower is worked out in order from the top (5, ×2, +3 → 5×2+3 = 13). The stacks carry over to the next round.
 // The show did not publish its block set or how signs chain, so those two are this site's own choice.
 
-export const STACKS = 3;
+export const STACKS = 4;
 export const CHALLENGE_MS = 10 * 60 * 1000;
 export type Op = '' | '+' | '-' | '*' | '/';
 export type Block = { n: number; op: Op };
@@ -47,7 +47,7 @@ export function createBlocks(rand: () => number = Math.random): Block[] {
   return [...plain, ...signed];
 }
 
-/** Three stacks of three, in a random order. */
+/** Nine blocks over the four stacks (3-2-2-2), in a random order. */
 export function dealStacks(blocks: Block[], rand: () => number = Math.random): Stacks {
   const ids = shuffled(blocks.map((_, i) => i), rand);
   return Array.from({ length: STACKS }, (_, s) => ids.filter((_, i) => i % STACKS === s));

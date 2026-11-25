@@ -12,7 +12,7 @@ export function BlockChip({ block, held = false, win = false, small = false, til
   const plain = block.op === '';
   return (
     <span
-      className={`flex w-full items-center justify-center font-mono font-black leading-none transition ${tile ? 'h-10 rounded-lg text-xl sm:h-6 sm:rounded-md sm:text-xs' : small ? 'h-5 rounded-[4px] text-[10px]' : 'h-10 rounded-lg text-lg sm:h-11 sm:text-xl'} ${plain ? 'text-[#200d03]' : 'text-white'} ${held ? '-translate-y-1 ring-[3px] ring-white brightness-125' : ''} ${win ? 'ring-2 ring-[#7ee2ae]' : ''}`}
+      className={`flex w-full items-center justify-center font-mono font-black leading-none transition ${tile ? 'h-10 rounded-lg text-lg sm:h-6 sm:rounded-md sm:text-[11px]' : small ? 'h-5 rounded-[4px] text-[10px]' : 'h-10 rounded-lg text-lg sm:h-11 sm:text-xl'} ${plain ? 'text-[#200d03]' : 'text-white'} ${held ? '-translate-y-1 ring-[3px] ring-white brightness-125' : ''} ${win ? 'ring-2 ring-[#7ee2ae]' : ''}`}
       style={{
         background: plain ? `linear-gradient(180deg, #ffb58a, ${EQT_ACCENT})` : 'linear-gradient(180deg, #3b3f52, #272a39)',
         boxShadow: small || tile ? undefined : `inset 0 -4px 0 rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.22)${held ? ', 0 10px 22px rgba(0,0,0,.5)' : ''}`,
@@ -33,7 +33,7 @@ function StackValue({ stack, blocks, c }: { stack: number[]; blocks: Block[]; c:
 }
 
 /**
- * The three stacks. Tap a block to lift it with everything above it; then tap a stack to set the bundle
+ * The stacks, side by side. Tap a block to lift it with everything above it; then tap a stack to set the bundle
  * down (the same stack only when flipped). `held` null and no `onPick` makes it a picture.
  */
 export function TowerStacks({ blocks, stacks, c, held = null, onPick, onDrop, onFlip, onCancel, winStack = -1, small = false }: {
@@ -43,7 +43,7 @@ export function TowerStacks({ blocks, stacks, c, held = null, onPick, onDrop, on
   const live = !!onPick;
   return (
     <div>
-      <div className={`grid grid-cols-3 ${small ? 'gap-1.5' : 'gap-2 sm:gap-4'}`}>
+      <div className={`grid ${small ? 'gap-1.5' : 'gap-1.5 sm:gap-3'}`} style={{ gridTemplateColumns: `repeat(${stacks.length}, minmax(0, 1fr))` }}>
         {stacks.map((stack, s) => {
           const mine = held?.from === s;
           const canDrop = !!held && (!mine || (held.flip && held.count >= 2));
@@ -62,7 +62,7 @@ export function TowerStacks({ blocks, stacks, c, held = null, onPick, onDrop, on
               </div>
               {!small && <p className="mt-1.5 min-h-4 truncate text-center font-mono text-[10px] sm:text-[11px]"><StackValue stack={stack} blocks={blocks} c={c} /></p>}
               {live && held && (
-                <button type="button" disabled={!canDrop} onClick={() => onDrop?.(s)} className={`mt-1.5 rounded-md py-2 text-[11px] font-black transition ${canDrop ? 'bg-(--accent) text-(--accent-ink) hover:brightness-110 active:scale-95' : 'border border-dashed border-white/15 text-white/25'}`}>
+                <button type="button" disabled={!canDrop} onClick={() => onDrop?.(s)} className={`mt-1.5 whitespace-nowrap rounded-md py-2 text-[10px] font-black transition sm:text-[11px] ${canDrop ? 'bg-(--accent) text-(--accent-ink) hover:brightness-110 active:scale-95' : 'border border-dashed border-white/15 text-white/25'}`}>
                   {mine ? c.flipHere : c.dropHere}
                 </button>
               )}
@@ -99,9 +99,9 @@ export function TargetCard({ target, floors, c }: { target: number; floors: numb
 }
 
 const DEMO_BLOCKS: Block[] = [{ n: 5, op: '' }, { n: 2, op: '*' }, { n: 3, op: '+' }, { n: 8, op: '' }, { n: 4, op: '-' }, { n: 2, op: '/' }, { n: 6, op: '' }, { n: 7, op: '+' }, { n: 1, op: '-' }];
-const DEMO_STACKS: Stacks = [[2, 1, 0], [5, 4, 3], [8, 7, 6]];
+const DEMO_STACKS: Stacks = [[2, 1, 0], [5, 4, 3], [7, 6], [8]];
 
-/** Entry-screen and home-tile art: three towers, the left one worth 13. */
+/** Entry-screen and home-tile art: four stacks, the left one a tower worth 13. */
 export function TowerPreview({ compact = false }: { compact?: boolean }) {
   const c = eqtCopy(useLocale());
   return (
@@ -116,7 +116,7 @@ export function TowerPreview({ compact = false }: { compact?: boolean }) {
 export function TowerTile() {
   return (
     <div className="relative flex aspect-square w-full flex-col items-center justify-center overflow-hidden rounded-xl border-[3px] border-[#17201e] bg-[radial-gradient(ellipse_at_50%_30%,#5a3322,#170d09_72%)] px-4 pt-6 shadow-xl sm:w-[62%] sm:rounded-2xl sm:border-4 sm:px-2.5 sm:pt-4 sm:shadow-2xl">
-      <div className="grid w-full grid-cols-3 items-end gap-2 sm:gap-1.5">
+      <div className="grid w-full grid-cols-4 items-end gap-1.5 sm:gap-1">
         {DEMO_STACKS.map((stack, s) => (
           <div key={s} className={`flex flex-col gap-1 rounded-lg p-1 sm:gap-[3px] sm:rounded-md sm:p-[3px] ${s === 0 ? 'bg-[#2fbf71]/20 ring-1 ring-[#7ee2ae]' : ''}`}>{[...stack].reverse().map((id) => <BlockChip key={id} block={DEMO_BLOCKS[id]} tile />)}</div>
         ))}

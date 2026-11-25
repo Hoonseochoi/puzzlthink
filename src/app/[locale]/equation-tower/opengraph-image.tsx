@@ -12,8 +12,8 @@ const COPY = {
   en: { kicker: "The Devil's Plan 3 prison match", title: 'Tower of Equations', sub: 'Move and flip blocks to build the target. In how many moves?', modes: ['Practice', '10-min challenge', '2–4 friends'] },
 };
 
-// Three stacks, top first; the left one reads 5×2+3 = 13.
-const STACKS = [['5', '×2', '+3'], ['8', '−4'], ['6', '+7', '−1', '÷2']];
+// Four stacks, top first; the left one reads 5×2+3 = 13.
+const STACKS = [['5', '×2', '+3'], ['8', '−4'], ['6', '+7'], ['−1', '÷2']];
 
 export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
@@ -24,9 +24,9 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
         <div style={{ display: 'flex', marginBottom: 18, fontSize: 26, fontWeight: 900, letterSpacing: 3, color: '#ffd9c4' }}>TARGET 13</div>
         <div style={{ display: 'flex', alignItems: 'flex-end' }}>
           {STACKS.map((stack, s) => (
-            <div key={s} style={{ display: 'flex', flexDirection: 'column', margin: '0 8px' }}>
+            <div key={s} style={{ display: 'flex', flexDirection: 'column', margin: '0 5px' }}>
               {stack.map((text, i) => (
-                <div key={text} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 96, height: 46, marginTop: 6, borderRadius: 10, background: i === 0 ? '#f08c5a' : '#3b3f52', color: i === 0 ? '#200d03' : '#fff', fontSize: 28, fontWeight: 900, border: s === 0 ? '3px solid #7ee2ae' : '3px solid rgba(0,0,0,0.3)' }}>{text}</div>
+                <div key={text} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 78, height: 46, marginTop: 6, borderRadius: 10, background: i === 0 ? '#f08c5a' : '#3b3f52', color: i === 0 ? '#200d03' : '#fff', fontSize: 28, fontWeight: 900, border: s === 0 ? '3px solid #7ee2ae' : '3px solid rgba(0,0,0,0.3)' }}>{text}</div>
               ))}
             </div>
           ))}
