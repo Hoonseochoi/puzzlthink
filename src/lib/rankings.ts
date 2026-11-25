@@ -3,6 +3,7 @@ import { CERT_GAMES } from './hardClear';
 import type { GameId } from './stats';
 import type { GameId as CatalogId } from './gameCatalog';
 import { STATS_ID } from './openRooms';
+import { serverJson } from './serverFetch';
 
 export type HallRow = { game: GameId; rank: number; nickname: string; avatar_url: string | null; wins: number; games: number; prev_rank?: number | null };
 export type OpenRow = { rank: number; nickname: string | null; wins: number; losses: number; draws: number; prev_rank?: number | null };
@@ -30,11 +31,10 @@ async function rpc<T>(name: string, body: Record<string, unknown>): Promise<T | 
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return null;
   try {
-    const res = await fetch(`${url}/rest/v1/rpc/${name}`, {
+    return await serverJson<T>(`${url}/rest/v1/rpc/${name}`, {
       method: 'POST', headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(body), next: { revalidate: 120 },
     });
-    return res.ok ? ((await res.json()) as T) : null;
   } catch { return null; }
 }
 

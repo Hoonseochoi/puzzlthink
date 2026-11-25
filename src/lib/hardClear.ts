@@ -1,5 +1,6 @@
 // 어려움 클리어 인증서: shared game info and data access (used by the popup, the public page and the image).
 import type { GameId } from './stats';
+import { serverJson } from './serverFetch';
 
 export const HARD_CLEAR_EVENT = 'puzzlthink:hard-clear';
 /** id/no are missing when the player is signed out (they get a number after signing in). */
@@ -80,13 +81,11 @@ export async function fetchCert(id: string): Promise<Cert | null> {
   const hell = /^h[0-9a-f]{12}$/.test(id);
   if (!url || !key || (!hell && !/^[0-9a-f]{12}$/.test(id))) return null;
   try {
-    const res = await fetch(`${url}/rest/v1/rpc/${hell ? 'hell_clear_cert' : 'hard_clear_cert'}`, {
+    const rows = await serverJson<Omit<Cert, 'tier'>[]>(`${url}/rest/v1/rpc/${hell ? 'hell_clear_cert' : 'hard_clear_cert'}`, {
       method: 'POST', headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_id: id }), next: { revalidate: 60 },
     });
-    if (!res.ok) return null;
-    const rows = (await res.json()) as Omit<Cert, 'tier'>[];
-    return rows[0] ? { ...rows[0], tier: hell ? 'hell' : 'hard' } : null;
+    return rows?.[0] ? { ...rows[0], tier: hell ? 'hell' : 'hard' } : null;
   } catch { return null; }
 }
 
