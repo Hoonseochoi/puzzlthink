@@ -10,7 +10,7 @@ import { chatPrefs, chatPrefsServer, clearMuted, isMuted, roomPlaying, setMuted,
 import { LOUNGE_KEEP, LOUNGE_MAX_LEN, type LoungeBan, type LoungeMessage, type LoungeReason, isLoungeMessage, falseOnServer, loadLounge, loungeMini, loungeOff, loungeOffServer, loungeSeen, markLoungeSeen, setLoungeMini, trueOnServer, reportLounge, sendLounge, setLoungeOff, subscribeLoungeOff, visibilityStore } from '@/lib/lounge';
 import { useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
-import { Piece } from './CompetitionBoard';
+import { Stone } from './StoneAvatar';
 
 type Notice = { reason: LoungeReason | 'reported'; wait: number; n: number };
 let noticeSeq = 0;
@@ -20,7 +20,7 @@ let noticeSeq = 0;
  * open room whose match has started (its lobby shows both the room chat and the lounge); mostly to find
  * people for open rooms. A translucent button in the bottom-right corner (with an UPDATE tag until the lounge
  * is first opened) opens a drawer like the room chat's; "hide" shrinks it to a small faint icon.
- * Each line reads "[piece]n 닉네임(게임) : message" (피스 경쟁전 pieces); site operators get a "퍼띵 운영자" badge and their own colour, and a
+ * Each line reads "[icon] 닉네임(게임) : message" (the player's profile icon, as everywhere else); site operators get a "퍼띵 운영자" badge and their own colour, and a
  * pinned card from the lounge host Viky says hello. It joins Realtime only while this page is visible and
  * the lounge is on; the database decides what may be sent (see src/lib/lounge.ts).
  */
@@ -208,7 +208,7 @@ export default function LoungeChat() {
                 </div>
               </div>
               {shown.length === 0 && <p className="break-keep pt-2 text-center text-xs leading-5 text-white/35">{t('empty')}</p>}
-              {/* One line each: [piece]n 닉네임(게임) : message; operators get a badge and their own colour instead of pieces. */}
+              {/* One line each: [icon] 닉네임(게임) : message; operators get a badge and their own colour instead of an icon. */}
               {shown.map((m) => {
                 const label = gameName(m.game);
                 const mine = m.sender === me;
@@ -216,7 +216,7 @@ export default function LoungeChat() {
                   <div key={m.id} className={`group flex items-start gap-1 rounded-lg px-1.5 py-1 text-[13px] leading-5 ${m.staff ? 'border border-[#5ec8ff]/30 bg-[#5ec8ff]/10' : mine ? 'bg-(--accent,#e8b04a)/10' : 'hover:bg-white/[.04]'}`}>
                     <p className="min-w-0 flex-1 break-words">
                       {m.staff ? <span className="mr-1 rounded bg-[#5ec8ff] px-1 py-px align-[1px] text-[9.5px] font-black text-[#04121c]">{t('staffBadge')}</span>
-                        : <span className="mr-1 inline-flex items-center gap-0.5 align-[-1px] font-mono text-[11px] font-black text-[#e8c25e]" title={t('pieces', { n: m.pieces ?? 0 })}><Piece size={9} />{m.pieces ?? 0}</span>}
+                        : <span className="mr-1.5 inline-block align-[-5px]"><Stone name={m.name} size={20} /></span>}
                       <b className={`text-[12px] ${m.staff ? 'text-[#7fd6ff]' : mine ? 'text-(--accent,#e8b04a)' : 'text-white/70'}`}>{m.name}</b>
                       {label && <span className="text-[11px] text-white/35">({label})</span>}
                       <span className="mx-1 text-white/30">:</span>
