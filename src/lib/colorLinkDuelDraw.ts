@@ -1,6 +1,6 @@
 // Drawing lines for a 컬러 링크 proof with a finger: start on a stone (or on a line to continue or cut it),
 // drag through cells, back up to erase. Crossing another colour's line cuts that line. Pure helpers.
-import { CLD_CELLS, CLD_MIN, type CldPaths, adjacent, colOf, rowOf, stonesOf } from './colorLinkDuel';
+import { CLD_CELLS, CLD_MIN, CLD_N, type CldPaths, adjacent, colOf, rowOf, stonesOf } from './colorLinkDuel';
 
 export const emptyPaths = (): CldPaths => Array(15).fill(null);
 const copy = (paths: CldPaths): CldPaths => Array.from({ length: 15 }, (_, k) => (paths[k] ? [...paths[k]!] : null));
@@ -8,6 +8,7 @@ const copy = (paths: CldPaths): CldPaths => Array.from({ length: 15 }, (_, k) =>
 /** Starts a stroke at `cell`: the colour drawn, and the lines with that colour's line reset or cut there. */
 export function strokeStart(board: ArrayLike<number>, paths: CldPaths, cell: number): { color: number; paths: CldPaths } | null {
   const k = board[cell];
+  if (k < 0) return null; // outside the board
   const next = copy(paths);
   if (k) {
     const p = next[k];
@@ -42,7 +43,7 @@ export function strokeTo(board: ArrayLike<number>, paths: CldPaths, color: numbe
 
 function towards(from: number, to: number) {
   const dr = rowOf(to) - rowOf(from), dc = colOf(to) - colOf(from);
-  if (Math.abs(dr) >= Math.abs(dc)) return from + Math.sign(dr) * 7;
+  if (Math.abs(dr) >= Math.abs(dc)) return from + Math.sign(dr) * CLD_N;
   return from + Math.sign(dc);
 }
 

@@ -16,6 +16,7 @@ import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE,
 import CldResult, { useCldReport } from './CldResult';
 import { CldRules, RulesPanel } from './CldRules';
 import CldTable from './CldTable';
+import CldBoardPicker from './CldBoardPicker';
 import { CLD_ACCENT, CLD_ROOT_STYLE, type CldCopy, cldCopy } from './copy';
 
 /** A 1:1 컬러 링크 room (friend link or open room). */
@@ -71,7 +72,7 @@ export default function CldRoomView({ code }: { code: string }) {
       ) : state.phase === 'lobby' ? (
         <Lobby state={state} code={code} me={me} mySeat={mySeat} online={online} t={t}
           copied={copied} onCopy={copyLink} onShare={shareLink} nameDraft={nameDraft} setNameDraft={setNameDraft}
-          onRename={() => { rename(nameDraft); setNameDraft(''); }} onStart={() => dispatch({ t: 'start' })} />
+          onRename={() => { rename(nameDraft); setNameDraft(''); }} onStart={() => dispatch({ t: 'start' })} onPick={(pick) => dispatch({ t: 'layout', pick })} en={locale === 'en'} />
       ) : (
         <main className="relative z-10 px-3 py-2.5 sm:px-5 sm:py-5">
           <CldTable room={state} mySeat={mySeat} dispatch={dispatch} names={names} t={t} aside={<RulesPanel t={t} />} />
@@ -88,10 +89,10 @@ export default function CldRoomView({ code }: { code: string }) {
   );
 }
 
-function Lobby({ state, code, me, mySeat, online, t, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart }: {
+function Lobby({ state, code, me, mySeat, online, t, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart, onPick, en }: {
   state: CldRoom; code: string; me: { id: string; name: string; isHost: boolean } | null; mySeat: number | null; online: Set<string>;
   t: CldCopy; copied: boolean; onCopy: () => void; onShare: () => void;
-  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void;
+  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void; onPick: (pick: string) => void; en: boolean;
 }) {
   const full = state.seats.every(Boolean);
   return (
@@ -116,6 +117,7 @@ function Lobby({ state, code, me, mySeat, online, t, copied, onCopy, onShare, na
           ))}
         </ul>
         <form onSubmit={(event) => { event.preventDefault(); onRename(); }} className="mt-4 flex gap-2"><input value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} maxLength={16} placeholder={me?.name ?? ''} aria-label={t.nickname} className={INPUT} /><button className={`px-4 ${BTN}`}>{t.rename}</button></form>
+        <div className="mt-4"><CldBoardPicker pick={state.layoutPick ?? 'random'} onPick={me?.isHost ? onPick : undefined} t={t} en={en} /></div>
         {me?.isHost
           ? <button type="button" disabled={!full} onClick={onStart} className={`mt-4 w-full py-3.5 text-sm ${BTN_ACCENT}`}>{full ? t.start : t.waitingPlayer}</button>
           : <p className="mt-4 text-center text-sm text-white/40">{mySeat === null ? t.roomFull : t.waitingHost}</p>}

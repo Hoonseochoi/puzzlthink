@@ -8,6 +8,7 @@ import { CLD_ROOM } from '@/hooks/useColorLinkDuelRoom';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { type CldAiAnswer, type CldAiRequest, aiGoesFirst, cldAiAnswer } from '@/lib/colorLinkDuelAi';
 import { type CldRoom, CLD_COIN_MS, createCldRoom, isPlaying, reduceCldRoom } from '@/lib/colorLinkDuelRoom';
+import { type CldTier, CLD_TIERS } from '@/lib/colorLinkDuelBoards';
 import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
@@ -38,12 +39,17 @@ function askAi(request: CldAiRequest): Promise<CldAiAnswer> {
   });
 }
 const sleep = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+/** The board difficulty picked on the entry screen (?tier=easy|normal|hard); a board is dealt at random from it. */
+const readTier = (): CldTier => {
+  const v = typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('tier');
+  return CLD_TIERS.includes(v as CldTier) ? (v as CldTier) : 'hard';
+};
 
 /** 컬러 링크 against the AI (어려움), all in this browser. */
 export default function CldGame() {
   const locale = useLocale();
   const t = cldCopy(locale);
-  const create = useCallback(() => reduceCldRoom(createCldRoom({ id: 'me', name: t.you, at: 0 }, { ai: true, aiName: t.aiName }), { t: 'start' }, 0, true)!, [t.you, t.aiName]);
+  const create = useCallback(() => reduceCldRoom(createCldRoom({ id: 'me', name: t.you, at: 0 }, { ai: true, aiName: t.aiName, tier: readTier() }), { t: 'start' }, 0, true)!, [t.you, t.aiName]);
   const { state, dispatch, reset } = useLocalRoom(CLD_ROOM, create);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [closedKey, setClosedKey] = useState<string | null>(null);

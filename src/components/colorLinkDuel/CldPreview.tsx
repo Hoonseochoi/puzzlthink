@@ -1,4 +1,5 @@
-import { CLD_N } from '@/lib/colorLinkDuel';
+/** This art is drawn on its own 7×7 grid (the show's board), separate from the game's 11×11 frame. */
+const CLD_N = 7;
 import { ColorStone } from '../logic/ColorStone';
 import { cldColor } from './copy';
 
