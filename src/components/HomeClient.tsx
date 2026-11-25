@@ -276,13 +276,13 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const podiums = useHallPodiums();
   const rates = useChallengeRates();
-  // Order: by plays on 2026-11-23 (KST), most played first, 그라데이션 2nd, 카드 장기 3rd, 컬러 링크 4th, Hit,Stay 5th, 포인트 오목 6th, 마방진 스왑 7th and 2048 8th (same order as the game catalog).
+  // Order: by plays on 2026-11-23 (KST), most played first, 카드 장기 2nd, 컬러 링크 3rd, Hit,Stay 4th, 그라데이션 5th, 포인트 오목 6th, 마방진 스왑 7th and 2048 8th (same order as the game catalog).
   const games = [
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true, updated: true },
-    { title: 'GRADATION', display: tc('gradation'), description: t('gradationDescription'), href: '/gradation', tag: 'brainSurvival', meta: t('gradationMeta'), color: '#3fd67a', illustration: 'gradation', new: true },
     { title: 'CARD JANGGI', display: tc('cardJanggi'), description: t('cardJanggiDescription'), href: '/card-janggi', tag: 'brainSurvival', meta: t('cardJanggiMeta'), color: '#b07cff', illustration: 'cardJanggi', new: true },
     { title: 'COLOR LINK DUEL', display: tc('colorLinkDuel'), description: t('colorLinkDuelDescription'), href: '/color-link-duel', tag: 'brainSurvival', meta: t('colorLinkDuelMeta'), color: '#7c6cff', illustration: 'colorLinkDuel', new: true },
     { title: 'HIT, STAY', display: tc('hitStay'), description: t('hitStayDescription'), href: '/hit-stay', tag: 'brainSurvival', meta: t('hitStayMeta'), color: '#6f7dff', illustration: 'hitStay', new: true },
+    { title: 'GRADATION', display: tc('gradation'), description: t('gradationDescription'), href: '/gradation', tag: 'brainSurvival', meta: t('gradationMeta'), color: '#3fd67a', illustration: 'gradation', new: true },
     { title: 'POINT OMOK', display: tc('pointOmok'), description: t('pointOmokDescription'), href: '/point-omok', tag: 'pointStrategy', meta: t('pointOmokMeta'), color: '#ff5d8f', illustration: 'pointOmok', new: true },
     { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
     { title: 'MAGIC SQUARE', display: tc('magicswap'), description: t('magicswapDescription'), href: '/magic-square', tag: 'logicPuzzle', meta: t('magicswapMeta'), color: '#e45bd6', illustration: 'magicswap', new: true },

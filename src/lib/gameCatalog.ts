@@ -1,5 +1,5 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
-// Order: by plays on 2026-11-23 (KST), most played first; 그라데이션 (new) is pinned 2nd, 카드 장기 (new) 3rd, 컬러 링크 (new) 4th, Hit,Stay (new) 5th, 포인트 오목 (new) 6th, 마방진 스왑 7th and 2048 (new) 8th.
+// Order: by plays on 2026-11-23 (KST), most played first; 카드 장기 (new) is pinned 2nd, 컬러 링크 (new) 3rd, Hit,Stay (new) 4th, 그라데이션 (new) 5th, 포인트 오목 (new) 6th, 마방진 스왑 7th and 2048 (new) 8th.
 export type GameId = 'gradation' | 'cardJanggi' | 'colorLinkDuel' | 'hitStay' | 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 // Order: by plays on 2026-11-23 (KST), most played first; 컬러 링크 (new) is pinned 2nd, Hit,Stay (new) 3rd, 포인트 오목 (new) 3rd, 마방진 스왑 5th and 2048 (new) 7th.
 
@@ -20,10 +20,10 @@ export interface CatalogGame {
 
 export const GAMES: readonly CatalogGame[] = [
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
-  { id: 'gradation', href: '/gradation', color: '#3fd67a', hasGuide: true },
   { id: 'cardJanggi', href: '/card-janggi', color: '#b07cff', hasGuide: true },
   { id: 'colorLinkDuel', href: '/color-link-duel', color: '#7c6cff', hasGuide: false },
   { id: 'hitStay', href: '/hit-stay', color: '#6f7dff', hasGuide: false },
+  { id: 'gradation', href: '/gradation', color: '#3fd67a', hasGuide: true },
   { id: 'pointOmok', href: '/point-omok', color: '#ff5d8f', hasGuide: true },
   { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true, hell: { query: 'mode=two', live: true } },
   { id: 'magicswap', href: '/magic-square', color: '#e45bd6', hasGuide: true },
