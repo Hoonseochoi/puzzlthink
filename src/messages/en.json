@@ -8108,7 +8108,7 @@
     "rulesTitle": "Rules",
     "rules": [
       "35 number cards: one 7, two 6s, three 5s, four 4s, five 3s, six 2s, seven 1s and seven -1s.",
-      "Five players start with 30 chips each. The ante is 1 chip and goes up by 1 every 10 rounds.",
+      "Five players start with 30 chips each. The ante is 1 chip and goes up by 1 every 2 rounds (1, 1, 2, 2, … 8), then by 5 every 2 rounds from round 16 (13, 18, …).",
       "Each round the dealer rolls an eight-sided die (5–12) for the limit. Everyone gets three cards and shows one of them.",
       "From the first player: bet (call, raise or fold). Nobody may put in more than the smallest stack at the table.",
       "Then, from the first player, HIT (take a face-up card) or STAY. When everyone has stayed or the deck runs out, there is a second betting round.",
@@ -8170,7 +8170,7 @@
       },
       {
         "q": "Can I play with friends?",
-        "a": "Create a room for a link and a 4-digit code; 2–5 people join and the AI fills empty seats. Open rooms are listed for anyone."
+        "a": "Create a room for a link and a 4-digit code; play 1:1 up to five, and the host chooses whether AI fills the empty seats. Open rooms are listed for anyone."
       },
       {
         "q": "Is there a time limit?",
