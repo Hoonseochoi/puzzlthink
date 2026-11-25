@@ -14,6 +14,9 @@ const NUM = '#5b45c9';
 const LINE = '#2c1f78';
 const HINT = '#e0a21c';
 const SOLUTION = '#e0a21c';
+/** Replay with the answer: the answer as a soft green track, the player's marks that disagree with it in red. */
+const TRACK = '#2fb47c';
+const WRONG = '#e5484d';
 
 type Point = { x: number; y: number };
 
@@ -42,7 +45,7 @@ export function useUndoKey(onUndo: () => void) {
  * the eraser clears and only the marker toggles ✕. With the hint tool, a tap picks the 3×3-dot area around it.
  * `onEdges` gets the [edge, value] pairs of one tap.
  */
-export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onHint, solutionUpTo = null, dimLines = false, readOnly = false, flashArea = null }: {
+export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onHint, solutionUpTo = null, dimLines = false, readOnly = false, flashArea = null, answerTrack = false }: {
   puzzle: Puzzle; marks: Mark[]; tool: Tool; locked?: ReadonlySet<number>;
   onEdges?: (changes: [number, Mark][]) => void; onHint?: (r: number, c: number) => void;
   /** Give-up animation: the first N edges of the answer (in loop order) drawn over the board. */
@@ -50,6 +53,8 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
   dimLines?: boolean; readOnly?: boolean;
   /** Top-left dot of a hint area to outline. */
   flashArea?: { r: number; c: number } | null;
+  /** Replay: show the whole answer under the player's lines and mark the player's lines and ✕ that disagree with it. */
+  answerTrack?: boolean;
 }) {
   const g = geometry(puzzle.rows, puzzle.cols);
   const n = puzzle.dots;
@@ -158,8 +163,9 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
         const r = Math.floor(cell / puzzle.cols), c = cell % puzzle.cols;
         return <text key={`n${cell}`} x={c + 1} y={r + 1.03} textAnchor="middle" dominantBaseline="middle" fontSize={0.56} fontFamily="Georgia, 'Times New Roman', serif" fontWeight={600} fill={NUM}>{v}</text>;
       })}
-      {shown.map((m, edge) => m === 1 ? lineFor(edge, locked?.has(edge) ? HINT : LINE, 0.1, `l${edge}`, dimLines ? 0.25 : 1) : null)}
-      {shown.map((m, edge) => m === 2 ? crossFor(edge, `x${edge}`, locked?.has(edge) ? HINT : '#8a83b8') : null)}
+      {answerTrack && puzzle.solution.map((on, edge) => on ? lineFor(edge, TRACK, 0.26, `t${edge}`, 0.32) : null)}
+      {shown.map((m, edge) => m === 1 ? lineFor(edge, locked?.has(edge) ? HINT : answerTrack && !puzzle.solution[edge] ? WRONG : LINE, 0.1, `l${edge}`, dimLines ? 0.25 : 1) : null)}
+      {shown.map((m, edge) => m === 2 ? crossFor(edge, `x${edge}`, locked?.has(edge) ? HINT : answerTrack && puzzle.solution[edge] ? WRONG : '#8a83b8') : null)}
       {solutionSet && [...solutionSet].map((edge) => lineFor(edge, SOLUTION, 0.12, `s${edge}`))}
       {Array.from({ length: n * n }, (_, i) => <circle key={`d${i}`} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.075} fill={DOT} />)}
     </svg>

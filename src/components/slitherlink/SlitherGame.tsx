@@ -75,6 +75,7 @@ export default function SlitherGame() {
   const [flashArea, setFlashArea] = useState<{ r: number; c: number } | null>(null);
   const [revealed, setRevealed] = useState(0);
   const [replaying, setReplaying] = useState(false);
+  const [replayAnswer, setReplayAnswer] = useState(true); // replay: show the answer path under my lines
   const [confirmClear, setConfirmClear] = useState(false);
   const [run, setRun] = useState<SlitherRun | null>(null);
   const [result, setResult] = useState<FinishResult | null>(null);
@@ -296,6 +297,8 @@ export default function SlitherGame() {
   const myName = nickname || 'Player';
   const playing = phase === 'play' || phase === 'solved' || phase === 'reveal' || phase === 'gaveUp' || phase === 'failed';
   const done = phase === 'solved' || phase === 'gaveUp' || phase === 'failed';
+  // The answer may be shown in the replay once the player has seen it (gave up) or found it (solved); never after a failed published board.
+  const answerKnown = phase === 'gaveUp' || phase === 'solved';
   const lines = marks.filter((m) => m === 1).length;
   const tools: [Tool, typeof PenLine, string][] = [['pen', PenLine, t('toolPen')], ['eraser', Eraser, t('toolEraser')], ['marker', X, t('toolMarker')]];
   const hintsLeft = hintLimit - hints;
@@ -408,6 +411,15 @@ export default function SlitherGame() {
               </div>
 
               {replaying && <ReplayHeader player={player} caption={t('replayCaption')} onClose={() => setReplaying(false)} />}
+              {replaying && answerKnown && (
+                <div className="mx-auto mb-2 flex max-w-[680px] flex-wrap items-center justify-between gap-2 px-1">
+                  <button type="button" onClick={() => setReplayAnswer((v) => !v)} aria-pressed={replayAnswer} className={`px-3 py-1.5 ${seg(replayAnswer)}`}>{replayAnswer ? t('replayAnswerOn') : t('replayAnswerOff')}</button>
+                  {replayAnswer && <p className="flex items-center gap-3 text-[11px] font-bold text-white/55">
+                    <span className="flex items-center gap-1.5"><i className="inline-block h-1.5 w-5 rounded-full bg-[#2fb47c]/60" />{t('replayLegendAnswer')}</span>
+                    <span className="flex items-center gap-1.5"><i className="inline-block h-1 w-5 rounded-full bg-[#e5484d]" />{t('replayLegendWrong')}</span>
+                  </p>}
+                </div>
+              )}
 
               {awayWarn !== null && <div className="pointer-events-none fixed left-1/2 top-20 z-50 -translate-x-1/2 rounded-full border border-[#ff8f8f]/50 bg-black/85 px-4 py-2 text-xs font-black text-[#ffb3b3] shadow-2xl">
                 {awayWarn >= AWAY_LIMIT ? t('awayVoid') : t('awayWarn', { n: awayWarn, max: AWAY_LIMIT })}
@@ -423,6 +435,7 @@ export default function SlitherGame() {
                 flashArea={flashArea}
                 dimLines={!replaying && (phase === 'reveal' || phase === 'gaveUp')}
                 solutionUpTo={!replaying && (phase === 'reveal' || phase === 'gaveUp') ? order.slice(0, revealed) : null}
+                answerTrack={replaying && answerKnown && replayAnswer}
               />
 
               {replaying ? <ReplayControls player={player} onShowResult={() => setReplaying(false)} /> : phase === 'play' ? (
