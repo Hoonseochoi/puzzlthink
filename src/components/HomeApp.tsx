@@ -28,6 +28,8 @@ import StoneAvatar, { Stone } from './StoneAvatar';
 // Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
 const NEW: GameId[] = ['hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'gradation', 'pointOmok'];
 const PUZZLE: GameId[] = ['slitherlink', 'hiddenWord', 'equationSignal', 'equationTower', 'magicswap', 'colorlink', 'merge2048', 'onestroke', 'starbattle', 'nonogram', 'binairo', 'masyu', 'sudoku', 'nemoCount', 'gyulhap', 'hexagon'];
+/** 오늘의 추천 on the phone home: set by the site owner. */
+const TODAY_PICK: GameId = 'slitherlink';
 const CATS = ['all', 'new', 'versus', 'puzzle', 'hell'] as const;
 type Cat = (typeof CATS)[number];
 const inCat = (g: CatalogGame, cat: Cat) =>
@@ -250,17 +252,15 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const [cat, setCat] = useState<Cat>('all');
   const [ev, setEv] = useState(0);
   const [rooms, setRooms] = useState<number | null>(null);
-  const [day, setDay] = useState(0);
   useEffect(() => {
     let alive = true;
     listAllOpenRooms().then((list) => { if (alive && list) setRooms(list.length); });
-    const id = window.setTimeout(() => setDay(Math.floor((Date.now() + 9 * 3600_000) / 86_400_000)), 0); // changes at midnight KST
-    return () => { alive = false; window.clearTimeout(id); };
+    return () => { alive = false; };
   }, []);
 
   const list = GAMES.filter((g) => inCat(g, cat));
-  // Today's pick: one of the six most played, a different one each day (the first of the list in a category).
-  const hero = cat === 'all' ? GAMES[day % 6] : list[0];
+  // Today's pick is chosen by hand (TODAY_PICK); a category shows the first game of its list instead.
+  const hero = cat === 'all' ? GAMES.find((g) => g.id === TODAY_PICK) ?? list[0] : list[0];
   const rest = list.filter((g) => g !== hero);
   const name = nickname?.trim() || '';
   const recent = me.recent.map((href) => GAMES.find((g) => g.href === href)).filter((g): g is CatalogGame => !!g).slice(0, 6);
@@ -387,6 +387,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
                 ) : null}
                 {name && me.ranks.get(hero.href) ? <span className="mb-1.5 flex w-fit max-w-full items-center gap-1 rounded-full bg-[#17201e] px-2 py-1 text-[10.5px] font-black"><span className="min-w-0 max-w-[90px] truncate text-white/70">{name}</span>{th('rankN', { n: me.ranks.get(hero.href)! })}</span> : null}
                 <b className="block break-keep text-[26px] font-black leading-[1.05] tracking-[-0.05em] drop-shadow-sm">{tc(hero.id)}</b>
+                {t.has(`${hero.id}Description`) && <span className="mt-1 line-clamp-2 block break-keep text-[11.5px] font-bold leading-[15px] text-white/80">{t(`${hero.id}Description`)}</span>}
                 <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-[12.5px] font-black text-[#17201e]"><Play size={12} className="fill-[#17201e]" />{th('playNow')}</span>
               </span>
             </span>
