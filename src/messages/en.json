@@ -2486,6 +2486,7 @@
     "cldHell": "AI 1:1 · Very Hard",
     "hwAi": "Point match vs MORA (2 rounds)",
     "hsAi": "5 players · vs 4 AI",
+    "moreGames": "More games to play",
     "hsRoom": "Create a room (1:1 to 5 · AI on/off)",
     "short_hsRoom": "2–5",
     "grAi": "1:1 · one of 4 AI at random (hard)",
@@ -8183,6 +8184,87 @@
       }
     ],
     "disclaimer": "Hidden Word on PUZZLTHINK is an unofficial fan game inspired by a televised game and is not affiliated with the programme or its producers."
+  },
+  "ColorLinkDuelGuide": {
+    "eyebrow": "COLOR LINK GUIDE",
+    "title": "Color Link Duel online — rules and strategy for The Devil's Plan 3 final match",
+    "intro": "Color Link Duel is a one-on-one game: two players take turns placing stones of 14 colors and must keep the board one where every color can still be joined without lines overlapping. Whoever makes the board impossible loses, and spotting it first to call ‘impossible’ decides the match. It is the second match of the final in Netflix's The Devil's Plan: Dead Again (season 3), rebuilt for the web: play the AI, a friend or an open room for free.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "The board is the classic 7×7 or one of twelve shaped boards from 9×9 to 11×11 (heart, donut, four rooms and more). In rooms the host picks one or leaves it random; against the AI it is drawn at random from the difficulty you choose.",
+      "There are 14 colors, A to N, two stones each. The player who opens the round places one stone; after that each turn is two stones of different colors within one minute.",
+      "If every pair of same-colored stones on the board were joined by a line, no lines may overlap or cross.",
+      "A line must be at least six cells long, counting both stones. A color with only one stone down must still be able to reach its future partner.",
+      "If you think the board your opponent left cannot be joined, call ‘impossible’. If they draw every line within two minutes they score; if they cannot, you do.",
+      "You choose who goes first (in rooms a coin toss decides who chooses). One point wins the match."
+    ],
+    "specialTitle": "Easy to miss",
+    "special": [
+      {
+        "title": "Not the solo Color Link puzzle",
+        "body": "Color Link is a puzzle you solve alone on a given board. In Color Link Duel two players build the board stone by stone, and the aim is to keep it solvable."
+      },
+      {
+        "title": "Lines need six cells",
+        "body": "Two stones of one color placed close together are only valid while a route of six cells remains. Close pairs force detours that block other colors."
+      },
+      {
+        "title": "Single stones count too",
+        "body": "A color with no partner yet must still have room to be joined later. Late in the game this is what suddenly makes a board impossible."
+      },
+      {
+        "title": "Calling impossible cuts both ways",
+        "body": "A right call wins on the spot, but if your opponent draws every line within two minutes they win instead. It is a single-point match."
+      }
+    ],
+    "strategyTitle": "Strategy",
+    "strategyIntro": "The best habit is to check, before every stone, that you could draw the whole board yourself.",
+    "strategies": [
+      {
+        "tag": "PLACING",
+        "title": "Draw your own routes first",
+        "body": "If you are called out you have two minutes to draw every line. Do not play a move you have not traced in your head."
+      },
+      {
+        "tag": "PLACING",
+        "title": "Save the narrow passages",
+        "body": "On shaped boards the narrow passages decide the game. A stone in the middle of one blocks every color that needed to pass."
+      },
+      {
+        "tag": "CALLING",
+        "title": "Count empty cells against the six-cell rule",
+        "body": "Late on, the lines still needed can be longer than the space left. When a close pair has no six-cell route, it is time to call."
+      },
+      {
+        "tag": "CALLING",
+        "title": "Watch the rushed second stone",
+        "body": "Mistakes come easily on the second stone of a turn played against the one-minute clock. Look hardest right after a hurried move."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "Which show is Color Link Duel from?",
+        "a": "It is the second match of the final in Netflix's The Devil's Plan: Dead Again (season 3). This is an unofficial fan-made web version of those rules."
+      },
+      {
+        "q": "Can I play alone?",
+        "a": "Yes, against the AI: pick a difficulty and a board of that difficulty is drawn at random. You can also invite a friend with a link or 4-digit code, or join an open room."
+      },
+      {
+        "q": "How many boards are there?",
+        "a": "Thirteen: the classic 7×7 and twelve shaped boards from 9×9 to 11×11, such as heart, donut and four rooms."
+      },
+      {
+        "q": "What happens after an impossible call?",
+        "a": "The player who was called out has two minutes to join every color on the board. If they do, they score and win; if not, the caller does."
+      },
+      {
+        "q": "How long is a match?",
+        "a": "One minute per placing turn, two minutes for a proof, and the first point wins."
+      }
+    ],
+    "disclaimer": "Color Link Duel on PUZZLTHINK is an unofficial fan game inspired by a televised game and is not affiliated with the programme or its producers."
   },
   "HitStayGuide": {
     "eyebrow": "HIT, STAY GUIDE",

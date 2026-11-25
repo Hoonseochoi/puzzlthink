@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { BookOpen, Bot, ChevronUp, DoorOpen, House, KeyRound, Link2, Loader2, Play, RefreshCw, UserRound, UsersRound } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
-import type { GameId } from '@/lib/gameCatalog';
+import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
 import { type OpenRoomRow, listOpenRooms, saveTitle } from '@/lib/openRooms';
 import OpenRoomPanel from './OpenRoomPanel';
@@ -252,6 +252,18 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
       )}
 
       {guide}
+
+      {/* Every other game, in the server HTML: game pages hide the site header and footer, so this is how visitors and crawlers move on. */}
+      <nav aria-label={t('moreGames')} className={`border-t px-4 pb-28 pt-10 sm:px-5 ${dark ? 'border-white/10' : 'border-black/10'}`}>
+        <div className="mx-auto max-w-4xl">
+          <h2 className="text-lg font-black tracking-[-0.03em] sm:text-xl">{t('moreGames')}</h2>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {GAMES.filter((other) => other.id !== game).map((other) => (
+              <li key={other.id}><Link href={other.href} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition ${dark ? 'border-white/12 text-white/70 hover:border-white/30 hover:text-white' : 'border-black/10 text-black/65 hover:border-black/30 hover:text-black'}`}><span className="h-1.5 w-1.5 rounded-full" style={{ background: other.color }} />{tc(other.id)}</Link></li>
+            ))}
+          </ul>
+        </div>
+      </nav>
 
 
       {/* Always-visible start while reading. */}

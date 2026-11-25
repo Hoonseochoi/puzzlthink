@@ -22,7 +22,7 @@ export const GAMES: readonly CatalogGame[] = [
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
   { id: 'hiddenWord', href: '/hidden-word', color: '#a8ef70', hasGuide: true },
   { id: 'cardJanggi', href: '/card-janggi', color: '#b07cff', hasGuide: true },
-  { id: 'colorLinkDuel', href: '/color-link-duel', color: '#7c6cff', hasGuide: false, hell: { live: true } },
+  { id: 'colorLinkDuel', href: '/color-link-duel', color: '#7c6cff', hasGuide: true, hell: { live: true } },
   { id: 'equationSignal', href: '/equation-signal', color: '#b6e33a', hasGuide: true },
   { id: 'equationTower', href: '/equation-tower', color: '#f08c5a', hasGuide: true },
   { id: 'hitStay', href: '/hit-stay', color: '#6f7dff', hasGuide: true },
