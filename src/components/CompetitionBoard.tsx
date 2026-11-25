@@ -8,7 +8,7 @@ import { CERT_GAMES } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
 import { GAME_LABEL } from './HallCelebration';
 import { useAuth } from './AuthProvider';
-import { Stone } from './StoneAvatar';
+import { CHAMPION_LOOKS, Stone } from './StoneAvatar';
 
 type Row = { rank: number; nickname: string; avatar_url: string | null; pieces: number; per_game: Partial<Record<GameId, number>>; last_win: string; is_me: boolean | null; prev_rank: number | null };
 
@@ -120,6 +120,7 @@ export default function CompetitionBoard() {
         <p className="mt-1 break-keep text-xs leading-5 text-black/45">{t('competitionDesc')}</p>
         <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#e8a33c]/40 bg-[#fff6e2] px-3 py-1 text-[11px] font-bold text-[#8a5a12]"><Piece size={12} />{t('pieceRule')}</p>
         <p className="mt-1.5 text-[10px] font-bold text-black/35">{t('rankChangeHint')}</p>
+        <WeekReward week={week} />
       </> : <>
         <p className="mt-1 break-keep text-xs leading-5 text-black/45">{t(`pieceHallDesc${week}`)}</p>
         <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#8fa3c4]/50 bg-[#eef3fb] px-3 py-1 text-[11px] font-bold text-[#3c4f6e]"><Crown size={12} />{t('pieceHallCrown')}</p>
@@ -168,6 +169,35 @@ export default function CompetitionBoard() {
         </>
       )}
     </section>
+  );
+}
+
+/** What this week's top three will keep for good: the week's champion stones, shown ahead of time. */
+function WeekReward({ week }: { week: number }) {
+  const t = useTranslations('Records');
+  if (!CHAMPION_LOOKS[week]) return null;
+  const order = [2, 1, 3] as const;
+  return (
+    <div className="relative mt-4 overflow-hidden rounded-[22px] border border-[#8ec5ff]/40 bg-gradient-to-br from-[#0f1a2e] via-[#16213a] to-[#10291f] p-4 text-white sm:p-5">
+      <div className="pointer-events-none absolute -right-10 -top-14 h-44 w-44 rounded-full bg-[#c9a2ff]/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 -left-10 h-44 w-44 rounded-full bg-[#7ff0b6]/15 blur-3xl" />
+      <div className="relative grid items-center gap-4 sm:grid-cols-[minmax(0,1fr)_260px]">
+        <div className="min-w-0">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#ff9ad5] via-[#ffe680] to-[#8ec5ff] px-2.5 py-1 text-[10px] font-black tracking-[0.12em] text-[#1a1430]"><Crown size={11} />{t('rewardBadge', { n: week })}</span>
+          <h3 className="mt-2 break-keep text-lg font-black leading-tight sm:text-xl">{t('rewardTitle', { n: week })}</h3>
+          <p className="mt-1.5 break-keep text-xs leading-5 text-white/60">{t('rewardDesc', { n: week })}</p>
+        </div>
+        <div className="grid grid-cols-3 items-end gap-2">
+          {order.map((place) => (
+            <div key={place} className="flex flex-col items-center text-center">
+              <Stone name={t(`rewardName${place}`)} size={place === 1 ? 62 : 48} champion={{ week, place }} />
+              <span className="mt-1.5 text-[11px] font-black">{t('rewardPlace', { n: place })}</span>
+              <span className="text-[10px] font-bold text-white/55">{t(`rewardName${place}`)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
