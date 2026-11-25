@@ -8,6 +8,7 @@ import { STONE_COLORS, Stone, refreshStoneChoices } from './StoneAvatar';
 import { parseIcon } from './ProfileIcons';
 import { useIconLabel } from './useIconLabel';
 import IconCollectionLink from './IconCollectionLink';
+import { SupporterCoverCard } from './SupporterCover';
 
 type Options = { chosen: string | null; earned: string[]; lost: string[] };
 export const MY_ICON_ANCHOR = 'my-icon';
@@ -76,7 +77,7 @@ export default function StonePicker({ name, form }: { name: string; form?: React
       <li key={stone}>
         <button type="button" onClick={() => pick(stone)} disabled={!opts || !!saving} aria-pressed={on}
           className={`relative flex w-full flex-col items-center gap-1.5 rounded-[20px] px-2 pb-2.5 pt-3.5 transition active:scale-95 disabled:cursor-wait ${on ? 'bg-[#17201e] text-white shadow-[0_0_0_2px_#ffd36e,0_10px_24px_rgba(23,32,30,.28)]' : 'bg-white text-black/70 shadow-[inset_0_0_0_1px_rgba(0,0,0,.08)] hover:shadow-[inset_0_0_0_1px_rgba(0,0,0,.22)]'} ${saving === stone ? 'animate-pulse' : ''}`}>
-          <Stone name={name} size={icon ? 50 : 42} stone={stone} />
+          <Stone name={name} size={icon ? 50 : 42} stone={stone} cover={false} />
           <span className="line-clamp-2 w-full break-keep text-center text-[10.5px] font-black leading-tight">{text}</span>
           {on && <span className="absolute right-1.5 top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#ffd36e] text-[#17201e]"><Check size={11} strokeWidth={3.5} /></span>}
         </button>
@@ -121,12 +122,14 @@ export default function StonePicker({ name, form }: { name: string; form?: React
         <ul className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
           {opts.lost.map((s) => (
             <li key={s} className="flex flex-col items-center gap-1 rounded-2xl border border-dashed border-black/10 px-1.5 pb-1.5 pt-2 opacity-50 grayscale">
-              <Stone name={name} size={34} icon={s} />
+              <Stone name={name} size={34} icon={s} cover={false} />
               <span className="line-clamp-2 w-full break-keep text-center text-[9.5px] font-bold leading-tight text-black/60">{label(s)}</span>
             </li>
           ))}
         </ul>
       </>}
+
+      <div className="mt-5"><SupporterCoverCard name={name} stone={chosen} signedIn place="cover_records" /></div>
 
       <IconCollectionLink owned={opts ? opts.earned.length : undefined} className="mt-5" />
       </div>

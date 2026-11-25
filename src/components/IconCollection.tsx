@@ -15,6 +15,7 @@ import { MY_ICON_ANCHOR } from './StonePicker';
 import { M2048_TIERS } from './ProfileIcons';
 import { PLAY_HOURS } from './BadgeIcons';
 import { MISSIONS, type Mission } from './MissionIcons';
+import { SupporterCoverCard } from './SupporterCover';
 
 const CROWN_GAMES = (Object.keys(CERT_GAMES) as GameId[]).filter((g) => gameFromSlug(rankSlug(g)));
 
@@ -133,6 +134,8 @@ export default function IconCollection() {
           <Link href={{ pathname: '/records', hash: MY_ICON_ANCHOR }} className="flex items-center gap-2 rounded-2xl bg-[#17201e] px-5 py-3 text-sm font-black text-white">{t('pick')}<ArrowRight size={15} /></Link>
           {user && <span className="rounded-full border border-[#ff6b4a]/40 bg-[#fff0eb] px-3 py-1.5 text-xs font-black text-[#c2410c]">{t('ownedCount', { n: [...owned].filter((i) => !i.startsWith('h-')).length })}</span>}
         </div>
+
+        <div className="mt-6"><SupporterCoverCard signedIn={!!user} place="cover_icons" /></div>
 
         {/* HIDDEN MISSION: the three rarest icons, with this player's progress */}
         <section className="relative mt-6 overflow-hidden rounded-[26px] border border-[#a98bff]/40 bg-[radial-gradient(ellipse_at_50%_0%,#2a1670,#0c0630_70%)] p-5 text-white sm:p-6">

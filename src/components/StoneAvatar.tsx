@@ -5,6 +5,7 @@ import { getSupabase } from '@/lib/supabase';
 import { CrownStone, HellStone, Tile2048, parseIcon, OpenStone } from './ProfileIcons';
 import { MissionStone } from './MissionIcons';
 import { FriendWinStone, HardClearStone, HellClearStone, OpenWinStone, PlayTimeStone } from './BadgeIcons';
+import { COVER_INNER, CoverRing, useSupporter } from './SupporterCover';
 
 /**
  * Ranking profile pictures: our PUZZLTHINK stones (a glossy disc with the two eyes) instead of Google photos or
@@ -146,7 +147,25 @@ export function usePieceRank(name: string, known?: number | null) {
  *   a game's #1), or a picked colour (a current 피스 경쟁전 top-10 rank still shows its metal look over a colour);
  * - nothing: the rank look or the nickname's colour.
  */
-export function Stone({ name, size, pieceRank = null, champion, stone, icon }: { name: string; size: number; pieceRank?: number | null; champion?: Champion | null; stone?: string | null; icon?: string }) {
+type StoneProps = { name: string; size: number; pieceRank?: number | null; champion?: Champion | null; stone?: string | null; icon?: string };
+
+/**
+ * The stone, inside the 후원자 커버 when its player has one (SupporterCover). `cover` forces it on or off (a preview);
+ * an `icon`/`champion` preview never looks it up.
+ */
+export function Stone({ cover, ...props }: StoneProps & { cover?: boolean }) {
+  const preview = props.icon !== undefined || !!props.champion;
+  const found = useSupporter(props.name, cover !== undefined || preview);
+  if (!(cover ?? found)) return <StoneFace {...props} />;
+  return (
+    <span className="relative inline-flex shrink-0 items-center justify-center" style={{ width: props.size, height: props.size }}>
+      <StoneFace {...props} size={Math.round(props.size * COVER_INNER)} />
+      <CoverRing size={props.size} />
+    </span>
+  );
+}
+
+function StoneFace({ name, size, pieceRank = null, champion, stone, icon }: StoneProps) {
   const id = useId().replace(/:/g, '');
   const preview = icon ?? (champion ? `w${champion.week}-${champion.place}` : undefined);
   const choice = useStoneChoice(name, preview ?? stone);

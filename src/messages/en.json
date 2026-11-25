@@ -95,7 +95,7 @@
     "supportBannerBody": "Every game is free, and server costs are covered by voluntary support. If you enjoyed playing, please chip in!",
     "supportBannerShort": "Every game is free · Help us cover server costs",
     "supportCta": "Voluntary support",
-    "supportNote": "Support only pays for servers and gives no perks. Every game stays free either way.",
+    "supportNote": "Support pays for servers; ₩3,000 or more adds a cover to your icon. Every game stays free either way.",
     "supportDismiss": "Hide for today",
     "masyu": "Masyu",
     "colorlink": "Color Link",
@@ -745,7 +745,7 @@
       },
       {
         "title": "How we run",
-        "body": "Every game stays free. Running costs are covered by on-site ads and voluntary support. Support only pays for servers and gives no perks; every game plays the same whether you support or not. We keep adding new games and puzzles."
+        "body": "Every game stays free. Running costs are covered by on-site ads and voluntary support. Support pays for servers (₩3,000 or more adds a cover to your icon); every game plays the same whether you support or not. We keep adding new games and puzzles."
       },
       {
         "title": "Contact",
@@ -5737,6 +5737,20 @@
       }
     ],
     "disclaimer": "Nine Men's Morris is a traditional board game. PUZZLTHINK rebuilt it for the web after the show's rules; it is not affiliated with the broadcaster or producers."
+  },
+  "SupporterCover": {
+    "title": "Supporter icon cover",
+    "desc": "Support the site with ₩3,000 or more and your icon gets a special cover around it, shown everywhere: rankings, the lounge and rooms.",
+    "ownedDesc": "Thank you for your support! The cover goes around whichever icon you pick.",
+    "owned": "Cover on your profile",
+    "on": "On",
+    "off": "Off",
+    "step1": "Support with ₩3,000 or more with the button below.",
+    "step2": "Write your PUZZLTHINK nickname in the support message.",
+    "step2Name": "Write your nickname “{name}” in the support message.",
+    "step3": "Once we see it, the cover is added within a day, and it stays.",
+    "cta": "Support ₩3,000 and get the cover",
+    "note": "Every game stays free without support. The cover is only a look and changes nothing in the games."
   },
   "IconCollection": {
     "holdersTitle": "Earned by (newest first)",
