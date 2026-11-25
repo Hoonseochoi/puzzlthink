@@ -135,6 +135,7 @@ export default function BlackPieceBoard({ limit = 50, heading = true }: { limit?
             {live && <p className="inline-flex items-center gap-1.5 rounded-full border border-[#ff3355]/45 bg-[#ff3355]/10 px-3 py-1 text-[11px] font-bold text-[#ff8ea0]"><BlackPiece size={12} />{t('rule1')} · {t('rule2')}</p>}
           </div>
           {live && <p className="mt-1.5 text-[10px] font-bold text-white/35">{t('rankChangeHint')}</p>}
+          {live && <p className="mt-1 break-keep text-[10px] font-bold text-white/35">{t('capHint')}</p>}
           {live && <HellReward week={week} />}
         </>
       )}

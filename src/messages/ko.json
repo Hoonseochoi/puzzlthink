@@ -7727,6 +7727,7 @@
     "disclaimer": "PUZZLTHINK가 만든 무료 웹 퍼즐입니다. 2048의 기본 규칙은 2014년 공개된 오픈소스 게임에서 왔으며, 캐릭터와 모드는 PUZZLTHINK가 새로 만들었습니다."
   },
   "Hell": {
+    "capHint": "러시아장기는 한 주에 30피스까지만 쌓여요. 이미 30피스를 넘긴 기록은 그대로 유지돼요.",
     "aiRecord": "{w}승 {l}패",
     "aiRecordDraw": "{w}승 {l}패 {d}무",
     "metaTitle": "AI 헬모드 · 매우 어려움 AI 도전",

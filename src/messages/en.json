@@ -7568,6 +7568,7 @@
     "disclaimer": "A free web puzzle made by PUZZLTHINK. The basic rules of 2048 come from the open-source game released in 2014; the characters and modes are PUZZLTHINK's own."
   },
   "Hell": {
+    "capHint": "Russian Janggi counts up to 30 pieces a week. Totals already past 30 stay as they are.",
     "aiRecord": "{w}W {l}L",
     "aiRecordDraw": "{w}W {l}L {d}D",
     "metaTitle": "AI Hell Mode · Take on the Very Hard AI",

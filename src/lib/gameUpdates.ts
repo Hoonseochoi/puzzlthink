@@ -194,6 +194,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Scale,
+        ko: { title: '매우 어려움: 블랙피스는 한 주에 30개까지', desc: '블랙피스 경쟁전에서 러시아장기 승리는 한 주에 30승까지만 집계돼요. 이미 30승을 넘긴 기록은 그대로 유지돼요.' },
+        en: { title: 'Very Hard: up to 30 black pieces a week', desc: 'In the black piece contest, Russian Janggi wins count up to 30 a week. Totals already past 30 stay as they are.' },
+      },
+      {
+        date: '11/26', icon: Scale,
         ko: { title: '보통은 쉬워지고 어려움은 강해졌어요', desc: '보통과 어려움의 실력이 거의 같았어요. 보통은 실수를 더 자주 하고, 어려움은 한 수 더 깊이 읽어요.' },
         en: { title: 'Normal is easier, Hard is stronger', desc: 'Normal and Hard played at almost the same strength. Normal now slips more often and Hard reads one move deeper.' },
       },
