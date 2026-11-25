@@ -94,6 +94,8 @@ export type HitStay = {
   log: HsEvent[]; // newest first
   rounds: HsRoundLog[];
   seq: number; // counts every change, so the table can animate the latest one
+  /** Seats nobody sits in (a room started without AI and fewer than five players): out from the start and hidden. */
+  absent?: boolean[];
 };
 
 const shuffle = <T,>(list: readonly T[]): T[] => {
@@ -117,10 +119,13 @@ export const hsTotal = (cards: (number | null)[]) => cards.reduce<number>((sum, 
 const ring = (from: number) => Array.from({ length: HS_PLAYERS }, (_, i) => (from + i) % HS_PLAYERS);
 const nextAlive = (g: { out: boolean[] }, after: number) => ring(after + 1).find((s) => !g.out[s]) ?? after;
 
-export function newHitStay(): HitStay {
+/** `seated`: which of the five seats are played (default all); the others stay empty for the whole game. */
+export function newHitStay(seated: readonly boolean[] = Array(HS_PLAYERS).fill(true)): HitStay {
+  const filled = Array.from({ length: HS_PLAYERS }, (_, i) => i).filter((i) => seated[i]);
+  const absent = Array.from({ length: HS_PLAYERS }, (_, i) => !seated[i]);
   const base: HitStay = {
-    gid: Math.random().toString(36).slice(2, 10), round: 0, first: Math.floor(Math.random() * HS_PLAYERS), limit: 0, ante: 1, cap: HS_START_CHIPS, phase: 'pick', turn: -1,
-    chips: Array(HS_PLAYERS).fill(HS_START_CHIPS), out: Array(HS_PLAYERS).fill(false), place: Array(HS_PLAYERS).fill(null),
+    gid: Math.random().toString(36).slice(2, 10), round: 0, first: filled[Math.floor(Math.random() * filled.length)] ?? 0, limit: 0, ante: 1, cap: HS_START_CHIPS, phase: 'pick', turn: -1,
+    chips: absent.map((a) => (a ? 0 : HS_START_CHIPS)), out: absent.slice(), place: Array(HS_PLAYERS).fill(null), ...(absent.some(Boolean) ? { absent } : {}),
     hands: Array.from({ length: HS_PLAYERS }, () => []), openIdx: Array(HS_PLAYERS).fill(null),
     folded: Array(HS_PLAYERS).fill(false), stayed: Array(HS_PLAYERS).fill(false), bets: Array(HS_PLAYERS).fill(0),
     level: 0, acted: Array(HS_PLAYERS).fill(false), deck: [], showdown: null, log: [], rounds: [], seq: 0,

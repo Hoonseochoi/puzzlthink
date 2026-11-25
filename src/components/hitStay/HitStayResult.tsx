@@ -42,7 +42,7 @@ export default function HitStayResult({ room, mySeat, t, locale, onAgain, onClos
     const style = room.seats[s]?.id.startsWith('ai-') ? room.style[s] : null;
     return style ? (en ? HS_PERSONA[style].nameEn : HS_PERSONA[style].name) : room.seats[s]?.name ?? `P${s + 1}`;
   };
-  const order = Array.from({ length: HS_PLAYERS }, (_, s) => s).sort((a, b) => (g.place[a] ?? 9) - (g.place[b] ?? 9) || g.chips[b] - g.chips[a]);
+  const order = Array.from({ length: HS_PLAYERS }, (_, s) => s).filter((s) => !g.absent?.[s]).sort((a, b) => (g.place[a] ?? 9) - (g.place[b] ?? 9) || g.chips[b] - g.chips[a]);
   const winner = order[0];
   const myPlace = mySeat === null ? null : g.place[mySeat];
   return (

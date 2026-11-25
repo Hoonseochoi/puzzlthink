@@ -70,7 +70,7 @@ export default function HitStayRoomView({ code }: { code: string }) {
       ) : state.phase === 'lobby' ? (
         <Lobby state={state} code={code} me={me} mySeat={mySeat} online={online} humans={humans} t={t} en={en}
           copied={copied} onCopy={copyLink} onShare={shareLink} nameDraft={nameDraft} setNameDraft={setNameDraft}
-          onRename={() => { rename(nameDraft); setNameDraft(''); }} onStart={() => dispatch({ t: 'start' })} />
+          onRename={() => { rename(nameDraft); setNameDraft(''); }} onStart={() => dispatch({ t: 'start' })} onFillAi={(on) => dispatch({ t: 'fillAi', on })} />
       ) : (
         <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">
           <HitStayTable room={state} mySeat={mySeat} onAction={dispatch} t={t} locale={locale} />
@@ -85,11 +85,13 @@ export default function HitStayRoomView({ code }: { code: string }) {
   );
 }
 
-function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart }: {
+function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart, onFillAi }: {
   state: HitStayRoom; code: string; me: { id: string; name: string; isHost: boolean } | null; mySeat: number | null; online: Set<string>; humans: number;
   t: ReturnType<typeof hsCopy>; en: boolean; copied: boolean; onCopy: () => void; onShare: () => void;
-  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void;
+  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void; onFillAi: (on: boolean) => void;
 }) {
+  const fill = state.fillAi !== false;
+  const canStart = fill || humans >= 2;
   return (
     <main className="relative z-10 mx-auto grid w-full max-w-[1050px] gap-4 px-3 py-4 sm:px-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-8">
       <section className={STAGE}>
@@ -104,16 +106,28 @@ function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy,
         <ul className="mt-4 grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:grid-cols-3">
           {state.seats.map((seat, i) => (
             <li key={i} data-chat-seat={seat?.id} className={`flex min-w-0 items-center gap-2 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/15 bg-white/[.04]' : 'border-dashed border-white/10 text-white/30'}`}>
-              {seat ? <UserRound size={13} /> : <Bot size={13} />}
-              <span className="min-w-0 flex-1 truncate text-[12px] font-bold">{seat ? (seat.id === me?.id ? `${seat.name} (${t.you})` : seat.name) : t.aiSeat}</span>
+              {seat ? <UserRound size={13} /> : fill ? <Bot size={13} /> : <UserRound size={13} className="opacity-40" />}
+              <span className="min-w-0 flex-1 truncate text-[12px] font-bold">{seat ? (seat.id === me?.id ? `${seat.name} (${t.you})` : seat.name) : fill ? t.aiSeat : t.emptySeat}</span>
               {i === 0 && <Crown size={11} className="text-[#ffd36b]" />}
               {seat && <i className={`h-1.5 w-1.5 rounded-full ${online.has(seat.id) ? 'bg-[#3ddc97]' : 'bg-white/20'}`} />}
             </li>
           ))}
         </ul>
         <form onSubmit={(event) => { event.preventDefault(); onRename(); }} className="mt-4 flex gap-2"><input value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} maxLength={16} placeholder={me?.name ?? ''} aria-label={t.nickname} className={INPUT} /><button className={`px-4 ${BTN}`}>{t.rename}</button></form>
+        <div className={`mt-4 p-3 ${WELL}`}>
+          <div className="flex items-center justify-between gap-3">
+            <p className="flex items-center gap-1.5 text-[12px] font-black"><Bot size={14} className="text-(--accent)" />{t.fillAiTitle}</p>
+            <div className="grid shrink-0 grid-cols-2 gap-1" role="radiogroup" aria-label={t.fillAiTitle}>
+              {[true, false].map((on) => (
+                <button key={String(on)} type="button" role="radio" aria-checked={fill === on} disabled={!me?.isHost} onClick={() => onFillAi(on)}
+                  className={`rounded-md px-3 py-1.5 text-[11px] font-black transition disabled:cursor-default ${fill === on ? 'bg-(--accent) text-black' : 'border border-white/10 text-white/55 enabled:hover:bg-white/10'}`}>{on ? t.fillAiOn : t.fillAiOff}</button>
+              ))}
+            </div>
+          </div>
+          <p className="mt-1.5 break-keep text-[11px] leading-4 text-white/45">{fill ? t.fillAiDescOn : t.fillAiDescOff}</p>
+        </div>
         {me?.isHost
-          ? <button type="button" onClick={onStart} className={`mt-4 w-full py-3.5 text-sm ${BTN_ACCENT}`}>{humans < HS_PLAYERS ? t.startWithAi(HS_PLAYERS - humans) : t.start}</button>
+          ? <button type="button" onClick={onStart} disabled={!canStart} className={`mt-3 w-full py-3.5 text-sm ${BTN_ACCENT} disabled:opacity-40`}>{!canStart ? t.needTwo : fill ? (humans < HS_PLAYERS ? t.startWithAi(HS_PLAYERS - humans) : t.start) : t.startPeople(humans)}</button>
           : <p className="mt-4 text-center text-sm text-white/40">{mySeat === null ? t.roomFull : t.waitingHost}</p>}
       </section>
       <aside className="space-y-4">
