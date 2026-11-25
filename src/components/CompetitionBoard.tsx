@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDown, Swords } from 'lucide-react';
+import { ChevronDown, Crown, Swords } from 'lucide-react';
 import type { GameId } from '@/lib/stats';
 import { CERT_GAMES } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
@@ -50,8 +50,12 @@ function RankChange({ row, className = '' }: { row: Row; className?: string }) {
 }
 
 
+/** Weeks of 피스 경쟁전: 2W runs now (from 11/25 KST, 5 pieces per game); 1W ended 11/24 (30 per game) and is kept as a hall of fame. */
+export const PIECE_WEEKS = { 2: { cap: 5, live: true }, 1: { cap: 30, live: false } } as const;
+type Week = keyof typeof PIECE_WEEKS;
+
 /** Wins per game behind a player's pieces, most first. */
-function GameWins({ row }: { row: Row }) {
+function GameWins({ row, cap }: { row: Row; cap: number }) {
   const tc = useTranslations('Common');
   const games = (Object.entries(row.per_game) as [GameId, number][]).filter(([g]) => CERT_GAMES[g]).sort((a, b) => b[1] - a[1]);
   return (
@@ -60,7 +64,7 @@ function GameWins({ row }: { row: Row }) {
         <li key={game} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold">
           <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: CERT_GAMES[game].color }} />
           <span className="min-w-0 flex-1 truncate">{tc(GAME_LABEL[game])}</span>
-          {n >= 30 && <span className="shrink-0 rounded-full bg-[#e8a33c] px-1.5 py-0.5 text-[9px] font-black text-white">MAX</span>}
+          {n >= cap && <span className="shrink-0 rounded-full bg-[#e8a33c] px-1.5 py-0.5 text-[9px] font-black text-white">MAX</span>}
           <PieceCount n={n} size={11} />
         </li>
       ))}
@@ -69,23 +73,28 @@ function GameWins({ row }: { row: Row }) {
 }
 
 /**
- * 피스 경쟁전: everyone on one board. Each win against the hard AI (any game) is one piece, at most 30 per game
+ * 피스 경쟁전: everyone on one board. Each win against the hard AI (any game) is one piece, at most PIECE_WEEKS[week].cap per game
  * (the server caps it; 러시안 룰렛 and 인디언 포커 do not count); most pieces first,
  * a tie goes to whoever got there first. The top three stand on a podium; tap anyone to see their wins by game.
  */
 export default function CompetitionBoard() {
   const t = useTranslations('Records');
   const { user } = useAuth();
-  const [rows, setRows] = useState<Row[] | null>(null);
+  const [week, setWeek] = useState<Week>(2);
+  const [loaded, setLoaded] = useState<{ week: Week; rows: Row[] } | null>(null);
   const [open, setOpen] = useState<number | null>(null);
+  const live = PIECE_WEEKS[week].live;
+  const cap = PIECE_WEEKS[week].cap;
+  const rows = loaded?.week === week ? loaded.rows : null;
 
   useEffect(() => {
     let alive = true;
     const supabase = getSupabase();
-    if (!supabase) { setRows([]); return; } // eslint-disable-line react-hooks/set-state-in-effect -- no server: show the empty board
-    supabase.rpc('competition_ranking', { p_limit: 50 }).then(({ data }) => { if (alive) setRows(Array.isArray(data) ? (data as Row[]) : []); });
+    if (!supabase) { setLoaded({ week, rows: [] }); return; } // eslint-disable-line react-hooks/set-state-in-effect -- no server: show the empty board
+    const call = PIECE_WEEKS[week].live ? supabase.rpc('competition_ranking', { p_limit: 50 }) : supabase.rpc('competition_final', { p_week: week, p_limit: 50 });
+    call.then(({ data }) => { if (alive) setLoaded({ week, rows: Array.isArray(data) ? (data as Row[]) : [] }); });
     return () => { alive = false; };
-  }, [user]);
+  }, [user, week]);
 
   const top = rows?.filter((r) => r.rank <= 50) ?? [];
   const me = rows?.find((r) => r.is_me) ?? null;
@@ -96,10 +105,25 @@ export default function CompetitionBoard() {
 
   return (
     <section className="mt-10">
-      <h2 className="flex items-center gap-2 text-xl font-black"><Swords size={20} className="text-[#e8a33c]" />{t('competitionTitle')}</h2>
-      <p className="mt-1 break-keep text-xs leading-5 text-black/45">{t('competitionDesc')}</p>
-      <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#e8a33c]/40 bg-[#fff6e2] px-3 py-1 text-[11px] font-bold text-[#8a5a12]"><Piece size={12} />{t('pieceRule')}</p>
-      <p className="mt-1.5 text-[10px] font-bold text-black/35">{t('rankChangeHint')}</p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-xl font-black"><Swords size={20} className="text-[#e8a33c]" />{t('competitionTitle')}</h2>
+        <div className="grid grid-cols-2 gap-1 rounded-full border border-black/10 bg-[#e9e5dc] p-1" role="tablist" aria-label={t('pieceWeekTabs')}>
+          {([2, 1] as Week[]).map((w) => (
+            <button key={w} type="button" role="tab" aria-selected={week === w} onClick={() => { setWeek(w); setOpen(null); }}
+              className={`flex items-center justify-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-black transition ${week === w ? 'bg-[#17201e] text-white shadow' : 'text-black/50 hover:text-black'}`}>
+              {!PIECE_WEEKS[w].live && <Crown size={11} className={week === w ? 'text-[#ffd36b]' : ''} />}{PIECE_WEEKS[w].live ? t('pieceWeekLive', { n: w }) : t('pieceWeekHall', { n: w })}
+            </button>
+          ))}
+        </div>
+      </div>
+      {live ? <>
+        <p className="mt-1 break-keep text-xs leading-5 text-black/45">{t('competitionDesc')}</p>
+        <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#e8a33c]/40 bg-[#fff6e2] px-3 py-1 text-[11px] font-bold text-[#8a5a12]"><Piece size={12} />{t('pieceRule')}</p>
+        <p className="mt-1.5 text-[10px] font-bold text-black/35">{t('rankChangeHint')}</p>
+      </> : <>
+        <p className="mt-1 break-keep text-xs leading-5 text-black/45">{t(`pieceHallDesc${week}`)}</p>
+        <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#8fa3c4]/50 bg-[#eef3fb] px-3 py-1 text-[11px] font-bold text-[#3c4f6e]"><Crown size={12} />{t('pieceHallCrown')}</p>
+      </>}
 
       {rows === null ? (
         <p className="mt-6 text-sm text-black/40">{t('competitionLoading')}</p>
@@ -119,7 +143,7 @@ export default function CompetitionBoard() {
                   <span className={`rounded-full ${place === 1 ? 'drop-shadow-[0_0_14px_rgba(255,196,60,.7)]' : ''} ${row.is_me ? 'ring-2 ring-[#ff6b4a] ring-offset-2' : ''}`}><Stone name={row.nickname} pieceRank={row.rank} size={place === 1 ? 64 : 50} /></span>
                   <span className="mt-1.5 w-full truncate px-1 text-xs font-black sm:text-sm">{row.nickname}</span>
                   <PieceCount n={row.pieces} size={13} className="mt-0.5 text-sm sm:text-base" />
-                  <RankChange row={row} className="mt-1" />
+                  {live && <RankChange row={row} className="mt-1" />}
                   <span className={`mt-2 flex w-full items-start justify-center rounded-t-2xl pt-2 font-black text-white/90 shadow-[inset_0_2px_0_rgba(255,255,255,.4)] transition group-hover:brightness-105 ${block}`}><span className="text-3xl sm:text-4xl" style={{ textShadow: '0 2px 0 rgba(0,0,0,.18)' }}>{place}</span></span>
                 </button>
               );
@@ -128,37 +152,37 @@ export default function CompetitionBoard() {
           {openRow && openRow.rank <= 3 && (
             <div className="mt-3 rounded-[20px] border border-black/10 bg-[#f9f7f1] p-3">
               <p className="mb-2 px-1 text-[11px] font-bold text-black/45">{t('piecesOf', { name: openRow.nickname, n: openRow.pieces })}</p>
-              <GameWins row={openRow} />
+              <GameWins row={openRow} cap={cap} />
             </div>
           )}
 
           {rest.length > 0 && (
             <ol className="mt-5 space-y-1.5">
-              {rest.map((row) => <RankRow key={row.rank} row={row} open={open === row.rank} onToggle={() => toggle(row.rank)} />)}
+              {rest.map((row) => <RankRow key={row.rank} row={row} open={open === row.rank} onToggle={() => toggle(row.rank)} live={live} cap={cap} />)}
             </ol>
           )}
           {me && me.rank > 50 && (
-            <ol className="mt-4 border-t border-dashed border-black/15 pt-4"><RankRow row={me} open={open === me.rank} onToggle={() => toggle(me.rank)} /></ol>
+            <ol className="mt-4 border-t border-dashed border-black/15 pt-4"><RankRow row={me} open={open === me.rank} onToggle={() => toggle(me.rank)} live={live} cap={cap} /></ol>
           )}
-          {user && !me && <p className="mt-4 text-center text-xs text-black/45">{t('competitionNotYet')}</p>}
+          {user && !me && live && <p className="mt-4 text-center text-xs text-black/45">{t('competitionNotYet')}</p>}
         </>
       )}
     </section>
   );
 }
 
-function RankRow({ row, open, onToggle }: { row: Row; open: boolean; onToggle: () => void }) {
+function RankRow({ row, open, onToggle, live, cap }: { row: Row; open: boolean; onToggle: () => void; live: boolean; cap: number }) {
   const t = useTranslations('Records');
   return (
     <li className={`overflow-hidden rounded-2xl border ${row.is_me ? 'border-[#ff6b4a]/50 bg-[#fff0eb]' : 'border-black/10 bg-[#f9f7f1]'}`}>
       <button type="button" onClick={onToggle} aria-expanded={open} className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-white/60">
-        <span className="flex w-8 shrink-0 flex-col items-center gap-0.5"><span className="font-mono text-sm font-black leading-none text-black/45">{row.rank}</span><RankChange row={row} /></span>
+        <span className="flex w-8 shrink-0 flex-col items-center gap-0.5"><span className="font-mono text-sm font-black leading-none text-black/45">{row.rank}</span>{live && <RankChange row={row} />}</span>
         <Stone name={row.nickname} pieceRank={row.rank} size={30} />
         <span className="min-w-0 flex-1 truncate text-sm font-extrabold">{row.nickname}{row.is_me && <span className="ml-1.5 rounded-full bg-[#ff6b4a] px-1.5 py-0.5 text-[9px] font-black text-white">{t('me')}</span>}</span>
         <PieceCount n={row.pieces} size={13} className="text-sm" />
         <ChevronDown size={15} className={`shrink-0 text-black/35 transition ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && <div className="border-t border-black/5 p-2.5"><GameWins row={row} /></div>}
+      {open && <div className="border-t border-black/5 p-2.5"><GameWins row={row} cap={cap} /></div>}
     </li>
   );
 }

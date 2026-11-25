@@ -8,6 +8,8 @@ import { getSupabase } from '@/lib/supabase';
  * initials, so no one's real name or face shows on a board. Each player gets one colour, picked from their
  * nickname, so it looks random across a list but stays the same for the same person everywhere.
  * 피스 경쟁전 rankers get a special stone: 1–3 are gold / silver / bronze with a crown, 4–10 gold with a sparkle.
+ * A finished week's top three (1W: 오현민 · 식느 · Xogh) keep a platinum gold / silver / bronze stone and crown for good,
+ * whatever their current rank.
  */
 
 type Tone = { hi: string; mid: string; lo: string; rim: string; eye: string };
@@ -32,6 +34,13 @@ const METAL: Record<1 | 2 | 3 | 'gold', Tone> = {
   gold: { hi: '#fff3b8', mid: '#e8b730', lo: '#9c6c0a', rim: '#7d5306', eye: '#3b2604' },
 };
 
+/** Champions of a finished 피스 경쟁전 week: platinum gold, platinum silver, platinum bronze. */
+const PLATINUM: Record<1 | 2 | 3, Tone & { crown: [string, string, string]; glow: string }> = {
+  1: { hi: '#fffdf0', mid: '#f4df92', lo: '#b8903a', rim: '#6f5115', eye: '#3b2604', crown: ['#fffbe0', '#f5cf4a', '#b07d12'], glow: '#ffe27a' },
+  2: { hi: '#ffffff', mid: '#e9eef6', lo: '#9eabbe', rim: '#55647a', eye: '#1e2430', crown: ['#ffffff', '#dfe6f0', '#8f9cb0'], glow: '#d9f1ff' },
+  3: { hi: '#fff3ea', mid: '#ebb892', lo: '#a3653b', rim: '#6a3c1c', eye: '#3a1d08', crown: ['#ffeede', '#e79a62', '#9a5426'], glow: '#ffc79c' },
+};
+
 /** Same nickname → same colour. */
 function toneFor(seed: string): Tone {
   let h = 2166136261;
@@ -53,6 +62,35 @@ function loadRankers() {
   return rankersPromise;
 }
 
+// Past weeks' top three by nickname (their best finish), fetched once per page load.
+let championsPromise: Promise<Map<string, 1 | 2 | 3>> | null = null;
+function loadChampions() {
+  championsPromise ??= (async () => {
+    const supabase = getSupabase();
+    const map = new Map<string, 1 | 2 | 3>();
+    if (!supabase) return map;
+    const { data } = await supabase.rpc('piece_champions');
+    if (Array.isArray(data)) for (const r of data as { rank: number; nickname: string }[]) {
+      const best = map.get(r.nickname);
+      if (r.rank >= 1 && r.rank <= 3 && (!best || r.rank < best)) map.set(r.nickname, r.rank as 1 | 2 | 3);
+    }
+    return map;
+  })();
+  return championsPromise;
+}
+
+/** A past week's podium place (1–3) for this nickname, or null. Pass `known` to skip the lookup. */
+export function useChampion(name: string, known?: 1 | 2 | 3 | null) {
+  const [place, setPlace] = useState<1 | 2 | 3 | null>(null);
+  useEffect(() => {
+    if (known !== undefined || !name) return;
+    let alive = true;
+    loadChampions().then((m) => { if (alive) setPlace(m.get(name) ?? null); });
+    return () => { alive = false; };
+  }, [name, known]);
+  return known !== undefined ? known : place;
+}
+
 /** The player's 피스 경쟁전 rank (1–10), or null. Pass `known` when the caller already has it. */
 export function usePieceRank(name: string, known?: number | null) {
   const [rank, setRank] = useState<number | null>(known ?? null);
@@ -65,9 +103,14 @@ export function usePieceRank(name: string, known?: number | null) {
   return known !== undefined ? (known && known <= 10 ? known : null) : rank;
 }
 
-/** The stone itself; `pieceRank` 1–10 makes it a ranker's stone. */
-export function Stone({ name, size, pieceRank = null }: { name: string; size: number; pieceRank?: number | null }) {
+/**
+ * The stone itself; `pieceRank` 1–10 makes it a ranker's stone. A past week's champion (looked up by nickname
+ * unless `champion` is given) always wears the platinum crown, which outranks the current-week look.
+ */
+export function Stone({ name, size, pieceRank = null, champion }: { name: string; size: number; pieceRank?: number | null; champion?: 1 | 2 | 3 | null }) {
   const id = useId().replace(/:/g, '');
+  const champ = useChampion(name, champion);
+  if (champ) return <ChampionStone id={id} name={name} size={size} place={champ} />;
   const ranker = pieceRank != null && pieceRank <= 10;
   const crown = ranker && pieceRank <= 3;
   const tone = crown ? METAL[pieceRank as 1 | 2 | 3] : ranker ? METAL.gold : toneFor(name || '?');
@@ -95,6 +138,45 @@ export function Stone({ name, size, pieceRank = null }: { name: string; size: nu
           <circle cx="50" cy="15" r="3.2" fill="#ff5b6e" />
         </g>
       )}
+    </svg>
+  );
+}
+
+/** A finished week's top three: platinum stone, a gem-set platinum crown, a halo and two sparkles. */
+function ChampionStone({ id, name, size, place }: { id: string; name: string; size: number; place: 1 | 2 | 3 }) {
+  const tone = PLATINUM[place];
+  const cy = 58, r = 40;
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={name}>
+      <defs>
+        <radialGradient id={`ps-${id}`} cx="35%" cy="28%" r="78%">
+          <stop offset="0%" stopColor={tone.hi} />
+          <stop offset="50%" stopColor={tone.mid} />
+          <stop offset="100%" stopColor={tone.lo} />
+        </radialGradient>
+        <linearGradient id={`pc-${id}`} x1="0" y1="0" x2="0.35" y2="1">
+          <stop offset="0%" stopColor={tone.crown[0]} />
+          <stop offset="45%" stopColor={tone.crown[1]} />
+          <stop offset="100%" stopColor={tone.crown[2]} />
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy={cy} r={r + 7} fill="none" stroke={tone.glow} strokeOpacity=".35" strokeWidth="6" />
+      <circle cx="50" cy={cy} r={r + 4} fill="none" stroke={tone.rim} strokeOpacity=".55" strokeWidth="1.2" />
+      <circle cx="50" cy={cy + 3} r={r} fill="rgba(0,0,0,.22)" />
+      <circle cx="50" cy={cy} r={r} fill={`url(#ps-${id})`} stroke={tone.rim} strokeWidth="2" />
+      <ellipse cx="38" cy={cy - 20} rx="11" ry="5" fill="#ffffff" opacity=".55" transform={`rotate(-28 38 ${cy - 20})`} />
+      <rect x={50 - r * 0.33} y={cy - r * 0.35} width={r * 0.2} height={r * 0.37} rx={r * 0.1} fill={tone.eye} />
+      <rect x={50 + r * 0.13} y={cy - r * 0.35} width={r * 0.2} height={r * 0.37} rx={r * 0.1} fill={tone.eye} />
+      <g>
+        <path d="M24 27 L29 3 L40 16 L50 -3 L60 16 L71 3 L76 27 Z" fill={`url(#pc-${id})`} stroke={tone.rim} strokeWidth="2.2" strokeLinejoin="round" />
+        <path d="M27 24 L31 7 L40 18" fill="none" stroke="#ffffff" strokeOpacity=".7" strokeWidth="1.4" strokeLinecap="round" />
+        <rect x="24" y="24" width="52" height="7" rx="2.5" fill={`url(#pc-${id})`} stroke={tone.rim} strokeWidth="2" />
+        <path d="M50 7 L55 13 L50 19 L45 13 Z" fill="#c9f6ff" stroke="#ffffff" strokeWidth="1.4" />
+        <circle cx="35" cy="27.5" r="2" fill="#c9f6ff" stroke="#ffffff" strokeWidth=".8" />
+        <circle cx="65" cy="27.5" r="2" fill="#c9f6ff" stroke="#ffffff" strokeWidth=".8" />
+      </g>
+      <path d="M86 30 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="#ffffff" opacity=".9" />
+      <path d="M13 44 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5z" fill="#ffffff" opacity=".8" />
     </svg>
   );
 }
