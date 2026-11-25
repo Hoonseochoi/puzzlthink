@@ -4686,6 +4686,8 @@
     "giveUpHeading": "Answers and tips for this skipped board",
     "answersTitle": "Every Hap on this board",
     "answerCount": "{n}",
+    "foundTitle": "HAP FOUND",
+    "foundEmpty": "None yet. Each Hap you find shows up here.",
     "noHapAnswer": "No Hap exists — Gyul is the answer",
     "answerTipTitle": "Gyul! Hap! tips",
     "nextBoard": "Next board",
