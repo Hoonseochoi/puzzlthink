@@ -8762,6 +8762,8 @@
       "evOpenTitle": "오픈 대전",
       "evOpenSub": "열린 방에 바로 입장",
       "evOpenRooms": "지금 열린 방 {n}개 · 바로 입장",
+      "evOpenLive": "지금 오픈전 {open}판 · 친구전 {friend}판 진행 중",
+      "evOpenWaiting": "대기방 {n}개",
       "roomsN": "{n}개 방",
       "winsN": "{n}승",
       "evOpenCta": "방 보기"
