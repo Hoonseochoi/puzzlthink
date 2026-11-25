@@ -148,3 +148,10 @@ button:disabled { cursor: default; }
 @media (prefers-reduced-motion: reduce) {
   .hell-btn, .hell-glitch::before, .hell-glitch::after { animation: none; }
 }
+
+/* 수식 신호등: lamps switch on one after another. */
+@keyframes signal-pop {
+  0% { transform: scale(0.6); opacity: 0.2; }
+  70% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}

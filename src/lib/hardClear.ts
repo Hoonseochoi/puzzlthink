@@ -8,12 +8,14 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 /** tier 'hell' = 매우 어려움 certificate (its own numbering, id starts with 'h'). */
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number; tier: 'hard' | 'hell' };
 
-type Href = '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
   card_janggi: { ko: '카드 장기', en: 'Card Janggi', href: '/card-janggi', color: '#b07cff' },
   color_link_duel: { ko: '컬러 링크', en: 'Color Link Duel', href: '/color-link-duel', color: '#7c6cff' },
   hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay', href: '/hit-stay', color: '#6f7dff' },
   gradation: { ko: '그라데이션', en: 'Gradation', href: '/gradation', color: '#3fd67a' },
+  equation_signal: { ko: '수식 신호등', en: 'Equation Signal', href: '/equation-signal', color: '#b6e33a' },
+  equation_tower: { ko: '수식의 탑', en: 'Tower of Equations', href: '/equation-tower', color: '#f08c5a' },
   point_omok: { ko: '포인트 오목', en: 'Point Omok', href: '/point-omok', color: '#ff5d8f' },
   merge2048: { ko: '2048', en: '2048', href: '/2048', color: '#ff8fa3' },
   magicswap: { ko: '마방진 스왑', en: 'Magic Square Swap', href: '/magic-square', color: '#e45bd6' },

@@ -6,7 +6,7 @@ import type { GameId as StatsId } from './stats';
 
 /** Records name each game differently from the catalog. */
 export const STATS_ID: Record<CatalogId, StatsId> = {
-  gradation: 'gradation', cardJanggi: 'card_janggi', colorLinkDuel: 'color_link_duel', hitStay: 'hit_stay', pointOmok: 'point_omok', merge2048: 'merge2048', magicswap: 'magicswap', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram', twoSidedPoker: 'two_sided_poker', monorail: 'monorail',
+  equationSignal: 'equation_signal', equationTower: 'equation_tower', gradation: 'gradation', cardJanggi: 'card_janggi', colorLinkDuel: 'color_link_duel', hitStay: 'hit_stay', pointOmok: 'point_omok', merge2048: 'merge2048', magicswap: 'magicswap', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram', twoSidedPoker: 'two_sided_poker', monorail: 'monorail',
   fourThree: 'four_three', flipOmok: 'flip_omok', nineMensMorris: 'nine_mens_morris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indianPoker: 'indian_poker',
   hexagon: 'hexagon', piggyBank: 'piggy_bank', nemoCount: 'nemo_count', blackWhite: 'black_white', blackWhite2: 'black_white_2', laserJanggi: 'laser_janggi', blindGomoku: 'blind_gomoku',
   wallgo: 'wallgo', russianRoulette: 'russian_roulette', heavy13: 'heavy13', janggi: 'janggi', russianJanggi: 'russian_janggi', sudoku: 'sudoku',
@@ -40,7 +40,7 @@ export const CHANNEL_GAME: Record<string, CatalogId> = {
   'wallgo-room': 'wallgo', 'wallgo2-room': 'wallgo2', 'slither-room': 'slitherlink', 'gyulhap-room': 'gyulhap', 'indian-poker-room': 'indianPoker',
   'hexagon-room': 'hexagon', 'piggy-bank-room': 'piggyBank', 'nemo-count-room': 'nemoCount', 'black-white-room': 'blackWhite', 'black-white-2-room': 'blackWhite2',
   'laser-janggi-room': 'laserJanggi', 'blind-gomoku-room': 'blindGomoku', 'morris-room': 'nineMensMorris', 'flip-omok-room': 'flipOmok', 'four-three-room': 'fourThree', 'point-omok-room': 'pointOmok', 'russian-roulette-room': 'russianRoulette', 'heavy13-room': 'heavy13',
-  'janggi-room': 'janggi', 'russian-janggi-room': 'russianJanggi', 'hit-stay-room': 'hitStay', 'card-janggi-room': 'cardJanggi', 'color-link-duel-room': 'colorLinkDuel', 'gradation-room': 'gradation',
+  'janggi-room': 'janggi', 'russian-janggi-room': 'russianJanggi', 'hit-stay-room': 'hitStay', 'card-janggi-room': 'cardJanggi', 'color-link-duel-room': 'colorLinkDuel', 'gradation-room': 'gradation', 'equation-signal-room': 'equationSignal', 'equation-tower-room': 'equationTower',
 };
 export type LiveRoomRow = { game: CatalogId; open: number; friend: number };
 

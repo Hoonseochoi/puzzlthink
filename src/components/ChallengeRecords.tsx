@@ -13,13 +13,13 @@ import { byGameOrder } from './recordOrder';
 import RankBlock from './merge2048/RankBlock';
 import { blockOfSub } from '@/lib/merge2048';
 
-type Board = 'merge2048' | 'magicswap' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
+type Board = 'merge2048' | 'magicswap' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'slither' | 'gyulhap10' | 'gyulhap5' | 'hexagon' | 'eqsignal' | 'eqtower' | 'nemo_easy' | 'nemo_normal' | 'nemo_hard';
 type Row = { rank: number; nickname: string; avatar_url: string | null; score: number; sub: number | null; prev_rank?: number | null };
 type Card = { key: string; game: GameId; boards: Board[]; title: string };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const NEMO: Board[] = ['nemo_hard', 'nemo_normal', 'nemo_easy'];
-const BOARDS: Board[] = ['magicswap', 'slither', 'binairo', 'onestroke', 'colorlink', 'starbattle', 'masyu', 'nonogram', 'gyulhap10', 'gyulhap5', 'hexagon', 'merge2048', ...NEMO];
+const BOARDS: Board[] = ['magicswap', 'slither', 'binairo', 'onestroke', 'colorlink', 'starbattle', 'masyu', 'nonogram', 'gyulhap10', 'gyulhap5', 'hexagon', 'eqsignal', 'eqtower', 'merge2048', ...NEMO];
 const clock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
 
 /** Solo challenges in 기록실: a top-3 board per challenge, then my own best runs. Games follow the site order; boards nobody is on yet go last. */
@@ -53,6 +53,8 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { key: 'gyulhap5', game: 'gyulhap', boards: ['gyulhap5'], title: t('chGyul5') },
     { key: 'nemo', game: 'nemo_count', boards: NEMO, title: t('chNemo') },
     { key: 'hexagon', game: 'hexagon', boards: ['hexagon'], title: t('chHexagon') },
+    { key: 'eqsignal', game: 'equation_signal', boards: ['eqsignal'], title: t('chEqSignal') },
+    { key: 'eqtower', game: 'equation_tower', boards: ['eqtower'], title: t('chEqTower') },
     { key: 'merge2048', game: 'merge2048', boards: ['merge2048'], title: t('chMerge2048') },
   ];
   const stat = (b: Board, r: Row) => b === 'slither' || b === 'binairo' || b === 'onestroke' || b === 'colorlink' || b === 'magicswap' || b === 'starbattle' || b === 'masyu' || b === 'nonogram' ? t('chMaps', { n: r.score })
@@ -80,6 +82,8 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
       gyulhap10: pick('gyulhap', (d) => d.mode === 'challenge10', 'score'),
       gyulhap5: pick('gyulhap', (d) => d.mode === 'challenge5', 'score'),
       hexagon: pick('hexagon', (d) => d.mode === 'challenge', 'score'),
+      eqsignal: pick('equation_signal', (d) => d.mode === 'challenge', 'score'),
+      eqtower: pick('equation_tower', (d) => d.mode === 'challenge', 'score'),
       merge2048: pick('merge2048', (d) => d.mode === 'endless', 'score'),
       nemo: Object.fromEntries(['easy', 'normal', 'hard'].map((lv) => [lv, pick('nemo_count', (d) => d.difficulty === lv, 'correct')])) as Record<string, number | null>,
     };
@@ -98,6 +102,8 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { game: 'gyulhap' as GameId, title: t('chGyul5'), line: mine.gyulhap5 !== null ? t('chScore', { n: mine.gyulhap5 }) : null },
     { game: 'nemo_count' as GameId, title: t('chNemo'), line: Object.values(mine.nemo).some((v) => v !== null) ? t('myNemo', { e: mine.nemo.easy ?? '—', n: mine.nemo.normal ?? '—', h: mine.nemo.hard ?? '—' }) : null },
     { game: 'hexagon' as GameId, title: t('chHexagon'), line: mine.hexagon !== null ? t('chScore', { n: mine.hexagon }) : null },
+    { game: 'equation_signal' as GameId, title: t('chEqSignal'), line: mine.eqsignal !== null ? t('chScore', { n: mine.eqsignal }) : null },
+    { game: 'equation_tower' as GameId, title: t('chEqTower'), line: mine.eqtower !== null ? t('chScore', { n: mine.eqtower }) : null },
     { game: 'merge2048' as GameId, title: t('chMerge2048'), line: mine.merge2048 !== null ? t('chScore', { n: mine.merge2048 }) : null },
   ], (c) => c.game, (c) => c.line !== null);
 

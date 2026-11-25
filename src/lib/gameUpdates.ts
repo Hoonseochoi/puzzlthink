@@ -24,6 +24,28 @@ export type GameUpdateLog = {
 };
 
 export const GAME_UPDATES: Record<string, GameUpdateLog> = {
+  equation_signal: {
+    name: { ko: '수식 신호등', en: 'Equation Signal' },
+    note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
+    items: [
+      {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '수식 신호등이 열렸어요', desc: '데블스 플랜 3 결승 3회전 게임이에요. 연습하기, 10분 챌린지(랭킹), 친구·공개방 2~4명 대결을 할 수 있어요.' },
+        en: { title: 'Equation Signal is open', desc: 'The third game of the Devil\'s Plan 3 final. Practice, a ranked 10-minute challenge, and friend or open rooms for 2–4.' },
+      },
+    ],
+  },
+  equation_tower: {
+    name: { ko: '수식의 탑', en: 'Tower of Equations' },
+    note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
+    items: [
+      {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '수식의 탑이 열렸어요', desc: '데블스 플랜 3 감옥 매치 게임이에요. 연습하기, 10분 챌린지(랭킹), 친구·공개방 2~4명 버저 대결을 할 수 있어요.' },
+        en: { title: 'Tower of Equations is open', desc: 'A prison match from The Devil\'s Plan 3. Practice, a ranked 10-minute challenge, and a buzzer game in friend or open rooms for 2–4.' },
+      },
+    ],
+  },
   hit_stay: {
     name: { ko: 'Hit,Stay', en: 'Hit,Stay' },
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
