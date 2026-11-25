@@ -108,7 +108,7 @@ const ko = {
   rematchWait: '방장이 다시 시작하길 기다리는 중',
   showResult: '결과 보기',
   quick: [
-    '숫자 카드 35장(7·6·6 … 1×7, -1×7). 칩 30개로 시작하고 기본 베팅 1칩, 3라운드마다 +5.',
+    '숫자 카드 35장(7·6·6 … 1×7, -1×7). 칩 30개로 시작하고 기본 베팅 1칩, 2라운드마다 +1(16라운드부터는 2라운드마다 +5).',
     '8면체 주사위(5~12)로 한계 숫자를 정하고 3장씩 받아 1장을 공개해요.',
     '1차 베팅 → 선부터 HIT(카드 받기) / STAY(멈추기) → 2차 베팅. 베팅은 최저 보유자 칩까지.',
     '한계에 가장 가까운 합이 승리, 같으면 카드가 많은 쪽. 한계를 넘으면 최하위. 칩이 0이면 탈락.',
@@ -246,7 +246,7 @@ const en: HsCopy = {
   rematchWait: 'Waiting for the host to restart',
   showResult: 'Result',
   quick: [
-    '35 number cards (7, 6×2 … 1×7, -1×7). 30 chips each, ante 1, +5 every 3 rounds.',
+    '35 number cards (7, 6×2 … 1×7, -1×7). 30 chips each, ante 1, +1 every 2 rounds (from round 16, +5 every 2 rounds).',
     'An eight-sided die (5–12) sets the limit. Three cards each; show one.',
     'Bet → HIT (take a card) / STAY in turn → bet again. Bets are capped at the smallest stack.',
     'Closest to the limit wins; equal sums go to more cards; over the limit is last. 0 chips = out.',
