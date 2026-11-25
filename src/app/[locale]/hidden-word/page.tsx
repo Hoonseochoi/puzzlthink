@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const korean = locale !== 'en';
   return pageMetadata({
     locale, path: '/hidden-word',
-    title: korean ? '히든 워드 — 유사도로 단어를 맞히는 데블스 플랜 단어 게임, AI 승점전' : "Hidden Word — the similarity word game from The Devil's Plan, vs AI",
+    title: korean ? '히든 워드 — 데블스 플랜 유사도 단어 게임 온라인 무료 | 규칙·AI 승점전' : "Hidden Word — the similarity word game from The Devil's Plan, vs AI",
     description: korean
       ? '내 단어는 숨기고, 힌트의 유사도 숫자로 상대의 히든 워드를 맞히세요. 데블스 플랜의 히든 워드를 AI와 1:1 승점전으로. 95% 힌트를 내면서 들키지 않는 단어 심리전, 승점 랭킹.'
       : "Hide your word and find the opponent's from the similarity of each hint. The Hidden Word game from The Devil's Plan as a one-on-one point match against an AI, with a points ranking. Korean words.",
