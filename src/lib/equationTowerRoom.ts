@@ -47,7 +47,7 @@ export type EqtRoomAction =
 export function createEqtRoom(host: Peer): EqtRoom {
   return {
     sid: newSid(), v: 1, seats: [{ id: host.id, name: host.name }, ...Array(EQT_MAX_PLAYERS - 1).fill(null)] as Seat[],
-    phase: 'lobby', deadline: 0, goal: 5, players: [], blocks: [], stacks: [[], [], []], round: null, index: 0,
+    phase: 'lobby', deadline: 0, goal: 5, players: [], blocks: [], stacks: [[], [], [], []], round: null, index: 0,
     bids: Array(EQT_MAX_PLAYERS).fill(null), first: null, actor: null, movesLeft: 0, phaseEnd: 0, last: null, scores: Array(EQT_MAX_PLAYERS).fill(0),
   };
 }

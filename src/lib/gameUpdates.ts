@@ -41,6 +41,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
+        ko: { title: '자리가 4칸으로 늘었어요', desc: '블록을 놓을 자리가 3칸에서 4칸이 됐어요. 옮길 여유가 생겨서 더 다양한 방법으로 탑을 쌓을 수 있어요.' },
+        en: { title: 'Four stacks instead of three', desc: 'There are now four places to put blocks, so there is more room to move and more ways to build a tower.' },
+      },
+      {
+        date: '11/26', icon: Sparkles,
         ko: { title: '수식의 탑이 열렸어요', desc: '데블스 플랜 3 감옥 매치 게임이에요. 연습하기, 10분 챌린지(랭킹), 친구·공개방 2~4명 버저 대결을 할 수 있어요.' },
         en: { title: 'Tower of Equations is open', desc: 'A prison match from The Devil\'s Plan 3. Practice, a ranked 10-minute challenge, and a buzzer game in friend or open rooms for 2–4.' },
       },
