@@ -1,7 +1,7 @@
 // Room-level checks for 카드 장기: `npx tsx scripts/card-janggi-room-test.ts [matches]`
 // Plays whole matches through the room reducer (random players, with timeouts thrown in) and checks round flow,
 // match end, the timeout rule (the opponent moves the late player's piece), idle loss, and what a guest's view holds.
-import { CJ_MAX_ROUNDS, CJ_WINS, type CjSeat, currentCard, legalMoves, layoutSize, randomLayout } from '../src/lib/cardJanggi';
+import { CJ_MAX_ROUNDS, CJ_WINS, type CjSeat, currentCard, legalMoves, layoutSize, other, randomLayout } from '../src/lib/cardJanggi';
 import { judgeMove } from '../src/lib/cardJanggiAi';
 import { checkTips, positionBefore, spotsFor } from '../src/lib/cardJanggiTips';
 import { type CjRoom, CJ_IDLE_LOSS, cjPrivateFor, cjWaitingOn, cjWithPrivate, createCjRoom, redactCjRoom, reduceCjRoom } from '../src/lib/cardJanggiRoom';
@@ -37,6 +37,14 @@ for (let m = 0; m < n; m += 1) {
   let s = createCjRoom({ id: 'a', name: 'A', at: 0 });
   s = { ...s, seats: [{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }] };
   s = reduceCjRoom(s, { t: 'start' }, 0, true) ?? fail('start') as never;
+  // A player picks 선/후 first (in a room the coin-picked seat); now and then the choice times out.
+  if (s.phase !== 'choose' || (s.chooser !== 0 && s.chooser !== 1)) fail('a match starts with a player choosing', s);
+  const chooser = s.chooser as CjSeat;
+  if (reduceCjRoom(s, { t: 'choose', first: 0 }, other(chooser), false)) fail('only the chooser picks', s);
+  const pickFirst = (m % 2 === 0 ? chooser : other(chooser)) as CjSeat;
+  s = m % 7 === 3 ? reduceCjRoom(expire(s), { t: 'timeout' }, null, true) ?? fail('choose timeout', s) as never
+    : reduceCjRoom(s, { t: 'choose', first: pickFirst }, chooser, false) ?? fail('choose', s) as never;
+  if (s.phase !== 'playing' || s.game.first !== (m % 7 === 3 ? chooser : pickFirst)) fail('the chosen side goes first', s);
   const lazy = m % 10 === 0 ? (m % 20 === 0 ? 0 : 1) : -1; // some matches have one player who never acts
   let steps = 0;
   while (s.phase !== 'finished') {
@@ -99,6 +107,7 @@ console.log(`ok · ${matches} matches, ${rounds} rounds · proxy moves ${proxies
   let s = createCjRoom({ id: 'a', name: 'A', at: 0 });
   s = { ...s, seats: [{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }] };
   s = reduceCjRoom(s, { t: 'start' }, 0, true)!;
+  s = reduceCjRoom(s, { t: 'choose', first: 0 }, s.chooser, false)!;
   while (s.phase !== 'finished') {
     if (s.phase === 'between') { s = reduceCjRoom(expire(s), { t: 'next' }, null, true)!; continue; }
     const g = s.game;
