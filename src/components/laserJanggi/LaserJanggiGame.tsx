@@ -16,6 +16,7 @@ import { applyLaserAction, chooseLaserAiAction, initialLaserPieces, legalActions
 import LaserBoard from './LaserBoard';
 import LaserPiece from './LaserPiece';
 import { LASER_CYAN } from './theme';
+import GameUpdates from '@/components/GameUpdates';
 
 export default function LaserJanggiGame() {
   const t = useTranslations('LaserJanggi');
@@ -94,7 +95,7 @@ export default function LaserJanggiGame() {
     <Shards />
     <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
       <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
-      <BugReport /><LanguageSwitcher compact dark />
+      <GameUpdates game="laser_janggi" /><BugReport /><LanguageSwitcher compact dark />
       <button type="button" onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
     </GameHeader>
 

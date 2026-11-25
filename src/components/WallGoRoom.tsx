@@ -23,6 +23,7 @@ import WallGoScoreStrip from './WallGoScoreStrip';
 import WallGoCharacter, { WallGoVariant } from './WallGoCharacter';
 import Shards from './WallGoShards';
 import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
+import GameUpdates from '@/components/GameUpdates';
 
 export default function WallGoRoom({ code, variant = 1 }: { code: string; variant?: Variant }) {
   const t = useTranslations('WallGoOnline');
@@ -148,7 +149,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
           <strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc(GAME) : v2 ? 'WALLGO II' : 'WALLGO'}</strong>
           <span className="hidden text-[9px] font-bold tracking-[0.16em] text-[#ff4d5e]/70 sm:inline">ONLINE · {mode ? `${mode.id === 'two' ? '1:1' : '1:1:1'} · ` : ''}{code.toUpperCase()}</span>
         </div>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game={GAME} /><BugReport /><LanguageSwitcher compact dark />
       </header>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3ba] lg:px-6"><WifiOff size={14} />{notice}</div>}

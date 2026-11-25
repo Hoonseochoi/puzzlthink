@@ -18,6 +18,7 @@ import { CldRules, RulesPanel } from './CldRules';
 import CldTable from './CldTable';
 import CldBoardPicker from './CldBoardPicker';
 import { CLD_ACCENT, CLD_ROOT_STYLE, type CldCopy, cldCopy } from './copy';
+import GameUpdates from '@/components/GameUpdates';
 
 /** A 1:1 컬러 링크 room (friend link or open room). */
 export default function CldRoomView({ code }: { code: string }) {
@@ -60,7 +61,7 @@ export default function CldRoomView({ code }: { code: string }) {
       <RoomAlerts alerts={alerts} accent={CLD_ACCENT} joinText={t.joined} leaveText={t.left} />
       <GameHeader backHref="/color-link-duel" backLabel={t.back} title={t.title} subtitle={<span className="font-mono">{t.online} · {code}</span>}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="color_link_duel" /><BugReport /><LanguageSwitcher compact dark />
         {live && mySeat !== null && <button type="button" onClick={() => { if (window.confirm(t.resignConfirm)) dispatch({ t: 'resign' }); }} className={BTN} aria-label={t.resign}><Flag size={14} /><span className="hidden sm:inline">{t.resign}</span></button>}
       </GameHeader>
       {notice && <p className="relative z-10 mx-auto mt-3 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ff948d]"><WifiOff size={14} />{notice}</p>}

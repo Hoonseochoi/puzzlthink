@@ -1,4 +1,6 @@
-// 컬러 링크 AI (어려움 only). Plays best by the rules' own logic:
+// 컬러 링크 AI. 매우 어려움 ('hell') plays best by the rules' own logic (below); 어려움 and 보통 are the same player
+// with human-like gaps: they plan only some of their turns and now and then miss a board that can no longer be
+// joined (see CLD_LEVELS). 매우 어려움:
 //
 // - It calls 불가능 exactly when the solver proves the board cannot be joined, and proves its own boards with the
 //   solver's lines, so it never loses a proof it could win and never calls a board that can be saved.
@@ -13,6 +15,22 @@ import {
   stonesOf, stonesToPlace,
 } from './colorLinkDuel';
 import { rng } from './colorlink';
+
+/**
+ * AI strength. 'hell' (매우 어려움) is the full AI: it was the game's only AI until 11/26 and people won 2.7% of 590 games.
+ * - plan: share of its turns on which it looks for a finishing move and steers the race of space; on the other turns
+ *   it places anywhere the lines can still be joined.
+ * - miss: chance per turn that it overlooks a board that can no longer be joined (it then plays on instead of calling it).
+ * - slip: chance per turn that it places without checking the lines at all (the placement may break the board).
+ * 어려움 aims at about one human win in four, 보통 at about one in two; first guesses, to be retuned from play data.
+ */
+export type CldLevel = 'normal' | 'hard' | 'hell';
+export const CLD_LEVELS: Record<CldLevel, { plan: number; miss: number; slip: number }> = {
+  normal: { plan: 0, miss: 0.5, slip: 0.07 },
+  hard: { plan: 0.4, miss: 0.3, slip: 0 },
+  hell: { plan: 1, miss: 0, slip: 0 },
+};
+export const isCldLevel = (v: unknown): v is CldLevel => v === 'normal' || v === 'hard' || v === 'hell';
 
 export type CldAiMove = { kind: 'declare' } | { kind: 'place'; stones: [number, number][] };
 
@@ -162,10 +180,23 @@ type Scored = { stones: [number, number][]; board: CldBoard; score: number; s: n
  * The AI's placement. `deadline` (ms timestamp) bounds the thinking; `seed` varies its choice between
  * equally good placements.
  */
-export function aiPlace(board: CldBoard, opening: boolean, seed = Date.now(), deadline = Date.now() + 2500): [number, number][] {
+export function aiPlace(board: CldBoard, opening: boolean, seed = Date.now(), deadline = Date.now() + 2500, level: CldLevel = 'hell'): [number, number][] {
   const rand = rng(seed);
   const all = placements(board, opening);
   if (!all.length) return [];
+  const skill = CLD_LEVELS[level];
+  // The softer levels on a turn without a plan: the first placement (in random order) that can still be joined,
+  // or on a slip any placement at all.
+  if (!opening && level !== 'hell' && rand() >= skill.plan) {
+    const slip = rand() < skill.slip;
+    for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
+    if (slip) return all[0];
+    for (const stones of all) {
+      if (Date.now() > deadline + 1500) break;
+      if (solve(place(board, stones), { cap: FAST_CAP }).status === 'ok') return stones;
+    }
+    return all[0];
+  }
   if (opening) {
     // Any opening stone; away from the very edge leaves more for the race.
     const inner = all.filter(([[c]]) => cldNeighbors[c].length === 4 && cldNeighbors[c].every((j) => board[j] === 0));
@@ -235,14 +266,17 @@ export { stonesOf };
 /* ------------------------------------------------------------------ one entry point (page or worker) */
 
 export type CldAiRequest =
-  | { kind: 'turn'; board: CldBoard; opening: boolean; seed: number; thinkMs: number }
+  | { kind: 'turn'; board: CldBoard; opening: boolean; seed: number; thinkMs: number; level?: CldLevel }
   | { kind: 'proof'; board: CldBoard };
 export type CldAiAnswer = { move?: CldAiMove; proof?: CldPaths | null };
 
 /** The AI's turn (call 불가능, or place) or its proof. */
 export function cldAiAnswer(request: CldAiRequest): CldAiAnswer {
   if (request.kind === 'proof') return { proof: aiProof(request.board) };
-  if (!request.opening && aiShouldDeclare(request.board)) return { move: { kind: 'declare' } };
-  const stones = aiPlace(request.board, request.opening, request.seed, Date.now() + request.thinkMs);
+  const level = request.level ?? 'hell';
+  // A softer level overlooks a broken board now and then; it then plays on (any placement, the board is already lost).
+  const overlooks = rng(request.seed ^ 0x5bd1e995)() < CLD_LEVELS[level].miss;
+  if (!request.opening && !overlooks && aiShouldDeclare(request.board)) return { move: { kind: 'declare' } };
+  const stones = aiPlace(request.board, request.opening, request.seed, Date.now() + request.thinkMs, level);
   return { move: stones.length ? { kind: 'place', stones } : { kind: 'declare' } };
 }

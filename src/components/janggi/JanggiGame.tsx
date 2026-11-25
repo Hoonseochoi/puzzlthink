@@ -17,6 +17,7 @@ import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, CHIP, DIAMOND, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, seg, timer } from '../ui/gameUi';
 import { GOLD, JANGGI_FOG, SIDE_COLORS, hanjaFont } from './theme';
 import { HELL_HINT, hellSeg } from './hellStyle';
+import GameUpdates from '@/components/GameUpdates';
 
 const RECORD_KEY = 'puzzlthink_janggi_records';
 const TUTORIAL_KEY = 'puzzlthink_janggi_tutorial_seen';
@@ -166,7 +167,7 @@ export default function JanggiGame() {
       {showTutorial && <JanggiTutorial onClose={closeTutorial} />}
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title="十二將棋" titleClass={hanjaFont.className} subtitle={t('subtitle')}>
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="janggi" /><BugReport /><LanguageSwitcher compact dark />
         <button onClick={() => newGame()} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 

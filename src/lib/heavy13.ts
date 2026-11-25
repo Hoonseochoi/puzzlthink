@@ -285,8 +285,11 @@ function optionValues(state: Heavy13, seat: number, model: Mixed[], sims: number
 
 // sims: samples per option for the opponent forecast; finalSims: for the AI's own choice;
 // temp: how spread the forecast is; finalTemp: how sharply the AI takes its best option.
-/** How often the normal AI skips its look-ahead (tuned from play data toward ~35% human first places). */
-const NORMAL_SLIP = 0.3;
+/**
+ * How often the normal AI skips its look-ahead. At 0.3 people took first place 19% of the time against normal and 25%
+ * against hard (normal was no easier: average rank 3.48 vs 3.41 of 6), so normal now slips on half its turns.
+ */
+const NORMAL_SLIP = 0.5;
 const LEVELS = {
   normal: { sims: 10, finalSims: 16, temp: 0.3, finalTemp: 0.12 },
   hard: { sims: 24, finalSims: 70, temp: 0.25, finalTemp: 0.03 },

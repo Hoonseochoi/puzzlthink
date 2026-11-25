@@ -13,6 +13,7 @@ import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL
 import { reportGame } from '@/lib/stats';
 import { answerChallenge, chooseMonorailAction, declareImpossible, giveUpChallenge, inChallenge, moveText, newMonorail, playMonorail, proveCompletion, type MonorailLevel, type MonorailState, type RailTile } from '@/lib/monorail';
 import { ChallengeBanner, MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, ResultExtras, TileDeck, TurnControls, monorailFrames, useFrameCaption, useMonorailDraft } from './MonorailParts';
+import GameUpdates from '@/components/GameUpdates';
 
 const AI_NAME = 'VICKY';
 
@@ -100,7 +101,7 @@ export default function MonorailGame() {
     <div className={SHELL} style={{ ...accentVars(MONORAIL_ACCENT, MONORAIL_INK), backgroundImage: fog('116, 44, 52') }}>
       <Shards tint="#5e232d" />
       <GameHeader backHref="/monorail" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="monorail" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => restart()} className={BTN}><RotateCcw size={14} /><span className="hidden sm:inline">{t('restart')}</span></button>
       </GameHeader>
 

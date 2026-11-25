@@ -19,6 +19,7 @@ import { BG_TURN_OPTIONS, REVEALS, ownerOf, roomPlayableColors, seatToMove } fro
 import BlindGomokuBoard from './BlindGomokuBoard';
 import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
+import GameUpdates from '@/components/GameUpdates';
 
 const ACCENT = '#ffd166';
 
@@ -119,7 +120,7 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
       <Shards />
       <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader backHref="/blind-gomoku" backLabel={tc('blindGomoku')} title={tb('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="blind_gomoku" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

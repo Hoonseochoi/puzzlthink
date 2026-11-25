@@ -148,15 +148,19 @@ export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor
   if (myHand.length === 1) return myHand[0];
   const opp = other(me);
 
-  if (level === 'easy') {
-    // Plays by feel: a random tile half the time, otherwise a simple colour-aware choice.
-    if (rand() < 0.5) return pick(myHand, rand);
+  // 보통 plays one tile in four by feel (the simple colour-aware choice below), the rest like 어려움.
+  if (level === 'easy' || (level === 'normal' && rand() < 0.25)) {
+    // Plays by feel: a random tile half the time (easy only), otherwise a simple colour-aware choice.
+    if (level === 'easy' && rand() < 0.5) return pick(myHand, rand);
     if (!leadColor) return quickLead(myHand, rand);
     return quickFollow(myHand, handOf(rounds, opp).filter((n) => colorOf(n) === leadColor), rand);
   }
 
   const histories = possibleHistories(rounds, me);
-  const samples = level === 'hard' ? 700 : 60;
+  // Play data, twice over: the sharper the estimate, the more people won (700 samples: 47% wins and 24% draws for
+  // people; 60 samples: 41% and 20%; for people who played both, 51% vs 46%). A precise estimate repeats itself and
+  // gets read; a rough one mixes its tiles. So every level now uses the rough estimate.
+  const samples = 60;
   const scores = new Map<number, number>(myHand.map((t) => [t, 0]));
   for (let s = 0; s < samples; s += 1) {
     const history = histories.length ? pick(histories, rand) : [];
@@ -182,10 +186,8 @@ export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor
       scores.set(t, scores.get(t)! + playOut(rs, first, me, hands, rand));
     }
   }
-  // Softmax over win rates, so the AI is hard to read. Play data showed people beat the old, sharper hard
-  // more often than normal (66% vs 51% for the same players): a near-fixed choice gets learned and exploited.
-  // Hard now mixes more on top of a more accurate estimate; normal estimates more roughly.
-  const temp = level === 'hard' ? 0.08 : 0.11;
+  // Softmax over win rates, so the AI is hard to read: a near-fixed choice gets learned and exploited.
+  const temp = 0.11;
   const entries = [...scores.entries()].map(([t, v]) => [t, v / samples] as const);
   const top = Math.max(...entries.map(([, v]) => v));
   const weights = entries.map(([t, v]) => [t, Math.exp((v - top) / temp)] as const);

@@ -15,6 +15,7 @@ import { TSP_TURN_OPTIONS } from '@/lib/twoSidedPokerRoom';
 import { TSP_ACCENT, TSP_GLOW_RGB, TSP_INK, tspCopy } from './copy';
 import { TspCountingPanel, TspHistoryPanel, TspRulesPanel, TspStage } from './TwoSidedPokerTable';
 import { TspReplay, TspResultModal } from './TwoSidedPokerResult';
+import GameUpdates from '@/components/GameUpdates';
 
 export default function TwoSidedPokerRoomView({ code }: { code: string }) {
   const locale = useLocale();
@@ -36,7 +37,7 @@ export default function TwoSidedPokerRoomView({ code }: { code: string }) {
   const copy = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1500); } catch { /* clipboard optional */ } };
   const share = async () => { if (navigator.share) { try { await navigator.share({ title: t.title, url: shareUrl }); return; } catch { /* cancelled */ } } copy(); };
   const shell = { ...accentVars(TSP_ACCENT, TSP_INK), backgroundImage: fog(TSP_GLOW_RGB) };
-  const header = <GameHeader backHref="/two-sided-poker" backLabel={t.title} title={t.title} subtitle={r.online(code)}><BugReport /><LanguageSwitcher compact dark /></GameHeader>;
+  const header = <GameHeader backHref="/two-sided-poker" backLabel={t.title} title={t.title} subtitle={r.online(code)}><GameUpdates game="two_sided_poker" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>;
 
   if (!state) {
     return <div className={SHELL} style={shell}>{header}<main className="flex min-h-[70vh] items-center justify-center">{status === 'online' ? <Loader2 className="animate-spin" /> : <p className="flex items-center gap-2 text-sm text-white/50"><WifiOff size={15} />{status === 'error' ? r.connectionError : r.connecting}</p>}</main></div>;

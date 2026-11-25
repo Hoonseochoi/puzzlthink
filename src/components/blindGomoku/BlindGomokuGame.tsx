@@ -14,6 +14,7 @@ import BlindGomokuBoard from './BlindGomokuBoard';
 import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
 import { askHellMove, hellThinkMs } from './hellAi';
+import GameUpdates from '@/components/GameUpdates';
 
 type Phase = 'human' | 'ai' | 'finished';
 const ACCENT = '#ffd166';
@@ -137,7 +138,7 @@ export default function BlindGomokuGame() {
       <Shards />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
         <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="blind_gomoku" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 

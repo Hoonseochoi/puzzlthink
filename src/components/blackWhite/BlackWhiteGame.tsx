@@ -11,6 +11,7 @@ import { BTN_ACCENT, HEADING, KICKER, MAIN, PANEL, PANEL_TITLE, RESULT_PRIMARY, 
 import { reportGame } from '@/lib/stats';
 import { type BWDifficulty, type BWRound, type Side, chooseAiTile, colorOf, isOver, nextLeader, resolveRound, winnerOf } from '@/lib/blackWhite';
 import { Hand, MemoPad, OpponentTrack, Replay, RoundLog, Scoreboard, Table } from './BWParts';
+import GameUpdates from '@/components/GameUpdates';
 
 const ACCENT = '#e9c46a';
 const AI_NAME = 'LUNA';
@@ -93,7 +94,7 @@ export default function BlackWhiteGame() {
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('180, 180, 190') }}>
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="black_white" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 

@@ -140,7 +140,7 @@
     "memory": {
       "easy": "last 3 moves",
       "normal": "last 8 moves",
-      "hard": "last 24 moves",
+      "hard": "last 36 moves",
       "hell": "every move + reading ahead"
     },
     "difficultyLocked": "Difficulty is locked after the opening move.",
@@ -2491,9 +2491,9 @@
   "GameGate": {
     "cjAi": "AI 1:1 · Hard",
     "cldAi": "AI 1:1 · Hard",
-    "cldEasy": "AI 1:1 · Easy boards",
-    "cldNormal": "AI 1:1 · Normal boards",
-    "cldHard": "AI 1:1 · Hard boards",
+    "cldNormal": "AI 1:1 · Normal",
+    "cldHard": "AI 1:1 · Hard",
+    "cldHell": "AI 1:1 · Very Hard",
     "hsAi": "5 players · vs 4 AI",
     "hsRoom": "Create a room (1:1 to 5 · AI on/off)",
     "short_hsRoom": "2–5",
@@ -2912,7 +2912,7 @@
       },
       {
         "title": "The AI's memory",
-        "body": "AI difficulty is memory: easy remembers the last 3 moves, normal the last 8, hard the last 24. Building on old stones can catch the AI out. Very Hard (Hell) remembers every move in order (it never peeks underneath) and reads several moves ahead, including chains of fours and open threes."
+        "body": "AI difficulty is memory: easy remembers the last 3 moves, normal the last 8, hard the last 36. Building on old stones can catch the AI out. Very Hard (Hell) remembers every move in order (it never peeks underneath) and reads several moves ahead, including chains of fours and open threes."
       }
     ],
     "strategyTitle": "Tips — remember, mislead, check",
@@ -2946,7 +2946,7 @@
       {
         "tag": "vs AI",
         "title": "Revive old stones",
-        "body": "The AI forgets old moves (even hard keeps only the last 24; Very Hard is the exception). Finishing a line that connects to your early stones often goes unblocked."
+        "body": "The AI forgets old moves (even hard keeps only the last 36; Very Hard is the exception). Finishing a line that connects to your early stones often goes unblocked."
       },
       {
         "tag": "Replay",
@@ -7522,11 +7522,11 @@
     "aiRecord": "{w}W {l}L",
     "aiRecordDraw": "{w}W {l}L {d}D",
     "metaTitle": "AI Hell Mode · Take on the Very Hard AI",
-    "metaDescription": "Take on the strongest AI in Wallgo II, Wallgo, 12 Janggi, Russian Janggi and Blind Gomoku. Every win is a black piece, and your first win in a game earns a numbered clear certificate.",
+    "metaDescription": "Take on the strongest AI in Wallgo II, Wallgo, 12 Janggi, Russian Janggi, Blind Gomoku and Color Link Duel. Every win is a black piece, and your first win in a game earns a numbered clear certificate.",
     "eyebrow": "AI HELL MODE",
     "title": "AI Hell Mode",
     "subtitle": "Very Hard. Come in only if you think you can win.",
-    "intro": "Wallgo II, Wallgo, 12 Janggi, Russian Janggi and Blind Gomoku now have our strongest AI yet. Each win adds one black piece, and your first win in each game earns a Very Hard clear certificate.",
+    "intro": "Wallgo II, Wallgo, 12 Janggi, Russian Janggi, Blind Gomoku and Color Link Duel now have our strongest AI yet. Each win adds one black piece, and your first win in each game earns a Very Hard clear certificate.",
     "warn": "WARNING · THIS AI SHOWS NO MERCY",
     "ruleTitle": "Black piece race rules",
     "rule1": "1 win against the Very Hard AI = 1 black piece",
