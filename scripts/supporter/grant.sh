@@ -1,5 +1,5 @@
 #!/bin/sh
-# Give the 후원자 커버 to a player by nickname (after checking their CTEE support of 3,000원 or more).
+# Give the 후원자 커버 to a player by nickname (after checking their ₩3,000 CTEE support).
 #   scripts/supporter/grant.sh <nickname> [memo]
 # List supporters: scripts/supporter/grant.sh --list
 set -e

@@ -1,4 +1,4 @@
--- 후원자 커버: a ring drawn around the profile icon of players who supported the site (3,000원 or more on CTEE).
+-- 후원자 커버: a ring drawn around the profile icon of players who supported the site (a ₩3,000 support on CTEE).
 -- CTEE has no API, so a supporter is added by hand from the nickname in their support message:
 --   scripts/supporter/grant.sh <nickname> [memo]   (calls grant_supporter as postgres)
 -- The cover goes over whichever icon the player uses; the player can switch it off (and on again).
