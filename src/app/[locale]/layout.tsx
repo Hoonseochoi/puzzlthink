@@ -9,6 +9,7 @@ import { AuthProvider } from '@/components/AuthProvider';
 import HallCelebration from '@/components/HallCelebration';
 import HardClearCelebration from '@/components/HardClearCelebration';
 import HellClearCelebration from '@/components/hell/HellClearCelebration';
+import IconUnlock from '@/components/IconUnlock';
 import OpenResultCelebration from '@/components/OpenResultCelebration';
 import NicknamePrompt from '@/components/NicknamePrompt';
 import GlobalFooter from '@/components/GlobalFooter';
@@ -80,6 +81,7 @@ export default async function LocaleLayout({
           <HallCelebration />
           <HardClearCelebration />
           <HellClearCelebration />
+          <IconUnlock />
           <OpenResultCelebration />
           <NicknamePrompt />
           <OnlineCount />

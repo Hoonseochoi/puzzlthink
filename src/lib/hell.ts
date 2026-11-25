@@ -44,3 +44,23 @@ export function isHellClear(game: GameId, mode: string, result: string, detail: 
 export const isHellCertId = (id: string) => /^h[0-9a-f]{12}$/.test(id);
 
 export type BlackPieceRow = { rank: number; nickname: string; avatar_url: string | null; pieces: number; per_game: Partial<Record<GameId, number>>; last_win: string; is_me: boolean | null; prev_rank: number | null };
+
+/**
+ * 블랙피스 경쟁전 runs in 7-day weeks (same as the SQL hell_week_of): 1W = launch → 2026-12-02 00:00 KST,
+ * then a new week every 7 days. A finished week's top three get the hell-mode icons (h{week}-{place}).
+ */
+const HELL_WEEK2_START = Date.parse('2026-12-02T00:00:00+09:00');
+const DAY = 86_400_000;
+export const hellWeekOf = (at = Date.now()) => (at < HELL_WEEK2_START ? 1 : 2 + Math.floor((at - HELL_WEEK2_START) / (7 * DAY)));
+/** First and last day (KST, ms at that day's 00:00) of a hell week; week 1's first day is launch day, 11/24. */
+export const hellWeekDays = (week: number) => ({
+  first: week <= 1 ? Date.parse('2026-11-24T00:00:00+09:00') : HELL_WEEK2_START + (week - 2) * 7 * DAY,
+  last: HELL_WEEK2_START + (week - 1) * 7 * DAY - DAY,
+});
+/** "12/1(화)" / "Tue 12/1", in KST. */
+export function kstDay(ms: number, locale: string) {
+  const d = new Date(ms + 9 * 3_600_000);
+  const md = `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
+  const wd = d.getUTCDay();
+  return locale === 'en' ? `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][wd]} ${md}` : `${md}(${'일월화수목금토'[wd]})`;
+}

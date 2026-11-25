@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDown, Crown, Swords } from 'lucide-react';
+import { CalendarDays, ChevronDown, Crown, Swords } from 'lucide-react';
 import type { GameId } from '@/lib/stats';
 import { CERT_GAMES } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
@@ -50,9 +50,16 @@ function RankChange({ row, className = '' }: { row: Row; className?: string }) {
 }
 
 
-/** Weeks of 피스 경쟁전: 2W runs now (from 11/25 KST, 5 pieces per game); 1W ended 11/24 (30 per game) and is kept as a hall of fame. */
-export const PIECE_WEEKS = { 2: { cap: 5, live: true }, 1: { cap: 30, live: false } } as const;
+/**
+ * Weeks of 피스 경쟁전: 2W runs one week, 11/25 00:00 → 12/2 00:00 KST (5 pieces per game; the SQL stops counting at
+ * the end too); 1W ended 11/24 (30 per game) and is kept as a hall of fame. A week is live until it ends.
+ */
+export const PIECE_WEEKS = {
+  2: { cap: 5, ends: Date.parse('2026-12-02T00:00:00+09:00') },
+  1: { cap: 30, ends: Date.parse('2026-11-25T00:00:00+09:00') },
+} as const;
 type Week = keyof typeof PIECE_WEEKS;
+export const pieceWeekLive = (week: Week) => Date.now() < PIECE_WEEKS[week].ends;
 
 /** Wins per game behind a player's pieces, most first. */
 function GameWins({ row, cap }: { row: Row; cap: number }) {
@@ -83,7 +90,7 @@ export default function CompetitionBoard() {
   const [week, setWeek] = useState<Week>(2);
   const [loaded, setLoaded] = useState<{ week: Week; rows: Row[] } | null>(null);
   const [open, setOpen] = useState<number | null>(null);
-  const live = PIECE_WEEKS[week].live;
+  const live = pieceWeekLive(week);
   const cap = PIECE_WEEKS[week].cap;
   const rows = loaded?.week === week ? loaded.rows : null;
 
@@ -91,7 +98,8 @@ export default function CompetitionBoard() {
     let alive = true;
     const supabase = getSupabase();
     if (!supabase) { setLoaded({ week, rows: [] }); return; } // eslint-disable-line react-hooks/set-state-in-effect -- no server: show the empty board
-    const call = PIECE_WEEKS[week].live ? supabase.rpc('competition_ranking', { p_limit: 50 }) : supabase.rpc('competition_final', { p_week: week, p_limit: 50 });
+    // 2W is ranked live (the SQL stops counting at its end); 1W is a frozen board.
+    const call = week === 2 ? supabase.rpc('competition_ranking', { p_limit: 50 }) : supabase.rpc('competition_final', { p_week: week, p_limit: 50 });
     call.then(({ data }) => { if (alive) setLoaded({ week, rows: Array.isArray(data) ? (data as Row[]) : [] }); });
     return () => { alive = false; };
   }, [user, week]);
@@ -111,18 +119,21 @@ export default function CompetitionBoard() {
           {([2, 1] as Week[]).map((w) => (
             <button key={w} type="button" role="tab" aria-selected={week === w} onClick={() => { setWeek(w); setOpen(null); }}
               className={`flex items-center justify-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-black transition ${week === w ? 'bg-[#17201e] text-white shadow' : 'text-black/50 hover:text-black'}`}>
-              {!PIECE_WEEKS[w].live && <Crown size={11} className={week === w ? 'text-[#ffd36b]' : ''} />}{PIECE_WEEKS[w].live ? t('pieceWeekLive', { n: w }) : t('pieceWeekHall', { n: w })}
+              {!pieceWeekLive(w) && <Crown size={11} className={week === w ? 'text-[#ffd36b]' : ''} />}{pieceWeekLive(w) ? t('pieceWeekLive', { n: w }) : w === 2 ? t('pieceWeekEnded', { n: w }) : t('pieceWeekHall', { n: w })}
             </button>
           ))}
         </div>
       </div>
       {live ? <>
         <p className="mt-1 break-keep text-xs leading-5 text-black/45">{t('competitionDesc')}</p>
-        <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#e8a33c]/40 bg-[#fff6e2] px-3 py-1 text-[11px] font-bold text-[#8a5a12]"><Piece size={12} />{t('pieceRule')}</p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <p className="inline-flex items-center gap-1.5 rounded-full bg-[#17201e] px-3 py-1 text-[11px] font-black text-[#ffe08a]"><CalendarDays size={12} />{t('piecePeriod2')}</p>
+          <p className="inline-flex items-center gap-1.5 rounded-full border border-[#e8a33c]/40 bg-[#fff6e2] px-3 py-1 text-[11px] font-bold text-[#8a5a12]"><Piece size={12} />{t('pieceRule')}</p>
+        </div>
         <p className="mt-1.5 text-[10px] font-bold text-black/35">{t('rankChangeHint')}</p>
         <WeekReward week={week} />
       </> : <>
-        <p className="mt-1 break-keep text-xs leading-5 text-black/45">{t(`pieceHallDesc${week}`)}</p>
+        <p className="mt-1 break-keep text-xs leading-5 text-black/45">{week === 2 ? t('piecePeriodEnded') : t(`pieceHallDesc${week}`)}</p>
         <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#8fa3c4]/50 bg-[#eef3fb] px-3 py-1 text-[11px] font-bold text-[#3c4f6e]"><Crown size={12} />{t('pieceHallCrown')}</p>
       </>}
 
@@ -141,7 +152,7 @@ export default function CompetitionBoard() {
               return (
                 <button key={place} type="button" onClick={() => toggle(row.rank)} aria-expanded={open === row.rank} className="group flex min-w-0 flex-col items-center text-center">
                   <span className="mb-1 text-2xl sm:text-3xl">{['🥇', '🥈', '🥉'][place - 1]}</span>
-                  <span className={`rounded-full ${place === 1 ? 'drop-shadow-[0_0_14px_rgba(255,196,60,.7)]' : ''} ${row.is_me ? 'ring-2 ring-[#ff6b4a] ring-offset-2' : ''}`}><Stone name={row.nickname} pieceRank={row.rank} size={place === 1 ? 64 : 50} /></span>
+                  <span className={`rounded-full ${place === 1 ? 'drop-shadow-[0_0_14px_rgba(255,196,60,.7)]' : ''} ${row.is_me ? 'ring-2 ring-[#ff6b4a] ring-offset-2' : ''}`}><Stone name={row.nickname} icon={`w${week}-${place}`} size={place === 1 ? 64 : 50} /></span>
                   <span className="mt-1.5 w-full truncate px-1 text-xs font-black sm:text-sm">{row.nickname}</span>
                   <PieceCount n={row.pieces} size={13} className="mt-0.5 text-sm sm:text-base" />
                   {live && <RankChange row={row} className="mt-1" />}
@@ -172,7 +183,7 @@ export default function CompetitionBoard() {
   );
 }
 
-/** What this week's top three will keep for good: the week's champion stones, shown ahead of time. */
+/** What this week's top three will keep for good: the week's champion stones, shown ahead of time (the podium wears them too). */
 function WeekReward({ week }: { week: number }) {
   const t = useTranslations('Records');
   if (!CHAMPION_LOOKS[week]) return null;
