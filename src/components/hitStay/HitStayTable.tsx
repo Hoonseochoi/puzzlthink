@@ -4,7 +4,7 @@ import { type ReactNode, useEffect, useMemo, useRef, useState, useSyncExternalSt
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bot, ChevronUp, Eye, EyeOff, Hand, Layers, Minus, Plus, ScanEye, Timer } from 'lucide-react';
-import { type HitStay, type HsEvent, HS_PERSONA, HS_PLAYERS, hsPot, hsTotal, hsVisible } from '@/lib/hitStay';
+import { type HitStay, type HsEvent, HS_PERSONA, HS_PLAYERS, hsAnte, hsPot, hsTotal, hsVisible } from '@/lib/hitStay';
 import { type HitStayRoom, type HitStayRoomAction, HS_SHOWDOWN_MS, HS_TURN_SEC, HS_WARN_SEC, hsWaitingOn } from '@/lib/hitStayRoom';
 import { DIAMOND, PANEL, PANEL_TITLE } from '../ui/gameUi';
 import { HS_ACCENT, HS_HIT, HS_INK, type HsCopy } from './copy';
@@ -188,7 +188,7 @@ function LimitPanel({ g, rollKey, t }: { g: HitStay; rollKey: number; t: HsCopy 
       <div className="my-0.5"><HsDie value={g.limit} rollKey={rollKey} size={58} /></div>
       <p className="text-[9px] font-black tracking-[0.18em] text-white/45">{t.limit} <b className="font-mono text-sm text-white">{g.limit}</b></p>
       <div className="mt-1 grid w-full grid-cols-2 gap-1 text-[9px] font-bold text-white/45">
-        <span className="rounded bg-white/[0.05] py-0.5">{t.ante}<b className="block font-mono text-[12px] text-white">{g.ante}</b></span>
+        <span className="rounded bg-white/[0.05] py-0.5">{t.ante}<b className="block font-mono text-[12px] text-white">{g.ante}{g.ante < hsAnte(g.round) && <s className="ml-1 text-[9px] font-bold text-white/35">{hsAnte(g.round)}</s>}</b></span>
         <span className="rounded bg-white/[0.05] py-0.5">{t.deck}<b className="block font-mono text-[12px] text-white">{g.deck.length}</b></span>
       </div>
     </section>
@@ -595,7 +595,7 @@ function ShowdownSheet({ g, t, nameOf, mySeat }: { g: HitStay; t: HsCopy; nameOf
 function LogList({ g, t, nameOf }: { g: HitStay; t: HsCopy; nameOf: (s: number) => string }) {
   const line = (e: HsEvent) => {
     switch (e.k) {
-      case 'round': return t.logRound(e.round, nameOf(e.first), e.limit, e.ante);
+      case 'round': return t.logRound(e.round, nameOf(e.first), e.limit, e.ante, e.ante < hsAnte(e.round));
       case 'open': return t.logOpen(nameOf(e.seat), e.card);
       case 'check': return t.logCheck(nameOf(e.seat));
       case 'call': return t.logCall(nameOf(e.seat), e.to);

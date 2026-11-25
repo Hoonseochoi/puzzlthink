@@ -50,6 +50,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
     items: [
       {
+        date: '11/26', icon: Wrench,
+        ko: { title: '친구·공개방: 방장에게 상대 수식이 보이던 문제 수정', desc: '라운드 중에는 방장에게도 다른 사람의 제출이 신호 색으로만 보여요. 숫자와 기호는 라운드가 끝나면 공개돼요.' },
+        en: { title: 'Rooms: the host no longer sees other players\' equations', desc: 'During a round the host, like everyone else, sees only the signal colours of other players\' guesses. Symbols show once the round ends.' },
+      },
+      {
         date: '11/26', icon: Sparkles,
         ko: { title: '수식 신호등이 열렸어요', desc: '데블스 플랜 3 결승 3회전 게임이에요. 연습하기, 10분 챌린지(랭킹), 친구·공개방 2~4명 대결을 할 수 있어요.' },
         en: { title: 'Equation Signal is open', desc: 'The third game of the Devil\'s Plan 3 final. Practice, a ranked 10-minute challenge, and friend or open rooms for 2–4.' },
@@ -78,8 +83,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/25', icon: Coins,
-        ko: { title: '한 판이 더 빨리 끝나요 (기본 베팅 변경)', desc: '기본 베팅이 2라운드마다 1칩씩 오르다가, 16라운드부터는 2라운드마다 5칩씩 올라요. 한 판이 보통 24라운드 안팎이에요.' },
-        en: { title: 'Shorter matches (new ante schedule)', desc: 'The ante goes up by 1 every 2 rounds, then by 5 every 2 rounds from round 16. A match now runs about 24 rounds.' },
+        ko: { title: '한 판이 더 빨리 끝나요 (기본 베팅 변경)', desc: '기본 베팅이 2라운드마다 1칩씩 오르다가, 17라운드부터는 2라운드마다 5칩씩 올라요. 칩이 가장 적은 사람이 낼 수 있는 만큼까지만 걸어요. 한 판이 보통 24라운드 안팎이에요.' },
+        en: { title: 'Shorter matches (new ante schedule)', desc: 'The ante goes up by 1 every 2 rounds, then by 5 every 2 rounds from round 17, never above the smallest stack. A match now runs about 24 rounds.' },
       },
       {
         date: '11/25', icon: Users,

@@ -227,13 +227,14 @@ export default function EquationSignalRoomView({ code }: { code: string }) {
                 {state.seats.map((seat, i) => {
                   if (!seat && phase !== 'lobby') return null;
                   const place = live ? state.places.indexOf(i) + 1 : 0;
+                  // Other players' rows show colours only while the round is on (the host's copy holds their symbols too).
                   const rows = live && i !== mySeat ? state.rows[i] : [];
                   return (
                     <div key={i} data-chat-seat={seat?.id} className={`${playerRow(place > 0)} ${seat ? '' : 'opacity-40'} flex-wrap`}>
                       <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md font-mono text-sm font-black ${place ? 'bg-[#2fbf71] text-white' : 'bg-white/10 text-white/60'}`}>{place ? <Check size={15} /> : i + 1}</span>
                       <div className="min-w-0 flex-1"><p className="flex items-center gap-1.5 truncate text-sm font-extrabold">{seat ? name(i) : c.emptySeat}{seat?.id === me?.id ? ` (${c.me})` : ''}{i === 0 && <Crown size={12} className="shrink-0 text-[#f2c14e]" />}</p></div>
                       {phase !== 'lobby' && seat && <span className="font-mono text-lg font-black text-(--accent)">{state.scores[i]}</span>}
-                      {rows.length > 0 && <div className="w-full space-y-[2px] pt-1">{rows.slice(-6).map((row, r) => <SignalRow key={r} text={row.g} marks={row.m} small />)}</div>}
+                      {rows.length > 0 && <div className="w-full space-y-[2px] pt-1">{rows.slice(-6).map((row, r) => <SignalRow key={r} text={phase === 'play' ? '' : row.g} marks={row.m} small />)}</div>}
                     </div>
                   );
                 })}
