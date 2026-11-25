@@ -8,8 +8,8 @@ export const generateStaticParams = () => [{ locale: 'ko' }, { locale: 'en' }];
 export const alt = 'PUZZLTHINK Hidden Word';
 
 const COPY = {
-  ko: { kicker: '데블스 플랜 단어 게임', title: '히든 워드', sub: '힌트의 유사도만 보고 상대의 단어를 맞혀라', modes: ['AI 승점전', '승점 랭킹', '1위 아이콘'] },
-  en: { kicker: "The Devil's Plan word game", title: 'Hidden Word', sub: "Find the word from each hint's similarity", modes: ['vs AI', 'Points ranking', '#1 icon'] },
+  ko: { kicker: '데블스 플랜 3 · 5화 메인매치', title: '히든 워드', sub: '힌트의 유사도만 보고 상대의 단어를 맞혀라', modes: ['AI 승점전', '승점 랭킹', '1위 아이콘'] },
+  en: { kicker: "The Devil's Plan 3 · Ep. 5 main match", title: 'Hidden Word', sub: "Find the word from each hint's similarity", modes: ['vs AI', 'Points ranking', '#1 icon'] },
 };
 
 // Three hints and how close each is to the sealed word; the hot one passed the 95% cut.
