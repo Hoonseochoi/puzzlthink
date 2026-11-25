@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const m = meta(korean);
   return pageMetadata({
     locale, path: '/color-link-duel', title: m.title, description: m.description,
-    keywords: korean ? ['컬러 링크', '컬러링크', '데블스 플랜 결승', '데블스 플랜 3', '불가능 선언', '두뇌 게임'] : ['Color Link Duel', "Devil's Plan final", 'brain game', 'two-player puzzle'],
+    keywords: korean ? ['컬러 링크', '컬러링크', '컬러 링크 게임', '컬러링크 게임', '데블스 플랜 컬러 링크', '데블스플랜3 컬러링크', '데블스 플랜 3 결승 게임', '데블스 플랜 결승', '데블스 플랜 3', '불가능 선언', '두뇌 게임'] : ['Color Link Duel', "Devil's Plan final", 'brain game', 'two-player puzzle'],
   });
 }
 
@@ -35,7 +35,7 @@ export default async function ColorLinkDuelPage({ params }: { params: Promise<{ 
   const g = await getTranslations({ locale, namespace: 'ColorLinkDuelGuide' });
   const hero = (
     <div className="grid items-center gap-8 md:grid-cols-[1fr_260px]">
-      <GameIntroHero locale={locale} id="colorLinkDuel" Title="h1" />
+      <GameIntroHero locale={locale} id="colorLinkDuel" />
       <div className="mx-auto w-[230px] rounded-[20px] border border-white/10 bg-[radial-gradient(ellipse_at_50%_30%,rgba(124,108,255,.35),rgba(18,18,23,.95)_70%)] p-4 md:w-full"><CldPreview /></div>
     </div>
   );
