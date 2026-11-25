@@ -1,4 +1,4 @@
-import { Bot, Coins, History, MousePointerClick, PenLine, Sparkles, Trophy, Undo2, Users, type LucideIcon } from 'lucide-react';
+import { Bot, Coins, Flame, History, MousePointerClick, PenLine, Scale, Sparkles, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -8,6 +8,7 @@ import { Bot, Coins, History, MousePointerClick, PenLine, Sparkles, Trophy, Undo
 //   - Only what players see or feel: rules, AI, modes, controls, fixes of bugs they hit. Not refactors, SEO, ids.
 //   - A change undone the same day: edit or drop its entry instead of adding a second one.
 //   - A game's first entry: add the game here and put <GameUpdates game="…" /> in its header(s), before <BugReport />.
+//     The game's entry screen shows its newest notes by itself (GameUpdatesSection, keyed by the same id).
 
 export type GameUpdate = {
   date: string; // 'MM/DD'
@@ -77,6 +78,156 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
         date: '11/22', icon: Undo2,
         ko: { title: '되돌리기(Undo) 버튼이 생겼어요', desc: '방금 바꾼 칸부터 한 번에 하나씩, 원하는 만큼 되돌릴 수 있어요. 키보드에서는 Ctrl/⌘+Z.' },
         en: { title: 'New Undo button', desc: 'Step back one change at a time, as many times as you like. On a keyboard, press Ctrl/⌘+Z.' },
+      },
+    ],
+  },
+  color_link_duel: {
+    name: { ko: '컬러 링크', en: 'Color Link Duel' },
+    items: [
+      {
+        date: '11/26', icon: Flame,
+        ko: { title: 'AI 난이도가 보통 · 어려움 · 매우 어려움으로 나뉘었어요', desc: '지금까지의 AI는 매우 어려움이 되어 AI 헬모드에 들어갔어요. 이기면 블랙피스와 매우 어려움 인증서를 받아요. 어려움과 보통은 새로 생긴 AI로, 사람처럼 가끔 수를 놓쳐요.' },
+        en: { title: 'AI levels: Normal, Hard and Very Hard', desc: 'The AI you knew is now Very Hard and part of AI Hell Mode: a win earns a black piece and a Very Hard certificate. Hard and Normal are new AIs that, like people, sometimes miss a move.' },
+      },
+    ],
+  },
+  flip_omok: {
+    name: { ko: '뒤집기 오목', en: 'Flip Omok' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: 'AI 난이도를 다시 맞췄어요', desc: '보통과 어려움이 너무 강해서(이긴 판 15% · 2%) 한 단계씩 낮췄어요. 예전 보통이 어려움이 되고, 보통은 한 수 앞만 보는 더 쉬운 AI가 됐어요.' },
+        en: { title: 'AI levels retuned', desc: 'Normal and Hard were too strong (players won 15% and 2%), so both moved down a step: the old Normal is now Hard, and Normal is an easier AI that looks one move ahead.' },
+      },
+    ],
+  },
+  laser_janggi: {
+    name: { ko: '레이저 장기', en: 'Laser Janggi' },
+    items: [
+      {
+        date: '11/26', icon: Wrench,
+        ko: { title: '어려움 AI가 스스로 지는 수를 두던 문제를 고쳤어요', desc: '둘 수 있는 수가 적을 때 어려움 AI가 자기 왕을 맞히는 수를 고르는 일이 있었어요. 이제 다른 수가 있으면 그 수는 두지 않아요.' },
+        en: { title: 'Fixed: the Hard AI could shoot its own king', desc: 'With few moves left, the Hard AI sometimes chose a move that hit its own king. It no longer plays such a move while another one exists.' },
+      },
+    ],
+  },
+  monorail: {
+    name: { ko: '모노레일', en: 'Monorail' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '어려움 AI가 매번 다르게 두고, 보통은 쉬워졌어요', desc: '어려움 AI는 같은 상황에서 늘 같은 수를 둬서 한 번 이긴 수순으로 계속 이길 수 있었어요. 이제 비슷하게 좋은 수 중에서 골라 둬요. 보통은 너무 강해서(이긴 판 29%) 느슨하게 조정했어요.' },
+        en: { title: 'Hard no longer repeats itself; Normal is easier', desc: 'The Hard AI always answered a position the same way, so one winning line could be replayed forever. It now picks among equally good moves. Normal was too strong (players won 29%) and plays more loosely.' },
+      },
+    ],
+  },
+  nine_mens_morris: {
+    name: { ko: '나인 멘스 모리스', en: "Nine Men's Morris" },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '어려움 AI가 매번 다르게 두고 한 수 더 읽어요', desc: '같은 수순으로 계속 이길 수 있던 문제를 고쳤어요. 어려움은 한 수 더 깊이 읽고, 질 것 같은 판에서도 끝까지 버텨요.' },
+        en: { title: 'Hard varies its play and reads one move deeper', desc: 'A winning line could be replayed against the AI every game; it now varies its moves. Hard also reads one move deeper and holds out longer in a lost game.' },
+      },
+    ],
+  },
+  russian_janggi: {
+    name: { ko: '러시아장기', en: 'Russian Janggi' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '보통은 쉬워지고 어려움은 강해졌어요', desc: '보통과 어려움의 실력이 거의 같았어요. 보통은 실수를 더 자주 하고, 어려움은 한 수 더 깊이 읽어요.' },
+        en: { title: 'Normal is easier, Hard is stronger', desc: 'Normal and Hard played at almost the same strength. Normal now slips more often and Hard reads one move deeper.' },
+      },
+    ],
+  },
+  janggi: {
+    name: { ko: '십이장기', en: '12 Janggi' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '보통 AI가 조금 쉬워졌어요', desc: '보통에서 이긴 판이 34%로 목표(절반)보다 낮아서, 보통 AI가 가끔 덜 깊이 읽도록 조정했어요. 어려움과 매우 어려움은 그대로예요.' },
+        en: { title: 'Normal AI is a little easier', desc: 'Players won 34% against Normal, below the aim of about half, so it now reads less deeply on some moves. Hard and Very Hard are unchanged.' },
+      },
+    ],
+  },
+  black_white: {
+    name: { ko: '흑과 백', en: 'Black & White' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '어려움 AI가 덜 읽히게 됐어요', desc: '어려움이 보통보다 쉽다는 기록이 나와서 조정했어요. 어려움은 패를 더 섞어 내서 읽기 어렵고, 보통은 네 번에 한 번 감으로 내요.' },
+        en: { title: 'Hard AI is harder to read', desc: 'Records showed Hard was easier than Normal. Hard now mixes its tiles more, and Normal plays one tile in four by feel.' },
+      },
+    ],
+  },
+  heavy13: {
+    name: { ko: 'HEAVY 13', en: 'HEAVY 13' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '보통 AI가 쉬워졌어요', desc: '보통과 어려움의 결과가 거의 같았어요(6명 중 평균 3.5등). 보통 AI는 절반의 턴에서 앞을 내다보지 않고 내요.' },
+        en: { title: 'Normal AI is easier', desc: 'Normal and Hard gave almost the same results (average rank 3.5 of 6). The Normal AI now plays half its turns without looking ahead.' },
+      },
+    ],
+  },
+  wallgo: {
+    name: { ko: '벽바둑', en: 'Wallgo' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '1:1:1 어려움 AI가 강해졌어요', desc: '3인전에서 어려움과 보통의 차이가 없었어요. 어려움 AI는 이제 두 상대의 다음 수를 모두 읽어요. 1:1은 그대로예요.' },
+        en: { title: 'Hard AI is stronger in 1:1:1', desc: 'In three-player games Hard was no harder than Normal. The Hard AI now reads the next move of both rivals. 1:1 is unchanged.' },
+      },
+    ],
+  },
+  wallgo2: {
+    name: { ko: '벽바둑 II', en: 'Wallgo II' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '1:1:1 어려움 AI가 강해졌어요', desc: '3인전에서 어려움과 보통의 차이가 없었어요. 어려움 AI는 이제 두 상대의 다음 수를 모두 읽어요. 1:1은 그대로예요.' },
+        en: { title: 'Hard AI is stronger in 1:1:1', desc: 'In three-player games Hard was no harder than Normal. The Hard AI now reads the next move of both rivals. 1:1 is unchanged.' },
+      },
+    ],
+  },
+  blind_gomoku: {
+    name: { ko: '블라인드 오목', en: 'Blind Gomoku' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '어려움 AI의 기억이 최근 36수로 늘었어요', desc: '최근 24수만 기억해서 오래 끌면 쉽게 이길 수 있었어요. 이제 36수까지 기억해요.' },
+        en: { title: 'Hard AI remembers the last 36 moves', desc: 'It remembered only the last 24, so a long game was an easy win. It now remembers 36.' },
+      },
+    ],
+  },
+  russian_roulette: {
+    name: { ko: '러시아 룰렛', en: 'Russian Roulette' },
+    items: [
+      {
+        date: '11/26', icon: Bot,
+        ko: { title: '보통 · 어려움 AI가 아는 정보를 쓰기 시작했어요', desc: '지금까지 AI는 자기 쪽 약실을 확인하고도 그대로 두곤 했어요. 이제 실탄을 봤으면 총구를 돌리거나 약실을 바꾸려 하고, 안전하면 크레딧을 아껴요.' },
+        en: { title: 'Normal and Hard AIs now use what they know', desc: 'The AIs often ignored what they had seen in their own chamber. They now turn the muzzle or go for a swap when they have seen a bullet, and save credits when they are safe.' },
+      },
+    ],
+  },
+  indian_poker: {
+    name: { ko: '인디언 포커', en: 'Indian Poker' },
+    items: [
+      {
+        date: '11/26', icon: Wrench,
+        ko: { title: '난이도 버튼의 AI 승률을 실제 기록으로 바꿨어요', desc: '버튼에 적힌 AI 승률이 실제보다 높았어요. 지금까지의 대전 기록으로 고쳤어요.' },
+        en: { title: 'AI win rates on the level buttons now match the records', desc: 'The AI win rates shown on the buttons were higher than what really happened. They now come from the matches played so far.' },
+      },
+    ],
+  },
+  two_sided_poker: {
+    name: { ko: '양면 포커', en: 'Two-Sided Poker' },
+    items: [
+      {
+        date: '11/26', icon: Wrench,
+        ko: { title: '난이도 버튼의 AI 승률을 실제 기록으로 바꿨어요', desc: '버튼에 적힌 AI 승률이 실제보다 높았어요. 지금까지의 대전 기록으로 고쳤어요.' },
+        en: { title: 'AI win rates on the level buttons now match the records', desc: 'The AI win rates shown on the buttons were higher than what really happened. They now come from the matches played so far.' },
       },
     ],
   },

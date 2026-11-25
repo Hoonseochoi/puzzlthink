@@ -266,11 +266,15 @@ type SearchConfig = { depth: number; nodes: number; rootSamples: number; innerSa
 type SearchContext = SearchConfig & { used: number; cache: Map<string, number> };
 
 /** Samples distinct, exact completion routes. A null first probe proves that Impossible is correct. */
+// Changes with every AI decision, so the sampled routes (and with them the chosen move) differ from game to game:
+// a fixed sample made the AI answer the same position the same way every time, and a winning line could be replayed.
+let routeSalt = 0;
+
 function completionRoutes(state: MonorailState, count: number, first?: NonNullable<CompletionResult>) {
   const routes = new Map<string, NonNullable<CompletionResult>>();
   if (first) routes.set(completionKey(first.tiles), first);
   for (let seed = 0; seed < count * 2 && routes.size < count; seed += 1) {
-    const completion = findCompletion(state, seed + state.moveNo * 17);
+    const completion = findCompletion(state, seed + state.moveNo * 17 + routeSalt);
     if (!completion) break;
     routes.set(completionKey(completion.tiles), completion);
   }
@@ -338,14 +342,15 @@ function searchPosition(state: MonorailState, depth: number, context: SearchCont
 }
 
 const SEARCH: Record<MonorailLevel, SearchConfig> = {
-  // Medium still sees the opponent's reply, but may choose among several close safe plans.
-  normal: { depth: 2, nodes: 60, rootSamples: 5, innerSamples: 1, rootMoves: 12, innerMoves: 6 },
+  // Medium sees the opponent's reply on a small sample of routes and chooses loosely among its safe plans.
+  normal: { depth: 2, nodes: 40, rootSamples: 4, innerSamples: 1, rootMoves: 10, innerMoves: 5 },
   // Hard searches three plies with a wider set of alternative completion routes.
   hard: { depth: 3, nodes: 240, rootSamples: 10, innerSamples: 2, rootMoves: 20, innerMoves: 8 },
 };
 
 /** Exact Impossible detection plus bounded adversarial look-ahead. All played moves preserve a full loop. */
 export function chooseMonorailAction(state: MonorailState, level: MonorailLevel, random = Math.random): MonorailAiAction {
+  routeSalt = Math.floor(random() * 1_000_003);
   const probe = findCompletion(state, state.moveNo * 31);
   if (!probe) return { t: 'impossible' };
   const config = SEARCH[level];
@@ -364,9 +369,17 @@ export function chooseMonorailAction(state: MonorailState, level: MonorailLevel,
     return { move, score: lookAhead * 10 + score };
   }).sort((a, b) => b.score - a.score || moveKey(a.move).localeCompare(moveKey(b.move)));
 
-  if (level === 'hard' || scored.length === 1) return { t: 'move', move: scored[0].move };
-  // Medium varies between the best few searched plans, but never chooses a route-breaking move.
-  const close = scored.filter((item) => item.score >= scored[0].score - 1_200).slice(0, 3);
+  if (scored.length === 1) return { t: 'move', move: scored[0].move };
+  const forced = scored[0].score >= 8_000_000; // a win (or an Impossible call) already in sight: just take it
+  if (level === 'hard') {
+    // Hard keeps its best plan, but picks at random among plans it cannot tell apart, so no game repeats.
+    const equal = forced ? [scored[0]] : scored.filter((item) => item.score >= scored[0].score - 150);
+    return { t: 'move', move: equal[Math.floor(random() * equal.length)].move };
+  }
+  // Medium (tuned from play data: people won 29%, the aim is about half): it never breaks the route, but about one turn
+  // in three it plays any safe move, and otherwise picks loosely among its best few searched plans.
+  if (!forced && random() < 0.35) return { t: 'move', move: scored[Math.floor(random() * scored.length)].move };
+  const close = forced ? [scored[0]] : scored.filter((item) => item.score >= scored[0].score - 2_500).slice(0, 4);
   return { t: 'move', move: close[Math.floor(random() * close.length)].move };
 }
 

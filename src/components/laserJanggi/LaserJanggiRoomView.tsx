@@ -21,6 +21,7 @@ import { LASER_TURN_OPTIONS } from '@/lib/laserJanggiRoom';
 import LaserBoard from './LaserBoard';
 import LaserPiece from './LaserPiece';
 import { LASER_CYAN } from './theme';
+import GameUpdates from '@/components/GameUpdates';
 
 export default function LaserJanggiRoomView({ code }: { code: string }) {
   const t = useTranslations('LaserJanggiOnline');
@@ -90,7 +91,7 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
 
   return <div className={SHELL} style={{ ...accentVars(LASER_CYAN, '#041015'), backgroundImage: fog('35, 190, 220') }}>
     <Shards /><RoomAlerts alerts={alerts} accent={LASER_CYAN} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-    <GameHeader backHref="/laser-janggi" backLabel={tc('laserJanggi')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+    <GameHeader backHref="/laser-janggi" backLabel={tc('laserJanggi')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}><GameUpdates game="laser_janggi" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}
     {!state ? <main className="relative z-10 flex min-h-[60vh] items-center justify-center px-4">{!notice ? <p className="flex items-center gap-2 text-sm text-white/50"><Loader2 size={16} className="animate-spin" />{t('connecting')}</p> : <Link href="/laser-janggi" className={BTN_ACCENT}>{t('back')}</Link>}</main> :
     <main className={MAIN}>

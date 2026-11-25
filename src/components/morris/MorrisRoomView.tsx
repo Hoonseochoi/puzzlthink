@@ -18,6 +18,7 @@ import { flying, moveLabel, newMorris, onBoard, placing, stallLeft, type Player 
 import { MORRIS_TURN_OPTIONS, colorOf, matchWinner, seatToMove } from '@/lib/morrisRoom';
 import { HandRow, MORRIS_ACCENT, MORRIS_INK, MorrisBoard, MorrisStone, useMorrisPicker } from './MorrisParts';
 import { ScoreDots } from './MorrisGame';
+import GameUpdates from '@/components/GameUpdates';
 
 export default function MorrisRoomView({ code }: { code: string }) {
   const t = useTranslations('MorrisOnline');
@@ -99,7 +100,7 @@ export default function MorrisRoomView({ code }: { code: string }) {
       <Shards />
       <RoomAlerts alerts={alerts} accent={MORRIS_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader backHref="/nine-mens-morris" backLabel={tc('nineMensMorris')} title={tm('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="nine_mens_morris" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

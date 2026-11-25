@@ -12,6 +12,7 @@ import { reportGame } from '@/lib/stats';
 import { type Move, type MorrisLevel, type MorrisState, type Player, chooseMorrisMove, flying, moveLabel, newMorris, onBoard, placing, play, stallLeft } from '@/lib/morris';
 import { MORRIS_MAX_ROUNDS, MORRIS_WINS } from '@/lib/morrisRoom';
 import { HandRow, MORRIS_ACCENT, MORRIS_INK, MorrisBoard, MorrisStone, useMorrisPicker } from './MorrisParts';
+import GameUpdates from '@/components/GameUpdates';
 
 type Round = { human: Player; winner: 'you' | 'ai' | 'draw' };
 const LEVELS: MorrisLevel[] = ['easy', 'normal', 'hard'];
@@ -83,7 +84,7 @@ export default function MorrisGame() {
       <Shards />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
         <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="nine_mens_morris" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={newMatch} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newMatch')}</span></button>
       </GameHeader>
 

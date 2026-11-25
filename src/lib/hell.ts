@@ -8,9 +8,9 @@ export const HELL_CLEAR_EVENT = 'puzzlthink:hell-clear';
 export type HellClearDetail = { game: GameId; id?: string; no?: number; delayMs: number };
 
 /** Records id (game_results.game) of each catalog game that has a hell AI. */
-const STAT_ID: Partial<Record<CatalogId, GameId>> = { wallgo2: 'wallgo2', wallgo: 'wallgo', janggi: 'janggi', russianJanggi: 'russian_janggi', blindGomoku: 'blind_gomoku' };
-/** Page order: 벽바둑 II, 벽바둑, 십이장기, 러시아장기, 블라인드 오목. */
-const ORDER: CatalogId[] = ['wallgo2', 'wallgo', 'janggi', 'russianJanggi', 'blindGomoku'];
+const STAT_ID: Partial<Record<CatalogId, GameId>> = { wallgo2: 'wallgo2', wallgo: 'wallgo', janggi: 'janggi', russianJanggi: 'russian_janggi', blindGomoku: 'blind_gomoku', colorLinkDuel: 'color_link_duel' };
+/** Page order: 벽바둑 II, 벽바둑, 십이장기, 러시아장기, 블라인드 오목, 컬러 링크 (added 11/26: its former only AI). */
+const ORDER: CatalogId[] = ['wallgo2', 'wallgo', 'janggi', 'russianJanggi', 'blindGomoku', 'colorLinkDuel'];
 
 export type HellGame = CatalogGame & { hell: NonNullable<CatalogGame['hell']>; stat: GameId };
 export const HELL_GAMES: HellGame[] = ORDER

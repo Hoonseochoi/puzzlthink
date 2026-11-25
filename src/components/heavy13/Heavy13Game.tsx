@@ -20,6 +20,7 @@ import Heavy13Tutorial from './Heavy13Tutorial';
 import { ReplayControls, ReplayHeader } from '../ui/ReplayBar';
 import { useH13Replay } from './useH13Replay';
 import { H_ROOT_STYLE, SHARD_TINT } from './theme';
+import GameUpdates from '@/components/GameUpdates';
 
 const LEVELS: AiLevel[] = ['easy', 'normal', 'hard'];
 const TUTORIAL_KEY = 'puzzlthink_heavy13_tutorial_seen';
@@ -54,7 +55,7 @@ export default function Heavy13Game() {
       <WallGoShards tint={SHARD_TINT} />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="HEAVY 13">
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="heavy13" /><BugReport /><LanguageSwitcher compact dark />
         <button onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
       <main className={MAIN}>

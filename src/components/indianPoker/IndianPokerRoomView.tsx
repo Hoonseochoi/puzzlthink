@@ -13,6 +13,7 @@ import { POKER_TURN_OPTIONS } from '@/lib/indianPokerRoom';
 import { reportGame } from '@/lib/stats';
 import { PokerHistory, PokerStage, pokerView } from './IndianPokerParts';
 import { IndianPokerResultModal } from './IndianPokerResult';
+import GameUpdates from '@/components/GameUpdates';
 
 const ACCENT = '#e6b94f';
 
@@ -52,7 +53,7 @@ export default function IndianPokerRoomView({ code }: { code: string }) {
   const again = () => { setClosedSid(null); dispatch({ t:'start' }); };
   return <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('230,185,79') }}>
     
-    <GameHeader backHref="/indian-poker" backLabel={tc('indianPoker')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+    <GameHeader backHref="/indian-poker" backLabel={tc('indianPoker')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code}`}><GameUpdates game="indian_poker" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}><section className={STAGE}>
       {state.phase === 'lobby' ? <><div className="mb-3 px-1"><p className={KICKER}>LOBBY</p><h1 className={`mt-1 ${HEADING}`}>{t('lobbyTitle')}</h1></div><div className="mx-auto max-w-md space-y-4"><section className={PANEL}><p className={PANEL_TITLE}>{t('inviteTitle')}</p><InviteCode code={code} /><div className="mt-3 flex gap-2"><button onClick={copy} className={`${BTN} flex-1`}><Copy size={14} />{copied ? t('copied') : t('copy')}</button><button onClick={share} className={`${BTN_ACCENT} flex-1`}><Share2 size={14} />{t('share')}</button></div></section><form onSubmit={(e) => { e.preventDefault(); rename(name); setName(''); }} className="flex gap-2"><input className={INPUT} value={name} onChange={(e) => setName(e.target.value)} placeholder={me?.name ?? ''} /><button className={BTN}>{t('rename')}</button></form>{me?.isHost ? <button disabled={!full} onClick={() => dispatch({ t:'start' })} className={`${BTN_ACCENT} w-full py-3 disabled:opacity-35`}><Swords size={15} />{full ? t('start') : t('startLocked')}</button> : <p className="text-center text-sm text-white/45">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>}</div></>

@@ -20,6 +20,7 @@ import RussianRouletteTable from './RussianRouletteTable';
 import RouletteReplay from './RouletteReplay';
 import RussianRouletteTutorial from './RussianRouletteTutorial';
 import { RR_ACCENT, RR_ROOT_STYLE, RR_SHARD_TINT } from './theme';
+import GameUpdates from '@/components/GameUpdates';
 
 const LEVELS: RRLevel[] = ['easy', 'normal', 'hard'];
 
@@ -65,7 +66,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
     <RoomAlerts alerts={alerts} accent={RR_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
     <GameHeader backHref="/russian-roulette" backLabel={t('title')} title={t('title')} subtitle={<span className="font-mono">ONLINE · {code.toUpperCase()}</span>}>
       <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
-      <BugReport /><LanguageSwitcher compact dark />
+      <GameUpdates game="russian_roulette" /><BugReport /><LanguageSwitcher compact dark />
     </GameHeader>
     {notice && <p className="relative z-10 mx-auto mt-4 flex max-w-[1240px] items-center gap-2 px-4 text-xs text-[#ff948d]"><WifiOff size={14} />{notice}</p>}
     {state?.phase === 'playing' && <AwayBanner seats={state.seats} away={state.away} mySeat={mySeat} onRejoin={() => dispatch({ t: 'rejoin' })} />}

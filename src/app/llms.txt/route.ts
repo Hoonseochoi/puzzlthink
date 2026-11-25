@@ -38,7 +38,7 @@ export function GET() {
     `- [게임 소개 (All games with rules)](${SITE_URL}/ko/games)`,
     `- [논리 퍼즐 (Logic puzzles)](${SITE_URL}/ko/logic-puzzles)`,
     `- [기록실·랭킹 (Records and rankings)](${SITE_URL}/ko/records)`,
-    ...(HELL_LIVE.length ? [`- [AI 헬모드 · 매우 어려움 AI (AI Hell Mode: the hardest AI in Wallgo II, Wallgo 1:1, 12 Janggi, Russian Janggi and Blind Gomoku; each win is a black piece on the 블랙피스 경쟁전 board)](${SITE_URL}/ko/hell)`] : []),
+    ...(HELL_LIVE.length ? [`- [AI 헬모드 · 매우 어려움 AI (AI Hell Mode: the hardest AI in Wallgo II, Wallgo 1:1, 12 Janggi, Russian Janggi, Blind Gomoku and Color Link Duel; each win is a black piece on the 블랙피스 경쟁전 board)](${SITE_URL}/ko/hell)`] : []),
     '',
     '## Guides',
     ...GUIDES.map(([path, name]) => `- [${name}](${SITE_URL}/ko${path})`),

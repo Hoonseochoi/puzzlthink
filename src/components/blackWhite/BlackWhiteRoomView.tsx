@@ -16,6 +16,7 @@ import { reportGame } from '@/lib/stats';
 import { type Side, colorOf, nextLeader, other, scoresOf } from '@/lib/blackWhite';
 import { BW_FLASH_MS, BW_TURN_OPTIONS, seatToPlay } from '@/lib/blackWhiteRoom';
 import { BWTile, Hand, MemoPad, OpponentTrack, Replay, RoundLog, Scoreboard, Table } from './BWParts';
+import GameUpdates from '@/components/GameUpdates';
 
 const ACCENT = '#e9c46a';
 
@@ -99,7 +100,7 @@ export default function BlackWhiteRoomView({ code }: { code: string }) {
       <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       
       <GameHeader backHref="/black-white" backLabel={tc('blackWhite')} title={tb('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="black_white" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

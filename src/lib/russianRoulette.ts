@@ -188,7 +188,52 @@ export function passEmptyPlayers(game: RussianRoulette) {
   return next;
 }
 
+/**
+ * The move of an AI that reads what it knows. Exactly two chambers are loaded and chamber c fires at seat
+ * muzzle + c, so the seat's own danger is the chance that chamber (seat − muzzle) is loaded: 1 or 0 when it has seen
+ * that chamber (publicly or privately), otherwise the share of unseen bullets among the unseen chambers.
+ * Seen loaded → turn the muzzle to the safest chamber it can afford (or pay toward a swap of its chamber).
+ * Not seen → look at it (privately when it can). Seen empty → spend as little as possible, on something that cannot hurt it.
+ * (A hidden swap can make what it saw stale; like a player, it trusts what it saw.) Null when it has no such move.
+ */
+function informedRRAction(game: RussianRoulette, seat: number): RRAction | null {
+  const credit = game.credits[seat];
+  const intel = game.publicIntel.map((value, i) => value ?? game.privateIntel[seat][i]);
+  const unseen = intel.filter((v) => v === null).length;
+  const bulletsLeft = Math.max(0, 2 - intel.filter((v) => v === true).length);
+  const danger = (chamber: number) => { const v = intel[(chamber + RR_CHAMBERS * 2) % RR_CHAMBERS]; return v === null ? (unseen ? bulletsLeft / unseen : 0) : v ? 1 : 0; };
+  const mine = (seat - game.muzzle + RR_CHAMBERS) % RR_CHAMBERS;
+  const now = danger(mine);
+  if (intel[mine] === null) {
+    // The pair with its own chamber that shows the most new chambers.
+    const pairs = [mine, (mine + RR_CHAMBERS - 1) % RR_CHAMBERS].sort((a, b) => pairCells(b).filter((i) => intel[i] === null).length - pairCells(a).filter((i) => intel[i] === null).length);
+    return credit >= 2 ? { kind: 'privateInspect', pair: pairs[0] } : { kind: 'publicInspect', pair: pairs[0] };
+  }
+  if (now === 1) {
+    const turns = ([[1, 'rotate1', 3], [2, 'rotate2', 4]] as const).filter(([, , cost]) => credit >= cost)
+      .map(([steps, kind]) => ({ kind, risk: danger(mine - steps) })).sort((a, b) => a.risk - b.risk);
+    if (turns.length && turns[0].risk < 1) return { kind: turns[0].kind };
+    // Cannot turn away: pay toward a swap of its own chamber with whichever neighbour looks safer.
+    const pair = danger(mine + 1) <= danger(mine - 1) ? mine : (mine + RR_CHAMBERS - 1) % RR_CHAMBERS;
+    return { kind: 'manipulate', amount: Math.min(3, credit) as 1 | 2 | 3, pair };
+  }
+  // Safe as far as it knows: one credit, on a pair that leaves its own chamber alone.
+  const away = Array.from({ length: RR_CHAMBERS }, (_, pair) => pair).filter((pair) => !(pairCells(pair) as readonly number[]).includes(mine));
+  const fresh = away.filter((pair) => pairCells(pair).some((i) => intel[i] === null));
+  if (fresh.length && Math.random() < 0.5) return { kind: 'publicInspect', pair: fresh[Math.floor(Math.random() * fresh.length)] };
+  return { kind: 'manipulate', amount: 1, pair: away[Math.floor(Math.random() * away.length)] };
+}
+
+/** How often a level plays the informed move above instead of the loose habits below. */
+const RR_INFORMED = { easy: 0, normal: 0.5, hard: 0.9 } as const;
+
 export function chooseRRAction(game: RussianRoulette, seat: number, level: 'easy' | 'normal' | 'hard' = 'normal'): RRAction {
+  // Play data: people survived 70% of games at any level, the same as chance (4 of 6 seats survive): the habits below
+  // never looked at whether the AI's own chamber was loaded. Normal and hard now mostly play the informed move.
+  if (Math.random() < RR_INFORMED[level]) {
+    const informed = informedRRAction(game, seat);
+    if (informed && canAct(game, seat, informed)) return informed;
+  }
   const credit = game.credits[seat];
   const intel = game.publicIntel.map((value, i) => value ?? game.privateIntel[seat][i]);
   const unknownPairs = Array.from({ length: RR_CHAMBERS }, (_, pair) => ({ pair, unknown: pairCells(pair).filter((i) => intel[i] === null).length }));

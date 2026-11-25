@@ -8,6 +8,7 @@
 // draw every line. A valid proof wins the round for the placer; giving up or running out of time, for the caller.
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 import { type CldTier, CLD_LAYOUTS, layoutBoard, randomLayout } from './colorLinkDuelBoards';
+import type { CldLevel } from './colorLinkDuelAi';
 import {
   CLD_COLORS, CLD_CELLS, CLD_TARGET, type CldBoard, type CldPaths, checkProof, emptyBoard, legalPlacement, place, stonesToPlace,
 } from './colorLinkDuel';
@@ -43,6 +44,8 @@ export type CldRoom = BaseRoom & {
   layoutPick: string;
   /** The AI game: the difficulty the player chose; its board is dealt at random from that difficulty. */
   tier?: CldTier | null;
+  /** The AI game: the AI's strength (보통 / 어려움 / 매우 어려움). Absent in games saved before levels existed (the full AI). */
+  level?: CldLevel | null;
   board: CldBoard;
   turn: CldSeat;
   placements: number; // placements so far this round
@@ -78,11 +81,11 @@ export const firstChooser = (state: Pick<CldRoom, 'ai'>): CldSeat => (state.ai[1
 
 export const isPlaying = (state: CldRoom) => state.phase === 'choose' || state.phase === 'place' || state.phase === 'proof' || state.phase === 'break';
 
-export function createCldRoom(host: Peer, opts: { ai?: boolean; aiName?: string; tier?: CldTier | null } = {}): CldRoom {
+export function createCldRoom(host: Peer, opts: { ai?: boolean; aiName?: string; tier?: CldTier | null; level?: CldLevel | null } = {}): CldRoom {
   const seats: Seat[] = [{ id: host.id, name: host.name }, opts.ai ? { id: 'ai', name: opts.aiName ?? 'AI' } : null];
   return {
     sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, ai: [false, !!opts.ai],
-    round: 1, score: [0, 0], first: 0, chooser: null, coin: false, layout: 'classic', layoutPick: 'random', tier: opts.tier ?? null,
+    round: 1, score: [0, 0], first: 0, chooser: null, coin: false, layout: 'classic', layoutPick: 'random', tier: opts.tier ?? null, level: opts.level ?? null,
     board: emptyBoard(), turn: 0, placements: 0,
     last: null, proof: null, log: [], ready: [false, false], startedAt: 0, winner: null, reason: null,
   };
