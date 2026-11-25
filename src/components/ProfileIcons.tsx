@@ -120,6 +120,7 @@ const txt = (x: number, y: number, s: string, size: number, fill: string) => (
 
 /** Each game's emblem in a 24×24 box; `c` is the game's colour. */
 const EMBLEMS: Record<GameId, (c: string) => React.ReactNode> = {
+  gradation: (c) => <><rect x="1.5" y="8" width="6.4" height="12" rx="1.6" fill="#26262d" stroke={K} strokeWidth="1" /><rect x="16.1" y="8" width="6.4" height="12" rx="1.6" fill="#26262d" stroke={K} strokeWidth="1" /><rect x="8.6" y="6" width="6.8" height="14" rx="1.8" fill="#f1f2f4" stroke={K} strokeWidth="1.1" /><rect x="9.6" y="11.5" width="4.8" height="4.8" rx="1" fill={c} stroke="#0f5a25" strokeWidth=".7" />{txt(12, 15.4, '9', 4.4, W)}</>,
   card_janggi: (c) => <><rect x="5" y="2.5" width="14" height="19" rx="2.5" fill={W} stroke={K} strokeWidth="1.6" />{txt(12, 16.5, '將', 10, c)}</>,
   color_link_duel: (c) => <><path d="M5 6 C15 6 9 18 19 18" fill="none" stroke={K} strokeWidth="2.6" strokeLinecap="round" /><circle cx="5" cy="6" r="3.6" fill={c} stroke={K} strokeWidth="1.2" /><circle cx="19" cy="18" r="3.6" fill="#ff5b6e" stroke={K} strokeWidth="1.2" /></>,
   hit_stay: (c) => <><rect x="3" y="5" width="11" height="15" rx="2" fill={W} stroke={K} strokeWidth="1.5" transform="rotate(-12 8 12)" /><rect x="10" y="4" width="11" height="15" rx="2" fill={c} stroke={K} strokeWidth="1.5" transform="rotate(10 15 11)" />{txt(15.5, 15, 'H', 8, W)}</>,
@@ -162,6 +163,7 @@ export function GameEmblem({ game, size = 24 }: { game: GameId; size?: number })
 }
 
 export function CrownStone({ id, name, size, game }: { id: string; name: string; size: number; game: GameId }) {
+  if (game === 'gradation') return <GradationCrownStone id={id} name={name} size={size} />;
   const base = CERT_GAMES[game].color;
   const hi = mix(base, '#ffffff', 0.55), lo = mix(base, '#000000', 0.42), rim = mix(base, '#000000', 0.62);
   const eye = light(base) ? '#2a1d05' : '#ffffff';
@@ -190,6 +192,52 @@ export function CrownStone({ id, name, size, game }: { id: string; name: string;
       {/* the game's emblem on a badge */}
       <circle cx="74" cy="78" r="22" fill="#ffffff" stroke={rim} strokeWidth="2.2" />
       <g transform="translate(58.4 62.4) scale(1.3)">{EMBLEMS[game](base)}</g>
+    </svg>
+  );
+}
+
+/**
+ * 그라데이션's #1 (the AI Hall of Fame champion) gets its own piece: a stone shaded like the cup rack
+ * (dark · grey · white · grey · dark), two green number cubes for eyes, the gold crown with a 1, and a
+ * badge with the rack's dark / white / dark cups.
+ */
+function GradationCrownStone({ id, name, size }: { id: string; name: string; size: number }) {
+  const cy = 56, r = 38;
+  const eye = (x: number) => (
+    <g>
+      <rect x={x} y={cy - 15} width="13" height="15" rx="3" fill="#33c158" stroke="#0f5a25" strokeWidth="1.4" />
+      <rect x={x} y={cy - 15} width="13" height="6" rx="3" fill="#ffffff" opacity=".28" />
+      <path d={`M${x + 1.5} ${cy - 15} l3 -3.6 h11 l-1.5 3.6 z`} fill="#7be897" stroke="#0f5a25" strokeWidth="1" strokeLinejoin="round" />
+    </g>
+  );
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={name}>
+      <defs>
+        <linearGradient id={`gr-${id}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#0d0d11" /><stop offset="22%" stopColor="#6f727a" /><stop offset="50%" stopColor="#f6f7f9" /><stop offset="78%" stopColor="#6f727a" /><stop offset="100%" stopColor="#0d0d11" />
+        </linearGradient>
+        <radialGradient id={`gs-${id}`} cx="40%" cy="25%" r="75%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity=".35" /><stop offset="60%" stopColor="#ffffff" stopOpacity="0" /><stop offset="100%" stopColor="#000000" stopOpacity=".35" />
+        </radialGradient>
+        <linearGradient id={`gc-${id}`} x1="0" y1="0" x2="0.3" y2="1">
+          <stop offset="0%" stopColor="#fff6c4" /><stop offset="50%" stopColor="#f5c53a" /><stop offset="100%" stopColor="#b07d12" />
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy={cy} r={r + 6.5} fill="none" stroke="#3fd67a" strokeOpacity=".6" strokeWidth="3.5" />
+      <circle cx="50" cy={cy} r={r + 6.5} fill="none" stroke="#f5c53a" strokeOpacity=".7" strokeWidth="1.4" strokeDasharray="3 5" />
+      <circle cx="50" cy={cy + 3} r={r} fill="rgba(0,0,0,.25)" />
+      <circle cx="50" cy={cy} r={r} fill={`url(#gr-${id})`} stroke="#0f5a25" strokeWidth="2.2" />
+      <circle cx="50" cy={cy} r={r} fill={`url(#gs-${id})`} />
+      {eye(33)}{eye(54)}
+      {/* gold crown with a 1 */}
+      <path d="M27 25 L31 4 L41 15 L50 0 L59 15 L69 4 L73 25 Z" fill={`url(#gc-${id})`} stroke="#7d5306" strokeWidth="2" strokeLinejoin="round" />
+      <rect x="27" y="22" width="46" height="7" rx="2.5" fill={`url(#gc-${id})`} stroke="#7d5306" strokeWidth="1.8" />
+      <rect x="44.6" y="7.6" width="10.8" height="10.8" rx="2.2" fill="#33c158" stroke="#7d5306" strokeWidth="1.3" />
+      {txt(50, 16.2, '1', 8.5, W)}
+      {/* the rack on a badge */}
+      <circle cx="74" cy="78" r="22" fill="#ffffff" stroke="#0f5a25" strokeWidth="2.2" />
+      <g transform="translate(58.4 62.4) scale(1.3)">{EMBLEMS.gradation('#33c158')}</g>
+      <path d="M90 30 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="#7be897" />
     </svg>
   );
 }

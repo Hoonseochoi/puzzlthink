@@ -3,6 +3,7 @@
     "cardJanggi": "Card Janggi",
     "colorLinkDuel": "Color Link Duel",
     "hitStay": "Hit,Stay",
+    "gradation": "Gradation",
     "hellMode": "Very Hard",
     "hellModeGo": "Play Very Hard",
     "merge2048": "2048",
@@ -207,6 +208,8 @@
     "cardJanggiMeta": "Hard AI · friend · open room 1:1 · The Devil's Plan 3",
     "hitStayDescription": "Get your card total closest to the limit the die sets. HIT or STAY, bet your chips, and outlast four others.",
     "hitStayMeta": "5 players · 4 AI, friends or open rooms · The Devil's Plan 3",
+    "gradationDescription": "Hide seven number cubes in your cups, rising and summing to 30 or less, then duel one cup at a time. Your opponent sees only the cup's shade: is that dark cup a 0 or a 9?",
+    "gradationMeta": "4 AI (hard) · friends · open rooms, 1:1 · The Devil's Plan 3",
     "colorLinkDuelDescription": "Take turns placing colored stones on a board where every color must still be joinable. Squeeze your opponent, call impossible boards — and prove yours.",
     "colorLinkDuelMeta": "Hard AI, friends or open 1:1 · The Devil's Plan 3 final",
     "pointOmokDescription": "Put up three points, split 10 points over them in secret, and the higher bid gets the stone. Only half of what you keep carries over.",
@@ -1976,6 +1979,7 @@
       "cardJanggi": {"tagline": "Janggi played only as your five secret movement cards allow — rat, horse, monkey, elephant, giraffe. Read your opponent's next card, then take their king or reach its square first.", "players": "2 (1:1 against the AI or a friend)", "pace": "90 s to lay out cards · 90 s per move (miss it and your opponent moves for you)", "level": "One AI level: Hard · searches every order your hidden cards could be in", "ai": "1:1 against the Hard AI (it never sees your face-down cards)", "friend": "1:1 by link, 4-digit code or open room; 90 s per move", "rules": ["A 6×5 board; each side has one king and three small pieces on fixed starting squares.", "Five movement cards: Rat (1 step orthogonally) · Horse (knight) · Monkey (any neighbour) · Elephant (bishop) · Giraffe (jump 2 orthogonally).", "You choose to go first or second (in rooms a coin toss picks who chooses). Both lay out their cards face down at once: first player all five, second player four of five in their first cycle.", "Turns alternate from the first player: move any piece as your face-up card allows, then turn up the next. Moving onto an enemy piece takes it. After your last card, lay out all five again.", "Take the enemy king, or move your king onto the square it started on, to win the round. One round decides the match."], "origin": "An unofficial fan-made web version of Card Janggi, match 1 of the final in Netflix's The Devil's Plan: Dead Again (season 3). The show's practice session with a spectator is replaced by the rules and AI play."},
       "colorLinkDuel": {"tagline": "A 1:1 duel on a 7×7 board: take turns placing stones of 14 colors while every same-colored pair stays joinable without crossing. When your opponent breaks it, call it impossible!", "players": "2 (AI or a friend)", "pace": "1 min per placement · 2 min to prove · one round", "level": "Hard AI (always plays its best)", "ai": "AI 1:1 · Hard", "friend": "Link or 4-digit code, open rooms", "rules": ["Take turns placing stones of 14 colors (A–N, two each) on a 7×7 board. The opener places 1; after that, 2 of different colors within 1 minute.", "If every same-colored pair were joined by a line, no two lines may cross or share a cell. Each line is 6+ cells, stones included; a color with one stone down must still be joinable to its partner.", "Think your opponent’s board cannot be joined? Call it impossible. They get 2 minutes to draw every line: prove it and they score, fail and you do.", "You choose to go first or second (in rooms a coin toss picks who chooses). One round: the first point wins."], "origin": "An unofficial fan-made web version of Color Link, match 2 of the final of Netflix's The Devil's Plan: Dead Again (season 3). Not the solo puzzle Color Link: this one is a two-player duel."},
       "hitStay": {"tagline": "Bring your card total closest to the limit. Take one more (HIT) or stop (STAY), and decide how many chips to risk — a five-player survival betting game.", "players": "5 (empty seats are AI)", "pace": "10 s to show a card · 30 s per turn in rooms (then the AI takes over)", "level": "4 AI, all at full strength", "ai": "5 players (4 AI)", "friend": "Link or 4-digit code, empty seats are AI", "rules": ["35 number cards (one 7, two 6s … seven 1s, seven -1s). 30 chips each; the ante is 1 and goes up by 1 every 10 rounds.", "Each round the dealer rolls an eight-sided die (5–12) for the limit. Everyone gets three cards and shows one.", "From the first player: bet (call, raise, fold) → HIT (a face-up card) or STAY in turn → bet again. No bet may exceed the smallest stack.", "Closest to the limit takes the pot; on equal sums more cards wins. Over the limit is last. At 0 chips you are out; the last one standing wins."], "origin": "An unofficial fan-made web version of Hit,Stay, the semifinal main match of Netflix's The Devil's Plan: Dead Again (season 3), with the show's rules."},
+      "gradation": {"tagline": "Hide seven number cubes in a rack of shaded cups, rising and summing to 30 or less, then duel cup by cup seeing only shades.", "players": "2 players (1:1)", "pace": "5 min to place · 30 s per cup in rooms", "level": "4 AI players · all hard, one drawn each match", "ai": "1:1 (one of 4 AI at random)", "friend": "Link or 4-digit code, 1:1", "rules": ["Seven cups: dark at both ends and lighter toward the middle (dark · grey · light · white · light · grey · dark).", "Put 7 of your cubes (0–9, two of each) one per cup: rising left to right, total 30 or less, within 5 minutes.", "The lead player hands in a cup; the other side sees only its shade and answers with a cup. Higher cube scores 1, a tie scores nothing.", "The round winner leads next (a tie keeps the lead). After 7 rounds the higher score wins; a tie means new rows and a rematch."], "origin": "An unofficial fan version of \"Gradation\", the day-6 prison match of Netflix's The Devil's Plan: Dead Again (season 3), played by the show's rules — as a single match instead of the show's two-wins-in-a-row format."},
       "merge2048": {
         "tagline": "Slide matching numbers together and grow the little square characters into stones on your way to 2048 — a calm number puzzle.",
         "players": "1 player or 2–4 friends",
@@ -2490,6 +2494,7 @@
     "hsAi": "5 players · vs 4 AI",
     "hsRoom": "Create a room (1:1 to 5 · AI on/off)",
     "short_hsRoom": "2–5",
+    "grAi": "1:1 · one of 4 AI at random (hard)",
     "startGame": "Start",
     "short_m2Room": "2–4",
     "m2Room": "Create a friend room (2–4)",
@@ -8015,5 +8020,96 @@
       }
     ],
     "disclaimer": "Card Janggi is PUZZLTHINK's web remake of a game format shown on TV and is not affiliated with the broadcaster or producers."
+  },
+  "GradationGuide": {
+    "eyebrow": "GRADATION GUIDE",
+    "title": "Gradation online — The Devil's Plan 3 prison match in your browser",
+    "intro": "Gradation is a 1:1 mind game: secretly share seven number cubes among your cups, then hand the cups in one at a time to see whose number is bigger. The cups are dark at both ends and lighter toward the middle, so the dark cup your opponent hands in could hold their smallest number — or their largest. It comes from the day-6 prison match (the way to the final) of Netflix's The Devil's Plan: Dead Again (season 3), with the show's rules, four AI players with different styles (all hard), friend rooms and open 1:1 rooms.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "Each player gets seven shaded cups (dark · grey · light · white · light · grey · dark) and twenty number cubes (0–9, two of each).",
+      "Within 5 minutes, secretly put one cube in each cup. Numbers must rise (or stay equal) from left to right, and the seven must add up to 30 or less.",
+      "The lead player hands in one cup. The opponent sees only its shade, never which place it came from. Then the opponent hands in one cup.",
+      "Both cubes are shown; the higher number wins the round and 1 point. A tie changes nothing.",
+      "The winner of a round leads the next one; after a tie the lead stays.",
+      "After seven rounds the higher score wins. On a tie both players place new rows and play again until someone wins."
+    ],
+    "specialTitle": "Rules people miss",
+    "special": [
+      {
+        "title": "Every shade comes in a pair",
+        "body": "Dark cups are places 1 and 7, grey 2 and 6, light 3 and 5. Because the row rises, one dark cup holds the smallest number and the other the largest. Only the white cup (place 4) is single, so it gives away the middle number."
+      },
+      {
+        "title": "You may repeat a number",
+        "body": "There are two cubes of each number, so 4 · 4 side by side is fine (equal counts as rising). Three of the same is not possible."
+      },
+      {
+        "title": "30 or less — but use it all",
+        "body": "A sum under 30 is legal, but a bigger cube is never worse than a smaller one, so strong rows use the full 30."
+      },
+      {
+        "title": "A decided match ends at once",
+        "body": "When one side leads by more than the rounds left, the match ends right there (how this web version plays)."
+      }
+    ],
+    "strategyTitle": "Strategy — read the shade, give up cheaply",
+    "strategyIntro": "The only thing your opponent ever sees is a shade. What you show and what you hide decides the match.",
+    "strategies": [
+      {
+        "tag": "Placing",
+        "title": "Two sacrifice cubes",
+        "body": "You only need four of seven rounds. Rows that throw away two or three small cubes (0 · 0 or 0 · 1) and pile the rest on the top four or five — like 0 · 0 · 1 · 3 · 8 · 9 · 9 — are strong."
+      },
+      {
+        "tag": "Reading",
+        "title": "A dark cup is an extreme",
+        "body": "A dark cup holds your opponent's smallest or largest cube. Combine the numbers already shown with the 30 limit and you can often tell which."
+      },
+      {
+        "tag": "Answering",
+        "title": "If you cannot win, lose small",
+        "body": "If their cup looks big, answer with your smallest cube and keep the big ones for rounds you can take. Losing rounds cheaply is the whole game."
+      },
+      {
+        "tag": "Leading",
+        "title": "Leading gives information",
+        "body": "The lead shows a shade first, which can be a disadvantage. Use dark cups to keep them guessing, and the white cup when you want them to spend a big cube."
+      },
+      {
+        "tag": "AI",
+        "title": "Four AI styles",
+        "body": "Nova (calculator) plays only the likeliest win, Rex (aggressor) leads with big cubes, Miro (wall) builds an even row for the middle rounds, and Jude (trickster) bluffs with dark cups. None peeks at your row: each plays out hundreds of imagined matches from the shades and numbers shown so far."
+      },
+      {
+        "tag": "#1",
+        "title": "The Gradation champion badge",
+        "body": "The #1 of the AI Hall of Fame wears the gradation crown. When the ranking changes, the badge moves to the new #1 automatically."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What is Gradation?",
+        "a": "A 1:1 number mind game from the day-6 prison match of Netflix's The Devil's Plan: Dead Again (season 3). Hide seven cubes in shaded cups, rising and summing to 30 or less, then duel one cup at a time seeing only shades; win more rounds to win."
+      },
+      {
+        "q": "How is it different from the show?",
+        "a": "On the show you needed two wins in a row to reach the final. Here it is a single match (seven rounds, rematch on a tie), with 5 minutes to place and a random first lead."
+      },
+      {
+        "q": "How strong is the AI?",
+        "a": "There is only a hard level. The AI never looks at your row: it weighs every row that fits the shades and numbers shown so far, plays hundreds of imagined matches, and hands in the cup most likely to win. One of four styles is drawn each match."
+      },
+      {
+        "q": "Can I play with friends?",
+        "a": "Yes. Create a friend room and send the link or 4-digit code for a 1:1 match, or list it as an open room. Rows and handed-in cups reach the other side end-to-end encrypted and stay hidden until shown."
+      },
+      {
+        "q": "Where are my records?",
+        "a": "Signed in, AI wins count for the Hall of Fame and the hard-clear certificate, and friend/open matches for the open ranking. The AI #1 wears the Gradation champion badge."
+      }
+    ],
+    "disclaimer": "Gradation is an unofficial fan game inspired by a game from Netflix's The Devil's Plan: Dead Again and is not affiliated with Netflix or the producers."
   }
 }

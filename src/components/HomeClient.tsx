@@ -27,6 +27,7 @@ import { newMonorail } from '@/lib/monorail';
 import Merge2048Preview from './merge2048/Merge2048Preview';
 import { HitStayTile } from './hitStay/HitStayPreview';
 import { CjTile } from './cardJanggi/CjPreview';
+import { GradationTile } from './gradation/GradationPreview';
 import { CldTile } from './colorLinkDuel/CldPreview';
 
 function MiniFace({ color, shape = 'circle' }: { color: string; shape?: 'circle' | 'square' | 'hex' }) {
@@ -232,6 +233,7 @@ const PODIUM_STAT = { wins: 'podiumWins', maps: 'podiumMaps', score: 'podiumScor
 /** A game's home-card picture, by catalog id (also used by the game list page). */
 export function GamePreview({ id }: { id: GameId }) {
   switch (id) {
+    case 'gradation': return <GradationTile />;
     case 'cardJanggi': return <CjTile />;
     case 'colorLinkDuel': return <CldTile />;
     case 'hitStay': return <HitStayTile />;
@@ -274,9 +276,10 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const podiums = useHallPodiums();
   const rates = useChallengeRates();
-  // Order: by plays on 2026-11-23 (KST), most played first, 카드 장기 2nd, 컬러 링크 3rd, Hit,Stay 4th, 포인트 오목 5th, 마방진 스왑 6th and 2048 7th (same order as the game catalog).
+  // Order: by plays on 2026-11-23 (KST), most played first, 그라데이션 2nd, 카드 장기 3rd, 컬러 링크 4th, Hit,Stay 5th, 포인트 오목 6th, 마방진 스왑 7th and 2048 8th (same order as the game catalog).
   const games = [
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true, updated: true },
+    { title: 'GRADATION', display: tc('gradation'), description: t('gradationDescription'), href: '/gradation', tag: 'brainSurvival', meta: t('gradationMeta'), color: '#3fd67a', illustration: 'gradation', new: true },
     { title: 'CARD JANGGI', display: tc('cardJanggi'), description: t('cardJanggiDescription'), href: '/card-janggi', tag: 'brainSurvival', meta: t('cardJanggiMeta'), color: '#b07cff', illustration: 'cardJanggi', new: true },
     { title: 'COLOR LINK DUEL', display: tc('colorLinkDuel'), description: t('colorLinkDuelDescription'), href: '/color-link-duel', tag: 'brainSurvival', meta: t('colorLinkDuelMeta'), color: '#7c6cff', illustration: 'colorLinkDuel', new: true },
     { title: 'HIT, STAY', display: tc('hitStay'), description: t('hitStayDescription'), href: '/hit-stay', tag: 'brainSurvival', meta: t('hitStayMeta'), color: '#6f7dff', illustration: 'hitStay', new: true },
@@ -318,7 +321,7 @@ export default function HomeClient() {
     {HELL_LIVE.length > 0 && <HellLaunchBanner />}
     <PieceRaceBanner />
     <div className="mt-8 grid gap-2.5 sm:mt-12 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">{/* The open-match card is tall: it spans two rows so the cards beside it keep their own height. */}<div className="grid md:row-span-2"><OpenMatchCard previews={{
-      cardJanggi: <CjTile />, colorLinkDuel: <CldTile />, hitStay: <HitStayTile />, pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      gradation: <GradationTile />, cardJanggi: <CjTile />, colorLinkDuel: <CldTile />, hitStay: <HitStayTile />, pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} /></div>{games.map((game) => (
