@@ -1,25 +1,18 @@
 "use client";
 
-import { ArrowRight, Bot, Brain, Flame, Grid3X3, Sparkles, UsersRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
 import HomeApp from './HomeApp';
-import { Link } from '@/i18n/routing';
+import HomeWeb from './HomeWeb';
 import { MorrisBoard } from './morris/MorrisParts';
 import LaserPiece from './laserJanggi/LaserPiece';
 import { initialState } from '@/lib/janggi';
 import JanggiPiece from './janggi/JanggiPiece';
 import RJPiece, { CUP_RATIO } from './russianJanggi/RJPiece';
-import PieceRaceBanner from './PieceRaceBanner';
-import HellLaunchBanner from './hell/HellLaunchBanner';
-import { HELL_LIVE } from '@/lib/hell';
-import OpenMatchCard, { FitTile } from './OpenMatchCard';
+import OpenMatchCard from './OpenMatchCard';
 import { Heavy13Art, IndianPokerArt, PiggyBankArt } from './GameArt';
-import { GAMES, type GameId } from '@/lib/gameCatalog';
+import type { GameId } from '@/lib/gameCatalog';
 import TwoSidedPokerPreview from './twoSidedPoker/TwoSidedPokerPreview';
 import { BinairoPreview, ColorLinkPreview, MagicSwapPreview, MasyuPreview, NonogramPreview, OneStrokePreview, StarBattlePreview } from './logic/LogicPreview';
-import { HallPodium, useHallPodiums } from './HallPodium';
-import { CHALLENGE_RATE_HREFS, useChallengeRates } from '@/lib/challengeRates';
 import { SHOW_BOARD } from '@/lib/slitherShowBoard';
 import { MonorailBoard } from './monorail/MonorailParts';
 import { FtBoard } from './fourThree/FourThreeParts';
@@ -224,16 +217,6 @@ function GyulhapPreview() {
   return <div className="grid aspect-square w-full grid-cols-3 gap-1 rounded-xl border-[3px] border-[#17201e] bg-[#15161b] p-1 shadow-xl sm:w-[62%] sm:gap-2 sm:border-4 sm:p-2">{cards.map(([bg, ink, shape], i) => <span key={i} className="relative flex items-center justify-center rounded-md" style={{ background: bg }}><i className={`h-[48%] w-[48%] ${shape}`} style={{ background: ink }} /></span>)}</div>;
 }
 
-/** Neutral genre tag for each game card. */
-function GameTag({ color, label }: { color: string; label: string }) {
-  return <span className="rounded-full px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white" style={{ background: color }}>{label}</span>;
-}
-
-/** 챌린지 성공률 tag colours: easy (50%+), medium (25%+), hard. */
-const CLEAR_TONE = { easy: 'bg-[#18b26b] text-white shadow-[0_5px_16px_rgba(24,178,107,.22)]', medium: 'bg-[#ffb52e] text-[#3a2400] shadow-[0_5px_16px_rgba(255,181,46,.24)]', hard: 'bg-[#e0283a] text-white shadow-[0_5px_16px_rgba(224,40,58,.24)]' } as const;
-
-const PODIUM_STAT = { wins: 'podiumWins', maps: 'podiumMaps', score: 'podiumScore', correct: 'podiumCorrect' } as const;
-
 /** A game's home-card picture, by catalog id (also used by the game list page). */
 export function GamePreview({ id }: { id: GameId }) {
   switch (id) {
@@ -279,10 +262,6 @@ export function GamePreview({ id }: { id: GameId }) {
 }
 
 export default function HomeClient() {
-  const t = useTranslations('Home');
-  const tc = useTranslations('Common');
-  const podiums = useHallPodiums();
-  const rates = useChallengeRates();
   const [phone, setPhone] = useState<boolean | null>(null);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -291,76 +270,16 @@ export default function HomeClient() {
     mq.addEventListener('change', on);
     return () => mq.removeEventListener('change', on);
   }, []);
-  // Order: by plays on 2026-11-23 (KST), most played first, 카드 장기 2nd, 컬러 링크 3rd, 수식 신호등 4th, 수식의 탑 5th, Hit,Stay 6th, 그라데이션 7th, 포인트 오목 8th, 마방진 스왑 9th and 2048 10th (same order as the game catalog).
-  const games = [
-    { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true, updated: true },
-    { title: 'HIDDEN WORD', display: tc('hiddenWord'), description: t('hiddenWordDescription'), href: '/hidden-word', tag: 'brainSurvival', meta: t('hiddenWordMeta'), color: '#a8ef70', illustration: 'hiddenWord', new: true },
-    { title: 'CARD JANGGI', display: tc('cardJanggi'), description: t('cardJanggiDescription'), href: '/card-janggi', tag: 'brainSurvival', meta: t('cardJanggiMeta'), color: '#b07cff', illustration: 'cardJanggi', new: true },
-    { title: 'COLOR LINK DUEL', display: tc('colorLinkDuel'), description: t('colorLinkDuelDescription'), href: '/color-link-duel', tag: 'brainSurvival', meta: t('colorLinkDuelMeta'), color: '#7c6cff', illustration: 'colorLinkDuel', new: true },
-    { title: 'EQUATION SIGNAL', display: tc('equationSignal'), description: t('equationSignalDescription'), href: '/equation-signal', tag: 'brainSurvival', meta: t('equationSignalMeta'), color: '#b6e33a', illustration: 'equationSignal', new: true },
-    { title: 'TOWER OF EQUATIONS', display: tc('equationTower'), description: t('equationTowerDescription'), href: '/equation-tower', tag: 'brainSurvival', meta: t('equationTowerMeta'), color: '#f08c5a', illustration: 'equationTower', new: true },
-    { title: 'HIT, STAY', display: tc('hitStay'), description: t('hitStayDescription'), href: '/hit-stay', tag: 'brainSurvival', meta: t('hitStayMeta'), color: '#6f7dff', illustration: 'hitStay', new: true },
-    { title: 'GRADATION', display: tc('gradation'), description: t('gradationDescription'), href: '/gradation', tag: 'brainSurvival', meta: t('gradationMeta'), color: '#3fd67a', illustration: 'gradation', new: true },
-    { title: 'POINT OMOK', display: tc('pointOmok'), description: t('pointOmokDescription'), href: '/point-omok', tag: 'pointStrategy', meta: t('pointOmokMeta'), color: '#ff5d8f', illustration: 'pointOmok', new: true },
-    { title: 'WALLGO II', display: tc('wallgo2'), description: t('wallgo2Description'), href: '/wallgo-2', tag: 'brainSurvival', meta: t('wallgo2Meta'), color: '#e0283a', illustration: 'wallgo2', new: true },
-    { title: 'MAGIC SQUARE', display: tc('magicswap'), description: t('magicswapDescription'), href: '/magic-square', tag: 'logicPuzzle', meta: t('magicswapMeta'), color: '#e45bd6', illustration: 'magicswap', new: true },
-    { title: 'COLOR LINK', display: tc('colorlink'), description: t('colorlinkDescription'), href: '/color-link', tag: 'logicPuzzle', meta: t('colorlinkMeta'), color: '#21c2b5', illustration: 'colorlink', new: true },
-    { title: '2048', display: tc('merge2048'), description: t('merge2048Description'), href: '/2048', tag: 'healing', meta: t('merge2048Meta'), color: '#ff8fa3', illustration: 'merge2048', new: true },
-    { title: 'WALLGO', display: tc('wallgo'), description: t('wallgoDescription'), href: '/wallgo', tag: 'brainSurvival', meta: t('soloAi'), color: '#ff6b4a', illustration: 'wallgo' },
-    { title: 'ONE STROKE', display: tc('onestroke'), description: t('onestrokeDescription'), href: '/one-stroke', tag: 'logicPuzzle', meta: t('onestrokeMeta'), color: '#ff8a2b', illustration: 'onestroke', new: true },
-    { title: 'STAR BATTLE', display: tc('starbattle'), description: t('starbattleDescription'), href: '/star-battle', tag: 'logicPuzzle', meta: t('starbattleMeta'), color: '#ffc23d', illustration: 'starbattle', new: true },
-    { title: '12 JANGGI', display: tc('janggi'), description: t('janggiDescription'), href: '/janggi', tag: 'miniStrategy', meta: t('janggiMeta'), color: '#e8a33c', illustration: 'janggi' },
-    { title: 'HEAVY 13', display: tc('heavy13'), description: t('heavy13Description'), href: '/heavy13', tag: 'brainSurvival', meta: t('heavy13Meta'), color: '#c9a061', illustration: 'heavy13' },
-    { title: 'RUSSIAN JANGGI', display: tc('russianJanggi'), description: t('rjanggiDescription'), href: '/russian-janggi', tag: 'spatialStrategy', meta: t('rjanggiMeta'), color: '#e2283c', illustration: 'rjanggi' },
-    { title: 'TWO-SIDED POKER', display: tc('twoSidedPoker'), description: t('twoSidedPokerDescription'), href: '/two-sided-poker', tag: 'observationBluff', meta: t('twoSidedPokerMeta'), color: '#9b87ff', illustration: 'twoSidedPoker', new: true },
-    { title: 'MONORAIL', display: tc('monorail'), description: t('monorailDescription'), href: '/monorail', tag: 'spatialStrategy', meta: t('monorailMeta'), color: '#f3b64a', illustration: 'monorail', new: true },
-    { title: 'INDIAN POKER', display: tc('indianPoker'), description: t('indianPokerDescription'), href: '/indian-poker', tag: 'observationBluff', meta: t('indianPokerMeta'), color: '#e6b94f', illustration: 'indianPoker', updated: true, updatedTip: 'updatedTitleIndianPoker' },
-    { title: 'BLACK & WHITE', display: tc('blackWhite'), description: t('blackWhiteDescription'), href: '/black-white', tag: 'strategyBluff', meta: t('blackWhiteMeta'), color: '#2b2b31', illustration: 'blackWhite' },
-    { title: 'NONOGRAM', display: tc('nonogram'), description: t('nonogramDescription'), href: '/nonogram', tag: 'logicPuzzle', meta: t('nonogramMeta'), color: '#3fcf6a', illustration: 'nonogram', new: true },
-    { title: 'FLIP OMOK', display: tc('flipOmok'), description: t('flipOmokDescription'), href: '/flip-omok', tag: 'devOriginal', meta: t('flipOmokMeta'), color: '#2f9e78', illustration: 'flipOmok' },
-    { title: 'BINAIRO', display: tc('binairo'), description: t('binairoDescription'), href: '/binairo', tag: 'logicPuzzle', meta: t('binairoMeta'), color: '#3f8cff', illustration: 'binairo', new: true },
-    { title: 'BLACK & WHITE II', display: tc('blackWhite2'), description: t('blackWhite2Description'), href: '/black-white-2', tag: 'pointStrategy', meta: t('blackWhite2Meta'), color: '#ef3340', illustration: 'blackWhite2' },
-    { title: 'BLIND GOMOKU', display: tc('blindGomoku'), description: t('blindGomokuDescription'), href: '/blind-gomoku', tag: 'memoryDeduction', meta: t('blindGomokuMeta'), color: '#d39b2f', illustration: 'blindGomoku' },
-    { title: "NINE MEN'S MORRIS", display: tc('nineMensMorris'), description: t('nineMensMorrisDescription'), href: '/nine-mens-morris', tag: 'spatialStrategy', meta: t('nineMensMorrisMeta'), color: '#3ec9d6', illustration: 'morris', new: true },
-    { title: 'MASYU', display: tc('masyu'), description: t('masyuDescription'), href: '/masyu', tag: 'logicPuzzle', meta: t('masyuMeta'), color: '#ff4d5e', illustration: 'masyu', new: true },
-    { title: 'RUSSIAN ROULETTE', display: tc('russianRoulette'), description: t('rouletteDescription'), href: '/russian-roulette', tag: 'brainSurvival', meta: t('rouletteMeta'), color: '#238ca8', illustration: 'roulette' },
-    { title: 'NEMO COUNT', display: tc('nemoCount'), description: t('nemoCountDescription'), href: '/nemo-count', tag: 'brainSurvival', meta: t('nemoCountMeta'), color: '#7d86a8', illustration: 'nemoCount' },
-    { title: '4 PLAYER 3 IN A ROW', display: tc('fourThree'), description: t('fourThreeDescription'), href: '/four-three', tag: 'spatialStrategy', meta: t('fourThreeMeta'), color: '#ffb52e', illustration: 'fourThree', new: true },
-    { title: 'SUDOKU', display: tc('sudoku'), description: t('sudokuDescription'), href: '/play', tag: 'classic', meta: t('soloLevels'), color: '#4b7bff', illustration: 'sudoku' },
-    { title: 'GYUL! HAP!', display: tc('gyulhap'), description: t('gyulhapDescription'), href: '/gyulhap', tag: 'observationBluff', meta: t('gyulhapMeta'), color: '#ffcf3f', illustration: 'gyulhap' },
-    { title: 'LASER JANGGI', display: tc('laserJanggi'), description: t('laserJanggiDescription'), href: '/laser-janggi', tag: 'strategyBluff', meta: t('laserJanggiMeta'), color: '#28b9d7', illustration: 'laserJanggi' },
-    { title: 'PIGGY BANK', display: tc('piggyBank'), description: t('piggyBankDescription'), href: '/piggy-bank', tag: 'brainSurvival', meta: t('piggyBankMeta'), color: '#e0a91c', illustration: 'piggyBank' },
-    { title: 'HEXAGON', display: tc('hexagon'), description: t('hexagonDescription'), href: '/hexagon', tag: 'memoryDeduction', meta: t('hexagonMeta'), color: '#e8b04a', illustration: 'hexagon' },
-  ] as const;
-
   const openCard = <OpenMatchCard previews={{
       equationSignal: <SignalTile />, equationTower: <TowerTile />, gradation: <GradationTile />, cardJanggi: <CjTile />, colorLinkDuel: <CldTile />, hitStay: <HitStayTile />, pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
     }} />;
-  // Phones get the app-style home, wider screens the classic one. Both are in the server HTML (CSS picks one);
+  // Phones get the app home, wider screens (foldables, tablets, desktop) the web home. Both are in the server HTML (CSS picks one);
   // once the browser knows its width the other is dropped.
   if (phone === true) return <HomeApp Preview={GamePreview} openMatch={openCard} />;
-  return <>{phone === null && <div className="sm:hidden"><HomeApp Preview={GamePreview} openMatch={openCard} Heading="p" /></div>}<main className={`min-h-screen bg-[#f3f0e8] text-[#17201e] ${phone === null ? 'hidden sm:block' : ''}`}><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
-    <div className="mx-auto max-w-3xl text-center"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/50 backdrop-blur"><Sparkles size={12} className="text-[#ff6b4a]" /> {t('eyebrow')}</div><h1 className="text-balance break-keep text-[2.4rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-7xl sm:leading-[0.98]">{t('title1')}<br />{t('title2')}</h1><p className="mx-auto mt-4 max-w-xl break-keep text-sm leading-6 text-black/55 sm:mt-6 sm:text-base sm:leading-7">{t('description1')}<br className="hidden sm:block" /> {t('description2')}</p></div>
-    {/* AI 헬모드 launch on top, then 피스 경쟁전 at the same size. */}
-    {HELL_LIVE.length > 0 && <HellLaunchBanner />}
-    <PieceRaceBanner />
-    <div className="mt-8 grid gap-2.5 sm:mt-12 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">{/* The open-match card is tall: it spans two rows so the cards beside it keep their own height. */}<div className="grid md:row-span-2">{openCard}</div>{games.map((game) => (
-      <div key={game.title} className={`group relative flex flex-col overflow-hidden rounded-[20px] border bg-[#f9f7f1] ${'hype' in game ? 'hype-card border-[#ff6a3d]/45' : 'border-black/10'} p-3 shadow-[0_12px_36px_rgba(30,38,36,0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_56px_rgba(30,38,36,0.13)] sm:rounded-[26px] sm:p-5`}>
-        <Link href={game.href} className="block flex-1">
-          <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{HELL_LIVE.some((g) => g.href === game.href) && <span className="inline-flex items-center rounded-full bg-[#07060a] px-2.5 py-1 text-[10px] font-black tracking-[0.12em] text-[#ff3355] shadow-[0_0_12px_rgba(255,51,85,.45)] ring-1 ring-[#ff3355]/60">{t('hellTag')}</span>}{'updated' in game && <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#3ddc97] to-[#2bb8ff] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#06231a]" title={t('updatedTip' in game ? game.updatedTip : 'updatedTitle')}><Sparkles size={11} />{t('updated')}</span>}{CHALLENGE_RATE_HREFS.has(game.href) ? (rates?.get(game.href) && <span title={t('clearRateTitle', { c: rates.get(game.href)!.clears, n: rates.get(game.href)!.attempts })} className={`rounded-full px-3 py-1 text-[10px] font-black tracking-[0.04em] ${CLEAR_TONE[rates.get(game.href)!.level]}`}>{t('clearRate', { pct: rates.get(game.href)!.pct, level: t(`clearLevel_${rates.get(game.href)!.level}`) })}</span>) : 'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}</span>{podiums?.get(game.href)?.entries.length ? <HallPodium entries={podiums.get(game.href)!.entries} label={t(podiums.get(game.href)!.kind === 'wins' ? 'podiumLabel' : 'podiumChallengeLabel', { game: game.display })} stat={(n) => t(PODIUM_STAT[podiums.get(game.href)!.kind], { n })} /> : podiums && game.tag === 'logicPuzzle' ? <HallPodium entries={[]} label={t('podiumChallengeLabel', { game: game.display })} stat={(n) => t(PODIUM_STAT.maps, { n })} /> : <span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span>}</div>
-          <div className="mt-2 flex items-center gap-3 sm:mt-1 sm:block">
-            {/* The picture is laid out at 300px and scaled to fit its box (76px on phones, 230px from sm). */}
-            <div className="h-[76px] w-[76px] shrink-0 sm:mx-auto sm:h-[230px] sm:w-[230px]"><FitTile title={game.display} className="h-full w-full"><GamePreview id={GAMES.find((g) => g.href === game.href)!.id} /></FitTile></div>
-            <div className="flex min-w-0 flex-1 items-end justify-between gap-3 sm:gap-5">
-              <div className="min-w-0"><h2 className="text-xl font-black tracking-[-0.04em] sm:text-2xl">{game.display}</h2><p className="mt-0.5 line-clamp-2 max-w-sm break-keep text-[12.5px] leading-[18px] text-black/50 sm:mt-1.5 sm:line-clamp-3 sm:text-[13px] sm:leading-5">{game.description}</p><div className="mt-1.5 flex items-center gap-2 text-[11px] font-bold text-black/40 sm:mt-3">{game.illustration === 'sudoku' ? <Brain size={14} /> : <Bot size={14} />}{game.meta}</div></div>
-              <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#17201e] text-white transition group-hover:rotate-[-8deg] group-hover:scale-110 sm:flex"><ArrowRight size={18} /></span>
-            </div>
-          </div>
-        </Link>
-      </div>
-    ))}</div>
-    <div className="mt-8 grid gap-3 sm:grid-cols-3"><div className="flex items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/40 p-4"><Grid3X3 size={18} /><div><p className="text-xs font-extrabold">{t('clearRules')}</p><p className="text-[11px] text-black/40">{t('clearRulesDesc')}</p></div></div><div className="flex items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/40 p-4"><Bot size={18} /><div><p className="text-xs font-extrabold">{t('instantPlay')}</p><p className="text-[11px] text-black/40">{t('instantPlayDesc')}</p></div></div><div className="flex items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/40 p-4"><UsersRound size={18} /><div><p className="text-xs font-extrabold">{t('growing')}</p><p className="text-[11px] text-black/40">{t('growingDesc')}</p></div></div></div>
-  </div></section></main></>;
+  return <>
+    {phone === null && <div className="sm:hidden"><HomeApp Preview={GamePreview} openMatch={openCard} Heading="p" /></div>}
+    <HomeWeb Preview={GamePreview} openMatch={openCard} className={phone === null ? 'hidden sm:block' : ''} />
+  </>;
 }

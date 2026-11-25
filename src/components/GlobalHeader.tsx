@@ -36,20 +36,20 @@ export default function GlobalHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-black/[0.07] bg-[#f3f0e8]/90 backdrop-blur-xl">
       <TopBannerSlot />
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5" onClick={closeMenu}>
           <span className="grid h-8 w-8 grid-cols-2 gap-0.5 rounded-[10px] bg-[#17201e] p-2"><i className="rounded-sm bg-[#ff6b4a]" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-[#f2c14e]" /></span>
           <span className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</span>
         </Link>
 
         {/* No 게임 dropdown here: 바로 플레이 on the right already lists every game. */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {HELL_LIVE.length > 0 && <Link href="/hell" className={HELL_LINK}><Skull size={13} />{t('hellMode')}</Link>}
           {/* 게임소개 only once there is room (it stays in the phone menu and the footer). */}
           {links.map((item) => <Link key={item.href} href={item.href} className={`${NAV_LINK} ${'wide' in item ? 'hidden xl:block' : ''}`}>{item.label}</Link>)}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <HeaderSupportButton />
           <LanguageSwitcher compact />
           <AuthButton source="header" />
@@ -57,12 +57,12 @@ export default function GlobalHeader() {
         </div>
 
         {/* Phones / installed app: 기록실 one tap away, beside the menu button. */}
-        <Link href="/records" onClick={closeMenu} className="ml-auto mr-1 flex items-center gap-1.5 rounded-xl border border-black/10 bg-white/70 px-3 py-1.5 text-xs font-extrabold text-black/75 transition hover:bg-white md:hidden"><Trophy size={14} className="text-[#e8a33c]" />{t('records')}</Link>
-        <button type="button" aria-label={t('menu')} aria-expanded={open} onClick={() => setOpen((value) => !value)} className="rounded-xl p-2 transition hover:bg-white md:hidden">{open ? <X size={20} /> : <Menu size={20} />}</button>
+        <Link href="/records" onClick={closeMenu} className="ml-auto mr-1 flex items-center gap-1.5 rounded-xl border border-black/10 bg-white/70 px-3 py-1.5 text-xs font-extrabold text-black/75 transition hover:bg-white lg:hidden"><Trophy size={14} className="text-[#e8a33c]" />{t('records')}</Link>
+        <button type="button" aria-label={t('menu')} aria-expanded={open} onClick={() => setOpen((value) => !value)} className="rounded-xl p-2 transition hover:bg-white lg:hidden">{open ? <X size={20} /> : <Menu size={20} />}</button>
       </div>
 
       {open && (
-        <div className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-black/[0.07] bg-[#f8f6ef] px-5 py-4 md:hidden">
+        <div className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-black/[0.07] bg-[#f8f6ef] px-5 py-4 lg:hidden">
           <nav className="mx-auto flex max-w-6xl flex-col gap-1">
             <button type="button" aria-expanded={gamesOpen} aria-controls="mobile-games" onClick={() => setGamesOpen((value) => !value)} className={`${MOBILE_LINK} flex items-center justify-between text-left`}>
               {t('games')}<ChevronDown size={16} className={`text-black/45 transition ${gamesOpen ? 'rotate-180' : ''}`} />

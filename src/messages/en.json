@@ -8585,6 +8585,10 @@
     "disclaimer": "Tower of Equations is an unofficial fan game based on the rules of a game from Netflix's The Devil's Plan: Dead Again, and is not affiliated with Netflix or the producers. The block set and the order of operations are this site's own choice."
   },
   "HomeApp": {
+      "feedTitle": "Live news",
+      "recentTitle": "Recently played",
+      "gamesTitle": "Games",
+      "allGames": "Browse all {n} games",
       "cat_all": "All",
       "cat_new": "New",
       "cat_versus": "Versus",

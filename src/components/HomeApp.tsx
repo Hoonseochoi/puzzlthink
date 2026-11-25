@@ -26,29 +26,29 @@ import { FitTile } from './OpenMatchCard';
 import StoneAvatar, { Stone } from './StoneAvatar';
 
 // Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
-const NEW: GameId[] = ['hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'gradation', 'pointOmok'];
+export const NEW: GameId[] = ['hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'gradation', 'pointOmok'];
 const PUZZLE: GameId[] = ['slitherlink', 'hiddenWord', 'equationSignal', 'equationTower', 'magicswap', 'colorlink', 'merge2048', 'onestroke', 'starbattle', 'nonogram', 'binairo', 'masyu', 'sudoku', 'nemoCount', 'gyulhap', 'hexagon'];
 /** 오늘의 추천 on the phone home: set by the site owner. */
-const TODAY_PICK: GameId = 'slitherlink';
-const CATS = ['all', 'new', 'versus', 'puzzle', 'hell'] as const;
-type Cat = (typeof CATS)[number];
-const inCat = (g: CatalogGame, cat: Cat) =>
+export const TODAY_PICK: GameId = 'slitherlink';
+export const CATS = ['all', 'new', 'versus', 'puzzle', 'hell'] as const;
+export type Cat = (typeof CATS)[number];
+export const inCat = (g: CatalogGame, cat: Cat) =>
   cat === 'all' || (cat === 'new' && NEW.includes(g.id)) || (cat === 'puzzle' && PUZZLE.includes(g.id)) || (cat === 'versus' && !PUZZLE.includes(g.id)) || (cat === 'hell' && !!g.hell?.live);
 
 const rgb = (hex: string) => { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
-const tint = (hex: string, a: number) => `rgba(${rgb(hex).join(', ')}, ${a})`;
+export const tint = (hex: string, a: number) => `rgba(${rgb(hex).join(', ')}, ${a})`;
 /** Mix a colour toward another (0 = itself, 1 = the other). */
-const shade = (hex: string, t: number, to: string) => { const a = rgb(hex), b = rgb(to); return `rgb(${a.map((v, i) => Math.round(v * (1 - t) + b[i] * t)).join(', ')})`; };
+export const shade = (hex: string, t: number, to: string) => { const a = rgb(hex), b = rgb(to); return `rgb(${a.map((v, i) => Math.round(v * (1 - t) + b[i] * t)).join(', ')})`; };
 
 const RECENT_KEY = 'puzzlthink:home-recent';
 const readRecent = (): string[] => { try { const v = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); return Array.isArray(v) ? v.filter((x) => typeof x === 'string') : []; } catch { return []; } };
-const pushRecent = (href: string) => { try { localStorage.setItem(RECENT_KEY, JSON.stringify([href, ...readRecent().filter((h) => h !== href)].slice(0, 8))); } catch { /* private mode */ } };
+export const pushRecent = (href: string) => { try { localStorage.setItem(RECENT_KEY, JSON.stringify([href, ...readRecent().filter((h) => h !== href)].slice(0, 8))); } catch { /* private mode */ } };
 
-type Me = { ranks: Map<string, number>; recent: string[] };
+export type Me = { ranks: Map<string, number>; recent: string[] };
 const NO_ME: Me = { ranks: new Map(), recent: [] };
 
 /** The signed-in player's game ranks and the games played last. */
-function useMe(userId: string | null): Me {
+export function useMe(userId: string | null): Me {
   const [me, setMe] = useState<Me>(NO_ME);
   useEffect(() => {
     const supabase = getSupabase();
@@ -72,10 +72,10 @@ function useMe(userId: string | null): Me {
   return me;
 }
 
-type RaceRow = { rank: number; nickname: string; pieces: number; is_me: boolean };
-type Races = { piece: RaceRow[]; black: RaceRow[]; open: RaceRow[] };
+export type RaceRow = { rank: number; nickname: string; pieces: number; is_me: boolean };
+export type Races = { piece: RaceRow[]; black: RaceRow[]; open: RaceRow[] };
 /** This week's 피스 and 블랙피스 boards and the 오픈 대전 total-wins board: the top three, plus my own row when signed in. */
-function useRaces(userId: string | null): Races {
+export function useRaces(userId: string | null): Races {
   const [races, setRaces] = useState<Races>({ piece: [], black: [], open: [] });
   useEffect(() => {
     const supabase = getSupabase();
@@ -94,7 +94,7 @@ function useRaces(userId: string | null): Races {
 }
 
 /** A race's top three on its banner: 2nd · 1st · 3rd, each wearing the icon that place wins. */
-function RacePodium({ rows, icon, accent, count = (n) => `×${n}` }: { rows: RaceRow[]; icon: (place: 1 | 2 | 3) => string; accent: string; count?: (n: number) => string }) {
+export function RacePodium({ rows, icon, accent, count = (n) => `×${n}` }: { rows: RaceRow[]; icon: (place: 1 | 2 | 3) => string; accent: string; count?: (n: number) => string }) {
   const top = new Map(rows.filter((r) => r.rank <= 3).map((r) => [r.rank, r]));
   return (
     <span className="relative flex shrink-0 items-end gap-1">
@@ -112,9 +112,9 @@ function RacePodium({ rows, icon, accent, count = (n) => `×${n}` }: { rows: Rac
   );
 }
 
-type FeedKind = 'crown' | 'hall' | 'hell' | 'hard' | 'open' | 'slither';
-type FeedItem = { key: string; kind: FeedKind; name: string; text: string; at: number; href: string };
-const FEED_STYLE: Record<FeedKind, { chip: string; icon: ReactNode }> = {
+export type FeedKind = 'crown' | 'hall' | 'hell' | 'hard' | 'open' | 'slither';
+export type FeedItem = { key: string; kind: FeedKind; name: string; text: string; at: number; href: string };
+export const FEED_STYLE: Record<FeedKind, { chip: string; icon: ReactNode }> = {
   crown: { chip: 'bg-[#f2c53d] text-[#3b2604]', icon: <Crown size={10} className="fill-[#3b2604]" /> },
   hall: { chip: 'bg-[#ffd36e] text-[#3b2604]', icon: <Trophy size={10} /> },
   hell: { chip: 'bg-[#ff3355] text-white', icon: <Skull size={10} /> },
@@ -125,7 +125,7 @@ const FEED_STYLE: Record<FeedKind, { chip: string; icon: ReactNode }> = {
 const FEED_PER_KIND = 3;
 
 /** The day's news, newest first within each kind and the kinds dealt in turn: 1위 변동, 명예의 전당, 헬모드, 어려움 클리어, 오픈대전 승리, 맵 뺏기. */
-function useFeed(): FeedItem[] {
+export function useFeed(): FeedItem[] {
   const tl = useTranslations('Live');
   const th = useTranslations('HomeApp');
   const tc = useTranslations('Common');
@@ -179,7 +179,7 @@ function useFeed(): FeedItem[] {
   }, [rows, tl, th, tc]);
 }
 
-function LiveFeed({ items }: { items: FeedItem[] }) {
+export function LiveFeed({ items, className = 'mx-4 mt-2.5' }: { items: FeedItem[]; className?: string }) {
   const th = useTranslations('HomeApp');
   const [at, setAt] = useState(0);
   const [now, setNow] = useState(0);
@@ -196,7 +196,7 @@ function LiveFeed({ items }: { items: FeedItem[] }) {
   const mins = now ? Math.max(0, Math.round((now - item.at) / 60000)) : -1;
   const ago = mins < 0 ? '' : mins < 1 ? th('agoNow') : mins < 60 ? th('agoMin', { n: mins }) : mins < 1440 ? th('agoHour', { n: Math.round(mins / 60) }) : th('agoDay', { n: Math.round(mins / 1440) });
   return (
-    <Link href={item.href as CatalogGame['href']} className="mx-4 mt-2.5 flex h-[46px] items-center gap-2 overflow-hidden rounded-[18px] bg-[#17201e] pl-2 pr-3 text-white active:scale-[.985]" aria-live="off">
+    <Link href={item.href as CatalogGame['href']} className={`${className} flex h-[46px] items-center gap-2 overflow-hidden rounded-[18px] bg-[#17201e] pl-2 pr-3 text-white active:scale-[.985]`} aria-live="off">
       <span key={`c${at}`} className={`home-feed flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-black ${k.chip}`}>{k.icon}{th(`feed_${item.kind}`)}</span>
       <span key={`t${at}`} className="home-feed flex min-w-0 flex-1 items-center gap-1.5 text-[11.5px] font-bold">
         <StoneAvatar name={item.name} size={16} />
@@ -208,11 +208,11 @@ function LiveFeed({ items }: { items: FeedItem[] }) {
   );
 }
 
-const MEDAL = ['#f2c53d', '#b8bfca', '#c98a55'];
-const PODIUM_STAT = { wins: 'podiumWins', maps: 'podiumMaps', score: 'podiumScore', correct: 'podiumCorrect' } as const;
+export const MEDAL = ['#f2c53d', '#b8bfca', '#c98a55'];
+export const PODIUM_STAT = { wins: 'podiumWins', maps: 'podiumMaps', score: 'podiumScore', correct: 'podiumCorrect' } as const;
 
 /** Under a tile: the game's #1 (one stone and the name). */
-function TopOne({ podium }: { podium?: GamePodium }) {
+export function TopOne({ podium }: { podium?: GamePodium }) {
   const th = useTranslations('HomeApp');
   const top = podium?.entries[0];
   if (!top) return <span className="mt-0.5 block text-center text-[10px] font-bold text-black/30">{th('noTop')}</span>;
@@ -226,7 +226,7 @@ function TopOne({ podium }: { podium?: GamePodium }) {
 }
 
 /** On the picture: where I stand in this game — "[nickname] 7위". */
-function MyRank({ rank, name }: { rank?: number; name: string }) {
+export function MyRank({ rank, name }: { rank?: number; name: string }) {
   const th = useTranslations('HomeApp');
   if (!rank) return null;
   const first = rank === 1;
@@ -236,6 +236,33 @@ function MyRank({ rank, name }: { rank?: number; name: string }) {
       <span className={`min-w-0 truncate ${first ? '' : 'text-white/70'}`}>{name}</span><span className="shrink-0">{th('rankN', { n: rank })}</span>
     </span>
   );
+}
+
+/** The home's event banners: AI 헬모드, 피스 경쟁전 (while it runs) and 오픈 대전 with the matches on right now. */
+export function useHomeEvents(races: Races) {
+  const th = useTranslations('HomeApp');
+  const [pieceLive] = useState(() => Date.now() < PIECE_WEEKS[2].ends);
+  const [rooms, setRooms] = useState<number | null>(null);
+  const [live, setLive] = useState<{ open: number; friend: number } | null>(null); // matches being played right now
+  useEffect(() => {
+    let alive = true;
+    const load = () => {
+      listAllOpenRooms().then((list) => { if (alive && list) setRooms(list.length); });
+      listLiveRooms().then((list) => { if (alive && list) setLive({ open: list.reduce((n, r) => n + r.open, 0), friend: list.reduce((n, r) => n + r.friend, 0) }); });
+    };
+    load();
+    const timer = window.setInterval(() => { if (document.visibilityState === 'visible') load(); }, 60_000);
+    return () => { alive = false; window.clearInterval(timer); };
+  }, []);
+
+  const openSide = <RacePodium rows={races.open} icon={(p) => `o-${p}`} accent="#b9c1ff" count={(n) => th('winsN', { n })} />;
+
+  const events = [
+    { key: 'hell', icon: <Skull size={15} />, eyebrow: 'AI HELL MODE', title: th('evHellTitle'), sub: th('evHellSub'), cta: th('evHellCta'), bg: 'linear-gradient(135deg, #2a0812 0%, #07060a 70%)', accent: '#ff3355', href: '/hell' as const, hash: undefined, side: <RacePodium rows={races.black} icon={(p) => `h1-${p}`} accent="#ff8ea0" /> },
+    ...(pieceLive ? [{ key: 'piece', icon: <Puzzle size={15} />, eyebrow: 'PIECE RACE · 2W', title: th('evPieceTitle'), sub: th('evPieceSub'), cta: th('evPieceCta'), bg: 'linear-gradient(135deg, #2c2a14 0%, #17201e 70%)', accent: '#ffd36e', href: '/records' as const, hash: 'competition', side: <RacePodium rows={races.piece} icon={(p) => `w2-${p}`} accent="#ffd36e" /> }] : []),
+    { key: 'open', icon: <Swords size={15} />, eyebrow: 'OPEN MATCH', title: th('evOpenTitle'), sub: live ? th('evOpenLive', { open: live.open, friend: live.friend }) + (rooms ? ` · ${th('evOpenWaiting', { n: rooms })}` : '') : rooms ? th('evOpenRooms', { n: rooms }) : th('evOpenSub'), cta: th('evOpenCta'), bg: 'linear-gradient(135deg, #1b1f4a 0%, #0e1020 70%)', accent: '#8f9bff', href: '/' as const, hash: 'open-match', side: openSide },
+  ];
+  return events;
 }
 
 export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Preview: ComponentType<{ id: GameId }>; openMatch: ReactNode; /** 'p' while the desktop layout (with its own h1) is in the same HTML */ Heading?: 'h1' | 'p' }) {
@@ -251,41 +278,20 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const feed = useFeed();
   const [cat, setCat] = useState<Cat>('all');
   const [ev, setEv] = useState(0);
-  const [rooms, setRooms] = useState<number | null>(null);
-  const [live, setLive] = useState<{ open: number; friend: number } | null>(null); // matches being played right now
-  useEffect(() => {
-    let alive = true;
-    const load = () => {
-      listAllOpenRooms().then((list) => { if (alive && list) setRooms(list.length); });
-      listLiveRooms().then((list) => { if (alive && list) setLive({ open: list.reduce((n, r) => n + r.open, 0), friend: list.reduce((n, r) => n + r.friend, 0) }); });
-    };
-    load();
-    const timer = window.setInterval(() => { if (document.visibilityState === 'visible') load(); }, 60_000);
-    return () => { alive = false; window.clearInterval(timer); };
-  }, []);
-
   const list = GAMES.filter((g) => inCat(g, cat));
   // Today's pick is chosen by hand (TODAY_PICK); a category shows the first game of its list instead.
   const hero = cat === 'all' ? GAMES.find((g) => g.id === TODAY_PICK) ?? list[0] : list[0];
   const rest = list.filter((g) => g !== hero);
   const name = nickname?.trim() || '';
   const recent = me.recent.map((href) => GAMES.find((g) => g.href === href)).filter((g): g is CatalogGame => !!g).slice(0, 6);
-  const [pieceLive] = useState(() => Date.now() < PIECE_WEEKS[2].ends);
   const heroPodium = hero ? podiums?.get(hero.href) : undefined;
 
-  const openSide = <RacePodium rows={races.open} icon={(p) => `o-${p}`} accent="#b9c1ff" count={(n) => th('winsN', { n })} />;
-
-  const events = [
-    { key: 'hell', icon: <Skull size={15} />, eyebrow: 'AI HELL MODE', title: th('evHellTitle'), sub: th('evHellSub'), cta: th('evHellCta'), bg: 'linear-gradient(135deg, #2a0812 0%, #07060a 70%)', accent: '#ff3355', href: '/hell' as const, hash: undefined, side: <RacePodium rows={races.black} icon={(p) => `h1-${p}`} accent="#ff8ea0" /> },
-    ...(pieceLive ? [{ key: 'piece', icon: <Puzzle size={15} />, eyebrow: 'PIECE RACE · 2W', title: th('evPieceTitle'), sub: th('evPieceSub'), cta: th('evPieceCta'), bg: 'linear-gradient(135deg, #2c2a14 0%, #17201e 70%)', accent: '#ffd36e', href: '/records' as const, hash: 'competition', side: <RacePodium rows={races.piece} icon={(p) => `w2-${p}`} accent="#ffd36e" /> }] : []),
-    { key: 'open', icon: <Swords size={15} />, eyebrow: 'OPEN MATCH', title: th('evOpenTitle'), sub: live ? th('evOpenLive', { open: live.open, friend: live.friend }) + (rooms ? ` · ${th('evOpenWaiting', { n: rooms })}` : '') : rooms ? th('evOpenRooms', { n: rooms }) : th('evOpenSub'), cta: th('evOpenCta'), bg: 'linear-gradient(135deg, #1b1f4a 0%, #0e1020 70%)', accent: '#8f9bff', href: '/' as const, hash: 'open-match', side: openSide },
-  ];
+  const events = useHomeEvents(races);
 
   return (
     <div className="bg-[#f3f0e8] pb-10 text-[#17201e]">
       <Heading className="sr-only">{t('title1')} {t('title2')}</Heading>
       <p className="sr-only">{t('description1')} {t('description2')}</p>
-      <style>{`@keyframes home-feed { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } } .home-feed { animation: home-feed .38s cubic-bezier(.2,.8,.2,1); } @keyframes home-sweep { 0%, 55% { transform: translateX(0) skewX(-12deg); } 100% { transform: translateX(620%) skewX(-12deg); } } .home-sweep { animation: home-sweep 4.5s ease-in-out infinite; } @keyframes home-float { 0%, 100% { transform: rotate(4deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-5px); } } .home-float { animation: home-float 4s ease-in-out infinite; } @media (prefers-reduced-motion: reduce) { .home-feed, .home-sweep, .home-float { animation: none; } }`}</style>
 
       {/* profile strip: my icon and nickname, 피스 and 블랙피스 */}
       {ready && (

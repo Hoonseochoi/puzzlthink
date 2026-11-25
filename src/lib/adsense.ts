@@ -8,6 +8,10 @@ export const AD_SLOTS = {
   result: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RESULT?.trim() || '',
   /** Between the game area and the guide/FAQ below it, and on content pages. */
   inline: process.env.NEXT_PUBLIC_ADSENSE_SLOT_INLINE?.trim() || '',
+  /** Home page (640px and wider): a wide unit under the game grid. */
+  home: process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME?.trim() || '',
+  /** Home page, desktop right rail (about 316px wide, sticks while scrolling). */
+  rail: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RAIL?.trim() || '',
 } as const;
 
 export type AdPlacement = keyof typeof AD_SLOTS;
