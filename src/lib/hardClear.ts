@@ -58,6 +58,12 @@ export function clearLabel(game: GameId, locale: string) {
 }
 
 /** A win that earns a certificate (same rule as the SQL function is_hard_clear). */
+/** Games with a 어려움 AI (or 스도쿠 어려움): the ones whose clear gives a certificate and the x-{game} icon. */
+export const HARD_GAMES: GameId[] = [
+  'card_janggi', 'color_link_duel', 'gradation', 'point_omok', 'two_sided_poker', 'monorail', 'flip_omok', 'nine_mens_morris', 'wallgo2', 'indian_poker',
+  'piggy_bank', 'black_white', 'black_white_2', 'laser_janggi', 'blind_gomoku', 'wallgo', 'russian_roulette', 'heavy13', 'janggi', 'russian_janggi', 'sudoku',
+];
+
 export function isHardClear(game: GameId, mode: string, result: string, detail: Record<string, unknown>) {
   if (result !== 'win') return false;
   const level = (detail.difficulty ?? detail.level) as string | undefined;

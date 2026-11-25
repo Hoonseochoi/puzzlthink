@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from 'react';
 import { getSupabase } from '@/lib/supabase';
 import { CrownStone, HellStone, Tile2048, parseIcon, OpenStone } from './ProfileIcons';
+import { FriendWinStone, HardClearStone, HellClearStone, OpenWinStone, PlayTimeStone } from './BadgeIcons';
 
 /**
  * Ranking profile pictures: our PUZZLTHINK stones (a glossy disc with the two eyes) instead of Google photos or
@@ -154,6 +155,11 @@ export function Stone({ name, size, pieceRank = null, champion, stone, icon }: {
   if (ref?.kind === 'open') return <OpenStone id={id} name={name} size={size} place={ref.place} />;
   if (ref?.kind === 'm2048') return <Tile2048 id={id} name={name} size={size} tier={ref.tier} />;
   if (ref?.kind === 'crown') return <CrownStone id={id} name={name} size={size} game={ref.game} />;
+  if (ref?.kind === 'hard') return <HardClearStone id={id} name={name} size={size} game={ref.game} />;
+  if (ref?.kind === 'friendWin') return <FriendWinStone id={id} name={name} size={size} />;
+  if (ref?.kind === 'openWin') return <OpenWinStone id={id} name={name} size={size} />;
+  if (ref?.kind === 'hellClear') return <HellClearStone id={id} name={name} size={size} />;
+  if (ref?.kind === 'play') return <PlayTimeStone id={id} name={name} size={size} hours={ref.hours} />;
   const ranker = pieceRank != null && pieceRank <= 10;
   const crown = ranker && pieceRank <= 3;
   const picked = choice && choice in COLOR_TONE ? COLOR_TONE[choice as StoneColor] : null;

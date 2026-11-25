@@ -2,22 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowRight, Check, Crown, Gamepad2, Palette, Skull, Sparkles, Swords } from 'lucide-react';
+import { ArrowRight, Check, Clock, Crown, Gamepad2, Medal, Palette, Skull, Sparkles, Swords, Trophy } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import type { GameId } from '@/lib/stats';
-import { CERT_GAMES } from '@/lib/hardClear';
+import { CERT_GAMES, HARD_GAMES } from '@/lib/hardClear';
 import { gameFromSlug, rankSlug } from '@/lib/rankings';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
 import { CHAMPION_LOOKS, STONE_COLORS, Stone } from './StoneAvatar';
 import { MY_ICON_ANCHOR } from './StonePicker';
 import { M2048_TIERS } from './ProfileIcons';
+import { PLAY_HOURS } from './BadgeIcons';
 
 const CROWN_GAMES = (Object.keys(CERT_GAMES) as GameId[]).filter((g) => gameFromSlug(rankSlug(g)));
 
 /**
  * 아이콘 컬렉션 (/icons): every profile icon by theme with a one-line condition for getting it — the free colours,
- * 피스 경쟁전 champions (per week), 블랙피스 weekly top three, 2048, and each game's #1 (with who holds it now).
+ * 피스 경쟁전 champions (per week), 블랙피스 weekly top three, 2048, play time, match wins / 매우 어려움, each game's
+ * 어려움 clear, and each game's #1 (with who holds it now).
  * Signed in, icons you own are ticked.
  */
 export default function IconCollection() {
@@ -29,6 +31,7 @@ export default function IconCollection() {
   const [owned, setOwned] = useState<Set<string>>(new Set());
   const [holders, setHolders] = useState<Map<string, string>>(new Map());
   const [openTop, setOpenTop] = useState<Map<number, string>>(new Map());
+  const [playSec, setPlaySec] = useState<number | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -49,6 +52,7 @@ export default function IconCollection() {
       // A 블랙피스 icon looks the same every week, so owning any week's place counts for that place.
       setOwned(new Set([...earned, ...earned.filter((i) => /^h\d+-[123]$/.test(i)).map((i) => `h-${i.slice(-1)}`)]));
     });
+    getSupabase()?.rpc('my_play_time').then(({ data }) => { if (alive && typeof data === 'number') setPlaySec(data); });
     return () => { alive = false; };
   }, [user]);
 
@@ -113,6 +117,23 @@ export default function IconCollection() {
 
         {section('m2048', <Sparkles size={18} className="text-[#e8b730]" />, t('m2048Title'), t('m2048Rule'),
           <ul className={grid}>{M2048_TIERS.map((n) => cell(`m${n}`, ti('m2048', { n })))}</ul>)}
+
+        {section('play', <Clock size={18} className="text-[#7a4cff]" />, t('playTitle'), t('playRule'),
+          <>
+            {user && playSec !== null && (
+              <div className="mt-3 max-w-md">
+                <p className="text-[11px] font-black text-black/55">{t('playMine', { h: (playSec / 3600).toFixed(1) })}</p>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-black/10"><span className="block h-full rounded-full bg-[linear-gradient(90deg,#c77a45,#b9c2cf,#f5c53a,#b48cff)]" style={{ width: `${Math.min(100, playSec / 3600)}%` }} /></div>
+              </div>
+            )}
+            <ul className={grid}>{PLAY_HOURS.map((h) => cell(`t${h}`, ti('playHours', { n: h })))}</ul>
+          </>)}
+
+        {section('badges', <Trophy size={18} className="text-[#ff8a5c]" />, t('badgeTitle'), t('badgeRule'),
+          <ul className={grid}>{cell('fw', ti('friendWin'))}{cell('ow', ti('openWin'))}{cell('hc', ti('hellClear'))}</ul>)}
+
+        {section('hard', <Medal size={18} className="text-[#8a94a3]" />, t('hardTitle'), t('hardRule'),
+          <ul className={grid}>{HARD_GAMES.map((g) => cell(`x-${g}`, gameName(g), undefined, `x-${g}`, CERT_GAMES[g].href))}</ul>)}
 
         {section('crowns', <Gamepad2 size={18} className="text-[#ff6b4a]" />, t('crownTitle'), t('crownRule'),
           <ul className={grid}>{CROWN_GAMES.map((g) => cell(`c-${g}`, gameName(g), holders.get(g) ?? t('noHolder'), `c-${g}`, `/ranking/${rankSlug(g)}`))}</ul>)}

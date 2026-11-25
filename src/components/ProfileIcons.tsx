@@ -14,12 +14,17 @@ export type IconRef =
   | { kind: 'hell'; week: number; place: 1 | 2 | 3 }
   | { kind: 'm2048'; tier: number }
   | { kind: 'open'; place: 1 | 2 | 3 }
-  | { kind: 'crown'; game: GameId };
+  | { kind: 'crown'; game: GameId }
+  | { kind: 'hard'; game: GameId } // x-{game}: cleared on 어려움
+  | { kind: 'friendWin' } // fw
+  | { kind: 'openWin' } // ow
+  | { kind: 'hellClear' } // hc: cleared any game on 매우 어려움
+  | { kind: 'play'; hours: number }; // t10 … t100
 
 /** The 2048 block icons, smallest first: one per block from 2048 up to the biggest a 4×4 board can hold. */
 export const M2048_TIERS = [2048, 4096, 8192, 16384, 32768, 65536, 131072] as const;
 
-/** 'w2-1' / 'h1-3' / 'm4096' / 'c-wallgo' → what it is; null for a plain colour or anything unknown. */
+/** 'w2-1' / 'h1-3' / 'm4096' / 'c-wallgo' / 'x-janggi' / 'fw' / 'ow' / 'hc' / 't30' → what it is; null for a plain colour or anything unknown. */
 export function parseIcon(stone: string | null | undefined): IconRef | null {
   if (!stone) return null;
   const m = /^m(\d{4,6})$/.exec(stone);
@@ -28,8 +33,13 @@ export function parseIcon(stone: string | null | undefined): IconRef | null {
   if (wh) return { kind: wh[1] === 'w' ? 'piece' : 'hell', week: Number(wh[2]), place: Number(wh[3]) as 1 | 2 | 3 };
   const o = /^o-([123])$/.exec(stone);
   if (o) return { kind: 'open', place: Number(o[1]) as 1 | 2 | 3 };
-  const c = /^c-([a-z0-9_]+)$/.exec(stone);
-  if (c && c[1] in CERT_GAMES) return { kind: 'crown', game: c[1] as GameId };
+  const c = /^([cx])-([a-z0-9_]+)$/.exec(stone);
+  if (c && c[2] in CERT_GAMES) return { kind: c[1] === 'c' ? 'crown' : 'hard', game: c[2] as GameId };
+  if (stone === 'fw') return { kind: 'friendWin' };
+  if (stone === 'ow') return { kind: 'openWin' };
+  if (stone === 'hc') return { kind: 'hellClear' };
+  const t = /^t(\d{2,3})$/.exec(stone);
+  if (t && Number(t[1]) % 10 === 0 && Number(t[1]) >= 10 && Number(t[1]) <= 100) return { kind: 'play', hours: Number(t[1]) };
   return null;
 }
 
@@ -203,7 +213,7 @@ const txt = (x: number, y: number, s: string, size: number, fill: string) => (
 );
 
 /** Each game's emblem in a 24×24 box; `c` is the game's colour. */
-const EMBLEMS: Record<GameId, (c: string) => React.ReactNode> = {
+export const EMBLEMS: Record<GameId, (c: string) => React.ReactNode> = {
   hidden_word: (c) => <><rect x="3" y="2.5" width="18" height="11.5" rx="2.5" fill={K} />{txt(12, 11.6, '?', 9.5, c)}<rect x="3" y="16.2" width="18" height="2.2" rx="1.1" fill={c} stroke={K} strokeWidth=".7" /><rect x="3" y="19.8" width="11" height="2.2" rx="1.1" fill={c} fillOpacity=".55" stroke={K} strokeWidth=".7" /></>,
   gradation: (c) => <><rect x="1.5" y="8" width="6.4" height="12" rx="1.6" fill="#26262d" stroke={K} strokeWidth="1" /><rect x="16.1" y="8" width="6.4" height="12" rx="1.6" fill="#26262d" stroke={K} strokeWidth="1" /><rect x="8.6" y="6" width="6.8" height="14" rx="1.8" fill="#f1f2f4" stroke={K} strokeWidth="1.1" /><rect x="9.6" y="11.5" width="4.8" height="4.8" rx="1" fill={c} stroke="#0f5a25" strokeWidth=".7" />{txt(12, 15.4, '9', 4.4, W)}</>,
   card_janggi: (c) => <><rect x="5" y="2.5" width="14" height="19" rx="2.5" fill={W} stroke={K} strokeWidth="1.6" />{txt(12, 16.5, '將', 10, c)}</>,

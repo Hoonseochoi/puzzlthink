@@ -55,6 +55,8 @@ async function insertResult(supabase: Supabase, userId: string, game: GameId, mo
   const before = counts ? await myHallRank(supabase, game) : null;
   const { error } = await supabase.from('game_results').insert({ id: crypto.randomUUID(), user_id: userId, game, mode, result, detail });
   if (error) return false;
+  // A friend or open-match win may have earned the 친구 대전 / 오픈 대전 icon (given by a trigger): let IconUnlock look.
+  if (mode === 'friend' && result === 'win') window.dispatchEvent(new CustomEvent('puzzlthink:icons-check', { detail: { delayMs: delayMs + 2500 } }));
   // First hard clear in this game: a numbered certificate ("N번째 클리어").
   if (isHardClear(game, mode, result, detail)) {
     supabase.rpc('claim_hard_clear', { p_game: game }).then(({ data }) => {

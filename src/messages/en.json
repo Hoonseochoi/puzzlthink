@@ -1737,7 +1737,7 @@
     "stoneTitle": "My profile icon",
     "stoneBasic": "Colors",
     "stoneEarned": "Earned icons",
-    "stoneEarnedEmpty": "Finish a Piece Race or Black Piece week in the top three, reach 2048, or take #1 in a game ranking to earn icons you can pick here.",
+    "stoneEarnedEmpty": "Clear a game on Hard, win a friend or open match, play 10 hours, reach 2048, take #1 in a game ranking or finish a contest week in the top three to earn icons you can pick here.",
     "stoneColor": {"black": "Black", "white": "White", "red": "Red", "blue": "Blue"},
     "stoneChampLabel": "Week {week} #{place} · {name}",
     "stoneChampName": {"w1_1": "Platinum gold", "w1_2": "Platinum silver", "w1_3": "Platinum bronze", "w2_1": "Diamond", "w2_2": "Sapphire", "w2_3": "Emerald"},
@@ -5737,7 +5737,7 @@
   },
   "IconCollection": {
     "metaTitle": "Icon collection — PUZZLTHINK profile icons",
-    "metaDescription": "Piece Race and Black Piece champions, reaching 2048, and every game's #1 icon: all profile icons by theme, with how to get each.",
+    "metaDescription": "Hard clears for every game, friend and open match wins, 10 to 100 hours of play, contest champions, 2048 and every game's #1: all profile icons by theme, with how to get each.",
     "title": "Icon collection",
     "intro": "Your profile icon shows on rankings, the lounge and Records. A new icon is switched on as soon as you earn it, and you can change it in Records any time.",
     "pick": "Pick my icon",
@@ -5757,7 +5757,14 @@
     "openRule": "Top 3 by total open-match wins across every game · the icon moves with the place",
     "crownTitle": "Game #1",
     "crownRule": "Each game's ranking #1 · moves to the new #1 when you lose it",
-    "noHolder": "No holder"
+    "noHolder": "No holder",
+    "playTitle": "Play time",
+    "playRule": "Every 10 hours of play · up to 100 · yours for good",
+    "playMine": "Your play time: {h} h",
+    "hardTitle": "Hard clears",
+    "hardRule": "First Hard clear of each game (the certificate) · yours for good",
+    "badgeTitle": "Match wins · Very Hard",
+    "badgeRule": "First friend-match and open-match win, first Very Hard clear in any game · yours for good"
   },
   "Icons": {
     "pieceLabel": "Piece week {week} #{place} · {name}",
@@ -5770,7 +5777,7 @@
     "popupBadge": "NEW ICON",
     "popupTitle": "You got a new icon!",
     "popupTitleN": "You got {n} new icons!",
-    "popupDesc": "It's your profile icon from now on. Change it any time in Records › My profile icon.",
+    "popupDesc": "Pick it any time in Records › My profile icon. If you are using a higher icon (a #1, a champion, 2048), it stays on.",
     "popupCrownNote": "A game's #1 icon is yours only while you hold #1. Lose the top spot and it moves to the new #1.",
     "confirm": "See it",
     "close": "Close",
@@ -5785,7 +5792,12 @@
     "collectionLink": "Icon collection",
     "openLabel": "Open match #{place}",
     "collectionLinkSub": "See every icon you can earn",
-    "collectionLinkOwned": "{n} owned · see all"
+    "collectionLinkOwned": "{n} owned · see all",
+    "hardClear": "{game} Hard clear",
+    "friendWin": "Friend match win",
+    "openWin": "Open match win",
+    "hellClear": "Very Hard clear",
+    "playHours": "{n} hours played"
   },
   "PieceRace": {
     "shortTitle": "Piece race · Week 2",
