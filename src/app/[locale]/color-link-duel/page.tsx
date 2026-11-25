@@ -11,7 +11,7 @@ import { CLD_ACCENT, CLD_INK } from '@/components/colorLinkDuel/copy';
 import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 
 const meta = (korean: boolean) => ({
-  title: korean ? '컬러 링크 — 데블스 플랜 3 결승, 이을 수 없는 판을 만드는 쪽이 진다' : "Color Link Duel — The Devil's Plan 3 final: don't be the one who breaks the board",
+  title: korean ? '컬러 링크 — 데블스플랜3 결승 게임, 룰 정리하고 온라인 무료로 대결' : "Color Link Duel — The Devil's Plan 3 final: don't be the one who breaks the board",
   description: korean
     ? '13가지 판(7×7 클래식·하트·도넛·네 방…)에 14가지 색 말을 번갈아 놓는 1:1 두뇌 대결. 같은 색끼리 겹치지 않게 이을 수 없는 판이 되면 불가능 선언, 2분 안에 증명하지 못하면 패배. AI 어려움·친구·공개방.'
     : 'A 1:1 duel: take turns placing stones of 14 colors on 13 boards (classic 7×7, heart, donut, four rooms…). Break the board so the colors cannot be joined and get called out — prove it in 2 minutes or lose. Hard AI, friends or open rooms.',

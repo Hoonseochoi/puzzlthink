@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const korean = locale !== 'en';
   return pageMetadata({
     locale, path: '/equation-signal',
-    title: korean ? '수식 신호등 — 데블스 플랜 3 결승 게임, 9칸 수식 맞히기' : 'Equation Signal — the Devil\'s Plan 3 final game, find the 9-cell equation',
+    title: korean ? '수식 신호등 — 데블스플랜3 결승 게임, 9칸 수식 맞히기 온라인 무료' : 'Equation Signal — the Devil\'s Plan 3 final game, find the 9-cell equation',
     description: korean
       ? '데블스 플랜: 데드 어게인(시즌 3) 결승 3회전 수식 신호등을 무료로. 숨은 9칸 수식을 초록·노랑·빨강 신호만 보고 맞히세요. 혼자 연습, 10분 챌린지 랭킹, 친구·공개방 2~4명 대결.'
       : 'Play Equation Signal, the third game of the final of The Devil\'s Plan: Dead Again (season 3), free. Find a hidden 9-cell equation from green, yellow and red signals. Practice, a ranked 10-minute challenge, and 2–4 player friend or open rooms.',
