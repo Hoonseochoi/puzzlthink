@@ -57,7 +57,8 @@ export async function fetchGameRanking(game: GameId): Promise<GameRanking> {
     nemo: nemo ? { hard: nemo[0] ?? [], normal: nemo[1] ?? [], easy: nemo[2] ?? [] } : null,
     // Ties share a rank: list order places them on the podium.
     maps: board ? (maps ?? []).map((x, i) => ({ ...x, rank: i + 1 })) : null,
-    scores: scoreBoard ? (scores ?? []).map((x, i) => ({ ...x, rank: i + 1 })) : null,
+    // 히든 워드's board score is its ranking score (average per match + matches bonus) x 10
+    scores: scoreBoard ? (scores ?? []).map((x, i) => ({ ...x, score: scoreBoard === 'hidden_word' ? x.score / 10 : x.score, rank: i + 1 })) : null,
   };
 }
 

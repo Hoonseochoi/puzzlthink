@@ -8,7 +8,7 @@ import AuthButton from '@/components/AuthButton';
 import BugReport from '@/components/BugReport';
 import GameUpdates from '@/components/GameUpdates';
 import { setRoomPlaying } from '@/lib/roomChat';
-import { type HwAction, type HwEntry, type HwRankRow, type HwTurn, type HwView, hwAct, hwClean, hwRanking, hwStart, hwState, hwTimeline, isHwWord, HW_ENVELOPES } from '@/lib/hiddenWord';
+import { type HwAction, type HwEntry, type HwRankRow, type HwTurn, type HwView, hwAct, hwClean, hwRanking, hwStart, hwState, hwTimeline, isHwWord, HW_ENVELOPES, HW_RANK_MIN } from '@/lib/hiddenWord';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL_TITLE, SHELL, STAGE } from '../ui/gameUi';
@@ -389,7 +389,7 @@ function OverStage({ view, t, signedIn, onAgain, onRank }: { view: HwView; t: Hw
         <span className="pb-4 font-mono text-2xl font-black text-white/20">:</span>
         <div><p className="text-[11px] font-black text-white/45">{t.ai}</p><p className="font-mono text-6xl font-black tabular-nums text-white/75 sm:text-7xl">{view.ai}</p></div>
       </div>
-      <p className="mt-3 text-[12px] text-white/50">{view.recorded ? t.recorded : t.loginToRecord}{view.recorded && mine && <b className="ml-1.5 text-(--accent)">#{mine.rank} · {t.rankPoints(mine.points)}</b>}</p>
+      <p className="mt-3 text-[12px] text-white/50">{view.recorded ? t.recorded : t.loginToRecord}{view.recorded && mine && <b className="ml-1.5 text-(--accent)">{mine.rank ? `#${mine.rank} · ` : ''}{t.rankScore(mine.score)} ({t.rankBreak(mine.avg, mine.bonus)}){!mine.rank && ` · ${t.rankNeed(mine.games, HW_RANK_MIN)}`}</b>}</p>
       {!signedIn && <div className="mt-3 flex justify-center"><AuthButton source="other" /></div>}
 
       <p className={`${PANEL_TITLE} mt-6 text-left`}>{t.history}</p>
@@ -437,15 +437,16 @@ function RankModal({ t, onClose }: { t: HwCopy; onClose: () => void }) {
       <div className={`${MODAL} max-w-md !p-6 text-left text-white`} onClick={(event) => event.stopPropagation()}>
         <button type="button" onClick={onClose} aria-label={t.close} className={MODAL_CLOSE}><X size={16} /></button>
         <p className={PANEL_TITLE}>{t.rankTitle}</p>
-        <p className="mt-1 text-[12px] text-white/50">{t.rankDesc}</p>
+        <p className="mt-1 break-keep text-[12px] leading-5 text-white/50">{t.rankDesc}</p>
+        <p className="mt-2 rounded-[10px] border border-white/10 bg-black/30 px-3 py-2 text-center font-mono text-[11.5px] font-bold text-white/70">{t.rankFormula}</p>
         {rows === undefined ? <div className="grid h-32 place-items-center"><Loader2 className="animate-spin text-(--accent)" size={22} /></div>
           : !rows?.length ? <p className="py-10 text-center text-[13px] text-white/45">{rows === null ? t.offline : t.rankEmpty}</p>
           : <ol className="mt-3 space-y-1.5">
             {rows.map((row) => (
-              <li key={`${row.rank}-${row.nickname}`} className={`flex items-center gap-3 rounded-[10px] border px-3 py-2 ${row.is_me ? 'border-(--accent)/50 bg-(--accent)/10' : 'border-white/10 bg-black/30'}`}>
-                <span className={`w-6 text-center font-mono text-sm font-black ${row.rank <= 3 ? 'text-[#ffc857]' : 'text-white/45'}`}>{row.rank}</span>
-                <span className="min-w-0 flex-1"><b className="block truncate text-sm">{row.nickname}{row.is_me && <span className="ml-1.5 rounded-sm bg-(--accent) px-1 text-[9px] text-(--accent-ink)">{t.rankMe}</span>}</b><span className="text-[10.5px] text-white/40">{t.rankGames(row.games, row.wins)} · {t.rankBest(row.best)}</span></span>
-                <strong className="shrink-0 font-mono text-base font-black tabular-nums text-(--accent)">{t.rankPoints(row.points)}</strong>
+              <li key={`${row.rank ?? 'me'}-${row.nickname}`} className={`flex items-center gap-3 rounded-[10px] border px-3 py-2 ${row.is_me ? 'border-(--accent)/50 bg-(--accent)/10' : 'border-white/10 bg-black/30'}`}>
+                <span className={`w-6 text-center font-mono text-sm font-black ${row.rank && row.rank <= 3 ? 'text-[#ffc857]' : 'text-white/45'}`}>{row.rank ?? '–'}</span>
+                <span className="min-w-0 flex-1"><b className="block truncate text-sm">{row.nickname}{row.is_me && <span className="ml-1.5 rounded-sm bg-(--accent) px-1 text-[9px] text-(--accent-ink)">{t.rankMe}</span>}</b><span className="text-[10.5px] text-white/40">{t.rankBreak(row.avg, row.bonus)} · {t.rankGames(row.games, row.wins)}{!row.rank && ` · ${t.rankNeed(row.games, HW_RANK_MIN)}`}</span></span>
+                <strong className="shrink-0 font-mono text-base font-black tabular-nums text-(--accent)">{t.rankScore(row.score)}</strong>
               </li>
             ))}
           </ol>}

@@ -20,7 +20,9 @@ export type HwView = {
 export type HwAction =
   | { t: 'envelope'; i: number } | { t: 'pick'; word: string } | { t: 'hint'; word: string }
   | { t: 'guess'; words: string[] } | { t: 'timeout' } | { t: 'next' };
-export type HwRankRow = { rank: number; nickname: string; avatar_url: string | null; points: number; games: number; best: number; wins: number; is_me: boolean };
+/** Ranking score = `avg` (points per match) + `bonus` (0.3 per match, up to 20 matches). `rank` is null until HW_RANK_MIN finished matches. */
+export type HwRankRow = { rank: number | null; nickname: string; avatar_url: string | null; points: number; games: number; best: number; wins: number; is_me: boolean; avg: number; bonus: number; score: number };
+export const HW_RANK_MIN = 3;
 
 export const HW_ENVELOPES = 6;
 export const isHwWord = (word: string) => /^[가-힣]{1,8}$/.test(word);
