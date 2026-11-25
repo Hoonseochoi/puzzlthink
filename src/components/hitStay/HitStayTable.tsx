@@ -47,7 +47,12 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
   // Picking the face-up card is timed in every mode; bets and HIT/STAY only in rooms.
   const seconds = useCountdown(room.deadline, room.phase === 'playing' && (!!room.turnSec || g.phase === 'pick'));
   const pot = hsPot(g);
-  const others = useMemo(() => Array.from({ length: HS_PLAYERS }, (_, i) => ((mySeat ?? -1) + 1 + i) % HS_PLAYERS).filter((s) => s !== mySeat), [mySeat]);
+  // Empty seats (a room played without AI) are left out, and the opponents' row narrows to fit.
+  const absentKey = (g.absent ?? []).join();
+  const others = useMemo(() => Array.from({ length: HS_PLAYERS }, (_, i) => ((mySeat ?? -1) + 1 + i) % HS_PLAYERS).filter((s) => s !== mySeat && !g.absent?.[s]),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [mySeat, absentKey]);
+  const othersGrid = others.length <= 1 ? 'mx-auto w-full max-w-[50%] grid-cols-1' : others.length === 2 ? 'grid-cols-2' : others.length === 3 ? 'grid-cols-3' : 'grid-cols-4';
 
   // Fresh round: the die rolls, so the table holds the reveal briefly.
   const [rollKey, setRollKey] = useState(g.round);
@@ -100,7 +105,7 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
 
         <DealerLine className="hidden sm:flex" g={g} t={t} waiting={waiting} nameOf={nameOf} myTurn={myTurn} seconds={seconds} />
 
-        <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+        <div className={`grid ${othersGrid} gap-1.5 sm:gap-2`}>
           {others.map((s) => (
             <Seat key={s} g={g} seat={s} name={nameOf(s)} persona={personaOf(s)} t={t} mySeat={mySeat}
               acting={room.phase === 'playing' && waiting.includes(s)} away={!!room.away?.[s]} stamp={stamp?.event.k !== 'round' && stamp && 'seat' in stamp.event && stamp.event.seat === s ? stamp : null} />
@@ -145,7 +150,7 @@ function Layer({ children }: { children: ReactNode }) {
 function BetBoard({ g, room, nameOf, mySeat, waiting, t, pot, onHands }: {
   g: HitStay; room: HitStayRoom; nameOf: (s: number) => string; mySeat: number | null; waiting: number[]; t: HsCopy; pot: number; onHands: () => void;
 }) {
-  const order = Array.from({ length: HS_PLAYERS }, (_, i) => (g.first + i) % HS_PLAYERS);
+  const order = Array.from({ length: HS_PLAYERS }, (_, i) => (g.first + i) % HS_PLAYERS).filter((s) => !g.absent?.[s]);
   return (
     <section className="rounded-[14px] border border-white/10 bg-[#121217]/90 p-2 backdrop-blur sm:p-3">
       <div className="mb-1 flex items-center justify-between gap-1"><p className={PANEL_TITLE}>{t.betBoard}</p><button type="button" onClick={onHands} className="flex items-center gap-1 rounded-md border border-(--accent)/40 bg-(--accent)/10 px-1.5 py-[3px] text-[10px] font-black text-[#c9cfff] active:scale-95"><ScanEye size={12} />{t.handsButton}</button></div>

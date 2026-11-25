@@ -43,7 +43,7 @@ export default function HitStayHands({ g, mySeat, t, nameOf, colorOf, onClose }:
   const [tab, setTab] = useState<'now' | 'last'>('now');
   const view = tab === 'last' && last ? 'last' : 'now';
   const moves = movesThisRound(g);
-  const order = Array.from({ length: HS_PLAYERS }, (_, i) => (g.first + i) % HS_PLAYERS);
+  const order = Array.from({ length: HS_PLAYERS }, (_, i) => (g.first + i) % HS_PLAYERS).filter((s) => !g.absent?.[s]);
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60 backdrop-blur-[2px]" onClick={onClose}>

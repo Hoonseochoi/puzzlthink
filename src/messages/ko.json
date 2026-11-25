@@ -2530,7 +2530,7 @@
     "cjAi": "AI 1:1 · 어려움",
     "cldAi": "AI 1:1 · 어려움",
     "hsAi": "5인전 · AI 4명과",
-    "hsRoom": "친구 방 만들기 (2~5명 + AI)",
+    "hsRoom": "친구 방 만들기 (1:1~5명 · AI 넣기/빼기)",
     "short_hsRoom": "2~5명",
     "startGame": "게임 시작",
     "short_m2Room": "2~4명",

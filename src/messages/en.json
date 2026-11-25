@@ -2461,7 +2461,7 @@
     "cjAi": "AI 1:1 · Hard",
     "cldAi": "AI 1:1 · Hard",
     "hsAi": "5 players · vs 4 AI",
-    "hsRoom": "Create a room (2–5 + AI)",
+    "hsRoom": "Create a room (1:1 to 5 · AI on/off)",
     "short_hsRoom": "2–5",
     "startGame": "Start",
     "short_m2Room": "2–4",

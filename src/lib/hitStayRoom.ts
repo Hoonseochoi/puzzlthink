@@ -26,10 +26,13 @@ export type HitStayRoom = BaseRoom & AwayFields & {
   turnSec: HsTurnSec;
   game: HitStay;
   holdUntil: number; // no AI move or next round before this (host clock)
+  /** Rooms: fill empty seats with AI up to five (default), or play with just the people there (2–5). */
+  fillAi?: boolean;
 };
 
 export type HitStayRoomAction =
   | { t: 'start' }
+  | { t: 'fillAi'; on: boolean } // host, in the lobby
   | { t: 'act'; action: HsAction }
   | { t: 'ai' }
   | { t: 'next' } // host: deal the next round after the showdown
@@ -56,8 +59,11 @@ function startRoom(state: HitStayRoom, shuffleHumans = true): HitStayRoom {
   // Empty seats get personas in a random order, so every table has a different mix.
   const styles = shuffleStyles();
   const filled: { seat: Seat; ai: boolean; style: HsStyle | null }[] = entries.map((e) => ({ ...e, style: null }));
+  const people = filled.length;
   while (filled.length < HS_PLAYERS) {
     const style = styles.shift()!;
+    // Without AI the leftover seats stay empty (absent in the game) and are never dealt in.
+    if (state.fillAi === false) { filled.push({ seat: null, ai: false, style }); continue; }
     filled.push({ seat: { id: `ai-${style}`, name: HS_PERSONA[style].name }, ai: true, style });
   }
   // Humans whose seat the AI may later play for still get a persona to play with.
@@ -66,7 +72,7 @@ function startRoom(state: HitStayRoom, shuffleHumans = true): HitStayRoom {
     ...state, seats: filled.map((entry) => entry.seat), ai: filled.map((entry) => entry.ai),
     style: filled.map((entry) => entry.style ?? spare.find((st) => !filled.some((f) => f.style === st)) ?? 'calc'),
     phase: 'playing', ...resetAway(HS_PLAYERS),
-  }, newHitStay(), HOLD_MS.round);
+  }, newHitStay(filled.map((entry, i) => i < people || entry.ai)), HOLD_MS.round);
 }
 
 const shuffleStyles = () => [...HS_STYLES].sort(() => Math.random() - 0.5);
@@ -93,6 +99,9 @@ const holdFor = (action: HsAction, before: HitStay, after: HitStay) =>
     : action.kind === 'hit' || action.kind === 'stay' ? HOLD_MS.hit
       : action.kind === 'open' ? HOLD_MS.pick : HOLD_MS.bet;
 
+/** People in the room's seats (the AI seats of a finished game do not count). */
+export const hsPeople = (state: HitStayRoom) => state.seats.filter((seat, i) => seat && !state.ai[i]).length;
+
 /** Seats whose move it is: everyone still picking, or the one player to bet / hit. */
 export function hsWaitingOn(game: HitStay): number[] {
   if (game.phase === 'pick') return hsPicking(game);
@@ -104,8 +113,14 @@ export function reduceHitStayRoom(state: HitStayRoom, action: HitStayRoomAction,
   let next: HitStayRoom | null = null;
   const g = state.game;
   switch (action.t) {
+    case 'fillAi':
+      if (!isHost || state.phase === 'playing') break;
+      next = { ...state, fillAi: action.on };
+      break;
     case 'start':
       if (!isHost || state.phase === 'playing') break;
+      // Without AI a table needs at least two people.
+      if (state.fillAi === false && hsPeople(state) < 2) break;
       { const base = humansBack(state); next = startRoom(state.phase === 'finished' ? { ...base, seats: base.seats.map((value, i) => (base.ai[i] ? null : value)) } : state, !!state.turnSec); }
       break;
     case 'act': {
