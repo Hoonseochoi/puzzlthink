@@ -285,7 +285,7 @@ const ROOM_NOTES: GameUpdate[] = [
 const ROOM_GAMES: Record<string, { ko: string; en: string }> = {
   binairo: { ko: '비나이로', en: 'Binairo' }, black_white: { ko: '흑과 백', en: 'Black & White' }, black_white_2: { ko: '흑과 백 II', en: 'Black & White II' },
   blind_gomoku: { ko: '블라인드 오목', en: 'Blind Gomoku' }, card_janggi: { ko: '카드 장기', en: 'Card Janggi' }, color_link_duel: { ko: '컬러 링크', en: 'Color Link Duel' },
-  colorlink: { ko: '컬러 잇기', en: 'Color Link' }, flip_omok: { ko: '뒤집기 오목', en: 'Flip Omok' }, four_three: { ko: '4인 3목', en: '4 Player 3 In a Row' },
+  colorlink: { ko: '컬러 잇기', en: 'Color Link' }, equation_signal: { ko: '수식 신호등', en: 'Equation Signal' }, equation_tower: { ko: '수식의 탑', en: 'Tower of Equations' }, flip_omok: { ko: '뒤집기 오목', en: 'Flip Omok' }, four_three: { ko: '4인 3목', en: '4 Player 3 In a Row' },
   gradation: { ko: '그라데이션', en: 'Gradation' }, gyulhap: { ko: '결합', en: 'Gyul! Hap!' }, heavy13: { ko: '무거운 13', en: 'Heavy 13' },
   hexagon: { ko: '헥사곤', en: 'Hexagon' }, hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay' }, indian_poker: { ko: '인디언 포커', en: 'Indian Poker' },
   janggi: { ko: '십이장기', en: '12 Janggi' }, laser_janggi: { ko: '레이저 장기', en: 'Laser Janggi' }, magicswap: { ko: '마방진 스왑', en: 'Magic Square Swap' },
