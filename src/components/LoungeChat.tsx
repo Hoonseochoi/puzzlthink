@@ -168,13 +168,13 @@ export default function LoungeChat() {
           edge (under the room chat's handle), with the online count. */}
       {inGame && (
         <button type="button" onClick={() => { if (off) turn(false); toggle(true); }} aria-label={t('open')}
-          className={`fixed right-0 top-[74%] z-40 flex flex-col items-center gap-0.5 rounded-l-xl border border-r-0 border-white/15 bg-[#0d0d11]/85 px-1.5 py-2 text-white shadow-[0_0_18px_rgba(0,0,0,.35)] backdrop-blur-md transition sm:hidden ${open ? 'pointer-events-none opacity-0' : mini ? 'opacity-55' : ''}`}>
+          className={`fixed right-0 top-[74%] z-40 flex flex-col items-center gap-0.5 rounded-l-xl border border-r-0 border-white/15 bg-[#0d0d11]/85 px-1.5 py-2 text-white shadow-[0_0_18px_rgba(0,0,0,.35)] backdrop-blur-md transition lg:hidden ${open ? 'pointer-events-none opacity-0' : mini ? 'opacity-55' : ''}`}>
           {off ? <MessageCircleOff size={15} className="text-white/45" /> : <MessageCircle size={15} className="text-(--accent,#e8b04a)" />}
           {online != null && <span className="flex items-center gap-[3px] text-[9px] font-black leading-none text-white/75"><i className="h-1 w-1 rounded-full bg-[#34c47c]" />{online > 999 ? '999+' : online}</span>}
           {!off && unread > 0 && <UnreadBadge n={unread} className="-left-2 -top-2" />}
         </button>
       )}
-      <div className={`max-sm:hidden fixed bottom-[calc(2.6rem+env(safe-area-inset-bottom))] right-3 z-40 [body:has([data-gate-bar])_&]:bottom-[calc(6.6rem+env(safe-area-inset-bottom))] ${open ? 'pointer-events-none opacity-0' : ''}`}>
+      <div className={`max-lg:hidden fixed bottom-[calc(2.6rem+env(safe-area-inset-bottom))] right-3 z-40 [body:has([data-gate-bar])_&]:bottom-[calc(6.6rem+env(safe-area-inset-bottom))] ${open ? 'pointer-events-none opacity-0' : ''}`}>
         {mini ? (
           <button type="button" onClick={() => setLoungeMini(false)} aria-label={t('show')} title={t('show')}
             className="relative grid h-7 w-7 place-items-center rounded-full border border-white/10 bg-black/35 text-white/60 opacity-70 backdrop-blur-md transition hover:opacity-100">

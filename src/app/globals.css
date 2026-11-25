@@ -172,3 +172,12 @@ button:disabled { cursor: default; }
 @keyframes hwFlap { to { transform: rotateX(180deg); opacity: .55; } }
 @keyframes hwShake { 0%, 100% { transform: none; } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
 @keyframes hwRise { 0% { opacity: 0; transform: translateY(8px) scale(.9); } 20% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-18px); } }
+
+/* Home: the news line swapping in, the shine across today's pick and its floating picture. */
+@keyframes home-feed { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
+.home-feed { animation: home-feed .38s cubic-bezier(.2,.8,.2,1); }
+@keyframes home-sweep { 0%, 55% { transform: translateX(0) skewX(-12deg); } 100% { transform: translateX(620%) skewX(-12deg); } }
+.home-sweep { animation: home-sweep 4.5s ease-in-out infinite; }
+@keyframes home-float { 0%, 100% { transform: rotate(4deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-5px); } }
+.home-float { animation: home-float 4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .home-feed, .home-sweep, .home-float { animation: none; } }

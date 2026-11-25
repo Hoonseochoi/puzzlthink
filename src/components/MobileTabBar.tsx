@@ -6,7 +6,7 @@ import { Link, usePathname } from '@/i18n/routing';
 import { isGamePath, openLounge, useLoungeUnread, useOnlineCount } from '@/lib/siteBus';
 
 /**
- * Phones only: the bottom tab bar on every page outside a game — 홈, 게임, 라운지 (the raised middle button: it
+ * Phones, foldables and tablets (under 1024px): the bottom tab bar on every page outside a game — 홈, 게임, 라운지 (the raised middle button: it
  * opens the lounge drawer and shows how many are online), 기록실, 아이콘. Inside a game the bar is gone (boards
  * and their buttons reach the bottom edge) and the lounge is a handle on the right edge instead (LoungeChat).
  */
@@ -30,8 +30,8 @@ export default function MobileTabBar() {
   return (
     <>
       {/* keeps the page's last lines clear of the bar */}
-      <div className="h-[calc(62px+env(safe-area-inset-bottom))] bg-[#f3f0e8] sm:hidden" aria-hidden="true" />
-      <nav aria-label={t('label')} className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 items-end border-t border-black/10 bg-[#fbfaf5]/95 px-1 pb-[max(env(safe-area-inset-bottom),6px)] backdrop-blur sm:hidden">
+      <div className="h-[calc(62px+env(safe-area-inset-bottom))] bg-[#f3f0e8] lg:hidden" aria-hidden="true" />
+      <nav aria-label={t('label')} className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 items-end border-t border-black/10 bg-[#fbfaf5]/95 px-1 pb-[max(env(safe-area-inset-bottom),6px)] backdrop-blur sm:px-[max(4px,calc(50%-300px))] lg:hidden">
         {tab('/', t('home'), <Home size={20} />)}
         {tab('/games', t('games'), <Gamepad2 size={20} />)}
         <button type="button" onClick={openLounge} aria-label={t('lounge')} className="relative flex flex-col items-center gap-0.5 text-[10px] font-black text-[#17201e] active:scale-95">

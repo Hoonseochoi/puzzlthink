@@ -13,7 +13,7 @@ export default function GlobalFooter() {
 
   return (
     <footer className="border-t border-black/[0.07] bg-[#f3f0e8]">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-center sm:flex-row sm:text-left">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 lg:px-8 text-center sm:flex-row sm:text-left">
         <div className="max-w-2xl">
           <p className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</p>
           <p className="mt-1 text-[11px] text-black/40">{t('tagline')}</p>
