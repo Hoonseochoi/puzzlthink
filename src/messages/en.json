@@ -5776,7 +5776,10 @@
     "crownCardEmpty": "No holder yet. Take #1 to get it.",
     "crownCardDesc": "Given to this game's #1. When #1 changes, the icon moves to the new #1.",
     "won2048": "{n} icon unlocked!",
-    "won2048SignIn": "Sign in to get the 2048 icon"
+    "won2048SignIn": "Sign in to get the 2048 icon",
+    "collectionLink": "Icon collection",
+    "collectionLinkSub": "See every icon you can earn",
+    "collectionLinkOwned": "{n} owned · see all"
   },
   "PieceRace": {
     "shortTitle": "Piece race · Week 2",

@@ -5876,7 +5876,10 @@
     "crownCardEmpty": "아직 주인이 없어요. 1위가 되면 받아요.",
     "crownCardDesc": "이 게임 랭킹 1위에게 지급돼요. 1위가 바뀌면 아이콘도 새 1위에게 넘어가요.",
     "won2048": "{n} 아이콘 획득!",
-    "won2048SignIn": "로그인하면 2048 아이콘을 받아요"
+    "won2048SignIn": "로그인하면 2048 아이콘을 받아요",
+    "collectionLink": "아이콘 컬렉션",
+    "collectionLinkSub": "얻을 수 있는 아이콘 모두 보기",
+    "collectionLinkOwned": "보유 {n}개 · 전체 보기"
   },
   "PieceRace": {
     "shortTitle": "피스 경쟁전 2W",
