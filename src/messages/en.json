@@ -5812,7 +5812,9 @@
     "playHours": "{n} hours played",
     "mission_hard": "HIDDEN MISSION · ALL HARD",
     "mission_hell": "HIDDEN MISSION · ALL HELL",
-    "mission_rank": "HIDDEN MISSION · TOP 10"
+    "mission_rank": "HIDDEN MISSION · TOP 10",
+    "popupEquipped": "Now on your profile",
+    "popupTitleMission": "Hidden mission cleared!"
   },
   "PieceRace": {
     "shortTitle": "Piece race · Week 2",

@@ -30,6 +30,15 @@ button:disabled { cursor: default; }
 .h13-pass-pop { animation: h13PassPop .38s cubic-bezier(.2,.9,.3,1.2) both; }
 @keyframes hallPop { 0% { opacity: 0; transform: scale(.7) translateY(20px); } 60% { opacity: 1; transform: scale(1.04); } 100% { transform: none; } }
 .hall-pop { animation: hallPop .55s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes iconRaysSpin { to { transform: rotate(360deg); } }
+.icon-rays { animation: iconRaysSpin 14s linear infinite; }
+@keyframes iconRing { 0%, 100% { transform: scale(.92); opacity: .25; } 50% { transform: scale(1.06); opacity: .7; } }
+.icon-ring { animation: iconRing 2.2s ease-in-out infinite; }
+@keyframes iconRise { 0% { opacity: 0; transform: translateY(40px) scale(.4) rotate(-12deg); } 55% { opacity: 1; transform: translateY(-8px) scale(1.12) rotate(4deg); } 75% { transform: translateY(2px) scale(.97); } 100% { transform: none; } }
+.icon-rise { animation: iconRise .9s cubic-bezier(.2,.9,.3,1.2) .15s both; }
+@keyframes iconChip { from { opacity: 0; transform: translateY(10px) scale(.9); } to { opacity: 1; transform: none; } }
+.icon-chip { animation: iconChip .45s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .icon-rays, .icon-ring, .icon-rise, .icon-chip { animation: none; } }
 @keyframes blindWinLine { from { stroke-dashoffset: 140; } to { stroke-dashoffset: 0; } }
 .blind-gomoku-win-line { stroke-dasharray: 140; animation: blindWinLine 1.15s .55s cubic-bezier(.2,.8,.2,1) both; filter: drop-shadow(0 0 3px rgba(255,51,77,.9)); }
 /* 포인트 오목: stones of a round drop together, a flash ring marks each point, the chosen points breathe. */

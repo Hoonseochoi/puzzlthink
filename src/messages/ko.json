@@ -5904,7 +5904,9 @@
     "playHours": "플레이 {n}시간",
     "mission_hard": "HIDDEN MISSION · ALL HARD",
     "mission_hell": "HIDDEN MISSION · ALL HELL",
-    "mission_rank": "HIDDEN MISSION · TOP 10"
+    "mission_rank": "HIDDEN MISSION · TOP 10",
+    "popupEquipped": "지금 내 프로필에 장착됐어요",
+    "popupTitleMission": "히든 미션 달성!"
   },
   "PieceRace": {
     "shortTitle": "피스 경쟁전 2W",
