@@ -12,7 +12,7 @@ import { ChevronRight, Crown, Flame, Play, Puzzle, Skull, Swords, Trophy, Zap } 
 import { Link } from '@/i18n/routing';
 import { GAMES, type CatalogGame, type GameId } from '@/lib/gameCatalog';
 import { CERT_GAMES } from '@/lib/hardClear';
-import { listAllOpenRooms } from '@/lib/openRooms';
+import { listAllOpenRooms, listLiveRooms } from '@/lib/openRooms';
 import { getSupabase } from '@/lib/supabase';
 import type { GameId as StatsGameId } from '@/lib/stats';
 import { useAuth } from './AuthProvider';
@@ -252,10 +252,16 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const [cat, setCat] = useState<Cat>('all');
   const [ev, setEv] = useState(0);
   const [rooms, setRooms] = useState<number | null>(null);
+  const [live, setLive] = useState<{ open: number; friend: number } | null>(null); // matches being played right now
   useEffect(() => {
     let alive = true;
-    listAllOpenRooms().then((list) => { if (alive && list) setRooms(list.length); });
-    return () => { alive = false; };
+    const load = () => {
+      listAllOpenRooms().then((list) => { if (alive && list) setRooms(list.length); });
+      listLiveRooms().then((list) => { if (alive && list) setLive({ open: list.reduce((n, r) => n + r.open, 0), friend: list.reduce((n, r) => n + r.friend, 0) }); });
+    };
+    load();
+    const timer = window.setInterval(() => { if (document.visibilityState === 'visible') load(); }, 60_000);
+    return () => { alive = false; window.clearInterval(timer); };
   }, []);
 
   const list = GAMES.filter((g) => inCat(g, cat));
@@ -272,7 +278,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const events = [
     { key: 'hell', icon: <Skull size={15} />, eyebrow: 'AI HELL MODE', title: th('evHellTitle'), sub: th('evHellSub'), cta: th('evHellCta'), bg: 'linear-gradient(135deg, #2a0812 0%, #07060a 70%)', accent: '#ff3355', href: '/hell' as const, hash: undefined, side: <RacePodium rows={races.black} icon={(p) => `h1-${p}`} accent="#ff8ea0" /> },
     ...(pieceLive ? [{ key: 'piece', icon: <Puzzle size={15} />, eyebrow: 'PIECE RACE · 2W', title: th('evPieceTitle'), sub: th('evPieceSub'), cta: th('evPieceCta'), bg: 'linear-gradient(135deg, #2c2a14 0%, #17201e 70%)', accent: '#ffd36e', href: '/records' as const, hash: 'competition', side: <RacePodium rows={races.piece} icon={(p) => `w2-${p}`} accent="#ffd36e" /> }] : []),
-    { key: 'open', icon: <Swords size={15} />, eyebrow: 'OPEN MATCH', title: th('evOpenTitle'), sub: rooms ? th('evOpenRooms', { n: rooms }) : th('evOpenSub'), cta: th('evOpenCta'), bg: 'linear-gradient(135deg, #1b1f4a 0%, #0e1020 70%)', accent: '#8f9bff', href: '/' as const, hash: 'open-match', side: openSide },
+    { key: 'open', icon: <Swords size={15} />, eyebrow: 'OPEN MATCH', title: th('evOpenTitle'), sub: live ? th('evOpenLive', { open: live.open, friend: live.friend }) + (rooms ? ` · ${th('evOpenWaiting', { n: rooms })}` : '') : rooms ? th('evOpenRooms', { n: rooms }) : th('evOpenSub'), cta: th('evOpenCta'), bg: 'linear-gradient(135deg, #1b1f4a 0%, #0e1020 70%)', accent: '#8f9bff', href: '/' as const, hash: 'open-match', side: openSide },
   ];
 
   return (

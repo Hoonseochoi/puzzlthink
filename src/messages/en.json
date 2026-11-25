@@ -8581,6 +8581,8 @@
       "evOpenTitle": "Open match",
       "evOpenSub": "Jump into an open room",
       "evOpenRooms": "{n} open rooms now · jump in",
+      "evOpenLive": "{open} open and {friend} friend matches live",
+      "evOpenWaiting": "{n} rooms waiting",
       "roomsN": "{n} rooms",
       "winsN": "{n} wins",
       "evOpenCta": "See rooms"
