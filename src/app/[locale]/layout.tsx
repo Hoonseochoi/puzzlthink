@@ -44,6 +44,23 @@ export const metadata: Metadata = {
   } : {}),
 };
 
+/**
+ * Right after a deploy a browser can ask for a new /_next/static file a moment before it is served everywhere, get
+ * a 404, and keep that 404 for a year (the static files are cached `immutable`, and so are their 404s): the page
+ * then shows "couldn't load" on every visit. When a static file fails to load, fetch it again past the cache
+ * (which replaces the stuck 404) and, if it is there now, reload once. sessionStorage stops it from looping.
+ */
+const STATIC_HEAL = String.raw`(function(){
+var bad={},timer=0;
+function add(u){if(!u||u.indexOf('/_next/static/')<0)return;bad[u]=1;clearTimeout(timer);timer=setTimeout(heal,400)}
+function scan(){try{performance.getEntriesByType('resource').forEach(function(x){if(x.responseStatus===404)add(x.name)})}catch(e){}}
+function heal(){scan();var list=Object.keys(bad).filter(function(u){try{if(sessionStorage.getItem('ptk-heal:'+u))return false;sessionStorage.setItem('ptk-heal:'+u,'1')}catch(e){}return true});bad={};
+if(!list.length)return;Promise.all(list.map(function(u){return fetch(u,{cache:'reload'}).then(function(r){return r.ok}).catch(function(){return false})})).then(function(ok){if(ok.indexOf(true)>=0)location.reload()})}
+addEventListener('error',function(e){var t=e.target;if(t&&t!==window)add(t.src||t.href)},true);
+addEventListener('unhandledrejection',function(e){var m=String(e.reason&&e.reason.message||'').match(/https?:[^\s'"]+\/_next\/static\/[^\s'"]+/);if(m)add(m[0])});
+addEventListener('load',function(){setTimeout(function(){scan();if(Object.keys(bad).length)heal()},1500)});
+})();`;
+
 export const viewport: Viewport = { themeColor: '#f3f0e8' };
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
@@ -65,12 +82,15 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      {ADSENSE_CLIENT && (
-        <head>
+      <head>
+        {/* Runs before the app's own scripts so it sees their load errors. AdSense later inserts its own script at
+            the top of <head>, which React then compares with this one: suppressHydrationWarning keeps that quiet. */}
+        <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: STATIC_HEAL }} />
+        {ADSENSE_CLIENT && <>
           <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
           <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`} crossOrigin="anonymous" />
-        </head>
-      )}
+        </>}
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#f3f0e8] font-sans text-[#17201e] antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>

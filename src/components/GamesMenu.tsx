@@ -10,7 +10,7 @@ type Variant = 'nav' | 'cta';
 
 const TRIGGER: Record<Variant, string> = {
   nav: 'flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black aria-expanded:bg-white/70 aria-expanded:text-black',
-  cta: 'flex items-center gap-2 rounded-full bg-[#17201e] px-4 py-2.5 text-xs font-extrabold text-white transition hover:-translate-y-0.5',
+  cta: 'flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-[#17201e] px-4 py-2.5 text-xs font-extrabold text-white transition hover:-translate-y-0.5',
 };
 
 /** Desktop dropdown listing every game. Closes on outside click, Esc, Tab and selection. */

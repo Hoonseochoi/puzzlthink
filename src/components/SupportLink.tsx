@@ -49,7 +49,7 @@ export function HeaderSupportButton({ full = false }: { full?: boolean }) {
   const t = useTranslations('Common');
   return (
     <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackSupportClick('header')}
-      className={`flex items-center justify-center gap-1.5 rounded-full bg-[#ff6b4a] font-extrabold text-white transition hover:bg-[#ff5530] ${full ? 'w-full rounded-xl px-4 py-3 text-sm' : 'px-3 py-1.5 text-xs'}`}>
+      className={`flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[#ff6b4a] font-extrabold text-white transition hover:bg-[#ff5530] ${full ? 'w-full rounded-xl px-4 py-3 text-sm' : 'px-3 py-1.5 text-xs'}`}>
       <Heart size={full ? 15 : 13} fill="currentColor" />{t('supportShort')}
     </a>
   );

@@ -130,7 +130,7 @@ export default async function RankingPage({ params }: Params) {
 
         <div className="mt-6 grid gap-4">
           {r.scores && (
-            <Board title={t('scoresTitle')} desc={t('scoresDesc')} icon={<InfinityIcon size={18} style={{ color: CERT_GAMES[game].color }} />} empty={t('emptyScores')}
+            <Board title={t('scoresTitle')} desc={game === 'merge2048' ? t('scoresDesc') : t('scoresDescSolo')} icon={<InfinityIcon size={18} style={{ color: CERT_GAMES[game].color }} />} empty={t('emptyScores')}
               rows={r.scores.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }), prev: x.prev_rank, pic: <RankBlock block={blockOfSub(x.sub)} name={x.nickname} size={30} /> }))} />
           )}
           {r.maps && (

@@ -8,8 +8,8 @@ export type NemoRow = { rank: number; nickname: string; correct: number; avg_ms:
 export type MapRow = { rank: number; nickname: string; score: number; sub?: number | null; prev_rank?: number | null };
 export type GameRanking = { game: GameId; hall: HallRow[]; open: OpenRow[]; nemo: Record<'hard' | 'normal' | 'easy', NemoRow[]> | null; maps: MapRow[] | null; scores: MapRow[] | null };
 /** Logic puzzles ranked by maps owned (새로운 맵 · 맵 뺏기); the value is their challenge board. */
-/** Games ranked by their best solo score (2048 챌린지 도전); the value is their challenge board. */
-export const SCORE_BOARD: Partial<Record<GameId, string>> = { merge2048: 'merge2048' };
+/** Games ranked by their best solo score (2048 챌린지 도전, 결합 10분 챌린지, 헥사곤 챌린지); the value is their challenge board. */
+export const SCORE_BOARD: Partial<Record<GameId, string>> = { merge2048: 'merge2048', gyulhap: 'gyulhap10', hexagon: 'hexagon' };
 export const MAP_BOARD: Partial<Record<GameId, string>> = { slitherlink: 'slither', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', magicswap: 'magicswap', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram' };
 
 /** URL slug of a game (same as its page path; Sudoku lives at /play). */

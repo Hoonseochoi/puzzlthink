@@ -47,6 +47,7 @@
     "hallCongratsView": "명예의 전당 보기",
     "hallCongratsClose": "닫기",
     "gamesIntro": "게임소개",
+    "iconCollection": "아이콘 컬렉션",
     "gameList": "게임 리스트",
     "footerGames": "게임 바로가기",
     "logicHub": "논리 퍼즐",
@@ -5211,6 +5212,7 @@
   "Ranking": {
     "hellChallenge": "매우 어려움 도전",
     "scoresTitle": "챌린지 도전 점수 랭킹",
+    "scoresDescSolo": "혼자 하는 챌린지 한 판의 최고 점수 기준이에요. 1위가 이 게임의 1위 아이콘을 가져가요.",
     "scoresDesc": "더 이상 밀 수 없을 때까지 한 판을 이어 간 최고 점수 기준이에요.",
     "emptyScores": "아직 기록이 없어요. 챌린지 도전 한 판만 끝내도 바로 1등이에요!",
     "points": "{n}점",
@@ -5835,6 +5837,28 @@
       }
     ],
     "disclaimer": "나인 멘스 모리스는 오래된 전통 보드게임으로, PUZZLTHINK가 방송 규칙을 참고해 웹용으로 다시 만든 것이며 방송사·제작사와 관련이 없습니다."
+  },
+  "IconCollection": {
+    "metaTitle": "아이콘 컬렉션 — PUZZLTHINK 프로필 아이콘 모음",
+    "metaDescription": "피스 경쟁전·블랙피스 경쟁전 챔피언, 2048 달성, 게임별 랭킹 1위 아이콘까지. 테마별 프로필 아이콘과 얻는 조건을 한눈에 보세요.",
+    "title": "아이콘 컬렉션",
+    "intro": "프로필 아이콘은 랭킹·라운지·기록실 어디서나 내 얼굴로 보여요. 새로 얻으면 바로 적용되고, 기록실에서 언제든 바꿀 수 있어요.",
+    "pick": "내 아이콘 고르기",
+    "ownedCount": "보유 {n}개",
+    "owned": "보유 중",
+    "place": "{n}위",
+    "colorsTitle": "기본 컬러",
+    "colorsRule": "누구나 · 기록실에서 바로 선택",
+    "pieceTitle": "피스 경쟁전 챔피언",
+    "pieceRule": "주간 피스 경쟁전 TOP 3 · 영구 보유",
+    "pieceWeek": "{n}W",
+    "hellTitle": "블랙피스 헬모드",
+    "hellRule": "블랙피스 경쟁전 7일 주간 TOP 3 · 매주 지급 · 영구 보유",
+    "m2048Title": "2048",
+    "m2048Rule": "2048에서 2048 블록 만들기 · 영구 보유",
+    "crownTitle": "게임 1위",
+    "crownRule": "각 게임 랭킹 1위 · 1위를 뺏기면 새 1위에게 넘어가요",
+    "noHolder": "주인 없음"
   },
   "Icons": {
     "pieceLabel": "피스 {week}W {place}위 · {name}",
