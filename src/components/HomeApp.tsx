@@ -1,0 +1,383 @@
+"use client";
+
+/**
+ * The home page on phones (and in the installed app): games first.
+ * Profile strip (my icon, nickname, 피스 and 블랙피스) → 이어하기 → one swipeable event card → a news line that
+ * swaps every few seconds → category chips → today's pick → every game as a picture tile, three across, with the
+ * game's #1 under it and "[nickname] N위" on it. Wider screens keep the classic home (HomeClient).
+ */
+import { type ComponentType, type ReactNode, useEffect, useMemo, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { ChevronRight, Crown, Flame, Play, Puzzle, Skull, Swords, Trophy, Zap } from 'lucide-react';
+import { Link } from '@/i18n/routing';
+import { GAMES, type CatalogGame, type GameId } from '@/lib/gameCatalog';
+import { CERT_GAMES } from '@/lib/hardClear';
+import { listAllOpenRooms } from '@/lib/openRooms';
+import { getSupabase } from '@/lib/supabase';
+import type { GameId as StatsGameId } from '@/lib/stats';
+import { useAuth } from './AuthProvider';
+import { Piece, PIECE_WEEKS } from './CompetitionBoard';
+import { BlackPiece } from './hell/BlackPiece';
+import { GAME_LABEL } from './HallCelebration';
+import { type GamePodium, useHallPodiums } from './HallPodium';
+import IconCollectionLink from './IconCollectionLink';
+import RankBlock from './merge2048/RankBlock';
+import { FitTile } from './OpenMatchCard';
+import StoneAvatar, { Stone } from './StoneAvatar';
+
+// Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
+const NEW: GameId[] = ['hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'gradation', 'pointOmok'];
+const PUZZLE: GameId[] = ['slitherlink', 'hiddenWord', 'equationSignal', 'equationTower', 'magicswap', 'colorlink', 'merge2048', 'onestroke', 'starbattle', 'nonogram', 'binairo', 'masyu', 'sudoku', 'nemoCount', 'gyulhap', 'hexagon'];
+const CATS = ['all', 'new', 'versus', 'puzzle', 'hell'] as const;
+type Cat = (typeof CATS)[number];
+const inCat = (g: CatalogGame, cat: Cat) =>
+  cat === 'all' || (cat === 'new' && NEW.includes(g.id)) || (cat === 'puzzle' && PUZZLE.includes(g.id)) || (cat === 'versus' && !PUZZLE.includes(g.id)) || (cat === 'hell' && !!g.hell?.live);
+
+const rgb = (hex: string) => { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
+const tint = (hex: string, a: number) => `rgba(${rgb(hex).join(', ')}, ${a})`;
+/** Mix a colour toward another (0 = itself, 1 = the other). */
+const shade = (hex: string, t: number, to: string) => { const a = rgb(hex), b = rgb(to); return `rgb(${a.map((v, i) => Math.round(v * (1 - t) + b[i] * t)).join(', ')})`; };
+
+const RECENT_KEY = 'puzzlthink:home-recent';
+const readRecent = (): string[] => { try { const v = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); return Array.isArray(v) ? v.filter((x) => typeof x === 'string') : []; } catch { return []; } };
+const pushRecent = (href: string) => { try { localStorage.setItem(RECENT_KEY, JSON.stringify([href, ...readRecent().filter((h) => h !== href)].slice(0, 8))); } catch { /* private mode */ } };
+
+type Me = { pieces: number | null; pieceRank: number | null; black: number | null; blackRank: number | null; ranks: Map<string, number>; recent: string[] };
+const NO_ME: Me = { pieces: null, pieceRank: null, black: null, blackRank: null, ranks: new Map(), recent: [] };
+
+/** The signed-in player's numbers: 피스 and 블랙피스 this week, every game rank, the games played last. */
+function useMe(userId: string | null): Me {
+  const [me, setMe] = useState<Me>(NO_ME);
+  useEffect(() => {
+    const supabase = getSupabase();
+    let alive = true;
+    if (!supabase || !userId) { Promise.resolve().then(() => { if (alive) setMe({ ...NO_ME, recent: readRecent() }); }); return () => { alive = false; }; }
+    const mine = (rows: unknown) => ((rows as { is_me: boolean; pieces: number; rank: number }[] | null) ?? []).find((r) => r.is_me);
+    Promise.all([
+      supabase.rpc('competition_ranking', { p_limit: 1 }),
+      supabase.rpc('black_piece_ranking', { p_limit: 1 }),
+      supabase.rpc('my_game_ranks'),
+      supabase.from('game_results').select('game, played_at').order('played_at', { ascending: false }).limit(60),
+    ]).then(([piece, black, ranks, results]) => {
+      if (!alive) return;
+      const p = mine(piece.data), b = mine(black.data);
+      const rankMap = new Map<string, number>();
+      for (const r of (ranks.data as { game: string; rank: number }[] | null) ?? []) {
+        const href = CERT_GAMES[r.game as StatsGameId]?.href;
+        if (href && r.rank > 0) rankMap.set(href, r.rank);
+      }
+      const played = ((results.data as { game: string }[] | null) ?? []).map((r) => CERT_GAMES[r.game as StatsGameId]?.href).filter((h): h is NonNullable<typeof h> => !!h);
+      setMe({
+        pieces: p ? Number(p.pieces) : 0, pieceRank: p?.rank ?? null, black: b ? Number(b.pieces) : 0, blackRank: b?.rank ?? null,
+        ranks: rankMap, recent: [...new Set([...played, ...readRecent()])],
+      });
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [userId]);
+  return me;
+}
+
+type FeedKind = 'crown' | 'hall' | 'hell' | 'hard' | 'open' | 'slither';
+type FeedItem = { key: string; kind: FeedKind; name: string; text: string; at: number; href: string };
+const FEED_STYLE: Record<FeedKind, { chip: string; icon: ReactNode }> = {
+  crown: { chip: 'bg-[#f2c53d] text-[#3b2604]', icon: <Crown size={10} className="fill-[#3b2604]" /> },
+  hall: { chip: 'bg-[#ffd36e] text-[#3b2604]', icon: <Trophy size={10} /> },
+  hell: { chip: 'bg-[#ff3355] text-white', icon: <Skull size={10} /> },
+  hard: { chip: 'bg-[#3fd67a] text-[#06231a]', icon: <Flame size={10} className="fill-[#06231a]" /> },
+  open: { chip: 'bg-[#8f9bff] text-[#0e1020]', icon: <Swords size={10} /> },
+  slither: { chip: 'bg-[#b48cff] text-[#1c0b3a]', icon: <Zap size={10} className="fill-[#1c0b3a]" /> },
+};
+const FEED_PER_KIND = 3;
+
+/** The day's news, newest first within each kind and the kinds dealt in turn: 1위 변동, 명예의 전당, 헬모드, 어려움 클리어, 오픈대전 승리, 맵 뺏기. */
+function useFeed(): FeedItem[] {
+  const tl = useTranslations('Live');
+  const th = useTranslations('HomeApp');
+  const tc = useTranslations('Common');
+  const [rows, setRows] = useState<{ crowns: { game: string; nickname: string; since: string }[]; events: { id: number; kind: string; game: string | null; name: string; other: string | null; value: number | null; created_at: string }[] }>({ crowns: [], events: [] });
+  useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+    let alive = true;
+    const load = () => Promise.all([
+      supabase.rpc('game_crowns_public'),
+      supabase.from('live_events').select('id, kind, game, name, other, value, created_at').in('kind', ['hall_rank', 'hell_clear', 'hard_clear', 'open_win', 'slither_take']).order('id', { ascending: false }).limit(60),
+    ]).then(([crowns, events]) => {
+      if (alive) setRows({ crowns: Array.isArray(crowns.data) ? crowns.data : [], events: Array.isArray(events.data) ? events.data : [] });
+    }).catch(() => {});
+    load();
+    const id = window.setInterval(() => { if (document.visibilityState === 'visible') load(); }, 90_000);
+    return () => { alive = false; window.clearInterval(id); };
+  }, []);
+
+  return useMemo(() => {
+    const gameName = (g: string | null) => (g && GAME_LABEL[g as StatsGameId] ? tc(GAME_LABEL[g as StatsGameId]) : '');
+    const hrefOf = (g: string | null) => (g && CERT_GAMES[g as StatsGameId]?.href) || '/';
+    const byKind: Record<FeedKind, FeedItem[]> = { crown: [], hall: [], hell: [], hard: [], open: [], slither: [] };
+    const dayAgo = Date.parse(rows.events[0]?.created_at ?? '') - 86_400_000 || 0;
+    for (const c of [...rows.crowns].sort((a, b) => b.since.localeCompare(a.since))) {
+      if (!CERT_GAMES[c.game as StatsGameId]) continue;
+      // today's crown changes; if there were none, the latest few still show
+      if (Date.parse(c.since) < dayAgo && byKind.crown.length >= FEED_PER_KIND) break;
+      if (byKind.crown.length >= 6) break;
+      byKind.crown.push({ key: `c-${c.game}`, kind: 'crown', name: c.nickname, text: th('crownMove', { name: c.nickname, game: gameName(c.game) }), at: Date.parse(c.since), href: hrefOf(c.game) });
+    }
+    const seen = new Set<string>();
+    for (const e of rows.events) {
+      const kind: FeedKind | null = e.kind === 'hall_rank' ? 'hall' : e.kind === 'hell_clear' ? 'hell' : e.kind === 'hard_clear' ? 'hard' : e.kind === 'open_win' ? 'open' : e.kind === 'slither_take' ? 'slither' : null;
+      if (!kind || byKind[kind].length >= FEED_PER_KIND) continue;
+      const dedupe = `${kind}-${e.name}-${e.game}`;
+      if (seen.has(dedupe)) continue;
+      seen.add(dedupe);
+      const game = gameName(e.game);
+      const text = kind === 'hall' ? tl('hallRank', { name: e.name, game, rank: e.value ?? 1 })
+        : kind === 'hell' ? tl('hellClear', { name: e.name, game, n: e.value ?? 1 })
+          : kind === 'hard' ? tl('hardClear', { name: e.name, game, n: e.value ?? 1 })
+            : kind === 'open' ? tl('openWin', { name: e.name, game })
+              : e.other ? tl('slitherTake', { name: e.name, other: e.other }) : tl('slitherTakeAnon', { name: e.name });
+      byKind[kind].push({ key: `e-${e.id}`, kind, name: e.name, text, at: Date.parse(e.created_at), href: kind === 'slither' ? '/slitherlink' : hrefOf(e.game) });
+    }
+    const out: FeedItem[] = [];
+    const order: FeedKind[] = ['crown', 'hell', 'hall', 'open', 'hard', 'slither'];
+    for (let i = 0; i < 6; i++) for (const k of order) if (byKind[k][i]) out.push(byKind[k][i]);
+    return out;
+  }, [rows, tl, th, tc]);
+}
+
+function LiveFeed({ items }: { items: FeedItem[] }) {
+  const th = useTranslations('HomeApp');
+  const [at, setAt] = useState(0);
+  const [now, setNow] = useState(0);
+  const n = items.length;
+  useEffect(() => {
+    const tick = () => { setAt((v) => v + 1); setNow(Date.now()); };
+    const first = window.setTimeout(() => setNow(Date.now()), 0);
+    const id = n > 1 ? window.setInterval(tick, 3000) : 0;
+    return () => { window.clearTimeout(first); if (id) window.clearInterval(id); };
+  }, [n]);
+  if (!n) return null;
+  const item = items[at % n];
+  const k = FEED_STYLE[item.kind];
+  const mins = now ? Math.max(0, Math.round((now - item.at) / 60000)) : -1;
+  const ago = mins < 0 ? '' : mins < 1 ? th('agoNow') : mins < 60 ? th('agoMin', { n: mins }) : mins < 1440 ? th('agoHour', { n: Math.round(mins / 60) }) : th('agoDay', { n: Math.round(mins / 1440) });
+  return (
+    <Link href={item.href as CatalogGame['href']} className="mx-4 mt-2.5 flex h-[46px] items-center gap-2 overflow-hidden rounded-[18px] bg-[#17201e] pl-2 pr-3 text-white active:scale-[.985]" aria-live="off">
+      <span key={`c${at}`} className={`home-feed flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-black ${k.chip}`}>{k.icon}{th(`feed_${item.kind}`)}</span>
+      <span key={`t${at}`} className="home-feed flex min-w-0 flex-1 items-center gap-1.5 text-[11.5px] font-bold">
+        <StoneAvatar name={item.name} size={16} />
+        <span className="line-clamp-2 min-w-0 break-keep text-[11px] leading-[14px] text-white/85">{item.text}</span>
+      </span>
+      <span key={`a${at}`} className="home-feed shrink-0 text-[10px] font-bold text-white/35">{ago}</span>
+      <i className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[#3fd67a]" />
+    </Link>
+  );
+}
+
+const MEDAL = ['#f2c53d', '#b8bfca', '#c98a55'];
+const PODIUM_STAT = { wins: 'podiumWins', maps: 'podiumMaps', score: 'podiumScore', correct: 'podiumCorrect' } as const;
+
+/** Under a tile: the game's #1 (one stone and the name). */
+function TopOne({ podium }: { podium?: GamePodium }) {
+  const th = useTranslations('HomeApp');
+  const top = podium?.entries[0];
+  if (!top) return <span className="mt-0.5 block text-center text-[10px] font-bold text-black/30">{th('noTop')}</span>;
+  return (
+    <span className="mt-0.5 flex items-center justify-center gap-1 px-0.5">
+      <span className="flex h-[13px] shrink-0 items-center rounded-full bg-[#f2c53d] px-1 text-[8.5px] font-black leading-none text-[#3b2604]">{th('first')}</span>
+      <span className="shrink-0">{top.block ? <RankBlock block={top.block} name={top.nickname} size={16} /> : <StoneAvatar name={top.nickname} size={15} />}</span>
+      <span className="min-w-0 truncate text-[10px] font-black text-black/55">{top.nickname}</span>
+    </span>
+  );
+}
+
+/** On the picture: where I stand in this game — "[nickname] 7위". */
+function MyRank({ rank, name }: { rank?: number; name: string }) {
+  const th = useTranslations('HomeApp');
+  if (!rank) return null;
+  const first = rank === 1;
+  return (
+    <span className={`absolute bottom-1.5 left-1.5 flex max-w-[calc(100%-12px)] items-center gap-1 rounded-full px-1.5 py-[3px] text-[9px] font-black leading-none shadow-[0_3px_8px_rgba(0,0,0,.3)] ${first ? 'bg-[#f2c53d] text-[#3b2604]' : 'bg-[#17201e] text-white'}`}>
+      {first && <Crown size={9} className="shrink-0 fill-[#3b2604]" />}
+      <span className={`min-w-0 truncate ${first ? '' : 'text-white/70'}`}>{name}</span><span className="shrink-0">{th('rankN', { n: rank })}</span>
+    </span>
+  );
+}
+
+export default function HomeApp({ Preview, openMatch }: { Preview: ComponentType<{ id: GameId }>; openMatch: ReactNode }) {
+  const t = useTranslations('Home');
+  const th = useTranslations('HomeApp');
+  const tc = useTranslations('Common');
+  const locale = useLocale();
+  const { user, ready, nickname } = useAuth();
+  const me = useMe(user?.id ?? null);
+  const podiums = useHallPodiums();
+  const feed = useFeed();
+  const [cat, setCat] = useState<Cat>('all');
+  const [ev, setEv] = useState(0);
+  const [rooms, setRooms] = useState<number | null>(null);
+  const [day, setDay] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    listAllOpenRooms().then((list) => { if (alive && list) setRooms(list.length); });
+    const id = window.setTimeout(() => setDay(Math.floor((Date.now() + 9 * 3600_000) / 86_400_000)), 0); // changes at midnight KST
+    return () => { alive = false; window.clearTimeout(id); };
+  }, []);
+
+  const list = GAMES.filter((g) => inCat(g, cat));
+  // Today's pick: one of the six most played, a different one each day (the first of the list in a category).
+  const hero = cat === 'all' ? GAMES[day % 6] : list[0];
+  const rest = list.filter((g) => g !== hero);
+  const name = nickname?.trim() || '';
+  const recent = me.recent.map((href) => GAMES.find((g) => g.href === href)).filter((g): g is CatalogGame => !!g).slice(0, 6);
+  const [pieceLive] = useState(() => Date.now() < PIECE_WEEKS[2].ends);
+  const heroPodium = hero ? podiums?.get(hero.href) : undefined;
+
+  const events = [
+    { key: 'hell', icon: <Skull size={15} />, eyebrow: 'AI HELL MODE', title: th('evHellTitle'), sub: th('evHellSub'), cta: th('evHellCta'), bg: 'linear-gradient(135deg, #2a0812 0%, #07060a 70%)', accent: '#ff3355', href: '/hell' as const, hash: undefined },
+    ...(pieceLive ? [{ key: 'piece', icon: <Puzzle size={15} />, eyebrow: 'PIECE RACE · 2W', title: th('evPieceTitle'), sub: th('evPieceSub'), cta: th('evPieceCta'), bg: 'linear-gradient(135deg, #2c2a14 0%, #17201e 70%)', accent: '#ffd36e', href: '/records' as const, hash: 'competition' }] : []),
+    { key: 'open', icon: <Swords size={15} />, eyebrow: 'OPEN MATCH', title: th('evOpenTitle'), sub: rooms == null ? th('evOpenSub') : th('evOpenRooms', { n: rooms }), cta: th('evOpenCta'), bg: 'linear-gradient(135deg, #1b1f4a 0%, #0e1020 70%)', accent: '#8f9bff', href: '/' as const, hash: 'open-match' },
+  ];
+
+  return (
+    <div className="bg-[#f3f0e8] pb-10 text-[#17201e]">
+      <h1 className="sr-only">{t('title1')} {t('title2')}</h1>
+      <p className="sr-only">{t('description1')} {t('description2')}</p>
+      <style>{`@keyframes home-feed { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } } .home-feed { animation: home-feed .38s cubic-bezier(.2,.8,.2,1); } @keyframes home-sweep { 0%, 55% { transform: translateX(0) skewX(-12deg); } 100% { transform: translateX(620%) skewX(-12deg); } } .home-sweep { animation: home-sweep 4.5s ease-in-out infinite; } @keyframes home-float { 0%, 100% { transform: rotate(4deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-5px); } } .home-float { animation: home-float 4s ease-in-out infinite; } @media (prefers-reduced-motion: reduce) { .home-feed, .home-sweep, .home-float { animation: none; } }`}</style>
+
+      {/* profile strip: my icon and nickname, 피스 and 블랙피스 */}
+      {ready && (
+        <section className="px-4 pt-3">
+          {user ? (
+            <div className="flex items-center gap-2.5">
+              <Link href={{ pathname: '/records', hash: 'my-icon' }} className="flex min-w-0 flex-1 items-center gap-2 active:scale-[.98]">
+                <Stone name={name || 'me'} size={38} />
+                <span className="min-w-0"><b className="block truncate text-[15px] font-black tracking-[-0.02em]">{name || th('noName')}</b><span className="flex items-center text-[10.5px] font-bold text-black/40">{th('myRecords')}<ChevronRight size={11} /></span></span>
+              </Link>
+              <Link href={{ pathname: '/records', hash: 'competition' }} className="flex shrink-0 flex-col items-center rounded-2xl bg-[#17201e] px-3 py-1.5 text-white active:scale-95" title={th('pieces')}>
+                <span className="flex items-center gap-1 text-[13px] font-black text-[#ffd36e]"><Piece size={12} />{me.pieces ?? '–'}</span>
+                <span className="text-[9px] font-bold text-white/45">{me.pieceRank ? th('piecesRank', { n: me.pieceRank }) : th('pieces')}</span>
+              </Link>
+              <Link href="/hell" className="flex shrink-0 flex-col items-center rounded-2xl bg-[#07060a] px-3 py-1.5 text-white ring-1 ring-[#ff3355]/40 active:scale-95" title={th('blackPieces')}>
+                <span className="flex items-center gap-1 text-[13px] font-black text-[#ff5c77]"><BlackPiece size={12} glow={false} />{me.black ?? '–'}</span>
+                <span className="text-[9px] font-bold text-white/45">{me.blackRank ? th('blackRank', { n: me.blackRank }) : th('blackPieces')}</span>
+              </Link>
+            </div>
+          ) : (
+            <Link href="/records" className="flex items-center gap-2.5 rounded-2xl bg-white px-3.5 py-2.5 ring-1 ring-black/10 active:scale-[.985]">
+              <span className="flex items-center gap-1.5"><Piece size={14} /><BlackPiece size={14} glow={false} /></span>
+              <span className="min-w-0 flex-1 break-keep text-[12px] font-black">{th('signInPitch')}</span>
+              <span className="shrink-0 rounded-full bg-[#17201e] px-3 py-1.5 text-[11px] font-black text-white">{th('signIn')}</span>
+            </Link>
+          )}
+        </section>
+      )}
+
+      {/* continue playing */}
+      {recent.length > 0 && (
+        <section className="px-4 pt-3">
+          <ul className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
+            {recent.map((g, i) => (
+              <li key={g.id} className="shrink-0">
+                <Link href={g.href} className="flex w-[58px] flex-col items-center gap-1 active:scale-95">
+                  <span className="relative h-[58px] w-[58px] rounded-full p-[2.5px]" style={{ background: `conic-gradient(${g.color}, ${tint(g.color, 0.35)}, ${g.color})` }}>
+                    <span className="block h-full w-full overflow-hidden rounded-full bg-[#17201e]"><FitTile title={tc(g.id)} className="h-full w-full"><Preview id={g.id} /></FitTile></span>
+                    {i === 0 && <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#ff6b4a] text-white ring-2 ring-[#f3f0e8]"><Play size={10} className="fill-white" /></span>}
+                  </span>
+                  <span className="w-full truncate text-center text-[10.5px] font-bold text-black/60">{i === 0 ? th('continue') : tc(g.id)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* events: one swipeable card, then the news line */}
+      <section className="pt-3">
+        <div className="flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 [scrollbar-width:none]"
+          onScroll={(e) => { const el = e.currentTarget; setEv(Math.round(el.scrollLeft / (el.clientWidth - 22))); }}>
+          {events.map((e) => (
+            <Link key={e.key} href={e.hash ? { pathname: e.href, hash: e.hash } : e.href} className="relative flex h-[118px] w-[calc(100%-22px)] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[22px] p-4 text-white active:scale-[.985]" style={{ background: e.bg }}>
+              <span className="pointer-events-none absolute -right-6 -top-8 h-32 w-32 rounded-full blur-2xl" style={{ background: tint(e.accent, 0.35) }} />
+              <span className="relative flex items-center gap-1.5 text-[10px] font-black tracking-[0.16em]" style={{ color: e.accent }}>{e.icon}{e.eyebrow}</span>
+              <span className="relative flex items-end justify-between gap-3">
+                <span className="min-w-0"><b className="block truncate text-[21px] font-black leading-tight tracking-[-0.04em]">{e.title}</b><span className="mt-0.5 block truncate text-[11.5px] font-bold text-white/60">{e.sub}</span></span>
+                <span className="shrink-0 rounded-full px-3.5 py-2 text-[12px] font-black text-[#17201e]" style={{ background: e.accent }}>{e.cta}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-2 flex justify-center gap-1.5">{events.map((e, i) => <i key={e.key} className={`h-1.5 rounded-full transition-all ${i === ev ? 'w-4 bg-[#17201e]' : 'w-1.5 bg-black/20'}`} />)}</div>
+        <LiveFeed items={feed} />
+      </section>
+
+      {/* category chips (stick while scrolling) */}
+      <nav className="sticky top-0 z-10 mt-2 flex gap-1.5 overflow-x-auto bg-[#f3f0e8]/90 px-4 py-2.5 backdrop-blur [scrollbar-width:none]">
+        {CATS.map((c) => (
+          <button key={c} type="button" onClick={() => setCat(c)}
+            className={`shrink-0 rounded-full px-3.5 py-1.5 text-[12.5px] font-black transition active:scale-95 ${cat === c ? 'bg-[#17201e] text-white' : 'bg-white text-black/55 ring-1 ring-black/10'}`}>
+            {th(`cat_${c}`)}<span className={`ml-1 text-[10.5px] ${cat === c ? 'text-white/50' : 'text-black/30'}`}>{GAMES.filter((g) => inCat(g, c)).length}</span>
+          </button>
+        ))}
+      </nav>
+
+      <section className="px-4">
+        {/* today's pick */}
+        {hero && (
+          <Link href={hero.href} onClick={() => pushRecent(hero.href)} className="relative flex min-h-[232px] items-center gap-3 overflow-hidden rounded-[26px] p-4 active:scale-[.985]"
+            style={{ background: `radial-gradient(120% 90% at 0% 0%, ${shade(hero.color, 0.28, '#ffffff')} 0%, transparent 55%), radial-gradient(90% 80% at 100% 100%, ${shade(hero.color, 0.55, '#12062e')} 0%, transparent 60%), linear-gradient(135deg, ${hero.color} 0%, ${shade(hero.color, 0.35, '#12062e')} 100%)` }}>
+            <span className="pointer-events-none absolute inset-0 opacity-50 [background-image:radial-gradient(rgba(255,255,255,.55)_1px,transparent_1.4px)] [background-size:14px_14px] [mask-image:linear-gradient(115deg,transparent_25%,#000_95%)]" />
+            <span className="pointer-events-none absolute -right-14 top-1/2 h-[250px] w-[250px] -translate-y-1/2 rounded-full border-[22px] border-white/10" />
+            <span className="pointer-events-none absolute -right-2 top-1/2 h-[150px] w-[150px] -translate-y-1/2 rounded-full bg-white/25 blur-2xl" />
+            <span className="pointer-events-none absolute -left-10 -top-10 h-36 w-36 rounded-full bg-white/25 blur-2xl" />
+            <span className="home-sweep pointer-events-none absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+            <svg viewBox="0 0 100 100" className="pointer-events-none absolute left-[47%] top-3 h-5 w-5 text-white/80" aria-hidden="true"><path d="M50 0 L58 42 L100 50 L58 58 L50 100 L42 58 L0 50 L42 42Z" fill="currentColor" /></svg>
+            <svg viewBox="0 0 100 100" className="pointer-events-none absolute bottom-4 left-[52%] h-3 w-3 text-white/60" aria-hidden="true"><path d="M50 0 L58 42 L100 50 L58 58 L50 100 L42 58 L0 50 L42 42Z" fill="currentColor" /></svg>
+            <span className="relative flex min-w-0 flex-1 flex-col justify-between gap-3 self-stretch text-white">
+              <span className="flex w-fit items-center gap-1 rounded-full bg-black/25 px-2.5 py-1 text-[10px] font-black tracking-[0.12em]"><Flame size={11} className="fill-white" />{th('todayPick')}</span>
+              <span>
+                {heroPodium?.entries.length ? (
+                  <span className="mb-2 flex flex-col gap-[3px]">
+                    {heroPodium.entries.slice(0, 3).map((e, i) => (
+                      <span key={e.rank} className="flex items-center gap-1.5 text-[11px] font-black">
+                        <span className="flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full text-[9px] text-black/70" style={{ background: MEDAL[i] }}>{i + 1}</span>
+                        <span className="shrink-0">{e.block ? <RankBlock block={e.block} name={e.nickname} size={16} /> : <StoneAvatar name={e.nickname} size={16} />}</span>
+                        <span className="min-w-0 max-w-[92px] truncate">{e.nickname}</span>
+                        <span className="shrink-0 font-bold text-white/65">{t(PODIUM_STAT[heroPodium.kind], { n: e.n })}</span>
+                      </span>
+                    ))}
+                  </span>
+                ) : null}
+                {name && me.ranks.get(hero.href) ? <span className="mb-1.5 flex w-fit max-w-full items-center gap-1 rounded-full bg-[#17201e] px-2 py-1 text-[10.5px] font-black"><span className="min-w-0 max-w-[90px] truncate text-white/70">{name}</span>{th('rankN', { n: me.ranks.get(hero.href)! })}</span> : null}
+                <b className="block break-keep text-[26px] font-black leading-[1.05] tracking-[-0.05em] drop-shadow-sm">{tc(hero.id)}</b>
+                <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-[12.5px] font-black text-[#17201e]"><Play size={12} className="fill-[#17201e]" />{th('playNow')}</span>
+              </span>
+            </span>
+            <span className="home-float relative h-[136px] w-[136px] shrink-0 rotate-[4deg] overflow-hidden rounded-[22px] bg-[#17201e]/90 shadow-[0_18px_36px_rgba(0,0,0,.35)] ring-2 ring-white/40"><FitTile title={tc(hero.id)} className="h-full w-full"><Preview id={hero.id} /></FitTile></span>
+          </Link>
+        )}
+
+        {/* every other game: picture tiles, three across */}
+        <ul className="mt-2.5 grid grid-cols-3 gap-x-2.5 gap-y-3">
+          {rest.map((g) => (
+            <li key={g.id}>
+              <Link href={g.href} onClick={() => pushRecent(g.href)} className="block active:scale-95">
+                <span className="relative block aspect-square overflow-hidden rounded-[20px]" style={{ background: `linear-gradient(160deg, ${tint(g.color, 0.3)} 0%, ${tint(g.color, 0.12)} 100%)`, boxShadow: `inset 0 0 0 1px ${tint(g.color, 0.28)}` }}>
+                  <span className="absolute inset-[9%] overflow-hidden rounded-[14px] bg-[#17201e]/90"><FitTile title={tc(g.id)} className="h-full w-full"><Preview id={g.id} /></FitTile></span>
+                  {NEW.includes(g.id) && <span className="absolute left-1.5 top-1.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.08em] text-white">NEW</span>}
+                  {g.hell?.live && <span className="absolute right-1.5 top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#07060a] text-[#ff3355] ring-1 ring-[#ff3355]/60"><Skull size={10} /></span>}
+                  {name && <MyRank rank={me.ranks.get(g.href)} name={name} />}
+                </span>
+                <span className="mt-1.5 block truncate text-center text-[12px] font-black tracking-[-0.02em]">{tc(g.id)}</span>
+                <TopOne podium={podiums?.get(g.href)} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        <div id="open-match" className="mt-6 scroll-mt-16">{openMatch}</div>
+        <IconCollectionLink className="mt-4" />
+        <p className="mt-3 text-center text-[10.5px] font-bold text-black/30">{locale === 'en' ? 'Ranks update every few minutes' : th('rankNote')}</p>
+      </section>
+    </div>
+  );
+}

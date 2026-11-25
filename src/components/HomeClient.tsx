@@ -1,7 +1,9 @@
 "use client";
 
 import { ArrowRight, Bot, Brain, Flame, Grid3X3, Sparkles, UsersRound } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import HomeApp from './HomeApp';
 import { Link } from '@/i18n/routing';
 import { MorrisBoard } from './morris/MorrisParts';
 import LaserPiece from './laserJanggi/LaserPiece';
@@ -282,6 +284,14 @@ export default function HomeClient() {
   const tc = useTranslations('Common');
   const podiums = useHallPodiums();
   const rates = useChallengeRates();
+  const [phone, setPhone] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const on = () => setPhone(mq.matches);
+    on();
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
   // Order: by plays on 2026-11-23 (KST), most played first, 카드 장기 2nd, 컬러 링크 3rd, 수식 신호등 4th, 수식의 탑 5th, Hit,Stay 6th, 그라데이션 7th, 포인트 오목 8th, 마방진 스왑 9th and 2048 10th (same order as the game catalog).
   const games = [
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true, updated: true },
@@ -324,16 +334,20 @@ export default function HomeClient() {
     { title: 'HEXAGON', display: tc('hexagon'), description: t('hexagonDescription'), href: '/hexagon', tag: 'memoryDeduction', meta: t('hexagonMeta'), color: '#e8b04a', illustration: 'hexagon' },
   ] as const;
 
-  return <main className="min-h-screen bg-[#f3f0e8] text-[#17201e]"><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
+  const openCard = <OpenMatchCard previews={{
+      equationSignal: <SignalTile />, equationTower: <TowerTile />, gradation: <GradationTile />, cardJanggi: <CjTile />, colorLinkDuel: <CldTile />, hitStay: <HitStayTile />, pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
+      janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
+    }} />;
+  // Phones get the app-style home, wider screens the classic one. Both are in the server HTML (CSS picks one);
+  // once the browser knows its width the other is dropped.
+  if (phone === true) return <HomeApp Preview={GamePreview} openMatch={openCard} />;
+  return <>{phone === null && <div className="sm:hidden"><HomeApp Preview={GamePreview} openMatch={openCard} /></div>}<main className={`min-h-screen bg-[#f3f0e8] text-[#17201e] ${phone === null ? 'hidden sm:block' : ''}`}><section className="relative overflow-hidden px-4 pb-12 pt-10 sm:px-5 sm:pb-24 sm:pt-28"><div className="pointer-events-none absolute left-1/2 top-0 h-[440px] w-[700px] -translate-x-1/2 rounded-full bg-[#f7df9e]/40 blur-3xl" /><div className="relative mx-auto max-w-6xl">
     <div className="mx-auto max-w-3xl text-center"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/50 backdrop-blur"><Sparkles size={12} className="text-[#ff6b4a]" /> {t('eyebrow')}</div><h1 className="text-balance break-keep text-[2.4rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-7xl sm:leading-[0.98]">{t('title1')}<br />{t('title2')}</h1><p className="mx-auto mt-4 max-w-xl break-keep text-sm leading-6 text-black/55 sm:mt-6 sm:text-base sm:leading-7">{t('description1')}<br className="hidden sm:block" /> {t('description2')}</p><VisitCounter /></div>
     {/* AI 헬모드 launch on top, then 피스 경쟁전 at the same size. */}
     {HELL_LIVE.length > 0 && <HellLaunchBanner />}
     <PieceRaceBanner />
-    <div className="mt-8 grid gap-2.5 sm:mt-12 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">{/* The open-match card is tall: it spans two rows so the cards beside it keep their own height. */}<div className="grid md:row-span-2"><OpenMatchCard previews={{
-      equationSignal: <SignalTile />, equationTower: <TowerTile />, gradation: <GradationTile />, cardJanggi: <CjTile />, colorLinkDuel: <CldTile />, hitStay: <HitStayTile />, pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
-      blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
-      janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
-    }} /></div>{games.map((game) => (
+    <div className="mt-8 grid gap-2.5 sm:mt-12 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">{/* The open-match card is tall: it spans two rows so the cards beside it keep their own height. */}<div className="grid md:row-span-2">{openCard}</div>{games.map((game) => (
       <div key={game.title} className={`group relative flex flex-col overflow-hidden rounded-[20px] border bg-[#f9f7f1] ${'hype' in game ? 'hype-card border-[#ff6a3d]/45' : 'border-black/10'} p-3 shadow-[0_12px_36px_rgba(30,38,36,0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_56px_rgba(30,38,36,0.13)] sm:rounded-[26px] sm:p-5`}>
         <Link href={game.href} className="block flex-1">
           <div className="flex items-center justify-between"><span className="flex flex-wrap items-center gap-1.5"><GameTag color={game.color} label={game.tag === 'classic' ? t('classic') : t(`tag_${game.tag}`)} />{'hype' in game && <span className="hype-tag relative inline-flex items-center gap-1 overflow-hidden rounded-full px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white"><Flame size={11} className="hype-flame fill-white/90" />HYPE<span className="font-bold tracking-normal opacity-90">· {t('hypeTag')}</span></span>}{HELL_LIVE.some((g) => g.href === game.href) && <span className="inline-flex items-center rounded-full bg-[#07060a] px-2.5 py-1 text-[10px] font-black tracking-[0.12em] text-[#ff3355] shadow-[0_0_12px_rgba(255,51,85,.45)] ring-1 ring-[#ff3355]/60">{t('hellTag')}</span>}{'updated' in game && <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#3ddc97] to-[#2bb8ff] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#06231a]" title={t('updatedTip' in game ? game.updatedTip : 'updatedTitle')}><Sparkles size={11} />{t('updated')}</span>}{CHALLENGE_RATE_HREFS.has(game.href) ? (rates?.get(game.href) && <span title={t('clearRateTitle', { c: rates.get(game.href)!.clears, n: rates.get(game.href)!.attempts })} className={`rounded-full px-3 py-1 text-[10px] font-black tracking-[0.04em] ${CLEAR_TONE[rates.get(game.href)!.level]}`}>{t('clearRate', { pct: rates.get(game.href)!.pct, level: t(`clearLevel_${rates.get(game.href)!.level}`) })}</span>) : 'new' in game && <span className="rounded-full border border-[#ff4d5e]/30 bg-[#ff4d5e] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-white shadow-[0_5px_16px_rgba(255,77,94,.24)]">{t('new')}</span>}</span>{podiums?.get(game.href)?.entries.length ? <HallPodium entries={podiums.get(game.href)!.entries} label={t(podiums.get(game.href)!.kind === 'wins' ? 'podiumLabel' : 'podiumChallengeLabel', { game: game.display })} stat={(n) => t(PODIUM_STAT[podiums.get(game.href)!.kind], { n })} /> : podiums && game.tag === 'logicPuzzle' ? <HallPodium entries={[]} label={t('podiumChallengeLabel', { game: game.display })} stat={(n) => t(PODIUM_STAT.maps, { n })} /> : <span className="text-[10px] font-black tracking-[0.16em] text-black/30">{game.title}</span>}</div>
@@ -349,5 +363,5 @@ export default function HomeClient() {
       </div>
     ))}</div>
     <div className="mt-8 grid gap-3 sm:grid-cols-3"><div className="flex items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/40 p-4"><Grid3X3 size={18} /><div><p className="text-xs font-extrabold">{t('clearRules')}</p><p className="text-[11px] text-black/40">{t('clearRulesDesc')}</p></div></div><div className="flex items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/40 p-4"><Bot size={18} /><div><p className="text-xs font-extrabold">{t('instantPlay')}</p><p className="text-[11px] text-black/40">{t('instantPlayDesc')}</p></div></div><div className="flex items-center gap-3 rounded-2xl border border-black/[0.07] bg-white/40 p-4"><UsersRound size={18} /><div><p className="text-xs font-extrabold">{t('growing')}</p><p className="text-[11px] text-black/40">{t('growingDesc')}</p></div></div></div>
-  </div></section></main>;
+  </div></section></main></>;
 }
