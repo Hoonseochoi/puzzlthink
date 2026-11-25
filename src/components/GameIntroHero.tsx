@@ -16,7 +16,11 @@ const STRATEGY: Partial<Record<GameId, '/slitherlink/guide' | '/masyu/guide' | '
 const REPLAY: Partial<Record<GameId, ReplayGame>> = { magicswap: 'magicswap', slitherlink: 'slitherlink', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram' };
 
 /** Top of a game's entry screen: name, tagline, key facts, ranking and update notes, then the core rules. */
-export default async function GameIntroHero({ locale, id, tone = 'dark' }: { locale: string; id: GameId; tone?: 'dark' | 'light' }) {
+export default async function GameIntroHero({ locale, id, tone = 'dark', Title = 'h2' }: {
+  locale: string; id: GameId; tone?: 'dark' | 'light';
+  /** 'h1' on a page with no guide below the board (the guide normally carries the page's h1). */
+  Title?: 'h1' | 'h2';
+}) {
   const t = await getTranslations({ locale, namespace: 'Games' });
   const tc = await getTranslations({ locale, namespace: 'Common' });
   const key = `games.${id}` as const;
@@ -34,7 +38,7 @@ export default async function GameIntroHero({ locale, id, tone = 'dark' }: { loc
     <div className="@container">
       <p className="font-mono text-[10px] font-bold tracking-[0.2em] text-(--accent)">PUZZLTHINK · GAME</p>
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
-        <h2 className="whitespace-nowrap text-[2.6rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-6xl">{tc(id)}</h2>
+        <Title className="whitespace-nowrap text-[2.6rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-6xl">{tc(id)}</Title>
         {(STRATEGY[id] || REPLAY[id]) && <div className="flex shrink-0 flex-wrap justify-end gap-2">
         {REPLAY[id] && <LogicReplayButton game={REPLAY[id]} variant="learn" />}
         {STRATEGY[id] && (
