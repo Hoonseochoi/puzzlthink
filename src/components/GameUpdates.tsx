@@ -4,7 +4,7 @@ import { useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocale } from 'next-intl';
 import { History, Sparkles, X } from 'lucide-react';
-import { GAME_UPDATES } from '@/lib/gameUpdates';
+import { GAME_UPDATES, updateLogKey } from '@/lib/gameUpdates';
 
 const COPY = {
   ko: { tag: '업데이트', title: (name: string) => `${name} 업데이트`, latest: (d: string) => `최근 업데이트 ${d}`, ok: '확인', close: '닫기' },
@@ -69,37 +69,33 @@ export default function GameUpdates({ game }: { game: string }) {
   </>;
 }
 
-// Catalog ids are camelCase, update logs are keyed by the records id (snake_case): 'colorLinkDuel' → 'color_link_duel'.
-const LOG_KEY: Record<string, string> = { blackWhite2: 'black_white_2', nineMensMorris: 'nine_mens_morris' };
-const logKey = (catalogId: string) => LOG_KEY[catalogId] ?? catalogId.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
-
 /**
- * The "업데이트" section of a game's entry screen (GameGate): the newest day's notes, and the badge above that opens
- * the whole history in its popup. Nothing for a game without notes.
+ * The "업데이트" card of a game's entry screen (GameGate, beside the ranking): the two newest notes, and the badge
+ * above that opens the whole history in its popup. Nothing for a game without notes.
  */
 export function GameUpdatesSection({ game, tone = 'dark' }: { game: string; tone?: 'dark' | 'light' }) {
-  const key = logKey(game);
+  const key = updateLogKey(game);
   const log = GAME_UPDATES[key];
   const en = useLocale() === 'en';
   if (!log?.items.length) return null;
   const dark = tone === 'dark';
-  const latest = log.items.filter((item) => item.date === log.items[0].date).slice(0, 3);
+  const latest = log.items.slice(0, 2);
   return (
-    <section className={`mt-3 rounded-[14px] border p-4 sm:p-5 ${dark ? 'border-white/10 bg-[#121217]/85' : 'border-black/10 bg-white/70'}`}>
+    <section className={`flex flex-col rounded-2xl border p-4 sm:p-5 ${dark ? 'border-white/10 bg-white/[0.035]' : 'border-black/10 bg-white/70'}`}>
       <div className="flex items-center justify-between gap-3">
-        <h3 className="flex items-center gap-2 text-base font-black"><History size={17} className="text-(--accent)" />{en ? 'Updates' : '업데이트'}</h3>
+        <h3 className="flex items-center gap-2 text-[15px] font-black"><History size={16} className="text-(--accent)" />{en ? 'Updates' : '업데이트'}</h3>
         <GameUpdates game={key} />
       </div>
-      <ul className="mt-4 space-y-4">
+      <ul className="mt-3 space-y-1.5">
         {latest.map((item, i) => {
           const Icon = item.icon;
           const text = en ? item.en : item.ko;
           return (
-            <li key={i} className="flex gap-3">
-              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-(--accent) text-(--accent-ink)"><Icon size={14} /></span>
+            <li key={i} className={`flex gap-2.5 rounded-xl px-3 py-2.5 ${dark ? 'bg-white/[0.05]' : 'bg-white'}`}>
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-(--accent)/15 text-(--accent)"><Icon size={13} /></span>
               <div className="min-w-0">
-                <p className="break-keep text-sm font-black"><span className={`mr-1.5 text-[11px] ${dark ? 'text-white/45' : 'text-black/45'}`}>{item.date}</span>{text.title}</p>
-                <p className={`mt-1 break-keep text-xs leading-5 ${dark ? 'text-white/60' : 'text-black/60'}`}>{text.desc}</p>
+                <p className="break-keep text-[13px] font-extrabold leading-5"><span className={`mr-1.5 font-mono text-[10px] font-black ${dark ? 'text-white/40' : 'text-black/40'}`}>{item.date}</span>{text.title}</p>
+                <p className={`mt-0.5 line-clamp-2 break-keep text-[12px] leading-[1.6] ${dark ? 'text-white/55' : 'text-black/55'}`}>{text.desc}</p>
               </div>
             </li>
           );

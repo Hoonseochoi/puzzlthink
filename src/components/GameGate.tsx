@@ -12,7 +12,6 @@ import OpenPracticeShell from './OpenPractice';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import { GAME_MODES } from './gameModes';
-import { GameUpdatesSection } from './GameUpdates';
 import { accentVars } from './ui/gameUi';
 
 const PLAY_HASH = '#play';
@@ -128,15 +127,17 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   }
 
   const dark = tone === 'dark';
-  const card = `rounded-[14px] border p-4 sm:p-5 ${dark ? 'border-white/10 bg-[#121217]/85' : 'border-black/10 bg-white/70'}`;
+  const card = `rounded-2xl border p-4 sm:p-5 ${dark ? 'border-white/10 bg-[#121217]/85' : 'border-black/10 bg-white/70'}`;
   const muted = dark ? 'text-white/55' : 'text-black/55';
   const secondary = `inline-flex items-center justify-center gap-2 rounded-md border px-4 py-3 text-sm font-bold transition disabled:opacity-50 ${dark ? 'border-white/15 bg-white/5 text-white/85 hover:bg-white/10' : 'border-black/15 bg-white text-black/75 hover:bg-white/70'}`;
   const primary = 'inline-flex items-center justify-center gap-2 rounded-md bg-(--accent) px-5 py-3 text-sm font-extrabold text-(--accent-ink) shadow-[0_0_24px_var(--accent-glow)] transition hover:brightness-110';
   const hasRooms = modes.rooms.length > 0;
 
   return (
-    <div className={`min-h-screen pb-24 ${dark ? 'bg-[#0b0b0e] text-[#e6e9f0]' : 'bg-[#f3f0e8] text-[#17201e]'}`} style={accentVars(accent, ink)}>
-      <section className="px-4 pb-10 pt-4 sm:px-5 sm:pt-6">
+    <div className={`relative min-h-screen pb-24 ${dark ? 'bg-[#0b0b0e] text-[#e6e9f0]' : 'bg-[#f3f0e8] text-[#17201e]'}`} style={accentVars(accent, ink)}>
+      {/* A soft wash of the game's colour behind the title. */}
+      <div aria-hidden className={`pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,color-mix(in_srgb,var(--accent)_22%,transparent),transparent_70%)] ${dark ? '' : 'opacity-60'}`} />
+      <section className="relative px-4 pb-10 pt-4 sm:px-5 sm:pt-6">
         <div className="mx-auto max-w-4xl">
           {/* Shared game links land here with the site header hidden: one tap back to every other game. */}
           <Link href="/" aria-label={tc('home')} title={tc('home')} className={`mb-6 inline-flex items-center gap-2 rounded-full border py-1.5 pl-2 pr-3.5 text-xs font-black tracking-[-0.02em] transition sm:mb-8 ${dark ? 'border-white/12 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white' : 'border-black/10 bg-white/70 text-black/75 hover:bg-white hover:text-black'}`}>
@@ -146,7 +147,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
           {hero}
 
           {/* How to start: AI (or solo) and, for multiplayer games, friends by link or 4-digit code. */}
-          <div id="play-modes" className={`mt-7 grid scroll-mt-20 gap-3 ${hasRooms ? 'md:grid-cols-2' : ''}`}>
+          <div id="play-modes" className={`mt-6 grid scroll-mt-20 gap-3 ${hasRooms ? 'md:grid-cols-2' : ''}`}>
             <section className={card}>
               <h3 className="flex items-center gap-2 text-base font-black">{modes.solo ? <UserRound size={17} className="text-(--accent)" /> : <Bot size={17} className="text-(--accent)" />}{t(modes.solo ? 'soloTitle' : 'aiTitle')}</h3>
               <p className={`mt-1 text-xs leading-5 ${muted}`}>{t(modes.solo ? 'soloDesc' : 'aiDesc')}</p>
@@ -235,9 +236,6 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
               </div>
             </section>
           )}
-
-          {/* What changed lately in this game, with the full history in a popup (src/lib/gameUpdates.ts). */}
-          <GameUpdatesSection game={game} tone={tone} />
 
           {tutorial && <a href="#how-to-play" className={`mt-4 inline-flex items-center gap-2 text-sm font-bold underline-offset-4 hover:underline ${muted}`}><BookOpen size={15} />{t('howToPlay')}</a>}
         </div>

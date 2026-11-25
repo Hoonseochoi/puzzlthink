@@ -1,6 +1,8 @@
 // Public per-game ranking pages: Hall of Fame (AI), open-match ranking and, for 네모 세기, the 30-minute challenge.
 import { CERT_GAMES } from './hardClear';
 import type { GameId } from './stats';
+import type { GameId as CatalogId } from './gameCatalog';
+import { STATS_ID } from './openRooms';
 
 export type HallRow = { game: GameId; rank: number; nickname: string; avatar_url: string | null; wins: number; games: number; prev_rank?: number | null };
 export type OpenRow = { rank: number; nickname: string | null; wins: number; losses: number; draws: number; prev_rank?: number | null };
@@ -70,3 +72,6 @@ export function podium(r: GameRanking): { name: string; stat: string }[] {
   }
   return r.open.slice(0, 3).map((x) => ({ name: x.nickname ?? 'Player', stat: `${x.wins}W` }));
 }
+
+/** Whether a game (catalog id) has a ranking page, so its entry screen shows the ranking card. */
+export const hasRankCard = (game: CatalogId) => { const id = STATS_ID[game]; return !!id && gameFromSlug(rankSlug(id)) === id; };

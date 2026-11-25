@@ -301,3 +301,9 @@ for (const [key, name] of Object.entries(ROOM_GAMES)) {
   // 'MM/DD' sorts by date; the sort is stable, so a game's own notes keep their order within a day.
   log.items = [...ROOM_NOTES, ...log.items].sort((a, b) => b.date.localeCompare(a.date));
 }
+
+// Catalog ids are camelCase, update logs are keyed by the records id (snake_case): 'colorLinkDuel' → 'color_link_duel'.
+const LOG_KEY: Record<string, string> = { blackWhite2: 'black_white_2', nineMensMorris: 'nine_mens_morris' };
+export const updateLogKey = (catalogId: string) => LOG_KEY[catalogId] ?? catalogId.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+/** Whether a game (catalog id) has update notes. */
+export const hasGameUpdates = (catalogId: string) => !!GAME_UPDATES[updateLogKey(catalogId)]?.items.length;
