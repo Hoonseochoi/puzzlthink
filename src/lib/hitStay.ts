@@ -11,15 +11,12 @@
 // Pure functions only. The room (src/lib/hitStayRoom.ts) adds seats, clocks and AI turns.
 
 export const HS_PLAYERS = 5;
-/** Starting chips: friend and open rooms pick 20, 25 or 30 (default 30); the AI match uses 15 so it ends sooner. */
 export const HS_START_CHIPS = 30;
-export const HS_ROOM_CHIPS: readonly number[] = [20, 25, 30];
-export const HS_SOLO_CHIPS = 15;
 /** 7×1, 6×2, 5×3, 4×4, 3×5, 2×6, 1×7 and -1×7: 35 cards. */
 export const HS_DECK: readonly number[] = [7, 6, 6, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1];
 export const HS_DIE: readonly number[] = [5, 6, 7, 8, 9, 10, 11, 12];
-/** Base bet: 1, and one more every 10 rounds. */
-export const hsAnte = (round: number) => 1 + Math.floor((round - 1) / 10);
+/** Base bet: 1, and five more every 3 rounds (1, 6, 11, …) so a match ends in about 15 rounds. Never above the smallest stack. */
+export const hsAnte = (round: number) => 1 + 5 * Math.floor((round - 1) / 3);
 
 /**
  * Every AI plays at full strength (a Monte Carlo look at every decision) and picks the best move for its own
@@ -122,13 +119,13 @@ export const hsTotal = (cards: (number | null)[]) => cards.reduce<number>((sum, 
 const ring = (from: number) => Array.from({ length: HS_PLAYERS }, (_, i) => (from + i) % HS_PLAYERS);
 const nextAlive = (g: { out: boolean[] }, after: number) => ring(after + 1).find((s) => !g.out[s]) ?? after;
 
-/** `seated`: which of the five seats are played (default all); the others stay empty for the whole game. `start`: chips each. */
-export function newHitStay(seated: readonly boolean[] = Array(HS_PLAYERS).fill(true), start = HS_START_CHIPS): HitStay {
+/** `seated`: which of the five seats are played (default all); the others stay empty for the whole game. */
+export function newHitStay(seated: readonly boolean[] = Array(HS_PLAYERS).fill(true)): HitStay {
   const filled = Array.from({ length: HS_PLAYERS }, (_, i) => i).filter((i) => seated[i]);
   const absent = Array.from({ length: HS_PLAYERS }, (_, i) => !seated[i]);
   const base: HitStay = {
-    gid: Math.random().toString(36).slice(2, 10), round: 0, first: filled[Math.floor(Math.random() * filled.length)] ?? 0, limit: 0, ante: 1, cap: start, phase: 'pick', turn: -1,
-    chips: absent.map((a) => (a ? 0 : start)), out: absent.slice(), place: Array(HS_PLAYERS).fill(null), ...(absent.some(Boolean) ? { absent } : {}),
+    gid: Math.random().toString(36).slice(2, 10), round: 0, first: filled[Math.floor(Math.random() * filled.length)] ?? 0, limit: 0, ante: 1, cap: HS_START_CHIPS, phase: 'pick', turn: -1,
+    chips: absent.map((a) => (a ? 0 : HS_START_CHIPS)), out: absent.slice(), place: Array(HS_PLAYERS).fill(null), ...(absent.some(Boolean) ? { absent } : {}),
     hands: Array.from({ length: HS_PLAYERS }, () => []), openIdx: Array(HS_PLAYERS).fill(null),
     folded: Array(HS_PLAYERS).fill(false), stayed: Array(HS_PLAYERS).fill(false), bets: Array(HS_PLAYERS).fill(0),
     level: 0, acted: Array(HS_PLAYERS).fill(false), deck: [], showdown: null, log: [], rounds: [], seq: 0,

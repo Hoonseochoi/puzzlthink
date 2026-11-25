@@ -1,7 +1,7 @@
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 import { type AwayFields, clearMiss, giveBack, humansBack, resetAway, seatDueForAway, takeOver, trackPresence } from './roomAway';
 import {
-  type HitStay, type HsAction, type HsStyle, HS_PERSONA, HS_PLAYERS, HS_ROOM_CHIPS, HS_SOLO_CHIPS, HS_START_CHIPS, HS_STYLES,
+  type HitStay, type HsAction, type HsStyle, HS_PERSONA, HS_PLAYERS, HS_STYLES,
   applyHsAction, chooseHsAction, hitStaySecret, hsPicking, hsTimeoutAction, newHitStay, redactHitStay, startRound, withHitStaySecret,
 } from './hitStay';
 
@@ -28,14 +28,11 @@ export type HitStayRoom = BaseRoom & AwayFields & {
   holdUntil: number; // no AI move or next round before this (host clock)
   /** Rooms: fill empty seats with AI up to five (default), or play with just the people there (2–5). */
   fillAi?: boolean;
-  /** Rooms: chips each at the start (HS_ROOM_CHIPS, host's pick in the lobby). The AI match always uses HS_SOLO_CHIPS. */
-  startChips?: number;
 };
 
 export type HitStayRoomAction =
   | { t: 'start' }
   | { t: 'fillAi'; on: boolean } // host, in the lobby
-  | { t: 'chips'; n: number } // host, in the lobby: starting chips
   | { t: 'act'; action: HsAction }
   | { t: 'ai' }
   | { t: 'next' } // host: deal the next round after the showdown
@@ -75,12 +72,8 @@ function startRoom(state: HitStayRoom, shuffleHumans = true): HitStayRoom {
     ...state, seats: filled.map((entry) => entry.seat), ai: filled.map((entry) => entry.ai),
     style: filled.map((entry) => entry.style ?? spare.find((st) => !filled.some((f) => f.style === st)) ?? 'calc'),
     phase: 'playing', ...resetAway(HS_PLAYERS),
-  }, newHitStay(filled.map((entry, i) => i < people || entry.ai), hsStartChips(state)), HOLD_MS.round);
+  }, newHitStay(filled.map((entry, i) => i < people || entry.ai)), HOLD_MS.round);
 }
-
-/** Chips each for the next game: solo (no turn clock) is the short AI match; rooms use the host's pick. */
-export const hsStartChips = (state: HitStayRoom) =>
-  !state.turnSec ? HS_SOLO_CHIPS : HS_ROOM_CHIPS.includes(state.startChips ?? -1) ? state.startChips! : HS_START_CHIPS;
 
 const shuffleStyles = () => [...HS_STYLES].sort(() => Math.random() - 0.5);
 const styleOf = (state: HitStayRoom, seat: number): HsStyle => state.style?.[seat] ?? 'calc';
@@ -123,10 +116,6 @@ export function reduceHitStayRoom(state: HitStayRoom, action: HitStayRoomAction,
     case 'fillAi':
       if (!isHost || state.phase === 'playing') break;
       next = { ...state, fillAi: action.on };
-      break;
-    case 'chips':
-      if (!isHost || state.phase === 'playing' || !HS_ROOM_CHIPS.includes(action.n)) break;
-      next = { ...state, startChips: action.n };
       break;
     case 'start':
       if (!isHost || state.phase === 'playing') break;

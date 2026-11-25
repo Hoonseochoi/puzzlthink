@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { BookOpen, Bot, Check, Coins, Copy, Crown, Loader2, Share2, Timer, Trophy, UserRound, WifiOff } from 'lucide-react';
+import { BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, Timer, Trophy, UserRound, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import BugReport from '@/components/BugReport';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { useHitStayRoom } from '@/hooks/useHitStayRoom';
 import type { HitStayRoom } from '@/lib/hitStayRoom';
-import { HS_PICK_SEC, HS_TURN_SEC, hsStartChips } from '@/lib/hitStayRoom';
-import { HS_PERSONA, HS_PLAYERS, HS_ROOM_CHIPS, HS_STYLES } from '@/lib/hitStay';
+import { HS_PICK_SEC, HS_TURN_SEC } from '@/lib/hitStayRoom';
+import { HS_PERSONA, HS_PLAYERS, HS_STYLES } from '@/lib/hitStay';
 import LanguageSwitcher from '../LanguageSwitcher';
 import RoomAlerts from '../RoomAlerts';
 import AwayBanner from '../ui/AwayBanner';
@@ -70,7 +70,7 @@ export default function HitStayRoomView({ code }: { code: string }) {
       ) : state.phase === 'lobby' ? (
         <Lobby state={state} code={code} me={me} mySeat={mySeat} online={online} humans={humans} t={t} en={en}
           copied={copied} onCopy={copyLink} onShare={shareLink} nameDraft={nameDraft} setNameDraft={setNameDraft}
-          onRename={() => { rename(nameDraft); setNameDraft(''); }} onStart={() => dispatch({ t: 'start' })} onFillAi={(on) => dispatch({ t: 'fillAi', on })} onChips={(n) => dispatch({ t: 'chips', n })} />
+          onRename={() => { rename(nameDraft); setNameDraft(''); }} onStart={() => dispatch({ t: 'start' })} onFillAi={(on) => dispatch({ t: 'fillAi', on })} />
       ) : (
         <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">
           <HitStayTable room={state} mySeat={mySeat} onAction={dispatch} t={t} locale={locale} />
@@ -85,13 +85,12 @@ export default function HitStayRoomView({ code }: { code: string }) {
   );
 }
 
-function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart, onFillAi, onChips }: {
+function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart, onFillAi }: {
   state: HitStayRoom; code: string; me: { id: string; name: string; isHost: boolean } | null; mySeat: number | null; online: Set<string>; humans: number;
   t: ReturnType<typeof hsCopy>; en: boolean; copied: boolean; onCopy: () => void; onShare: () => void;
-  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void; onFillAi: (on: boolean) => void; onChips: (n: number) => void;
+  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void; onFillAi: (on: boolean) => void;
 }) {
   const fill = state.fillAi !== false;
-  const chips = hsStartChips(state);
   const canStart = fill || humans >= 2;
   return (
     <main className="relative z-10 mx-auto grid w-full max-w-[1050px] gap-4 px-3 py-4 sm:px-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-8">
@@ -126,18 +125,6 @@ function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy,
             </div>
           </div>
           <p className="mt-1.5 break-keep text-[11px] leading-4 text-white/45">{fill ? t.fillAiDescOn : t.fillAiDescOff}</p>
-        </div>
-        <div className={`mt-2 p-3 ${WELL}`}>
-          <div className="flex items-center justify-between gap-3">
-            <p className="flex items-center gap-1.5 text-[12px] font-black"><Coins size={14} className="text-(--accent)" />{t.chipsTitle}</p>
-            <div className="grid shrink-0 grid-cols-3 gap-1" role="radiogroup" aria-label={t.chipsTitle}>
-              {HS_ROOM_CHIPS.map((n) => (
-                <button key={n} type="button" role="radio" aria-checked={chips === n} disabled={!me?.isHost} onClick={() => onChips(n)}
-                  className={`rounded-md px-3 py-1.5 font-mono text-[11px] font-black transition disabled:cursor-default ${chips === n ? 'bg-(--accent) text-black' : 'border border-white/10 text-white/55 enabled:hover:bg-white/10'}`}>{t.chipsUnit(n)}</button>
-              ))}
-            </div>
-          </div>
-          <p className="mt-1.5 break-keep text-[11px] leading-4 text-white/45">{t.chipsDesc}</p>
         </div>
         {me?.isHost
           ? <button type="button" onClick={onStart} disabled={!canStart} className={`mt-3 w-full py-3.5 text-sm ${BTN_ACCENT} disabled:opacity-40`}>{!canStart ? t.needTwo : fill ? (humans < HS_PLAYERS ? t.startWithAi(HS_PLAYERS - humans) : t.start) : t.startPeople(humans)}</button>
