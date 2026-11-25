@@ -15,7 +15,7 @@ const STRATEGY: Partial<Record<GameId, '/slitherlink/guide' | '/masyu/guide' | '
 /** Games with a solve replay: a "플레이 영상으로 배우기" button sits beside the guide button. */
 const REPLAY: Partial<Record<GameId, ReplayGame>> = { magicswap: 'magicswap', slitherlink: 'slitherlink', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram' };
 
-/** Top of a game's entry screen: name, tagline, key facts, ranking and update notes, then the core rules. */
+/** Top of a game's entry screen: name, tagline, ranking, key facts and update notes, then the core rules. */
 export default async function GameIntroHero({ locale, id, tone = 'dark', Title = 'h2' }: {
   locale: string; id: GameId; tone?: 'dark' | 'light';
   /** 'h1' on a page with no guide below the board (the guide normally carries the page's h1). */
@@ -51,8 +51,11 @@ export default async function GameIntroHero({ locale, id, tone = 'dark', Title =
       </div>
       <p className={`mt-3.5 max-w-2xl break-keep text-[15px] leading-[1.75] sm:text-[17px] ${dark ? 'text-white/70' : 'text-black/65'}`}>{t(`${key}.tagline`)}</p>
 
+      {/* Who is on top: first thing under the title. */}
+      {hasRankCard(id) && <div className="mt-5"><GameRankCard game={id} tone={tone} /></div>}
+
       {/* Key facts: one card, a row each when the column is narrow and three columns from 560px (container width). */}
-      <dl className={`mt-5 grid grid-cols-1 divide-y overflow-hidden rounded-2xl border backdrop-blur @min-[560px]:grid-cols-3 @min-[560px]:divide-x @min-[560px]:divide-y-0 ${card} ${line}`}>
+      <dl className={`mt-3 grid grid-cols-1 divide-y overflow-hidden rounded-2xl border backdrop-blur @min-[560px]:grid-cols-3 @min-[560px]:divide-x @min-[560px]:divide-y-0 ${card} ${line}`}>
         {facts.map(([Icon, label, value]) => (
           <div key={label} className="flex items-center gap-3 px-4 py-3 @min-[560px]:items-start">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-(--accent)/15 text-(--accent)"><Icon size={16} /></span>
@@ -64,13 +67,8 @@ export default async function GameIntroHero({ locale, id, tone = 'dark', Title =
         ))}
       </dl>
 
-      {/* Who is on top, and what changed lately (the badge opens the full history; src/lib/gameUpdates.ts). */}
-      {(hasRankCard(id) || hasGameUpdates(id)) && (
-        <div className={`mt-3 grid gap-3 ${hasRankCard(id) && hasGameUpdates(id) ? '@min-[560px]:grid-cols-2' : ''}`}>
-          <GameRankCard game={id} tone={tone} />
-          <GameUpdatesSection game={id} tone={tone} />
-        </div>
-      )}
+      {/* What changed lately (the badge opens the full history; src/lib/gameUpdates.ts). */}
+      {hasGameUpdates(id) && <div className="mt-3"><GameUpdatesSection game={id} tone={tone} /></div>}
 
       <div className={`mt-3 rounded-2xl border p-4 backdrop-blur sm:p-5 ${card}`}>
         <h3 className="flex items-center gap-2 text-[15px] font-black"><span className="h-3.5 w-1 rounded-full bg-(--accent)" />{t('rules')}</h3>

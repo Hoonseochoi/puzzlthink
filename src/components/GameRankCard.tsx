@@ -9,6 +9,7 @@ import { STATS_ID } from '@/lib/openRooms';
 import { type GameRanking, fetchGameRanking, hasRankCard, rankSlug } from '@/lib/rankings';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
+import StoneAvatar from './StoneAvatar';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 type Row = { name: string; stat: string };
@@ -28,8 +29,8 @@ function topThree(r: GameRanking, en: boolean): { kind: string; rows: Row[] } {
 }
 
 /**
- * Ranking on a game's entry screen (GameGate): the top three, the signed-in player's own place, and a link to the
- * full ranking page. Nothing for a game without a ranking.
+ * Ranking at the top of a game's entry screen (GameIntroHero): the top three with their profile icons and wins (or
+ * score), the signed-in player's own place, and a link to the full ranking page. Nothing for a game without a ranking.
  */
 export default function GameRankCard({ game, tone = 'dark' }: { game: CatalogId; tone?: 'dark' | 'light' }) {
   const en = useLocale() === 'en';
@@ -64,13 +65,14 @@ export default function GameRankCard({ game, tone = 'dark' }: { game: CatalogId;
         <h3 className="flex items-center gap-2 text-[15px] font-black"><Trophy size={16} className="text-(--accent)" />{en ? 'Ranking' : '랭킹'}{top && <span className={`text-[11px] font-bold ${soft}`}>{top.kind}</span>}</h3>
         <Link href={`/ranking/${rankSlug(id)}`} className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-(--accent)/40 bg-(--accent)/10 py-1 pl-2.5 pr-1.5 text-[11px] font-black text-(--accent) transition hover:bg-(--accent)/20">{en ? 'Full ranking' : '전체 보기'}<ChevronRight size={13} /></Link>
       </div>
-      <ol className="mt-3 flex-1 space-y-1.5">
+      {/* A row each when the card is narrow, a three-across podium from 560px of the hero's width. */}
+      <ol className="mt-3 grid flex-1 gap-1.5 @min-[560px]:grid-cols-3">
         {[0, 1, 2].map((i) => {
           const row = top?.rows[i];
           return (
-            <li key={i} className={`flex h-10 items-center gap-2.5 rounded-xl px-3 ${row ? (dark ? 'bg-white/[0.05]' : 'bg-white') : `border border-dashed ${dark ? 'border-white/10' : 'border-black/10'}`}`}>
+            <li key={i} className={`flex h-11 min-w-0 items-center gap-2 rounded-xl px-3 ${row ? (dark ? 'bg-white/[0.05]' : 'bg-white') : `border border-dashed ${dark ? 'border-white/10' : 'border-black/10'}`}`}>
               <span className="w-5 text-center text-[15px] leading-none">{MEDALS[i]}</span>
-              {row ? <><span className="min-w-0 flex-1 truncate text-[13px] font-extrabold">{row.name}</span><span className={`shrink-0 font-mono text-[11px] font-black ${i === 0 ? 'text-(--accent)' : soft}`}>{row.stat}</span></>
+              {row ? <><span className="shrink-0"><StoneAvatar name={row.name} size={24} /></span><span className="min-w-0 flex-1 truncate text-[13px] font-extrabold">{row.name}</span><span className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[11px] font-black ${i === 0 ? 'bg-(--accent)/15 text-(--accent)' : dark ? 'bg-white/[0.06] text-white/60' : 'bg-black/[0.05] text-black/55'}`}>{row.stat}</span></>
                 : <span className={`text-[11px] font-bold ${soft}`}>{!top ? '…' : i === 0 ? (en ? 'No one yet. Be the first!' : '아직 없어요. 첫 1위에 도전!') : (en ? 'Open' : '빈자리')}</span>}
             </li>
           );
