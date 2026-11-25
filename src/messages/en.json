@@ -47,6 +47,7 @@
     "hallCongratsView": "See the Hall of Fame",
     "hallCongratsClose": "Close",
     "gamesIntro": "About games",
+    "iconCollection": "Icon collection",
     "gameList": "All games",
     "footerGames": "All games",
     "logicHub": "Logic puzzles",
@@ -5120,6 +5121,7 @@
   "Ranking": {
     "hellChallenge": "Take on Very Hard",
     "scoresTitle": "Challenge-run score ranking",
+    "scoresDescSolo": "Best score of one solo challenge run. The #1 holds this game's #1 icon.",
     "scoresDesc": "Best score of one board played until no move was left.",
     "emptyScores": "No scores yet. Finish one challenge run and you're first!",
     "points": "{n} pts",
@@ -5735,6 +5737,28 @@
       }
     ],
     "disclaimer": "Nine Men's Morris is a traditional board game. PUZZLTHINK rebuilt it for the web after the show's rules; it is not affiliated with the broadcaster or producers."
+  },
+  "IconCollection": {
+    "metaTitle": "Icon collection — PUZZLTHINK profile icons",
+    "metaDescription": "Piece Race and Black Piece champions, reaching 2048, and every game's #1 icon: all profile icons by theme, with how to get each.",
+    "title": "Icon collection",
+    "intro": "Your profile icon shows on rankings, the lounge and Records. A new icon is switched on as soon as you earn it, and you can change it in Records any time.",
+    "pick": "Pick my icon",
+    "ownedCount": "{n} owned",
+    "owned": "Owned",
+    "place": "#{n}",
+    "colorsTitle": "Colours",
+    "colorsRule": "Everyone · pick in Records",
+    "pieceTitle": "Piece Race champions",
+    "pieceRule": "Weekly Piece Race top 3 · kept for good",
+    "pieceWeek": "Week {n}",
+    "hellTitle": "Black Piece hell mode",
+    "hellRule": "Black Piece 7-day week top 3 · given every week · kept for good",
+    "m2048Title": "2048",
+    "m2048Rule": "Make a 2048 block in 2048 · kept for good",
+    "crownTitle": "Game #1",
+    "crownRule": "Each game's ranking #1 · moves to the new #1 when you lose it",
+    "noHolder": "No holder"
   },
   "Icons": {
     "pieceLabel": "Piece week {week} #{place} · {name}",

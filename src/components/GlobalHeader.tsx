@@ -13,10 +13,10 @@ import { HeaderSupportButton } from './SupportLink';
 import { TopBannerSlot } from './ads/HiddenLogAd';
 
 const HIDE_ON = ['/card-janggi', '/point-omok', '/2048', '/magic-square', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker', '/masyu', '/nonogram', '/star-battle', '/binairo', '/one-stroke', '/color-link'];
-const NAV_LINK = 'rounded-full px-4 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black';
+const NAV_LINK = 'whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-bold text-black/55 transition hover:bg-white/70 hover:text-black';
 const MOBILE_LINK = 'rounded-xl px-4 py-3 text-sm font-extrabold hover:bg-white';
 /** '매우 어려움 하러가기' (AI 헬모드), shown once a hell AI is live. */
-const HELL_LINK = 'flex items-center gap-1.5 rounded-full bg-[#07060a] px-3.5 py-2 text-xs font-black text-[#ff3355] shadow-[0_0_12px_rgba(255,51,85,.35)] ring-1 ring-[#ff3355]/50 transition hover:shadow-[0_0_20px_rgba(255,51,85,.6)]';
+const HELL_LINK = 'flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#07060a] px-3.5 py-2 text-xs font-black text-[#ff3355] shadow-[0_0_12px_rgba(255,51,85,.35)] ring-1 ring-[#ff3355]/50 transition hover:shadow-[0_0_20px_rgba(255,51,85,.6)]';
 
 export default function GlobalHeader() {
   const pathname = usePathname();
@@ -28,7 +28,8 @@ export default function GlobalHeader() {
   const links = [
     { href: '/game-list', label: t('gameList') },
     { href: '/records', label: t('records') },
-    { href: '/games', label: t('gamesIntro') },
+    { href: '/icons', label: t('iconCollection') },
+    { href: '/games', label: t('gamesIntro'), wide: true },
   ] as const;
   const closeMenu = () => setOpen(false);
 
@@ -41,10 +42,11 @@ export default function GlobalHeader() {
           <span className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</span>
         </Link>
 
+        {/* No 게임 dropdown here: 바로 플레이 on the right already lists every game. */}
         <nav className="hidden items-center gap-1 md:flex">
-          <GamesMenu variant="nav" />
           {HELL_LIVE.length > 0 && <Link href="/hell" className={HELL_LINK}><Skull size={13} />{t('hellMode')}</Link>}
-          {links.map((item) => <Link key={item.href} href={item.href} className={NAV_LINK}>{item.label}</Link>)}
+          {/* 게임소개 only once there is room (it stays in the phone menu and the footer). */}
+          {links.map((item) => <Link key={item.href} href={item.href} className={`${NAV_LINK} ${'wide' in item ? 'hidden xl:block' : ''}`}>{item.label}</Link>)}
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
