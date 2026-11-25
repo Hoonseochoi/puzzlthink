@@ -11,7 +11,7 @@ const BASE_URL = 'https://www.puzzlthink.com';
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Home' });
-  return pageMetadata({ locale, path: '', title: t('metaTitle'), description: t('metaDescription'), keywords: t.raw('keywords') as string[] });
+  return pageMetadata({ locale, path: '', title: t('metaTitle', { count: GAMES.length }), description: t('metaDescription', { count: GAMES.length }), keywords: t.raw('keywords') as string[] });
 }
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
@@ -22,7 +22,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
-        { '@type': 'WebSite', name: 'PUZZLTHINK', url: `${BASE_URL}/${locale}`, description: t('metaDescription'), inLanguage: locale, publisher: { '@type': 'Organization', name: 'PUZZLTHINK', url: BASE_URL, logo: `${BASE_URL}/logo.png`, email: 'contact@puzzlthink.com' } },
+        { '@type': 'WebSite', name: 'PUZZLTHINK', url: `${BASE_URL}/${locale}`, description: t('metaDescription', { count: GAMES.length }), inLanguage: locale, publisher: { '@type': 'Organization', name: 'PUZZLTHINK', url: BASE_URL, logo: `${BASE_URL}/logo.png`, email: 'contact@puzzlthink.com' } },
         { '@type': 'ItemList', name: t('seoTitle'), itemListElement: GAMES.map((game, i) => ({ '@type': 'ListItem', position: i + 1, url: `${BASE_URL}/${locale}${game.href}`, name: tc(game.id) })) },
       ] }} />
       <HomeClient />

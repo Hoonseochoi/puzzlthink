@@ -203,7 +203,7 @@ function MyRank({ rank, name }: { rank?: number; name: string }) {
   );
 }
 
-export default function HomeApp({ Preview, openMatch }: { Preview: ComponentType<{ id: GameId }>; openMatch: ReactNode }) {
+export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Preview: ComponentType<{ id: GameId }>; openMatch: ReactNode; /** 'p' while the desktop layout (with its own h1) is in the same HTML */ Heading?: 'h1' | 'p' }) {
   const t = useTranslations('Home');
   const th = useTranslations('HomeApp');
   const tc = useTranslations('Common');
@@ -240,7 +240,7 @@ export default function HomeApp({ Preview, openMatch }: { Preview: ComponentType
 
   return (
     <div className="bg-[#f3f0e8] pb-10 text-[#17201e]">
-      <h1 className="sr-only">{t('title1')} {t('title2')}</h1>
+      <Heading className="sr-only">{t('title1')} {t('title2')}</Heading>
       <p className="sr-only">{t('description1')} {t('description2')}</p>
       <style>{`@keyframes home-feed { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } } .home-feed { animation: home-feed .38s cubic-bezier(.2,.8,.2,1); } @keyframes home-sweep { 0%, 55% { transform: translateX(0) skewX(-12deg); } 100% { transform: translateX(620%) skewX(-12deg); } } .home-sweep { animation: home-sweep 4.5s ease-in-out infinite; } @keyframes home-float { 0%, 100% { transform: rotate(4deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-5px); } } .home-float { animation: home-float 4s ease-in-out infinite; } @media (prefers-reduced-motion: reduce) { .home-feed, .home-sweep, .home-float { animation: none; } }`}</style>
 

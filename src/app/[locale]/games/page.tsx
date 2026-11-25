@@ -11,7 +11,7 @@ const BASE_URL = 'https://www.puzzlthink.com';
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Games' });
-  return pageMetadata({ locale, path: '/games', title: t('metaTitle'), description: t('metaDescription'), keywords: t.raw('keywords') as string[] });
+  return pageMetadata({ locale, path: '/games', title: t('metaTitle'), description: t('metaDescription', { count: GAMES.length }), keywords: t.raw('keywords') as string[] });
 }
 
 function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {

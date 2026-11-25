@@ -32,7 +32,7 @@ export default async function ColorLinkDuelPage({ params }: { params: Promise<{ 
   const m = meta(korean);
   const hero = (
     <div className="grid items-center gap-8 md:grid-cols-[1fr_260px]">
-      <GameIntroHero locale={locale} id="colorLinkDuel" />
+      <GameIntroHero locale={locale} id="colorLinkDuel" Title="h1" />
       <div className="mx-auto w-[230px] rounded-[20px] border border-white/10 bg-[radial-gradient(ellipse_at_50%_30%,rgba(124,108,255,.35),rgba(18,18,23,.95)_70%)] p-4 md:w-full"><CldPreview /></div>
     </div>
   );

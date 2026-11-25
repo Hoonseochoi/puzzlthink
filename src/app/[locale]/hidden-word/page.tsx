@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       ? '내 단어는 숨기고, 힌트의 유사도 숫자로 상대의 히든 워드를 맞히세요. 데블스 플랜의 히든 워드를 AI와 1:1 승점전으로. 95% 힌트를 내면서 들키지 않는 단어 심리전, 승점 랭킹.'
       : "Hide your word and find the opponent's from the similarity of each hint. The Hidden Word game from The Devil's Plan as a one-on-one point match against an AI, with a points ranking. Korean words.",
     keywords: korean
-      ? ['히든 워드', '히든워드', '히든 워드 게임', '데블스 플랜 히든 워드', '유사도 게임', '단어 유사도', '단어 추리 게임', '데블스 플랜 게임', '꼬맨틀', '단어 게임']
+      ? ['히든 워드', '히든워드', '히든 워드 게임', '히든워드 게임', '데블스 플랜 히든 워드', '데블스플랜 히든워드', '히든 워드 유사도', '유사도 단어 맞히기', '단어 유사도 게임', '유사도 게임', '단어 유사도', '단어 추리 게임', '데블스 플랜 게임', '꼬맨틀', '단어 게임']
       : ['Hidden Word', 'Hidden Word game', "The Devil's Plan", 'word similarity game', 'Korean word game'],
   });
 }
