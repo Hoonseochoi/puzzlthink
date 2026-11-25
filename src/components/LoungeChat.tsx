@@ -56,7 +56,7 @@ export default function LoungeChat() {
   const live = useRef({ open: false, me: null as string | null, muted: [] as string[] });
   useEffect(() => { live.current = { open, me, muted: prefs.muted }; });
 
-  // Join while visible and on; history (last 50) is reloaded on every join so nothing is missed.
+  // Join while visible and on; history (last 50 within 24 hours) is reloaded on every join so nothing is missed.
   useEffect(() => {
     const supabase = getSupabase();
     if (!supabase || off || !visible || playing) return; // no Realtime join during a room match
