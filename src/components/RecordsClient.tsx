@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Award, Bot, Clock3, Crown, DoorOpen, Flame, Gamepad2, Medal, Skull, Swords, Trophy, Vote } from 'lucide-react';
+import { Award, Bot, Clock3, Crown, DoorOpen, Flame, Gamepad2, Medal, Skull, Swords, Trophy } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfFame, fetchMyRecords, isNicknameTaken, saveProfile } from '@/lib/stats';
 import { clearLabel } from '@/lib/hardClear';
@@ -16,7 +16,6 @@ import RankMove from './RankMove';
 import ChallengeRecords from './ChallengeRecords';
 import CompetitionBoard from './CompetitionBoard';
 import BlackPieceBoard from './hell/BlackPieceBoard';
-import PollBoard from './PollBoard';
 import { hellLabel } from '@/lib/hell';
 import { byGameOrder } from './recordOrder';
 
@@ -73,16 +72,16 @@ export default function RecordsClient() {
   const [showInHall, setShowInHall] = useState(true);
   const [saved, setSaved] = useState(false);
   const [nameTaken, setNameTaken] = useState(false);
-  const [recordView, setRecordView] = useState<'ai' | 'open' | 'challenge' | 'competition' | 'black-piece' | 'survey'>('ai');
+  const [recordView, setRecordView] = useState<'ai' | 'open' | 'challenge' | 'competition' | 'black-piece'>('ai');
   const [certs, setCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
   const [hellCerts, setHellCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
   const locale = useLocale();
 
-  // Links can open a tab directly (#competition = 피스 경쟁전, #black-piece = 블랙피스 경쟁전, #survey = 설문하기).
+  // Links can open a tab directly (#competition = 피스 경쟁전, #black-piece = 블랙피스 경쟁전).
   useEffect(() => {
     const tab = window.location.hash.slice(1);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the hash is only readable in the browser
-    if (tab === 'competition' || tab === 'black-piece' || tab === 'open' || tab === 'challenge' || tab === 'survey') setRecordView(tab);
+    if (tab === 'competition' || tab === 'black-piece' || tab === 'open' || tab === 'challenge') setRecordView(tab);
   }, []);
   useEffect(() => { fetchHallOfFame().then(({ entries, error }) => { setHall(entries); if (error) setLoadError(error); }); }, []);
   useEffect(() => {
@@ -228,13 +227,12 @@ export default function RecordsClient() {
 
         <span id="black-piece" className="block scroll-mt-24" aria-hidden />
         <div id="competition" className="mt-10 scroll-mt-24 rounded-[22px] border border-black/10 bg-[#e9e5dc] p-1.5" role="tablist" aria-label={t('recordTabsLabel')}>
-          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-5">
             <button type="button" role="tab" aria-selected={recordView === 'ai'} onClick={() => setRecordView('ai')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'ai' ? 'bg-[#17201e] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><Bot size={16} />{t('aiTab')}</button>
             <button type="button" role="tab" aria-selected={recordView === 'open'} onClick={() => setRecordView('open')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'open' ? 'bg-[#ff4d5e] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><DoorOpen size={16} />{t('openTab')}</button>
             <button type="button" role="tab" aria-selected={recordView === 'challenge'} onClick={() => setRecordView('challenge')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'challenge' ? 'bg-[#8f7cff] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><Flame size={16} />{t('challengeTab')}</button>
             <button type="button" role="tab" aria-selected={recordView === 'competition'} onClick={() => setRecordView('competition')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'competition' ? 'bg-[#e8a33c] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><Swords size={16} />{t('competitionTab')}</button>
-            <button type="button" role="tab" aria-selected={recordView === 'black-piece'} onClick={() => setRecordView('black-piece')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'black-piece' ? 'bg-[#07060a] text-[#ff3355] shadow-[0_0_16px_rgba(255,51,85,.45)] ring-1 ring-[#ff3355]/60' : 'text-black/50 hover:bg-white/60'}`}><Skull size={16} />{t('blackPieceTab')}</button>
-            <button type="button" role="tab" aria-selected={recordView === 'survey'} onClick={() => setRecordView('survey')} className={`flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition ${recordView === 'survey' ? 'bg-[#18a999] text-white shadow-sm' : 'text-black/50 hover:bg-white/60'}`}><Vote size={16} />{t('surveyTab')}</button>
+            <button type="button" role="tab" aria-selected={recordView === 'black-piece'} onClick={() => setRecordView('black-piece')} className={`col-span-2 flex items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition sm:col-span-1 ${recordView === 'black-piece' ? 'bg-[#07060a] text-[#ff3355] shadow-[0_0_16px_rgba(255,51,85,.45)] ring-1 ring-[#ff3355]/60' : 'text-black/50 hover:bg-white/60'}`}><Skull size={16} />{t('blackPieceTab')}</button>
           </div>
         </div>
 
@@ -275,8 +273,6 @@ export default function RecordsClient() {
           <CompetitionBoard />
         ) : recordView === 'black-piece' ? (
           <BlackPieceBoard />
-        ) : recordView === 'survey' ? (
-          <PollBoard />
         ) : recordView === 'challenge' ? (
           <ChallengeRecords results={results} signedIn={!!user} />
         ) : (
