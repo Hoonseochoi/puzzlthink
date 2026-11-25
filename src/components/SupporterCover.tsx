@@ -48,24 +48,25 @@ export function useSupporter(name: string, skip = false) {
   return !skip && on;
 }
 
-/** Golden laurel leaves up both sides from the heart: [x, y, rotation] on a circle just outside the band. */
-const LEAVES: [number, number, number][] = [115, 135, 155, 175, 195].flatMap((deg, i) => {
-  const out: [number, number, number][] = [];
-  for (const side of [1, -1]) {
-    const a = ((side === 1 ? deg : 180 - deg) * Math.PI) / 180;
-    const r = 51.5 - i * 0.4;
-    const x = +(50 + r * Math.cos(a)).toFixed(2), y = +(50 + r * Math.sin(a)).toFixed(2);
-    out.push([x, y, Math.round((side === 1 ? deg : 180 - deg) + 90 + side * 35)]);
-  }
-  return out;
-});
-
 /** The share of the box the icon keeps inside the cover. */
-export const COVER_INNER = 0.76;
+export const COVER_INNER = 0.64;
+
+/** One wing (the left one): a curved base and five feathers fanning out and up. */
+function Wing({ id }: { id: string }) {
+  return (
+    <g>
+      {[[-62, 12, 3.1, 6.5, 29], [-44, 13, 3.3, 3.5, 37], [-26, 13.5, 3.4, 1.5, 45.5], [-8, 12.5, 3.2, 1.8, 54], [12, 10, 2.9, 4.5, 61.5]].map(([rot, rx, ry, cx, cy], i) => (
+        <ellipse key={i} cx={cx} cy={cy} rx={rx} ry={ry} transform={`rotate(${rot} ${cx} ${cy})`} fill={`url(#cw-${id})`} stroke="#b97a12" strokeOpacity=".9" strokeWidth=".8" />
+      ))}
+      <path d="M14.5 31 C7 41 7 57 14.5 66 C12 56 12 42 14.5 31 Z" fill={`url(#cw-${id})`} stroke="#b97a12" strokeWidth=".8" />
+    </g>
+  );
+}
 
 /**
- * The ring itself, drawn over a box of `size`: a slowly turning coral-gold-pink band, a fine inner line,
- * a heart at the bottom and (from 36px up) a few sparkles.
+ * The cover, drawn over a box of `size` (the icon sits inside at COVER_INNER): a holographic band with a light
+ * sweeping round it, a turning ring of gold dots, white-gold wings, a star on top and a ruby heart on a ribbon.
+ * Under 36px only the band and the heart are drawn, without motion.
  */
 export function CoverRing({ size }: { size: number }) {
   const id = useId().replace(/:/g, '');
@@ -74,35 +75,52 @@ export function CoverRing({ size }: { size: number }) {
     <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden className="pointer-events-none absolute inset-0 overflow-visible">
       <defs>
         <linearGradient id={`cv-${id}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ff6b4a" />
-          <stop offset="35%" stopColor="#ffd36e" />
-          <stop offset="65%" stopColor="#ff6bc4" />
-          <stop offset="100%" stopColor="#a98bff" />
+          <stop offset="0%" stopColor="#ff6bc4" />
+          <stop offset="30%" stopColor="#a98bff" />
+          <stop offset="55%" stopColor="#7cf3ff" />
+          <stop offset="80%" stopColor="#ffd36e" />
+          <stop offset="100%" stopColor="#ff6b4a" />
         </linearGradient>
-        <linearGradient id={`cl-${id}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#fff3b8" />
-          <stop offset="100%" stopColor="#e8a33c" />
+        <linearGradient id={`cw-${id}`} x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fffbe6" />
+          <stop offset="45%" stopColor="#ffcf4a" />
+          <stop offset="100%" stopColor="#ff7ab8" />
         </linearGradient>
         <linearGradient id={`ch-${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#ff8a73" />
-          <stop offset="100%" stopColor="#e8365f" />
+          <stop offset="0%" stopColor="#ff7a8a" />
+          <stop offset="100%" stopColor="#c8103e" />
         </linearGradient>
+        <linearGradient id={`cr-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#ffe08a" />
+          <stop offset="100%" stopColor="#d9901c" />
+        </linearGradient>
+        <filter id={`cg-${id}`} x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.6" /></filter>
       </defs>
-      <circle cx="50" cy="50" r="47" fill="none" stroke="#ff6b4a" strokeOpacity=".18" strokeWidth="7" />
-      <g>
-        <circle cx="50" cy="50" r="46" fill="none" stroke={`url(#cv-${id})`} strokeWidth="4.5" strokeLinecap="round" strokeDasharray="62 10 40 10" />
-        {big && <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="14s" repeatCount="indefinite" />}
-      </g>
-      <circle cx="50" cy="50" r="41.5" fill="none" stroke="#ffffff" strokeOpacity=".75" strokeWidth="1" />
-      {big && LEAVES.map(([x, y, rot], i) => (
-        <ellipse key={i} cx={x} cy={y} rx="5" ry="2.1" transform={`rotate(${rot} ${x} ${y})`} fill={`url(#cl-${id})`} stroke="#9c6c0a" strokeWidth=".5" />
-      ))}
-      {big && <>
-        <path d="M13 17 l1.8 4.4 4.4 1.8 -4.4 1.8 -1.8 4.4 -1.8 -4.4 -4.4 -1.8 4.4 -1.8z" fill="#ffd36e" stroke="#ffffff" strokeWidth=".8" />
-        <path d="M88 22 l1.3 3.2 3.2 1.3 -3.2 1.3 -1.3 3.2 -1.3 -3.2 -3.2 -1.3 3.2 -1.3z" fill="#ffffff" />
-        <path d="M90 70 l1 2.5 2.5 1 -2.5 1 -1 2.5 -1 -2.5 -2.5 -1 2.5 -1z" fill="#ffb3dc" />
-      </>}
-      <path d="M50 99 C39 91 38 82.5 44 81.5 C47 81 49 83 50 85 C51 83 53 81 56 81.5 C62 82.5 61 91 50 99 Z" fill={`url(#ch-${id})`} stroke="#ffffff" strokeWidth="2" strokeLinejoin="round" />
+
+      {big && <circle cx="50" cy="50" r="42" fill="none" stroke={`url(#cv-${id})`} strokeWidth="9" opacity=".55" filter={`url(#cg-${id})`} />}
+      {big && <><Wing id={id} /><g transform="matrix(-1 0 0 1 100 0)"><Wing id={id} /></g></>}
+
+      <circle cx="50" cy="50" r="44.6" fill="none" stroke="#d9a53a" strokeWidth=".9" strokeOpacity=".9" />
+      <circle cx="50" cy="50" r="40.5" fill="none" stroke={`url(#cv-${id})`} strokeWidth="6.5" />
+      <circle cx="50" cy="50" r="36.8" fill="none" stroke="#ffffff" strokeWidth="1.1" strokeOpacity=".9" />
+      {big && (
+        <>
+          <g>
+            <circle cx="50" cy="50" r="40.5" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeDasharray="14 240" opacity=".85" />
+            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="3.6s" repeatCount="indefinite" />
+          </g>
+          <g>
+            <circle cx="50" cy="50" r="47.6" fill="none" stroke="#ffd36e" strokeWidth="1.6" strokeLinecap="round" strokeDasharray="0.1 6.1" />
+            <animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="40s" repeatCount="indefinite" />
+          </g>
+          <path d="M50 -1 l2.4 5.8 5.8 2.4 -5.8 2.4 -2.4 5.8 -2.4 -5.8 -5.8 -2.4 5.8 -2.4z" fill="#fff6cf" stroke="#d9901c" strokeWidth=".8">
+            <animate attributeName="opacity" values="1;.55;1" dur="2.4s" repeatCount="indefinite" />
+          </path>
+          <path d="M33 87 L67 87 L72 92.5 L64.5 92.5 L62 95.5 L38 95.5 L35.5 92.5 L28 92.5 Z" fill={`url(#cr-${id})`} stroke="#9c6c0a" strokeWidth=".7" strokeLinejoin="round" />
+        </>
+      )}
+      <path d="M50 100 C38.5 92 37.5 82.5 43.8 81.4 C47 80.9 49 83 50 85.2 C51 83 53 80.9 56.2 81.4 C62.5 82.5 61.5 92 50 100 Z" fill={`url(#ch-${id})`} stroke="#ffffff" strokeWidth="1.8" strokeLinejoin="round" />
+      {big && <path d="M44 84.5 C42.5 85.5 42.6 87.8 44.2 89.6" fill="none" stroke="#ffffff" strokeOpacity=".8" strokeWidth="1.4" strokeLinecap="round" />}
     </svg>
   );
 }
