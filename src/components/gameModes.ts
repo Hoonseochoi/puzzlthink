@@ -38,6 +38,8 @@ import { prepareHitStayRoom, useHitStayRoom } from '@/hooks/useHitStayRoom';
 import { prepareCardJanggiRoom, useCardJanggiRoom } from '@/hooks/useCardJanggiRoom';
 import { prepareGradationRoom, useGradationRoom } from '@/hooks/useGradationRoom';
 import { prepareColorLinkDuelRoom, useColorLinkDuelRoom } from '@/hooks/useColorLinkDuelRoom';
+import { prepareEquationSignalRoom, useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
+import { prepareEquationTowerRoom, useEquationTowerRoom } from '@/hooks/useEquationTowerRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
 export type PlayOption = { label: string; query?: string };
@@ -62,6 +64,16 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
   pointOmok: {
     path: '/point-omok', ai: [{ label: 'poNormal', query: 'difficulty=normal' }, { label: 'poHard', query: 'difficulty=hard' }],
     rooms: [{ label: 'roomTwo', create: preparePointOmokRoom }], useRoom: usePointOmokRoom,
+  },
+  equationSignal: {
+    path: '/equation-signal', solo: true,
+    ai: [{ label: 'eqsChallenge', query: 'mode=challenge' }, { label: 'eqsPractice', query: 'mode=practice' }],
+    rooms: [{ label: 'eqRoom', create: prepareEquationSignalRoom, openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useEquationSignalRoom,
+  },
+  equationTower: {
+    path: '/equation-tower', solo: true,
+    ai: [{ label: 'eqtChallenge', query: 'mode=challenge' }, { label: 'eqtPractice', query: 'mode=practice' }],
+    rooms: [{ label: 'eqRoom', create: prepareEquationTowerRoom, openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useEquationTowerRoom,
   },
   gradation: { path: '/gradation', ai: [{ label: 'grAi' }], rooms: [{ label: 'roomTwo', create: prepareGradationRoom }], useRoom: useGradationRoom },
   cardJanggi: { path: '/card-janggi', ai: [{ label: 'cjAi' }], rooms: [{ label: 'roomTwo', create: prepareCardJanggiRoom }], useRoom: useCardJanggiRoom },

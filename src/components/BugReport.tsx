@@ -34,6 +34,8 @@ const GAMES: { path: string; id: string; label: string }[] = [
   { path: '/2048', id: 'merge2048', label: 'merge2048' },
   { path: '/point-omok', id: 'point_omok', label: 'pointOmok' },
   { path: '/gradation', id: 'gradation', label: 'gradation' },
+  { path: '/equation-signal', id: 'equation_signal', label: 'equationSignal' },
+  { path: '/equation-tower', id: 'equation_tower', label: 'equationTower' },
   { path: '/card-janggi', id: 'card_janggi', label: 'cardJanggi' },
   { path: '/hit-stay', id: 'hit_stay', label: 'hitStay' },
   { path: '/color-link-duel', id: 'color_link_duel', label: 'colorLinkDuel' },
