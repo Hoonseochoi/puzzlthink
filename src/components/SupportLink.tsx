@@ -49,10 +49,18 @@ export function HeaderSupportButton({ full = false }: { full?: boolean }) {
   const t = useTranslations('Common');
   return (
     <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackSupportClick('header')}
-      className={`group flex shrink-0 flex-col items-center whitespace-nowrap ${full ? 'w-full' : ''}`}>
-      <span className={`flex items-center justify-center gap-1.5 rounded-full bg-[#ff6b4a] font-extrabold text-white transition group-hover:bg-[#ff5530] ${full ? 'w-full rounded-xl px-4 py-3 text-sm' : 'px-3 py-1 text-xs'}`}><Heart size={full ? 15 : 13} fill="currentColor" />{t('supportShort')}</span>
-      {/* the amount, small, under the header button */}
-      {!full && <span className="mt-0.5 text-[9px] font-black leading-none text-[#e0512f]">{t('supportPrice')}</span>}
+      className={full
+        ? 'flex w-full shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#ff6b4a] px-4 py-3 text-sm font-extrabold text-white transition hover:bg-[#ff5530]'
+        : 'group relative flex h-10 shrink-0 items-center gap-2 overflow-hidden whitespace-nowrap rounded-xl bg-[#0a0a0f] pl-2.5 pr-3 text-white shadow-[0_0_14px_rgba(255,61,129,.45),inset_0_0_10px_rgba(255,61,129,.18)] ring-1 ring-[#ff3d81]/70 transition hover:shadow-[0_0_22px_rgba(255,61,129,.75),inset_0_0_12px_rgba(255,61,129,.3)]'}>
+      {full ? <><Heart size={15} fill="currentColor" />{t('supportShort')}</> : <>
+        {/* one neon tag: the amount small on top, 자율 후원 under it */}
+        <span className="pointer-events-none absolute inset-x-2 top-0 h-px bg-gradient-to-r from-transparent via-[#ff8fb8] to-transparent" />
+        <Heart size={15} fill="currentColor" className="shrink-0 text-[#ff3d81] drop-shadow-[0_0_6px_#ff3d81] transition group-hover:scale-110" />
+        <span className="flex flex-col items-start leading-none">
+          <span className="font-mono text-[9px] font-black tracking-[0.08em] text-[#5cf2ff] [text-shadow:0_0_6px_rgba(92,242,255,.8)]">{t('supportPrice')}</span>
+          <span className="mt-[3px] text-[12px] font-black tracking-[-0.02em] [text-shadow:0_0_8px_rgba(255,61,129,.9)]">{t('supportShort')}</span>
+        </span>
+      </>}
     </a>
   );
 }
