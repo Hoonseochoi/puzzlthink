@@ -59,7 +59,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { key: 'hidden_word', game: 'hidden_word', boards: ['hidden_word'], title: t('chHiddenWord') },
   ];
   const stat = (b: Board, r: Row) => b === 'slither' || b === 'binairo' || b === 'onestroke' || b === 'colorlink' || b === 'magicswap' || b === 'starbattle' || b === 'masyu' || b === 'nonogram' ? t('chMaps', { n: r.score })
-    : b.startsWith('nemo') ? t('chCorrect', { n: r.score }) : t('chScore', { n: r.score });
+    : b.startsWith('nemo') ? t('chCorrect', { n: r.score }) : b === 'hidden_word' ? t('chRankScore', { n: (r.score / 10).toFixed(1) }) : t('chScore', { n: r.score });
   const filled = (c: Card) => c.boards.some((b) => (tops[b]?.length ?? 0) > 0);
   const ordered = byGameOrder(cards, (c) => c.game, filled);
 
@@ -86,7 +86,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
       eqsignal: pick('equation_signal', (d) => d.mode === 'challenge', 'score'),
       eqtower: pick('equation_tower', (d) => d.mode === 'challenge', 'score'),
       merge2048: pick('merge2048', (d) => d.mode === 'endless', 'score'),
-      // 히든 워드 ranks by total 승점: every finished AI match adds its points
+      // 히든 워드 ranks by average 승점 per match + 0.3 per match played (up to 20)
       hiddenWord: solo.filter((r) => r.game === 'hidden_word').reduce((sum, r) => sum + (Number.isFinite(num(r.detail.score)) ? num(r.detail.score) : 0), 0),
       hiddenWordGames: solo.filter((r) => r.game === 'hidden_word').length,
       nemo: Object.fromEntries(['easy', 'normal', 'hard'].map((lv) => [lv, pick('nemo_count', (d) => d.difficulty === lv, 'correct')])) as Record<string, number | null>,
@@ -109,7 +109,7 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
     { game: 'equation_signal' as GameId, title: t('chEqSignal'), line: mine.eqsignal !== null ? t('chScore', { n: mine.eqsignal }) : null },
     { game: 'equation_tower' as GameId, title: t('chEqTower'), line: mine.eqtower !== null ? t('chScore', { n: mine.eqtower }) : null },
     { game: 'merge2048' as GameId, title: t('chMerge2048'), line: mine.merge2048 !== null ? t('chScore', { n: mine.merge2048 }) : null },
-    { game: 'hidden_word' as GameId, title: t('chHiddenWord'), line: mine.hiddenWordGames ? t('chScore', { n: mine.hiddenWord }) : null },
+    { game: 'hidden_word' as GameId, title: t('chHiddenWord'), line: mine.hiddenWordGames ? t('chAvgGames', { n: (mine.hiddenWord / mine.hiddenWordGames + Math.min(mine.hiddenWordGames, 20) * 0.3).toFixed(1), a: (mine.hiddenWord / mine.hiddenWordGames).toFixed(1), g: mine.hiddenWordGames }) : null },
   ], (c) => c.game, (c) => c.line !== null);
 
   return (

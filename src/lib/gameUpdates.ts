@@ -29,9 +29,14 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
       {
+        date: '11/26', icon: Scale,
+        ko: { title: '랭킹 점수가 바뀌었어요: 평균 승점 + 판수 보너스', desc: '승점 합계 대신 한 판 평균 승점에 판당 0.3점(20판까지, 최대 +6)을 더해 순위를 매겨요. 3판을 끝내면 순위에 올라요.' },
+        en: { title: 'New ranking score: average points + a bonus for matches played', desc: 'Instead of the total, ranks use your average points per match plus 0.3 per match (up to 20, max +6). You are ranked from 3 finished matches.' },
+      },
+      {
         date: '11/26', icon: Sparkles,
-        ko: { title: '히든 워드 출시 — AI 모라와 승점전', desc: '유사도 힌트로 서로의 단어를 맞히는 2라운드 승점전이에요. 끝낸 대전의 승점이 랭킹에 쌓이고, 1위는 히든 워드 아이콘을 가져가요.' },
-        en: { title: 'Hidden Word is here — a point match against MORA', desc: 'Two rounds of finding each other\'s word from similarity hints. Points from finished matches add up in the ranking, and #1 holds the Hidden Word icon.' },
+        ko: { title: '히든 워드 출시 — AI 모라와 승점전', desc: '유사도 힌트로 서로의 단어를 맞히는 2라운드 승점전이에요. 끝낸 대전의 평균 승점으로 랭킹을 겨루고, 1위는 히든 워드 아이콘을 가져가요.' },
+        en: { title: 'Hidden Word is here — a point match against MORA', desc: 'Two rounds of finding each other\'s word from similarity hints. Your average points per finished match make the ranking, and #1 holds the Hidden Word icon.' },
       },
     ],
   },
