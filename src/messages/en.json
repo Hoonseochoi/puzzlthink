@@ -7914,6 +7914,94 @@
       "데블스 플랜 3 결승전"
     ]
   },
+  "ColorLinkDuelGuide": {
+    "eyebrow": "COLOR LINK DUEL · GUIDE",
+    "title": "Color Link Duel rules and strategy — The Devil's Plan 3 final, match 2",
+    "intro": "Color Link Duel was the second match of the final in Netflix's The Devil's Plan: Dead Again (season 3). Two players take turns placing colored stones, and the board must always stay joinable: every same-colored pair connected without lines crossing. Leave a board that cannot be joined and you get called out; make a wrong call and you lose instead. On PUZZLTHINK you can play it 1:1 on 13 boards against the AI, a friend or an open room.",
+    "rulesTitle": "Color Link Duel rules",
+    "rules": [
+      "There are 13 boards: the classic 7×7 and 12 shaped boards such as the heart, the donut, four rooms and the stairs. Each is rated Easy, Normal or Hard; pick one or go random.",
+      "There are 14 colors from A to N, two stones each, 28 in all. The players take turns placing them.",
+      "The opener places one stone; after that each turn is two stones of different colors within one minute. Miss the clock and you lose the round.",
+      "If every same-colored pair on the board were joined by a line, no two lines may cross or share a cell, and each line must be at least 6 cells long, stones included.",
+      "A color with only one stone down must still be joinable to a partner placed later.",
+      "Think the board your opponent just made cannot be joined? Call it impossible on your turn. They get 2 minutes to draw every line: prove it and they win, fail and you do.",
+      "You choose to go first or second (in rooms a coin toss picks who chooses). On PUZZLTHINK one round decides the match: the first point wins."
+    ],
+    "specialTitle": "Cases that trip people up",
+    "special": [
+      {
+        "title": "A color with one stone",
+        "body": "A color without its partner yet must still have room for one: some empty cell where the partner could go and be joined with a line of 6 or more. If that stone gets boxed in, the board is impossible."
+      },
+      {
+        "title": "The 6-cell rule",
+        "body": "Line length counts both end stones. Two stones of a color placed close together must loop around to reach 6 cells, so a tight pair can eat a surprising amount of space."
+      },
+      {
+        "title": "A wrong call",
+        "body": "If the called player draws every line within 2 minutes, the proof stands and the caller loses. If they cannot draw it in time, the caller wins, even if the board could in fact be joined."
+      },
+      {
+        "title": "Shaped boards with walls",
+        "body": "Stones and lines cannot use the walls of a shaped board. Boards with narrow corridors and dead ends tangle lines easily, which is why they are rated Hard."
+      }
+    ],
+    "strategyTitle": "Color Link Duel strategy",
+    "strategyIntro": "The game is about never breaking the board yourself while handing your opponent a board they will break. Check that the board still joins after every move, and shrink the room they have for their next two stones.",
+    "strategies": [
+      {
+        "tag": "Basics",
+        "title": "Join it once before you play",
+        "body": "Before placing your two stones, trace every color's line in your head. If your board is already impossible, you lose the moment your opponent calls it."
+      },
+      {
+        "tag": "Space",
+        "title": "Split the big open areas",
+        "body": "Wide open space is where your opponent can play safely. Place stones on the chokepoints lines must pass through and the safe spots run out quickly."
+      },
+      {
+        "tag": "Pressure",
+        "title": "Tie up lone stones",
+        "body": "A color with one stone needs a path left for its partner. Play other colors near that path and your opponent spends their turns keeping it open."
+      },
+      {
+        "tag": "The call",
+        "title": "Call impossible only when sure",
+        "body": "A wrong call loses on the spot. Call it when you see a clear reason: two colors that must share one corridor, or a boxed-in stone that cannot reach 6 cells."
+      },
+      {
+        "tag": "The proof",
+        "title": "When called, draw from the edges",
+        "body": "In the 2-minute proof, start with lines in corners and dead ends. Fixing the lines that have only one route makes the rest fall into place."
+      },
+      {
+        "tag": "Boards",
+        "title": "Learn on the easy boards",
+        "body": "Wide boards like four rooms, the donut, the frame and the pillars leave room to recover from mistakes. Once lines come naturally, try the Hard boards: classic, heart, diamond."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What are the rules of Color Link Duel from The Devil's Plan 3 final?",
+        "a": "Two players take turns placing stones of 14 colors (two each), keeping the board joinable: same colors connected by lines of 6 cells or more that never cross. Think the board cannot be joined? Call it impossible; if your opponent cannot prove otherwise in 2 minutes, you win."
+      },
+      {
+        "q": "How is it different from the solo Color Link puzzle?",
+        "a": "Color Link is a puzzle where you join given dots on your own. Color Link Duel is a two-player game where you take turns placing stones and push each other toward a board that cannot be joined."
+      },
+      {
+        "q": "How do the board difficulties differ?",
+        "a": "Wide open boards (four rooms, donut, frame, pillars) are Easy, boards with corridors (stairs, H, zigzag, arrow) are Normal, and tight boards (classic, heart, diamond, cross, hourglass) are Hard. The AI plays the same; the board sets the difficulty."
+      },
+      {
+        "q": "Can I play with friends?",
+        "a": "Yes. Invite a friend with a link or 4-digit code, or join an open room to play someone 1:1. The host picks the board or leaves it random."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan-made game, not affiliated with The Devil's Plan or Netflix. The show's name is used only to describe the game."
+  },
   "CardJanggiGuide": {
     "eyebrow": "CARD JANGGI · GUIDE",
     "title": "Card Janggi rules and strategy — The Devil's Plan 3 final, match 1",

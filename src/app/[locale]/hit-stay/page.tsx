@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import GameGate from '@/components/GameGate';
+import { HitStayTutorialSteps } from '@/components/hitStay/HitStayTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
 import TextGuide from '@/components/TextGuide';
@@ -42,7 +43,7 @@ export default async function HitStayPage({ params }: { params: Promise<{ locale
         faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: korean ? 'Hit,Stay (힛스테이)' : 'Hit,Stay', path: '/hit-stay' }]),
       ] }} />
-      <GameGate game="hitStay" accent={HS_ACCENT} ink={HS_INK} hero={hero} guide={<TextGuide locale={locale} namespace="HitStayGuide" />}>
+      <GameGate game="hitStay" accent={HS_ACCENT} ink={HS_INK} tutorial={<HitStayTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="HitStayGuide" />}>
         <HitStayGame />
       </GameGate>
     </>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import GameGate from '@/components/GameGate';
+import { GradationTutorialSteps } from '@/components/gradation/GradationTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
 import TextGuide from '@/components/TextGuide';
@@ -42,7 +43,7 @@ export default async function GradationPage({ params }: { params: Promise<{ loca
         faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: korean ? '그라데이션' : 'Gradation', path: '/gradation' }]),
       ] }} />
-      <GameGate game="gradation" accent={GR_ACCENT} ink={GR_INK} hero={hero} guide={<TextGuide locale={locale} namespace="GradationGuide" />}>
+      <GameGate game="gradation" accent={GR_ACCENT} ink={GR_INK} tutorial={<GradationTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="GradationGuide" />}>
         <GradationGame />
       </GameGate>
     </>

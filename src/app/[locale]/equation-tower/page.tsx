@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import GameGate from '@/components/GameGate';
+import { TowerTutorialSteps } from '@/components/equationTower/TowerTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
 import TextGuide from '@/components/TextGuide';
@@ -43,7 +44,7 @@ export default async function EquationTowerPage({ params }: { params: Promise<{ 
         faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name, path: '/equation-tower' }]),
       ] }} />
-      <GameGate game="equationTower" accent={EQT_ACCENT} ink={EQT_INK} hero={hero} guide={<TextGuide locale={locale} namespace="EquationTowerGuide" />}>
+      <GameGate game="equationTower" accent={EQT_ACCENT} ink={EQT_INK} tutorial={<TowerTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="EquationTowerGuide" />}>
         <EquationTowerGame />
       </GameGate>
     </>
