@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import GameGate from '@/components/GameGate';
+import { CjTutorialSteps } from '@/components/cardJanggi/CjTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
 import TextGuide from '@/components/TextGuide';
@@ -36,7 +37,7 @@ export default async function CardJanggiPage({ params }: { params: Promise<{ loc
       faqJsonLd(faq),
       breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('metaTitle').split(' — ')[0], path: '/card-janggi' }]),
     ] }} />
-    <GameGate game="cardJanggi" accent={CJ_ACCENT} ink={CJ_INK} hero={hero} guide={<TextGuide locale={locale} namespace="CardJanggiGuide" />}>
+    <GameGate game="cardJanggi" accent={CJ_ACCENT} ink={CJ_INK} tutorial={<CjTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="CardJanggiGuide" />}>
       <CardJanggiGame />
     </GameGate>
   </>;
