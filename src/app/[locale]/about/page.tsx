@@ -15,8 +15,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'Info' });
+  const th = await getTranslations({ locale, namespace: 'Home' });
+  // The site introduction that used to close the home page opens this one.
+  const sections: Section[] = [{ title: th('seoTitle'), body: th('seoBody') }, ...(t.raw('aboutSections') as Section[])];
   return (
-    <InfoArticle eyebrow={t('aboutEyebrow')} title={t('aboutTitle')} subtitle={t('aboutDescription')} sections={t.raw('aboutSections') as Section[]}>
+    <InfoArticle eyebrow={t('aboutEyebrow')} title={t('aboutTitle')} subtitle={t('aboutDescription')} sections={sections}>
 
     </InfoArticle>
   );

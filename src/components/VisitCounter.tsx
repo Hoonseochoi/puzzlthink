@@ -11,8 +11,9 @@ function kstDay() {
 }
 
 /**
- * Home counter: games played today (KST) and in total, refreshed every 30 s (`play_totals`).
- * It still records one visit per browser per KST day (`record_visit`, which also takes the daily rank snapshot).
+ * Small line at the bottom of the home page: games played today (KST) and in total, refreshed every 30 s
+ * (`play_totals`). It also records one visit per browser per KST day (`record_visit`, which takes the daily rank
+ * snapshot too), so it must stay mounted on the home page for phones and desktops alike.
  */
 export default function VisitCounter() {
   const t = useTranslations('Home');
@@ -40,10 +41,10 @@ export default function VisitCounter() {
   if (!stats) return null;
   const fmt = (n: number) => n.toLocaleString();
   return (
-    <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-black/10 bg-white/60 px-4 py-1.5 text-[11px] font-bold text-black/45 backdrop-blur">
-      <span>{t('playsToday')} <b className="font-black text-[#17201e]">{fmt(stats.today)}</b></span>
-      <span className="h-3 w-px bg-black/15" />
-      <span>{t('playsTotal')} <b className="font-black text-[#17201e]">{fmt(stats.total)}</b></span>
-    </div>
+    <p className="flex items-center justify-center gap-2.5 font-mono text-[10px] font-bold tracking-[0.14em] text-black/35">
+      <span>{t('playsToday')} <b className="font-black text-black/60">{fmt(stats.today)}</b></span>
+      <span aria-hidden>/</span>
+      <span>{t('playsTotal')} <b className="font-black text-black/60">{fmt(stats.total)}</b></span>
+    </p>
   );
 }

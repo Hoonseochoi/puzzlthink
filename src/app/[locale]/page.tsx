@@ -5,6 +5,7 @@ import HomeClient from '@/components/HomeClient';
 import JsonLd from '@/components/JsonLd';
 import { GAMES } from '@/lib/gameCatalog';
 import AdSlot from '@/components/AdSlot';
+import VisitCounter from '@/components/VisitCounter';
 
 const BASE_URL = 'https://www.puzzlthink.com';
 
@@ -26,12 +27,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         { '@type': 'ItemList', name: t('seoTitle'), itemListElement: GAMES.map((game, i) => ({ '@type': 'ListItem', position: i + 1, url: `${BASE_URL}/${locale}${game.href}`, name: tc(game.id) })) },
       ] }} />
       <HomeClient />
-      <section className="bg-[#f3f0e8] px-5 pb-20">
-        <AdSlot placement="inline" className="mx-auto mb-12 max-w-3xl" />
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">{t('seoTitle')}</h2>
-          <p className="mt-4 text-sm leading-7 text-black/55">{t('seoBody')}</p>
-        </div>
+      {/* The long introduction lives on /about now; the home ends with the ad and the play counter. */}
+      <section className="bg-[#f3f0e8] px-5 pb-10">
+        <AdSlot placement="inline" className="mx-auto mb-8 max-w-3xl" />
+        <VisitCounter />
       </section>
     </>
   );
