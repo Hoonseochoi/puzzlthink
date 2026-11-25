@@ -3,6 +3,7 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useLocale } from 'next-intl';
 import { Check, Eraser, Flag, Loader2, Timer, Undo2, X, Zap } from 'lucide-react';
 import { CLD_COLORS, CLD_TARGET, type CldPaths, checkProof, leftOf, letterOf, loneColors, solve } from '@/lib/colorLinkDuel';
 import { emptyPaths, lineStatus, strokeStart, strokeTo } from '@/lib/colorLinkDuelDraw';
@@ -10,6 +11,7 @@ import { type CldAction, type CldRoom, type CldSeat, CLD_COIN_MS, canDeclare, ot
 import { ColorStone } from '../logic/ColorStone';
 import { BTN, BTN_ACCENT, KICKER, PANEL, PANEL_TITLE, accentVars } from '../ui/gameUi';
 import CldBoard from './CldBoard';
+import { BoardChip } from './CldBoardPicker';
 import { CLD_ACCENT, CLD_INK, type CldCopy, cldColor } from './copy';
 
 /** Ticks every quarter second (for the clocks). */
@@ -58,6 +60,7 @@ export default function CldTable({ room, mySeat, dispatch, names, t, thinking = 
   thinking?: boolean;
   aside?: ReactNode;
 }) {
+  const en = useLocale() === 'en';
   const now = useNow(room.phase !== 'lobby' && room.phase !== 'finished');
   const me = mySeat ?? 0;
   const opp = other(me);
@@ -160,6 +163,7 @@ export default function CldTable({ room, mySeat, dispatch, names, t, thinking = 
     <div className="mx-auto grid w-full max-w-[1080px] grid-cols-1 gap-4 lg:grid-cols-[minmax(0,600px)_300px] lg:justify-center">
       <div className="flex min-w-0 flex-col gap-2 pb-[calc(env(safe-area-inset-bottom)+176px)] sm:gap-3 lg:pb-[200px]">
         <ScoreBar room={room} me={me} names={names} t={t} clockSeat={clockSeat} seconds={coinShowing ? null : seconds} />
+        {room.layout && <div className="flex justify-center"><BoardChip id={room.layout} t={t} en={en} /></div>}
         <p className={`flex min-h-[22px] items-center justify-center gap-1 text-center text-[13px] font-black tracking-tight sm:text-sm ${asked ? 'text-(--accent)' : 'text-white/75'}`}>
           {asked && <Zap size={13} className="shrink-0" />}<span className="break-keep">{status}</span>
         </p>

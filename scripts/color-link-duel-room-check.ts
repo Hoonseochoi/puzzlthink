@@ -4,17 +4,35 @@
 import { CLD_TARGET, checkProof } from '../src/lib/colorLinkDuel';
 import { aiGoesFirst, aiPlace, aiProof, aiShouldDeclare } from '../src/lib/colorLinkDuelAi';
 import { type CldRoom, createCldRoom, reduceCldRoom } from '../src/lib/colorLinkDuelRoom';
+import { CLD_LAYOUTS, layoutById } from '../src/lib/colorLinkDuelBoards';
 
 const assert = (ok: unknown, msg: string) => { if (!ok) { console.error('FAIL', msg); process.exit(1); } };
 const host = { id: 'h', name: 'H', at: 0 };
 const fresh = () => {
   let s: CldRoom = createCldRoom(host);
-  s = { ...s, seats: [{ id: 'h', name: 'H' }, { id: 'g', name: 'G' }] };
+  s = { ...s, seats: [{ id: 'h', name: 'H' }, { id: 'g', name: 'G' }], layoutPick: 'classic' }; // the show's 7×7 (cells r*11+c in the frame)
   s = reduceCldRoom(s, { t: 'start' }, 0, true)!;
   // A player picks who goes first: in a room the coin-picked chooser.
   const first = (Math.random() < 0.5 ? 0 : 1) as 0 | 1;
   return reduceCldRoom(s, { t: 'choose', first }, s.chooser, false)!;
 };
+// Boards: the host picks one (or random); guests cannot; the game is played on it, walls and all.
+{
+  let c: CldRoom = createCldRoom(host);
+  c = { ...c, seats: [{ id: 'h', name: 'H' }, { id: 'g', name: 'G' }] };
+  assert(reduceCldRoom(c, { t: 'layout', pick: 'heart' }, 1, false) === null, 'a guest cannot pick the board');
+  assert(reduceCldRoom(c, { t: 'layout', pick: 'nope' }, 0, true) === null, 'an unknown board is refused');
+  c = reduceCldRoom(c, { t: 'layout', pick: 'heart' }, 0, true)!;
+  const started = reduceCldRoom(c, { t: 'start' }, 0, true)!;
+  assert(started.layout === 'heart' && started.board.filter((v) => v === 0).length === 81 && started.board.some((v) => v < 0), 'the picked board is played');
+  const r = reduceCldRoom({ ...createCldRoom(host), seats: [{ id: 'h', name: 'H' }, { id: 'g', name: 'G' }] }, { t: 'start' }, 0, true)!;
+  assert(CLD_LAYOUTS.some((l) => l.id === r.layout), 'random picks a real board');
+  const ai = reduceCldRoom(createCldRoom(host, { ai: true, tier: 'easy' }), { t: 'start' }, 0, true)!;
+  assert(layoutById(ai.layout).tier === 'easy', 'the AI game deals a board of the chosen difficulty');
+  const wall = started.board.findIndex((v) => v < 0);
+  const chosen = reduceCldRoom(started, { t: 'choose', first: started.chooser! }, started.chooser, false)!;
+  assert(reduceCldRoom(chosen, { t: 'place', stones: [[wall, 1]] }, chosen.turn, false) === null, 'no stone on a wall');
+}
 // The opening choice.
 {
   let c: CldRoom = createCldRoom(host);
@@ -43,9 +61,9 @@ assert(s.phase === 'finished' && s.winner !== opener && s.log[0].reason === 'tim
 // A fresh match for the call and proof rules: A opens, B places two, A calls, B must prove.
 s = fresh();
 const A = s.turn as 0 | 1, B = (1 - A) as 0 | 1;
-s = reduceCldRoom(s, { t: 'place', stones: [[24, 1]] }, A, false)!;
+s = reduceCldRoom(s, { t: 'place', stones: [[36, 1]] }, A, false)!; // centre (3,3)
 assert(reduceCldRoom(s, { t: 'place', stones: [[0, 2], [1, 2]] }, B, false) === null, 'two stones must differ in colour');
-s = reduceCldRoom(s, { t: 'place', stones: [[0, 1], [48, 2]] }, B, false)!;
+s = reduceCldRoom(s, { t: 'place', stones: [[0, 1], [72, 2]] }, B, false)!; // corners (0,0) and (6,6)
 s = reduceCldRoom(s, { t: 'declare' }, A, false)!;
 assert(s.phase === 'proof' && s.proof?.prover === B, 'a call makes the last placer prove');
 assert(reduceCldRoom(s, { t: 'prove', paths: [] }, B, false) === null, 'a wrong proof is refused');

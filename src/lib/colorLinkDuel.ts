@@ -1,4 +1,6 @@
-// 컬러 링크 (데블스 플랜 3 결승 2회차): two players take turns placing coloured stones on a 7×7 board.
+// 컬러 링크 (데블스 플랜 3 결승 2회차): two players take turns placing coloured stones on a board — the show's 7×7, or
+// one of the shaped boards in colorLinkDuelBoards.ts. Every board sits in the top-left of an 11×11 frame; cells
+// outside its shape hold CLD_WALL and count as taken everywhere (no stone, no line).
 // Every pair of same-coloured stones must still be joinable by its own line (6 cells or more, stones included)
 // with no two lines crossing or sharing a cell; a colour with one stone so far must still have room for its
 // partner. When a player thinks the last placement broke that, they call it impossible and the placer has to
@@ -8,8 +10,11 @@
 // out after a failed proof). Pure and self-contained apart from the grid geometry it shares with 컬러 잇기.
 import { geometry } from './colorlink';
 
-export const CLD_N = 7;
+/** The frame every board sits in (the largest boards are 11×11). */
+export const CLD_N = 11;
 export const CLD_CELLS = CLD_N * CLD_N;
+/** A cell outside the board's shape. */
+export const CLD_WALL = -1;
 export const CLD_COLORS = 14;
 /** Cells on a line, both stones included. */
 export const CLD_MIN = 6;
@@ -17,7 +22,7 @@ export const CLD_LETTERS = 'ABCDEFGHIJKLMN';
 export const CLD_ROUNDS = 1;
 export const CLD_TARGET = 1;
 
-/** `board[cell]` = colour 1…14, 0 empty. */
+/** `board[cell]` = colour 1…14, 0 empty, CLD_WALL outside the board. */
 export type CldBoard = number[];
 /** `paths[colour]` = the line's cells from one stone to the other (or, for a lone stone, to where its partner would go). */
 export type CldPaths = (number[] | null)[];
@@ -29,12 +34,29 @@ export const colOf = (cell: number) => cell % CLD_N;
 export const dist = (a: number, b: number) => Math.abs(rowOf(a) - rowOf(b)) + Math.abs(colOf(a) - colOf(b));
 export const adjacent = (a: number, b: number) => dist(a, b) === 1;
 export const letterOf = (color: number) => CLD_LETTERS[color - 1] ?? '?';
-export const emptyBoard = (): CldBoard => Array(CLD_CELLS).fill(0);
+/** A board from rows of '#' (a cell) and '.' (no cell), placed at the frame's top-left. */
+export function boardFromRows(rows: readonly string[]): CldBoard {
+  const board: CldBoard = Array(CLD_CELLS).fill(CLD_WALL);
+  rows.forEach((line, r) => { for (let c = 0; c < line.length; c++) if (line[c] === '#') board[r * CLD_N + c] = 0; });
+  return board;
+}
+const CLASSIC_ROWS = Array(7).fill('#######');
+/** The show's empty 7×7 board. */
+export const emptyBoard = (): CldBoard => boardFromRows(CLASSIC_ROWS);
+/** The same board with every stone taken off (the shape stays). */
+export const clearedBoard = (board: ArrayLike<number>): CldBoard => Array.from(board, (v) => (v === CLD_WALL ? CLD_WALL : 0));
+/** Side of the square the board's cells fit in (7 for the show's board, 9–11 for the shaped ones). */
+export function boardSpan(board: ArrayLike<number>): number {
+  let span = 1;
+  for (let i = 0; i < CLD_CELLS; i++) if (board[i] !== CLD_WALL) span = Math.max(span, rowOf(i) + 1, colOf(i) + 1);
+  return span;
+}
+export const isWall = (board: ArrayLike<number>, cell: number) => board[cell] === CLD_WALL;
 
 /** Cells of each colour's stones (index = colour). */
 export function stonesOf(board: ArrayLike<number>): number[][] {
   const out: number[][] = Array.from({ length: CLD_COLORS + 1 }, () => []);
-  for (let i = 0; i < CLD_CELLS; i++) if (board[i]) out[board[i]].push(i);
+  for (let i = 0; i < CLD_CELLS; i++) if (board[i] > 0) out[board[i]].push(i);
   return out;
 }
 
@@ -46,12 +68,12 @@ export const leftOf = (board: ArrayLike<number>, color: number) => {
 };
 export const stonesLeft = (board: ArrayLike<number>) => {
   let n = CLD_COLORS * 2;
-  for (let i = 0; i < CLD_CELLS; i++) if (board[i]) n--;
+  for (let i = 0; i < CLD_CELLS; i++) if (board[i] > 0) n--;
   return n;
 };
 export const emptyCount = (board: ArrayLike<number>) => {
   let n = 0;
-  for (let i = 0; i < CLD_CELLS; i++) if (!board[i]) n++;
+  for (let i = 0; i < CLD_CELLS; i++) if (board[i] === 0) n++;
   return n;
 };
 
@@ -157,11 +179,11 @@ export function solve(board: ArrayLike<number>, opts: { cap?: number; rand?: () 
   for (let k = 1; k <= CLD_COLORS; k++) if (stones[k].length) colors.push(k);
   const done = new Uint8Array(CLD_COLORS + 1);
   const paths: CldPaths = Array(CLD_COLORS + 1).fill(null);
-  const pos = new Int8Array(N).fill(-1);
-  const comp = new Int8Array(N);
+  const pos = new Int16Array(N).fill(-1);
+  const comp = new Int16Array(N);
   const compSize: number[] = [];
   const need: number[] = [];
-  const stack = new Int8Array(N);
+  const stack = new Int16Array(N);
   const seen = new Set<string>();
   let nodes = 0, aborted = false;
   let doneMask = 0;
@@ -254,10 +276,12 @@ export function solve(board: ArrayLike<number>, opts: { cap?: number; rand?: () 
     return best;
   };
 
+  // Cells taken by lines (not stones or walls) and colours done, as a string: 30 cells per chunk.
+  const chunks = new Int32Array(Math.ceil(N / 30));
   const key = () => {
-    let lo = 0, hi = 0;
-    for (let i = 0; i < N; i++) if (occ[i] && !board[i]) { if (i < 31) lo |= 1 << i; else hi |= 1 << (i - 31); }
-    return `${lo},${hi},${doneMask}`;
+    chunks.fill(0);
+    for (let i = 0; i < N; i++) if (occ[i] && !board[i]) chunks[(i / 30) | 0] |= 1 << (i % 30);
+    return `${chunks.join(',')},${doneMask}`;
   };
 
   const finish = (k: number, path: number[]): boolean => {

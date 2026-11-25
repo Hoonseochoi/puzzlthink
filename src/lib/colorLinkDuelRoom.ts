@@ -7,6 +7,7 @@
 // placing, a player may call the opponent's last placement impossible: the placer then has 5 minutes to
 // draw every line. A valid proof wins the round for the placer; giving up or running out of time, for the caller.
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
+import { type CldTier, CLD_LAYOUTS, layoutBoard, randomLayout } from './colorLinkDuelBoards';
 import {
   CLD_COLORS, CLD_CELLS, CLD_TARGET, type CldBoard, type CldPaths, checkProof, emptyBoard, legalPlacement, place, stonesToPlace,
 } from './colorLinkDuel';
@@ -36,6 +37,12 @@ export type CldRoom = BaseRoom & {
   first: CldSeat; // who opened this round
   chooser: CldSeat | null; // who picks the opener (phase 'choose'): round 1 see `firstChooser`, later the last round's loser
   coin: boolean; // this round's opener came from the coin toss
+  /** The board being played (a layout id from colorLinkDuelBoards). */
+  layout: string;
+  /** Rooms: the host's pick for the next game, a layout id or 'random'. The AI game: 'random', from `tier`. */
+  layoutPick: string;
+  /** The AI game: the difficulty the player chose; its board is dealt at random from that difficulty. */
+  tier?: CldTier | null;
   board: CldBoard;
   turn: CldSeat;
   placements: number; // placements so far this round
@@ -60,6 +67,7 @@ export type CldPlayerAction =
 export type CldAction =
   | CldPlayerAction
   | { t: 'start' }
+  | { t: 'layout'; pick: string } // host, between games
   | { t: 'resign' }
   | { t: 'timeout' }
   | { t: 'ai'; act: CldPlayerAction };
@@ -70,11 +78,12 @@ export const firstChooser = (state: Pick<CldRoom, 'ai'>): CldSeat => (state.ai[1
 
 export const isPlaying = (state: CldRoom) => state.phase === 'choose' || state.phase === 'place' || state.phase === 'proof' || state.phase === 'break';
 
-export function createCldRoom(host: Peer, opts: { ai?: boolean; aiName?: string } = {}): CldRoom {
+export function createCldRoom(host: Peer, opts: { ai?: boolean; aiName?: string; tier?: CldTier | null } = {}): CldRoom {
   const seats: Seat[] = [{ id: host.id, name: host.name }, opts.ai ? { id: 'ai', name: opts.aiName ?? 'AI' } : null];
   return {
     sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, ai: [false, !!opts.ai],
-    round: 1, score: [0, 0], first: 0, chooser: null, coin: false, board: emptyBoard(), turn: 0, placements: 0,
+    round: 1, score: [0, 0], first: 0, chooser: null, coin: false, layout: 'classic', layoutPick: 'random', tier: opts.tier ?? null,
+    board: emptyBoard(), turn: 0, placements: 0,
     last: null, proof: null, log: [], ready: [false, false], startedAt: 0, winner: null, reason: null,
   };
 }
@@ -88,7 +97,7 @@ export const canDeclare = (state: CldRoom) => state.phase === 'place' && state.p
 
 function beginRound(state: CldRoom, first: CldSeat, now: number, coin: boolean): CldRoom {
   return {
-    ...state, phase: 'place', first, turn: first, chooser: null, coin, board: emptyBoard(), placements: 0, last: null, proof: null,
+    ...state, phase: 'place', first, turn: first, chooser: null, coin, board: layoutBoard(state.layout), placements: 0, last: null, proof: null,
     ready: [false, false], startedAt: now, deadline: now + (coin ? CLD_COIN_MS : 0) + CLD_TURN_SEC * 1000,
   };
 }
@@ -107,7 +116,7 @@ function endRound(state: CldRoom, winner: CldSeat, reason: CldEnd, now: number, 
 function nextRound(state: CldRoom, now: number): CldRoom {
   const lastLog = state.log[state.log.length - 1];
   const chooser = other(lastLog.winner);
-  return { ...state, phase: 'choose', round: state.round + 1, chooser, ready: [false, false], startedAt: now, deadline: now + CLD_CHOOSE_SEC * 1000, board: emptyBoard(), last: null, placements: 0 };
+  return { ...state, phase: 'choose', round: state.round + 1, chooser, ready: [false, false], startedAt: now, deadline: now + CLD_CHOOSE_SEC * 1000, board: layoutBoard(state.layout), last: null, placements: 0 };
 }
 
 /** Light shape check for lines sent over the network. */
@@ -154,13 +163,19 @@ export function reduceCldRoom(state: CldRoom, action: CldAction, seat: number | 
   switch (action.t) {
     case 'start': {
       if (!isHost || isPlaying(state) || state.seats.some((s) => !s)) break;
-      const fresh: CldRoom = { ...state, sid: state.phase === 'lobby' ? state.sid : newSid(), round: 1, score: [0, 0], log: [], winner: null, reason: null };
+      // The board: the host's pick, or a random one (the AI game: random within the chosen difficulty).
+      const layout = state.layoutPick !== 'random' && CLD_LAYOUTS.some((l) => l.id === state.layoutPick) ? state.layoutPick : randomLayout(state.tier).id;
+      const fresh: CldRoom = { ...state, sid: state.phase === 'lobby' ? state.sid : newSid(), round: 1, score: [0, 0], log: [], winner: null, reason: null, layout };
       next = {
-        ...fresh, phase: 'choose', chooser: firstChooser(fresh), first: 0, coin: false, board: emptyBoard(), placements: 0, last: null, proof: null,
+        ...fresh, phase: 'choose', chooser: firstChooser(fresh), first: 0, coin: false, board: layoutBoard(layout), placements: 0, last: null, proof: null,
         ready: [false, false], startedAt: now, deadline: now + CLD_CHOOSE_SEC * 1000,
       };
       break;
     }
+    case 'layout':
+      if (!isHost || isPlaying(state) || (action.pick !== 'random' && !CLD_LAYOUTS.some((l) => l.id === action.pick))) break;
+      next = { ...state, layoutPick: action.pick };
+      break;
     case 'ai': {
       const aiSeat = state.ai.indexOf(true);
       if (!isHost || aiSeat < 0) break;

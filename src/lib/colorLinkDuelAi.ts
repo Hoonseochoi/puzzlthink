@@ -168,7 +168,7 @@ export function aiPlace(board: CldBoard, opening: boolean, seed = Date.now(), de
   if (!all.length) return [];
   if (opening) {
     // Any opening stone; away from the very edge leaves more for the race.
-    const inner = all.filter(([[c]]) => { const r = Math.floor(c / 7), q = c % 7; return r > 0 && r < 6 && q > 0 && q < 6; });
+    const inner = all.filter(([[c]]) => cldNeighbors[c].length === 4 && cldNeighbors[c].every((j) => board[j] === 0));
     return (inner.length ? inner : all)[Math.floor(rand() * (inner.length || all.length))];
   }
   // Shuffle, then keep the placements the solver can join.

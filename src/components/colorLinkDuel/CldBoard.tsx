@@ -1,14 +1,15 @@
 "use client";
 
 import { useRef } from 'react';
-import { CLD_MIN, CLD_N, type CldPaths, letterOf, stonesOf } from '@/lib/colorLinkDuel';
+import { CLD_MIN, CLD_N, CLD_WALL, type CldPaths, boardSpan, letterOf, stonesOf } from '@/lib/colorLinkDuel';
 import { ColorStone } from '../logic/ColorStone';
 import { cldColor } from './copy';
 
 const center = (cell: number) => [(cell % CLD_N) + 0.5, Math.floor(cell / CLD_N) + 0.5] as const;
 
 /**
- * The 7×7 컬러 링크 board, on the cream paper of 컬러 잇기: lettered PUZZLTHINK stones, the stones being placed
+ * The 컬러 링크 board (the show's 7×7 or a shaped board, cropped to its size; cells outside the shape are dark
+ * gaps), on the cream paper of 컬러 잇기: lettered PUZZLTHINK stones, the stones being placed
  * (pulsing), the last placement ringed, and lines (a proof being drawn, or a way to join the board).
  * `onCell`: a tap (placing). `onStroke`: a drag (drawing lines) — start, move over cells, end.
  */
@@ -26,11 +27,16 @@ export default function CldBoard({ board, draft = [], lastCells = [], paths, bad
   const svgRef = useRef<SVGSVGElement>(null);
   const dragging = useRef(false);
   const lastCell = useRef(-1);
+  const span = boardSpan(board);
   const cellAt = (event: React.PointerEvent) => {
     const rect = svgRef.current?.getBoundingClientRect();
     if (!rect) return -1;
-    const x = Math.floor(((event.clientX - rect.left) / rect.width) * CLD_N), y = Math.floor(((event.clientY - rect.top) / rect.height) * CLD_N);
-    return x < 0 || y < 0 || x >= CLD_N || y >= CLD_N ? -1 : y * CLD_N + x;
+    // The drawn area is the span plus the frame margin on each side.
+    const unit = rect.width / (span + 0.24);
+    const x = Math.floor((event.clientX - rect.left) / unit - 0.12), y = Math.floor((event.clientY - rect.top) / unit - 0.12);
+    if (x < 0 || y < 0 || x >= span || y >= span) return -1;
+    const cell = y * CLD_N + x;
+    return board[cell] === CLD_WALL ? -1 : cell;
   };
   const interactive = !!(onCell || onStroke);
   const stones = stonesOf(board);
@@ -38,7 +44,7 @@ export default function CldBoard({ board, draft = [], lastCells = [], paths, bad
 
   return (
     <svg
-      ref={svgRef} viewBox={`-0.12 -0.12 ${CLD_N + 0.24} ${CLD_N + 0.24}`} role="img" aria-label="board"
+      ref={svgRef} viewBox={`-0.12 -0.12 ${span + 0.24} ${span + 0.24}`} role="img" aria-label="board"
       className={`mx-auto block aspect-square w-full touch-none select-none rounded-[16px] shadow-[0_18px_50px_rgba(0,0,0,.45)] ${interactive ? 'cursor-pointer' : ''} ${className}`}
       style={{ background: '#1d1a4a' }}
       onPointerDown={(event) => {
@@ -60,11 +66,15 @@ export default function CldBoard({ board, draft = [], lastCells = [], paths, bad
       onPointerUp={(event) => { if (dragging.current) { dragging.current = false; onStroke?.('end', cellAt(event)); } }}
       onPointerCancel={() => { if (dragging.current) { dragging.current = false; onStroke?.('end', -1); } }}
     >
-      <rect x={-0.12} y={-0.12} width={CLD_N + 0.24} height={CLD_N + 0.24} rx={0.3} fill="#2a2470" />
-      <rect x={0} y={0} width={CLD_N} height={CLD_N} rx={0.12} fill="#f7f2e8" />
-      {Array.from({ length: CLD_N - 1 }, (_, i) => (
-        <g key={`g${i}`} stroke="#e1d6c2" strokeWidth={0.025}><line x1={i + 1} y1={0} x2={i + 1} y2={CLD_N} /><line x1={0} y1={i + 1} x2={CLD_N} y2={i + 1} /></g>
+      <rect x={-0.12} y={-0.12} width={span + 0.24} height={span + 0.24} rx={0.3} fill="#2a2470" />
+      <rect x={0} y={0} width={span} height={span} rx={0.12} fill="#f7f2e8" />
+      {Array.from({ length: span - 1 }, (_, i) => (
+        <g key={`g${i}`} stroke="#e1d6c2" strokeWidth={0.025}><line x1={i + 1} y1={0} x2={i + 1} y2={span} /><line x1={0} y1={i + 1} x2={span} y2={i + 1} /></g>
       ))}
+      {/* Cells outside the board's shape: gaps in the paper. */}
+      {board.map((k, cell) => (k === CLD_WALL && cell % CLD_N < span && Math.floor(cell / CLD_N) < span
+        ? <rect key={`w${cell}`} x={cell % CLD_N - 0.012} y={Math.floor(cell / CLD_N) - 0.012} width={1.024} height={1.024} fill="#2a2470" />
+        : null))}
       {/* Lines: a light tint under each cell they use, then the line itself. */}
       {paths && paths.map((p, k) => {
         if (!p || p.length < 1 || !stones[k].length) return null;
@@ -98,7 +108,7 @@ export default function CldBoard({ board, draft = [], lastCells = [], paths, bad
         return <circle key={`l${cell}`} cx={cx} cy={cy} r={0.47} fill="none" stroke="#7c6cff" strokeWidth={0.06} />;
       })}
       {board.map((k, cell) => {
-        if (!k) return null;
+        if (k <= 0) return null;
         const [cx, cy] = center(cell);
         return <ColorStone key={`s${cell}`} id="cld" k={k} cx={cx} cy={cy} r={0.39} mood={bad.includes(k) ? 'worried' : 'idle'} color={cldColor(k)} label={letterOf(k)} />;
       })}
