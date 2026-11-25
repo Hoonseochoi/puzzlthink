@@ -29,6 +29,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
       {
+        date: '11/26', icon: Wrench,
+        ko: { title: '모라가 힌트로 나온 단어를 답으로 내던 문제를 고쳤어요', desc: '힌트로 나온 단어는 정답이 될 수 없어요. 이제 모라는 앞 차에 나온 힌트를 답으로 내지 않고, 내가 힌트 단어를 답으로 적으면 횟수를 쓰지 않고 다시 적게 해 줘요.' },
+        en: { title: 'Fixed: MORA answering with a word that was already a hint', desc: 'A hint can never be the hidden word. MORA no longer answers with a hint from an earlier stage, and if you write a hint as your answer it is refused without using up the guess.' },
+      },
+      {
         date: '11/26', icon: Scale,
         ko: { title: '랭킹 점수가 바뀌었어요: 평균 승점 + 판수 보너스', desc: '승점 합계 대신 한 판 평균 승점에 판당 0.3점(20판까지, 최대 +6)을 더해 순위를 매겨요. 3판을 끝내면 순위에 올라요.' },
         en: { title: 'New ranking score: average points + a bonus for matches played', desc: 'Instead of the total, ranks use your average points per match plus 0.3 per match (up to 20, max +6). You are ranked from 3 finished matches.' },
