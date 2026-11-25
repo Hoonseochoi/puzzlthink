@@ -5856,7 +5856,19 @@
     "hardTitle": "어려움 클리어",
     "hardRule": "각 게임 어려움 첫 클리어(클리어 인증서) · 영구 보유",
     "badgeTitle": "대전 승리 · 매우 어려움",
-    "badgeRule": "친구 대전·오픈 대전 첫 승리, 아무 게임이나 매우 어려움 첫 클리어 · 영구 보유"
+    "badgeRule": "친구 대전·오픈 대전 첫 승리, 아무 게임이나 매우 어려움 첫 클리어 · 영구 보유",
+    "missionTitle": "HIDDEN MISSION",
+    "missionRule": "숨겨진 미션 · 달성하면 바로 장착 · 영구 보유",
+    "missionHard": "ALL HARD",
+    "missionHardDesc": "어려움 AI가 있는 모든 게임을 어려움 이상으로 클리어",
+    "missionHell": "ALL HELL",
+    "missionHellDesc": "매우 어려움이 있는 모든 게임을 매우 어려움으로 클리어",
+    "missionRank": "TOP 10",
+    "missionRankDesc": "모든 게임 랭킹에 이름을 올리고 평균 순위 10위 이내",
+    "missionCount": "{n} / {total}",
+    "missionAvg": "{n} / {total} · 평균 {avg}위",
+    "missionDone": "달성",
+    "missionLocked": "로그인하면 진행도를 볼 수 있어요"
   },
   "Icons": {
     "pieceLabel": "피스 {week}W {place}위 · {name}",
@@ -5889,7 +5901,10 @@
     "friendWin": "친구 대전 승리",
     "openWin": "오픈 대전 승리",
     "hellClear": "매우 어려움 클리어",
-    "playHours": "플레이 {n}시간"
+    "playHours": "플레이 {n}시간",
+    "mission_hard": "HIDDEN MISSION · ALL HARD",
+    "mission_hell": "HIDDEN MISSION · ALL HELL",
+    "mission_rank": "HIDDEN MISSION · TOP 10"
   },
   "PieceRace": {
     "shortTitle": "피스 경쟁전 2W",

@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from 'react';
 import { getSupabase } from '@/lib/supabase';
 import { CrownStone, HellStone, Tile2048, parseIcon, OpenStone } from './ProfileIcons';
+import { MissionStone } from './MissionIcons';
 import { FriendWinStone, HardClearStone, HellClearStone, OpenWinStone, PlayTimeStone } from './BadgeIcons';
 
 /**
@@ -159,6 +160,7 @@ export function Stone({ name, size, pieceRank = null, champion, stone, icon }: {
   if (ref?.kind === 'friendWin') return <FriendWinStone id={id} name={name} size={size} />;
   if (ref?.kind === 'openWin') return <OpenWinStone id={id} name={name} size={size} />;
   if (ref?.kind === 'hellClear') return <HellClearStone id={id} name={name} size={size} />;
+  if (ref?.kind === 'mission') return <MissionStone id={id} name={name} size={size} mission={ref.mission} />;
   if (ref?.kind === 'play') return <PlayTimeStone id={id} name={name} size={size} hours={ref.hours} />;
   const ranker = pieceRank != null && pieceRank <= 10;
   const crown = ranker && pieceRank <= 3;

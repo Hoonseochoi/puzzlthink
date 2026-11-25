@@ -5764,7 +5764,19 @@
     "hardTitle": "Hard clears",
     "hardRule": "First Hard clear of each game (the certificate) · yours for good",
     "badgeTitle": "Match wins · Very Hard",
-    "badgeRule": "First friend-match and open-match win, first Very Hard clear in any game · yours for good"
+    "badgeRule": "First friend-match and open-match win, first Very Hard clear in any game · yours for good",
+    "missionTitle": "HIDDEN MISSION",
+    "missionRule": "Secret missions · switched on when done · yours for good",
+    "missionHard": "ALL HARD",
+    "missionHardDesc": "Clear every game that has a Hard AI on Hard or above",
+    "missionHell": "ALL HELL",
+    "missionHellDesc": "Clear every game that has Very Hard on Very Hard",
+    "missionRank": "TOP 10",
+    "missionRankDesc": "Be on every game ranking with an average rank of 10 or better",
+    "missionCount": "{n} / {total}",
+    "missionAvg": "{n} / {total} · avg #{avg}",
+    "missionDone": "Done",
+    "missionLocked": "Sign in to see your progress"
   },
   "Icons": {
     "pieceLabel": "Piece week {week} #{place} · {name}",
@@ -5797,7 +5809,10 @@
     "friendWin": "Friend match win",
     "openWin": "Open match win",
     "hellClear": "Very Hard clear",
-    "playHours": "{n} hours played"
+    "playHours": "{n} hours played",
+    "mission_hard": "HIDDEN MISSION · ALL HARD",
+    "mission_hell": "HIDDEN MISSION · ALL HELL",
+    "mission_rank": "HIDDEN MISSION · TOP 10"
   },
   "PieceRace": {
     "shortTitle": "Piece race · Week 2",

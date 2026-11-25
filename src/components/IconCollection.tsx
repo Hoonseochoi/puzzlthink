@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowRight, Check, Clock, Crown, Gamepad2, Medal, Palette, Skull, Sparkles, Swords, Trophy } from 'lucide-react';
+import { ArrowRight, Check, Clock, Eye, Crown, Gamepad2, Medal, Palette, Skull, Sparkles, Swords, Trophy } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import type { GameId } from '@/lib/stats';
 import { CERT_GAMES, HARD_GAMES } from '@/lib/hardClear';
+import { HELL_GAMES } from '@/lib/hell';
 import { gameFromSlug, rankSlug } from '@/lib/rankings';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
@@ -13,6 +14,7 @@ import { CHAMPION_LOOKS, STONE_COLORS, Stone } from './StoneAvatar';
 import { MY_ICON_ANCHOR } from './StonePicker';
 import { M2048_TIERS } from './ProfileIcons';
 import { PLAY_HOURS } from './BadgeIcons';
+import { MISSIONS, type Mission } from './MissionIcons';
 
 const CROWN_GAMES = (Object.keys(CERT_GAMES) as GameId[]).filter((g) => gameFromSlug(rankSlug(g)));
 
@@ -32,6 +34,7 @@ export default function IconCollection() {
   const [holders, setHolders] = useState<Map<string, string>>(new Map());
   const [openTop, setOpenTop] = useState<Map<number, string>>(new Map());
   const [playSec, setPlaySec] = useState<number | null>(null);
+  const [mission, setMission] = useState<{ hard: number; hell: number; ranked: number; avg: number | null } | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -51,6 +54,19 @@ export default function IconCollection() {
       if (!alive || !Array.isArray(earned)) return;
       // A 블랙피스 icon looks the same every week, so owning any week's place counts for that place.
       setOwned(new Set([...earned, ...earned.filter((i) => /^h\d+-[123]$/.test(i)).map((i) => `h-${i.slice(-1)}`)]));
+    });
+    const sb = getSupabase();
+    if (sb) Promise.all([sb.rpc('my_hard_clears'), sb.rpc('my_hell_clears'), sb.rpc('my_game_ranks')]).then(([h, l, r]) => {
+      if (!alive) return;
+      const games = (d: unknown) => new Set((Array.isArray(d) ? (d as { game: string }[]) : []).map((x) => x.game));
+      const hard = games(h.data), hell = games(l.data);
+      const ranks = Array.isArray(r.data) ? (r.data as { game: string; rank: number }[]) : [];
+      setMission({
+        hard: HARD_GAMES.filter((g) => hard.has(g) || hell.has(g)).length,
+        hell: HELL_GAMES.filter((g) => hell.has(g.stat)).length,
+        ranked: new Set(ranks.map((x) => x.game)).size,
+        avg: ranks.length ? ranks.reduce((a, x) => a + x.rank, 0) / ranks.length : null,
+      });
     });
     getSupabase()?.rpc('my_play_time').then(({ data }) => { if (alive && typeof data === 'number') setPlaySec(data); });
     return () => { alive = false; };
@@ -90,6 +106,37 @@ export default function IconCollection() {
           <Link href={{ pathname: '/records', hash: MY_ICON_ANCHOR }} className="flex items-center gap-2 rounded-2xl bg-[#17201e] px-5 py-3 text-sm font-black text-white">{t('pick')}<ArrowRight size={15} /></Link>
           {user && <span className="rounded-full border border-[#ff6b4a]/40 bg-[#fff0eb] px-3 py-1.5 text-xs font-black text-[#c2410c]">{t('ownedCount', { n: [...owned].filter((i) => !i.startsWith('h-')).length })}</span>}
         </div>
+
+        {/* HIDDEN MISSION: the three rarest icons, with this player's progress */}
+        <section className="relative mt-6 overflow-hidden rounded-[26px] border border-[#a98bff]/40 bg-[radial-gradient(ellipse_at_50%_0%,#2a1670,#0c0630_70%)] p-5 text-white sm:p-6">
+          <span className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#ff6bc4]/20 blur-3xl" />
+          <span className="pointer-events-none absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-[#7cf3ff]/15 blur-3xl" />
+          <h2 className="relative flex items-center gap-2 font-mono text-lg font-black tracking-[0.18em]"><Eye size={18} className="text-[#ffd36b]" />{t('missionTitle')}</h2>
+          <p className="relative mt-1.5 inline-flex break-keep rounded-full bg-white/10 px-3 py-1 text-[11px] font-black text-[#ffe08a]">{t('missionRule')}</p>
+          <ul className="relative mt-5 grid gap-3 sm:grid-cols-3">
+            {MISSIONS.map((m: Mission) => {
+              const icon = `hm-${m}`;
+              const mine = owned.has(icon);
+              const total = m === 'hard' ? HARD_GAMES.length : m === 'hell' ? HELL_GAMES.length : CROWN_GAMES.length;
+              const done = m === 'hard' ? mission?.hard : m === 'hell' ? mission?.hell : mission?.ranked;
+              const key = m === 'hard' ? 'Hard' : m === 'hell' ? 'Hell' : 'Rank';
+              return (
+                <li key={m} className={`relative flex flex-col items-center rounded-2xl border px-3 pb-4 pt-5 text-center ${mine ? 'border-[#ffd36b]/70 bg-[#ffd36b]/10' : 'border-white/10 bg-white/[0.04]'}`}>
+                  {mine && <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#ffd36b] text-[#2a1d05]" title={t('owned')}><Check size={12} strokeWidth={3} /></span>}
+                  <Stone name={t(`mission${key}`)} size={96} icon={icon} />
+                  <span className="mt-3 font-mono text-sm font-black tracking-[0.12em] text-[#ffe08a]">{t(`mission${key}`)}</span>
+                  <span className="mt-1 break-keep text-[11px] font-bold leading-4 text-white/60">{t(`mission${key}Desc`)}</span>
+                  {user ? (mission && done !== undefined && (
+                    <div className="mt-3 w-full">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-white/10"><span className="block h-full rounded-full bg-[linear-gradient(90deg,#7cf3ff,#a98bff,#ff6bc4,#ffd36b)]" style={{ width: `${Math.min(100, (done / total) * 100)}%` }} /></div>
+                      <p className="mt-1.5 font-mono text-[10px] font-black text-white/55">{mine ? t('missionDone') : m === 'rank' && mission.avg !== null ? t('missionAvg', { n: done, total, avg: mission.avg.toFixed(1) }) : t('missionCount', { n: done, total })}</p>
+                    </div>
+                  )) : <p className="mt-3 text-[10px] font-bold text-white/40">{t('missionLocked')}</p>}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
 
         {section('colors', <Palette size={18} className="text-[#3f8cff]" />, t('colorsTitle'), t('colorsRule'),
           <ul className={grid}>{STONE_COLORS.map((c) => cell(c, tr(`stoneColor.${c}`), undefined, '__free__'))}</ul>)}
