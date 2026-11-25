@@ -45,3 +45,41 @@ export function GyulScore({ names, scores, active }: { names: string[]; scores: 
     </div>
   );
 }
+
+/** A card drawn tiny (no number, no border glow), for the found-합 list. */
+function GyulMini({ card }: { card: GyulCard }) {
+  const ink = INK[card.color];
+  return (
+    <span className="relative flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] ring-1 ring-white/15" style={{ background: BG[card.background] }}>
+      {card.shape === 0 ? <span className="block h-[52%] w-[52%] rounded-full" style={{ background: ink }} />
+        : card.shape === 1 ? <span className="block h-[56%] w-[60%]" style={{ background: ink, clipPath: 'polygon(50% 0,100% 100%,0 100%)' }} />
+          : <span className="block h-[50%] w-[50%] rounded-[1px]" style={{ background: ink }} />}
+    </span>
+  );
+}
+
+/**
+ * The 합 already called on this board, newest first: the three card numbers and the cards themselves, small.
+ * `found` holds hapKey strings ("0-3-7": board indexes).
+ */
+export function GyulFound({ cards, found, title, empty, className = '' }: { cards: GyulCard[]; found: readonly string[]; title: string; empty: string; className?: string }) {
+  const haps = [...found].reverse().map((key) => ({ key, idx: key.split('-').map(Number) })).filter(({ idx }) => idx.length === 3 && idx.every((i) => cards[i]));
+  return (
+    <section className={`rounded-[14px] border border-white/10 bg-white/[.04] p-2.5 ${className}`} aria-live="polite">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[10px] font-black tracking-[.16em] text-white/45">{title}</p>
+        <span className="rounded-full bg-(--accent)/15 px-2 py-0.5 font-mono text-[11px] font-black text-(--accent)">{haps.length}</span>
+      </div>
+      {haps.length ? (
+        <ul className="mt-2 flex flex-wrap gap-1.5">
+          {haps.map(({ key, idx }) => (
+            <li key={key} className="flex items-center gap-1 rounded-md border border-white/10 bg-black/25 py-1 pl-1.5 pr-1">
+              <span className="mr-0.5 font-mono text-[10px] font-black text-white/55">{idx.map((i) => i + 1).join('·')}</span>
+              {idx.map((i) => <GyulMini key={i} card={cards[i]} />)}
+            </li>
+          ))}
+        </ul>
+      ) : <p className="mt-1.5 text-[11px] text-white/35">{empty}</p>}
+    </section>
+  );
+}

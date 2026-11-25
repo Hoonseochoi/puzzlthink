@@ -4776,6 +4776,8 @@
     "giveUpHeading": "포기한 판의 정답과 꿀팁입니다",
     "answersTitle": "이 판의 모든 합",
     "answerCount": "{n}개",
+    "foundTitle": "찾은 합",
+    "foundEmpty": "아직 찾은 합이 없어요. 찾으면 여기 쌓여요.",
     "noHapAnswer": "합이 없습니다 — 결이 정답입니다",
     "answerTipTitle": "결합 꿀팁",
     "nextBoard": "다음 판",

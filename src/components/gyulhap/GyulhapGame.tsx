@@ -10,7 +10,7 @@ import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL
 import { type GyulCard, type Hap, allHaps, dealGyulCards, hapKey, isHap, remainingHaps } from '@/lib/gyulhap';
 import { reportGame } from '@/lib/stats';
 import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
-import { GyulBoard, GyulScore } from './GyulhapParts';
+import { GyulBoard, GyulFound, GyulScore } from './GyulhapParts';
 
 const ACCENT = '#ffcf3f';
 type Mode = 'challenge10' | 'challenge5' | 'practice';
@@ -113,6 +113,7 @@ export default function GyulhapGame() {
           <div className="space-y-3">
             <GyulScore names={[t('you')]} scores={[score]} active={finished ? undefined : 0} />
             <GyulBoard cards={cards} selected={answerFocus ?? selected} onSelect={toggle} disabled={finished || revealed} />
+            {!finished && <GyulFound cards={cards} found={found} title={t('foundTitle')} empty={t('foundEmpty')} className="lg:hidden" />}
             {revealed && !finished && <div className="rounded-[14px] border border-(--accent)/35 bg-(--accent)/[.07] p-3 sm:p-4">
               <div className="flex items-center justify-between gap-2"><p className={PANEL_TITLE}>{t('answersTitle')}</p><span className="font-mono text-xs font-black text-(--accent)">{t('answerCount', { n: answers.length })}</span></div>
               {answers.length ? <div className="mt-3 flex flex-wrap gap-2">{answers.map((hap) => { const key = hapKey(hap); const used = found.includes(key); const focused = answerFocus && hapKey(answerFocus) === key; return <button key={key} type="button" onClick={() => setAnswerFocus(hap)} className={`rounded-md border px-2.5 py-1.5 font-mono text-xs font-black transition ${focused ? 'border-(--accent) bg-(--accent) text-(--accent-ink)' : used ? 'border-[#34c47c]/40 bg-[#34c47c]/10 text-[#7ee2ae]' : 'border-white/15 bg-black/25 text-white/65'}`}>{hap.map((n) => n + 1).join(' · ')}{used ? ' ✓' : ''}</button>; })}</div> : <p className="mt-3 rounded-md bg-black/25 px-3 py-2 text-center text-sm font-black text-(--accent)">{t('noHapAnswer')}</p>}
@@ -128,6 +129,7 @@ export default function GyulhapGame() {
           </div>
         </section>
         <aside className="flex flex-col gap-4">
+          {!finished && <GyulFound cards={cards} found={found} title={t('foundTitle')} empty={t('foundEmpty')} className="hidden lg:block" />}
           <section className={PANEL}><p className={PANEL_TITLE}>{t('session')}</p><div className="mt-3 grid grid-cols-3 gap-2 text-center"><div><p className="text-[10px] text-white/40">{t('score')}</p><b className="font-mono text-xl text-(--accent)">{score}</b></div><div><p className="text-[10px] text-white/40">{t('boards')}</p><b className="font-mono text-xl">{round}</b></div><div><p className="text-[10px] text-white/40">{t('foundLabel')}</p><b className="font-mono text-xl">{found.length}</b></div></div></section>
           <section className={PANEL}><p className="flex items-center gap-1.5 text-[10px] font-black tracking-[.16em] text-white/35"><Info size={12} />{t('tooltipsTitle')}</p><ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(t.raw('tips') as string[]).map((tip) => <li key={tip} className="flex gap-2"><Sparkles size={12} className="mt-1 shrink-0 text-(--accent)" /><span>{tip}</span></li>)}</ul></section>
           <section className={NOTE}><p className={PANEL_TITLE}>{t('quickRules')}</p><ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(t.raw('quickSolo') as string[]).map((rule) => <li key={rule}>· {rule}</li>)}</ul></section>
