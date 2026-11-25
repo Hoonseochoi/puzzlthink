@@ -138,5 +138,8 @@ export const hexAutoAction = (state: HexRoom): HexRoomAction | null =>
   state.phase === 'reveal' && Date.now() >= state.phaseEnd ? { t: 'next' } : null;
 
 /** Guests do not get the numbers while they are meant to be remembering them. */
+/** Host handoff: the numbers being recalled left with the old host, so this round is played again (scores stay). */
+export const resumeHexRoom = (view: HexRoom): HexRoom | null => (view.phase === 'recall' ? beginRound(view, view.index) : view);
+
 export const redactHexRoom = (state: HexRoom): HexRoom =>
   state.phase === 'recall' && state.round ? { ...state, round: { ...state.round, numbers: state.round.numbers.map(() => 0), answers: [] } } : state;

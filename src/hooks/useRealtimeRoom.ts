@@ -8,11 +8,17 @@ import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypt
 import { setRoomOpen, setRoomOpponents } from '@/lib/stats';
 import { isOpenRoom, pingLiveRoom } from '@/lib/openRooms';
 import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatPeers, setRoomPlaying } from '@/lib/roomChat';
+import { pushHostNotice } from '@/lib/roomHost';
 
 /**
  * Host-authoritative room over Supabase Realtime (broadcast + presence).
  * The browser that created the room holds the state, applies every action through
  * `engine.reduce`, and broadcasts the result; guests only send actions.
+ *
+ * Host handoff: when the host has been gone from presence for HANDOFF_MS, the guest who joined earliest
+ * (seated players first) takes over with the last state it saw, under a higher `term`. Hidden information
+ * (other players' cards, the deck) left with the old host, so such games use `engine.resume`, or go back to
+ * the lobby. If the old host comes back, the higher term wins and the old host continues as a guest.
  */
 export type RoomEngine<S extends BaseRoom, A> = {
   channel: string; // channel prefix, e.g. "wallgo-room"
@@ -31,7 +37,19 @@ export type RoomEngine<S extends BaseRoom, A> = {
   withPrivate?: (state: S, secret: unknown, seat: number) => S;
   // Guest actions that only the host may read (e.g. a hidden bid), sent end-to-end encrypted to the host.
   sealed?: (action: A) => boolean;
+  /**
+   * Host handoff in a game with hidden information (`redact`): turn the new host's view (public state plus its own
+   * secret) into a state it can run, e.g. the current hand dealt again with the bets given back. Return null to send
+   * the room back to the lobby. Not called in the lobby or once the game is finished (nothing is hidden then).
+   */
+  resume?: (view: S, seat: number | null) => S | null;
 };
+
+/** How long the host may be missing from presence (a refresh takes a few seconds) before a guest takes over. */
+const HANDOFF_MS = 9000;
+type HostMeta = { name: string; at: number; host: boolean; term?: number; hv?: string; pub?: string };
+/** The host that counts when two claim it: the higher term, then the one who joined first. */
+const hostRank = (a: [string, HostMeta], b: [string, HostMeta]) => (b[1].term ?? 0) - (a[1].term ?? 0) || a[1].at - b[1].at || a[0].localeCompare(b[0]);
 
 const CLIENT_KEY = 'puzzlthink_client_id';
 const NAME_KEY = 'puzzlthink_nickname';
@@ -105,8 +123,14 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   const joinedAt = useRef(0);
   const pubRef = useRef<string | undefined>(undefined);
   const uidRef = useRef<string | undefined>(undefined); // signed-in account id, shared so results can name opponents
+  const termRef = useRef(0); // host: the term this browser runs the room under
+  const hostValueRef = useRef<string | null>(null); // the room's host flag value (learned from the host's presence)
+  const peersRef = useRef<Peer[]>([]);
+  const hostSeenAt = useRef(0);
+  const hostIdRef = useRef<string | null>(null);
   const presenceMeta = useCallback((identity: { name: string; isHost: boolean }) => ({
     name: identity.name, at: joinedAt.current, host: identity.isHost,
+    ...(identity.isHost ? { term: termRef.current, ...(hostValueRef.current ? { hv: hostValueRef.current } : {}) } : {}),
     ...(pubRef.current ? { pub: pubRef.current } : {}), ...(uidRef.current ? { uid: uidRef.current } : {}),
   }), []);
 
@@ -118,6 +142,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   const sharedKeys = useRef(new Map<string, Promise<CryptoKey>>()); // public key -> AES key
   const publicRef = useRef<S | null>(null); // guest: last public state from the host
   const secretRef = useRef<{ sid: string; seat: number; value: unknown } | null>(null); // guest: my decrypted secret
+  const takeOverRef = useRef<(() => void) | null>(null);
 
   const keyFor = useCallback(async (pub: string) => {
     const keys = await keysRef.current;
@@ -151,7 +176,9 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     setState(view);
   }, [engine]);
 
-  const commit = useCallback((next: S) => {
+  const commit = useCallback((raw: S) => {
+    // Every state the host sends carries its term, so guests can drop a stale host's late broadcasts.
+    const next = termRef.current && raw.term !== termRef.current ? { ...raw, term: termRef.current } : raw;
     stateRef.current = next;
     lastChange.current = Date.now();
     setState(next);
@@ -176,6 +203,10 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     const host = { id, name: savedName || defaultName, at: joinedAt.current };
     const created = hostValue ? engine.create(hostValue, host) : null;
     const identity = { id, name: host.name, isHost: !!created };
+    hostValueRef.current = created ? hostValue : null;
+    termRef.current = 0;
+    hostSeenAt.current = Date.now();
+    hostIdRef.current = null;
     meRef.current = identity;
     setMe(identity);
 
@@ -188,6 +219,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       let saved: S | null = null;
       try { saved = JSON.parse(read(stateKeyFor(engine.storage, code)) || 'null'); } catch { saved = null; }
       const initial = saved && engine.restorable(saved, hostValue) ? saved : created;
+      termRef.current = initial.term ?? 0;
       stateRef.current = initial;
       setState(initial);
     }
@@ -195,15 +227,74 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     const channel = supabase.channel(`${engine.channel}-${code}`, { config: { presence: { key: id }, broadcast: { self: false } } });
     channelRef.current = channel;
 
+    const setIdentity = (isHost: boolean) => {
+      const self = meRef.current;
+      if (!self) return;
+      meRef.current = { ...self, isHost };
+      setMe(meRef.current);
+      channel.track(presenceMeta(meRef.current));
+    };
+    /** This browser was the host, but another took over meanwhile: drop the old state and follow the new host. */
+    const stepDown = () => {
+      try { localStorage.removeItem(hostKeyFor(engine.storage, code)); localStorage.removeItem(stateKeyFor(engine.storage, code)); } catch { /* optional */ }
+      termRef.current = 0;
+      publicRef.current = null; secretRef.current = null;
+      setIdentity(false);
+      channel.send({ type: 'broadcast', event: 'hello', payload: {} });
+    };
+    /** The host is gone: run the room from the last state this browser saw. */
+    takeOverRef.current = () => {
+      const view = stateRef.current;
+      const self = meRef.current;
+      if (!view || !self || self.isHost) return;
+      const meAsPeer: Peer = { id: self.id, name: self.name, at: joinedAt.current };
+      const others = peersRef.current;
+      let next: S | null;
+      let restarted = false;
+      if (view.phase === 'lobby') {
+        // The lobby keeps its settings; this browser takes the host seat and the others follow in join order.
+        next = { ...view, seats: view.seats.map((seat, i) => (i === 0 ? { id: self.id, name: self.name } : seat?.id === self.id ? null : seat)) };
+      } else if (!engine.redact || view.phase === 'finished') {
+        next = view; // everyone already had the whole state
+      } else {
+        restarted = true;
+        next = engine.resume?.(view, seatOf(view, self.id)) ?? null;
+        if (!next && hostValueRef.current) next = engine.create(hostValueRef.current, meAsPeer);
+        if (!next) { next = view; restarted = false; }
+      }
+      termRef.current = (view.term ?? 0) + 1;
+      if (hostValueRef.current) write(hostKeyFor(engine.storage, code), hostValueRef.current);
+      publicRef.current = null; secretRef.current = null;
+      hostIdRef.current = self.id;
+      setIdentity(true);
+      const synced = engine.syncSeats(next, others);
+      commit({ ...synced, term: termRef.current, v: Math.max(view.v, synced.v) + 1 });
+      pushHostNotice(self.name, true, restarted);
+    };
+
     channel.on('presence', { event: 'sync' }, () => {
-      const presence = channel.presenceState<{ name: string; at: number; host: boolean; pub?: string; emote?: string; emoteAt?: number; uid?: string }>();
+      const presence = channel.presenceState<HostMeta & { emote?: string; emoteAt?: number; uid?: string }>();
       const list: Peer[] = Object.entries(presence).map(([key, metas]) => ({ id: key, name: metas[0]?.name ?? '', at: metas[0]?.at ?? 0, emote: metas[0]?.emote, emoteAt: metas[0]?.emoteAt, uid: metas[0]?.uid }));
       for (const [key, metas] of Object.entries(presence)) { const pub = metas[0]?.pub; if (pub) peerPubs.current.set(key, pub); }
-      const hostMeta = Object.entries(presence).find(([, metas]) => metas.some((meta) => meta.host));
-      if (hostMeta?.[1][0]?.pub) peerPubs.current.set('__host__', hostMeta[1][0].pub);
+      const hosts = Object.entries(presence).flatMap(([key, metas]) => { const meta = metas.find((m) => m.host); return meta ? [[key, meta] as [string, HostMeta]] : []; }).sort(hostRank);
+      const top = hosts[0];
+      if (top?.[1].pub) peerPubs.current.set('__host__', top[1].pub);
+      if (top) {
+        hostSeenAt.current = Date.now();
+        if (top[1].hv && !meRef.current?.isHost) hostValueRef.current = top[1].hv;
+        const before = hostIdRef.current;
+        hostIdRef.current = top[0];
+        // Someone else took over from a host who left: tell everyone (the new host tells itself in takeOver).
+        if (before && before !== top[0] && top[0] !== meRef.current?.id && (top[1].term ?? 0) > 0 && !list.some((p) => p.id === before)) {
+          pushHostNotice(top[1].name, false, false);
+        }
+      }
+      peersRef.current = list;
       setPeers(list);
       setChatPeers(chatToken, list);
-      setHostOnline(Object.values(presence).some((metas) => metas.some((meta) => meta.host)));
+      setHostOnline(hosts.length > 0);
+      // A host that came back after someone else took over continues as a guest.
+      if (meRef.current?.isHost && top && top[0] !== meRef.current.id) { stepDown(); return; }
       if (meRef.current?.isHost && stateRef.current) {
         const next = engine.syncSeats(stateRef.current, list);
         if (next !== stateRef.current) commit(next); else sendSecrets(next);
@@ -213,7 +304,11 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       if (meRef.current?.isHost) return;
       const incoming = payload as S;
       const current = publicRef.current;
-      if (!current || incoming.sid !== current.sid || incoming.v >= current.v) { publicRef.current = incoming; showGuestView(); }
+      const term = incoming.term ?? 0;
+      const known = current?.term ?? 0;
+      if (term < known) return; // a host that has since been replaced
+      hostSeenAt.current = Date.now();
+      if (!current || term > known || incoming.sid !== current.sid || incoming.v >= current.v) { publicRef.current = incoming; showGuestView(); }
     });
     channel.on('broadcast', { event: 'secret' }, ({ payload }) => {
       if (meRef.current?.isHost || payload?.to !== meRef.current?.id) return;
@@ -277,8 +372,22 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       } else if (result === 'CHANNEL_ERROR' || result === 'TIMED_OUT') setStatus('error');
     });
 
-    return () => { channelRef.current = null; closeChat(chatToken); supabase.removeChannel(channel); };
+    return () => { channelRef.current = null; takeOverRef.current = null; closeChat(chatToken); supabase.removeChannel(channel); };
   }, [engine, code, defaultName, apply, commit, sendSecrets, showGuestView, keyFor, presenceMeta]);
+
+  // Guests: if the host has been gone long enough, the guest who joined first (seated players first) takes over.
+  useEffect(() => {
+    if (!me || me.isHost) return;
+    const timer = window.setInterval(() => {
+      const view = stateRef.current;
+      if (!view || !channelRef.current || Date.now() - hostSeenAt.current < HANDOFF_MS) return;
+      const present = peersRef.current;
+      const seated = present.filter((p) => seatOf(view, p.id) !== null);
+      const next = [...(seated.length ? seated : present)].sort((a, b) => a.at - b.at || a.id.localeCompare(b.id))[0];
+      if (next?.id === me.id) takeOverRef.current?.();
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [me]);
 
   // The host enforces the turn limit for everyone.
   useEffect(() => {

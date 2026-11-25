@@ -2,7 +2,8 @@
 export type Seat = { id: string; name: string } | null;
 /** A browser in the room. `emote` is the latest quick reaction (ㅎㅇ, ㅇㅋ…) and when it was sent. */
 export type Peer = { id: string; name: string; at: number; emote?: string; emoteAt?: number; uid?: string };
-export type BaseRoom = { sid: string; v: number; seats: Seat[]; phase: string; deadline: number };
+/** `term`: which host is running the room. It goes up by one each time a guest takes over from a host who left. */
+export type BaseRoom = { sid: string; v: number; seats: Seat[]; phase: string; deadline: number; term?: number };
 
 /** Whether `text` is a room code: the 4-digit invite codes, or the older 6-character ones (old links keep working). */
 export const isRoomCode = (text: string) => /^\d{4}$/.test(text) || /^[a-z0-9]{6}$/.test(text);

@@ -162,6 +162,12 @@ export function reduceH13Room(state: H13Room, action: H13Action, seat: number | 
 }
 
 /** What guests receive: hidden submissions stay hidden until everyone has submitted. */
+/** Host handoff: hidden submissions left with the old host, so this round's submissions are made again. */
+export function resumeH13Room(view: H13Room): H13Room | null {
+  if (view.phase !== 'playing' || view.game.phase !== 'submit') return view;
+  return { ...view, game: { ...view.game, subs: view.game.subs.map(() => null) }, submitted: Array(PLAYERS).fill(false), deadline: clock(view, view.game) };
+}
+
 export function redactH13(state: H13Room): H13Room {
   if (state.game.phase !== 'submit') return state;
   return { ...state, game: { ...state.game, subs: state.game.subs.map(() => null) } };

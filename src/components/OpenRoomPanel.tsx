@@ -130,11 +130,12 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   // The host keeps the room in the public list while it waits, and takes it off when it starts or closes.
   useEffect(() => {
     if (!isHost || state?.phase !== 'lobby' || !me) return;
-    const put = () => putOpenRoom(game, code, { variant, host: me.name, players: humans, capacity, title: title.trim() || t('defaultTitle', { name: me.name }) });
+    // A guest who took over as host keeps the title the room was listed under.
+    const put = () => putOpenRoom(game, code, { variant, host: me.name, players: humans, capacity, title: title.trim() || listedTitle || t('defaultTitle', { name: me.name }) });
     put();
     const timer = window.setInterval(put, 20_000);
     return () => window.clearInterval(timer);
-  }, [isHost, state?.phase, me, game, code, variant, humans, capacity, title, t]);
+  }, [isHost, state?.phase, me, game, code, variant, humans, capacity, title, listedTitle, t]);
   // Guests read the room title from the public list.
   useEffect(() => {
     if (isHost) return;
@@ -165,7 +166,7 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
   const { user } = useAuth();
   const uids = seats.flatMap((seat) => { const uid = seat ? peerOf(seat.id)?.uid : undefined; return uid ? [uid] : []; }).sort();
   const records = useRecords(uids, user?.id);
-  const shownTitle = isHost ? (title.trim() || (me ? t('defaultTitle', { name: me.name }) : '')) : listedTitle;
+  const shownTitle = isHost ? (title.trim() || listedTitle || (me ? t('defaultTitle', { name: me.name }) : '')) : listedTitle;
   const startLabel = option.fillAi !== false && humans < capacity && need < capacity ? t('startWithAi', { n: humans, cap: capacity }) : t('start');
 
   const body = (

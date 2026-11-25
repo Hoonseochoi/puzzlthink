@@ -1,6 +1,6 @@
 "use client";
 
-import { type HexRoom, type HexRoomAction, createHexRoom, hexAutoAction, redactHexRoom, reduceHexRoom, syncHexSeats } from '@/lib/hexagonRoom';
+import { type HexRoom, type HexRoomAction, createHexRoom, hexAutoAction, redactHexRoom, reduceHexRoom, resumeHexRoom, syncHexSeats } from '@/lib/hexagonRoom';
 import { type RoomEngine, prepareRoom, useRealtimeRoom } from './useRealtimeRoom';
 
 const HEX_ROOM: RoomEngine<HexRoom, HexRoomAction> = {
@@ -14,6 +14,7 @@ const HEX_ROOM: RoomEngine<HexRoom, HexRoomAction> = {
   timeoutAction: { t: 'timeout' },
   autoAction: hexAutoAction,
   redact: redactHexRoom,
+  resume: resumeHexRoom,
 };
 
 /** Creates a 헥사곤 room code and marks this browser as its host. */

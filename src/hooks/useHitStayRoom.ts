@@ -2,7 +2,7 @@
 
 import {
   type HitStayRoom, type HitStayRoomAction,
-  createHitStayRoom, hitStayAutoAction, hitStayRoomSecret, redactHitStayRoom, reduceHitStayRoom, syncHitStaySeats, withHitStayRoomSecret,
+  createHitStayRoom, hitStayAutoAction, resumeHitStayRoom, hitStayRoomSecret, redactHitStayRoom, reduceHitStayRoom, syncHitStaySeats, withHitStayRoomSecret,
 } from '@/lib/hitStayRoom';
 import { HS_PLAYERS } from '@/lib/hitStay';
 import { type RoomEngine, prepareRoom, useRealtimeRoom } from './useRealtimeRoom';
@@ -13,7 +13,7 @@ export const HIT_STAY_ROOM: RoomEngine<HitStayRoom, HitStayRoomAction> = {
   restorable: (saved) => Array.isArray(saved?.seats) && saved.seats.length === HS_PLAYERS && !!saved.game && Array.isArray(saved.game.hands),
   reduce: reduceHitStayRoom, syncSeats: syncHitStaySeats,
   running: (state) => state.phase === 'playing', timeoutAction: { t: 'timeout' }, autoAction: hitStayAutoAction, autoDelay: 300,
-  redact: redactHitStayRoom, privateFor: hitStayRoomSecret, withPrivate: withHitStayRoomSecret,
+  redact: redactHitStayRoom, privateFor: hitStayRoomSecret, withPrivate: withHitStayRoomSecret, resume: resumeHitStayRoom,
 };
 
 /** Creates a 5-seat HIT, STAY room code (empty seats become AI) and marks this browser as its host. */

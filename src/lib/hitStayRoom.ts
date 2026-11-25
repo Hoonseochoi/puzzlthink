@@ -190,6 +190,20 @@ export function hitStayAutoAction(state: HitStayRoom): HitStayRoomAction | null 
   return hsWaitingOn(state.game).some((s) => state.ai[s]) ? { t: 'ai' } : null;
 }
 
+/**
+ * Host handoff: the old host took everyone's hidden cards and the deck with it, so a hand in progress is dealt again
+ * (same round, bets back to their owners). Between hands and at the end nothing is hidden, so the view carries on.
+ */
+export function resumeHitStayRoom(view: HitStayRoom): HitStayRoom | null {
+  const g = view.game;
+  if (view.phase !== 'playing' || g.phase === 'showdown' || g.phase === 'finished') return view;
+  const before: HitStay = {
+    ...g, round: g.round - 1, first: (g.first + HS_PLAYERS - 1) % HS_PLAYERS,
+    chips: g.chips.map((c, i) => c + g.bets[i]), bets: Array(HS_PLAYERS).fill(0),
+  };
+  return withGame(view, startRound(before), HOLD_MS.round);
+}
+
 export const redactHitStayRoom = (state: HitStayRoom): HitStayRoom => ({ ...state, game: redactHitStay(state.game) });
 export const hitStayRoomSecret = (state: HitStayRoom, seat: number) => hitStaySecret(state.game, seat);
 export const withHitStayRoomSecret = (state: HitStayRoom, secret: unknown, seat: number): HitStayRoom => ({ ...state, game: withHitStaySecret(state.game, secret, seat) });

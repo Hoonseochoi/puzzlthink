@@ -1,4 +1,4 @@
-import { Bot, Coins, Flame, History, MousePointerClick, PenLine, Scale, Sparkles, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { Bot, Coins, Crown, Flame, History, MousePointerClick, PenLine, Scale, Sparkles, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -9,6 +9,7 @@ import { Bot, Coins, Flame, History, MousePointerClick, PenLine, Scale, Sparkles
 //   - A change undone the same day: edit or drop its entry instead of adding a second one.
 //   - A game's first entry: add the game here and put <GameUpdates game="…" /> in its header(s), before <BugReport />.
 //     The game's entry screen shows its newest notes by itself (GameUpdatesSection, keyed by the same id).
+//   - A change to every friend/open room at once (the shared room code): add it to ROOM_NOTES at the bottom instead.
 
 export type GameUpdate = {
   date: string; // 'MM/DD'
@@ -269,3 +270,34 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     ],
   },
 };
+
+// ---------------------------------------------------------------------------------------------
+// Notes for every game with friend and open rooms (changes to the shared room code). Newest first.
+const ROOM_NOTES: GameUpdate[] = [
+  {
+    date: '11/26', icon: Crown,
+    ko: { title: '친구·공개 대전: 방장이 나가도 방이 유지돼요', desc: '방장이 나가면 몇 초 뒤 남은 사람 중 먼저 들어온 사람이 방장을 이어받아 계속해요. 숨긴 카드가 있는 게임은 진행 중인 판을 새로 시작하거나 대기실로 돌아가요.' },
+    en: { title: 'Friend and open rooms survive the host leaving', desc: 'A few seconds after the host leaves, whoever joined first takes over as host and play goes on. Games with hidden cards deal the current hand again or go back to the lobby.' },
+  },
+];
+
+/** Every game with rooms, by update-log id (the name is used if the game has no notes of its own yet). */
+const ROOM_GAMES: Record<string, { ko: string; en: string }> = {
+  binairo: { ko: '비나이로', en: 'Binairo' }, black_white: { ko: '흑과 백', en: 'Black & White' }, black_white_2: { ko: '흑과 백 II', en: 'Black & White II' },
+  blind_gomoku: { ko: '블라인드 오목', en: 'Blind Gomoku' }, card_janggi: { ko: '카드 장기', en: 'Card Janggi' }, color_link_duel: { ko: '컬러 링크', en: 'Color Link Duel' },
+  colorlink: { ko: '컬러 잇기', en: 'Color Link' }, flip_omok: { ko: '뒤집기 오목', en: 'Flip Omok' }, four_three: { ko: '4인 3목', en: '4 Player 3 In a Row' },
+  gradation: { ko: '그라데이션', en: 'Gradation' }, gyulhap: { ko: '결합', en: 'Gyul! Hap!' }, heavy13: { ko: '무거운 13', en: 'Heavy 13' },
+  hexagon: { ko: '헥사곤', en: 'Hexagon' }, hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay' }, indian_poker: { ko: '인디언 포커', en: 'Indian Poker' },
+  janggi: { ko: '십이장기', en: '12 Janggi' }, laser_janggi: { ko: '레이저 장기', en: 'Laser Janggi' }, magicswap: { ko: '마방진 스왑', en: 'Magic Square Swap' },
+  masyu: { ko: '마슈', en: 'Masyu' }, merge2048: { ko: '2048', en: '2048' }, monorail: { ko: '모노레일', en: 'Monorail' },
+  nemo_count: { ko: '네모 세기', en: 'Nemo Count' }, nine_mens_morris: { ko: '나인 멘스 모리스', en: "Nine Men's Morris" }, nonogram: { ko: '노노그램', en: 'Nonogram' },
+  onestroke: { ko: '한붓길', en: 'One Stroke' }, piggy_bank: { ko: '돼지 저금통', en: 'Piggy Bank' }, point_omok: { ko: '포인트 오목', en: 'Point Omok' },
+  russian_janggi: { ko: '러시아장기', en: 'Russian Janggi' }, russian_roulette: { ko: '러시안 룰렛', en: 'Russian Roulette' }, slitherlink: { ko: '슬리더링크', en: 'Slitherlink' },
+  starbattle: { ko: '스타배틀', en: 'Star Battle' }, two_sided_poker: { ko: '양면포커', en: 'Two-Sided Poker' }, wallgo: { ko: '벽바둑', en: 'Wallgo' }, wallgo2: { ko: '벽바둑 II', en: 'Wallgo II' },
+};
+
+for (const [key, name] of Object.entries(ROOM_GAMES)) {
+  const log = (GAME_UPDATES[key] ??= { name, items: [] });
+  // 'MM/DD' sorts by date; the sort is stable, so a game's own notes keep their order within a day.
+  log.items = [...ROOM_NOTES, ...log.items].sort((a, b) => b.date.localeCompare(a.date));
+}

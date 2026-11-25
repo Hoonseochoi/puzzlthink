@@ -1,8 +1,8 @@
 // AI stand-in for friend rooms with AI seats (Heavy13, Russian roulette).
 // A player who is disconnected for AWAY_AFTER_MS, or lets MISSES_FOR_AWAY turns in a row time out, is
 // marked away: their seat keeps their name but the AI plays it, so the table keeps going. When they come
-// back they press "rejoin" and get the seat back. The host's browser runs the room, so this covers guests;
-// if the host leaves, the room pauses as before.
+// back they press "rejoin" and get the seat back. The host's browser runs the room; if the host leaves, a guest
+// takes over as host (useRealtimeRoom) and the old host's seat is handled like any other away player.
 import type { BaseRoom, Peer } from './room';
 
 export const AWAY_AFTER_MS = 20_000;

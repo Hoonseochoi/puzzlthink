@@ -1,6 +1,6 @@
 "use client";
 
-import { type H13Action, type H13Room, createH13Room, h13AutoAction, reduceH13Room, redactH13, syncH13Seats } from '@/lib/heavy13Room';
+import { type H13Action, type H13Room, createH13Room, h13AutoAction, reduceH13Room, redactH13, resumeH13Room, syncH13Seats } from '@/lib/heavy13Room';
 import { type RoomEngine, prepareRoom, useRealtimeRoom } from './useRealtimeRoom';
 
 export const H13_ROOM: RoomEngine<H13Room, H13Action> = {
@@ -15,6 +15,7 @@ export const H13_ROOM: RoomEngine<H13Room, H13Action> = {
   autoAction: h13AutoAction,
   autoDelay: 1500, // wait at least 1.5s after any move before the next AI step, so play is easy to follow
   redact: redactH13,
+  resume: resumeH13Room,
 };
 
 export const prepareHeavy13Room = () => prepareRoom(H13_ROOM.channel, H13_ROOM.storage, 'heavy13');
