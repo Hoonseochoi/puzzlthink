@@ -1,11 +1,13 @@
 // Lounge chat (라운지): one site-wide room on the home page and every game page, mostly to find people for open rooms.
 // Every rule (sign-in, 3 s gap, spam ban, words, personal info) is enforced by the database function
 // lounge_send (supabase/migrations/20271123020000_lounge_chat.sql). The client only shows the reason.
-// Messages fan out as a Realtime broadcast on the public topic 'lounge'; the last 50 come from lounge_state.
+// Messages fan out as a Realtime broadcast on the public topic 'lounge'; the last 50 from the past 24 hours come from lounge_state.
 import { getSupabase } from './supabase';
 
 export const LOUNGE_MAX_LEN = 200;
 export const LOUNGE_KEEP = 50;
+/** Messages are kept for 24 hours (lounge_state() and the lounge-expire cron job). */
+export const LOUNGE_TTL_MS = 24 * 60 * 60 * 1000;
 
 export type LoungeMessage = { id: number; sender: string; name: string; game: string | null; staff?: boolean; pieces?: number; text: string; at: number };
 export type LoungeBan = { until: number; reason: string };

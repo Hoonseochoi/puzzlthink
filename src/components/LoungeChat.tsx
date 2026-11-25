@@ -8,7 +8,7 @@ import { usePathname } from '@/i18n/routing';
 import { LOUNGE_OPEN_EVENT, isGamePath, setLoungeUnread, useOnlineCount } from '@/lib/siteBus';
 import { GAMES } from '@/lib/gameCatalog';
 import { chatPrefs, chatPrefsServer, clearMuted, isMuted, roomPlaying, setMuted, subscribeChat } from '@/lib/roomChat';
-import { LOUNGE_KEEP, LOUNGE_MAX_LEN, type LoungeBan, type LoungeMessage, type LoungeReason, isLoungeMessage, falseOnServer, loadLounge, loungeMini, loungeOff, loungeOffServer, loungeSeen, markLoungeSeen, setLoungeMini, trueOnServer, reportLounge, sendLounge, setLoungeOff, subscribeLoungeOff, visibilityStore } from '@/lib/lounge';
+import { LOUNGE_KEEP, LOUNGE_MAX_LEN, LOUNGE_TTL_MS, type LoungeBan, type LoungeMessage, type LoungeReason, isLoungeMessage, falseOnServer, loadLounge, loungeMini, loungeOff, loungeOffServer, loungeSeen, markLoungeSeen, setLoungeMini, trueOnServer, reportLounge, sendLounge, setLoungeOff, subscribeLoungeOff, visibilityStore } from '@/lib/lounge';
 import { useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
 import { Stone } from './StoneAvatar';
@@ -82,6 +82,15 @@ export default function LoungeChat() {
     return () => { alive = false; supabase.removeChannel(channel); };
   }, [off, visible, playing, user?.id]);
 
+  // A minute clock while the drawer is open, so messages drop out as they pass 24 hours.
+  useEffect(() => {
+    if (!open) return;
+    const tick = () => setNow(Date.now());
+    const first = window.setTimeout(tick, 0);
+    const timer = window.setInterval(tick, 60_000);
+    return () => { window.clearTimeout(first); window.clearInterval(timer); };
+  }, [open]);
+
   // A clock for the ban countdown.
   useEffect(() => {
     if (!ban) return;
@@ -98,7 +107,9 @@ export default function LoungeChat() {
     return () => window.clearTimeout(timer);
   }, [notice]);
 
-  const shown = messages.filter((m) => m.sender === me || !isMuted(prefs.muted, { from: m.sender }));
+  // Messages older than 24 hours disappear (the server deletes them too); `now` ticks every minute while open.
+  const cutoff = now - LOUNGE_TTL_MS;
+  const shown = messages.filter((m) => (!m.at || m.at > cutoff) && (m.sender === me || !isMuted(prefs.muted, { from: m.sender })));
   useEffect(() => {
     const list = listRef.current;
     if (open && list) list.scrollTop = list.scrollHeight;
