@@ -24,6 +24,7 @@ import { ReplayControls, ReplayHeader } from '../ui/ReplayBar';
 import { useH13Replay } from './useH13Replay';
 import Heavy13Tutorial from './Heavy13Tutorial';
 import { H_ROOT_STYLE, SAND, SHARD_TINT } from './theme';
+import GameUpdates from '@/components/GameUpdates';
 
 const LEVELS: AiLevel[] = ['easy', 'normal', 'hard'];
 
@@ -82,7 +83,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
       <RoomAlerts alerts={alerts} accent={SAND} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
       <GameHeader backHref="/heavy13" backLabel={t('title')} title={t('title')} subtitle={`ONLINE · ${code.toUpperCase()}`}>
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="heavy13" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <p className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3a8] lg:px-6"><WifiOff size={14} />{notice}</p>}
       {state?.phase === 'playing' && <AwayBanner seats={state.seats} away={state.away} mySeat={mySeat} onRejoin={() => dispatch({ t: 'rejoin' })} />}

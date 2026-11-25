@@ -22,6 +22,7 @@ import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, playerRow, seg, timer } from '../ui/gameUi';
 import { GOLD, JANGGI_FOG, SIDE_COLORS, hanjaFont } from './theme';
+import GameUpdates from '@/components/GameUpdates';
 
 export default function JanggiRoomView({ code }: { code: string }) {
   const t = useTranslations('JanggiOnline');
@@ -91,7 +92,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
       <WallGoShards tint="#4a3812" />
       <RoomAlerts alerts={alerts} accent={GOLD} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader backHref="/janggi" backLabel={tc('janggi')} title="十二將棋" titleClass={hanjaFont.className} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="janggi" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

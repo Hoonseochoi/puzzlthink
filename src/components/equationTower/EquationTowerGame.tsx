@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { Blocks, RotateCcw, SkipForward, Timer, Trophy, Undo2 } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import GameUpdates from '@/components/GameUpdates';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
@@ -112,7 +113,7 @@ export default function EquationTowerGame() {
       <Shards tint="#33211a" />
       <BoardExitToast warn={exitWarn} />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={c.title} titleClass="font-black" subtitle={c.subtitle}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="equation_tower" /><BugReport /><LanguageSwitcher compact dark />
         {phase !== 'intro' && <button type="button" onClick={() => switchMode(mode)} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{c.restart}</span></button>}
       </GameHeader>
 

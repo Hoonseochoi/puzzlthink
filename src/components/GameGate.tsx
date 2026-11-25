@@ -12,6 +12,7 @@ import OpenPracticeShell from './OpenPractice';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import { GAME_MODES } from './gameModes';
+import { GameUpdatesSection } from './GameUpdates';
 import { accentVars } from './ui/gameUi';
 
 const PLAY_HASH = '#play';
@@ -234,6 +235,9 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
               </div>
             </section>
           )}
+
+          {/* What changed lately in this game, with the full history in a popup (src/lib/gameUpdates.ts). */}
+          <GameUpdatesSection game={game} tone={tone} />
 
           {tutorial && <a href="#how-to-play" className={`mt-4 inline-flex items-center gap-2 text-sm font-bold underline-offset-4 hover:underline ${muted}`}><BookOpen size={15} />{t('howToPlay')}</a>}
         </div>

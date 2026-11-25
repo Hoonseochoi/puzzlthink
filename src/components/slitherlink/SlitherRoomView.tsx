@@ -12,7 +12,7 @@ import { useSlitherRoom } from '@/hooks/useSlitherRoom';
 import { type Mark, formatClock, hintEdges, isSolved, loopOrder } from '@/lib/slitherlink';
 import { ROOM_SIZES, roomPuzzle } from '@/lib/slitherRoom';
 import { reportGame } from '@/lib/stats';
-import SlitherUpdate from './SlitherUpdate';
+import GameUpdates from '@/components/GameUpdates';
 import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool, undoOf, useUndoKey } from './SlitherBoard';
 
 const COLORS = ['#8f7cff', '#ff6b8a', '#4ac9ff', '#8ce06b'];
@@ -118,7 +118,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
 
   return <div className={SHELL} style={{ ...accentVars(SLITHER_ACCENT, SLITHER_INK), backgroundImage: fog('120, 100, 220') }}>
     
-    <GameHeader backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · 2–4 · ${code}`}><SlitherUpdate /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+    <GameHeader backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · 2–4 · ${code}`}><GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}>
       <section className={STAGE}>

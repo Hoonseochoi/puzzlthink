@@ -186,8 +186,27 @@ function hasOpenFourMove(board: Board, p: Player): boolean {
   return false;
 }
 
-/** 중간: one move of lookahead with a little randomness — solid, but it can be out-read. */
-function normalMove(board: Board, me: Player, moves: number[]): number {
+/**
+ * 보통: looks at its own move only. It always takes a five and blocks one, and usually avoids a move that hands over
+ * a win, but its judgement is loose (wide noise), so an open three or a flip that turns the line can get past it.
+ * Tuned from play data: the two-move reader below was 보통 and people won only 15% (4% on a first try); it is 어려움 now.
+ */
+function casualMove(board: Board, me: Player, moves: number[]): number {
+  const foe = other(me);
+  const block = winningReply(board, foe);
+  if (block !== null && moves.includes(block) && winningReply(play(board, block, me).board, foe) === null) return block;
+  const ranked = moves.map((m) => {
+    const res = play(board, m, me);
+    return { m, res, score: evaluate(res.board, me) + res.flipped.length * 40 + Math.random() * 350 };
+  }).sort((a, b) => b.score - a.score);
+  // Mostly it notices a move that lets the opponent make five at once.
+  const careful = Math.random() < 0.9;
+  for (const { m, res } of ranked.slice(0, 10)) if (!careful || winningReply(res.board, foe) === null) return m;
+  return ranked[0].m;
+}
+
+/** 어려움: reads its move and the best reply, with a little randomness — solid, but it can be out-read. */
+function readerMove(board: Board, me: Player, moves: number[]): number {
   const foe = other(me);
   // The opponent's open three (one move from an unstoppable four) must be answered: keep to moves that defuse it.
   if (hasOpenFourMove(board, foe)) {
@@ -220,7 +239,8 @@ function normalMove(board: Board, me: Player, moves: number[]): number {
   return best;
 }
 
-// ---- 어려움: alpha-beta search ----
+// ---- The strongest player: alpha-beta search. It was 어려움 until 11/26, but people won only 1.7% of 120 games
+// against it, so it is no longer offered; it is kept (and exported) as the ready-made engine for a 매우 어려움 level. ----
 
 // The windows each point belongs to, so a move only re-scores the lines it touches.
 const WINDOWS_OF: number[][] = Array.from({ length: SIZE * SIZE }, () => []);
@@ -292,8 +312,8 @@ function negamax(board: Board, value: number, p: Player, depth: number, alpha: n
   return best;
 }
 
-/** 어려움: iterative deepening (2 → 4 → 6 plies) inside a time budget, best move of the deepest finished pass. */
-function hardMove(board: Board, me: Player, budgetMs = 800): number {
+/** Iterative deepening (2 → 4 → 6 plies) inside a time budget, best move of the deepest finished pass. */
+export function searchMove(board: Board, me: Player, budgetMs = 800): number {
   const deadline = Date.now() + budgetMs;
   const value = totalValue(board);
   const root = orderedMoves(board, value, me, 14);
@@ -323,7 +343,7 @@ export function chooseMove(board: Board, me: Player, difficulty: FlipDifficulty 
   const moves = candidates(board).filter((m) => !isForbidden(board, m, me));
   if (!moves.length) return board.findIndex((v, i) => !v && !isForbidden(board, i, me));
   for (const m of moves) if (play(board, m, me).win) return m;
-  return difficulty === 'hard' ? hardMove(board, me) : normalMove(board, me, moves);
+  return difficulty === 'hard' ? readerMove(board, me, moves) : casualMove(board, me, moves);
 }
 
 export function coordinateLabel(at: number) {

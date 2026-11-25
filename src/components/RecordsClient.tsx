@@ -177,20 +177,23 @@ export default function RecordsClient() {
             </div>
           ) : (
             <>
-              <section className="mt-4 flex flex-col gap-3 rounded-[24px] border border-black/10 bg-[#f9f7f1] p-5 sm:flex-row sm:items-end">
-                <label className="min-w-0 flex-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-black/40">{t('nickname')}</span>
-                  <input value={nickname} onChange={(event) => { setNickname(event.target.value); setNameTaken(false); }} maxLength={16} className="mt-1 w-full rounded-2xl border border-black/10 bg-white px-3 py-2.5 text-sm font-bold outline-none focus:border-[#ff6b4a]/60" />
-                </label>
-                <label className="flex items-center gap-2 text-xs font-bold text-black/60">
-                  <input type="checkbox" checked={showInHall} onChange={(event) => setShowInHall(event.target.checked)} className="h-4 w-4 accent-[#17201e]" />{t('showInHall')}
-                </label>
-                <button onClick={onSave} className="rounded-2xl bg-[#17201e] px-5 py-2.5 text-xs font-black text-white">{saved ? t('saved') : t('save')}</button>
-              </section>
+              <StonePicker name={profile?.nickname || displayName(user)} form={
+                <div className="flex flex-col gap-2.5 sm:flex-row sm:items-end">
+                  <label className="min-w-0 flex-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-white/45">{t('nickname')}</span>
+                    <input value={nickname} onChange={(event) => { setNickname(event.target.value); setNameTaken(false); }} maxLength={16} className="mt-1 w-full rounded-2xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm font-bold text-white outline-none placeholder:text-white/30 focus:border-[#ffd36e]/70" />
+                  </label>
+                  <div className="flex items-center justify-between gap-3">
+                    <label className="flex items-center gap-2 text-xs font-bold text-white/65">
+                      <input type="checkbox" checked={showInHall} onChange={(event) => setShowInHall(event.target.checked)} className="h-4 w-4 accent-[#ffd36e]" />{t('showInHall')}
+                    </label>
+                    <button onClick={onSave} className="rounded-2xl bg-[#ffd36e] px-5 py-2.5 text-xs font-black text-[#17201e] transition active:scale-95">{saved ? t('saved') : t('save')}</button>
+                  </div>
+                </div>
+              } />
               {nameTaken && <p className="mt-2 text-xs font-bold text-[#c2410c]">{t('nicknameTaken')}</p>}
               <p className="mt-2 break-keep text-[11px] font-bold text-black/55">{t('nicknameNote')}</p>
               <p className="mt-1 flex items-center gap-1.5 text-[11px] text-black/40"><Crown size={11} />{t('privacyNote')}</p>
-              <StonePicker name={profile?.nickname || displayName(user)} />
 
               <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
                 <section className="flex items-center gap-4 rounded-[24px] border border-black/10 bg-[#f9f7f1] p-5">

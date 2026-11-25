@@ -44,6 +44,7 @@ const ko = {
   you: '나',
   ai: 'AI',
   aiName: 'AI · 어려움',
+  aiNames: { normal: 'AI · 보통', hard: 'AI · 어려움', hell: 'AI · 매우 어려움' } as Record<'normal' | 'hard' | 'hell', string>,
   back: '컬러 링크',
   rules: '규칙',
   again: '새 게임',
@@ -148,7 +149,7 @@ const ko = {
     '상대가 놓은 판이 이어질 수 없다고 생각하면 내 차례에 불가능 선언! 상대가 2분 안에 모든 선을 그려 증명하면 상대가, 못 하면 내가 승점 1.',
     '선공·후공은 직접 골라요(친구·공개방은 동전 던지기로 고를 사람을 정해요). 단판 승부: 먼저 1점을 따면 승리.',
   ],
-  aiNote: 'AI는 항상 최선을 둬요. 증명할 수 없는 판에만 불가능을 선언하고, 자기가 놓은 판은 늘 증명해요.',
+  aiNote: 'AI는 이을 수 없는 판에만 불가능을 선언해요. 매우 어려움은 항상 최선을 두고, 어려움과 보통은 사람처럼 가끔 수를 놓쳐요.',
   vsColorlink: '혼자 푸는 퍼즐 「컬러 잇기」와 달리, 둘이 번갈아 말을 놓으며 상대를 몰아붙이는 대결 게임이에요.',
 };
 
@@ -160,6 +161,7 @@ const en: Copy = {
   you: 'You',
   ai: 'AI',
   aiName: 'AI · Hard',
+  aiNames: { normal: 'AI · Normal', hard: 'AI · Hard', hell: 'AI · Very Hard' },
   back: 'Color Link Duel',
   rules: 'Rules',
   again: 'New game',
@@ -259,7 +261,7 @@ const en: Copy = {
     'Think the board your opponent just made cannot be joined? Call it impossible on your turn. They get 2 minutes to draw every line: prove it and they score, fail and you do.',
     'You choose to go first or second (in rooms a coin toss picks who chooses). One round: the first point wins.',
   ],
-  aiNote: 'The AI always plays its best: it calls impossible only on boards that truly cannot be joined, and it can always prove its own.',
+  aiNote: 'The AI calls impossible only on boards that truly cannot be joined. Very Hard always plays its best; Hard and Normal sometimes miss a move, like people do.',
   vsColorlink: 'Unlike the solo puzzle “Color Link”, this is a duel: two players take turns placing stones and squeezing each other.',
 };
 

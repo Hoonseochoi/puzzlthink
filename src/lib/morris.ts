@@ -162,7 +162,7 @@ export const stallLeft = (s: MorrisState) => {
 // ——— AI ———
 
 export type MorrisLevel = 'easy' | 'normal' | 'hard';
-const DEPTH: Record<MorrisLevel, number> = { easy: 2, normal: 3, hard: 5 };
+const DEPTH: Record<MorrisLevel, number> = { easy: 2, normal: 3, hard: 6 };
 
 function evaluate(s: MorrisState, me: Player): number {
   if (s.winner !== null) return s.winner === 'draw' ? 0 : s.winner === me ? 100_000 : -100_000;
@@ -194,7 +194,11 @@ function countMoves(s: MorrisState, p: Player) {
 
 function search(s: MorrisState, depth: number, alpha: number, beta: number, me: Player, budget: { n: number }): number {
   budget.n -= 1;
-  if (depth === 0 || s.winner !== null || budget.n <= 0) return evaluate(s, me) + (s.winner !== null ? depth : 0);
+  if (depth === 0 || s.winner !== null || budget.n <= 0) {
+    // A sooner win is better and a later loss is better (it leaves the other side more chances to slip).
+    const sooner = s.winner === null || s.winner === 'draw' ? 0 : s.winner === me ? depth : -depth;
+    return evaluate(s, me) + sooner;
+  }
   const moves = order(legalMoves(s));
   if (s.turn === me) {
     let best = -Infinity;
@@ -209,15 +213,21 @@ function search(s: MorrisState, depth: number, alpha: number, beta: number, me: 
 /** Captures first, so alpha-beta cuts early. */
 const order = (moves: Move[]) => moves.sort((a, b) => (b.remove !== null ? 1 : 0) - (a.remove !== null ? 1 : 0));
 
-/** The AI's move for the side to move. Easy looks two half-moves ahead and often slips; hard looks five half-moves on. */
+// How far below its best move a level still picks (in evaluation points: a piece is 1000, a mill threat about 100).
+// Without this the AI answered a position the same way every time and a winning line could simply be replayed
+// (play data: several people at 13–16 wins out of 13–16 against hard).
+const MARGIN: Record<MorrisLevel, number> = { easy: 700, normal: 60, hard: 18 };
+
+/** The AI's move for the side to move. Easy looks two half-moves ahead and often slips; hard looks six half-moves on. */
 export function chooseMorrisMove(s: MorrisState, level: MorrisLevel = 'normal'): Move | null {
   const moves = legalMoves(s);
   if (!moves.length) return null;
   const me = s.turn;
   // Fewer pieces means a smaller tree, so look deeper in the endgame.
   const depth = DEPTH[level] + (level === 'hard' && moves.length < 12 ? 1 : 0);
-  const budget = { n: level === 'hard' ? 400_000 : 40_000 };
-  const scored = order(moves.slice()).map((m) => ({ m, v: search(play(s, m), depth - 1, -Infinity, Infinity, me, budget) + Math.random() * (level === 'easy' ? 700 : 8) }));
+  // Every move gets the same share of the node budget, so the last ones are not judged on a shallower search.
+  const share = Math.ceil((level === 'hard' ? 300_000 : 40_000) / moves.length);
+  const scored = order(moves.slice()).map((m) => ({ m, v: search(play(s, m), depth - 1, -Infinity, Infinity, me, { n: share }) + Math.random() * MARGIN[level] }));
   scored.sort((a, b) => b.v - a.v);
   return scored[0].m;
 }

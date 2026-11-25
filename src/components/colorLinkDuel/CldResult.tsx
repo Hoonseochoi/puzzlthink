@@ -18,14 +18,15 @@ export function useCldReport(room: CldRoom | null, mySeat: CldSeat | null, mode:
   const score = room?.score.join(':');
   const reason = room?.reason;
   const rounds = room?.log.length ?? 0;
-  const tier = room?.tier ?? null;
+  // Games saved before AI levels existed were played against the full AI on a board tier: they stay recorded by tier.
+  const difficulty = room?.level ?? room?.tier ?? 'hard';
   const layout = room?.layout;
   useEffect(() => {
     if (!finished || !sid || mySeat === null || winner === null || winner === undefined) return;
     reportGame(`color_link_duel-${mode}-${sid}-${mySeat}`, 'color_link_duel', mode, winner === mySeat ? 'win' : 'loss',
-      // The AI game's difficulty is the board's (the AI itself is the same everywhere): only hard boards count as 어려움.
-      { score, rounds, reason, board: layout, ...(mode === 'ai' ? { difficulty: tier ?? 'hard' } : {}) }, { revealDelayMs: 900 });
-  }, [finished, sid, mySeat, winner, mode, score, rounds, reason, tier, layout]);
+      // The AI game's difficulty is the AI's level: 'hell' (매우 어려움) is the full AI, the one that earns black pieces.
+      { score, rounds, reason, board: layout, ...(mode === 'ai' ? { difficulty } : {}) }, { revealDelayMs: 900 });
+  }, [finished, sid, mySeat, winner, mode, score, rounds, reason, difficulty, layout]);
 }
 
 /** The final score, round by round, and play again. */

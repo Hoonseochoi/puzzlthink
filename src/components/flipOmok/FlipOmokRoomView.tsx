@@ -19,6 +19,7 @@ import { coordinateLabel, emptyBoard, forbiddenPoints, owner, type Player } from
 import { FLIP_TURN_OPTIONS, colorOf, seatToMove } from '@/lib/flipOmokRoom';
 import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, MiniBoard } from './FlipOmokParts';
 import { FlipLegend, FlipTips, LossTip, SafeGapCallout } from './FlipOmokGame';
+import GameUpdates from '@/components/GameUpdates';
 
 export default function FlipOmokRoomView({ code }: { code: string }) {
   const t = useTranslations('FlipOmokOnline');
@@ -111,7 +112,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
       <RoomAlerts alerts={alerts} accent={FLIP_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader backHref="/flip-omok" backLabel={tf('title')} title={tf('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="flip_omok" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

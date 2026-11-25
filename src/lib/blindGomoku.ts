@@ -8,7 +8,8 @@ export const DIFFICULTY_MEMORY: Record<GomokuDifficulty, number> = {
   // Tuned from play data toward ~80% / 50% / 25% human wins (normal was 22%, hard 8%).
   easy: 3,
   normal: 8,
-  hard: 24,
+  // 24 moves let people win 41% (58% after a few games: play on until it forgets). 36 keeps most of a game in mind.
+  hard: 36,
   // 매우 어려움 remembers the whole game. Its moves come from the search engine in blindGomokuHell.ts (run in a
   // Web Worker); chooseAiMove(…, 'hell') is only the quick fallback with the same full memory.
   hell: Infinity,

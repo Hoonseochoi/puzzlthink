@@ -21,7 +21,7 @@ import { reportGame } from '@/lib/stats';
 import SlitherHistory from './SlitherHistory';
 import ClearRate from '../ClearRate';
 import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool, undoOf, useUndoKey } from './SlitherBoard';
-import SlitherUpdate from './SlitherUpdate';
+import GameUpdates from '@/components/GameUpdates';
 
 type Mode = 'challenge' | 'beat' | 'practice';
 type Step = { changes: [number, Mark][]; hint?: boolean; at?: [number, number]; t?: number };
@@ -323,7 +323,7 @@ export default function SlitherGame() {
     <div className={SHELL} style={{ ...accentVars(SLITHER_ACCENT, SLITHER_INK), backgroundImage: fog('120, 100, 220') }}>
       <Shards tint="#2a2450" />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
-        <SlitherUpdate /><BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark />
         {mode === 'practice' && <button type="button" onClick={() => startPractice(size)} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newBoard')}</span></button>}
       </GameHeader>
 

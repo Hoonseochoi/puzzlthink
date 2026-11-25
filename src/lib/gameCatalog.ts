@@ -21,10 +21,10 @@ export interface CatalogGame {
 export const GAMES: readonly CatalogGame[] = [
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
   { id: 'cardJanggi', href: '/card-janggi', color: '#b07cff', hasGuide: true },
-  { id: 'colorLinkDuel', href: '/color-link-duel', color: '#7c6cff', hasGuide: false },
+  { id: 'colorLinkDuel', href: '/color-link-duel', color: '#7c6cff', hasGuide: false, hell: { live: true } },
   { id: 'equationSignal', href: '/equation-signal', color: '#b6e33a', hasGuide: true },
   { id: 'equationTower', href: '/equation-tower', color: '#f08c5a', hasGuide: true },
-  { id: 'hitStay', href: '/hit-stay', color: '#6f7dff', hasGuide: false },
+  { id: 'hitStay', href: '/hit-stay', color: '#6f7dff', hasGuide: true },
   { id: 'gradation', href: '/gradation', color: '#3fd67a', hasGuide: true },
   { id: 'pointOmok', href: '/point-omok', color: '#ff5d8f', hasGuide: true },
   { id: 'wallgo2', href: '/wallgo-2', color: '#e0283a', hasGuide: true, hell: { query: 'mode=two', live: true } },

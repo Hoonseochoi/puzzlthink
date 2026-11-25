@@ -22,6 +22,7 @@ import TurnClock from './TurnClock';
 import { RESULT_DELAY_MS, RulesPanel } from './RJGame';
 import RJReplay from './RJReplay';
 import { RJ_PANEL, RJ_ROOT, RJ_SHARD, RJ_TITLE, SIDE_COLORS } from './theme';
+import GameUpdates from '@/components/GameUpdates';
 
 export default function RJRoomView({ code }: { code: string }) {
   const t = useTranslations('RussianJanggiOnline');
@@ -104,7 +105,7 @@ export default function RJRoomView({ code }: { code: string }) {
       <WallGoShards tint={RJ_SHARD} />
       <RoomAlerts alerts={alerts} accent="#f2b84b" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader backHref="/russian-janggi" backLabel={tg('title')} title={tg('title')} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="russian_janggi" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

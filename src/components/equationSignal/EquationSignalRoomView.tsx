@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { Check, Copy, Crown, Loader2, Lock, RotateCcw, Share2, Swords, Timer, Trophy, Users, WifiOff } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import GameUpdates from '@/components/GameUpdates';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
@@ -102,7 +103,7 @@ export default function EquationSignalRoomView({ code }: { code: string }) {
       <Shards tint="#26301a" />
       <RoomAlerts alerts={alerts} accent={EQS_ACCENT} joinText={c.joined} leaveText={c.left} />
       <GameHeader backHref="/equation-signal" backLabel={c.back} title={c.title} titleClass="font-black" subtitle={`ONLINE · ${seated}/${EQS_MAX_PLAYERS} · ${code.toUpperCase()}`}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="equation_signal" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}
 

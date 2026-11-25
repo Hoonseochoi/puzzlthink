@@ -6,9 +6,9 @@ import { BookOpen, Flag, RotateCcw, Trophy } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import { CLD_ROOM } from '@/hooks/useColorLinkDuelRoom';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
-import { type CldAiAnswer, type CldAiRequest, aiGoesFirst, cldAiAnswer } from '@/lib/colorLinkDuelAi';
+import { type CldAiAnswer, type CldAiRequest, type CldLevel, aiGoesFirst, cldAiAnswer, isCldLevel } from '@/lib/colorLinkDuelAi';
 import { type CldRoom, CLD_COIN_MS, createCldRoom, isPlaying, reduceCldRoom } from '@/lib/colorLinkDuelRoom';
-import { type CldTier, CLD_TIERS } from '@/lib/colorLinkDuelBoards';
+import type { CldTier } from '@/lib/colorLinkDuelBoards';
 import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
@@ -17,6 +17,7 @@ import { CldRules, RulesPanel } from './CldRules';
 import CldResult, { useCldReport } from './CldResult';
 import CldTable from './CldTable';
 import { CLD_ROOT_STYLE, cldCopy } from './copy';
+import GameUpdates from '@/components/GameUpdates';
 
 const AI = 1 as const;
 
@@ -39,17 +40,19 @@ function askAi(request: CldAiRequest): Promise<CldAiAnswer> {
   });
 }
 const sleep = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
-/** The board difficulty picked on the entry screen (?tier=easy|normal|hard); a board is dealt at random from it. */
-const readTier = (): CldTier => {
-  const v = typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('tier');
-  return CLD_TIERS.includes(v as CldTier) ? (v as CldTier) : 'hard';
+/** The AI level picked on the entry screen (?difficulty=normal|hard|hell). Older links carried a board tier instead: they get 어려움. */
+const readLevel = (): CldLevel => {
+  const v = typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('difficulty');
+  return isCldLevel(v) ? v : 'hard';
 };
+/** 보통 is dealt the open boards (easy and normal tiers), 어려움 and 매우 어려움 the tight ones. */
+const tierFor = (level: CldLevel): CldTier => (level === 'normal' ? (Math.random() < 0.5 ? 'easy' : 'normal') : 'hard');
 
-/** 컬러 링크 against the AI (어려움), all in this browser. */
+/** 컬러 링크 against the AI (보통 / 어려움 / 매우 어려움), all in this browser. */
 export default function CldGame() {
   const locale = useLocale();
   const t = cldCopy(locale);
-  const create = useCallback(() => reduceCldRoom(createCldRoom({ id: 'me', name: t.you, at: 0 }, { ai: true, aiName: t.aiName, tier: readTier() }), { t: 'start' }, 0, true)!, [t.you, t.aiName]);
+  const create = useCallback(() => reduceCldRoom(createCldRoom({ id: 'me', name: t.you, at: 0 }, { ai: true, aiName: t.aiNames[readLevel()], tier: tierFor(readLevel()), level: readLevel() }), { t: 'start' }, 0, true)!, [t.you, t.aiNames]);
   const { state, dispatch, reset } = useLocalRoom(CLD_ROOM, create);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [closedKey, setClosedKey] = useState<string | null>(null);
@@ -80,7 +83,7 @@ export default function CldGame() {
       setThinking(true);
       const started = Date.now();
       if (aiTurn) {
-        const answer = await askAi({ kind: 'turn', board: room.board, opening: room.placements === 0, seed: Math.floor(Math.random() * 1e9), thinkMs: 900 });
+        const answer = await askAi({ kind: 'turn', board: room.board, opening: room.placements === 0, seed: Math.floor(Math.random() * 1e9), thinkMs: 900, level: room.level ?? 'hell' });
         await sleep(Math.max(0, 1300 - (Date.now() - started)));
         if (cancelled) return;
         setThinking(false);
@@ -113,14 +116,15 @@ export default function CldGame() {
 
   const finished = state?.phase === 'finished';
   const resultKey = state ? `${state.sid}-${finished}` : '';
-  const names: [string, string] = [t.you, t.aiName];
+  const level: CldLevel = state?.level ?? 'hell';
+  const names: [string, string] = [t.you, t.aiNames[level]];
   const again = () => { setClosedKey(null); reset(); };
 
   return (
     <div className={SHELL} style={CLD_ROOT_STYLE}>
-      <GameHeader backHref="/color-link-duel" backLabel={t.back} title={t.title} subtitle="AI · HARD">
+      <GameHeader backHref="/color-link-duel" backLabel={t.back} title={t.title} subtitle={`AI · ${level === 'hell' ? 'VERY HARD' : level.toUpperCase()}`}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="color_link_duel" /><BugReport /><LanguageSwitcher compact dark />
         {state && isPlaying(state)
           ? <button type="button" onClick={() => { if (window.confirm(t.resignConfirm)) dispatch({ t: 'resign' }); }} className={BTN} aria-label={t.resign}><Flag size={14} /><span className="hidden sm:inline">{t.resign}</span></button>
           : <button type="button" onClick={again} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>}

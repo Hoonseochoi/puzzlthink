@@ -142,7 +142,7 @@
     "memory": {
       "easy": "last 3 moves",
       "normal": "last 8 moves",
-      "hard": "last 24 moves",
+      "hard": "last 36 moves",
       "hell": "every move + reading ahead"
     },
     "difficultyLocked": "Difficulty is locked after the opening move.",
@@ -2501,9 +2501,9 @@
   "GameGate": {
     "cjAi": "AI 1:1 · Hard",
     "cldAi": "AI 1:1 · Hard",
-    "cldEasy": "AI 1:1 · Easy boards",
-    "cldNormal": "AI 1:1 · Normal boards",
-    "cldHard": "AI 1:1 · Hard boards",
+    "cldNormal": "AI 1:1 · Normal",
+    "cldHard": "AI 1:1 · Hard",
+    "cldHell": "AI 1:1 · Very Hard",
     "hsAi": "5 players · vs 4 AI",
     "hsRoom": "Create a room (1:1 to 5 · AI on/off)",
     "short_hsRoom": "2–5",
@@ -2927,7 +2927,7 @@
       },
       {
         "title": "The AI's memory",
-        "body": "AI difficulty is memory: easy remembers the last 3 moves, normal the last 8, hard the last 24. Building on old stones can catch the AI out. Very Hard (Hell) remembers every move in order (it never peeks underneath) and reads several moves ahead, including chains of fours and open threes."
+        "body": "AI difficulty is memory: easy remembers the last 3 moves, normal the last 8, hard the last 36. Building on old stones can catch the AI out. Very Hard (Hell) remembers every move in order (it never peeks underneath) and reads several moves ahead, including chains of fours and open threes."
       }
     ],
     "strategyTitle": "Tips — remember, mislead, check",
@@ -2961,7 +2961,7 @@
       {
         "tag": "vs AI",
         "title": "Revive old stones",
-        "body": "The AI forgets old moves (even hard keeps only the last 24; Very Hard is the exception). Finishing a line that connects to your early stones often goes unblocked."
+        "body": "The AI forgets old moves (even hard keeps only the last 36; Very Hard is the exception). Finishing a line that connects to your early stones often goes unblocked."
       },
       {
         "tag": "Replay",
@@ -5201,20 +5201,6 @@
     "toolClear": "Clear all",
     "toolUndo": "Undo",
     "undoKey": "Undo (Ctrl/⌘+Z)",
-    "updateTag": "UPDATE",
-    "updateTitle": "Slitherlink update",
-    "updateDate": "Updated November 25, 2026",
-    "update_replayAnswer": "See the answer path while replaying your play",
-    "update_replayAnswerDesc": "After seeing the answer, open 'Replay my lines': the answer is laid under your lines as a soft green track, and your lines and ✕ that disagree with it show in red, so you can see exactly where your path went wrong. A button above the board turns it on or off.",
-    "update_drag": "Drag with the pen to draw in one stroke",
-    "update_dragDesc": "In pen mode, drag along the dots and every edge you cross becomes a line. Start on a line and the drag erases lines instead. One stroke is one undo step.",
-    "update_tap": "✕ only with the ✕ button",
-    "update_tapDesc": "Drawing lines is unchanged. Tapping a line again now clears it instead of making a ✕. You can place a ✕ only after choosing the ✕ button.",
-    "update_undo": "New Undo button",
-    "update_undoDesc": "Step back one change at a time, as many times as you like. On a keyboard, press Ctrl/⌘+Z.",
-    "updateThanks": "Made from a player's feedback. Thank you!",
-    "updateOk": "Got it",
-    "updateClose": "Close",
     "clearConfirm": "Tap again",
     "hint": "Hint (3×3 area)",
     "hintPick": "Tap an area",
@@ -5805,7 +5791,10 @@
     "crownCardEmpty": "No holder yet. Take #1 to get it.",
     "crownCardDesc": "Given to this game's #1. When #1 changes, the icon moves to the new #1.",
     "won2048": "{n} icon unlocked!",
-    "won2048SignIn": "Sign in to get the 2048 icon"
+    "won2048SignIn": "Sign in to get the 2048 icon",
+    "collectionLink": "Icon collection",
+    "collectionLinkSub": "See every icon you can earn",
+    "collectionLinkOwned": "{n} owned · see all"
   },
   "PieceRace": {
     "shortTitle": "Piece race · Week 2",
@@ -7551,11 +7540,11 @@
     "aiRecord": "{w}W {l}L",
     "aiRecordDraw": "{w}W {l}L {d}D",
     "metaTitle": "AI Hell Mode · Take on the Very Hard AI",
-    "metaDescription": "Take on the strongest AI in Wallgo II, Wallgo, 12 Janggi, Russian Janggi and Blind Gomoku. Every win is a black piece, and your first win in a game earns a numbered clear certificate.",
+    "metaDescription": "Take on the strongest AI in Wallgo II, Wallgo, 12 Janggi, Russian Janggi, Blind Gomoku and Color Link Duel. Every win is a black piece, and your first win in a game earns a numbered clear certificate.",
     "eyebrow": "AI HELL MODE",
     "title": "AI Hell Mode",
     "subtitle": "Very Hard. Come in only if you think you can win.",
-    "intro": "Wallgo II, Wallgo, 12 Janggi, Russian Janggi and Blind Gomoku now have our strongest AI yet. Each win adds one black piece, and your first win in each game earns a Very Hard clear certificate.",
+    "intro": "Wallgo II, Wallgo, 12 Janggi, Russian Janggi, Blind Gomoku and Color Link Duel now have our strongest AI yet. Each win adds one black piece, and your first win in each game earns a Very Hard clear certificate.",
     "warn": "WARNING · THIS AI SHOWS NO MERCY",
     "ruleTitle": "Black piece race rules",
     "rule1": "1 win against the Very Hard AI = 1 black piece",
@@ -8129,6 +8118,84 @@
       }
     ],
     "disclaimer": "Gradation is an unofficial fan game inspired by a game from Netflix's The Devil's Plan: Dead Again and is not affiliated with Netflix or the producers."
+  },
+  "HitStayGuide": {
+    "eyebrow": "HIT, STAY GUIDE",
+    "title": "Hit,Stay online — The Devil's Plan 3 semifinal main match in your browser",
+    "intro": "Hit,Stay is a five-player betting card game: bring the total of your number cards as close as you can to a limit set by an eight-sided die, and bet chips to survive. Every round you decide whether to take one more card (HIT), stop (STAY) and how much to risk. It recreates the semifinal main match of Netflix's The Devil's Plan: Dead Again (season 3) with the show's rules, against four AI players, with friends or in open rooms.",
+    "rulesTitle": "Rules",
+    "rules": [
+      "35 number cards: one 7, two 6s, three 5s, four 4s, five 3s, six 2s, seven 1s and seven -1s.",
+      "Five players start with 30 chips each. The ante is 1 chip and goes up by 1 every 2 rounds (1, 1, 2, 2, … 8), then by 5 every 2 rounds from round 16 (13, 18, …).",
+      "Each round the dealer rolls an eight-sided die (5–12) for the limit. Everyone gets three cards and shows one of them.",
+      "From the first player: bet (call, raise or fold). Nobody may put in more than the smallest stack at the table.",
+      "Then, from the first player, HIT (take a face-up card) or STAY. When everyone has stayed or the deck runs out, there is a second betting round.",
+      "Cards are revealed: the total closest to the limit takes the pot; on equal totals more cards wins; over the limit is last.",
+      "A player at 0 chips is out. The last one standing wins the main match."
+    ],
+    "specialTitle": "Easy-to-miss rules",
+    "special": [
+      {
+        "title": "There are seven -1 cards",
+        "body": "Even over the limit, a -1 can bring you back in. Right on the limit, a -1 moves you away again: check what is left before you hit."
+      },
+      {
+        "title": "Equal totals go to more cards",
+        "body": "With limit 9, 5+4 (two cards) loses to 3+3+2+1 (four cards)."
+      },
+      {
+        "title": "Bets are capped by the smallest stack",
+        "body": "If the shortest stack has 5 chips, nobody can put in more than 5 this round."
+      },
+      {
+        "title": "Ties split the pot",
+        "body": "Same total and same number of cards: the pot is split, and odd chips go to the tied player nearest the first player."
+      }
+    ],
+    "strategyTitle": "Strategy — how to survive",
+    "strategyIntro": "It looks like luck, but counting the visible cards changes your odds a lot.",
+    "strategies": [
+      {
+        "tag": "Count",
+        "title": "Count the bust chance",
+        "body": "Take the visible cards out of the 35 and you know the chance the next card takes you over."
+      },
+      {
+        "tag": "Show",
+        "title": "Which card you show matters",
+        "body": "Your face-up card is the others' clue to your total: show a big card to look strong, a small one to look weak."
+      },
+      {
+        "tag": "Bet",
+        "title": "Chips are your life",
+        "body": "At 0 chips you are out. Folding a doubtful hand often beats calling close to all-in."
+      },
+      {
+        "tag": "Read",
+        "title": "A big raise means a strong hand",
+        "body": "Use the face-up cards and the hits to narrow down the raiser's total. The Hands button replays every move of the round."
+      }
+    ],
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "What is Hit,Stay?",
+        "a": "A five-player betting card game from the semifinal main match of Netflix's The Devil's Plan: Dead Again (season 3). Get closest to the limit and outlast the others."
+      },
+      {
+        "q": "Can I play alone?",
+        "a": "Yes, against four AI players, all at full strength."
+      },
+      {
+        "q": "Can I play with friends?",
+        "a": "Create a room for a link and a 4-digit code; play 1:1 up to five, and the host chooses whether AI fills the empty seats. Open rooms are listed for anyone."
+      },
+      {
+        "q": "Is there a time limit?",
+        "a": "10 seconds to pick your face-up card. In rooms, 30 seconds per bet or HIT/STAY; then the AI plays for you after a warning."
+      }
+    ],
+    "disclaimer": "PUZZLTHINK is an unofficial fan project, not affiliated with The Devil's Plan or Netflix. No real money is involved."
   },
   "EquationSignalGuide": {
     "eyebrow": "EQUATION SIGNAL GUIDE",

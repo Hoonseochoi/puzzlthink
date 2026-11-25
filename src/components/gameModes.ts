@@ -77,7 +77,7 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
   },
   gradation: { path: '/gradation', ai: [{ label: 'grAi' }], rooms: [{ label: 'roomTwo', create: prepareGradationRoom }], useRoom: useGradationRoom },
   cardJanggi: { path: '/card-janggi', ai: [{ label: 'cjAi' }], rooms: [{ label: 'roomTwo', create: prepareCardJanggiRoom }], useRoom: useCardJanggiRoom },
-  colorLinkDuel: { path: '/color-link-duel', ai: [{ label: 'cldEasy', query: 'tier=easy' }, { label: 'cldNormal', query: 'tier=normal' }, { label: 'cldHard', query: 'tier=hard' }], rooms: [{ label: 'roomTwo', create: prepareColorLinkDuelRoom }], useRoom: useColorLinkDuelRoom },
+  colorLinkDuel: { path: '/color-link-duel', ai: [{ label: 'cldNormal', query: 'difficulty=normal' }, { label: 'cldHard', query: 'difficulty=hard' }, { label: 'cldHell', query: 'difficulty=hell' }], rooms: [{ label: 'roomTwo', create: prepareColorLinkDuelRoom }], useRoom: useColorLinkDuelRoom },
   hitStay: { path: '/hit-stay', ai: [{ label: 'hsAi' }], rooms: [{ label: 'hsRoom', create: prepareHitStayRoom, openMin: 2 }], useRoom: useHitStayRoom },
   merge2048: {
     path: '/2048', solo: true, ai: [{ label: 'm2Free', query: 'mode=free' }, { label: 'm2Endless', query: 'mode=endless' }],

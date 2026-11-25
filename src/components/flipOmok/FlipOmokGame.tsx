@@ -12,6 +12,7 @@ import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accent
 import { reportGame } from '@/lib/stats';
 import { chooseMove, coordinateLabel, emptyBoard, forbiddenPoints, isFull, other, owner, play, type Board, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
 import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard } from './FlipOmokParts';
+import GameUpdates from '@/components/GameUpdates';
 
 type Mode = 'ai' | 'local';
 interface Snapshot { board: Board; turn: Player; last: number | null; flipped: number[] }
@@ -154,7 +155,7 @@ export default function FlipOmokGame() {
   return (
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
       <GameHeader backHref="/flip-omok" backLabel={t('title')} title={t('title')} subtitle={t('subtitle')}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="flip_omok" /><BugReport /><LanguageSwitcher compact dark />
         {!over && history.length > 0 && <button type="button" title={t('resignTip')} onClick={resign} className={`${BTN} text-white/60`}><Flag size={14} /><span className="hidden sm:inline">{t('resign')}</span></button>}
         <button type="button" title={t('undoTip')} onClick={undo} disabled={!history.length || aiTurn} className={`${BTN} disabled:opacity-35`}><Undo2 size={14} /><span className="hidden sm:inline">{t('undo')}</span></button>
         <button type="button" title={t('newGameTip')} onClick={() => reset()} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>

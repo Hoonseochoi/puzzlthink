@@ -439,13 +439,19 @@ export function chooseBotAction(pieces: Piece[], walls: Set<string>, player: Pla
     const top = list.slice(0, Math.min(3, list.length));
     return top[Math.floor(Math.random() * top.length)];
   }
-  // Hard: for the most promising moves, assume the next player answers with their best move.
+  // Hard: for the most promising moves, assume the next player answers with their best move. In 1:1:1 the third
+  // player answers too: reading only one of two rivals left hard no stronger than normal there (play data: people
+  // won 47% against either, where an even three-player game is 33%).
   const next = nextPlayerOf(mode, player);
+  const third = nextPlayerOf(mode, next);
   let best = list[0], bestValue = -Infinity;
-  for (const candidate of list.slice(0, 14)) {
-    const replies = candidates(candidate.pieces, candidate.walls, next, false, mode);
-    const reply = replies[0];
-    const value = reply ? evaluatePosition(reply.pieces, reply.walls, player, mode) : candidate.value + 2;
+  for (const candidate of list.slice(0, third === player ? 14 : 10)) {
+    const reply = candidates(candidate.pieces, candidate.walls, next, false, mode)[0];
+    let value = reply ? evaluatePosition(reply.pieces, reply.walls, player, mode) : candidate.value + 2;
+    if (reply && third !== player) {
+      const second = candidates(reply.pieces, reply.walls, third, false, mode)[0];
+      if (second) value = evaluatePosition(second.pieces, second.walls, player, mode);
+    }
     const blended = value * 0.75 + candidate.value * 0.25;
     if (blended > bestValue) { bestValue = blended; best = candidate; }
   }

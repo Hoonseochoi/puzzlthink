@@ -213,11 +213,11 @@ const PROFILE = {
 } satisfies Record<TspLevel, Record<string, number>>;
 
 /**
- * Shown on the difficulty buttons: AI win rate against a sensible casual player (simulated: 42 / 71 / 93%).
- * Higher than the site's usual 20/50/75 on purpose: every level plays disciplined poker, and hard plays it like a pro
- * (about even with a perfect counter).
+ * AI win rate shown on the difficulty buttons. Measured from play data (11/26: the AI won 40% of 296 normal matches
+ * and 50% of 117 hard ones). The simulated 42 / 71 / 93% against a scripted casual player did not hold against people:
+ * every level plays disciplined poker, but the cards decide a large share of every match.
  */
-export const TSP_AI_TARGET = { easy: 40, normal: 70, hard: 90 } satisfies Record<TspLevel, number>;
+export const TSP_AI_TARGET = { easy: 30, normal: 40, hard: 50 } satisfies Record<TspLevel, number>;
 
 type Dist = { v: number; w: number }[];
 

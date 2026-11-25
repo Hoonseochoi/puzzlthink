@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { History, RotateCcw, Trophy } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
+import GameUpdates from '@/components/GameUpdates';
 import { BTN, BTN_ACCENT, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { reportGame } from '@/lib/stats';
 import { TSP_AI_TARGET, type TspLevel, type TspState, applyTspAction, chooseTspAiAction, newTspGame, startTspHand, tspForcedAction, tspRevealMs } from '@/lib/twoSidedPoker';
@@ -66,7 +67,7 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
 
   return (
     <div className={SHELL} style={{ ...accentVars(TSP_ACCENT, TSP_INK), backgroundImage: fog(TSP_GLOW_RGB) }}>
-      <GameHeader backHref="/two-sided-poker" backLabel={t.back} title={t.title} subtitle={t.subtitle}><LanguageSwitcher compact dark /></GameHeader>
+      <GameHeader backHref="/two-sided-poker" backLabel={t.back} title={t.title} subtitle={t.subtitle}><GameUpdates game="two_sided_poker" /><LanguageSwitcher compact dark /></GameHeader>
       <main className={MAIN}>
         <section className={STAGE}>
           {replaying && finished

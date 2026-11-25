@@ -286,7 +286,9 @@ export function chooseLaserAiAction(pieces: LaserPiece[], owner: LaserOwner, dif
   let best = candidates[0];
   let bestMin = -Infinity;
   for (const candidate of candidates) {
-    if (candidate.result.winner !== null) return candidate.action;
+    // An immediate win was already taken above, so a decided result here means this move loses on the spot
+    // (the AI's own laser reaches its own king): never play it while another move exists.
+    if (candidate.result.winner !== null) continue;
     const replies = rankedActions(candidate.result.pieces, (1 - owner) as LaserOwner).slice(0, 24);
     const worst = replies.length
       ? Math.min(...replies.map((reply) => reply.result.winner === (1 - owner) ? -1_000_000 : materialScore(reply.result.pieces, owner) * 100))

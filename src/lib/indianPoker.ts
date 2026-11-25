@@ -20,8 +20,11 @@ export const POKER_START_CHIPS = 20;
 export const POKER_ANTE = 1;
 export const POKER_DECK = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 export const pokerOther = (side: PokerSide): PokerSide => (side === 0 ? 1 : 0);
-/** Design targets, not guaranteed match results: cards and opponent choices still add variance. */
-export const POKER_AI_TARGET = { easy: 20, normal: 50, hard: 75 } satisfies Record<PokerDifficulty, number>;
+/**
+ * AI win rate shown on the difficulty buttons. Measured from play data (11/26: the AI won 41% of 338 normal matches
+ * and 55% of 478 hard ones), not the 50 / 75 it was designed for: the cards decide a large share of every match.
+ */
+export const POKER_AI_TARGET = { easy: 25, normal: 40, hard: 55 } satisfies Record<PokerDifficulty, number>;
 
 export function shufflePokerDeck(rand: () => number = Math.random) {
   const deck = [...POKER_DECK];

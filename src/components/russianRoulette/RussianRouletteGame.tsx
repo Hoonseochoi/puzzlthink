@@ -18,6 +18,7 @@ import RussianRouletteTable from './RussianRouletteTable';
 import RouletteReplay from './RouletteReplay';
 import RussianRouletteTutorial from './RussianRouletteTutorial';
 import { RR_ROOT_STYLE, RR_SHARD_TINT } from './theme';
+import GameUpdates from '@/components/GameUpdates';
 
 const LEVELS: RRLevel[] = ['easy', 'normal', 'hard'];
 const TUTORIAL_KEY = 'puzzlthink_russian_roulette_tutorial_seen';
@@ -49,7 +50,7 @@ export default function RussianRouletteGame() {
     <WallGoShards tint={RR_SHARD_TINT} />
     <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="RUSSIAN ROULETTE">
       <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
-      <BugReport /><LanguageSwitcher compact dark />
+      <GameUpdates game="russian_roulette" /><BugReport /><LanguageSwitcher compact dark />
       <button onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
     </GameHeader>
     <main className="relative z-10 mx-auto w-full max-w-[1240px] px-3 py-4 sm:px-5 lg:py-7">
