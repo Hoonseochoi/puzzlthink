@@ -39,8 +39,9 @@ export default function CjTable({ room, mySeat, onAction, t, names, thinking = f
   const opp = other(viewer);
   const g = redactGame(room.game, mySeat);
   const playing = room.phase === 'playing';
-  const now = useNow(playing || room.phase === 'between');
-  const seconds = playing && room.deadline < NEVER ? Math.max(0, Math.ceil((room.deadline - now) / 1000)) : null;
+  const choosing = room.phase === 'choose';
+  const now = useNow(playing || choosing || room.phase === 'between');
+  const seconds = (playing || choosing) && room.deadline < NEVER ? Math.max(0, Math.ceil((room.deadline - now) / 1000)) : null;
   const waiting = cjWaitingOn(room);
   const myTurn = mySeat !== null && waiting.includes(mySeat) && !room.ai[mySeat];
   const arranging = myTurn && g.phase === 'arrange';
@@ -143,6 +144,7 @@ export default function CjTable({ room, mySeat, onAction, t, names, thinking = f
             draft={draft} size={size} onPut={put} onClear={() => setDraft({ key: draftKey, order: [] })} onRandom={() => setDraft({ key: draftKey, order: fillRandom([]) })}
             onSubmit={() => { sent.current = draftKey; submit(draft); }} selected={shownSel} onResign={onResign} onHeight={setDockH} />
         )}
+        <AnimatePresence>{choosing && <ChooseFirst key="choose" chooser={room.chooser ?? 0} mySeat={mySeat} names={names} seconds={seconds} t={t} onChoose={(first) => onAction({ t: 'choose', first })} />}</AnimatePresence>
         <AnimatePresence>{coin && <CoinToss key="coin" first={g.first} names={names} t={t} />}</AnimatePresence>
         <AnimatePresence>{room.phase === 'between' && <RoundBanner key={`r${room.results.length}`} room={room} viewer={viewer} t={t} now={now} spectator={mySeat === null} names={names} />}</AnimatePresence>
         <AnimatePresence>{playing && room.round > 1 && g.ply === 0 && g.cycle[0] + g.cycle[1] === 0 && now < room.deadline - (CJ_LAYOUT_SEC - 3) * 1000 && <RoundStart key={`s${room.round}`} round={room.round} name={names[g.first]} t={t} />}</AnimatePresence>
@@ -284,6 +286,29 @@ function Dock({ room, g, t, seat, seconds, myTurn, arranging, moving, thinking, 
         </div>
       </div>
     </div>
+  );
+}
+
+/** Before round 1: the chooser picks 선 or 후; everyone else waits. */
+function ChooseFirst({ chooser, mySeat, names, seconds, t, onChoose }: { chooser: number; mySeat: number | null; names: [string, string]; seconds: number | null; t: CjCopy; onChoose: (first: 0 | 1) => void }) {
+  const mine = mySeat === chooser;
+  const me = chooser as 0 | 1;
+  const them = other(me) as 0 | 1;
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-[360px] rounded-[18px] border border-white/10 bg-[#14121c] p-5 text-center shadow-2xl">
+        <p className="font-mono text-[11px] font-black tracking-[0.3em] text-(--accent)">{t.chooseTitle}</p>
+        <p className="mt-3 text-[15px] font-black break-keep">{mine ? t.chooseYou : t.chooseThem(names[chooser])}</p>
+        <p className="mt-2 text-[11.5px] leading-relaxed text-white/50 break-keep">{t.chooseHint}</p>
+        {mine ? (
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            <button type="button" onClick={() => onChoose(me)} className="h-14 rounded-[12px] bg-(--accent) text-[15px] font-black text-black transition active:scale-95">{t.goFirst}</button>
+            <button type="button" onClick={() => onChoose(them)} className="h-14 rounded-[12px] border border-white/15 bg-white/5 text-[15px] font-black transition hover:bg-white/10 active:scale-95">{t.goSecond}</button>
+          </div>
+        ) : <p className="mt-5 flex h-12 items-center justify-center gap-2 text-[12px] font-bold text-white/55"><Loader2 size={14} className="animate-spin" />{t.chooseThem(names[chooser])}</p>}
+        {seconds !== null && <p className="mt-3 flex items-center justify-center gap-1 font-mono text-[11px] text-white/40"><Timer size={12} />{t.seconds(seconds)}</p>}
+      </div>
+    </motion.div>
   );
 }
 

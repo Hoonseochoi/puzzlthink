@@ -1,8 +1,8 @@
 // 컬러 링크 match state, shared by the AI game (played in this browser) and 1:1 rooms (host-authoritative).
 // Nothing is hidden in this game, so every browser sees the whole state.
 //
-// A match is up to 5 rounds; the first to 3 points wins. Round 1's opener comes from a coin toss; after
-// that the loser of the last round picks who opens. The opener places one stone, then the players take
+// A match is CLD_TARGET points (one round on PUZZLTHINK). A player picks who opens round 1: against the AI
+// always the human, in a room the seat a coin toss picks. After that the loser of the last round picks. The opener places one stone, then the players take
 // turns placing two stones of different colours (3 minutes a turn; running out loses the round). Instead of
 // placing, a player may call the opponent's last placement impossible: the placer then has 5 minutes to
 // draw every line. A valid proof wins the round for the placer; giving up or running out of time, for the caller.
@@ -34,7 +34,7 @@ export type CldRoom = BaseRoom & {
   round: number; // 1-based
   score: [number, number];
   first: CldSeat; // who opened this round
-  chooser: CldSeat | null; // last round's loser, picking the opener (phase 'choose')
+  chooser: CldSeat | null; // who picks the opener (phase 'choose'): round 1 see `firstChooser`, later the last round's loser
   coin: boolean; // this round's opener came from the coin toss
   board: CldBoard;
   turn: CldSeat;
@@ -65,6 +65,9 @@ export type CldAction =
   | { t: 'ai'; act: CldPlayerAction };
 
 export const other = (seat: CldSeat): CldSeat => (seat === 0 ? 1 : 0);
+/** Who picks round 1's opener: the human against the AI, else a coin toss. */
+export const firstChooser = (state: Pick<CldRoom, 'ai'>): CldSeat => (state.ai[1] ? 0 : state.ai[0] ? 1 : Math.random() < 0.5 ? 0 : 1);
+
 export const isPlaying = (state: CldRoom) => state.phase === 'choose' || state.phase === 'place' || state.phase === 'proof' || state.phase === 'break';
 
 export function createCldRoom(host: Peer, opts: { ai?: boolean; aiName?: string } = {}): CldRoom {
@@ -152,7 +155,10 @@ export function reduceCldRoom(state: CldRoom, action: CldAction, seat: number | 
     case 'start': {
       if (!isHost || isPlaying(state) || state.seats.some((s) => !s)) break;
       const fresh: CldRoom = { ...state, sid: state.phase === 'lobby' ? state.sid : newSid(), round: 1, score: [0, 0], log: [], winner: null, reason: null };
-      next = beginRound(fresh, Math.random() < 0.5 ? 0 : 1, now, true);
+      next = {
+        ...fresh, phase: 'choose', chooser: firstChooser(fresh), first: 0, coin: false, board: emptyBoard(), placements: 0, last: null, proof: null,
+        ready: [false, false], startedAt: now, deadline: now + CLD_CHOOSE_SEC * 1000,
+      };
       break;
     }
     case 'ai': {

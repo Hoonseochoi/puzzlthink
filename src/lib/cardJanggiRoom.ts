@@ -16,6 +16,8 @@ export const CJ_MOVE_SEC = 90;
 export const CJ_LAYOUT_SEC = 90;
 export const CJ_PROXY_SEC = 20;
 export const CJ_IDLE_LOSS = 3;
+/** Before round 1 a player picks 선 or 후: against the AI the human, in a room the seat a coin toss picks. */
+export const CJ_CHOOSE_SEC = 30;
 /** The round result stays up this long before the next round's layouts start. */
 export const CJ_BETWEEN_MS = 4500;
 
@@ -23,7 +25,8 @@ export const CJ_BETWEEN_MS = 4500;
 export type CjRoundResult = { first: CjSeat; winner: CjSeat | 'draw'; reason: CjGame['reason']; plies: number; history?: CjGame['history']; layouts?: number[][][] };
 
 export type CjRoom = BaseRoom & {
-  phase: 'lobby' | 'playing' | 'between' | 'finished';
+  phase: 'lobby' | 'choose' | 'playing' | 'between' | 'finished';
+  chooser: CjSeat | null; // phase 'choose': who picks 선/후
   ai: boolean[];
   game: CjGame;
   round: number; // 1-based
@@ -39,6 +42,7 @@ export type CjRoom = BaseRoom & {
 
 export type CjAction =
   | { t: 'start' }
+  | { t: 'choose'; first: CjSeat }
   | { t: 'arrange'; order: number[] }
   | { t: 'move'; from: number; to: number }
   | { t: 'ai'; order?: number[]; from?: number; to?: number }
@@ -46,13 +50,15 @@ export type CjAction =
   | { t: 'resign' }
   | { t: 'timeout' };
 
-export const cjPlaying = (state: CjRoom) => state.phase === 'playing';
+export const cjPlaying = (state: CjRoom) => state.phase === 'playing' || state.phase === 'choose';
+/** Who picks 선/후 before round 1: the human against the AI, else a coin toss. */
+export const cjFirstChooser = (state: Pick<CjRoom, 'ai'>): CjSeat => (state.ai[1] ? 0 : state.ai[0] ? 1 : Math.random() < 0.5 ? 0 : 1);
 
 export function createCjRoom(host: Peer, opts: { ai?: boolean; aiName?: string } = {}): CjRoom {
   const seats: Seat[] = [{ id: host.id, name: host.name }, opts.ai ? { id: 'ai', name: opts.aiName ?? 'AI' } : null];
   return {
     sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, ai: [false, !!opts.ai], game: newRound(0), round: 1, wins: [0, 0], results: [],
-    proxy: false, idle: [0, 0], holdUntil: 0, coinAt: 0, winner: null, reason: null,
+    proxy: false, idle: [0, 0], holdUntil: 0, coinAt: 0, winner: null, reason: null, chooser: null,
   };
 }
 
@@ -80,7 +86,7 @@ function endRound(state: CjRoom, now: number): CjRoom {
 }
 
 function startRound(state: CjRoom, first: CjSeat, now: number, pause = 0): CjRoom {
-  return { ...state, phase: 'playing', game: newRound(first), proxy: false, deadline: now + pause + CJ_LAYOUT_SEC * 1000 };
+  return { ...state, phase: 'playing', chooser: null, game: newRound(first), proxy: false, deadline: now + pause + CJ_LAYOUT_SEC * 1000 };
 }
 
 const setAt = (pair: [number, number], i: number, value: number): [number, number] => (i === 0 ? [value, pair[1]] : [pair[0], value]);
@@ -96,13 +102,17 @@ export function reduceCjRoom(state: CjRoom, action: CjAction, seat: number | nul
   let next: CjRoom | null = null;
   switch (action.t) {
     case 'start': {
-      if (!isHost || state.phase === 'playing' || state.phase === 'between' || state.seats.some((s) => !s)) break;
-      const first = (Math.random() < 0.5 ? 0 : 1) as CjSeat;
-      next = startRound({
-        ...state, sid: state.phase === 'lobby' ? state.sid : newSid(), round: 1, wins: [0, 0], results: [], idle: [0, 0], winner: null, reason: null, coinAt: now,
-      }, first, now, CJ_COIN_MS);
+      if (!isHost || state.phase === 'playing' || state.phase === 'choose' || state.phase === 'between' || state.seats.some((s) => !s)) break;
+      next = {
+        ...state, sid: state.phase === 'lobby' ? state.sid : newSid(), round: 1, wins: [0, 0], results: [], idle: [0, 0], winner: null, reason: null, coinAt: 0,
+        phase: 'choose', chooser: cjFirstChooser(state), game: newRound(0), proxy: false, deadline: now + CJ_CHOOSE_SEC * 1000,
+      };
       break;
     }
+    case 'choose':
+      if (!mine || state.phase !== 'choose' || seat !== state.chooser || state.ai[seat] || (action.first !== 0 && action.first !== 1)) break;
+      next = startRound(state, action.first, now);
+      break;
     case 'arrange': {
       if (!mine || state.phase !== 'playing' || state.ai[seat]) break;
       const game = arrange(g, seat as CjSeat, action.order);
@@ -138,11 +148,13 @@ export function reduceCjRoom(state: CjRoom, action: CjAction, seat: number | nul
       next = startRound({ ...state, round: state.round + 1 }, other(g.first), now);
       break;
     case 'resign':
-      if (!mine || (state.phase !== 'playing' && state.phase !== 'between')) break;
+      if (!mine || (state.phase !== 'playing' && state.phase !== 'choose' && state.phase !== 'between')) break;
       next = { ...state, phase: 'finished', winner: other(seat), reason: 'resign', deadline: 0 };
       break;
     case 'timeout': {
-      if (!isHost || state.phase !== 'playing' || now < state.deadline) break;
+      if (!isHost || now < state.deadline) break;
+      if (state.phase === 'choose') { next = startRound(state, state.chooser ?? 0, now); break; }
+      if (state.phase !== 'playing') break;
       if (g.phase === 'arrange') {
         let game = g;
         let counted = state;

@@ -10,13 +10,30 @@ const host = { id: 'h', name: 'H', at: 0 };
 const fresh = () => {
   let s: CldRoom = createCldRoom(host);
   s = { ...s, seats: [{ id: 'h', name: 'H' }, { id: 'g', name: 'G' }] };
-  return reduceCldRoom(s, { t: 'start' }, 0, true)!;
+  s = reduceCldRoom(s, { t: 'start' }, 0, true)!;
+  // A player picks who goes first: in a room the coin-picked chooser.
+  const first = (Math.random() < 0.5 ? 0 : 1) as 0 | 1;
+  return reduceCldRoom(s, { t: 'choose', first }, s.chooser, false)!;
 };
+// The opening choice.
+{
+  let c: CldRoom = createCldRoom(host);
+  c = reduceCldRoom({ ...c, seats: [{ id: 'h', name: 'H' }, { id: 'g', name: 'G' }] }, { t: 'start' }, 0, true)!;
+  assert(c.phase === 'choose' && (c.chooser === 0 || c.chooser === 1), 'a room starts with a player choosing');
+  assert(reduceCldRoom(c, { t: 'choose', first: 0 }, 1 - c.chooser!, false) === null, 'only the chooser picks');
+  const second = reduceCldRoom(c, { t: 'choose', first: (1 - c.chooser!) as 0 | 1 }, c.chooser, false)!;
+  assert(second.phase === 'place' && second.turn === 1 - c.chooser!, 'the chooser can go second');
+  const lapsed = reduceCldRoom({ ...c, deadline: Date.now() - 1 }, { t: 'timeout' }, null, true)!;
+  assert(lapsed.phase === 'place' && lapsed.turn === c.chooser, 'no choice in time: the chooser goes first');
+  let vsAi: CldRoom = createCldRoom(host, { ai: true });
+  vsAi = reduceCldRoom(vsAi, { t: 'start' }, 0, true)!;
+  assert(vsAi.phase === 'choose' && vsAi.chooser === 0, 'against the AI the player chooses');
+}
 const expire = (s: CldRoom) => reduceCldRoom({ ...s, deadline: Date.now() - 1 }, { t: 'timeout' }, null, true)!;
 
 // Clocks.
 let s = fresh();
-assert(s.phase === 'place' && s.coin, 'starts with a coin-toss round');
+assert(s.phase === 'place' && !s.coin && s.placements === 0, 'the chosen opener starts');
 assert(reduceCldRoom(s, { t: 'place', stones: [[0, 1]] }, 1 - s.turn, false) === null, 'out-of-turn placement refused');
 assert(reduceCldRoom(s, { t: 'declare' }, s.turn, false) === null, 'no call on an empty board');
 assert(reduceCldRoom(s, { t: 'place', stones: [[0, 1], [1, 2]] }, s.turn, false) === null, 'the opener places exactly one stone');
