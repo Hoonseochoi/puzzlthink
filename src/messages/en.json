@@ -1932,8 +1932,12 @@
     "iosStep1a": "1. Tap the ",
     "iosStep1b": " Share button below",
     "iosStep2": "2. Choose 'Add to Home Screen'",
-    "afterGameTitle": "Next round, straight from your home screen 📲",
-    "afterGameDesc": "Install it and it opens in one tap next time · free"
+    "winTitle": "Nicely done! Next time, open it from your home screen 📲",
+    "winDesc": "PUZZLTHINK is a browser shortcut app. Nothing to download from a store: it only adds an icon to your home screen.",
+    "winPoint1": "One tap, 3 seconds",
+    "winPoint2": "Takes almost no space",
+    "winPoint3": "Free · no sign-up",
+    "winInstall": "Add to home screen"
   },
   "GameList": {
     "metaTitle": "All games — PUZZLTHINK brain games and logic puzzles",
