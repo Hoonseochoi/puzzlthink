@@ -88,7 +88,8 @@ export async function reportGame(key: string, game: GameId, mode: GameMode, resu
   // 복기 (`detail.replay`) is kept only for a human win against the 매우 어려움 AI; every other result drops it.
   if ('replay' in detail && !isHellClear(game, mode, result, detail)) { const { replay: _drop, ...rest } = detail; void _drop; detail = rest; }
   reported.add(key);
-  window.dispatchEvent(new Event('puzzlthink:game-finished')); // e.g. the one-time "install as app" card
+  // The "install as app" card listens for this and comes up after a win (a solo clear or score counts as one).
+  window.dispatchEvent(new CustomEvent<{ result: GameResult }>('puzzlthink:game-finished', { detail: { result } }));
   const opponents = mode === 'friend' ? roomOpponents : [];
   const open = mode === 'friend' && roomOpen;
   if (opponents.length) detail = { ...detail, vs: opponents.map((o) => o.uid) };

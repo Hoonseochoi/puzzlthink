@@ -1992,8 +1992,12 @@
     "iosStep1a": "1. 아래 ",
     "iosStep1b": " 공유 버튼을 누르고",
     "iosStep2": "2. '홈 화면에 추가'를 선택하세요",
-    "afterGameTitle": "한 판 더 할 땐 앱으로 바로! 📲",
-    "afterGameDesc": "홈 화면에 설치하면 다음엔 한 번에 열려요 · 무료"
+    "winTitle": "잘하셨어요! 다음엔 홈 화면에서 바로 📲",
+    "winDesc": "PUZZLTHINK는 브라우저 바로가기 앱이에요. 스토어에서 내려받는 게 아니라 홈 화면에 아이콘만 추가돼요.",
+    "winPoint1": "버튼 한 번, 3초",
+    "winPoint2": "용량 거의 없음",
+    "winPoint3": "무료 · 가입 없이",
+    "winInstall": "홈 화면에 추가"
   },
   "GameList": {
     "metaTitle": "게임 리스트 — PUZZLTHINK 두뇌 게임·논리 퍼즐 전체",
