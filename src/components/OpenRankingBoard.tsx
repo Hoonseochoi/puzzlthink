@@ -16,7 +16,6 @@ const GAMES: { id: GameId; color: string }[] = [
   { id: 'laser_janggi', color: '#28b9d7' }, { id: 'russian_janggi', color: '#e2283c' }, { id: 'blind_gomoku', color: '#d39b2f' }, { id: 'janggi', color: '#e8a33c' },
 ];
 const MEDALS = ['🥇', '🥈', '🥉'];
-const SHOWN = 10; // only the most-played boards, so the tab stays short
 type Ranking = { top: TopRow[]; near: RankRow[] };
 
 /** Open-match rankings for every game, shown at once like the AI Hall of Fame. */
@@ -43,14 +42,10 @@ export default function OpenRankingBoard() {
   return (
     <section id="open-ranking" className="mt-10 scroll-mt-24">
       <h2 className="flex items-center gap-2 text-xl font-black"><Swords size={20} className="text-[#ff4d5e]" />{t('title')}</h2>
-      <p className="mt-1 text-xs text-black/45">{t('desc')} {t('top10Note')}</p>
+      <p className="mt-1 text-xs text-black/45">{t('desc')}</p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {byGameOrder(GAMES, (g) => g.id, (g) => (rankings[g.id]?.top.length ?? 0) > 0)
-          .map((game, order) => ({ game, order, played: (rankings[game.id]?.top ?? []).reduce((n, r) => n + r.wins + r.losses + r.draws, 0) }))
-          .sort((a, b) => b.played - a.played || a.order - b.order)
-          .slice(0, SHOWN)
-          .map(({ game }) => {
+        {byGameOrder(GAMES, (g) => g.id, (g) => (rankings[g.id]?.top.length ?? 0) > 0).map((game) => {
           const ranking = rankings[game.id];
           const me = ranking?.near.find((row) => row.is_me);
           return (
