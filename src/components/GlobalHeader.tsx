@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDown, Menu, Skull, Trophy, X } from 'lucide-react';
+import { ChevronDown, Menu, Skull, X } from 'lucide-react';
 import { usePathname, Link } from '@/i18n/routing';
 import { GAMES } from '@/lib/gameCatalog';
 import { HELL_LIVE } from '@/lib/hell';
@@ -56,8 +56,8 @@ export default function GlobalHeader() {
           <GamesMenu variant="cta" align="right" />
         </div>
 
-        {/* Phones / installed app: 기록실 one tap away, beside the menu button. */}
-        <Link href="/records" onClick={closeMenu} className="ml-auto mr-1 flex items-center gap-1.5 rounded-xl border border-black/10 bg-white/70 px-3 py-1.5 text-xs font-extrabold text-black/75 transition hover:bg-white lg:hidden"><Trophy size={14} className="text-[#e8a33c]" />{t('records')}</Link>
+        {/* Phones, foldables: 기록실 is in the bottom tab bar, so the header keeps 자율 후원 beside the menu button. */}
+        <div className="ml-auto mr-1 lg:hidden"><HeaderSupportButton /></div>
         <button type="button" aria-label={t('menu')} aria-expanded={open} onClick={() => setOpen((value) => !value)} className="rounded-xl p-2 transition hover:bg-white lg:hidden">{open ? <X size={20} /> : <Menu size={20} />}</button>
       </div>
 
