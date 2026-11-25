@@ -4079,7 +4079,7 @@
   },
   "Lounge": {
     "title": "Lounge",
-    "desc": "Everyone on PUZZLTHINK · last 50 messages",
+    "desc": "Everyone on PUZZLTHINK · messages vanish after 24 hours",
     "open": "Open the lounge",
     "close": "Close",
     "turnOff": "Off",
@@ -4094,7 +4094,7 @@
     "show": "Show the lounge button",
     "staffBadge": "PUZZLTHINK staff",
     "pieces": "{n} pieces",
-    "hostHello": "This is the PUZZLTHINK lounge. Find people for open matches or chat freely about the games! Only the last 50 messages are kept; older ones are deleted automatically. Spamming or swearing can get your chat restricted.",
+    "hostHello": "This is the PUZZLTHINK lounge. Find people for open matches or chat freely about the games! Messages are deleted automatically after 24 hours (up to the last 50 are shown). Spamming or swearing can get your chat restricted.",
     "login": "Sign in to chat in the lounge.",
     "banned": "You're muted for now. You can send again in {m} min.",
     "bannedRepeat": "You're muted for repeating yourself. You can send again in {m} min.",
