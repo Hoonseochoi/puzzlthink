@@ -11,6 +11,8 @@ import { GAME_MODES, openRoomHref } from './gameModes';
 
 /** Games that have friend rooms, in home-page order. */
 const ROOM_GAMES = GAMES.filter((game) => GAME_MODES[game.id].useRoom);
+/** Pictures on the card itself: only the top games, so the card stays short. */
+const WALL_GAMES = 10;
 const colorOf = (id: string) => GAMES.find((game) => game.id === id)?.color ?? '#17201e';
 
 /**
@@ -102,9 +104,9 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
         <span className="text-[10px] font-black tracking-[0.16em] text-white/35">OPEN MATCH</span>
       </div>
 
-      {/* A wall of the games you can open a room for. */}
-      <div className="relative mt-4 grid grid-cols-6 gap-1.5 sm:mt-6 sm:gap-2">
-        {ROOM_GAMES.map((game) => <FitTile key={game.id} title={tc(game.id)}>{previews[game.id]}</FitTile>)}
+      {/* The top ten games you can open a room for (catalog order = most played), two rows of five. Every game is still in the room maker. */}
+      <div className="relative mt-4 grid grid-cols-5 gap-1.5 sm:mt-6 sm:gap-2">
+        {ROOM_GAMES.slice(0, WALL_GAMES).map((game) => <FitTile key={game.id} title={tc(game.id)}>{previews[game.id]}</FitTile>)}
       </div>
 
       <div className="relative mt-4 flex items-end justify-between gap-3 sm:mt-6">
