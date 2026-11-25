@@ -8755,6 +8755,16 @@
       "evOpenTitle": "오픈 대전",
       "evOpenSub": "열린 방에 바로 입장",
       "evOpenRooms": "지금 열린 방 {n}개 · 바로 입장",
+      "roomsN": "{n}개 방",
       "evOpenCta": "방 보기"
+  },
+  "TabBar": {
+      "label": "주요 메뉴",
+      "home": "홈",
+      "games": "게임",
+      "lounge": "라운지",
+      "online": "{n}명",
+      "records": "기록실",
+      "icons": "아이콘"
   }
 }

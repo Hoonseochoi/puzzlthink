@@ -8574,6 +8574,16 @@
       "evOpenTitle": "Open match",
       "evOpenSub": "Jump into an open room",
       "evOpenRooms": "{n} open rooms now · jump in",
+      "roomsN": "{n} rooms",
       "evOpenCta": "See rooms"
+  },
+  "TabBar": {
+      "label": "Main menu",
+      "home": "Home",
+      "games": "Games",
+      "lounge": "Lounge",
+      "online": "{n} online",
+      "records": "Records",
+      "icons": "Icons"
   }
 }

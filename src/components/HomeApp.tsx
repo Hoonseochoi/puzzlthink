@@ -12,7 +12,7 @@ import { ChevronRight, Crown, Flame, Play, Puzzle, Skull, Swords, Trophy, Zap } 
 import { Link } from '@/i18n/routing';
 import { GAMES, type CatalogGame, type GameId } from '@/lib/gameCatalog';
 import { CERT_GAMES } from '@/lib/hardClear';
-import { listAllOpenRooms } from '@/lib/openRooms';
+import { STATS_ID, listAllOpenRooms } from '@/lib/openRooms';
 import { getSupabase } from '@/lib/supabase';
 import type { GameId as StatsGameId } from '@/lib/stats';
 import { useAuth } from './AuthProvider';
@@ -42,39 +42,68 @@ const RECENT_KEY = 'puzzlthink:home-recent';
 const readRecent = (): string[] => { try { const v = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); return Array.isArray(v) ? v.filter((x) => typeof x === 'string') : []; } catch { return []; } };
 const pushRecent = (href: string) => { try { localStorage.setItem(RECENT_KEY, JSON.stringify([href, ...readRecent().filter((h) => h !== href)].slice(0, 8))); } catch { /* private mode */ } };
 
-type Me = { pieces: number | null; pieceRank: number | null; black: number | null; blackRank: number | null; ranks: Map<string, number>; recent: string[] };
-const NO_ME: Me = { pieces: null, pieceRank: null, black: null, blackRank: null, ranks: new Map(), recent: [] };
+type Me = { ranks: Map<string, number>; recent: string[] };
+const NO_ME: Me = { ranks: new Map(), recent: [] };
 
-/** The signed-in player's numbers: 피스 and 블랙피스 this week, every game rank, the games played last. */
+/** The signed-in player's game ranks and the games played last. */
 function useMe(userId: string | null): Me {
   const [me, setMe] = useState<Me>(NO_ME);
   useEffect(() => {
     const supabase = getSupabase();
     let alive = true;
     if (!supabase || !userId) { Promise.resolve().then(() => { if (alive) setMe({ ...NO_ME, recent: readRecent() }); }); return () => { alive = false; }; }
-    const mine = (rows: unknown) => ((rows as { is_me: boolean; pieces: number; rank: number }[] | null) ?? []).find((r) => r.is_me);
     Promise.all([
-      supabase.rpc('competition_ranking', { p_limit: 1 }),
-      supabase.rpc('black_piece_ranking', { p_limit: 1 }),
       supabase.rpc('my_game_ranks'),
       supabase.from('game_results').select('game, played_at').order('played_at', { ascending: false }).limit(60),
-    ]).then(([piece, black, ranks, results]) => {
+    ]).then(([ranks, results]) => {
       if (!alive) return;
-      const p = mine(piece.data), b = mine(black.data);
       const rankMap = new Map<string, number>();
       for (const r of (ranks.data as { game: string; rank: number }[] | null) ?? []) {
         const href = CERT_GAMES[r.game as StatsGameId]?.href;
         if (href && r.rank > 0) rankMap.set(href, r.rank);
       }
       const played = ((results.data as { game: string }[] | null) ?? []).map((r) => CERT_GAMES[r.game as StatsGameId]?.href).filter((h): h is NonNullable<typeof h> => !!h);
-      setMe({
-        pieces: p ? Number(p.pieces) : 0, pieceRank: p?.rank ?? null, black: b ? Number(b.pieces) : 0, blackRank: b?.rank ?? null,
-        ranks: rankMap, recent: [...new Set([...played, ...readRecent()])],
-      });
+      setMe({ ranks: rankMap, recent: [...new Set([...played, ...readRecent()])] });
     }).catch(() => {});
     return () => { alive = false; };
   }, [userId]);
   return me;
+}
+
+type RaceRow = { rank: number; nickname: string; pieces: number; is_me: boolean };
+type Races = { piece: RaceRow[]; black: RaceRow[] };
+/** This week's 피스 and 블랙피스 boards: the top three, plus my own row when signed in. */
+function useRaces(userId: string | null): Races {
+  const [races, setRaces] = useState<Races>({ piece: [], black: [] });
+  useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+    let alive = true;
+    const rows = (d: unknown) => (Array.isArray(d) ? (d as RaceRow[]).map((r) => ({ rank: r.rank, nickname: r.nickname, pieces: Number(r.pieces), is_me: !!r.is_me })) : []);
+    Promise.all([supabase.rpc('competition_ranking', { p_limit: 3 }), supabase.rpc('black_piece_ranking', { p_limit: 3 })])
+      .then(([piece, black]) => { if (alive) setRaces({ piece: rows(piece.data), black: rows(black.data) }); }).catch(() => {});
+    return () => { alive = false; };
+  }, [userId]);
+  return races;
+}
+
+/** A race's top three on its banner: 2nd · 1st · 3rd, each wearing the icon that place wins. */
+function RacePodium({ rows, icon, accent }: { rows: RaceRow[]; icon: (place: 1 | 2 | 3) => string; accent: string }) {
+  const top = new Map(rows.filter((r) => r.rank <= 3).map((r) => [r.rank, r]));
+  return (
+    <span className="relative flex shrink-0 items-end gap-1">
+      {([2, 1, 3] as const).map((place) => {
+        const r = top.get(place);
+        return (
+          <span key={place} className={`flex w-[52px] flex-col items-center ${place === 1 ? '' : 'pb-0.5'} ${r ? '' : 'opacity-40'}`}>
+            <Stone name={r?.nickname ?? String(place)} size={place === 1 ? 44 : 34} icon={icon(place)} />
+            <span className="mt-1 w-full truncate text-center text-[9.5px] font-black leading-tight text-white/90">{r?.nickname ?? '—'}</span>
+            <span className="flex items-center gap-0.5 text-[9px] font-black leading-tight" style={{ color: accent }}><span className="flex h-[11px] w-[11px] items-center justify-center rounded-full text-[7.5px] text-black/70" style={{ background: MEDAL[place - 1] }}>{place}</span>{r ? `×${r.pieces}` : ''}</span>
+          </span>
+        );
+      })}
+    </span>
+  );
 }
 
 type FeedKind = 'crown' | 'hall' | 'hell' | 'hard' | 'open' | 'slither';
@@ -210,15 +239,27 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const locale = useLocale();
   const { user, ready, nickname } = useAuth();
   const me = useMe(user?.id ?? null);
+  const races = useRaces(user?.id ?? null);
+  const myPiece = races.piece.find((r) => r.is_me), myBlack = races.black.find((r) => r.is_me);
   const podiums = useHallPodiums();
   const feed = useFeed();
   const [cat, setCat] = useState<Cat>('all');
   const [ev, setEv] = useState(0);
   const [rooms, setRooms] = useState<number | null>(null);
+  const [roomGames, setRoomGames] = useState<{ game: CatalogGame; n: number }[]>([]);
   const [day, setDay] = useState(0);
   useEffect(() => {
     let alive = true;
-    listAllOpenRooms().then((list) => { if (alive && list) setRooms(list.length); });
+    listAllOpenRooms().then((list) => {
+      if (!alive || !list) return;
+      setRooms(list.length);
+      const count = new Map<CatalogGame, number>();
+      for (const row of list) {
+        const g = GAMES.find((x) => x.id === row.game || STATS_ID[x.id] === row.game);
+        if (g) count.set(g, (count.get(g) ?? 0) + 1);
+      }
+      setRoomGames([...count].map(([game, n]) => ({ game, n })).sort((a, b) => b.n - a.n).slice(0, 3));
+    });
     const id = window.setTimeout(() => setDay(Math.floor((Date.now() + 9 * 3600_000) / 86_400_000)), 0); // changes at midnight KST
     return () => { alive = false; window.clearTimeout(id); };
   }, []);
@@ -232,10 +273,23 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const [pieceLive] = useState(() => Date.now() < PIECE_WEEKS[2].ends);
   const heroPodium = hero ? podiums?.get(hero.href) : undefined;
 
+  // 오픈 대전 has no single ranking: its banner shows the three games with the most open rooms.
+  const openSide = roomGames.length ? (
+    <span className="relative flex shrink-0 items-end gap-1.5">
+      {roomGames.map(({ game, n }) => (
+        <span key={game.id} className="flex w-[50px] flex-col items-center">
+          <span className="h-[42px] w-[42px] overflow-hidden rounded-[12px] bg-black/40 ring-1 ring-white/20"><FitTile title={tc(game.id)} className="h-full w-full"><Preview id={game.id} /></FitTile></span>
+          <span className="mt-1 w-full truncate text-center text-[9.5px] font-black leading-tight text-white/90">{tc(game.id)}</span>
+          <span className="text-[9px] font-black leading-tight text-[#b9c1ff]">{th('roomsN', { n })}</span>
+        </span>
+      ))}
+    </span>
+  ) : null;
+
   const events = [
-    { key: 'hell', icon: <Skull size={15} />, eyebrow: 'AI HELL MODE', title: th('evHellTitle'), sub: th('evHellSub'), cta: th('evHellCta'), bg: 'linear-gradient(135deg, #2a0812 0%, #07060a 70%)', accent: '#ff3355', href: '/hell' as const, hash: undefined },
-    ...(pieceLive ? [{ key: 'piece', icon: <Puzzle size={15} />, eyebrow: 'PIECE RACE · 2W', title: th('evPieceTitle'), sub: th('evPieceSub'), cta: th('evPieceCta'), bg: 'linear-gradient(135deg, #2c2a14 0%, #17201e 70%)', accent: '#ffd36e', href: '/records' as const, hash: 'competition' }] : []),
-    { key: 'open', icon: <Swords size={15} />, eyebrow: 'OPEN MATCH', title: th('evOpenTitle'), sub: rooms == null ? th('evOpenSub') : th('evOpenRooms', { n: rooms }), cta: th('evOpenCta'), bg: 'linear-gradient(135deg, #1b1f4a 0%, #0e1020 70%)', accent: '#8f9bff', href: '/' as const, hash: 'open-match' },
+    { key: 'hell', icon: <Skull size={15} />, eyebrow: 'AI HELL MODE', title: th('evHellTitle'), sub: th('evHellSub'), cta: th('evHellCta'), bg: 'linear-gradient(135deg, #2a0812 0%, #07060a 70%)', accent: '#ff3355', href: '/hell' as const, hash: undefined, side: <RacePodium rows={races.black} icon={(p) => `h1-${p}`} accent="#ff8ea0" /> },
+    ...(pieceLive ? [{ key: 'piece', icon: <Puzzle size={15} />, eyebrow: 'PIECE RACE · 2W', title: th('evPieceTitle'), sub: th('evPieceSub'), cta: th('evPieceCta'), bg: 'linear-gradient(135deg, #2c2a14 0%, #17201e 70%)', accent: '#ffd36e', href: '/records' as const, hash: 'competition', side: <RacePodium rows={races.piece} icon={(p) => `w2-${p}`} accent="#ffd36e" /> }] : []),
+    { key: 'open', icon: <Swords size={15} />, eyebrow: 'OPEN MATCH', title: th('evOpenTitle'), sub: rooms ? th('evOpenRooms', { n: rooms }) : th('evOpenSub'), cta: th('evOpenCta'), bg: 'linear-gradient(135deg, #1b1f4a 0%, #0e1020 70%)', accent: '#8f9bff', href: '/' as const, hash: 'open-match', side: openSide },
   ];
 
   return (
@@ -254,12 +308,12 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
                 <span className="min-w-0"><b className="block truncate text-[15px] font-black tracking-[-0.02em]">{name || th('noName')}</b><span className="flex items-center text-[10.5px] font-bold text-black/40">{th('myRecords')}<ChevronRight size={11} /></span></span>
               </Link>
               <Link href={{ pathname: '/records', hash: 'competition' }} className="flex shrink-0 flex-col items-center rounded-2xl bg-[#17201e] px-3 py-1.5 text-white active:scale-95" title={th('pieces')}>
-                <span className="flex items-center gap-1 text-[13px] font-black text-[#ffd36e]"><Piece size={12} />{me.pieces ?? '–'}</span>
-                <span className="text-[9px] font-bold text-white/45">{me.pieceRank ? th('piecesRank', { n: me.pieceRank }) : th('pieces')}</span>
+                <span className="flex items-center gap-1 text-[13px] font-black text-[#ffd36e]"><Piece size={12} />{myPiece?.pieces ?? 0}</span>
+                <span className="text-[9px] font-bold text-white/45">{myPiece ? th('piecesRank', { n: myPiece.rank }) : th('pieces')}</span>
               </Link>
               <Link href="/hell" className="flex shrink-0 flex-col items-center rounded-2xl bg-[#07060a] px-3 py-1.5 text-white ring-1 ring-[#ff3355]/40 active:scale-95" title={th('blackPieces')}>
-                <span className="flex items-center gap-1 text-[13px] font-black text-[#ff5c77]"><BlackPiece size={12} glow={false} />{me.black ?? '–'}</span>
-                <span className="text-[9px] font-bold text-white/45">{me.blackRank ? th('blackRank', { n: me.blackRank }) : th('blackPieces')}</span>
+                <span className="flex items-center gap-1 text-[13px] font-black text-[#ff5c77]"><BlackPiece size={12} glow={false} />{myBlack?.pieces ?? 0}</span>
+                <span className="text-[9px] font-bold text-white/45">{myBlack ? th('blackRank', { n: myBlack.rank }) : th('blackPieces')}</span>
               </Link>
             </div>
           ) : (
@@ -296,13 +350,14 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
         <div className="flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 [scrollbar-width:none]"
           onScroll={(e) => { const el = e.currentTarget; setEv(Math.round(el.scrollLeft / (el.clientWidth - 22))); }}>
           {events.map((e) => (
-            <Link key={e.key} href={e.hash ? { pathname: e.href, hash: e.hash } : e.href} className="relative flex h-[118px] w-[calc(100%-22px)] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[22px] p-4 text-white active:scale-[.985]" style={{ background: e.bg }}>
-              <span className="pointer-events-none absolute -right-6 -top-8 h-32 w-32 rounded-full blur-2xl" style={{ background: tint(e.accent, 0.35) }} />
-              <span className="relative flex items-center gap-1.5 text-[10px] font-black tracking-[0.16em]" style={{ color: e.accent }}>{e.icon}{e.eyebrow}</span>
-              <span className="relative flex items-end justify-between gap-3">
-                <span className="min-w-0"><b className="block truncate text-[21px] font-black leading-tight tracking-[-0.04em]">{e.title}</b><span className="mt-0.5 block truncate text-[11.5px] font-bold text-white/60">{e.sub}</span></span>
-                <span className="shrink-0 rounded-full px-3.5 py-2 text-[12px] font-black text-[#17201e]" style={{ background: e.accent }}>{e.cta}</span>
+            <Link key={e.key} href={e.hash ? { pathname: e.href, hash: e.hash } : e.href} className="relative flex h-[150px] w-[calc(100%-22px)] shrink-0 snap-center items-stretch justify-between gap-2 overflow-hidden rounded-[22px] p-4 text-white active:scale-[.985]" style={{ background: e.bg }}>
+              <span className="pointer-events-none absolute -right-6 -top-8 h-36 w-36 rounded-full blur-2xl" style={{ background: tint(e.accent, 0.35) }} />
+              <span className="relative flex min-w-0 flex-1 flex-col justify-between">
+                <span className="flex items-center gap-1.5 text-[10px] font-black tracking-[0.16em]" style={{ color: e.accent }}>{e.icon}<span className="truncate">{e.eyebrow}</span></span>
+                <span className="min-w-0"><b className="block break-keep text-[20px] font-black leading-[1.1] tracking-[-0.04em]">{e.title}</b><span className="mt-1 line-clamp-2 block break-keep text-[11px] font-bold leading-[14px] text-white/60">{e.sub}</span></span>
+                <span className="w-fit rounded-full px-3.5 py-1.5 text-[12px] font-black text-[#17201e]" style={{ background: e.accent }}>{e.cta}</span>
               </span>
+              <span className="relative flex shrink-0 items-center">{e.side}</span>
             </Link>
           ))}
         </div>
