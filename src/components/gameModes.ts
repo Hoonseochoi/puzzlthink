@@ -36,6 +36,7 @@ import { preparePointOmokRoom, usePointOmokRoom } from '@/hooks/usePointOmokRoom
 import { prepareTwoSidedPokerRoom, useTwoSidedPokerRoom } from '@/hooks/useTwoSidedPokerRoom';
 import { prepareHitStayRoom, useHitStayRoom } from '@/hooks/useHitStayRoom';
 import { prepareCardJanggiRoom, useCardJanggiRoom } from '@/hooks/useCardJanggiRoom';
+import { prepareGradationRoom, useGradationRoom } from '@/hooks/useGradationRoom';
 import { prepareColorLinkDuelRoom, useColorLinkDuelRoom } from '@/hooks/useColorLinkDuelRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
@@ -62,6 +63,7 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
     path: '/point-omok', ai: [{ label: 'poNormal', query: 'difficulty=normal' }, { label: 'poHard', query: 'difficulty=hard' }],
     rooms: [{ label: 'roomTwo', create: preparePointOmokRoom }], useRoom: usePointOmokRoom,
   },
+  gradation: { path: '/gradation', ai: [{ label: 'grAi' }], rooms: [{ label: 'roomTwo', create: prepareGradationRoom }], useRoom: useGradationRoom },
   cardJanggi: { path: '/card-janggi', ai: [{ label: 'cjAi' }], rooms: [{ label: 'roomTwo', create: prepareCardJanggiRoom }], useRoom: useCardJanggiRoom },
   colorLinkDuel: { path: '/color-link-duel', ai: [{ label: 'cldAi' }], rooms: [{ label: 'roomTwo', create: prepareColorLinkDuelRoom }], useRoom: useColorLinkDuelRoom },
   hitStay: { path: '/hit-stay', ai: [{ label: 'hsAi' }], rooms: [{ label: 'hsRoom', create: prepareHitStayRoom, openMin: 2 }], useRoom: useHitStayRoom },
