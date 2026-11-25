@@ -1,18 +1,23 @@
 "use client";
 
 import { useTranslations } from 'next-intl';
-import { ArrowRight, Skull } from 'lucide-react';
+import { ArrowRight, CalendarDays, Skull } from 'lucide-react';
 import { Link } from '@/i18n/routing';
-import { HELL_LIVE } from '@/lib/hell';
+import { HELL_LIVE, hellWeekOf } from '@/lib/hell';
 import { Stone } from '../StoneAvatar';
 import { BlackPiece, BlackPieceCount } from './BlackPiece';
-import { useBlackPieceRanking } from './BlackPieceBoard';
+import { useBlackPieceRanking, useHellPeriod } from './BlackPieceBoard';
 
-/** Home announcement where the 피스 경쟁전 podium used to be: AI 헬모드 is out, the black-piece rule, the top three. */
+/**
+ * Home announcement where the 피스 경쟁전 podium used to be: AI 헬모드 is out, the black-piece rule, this 7-day week's
+ * period and top three. The podium shows the hell-mode icon each place will get, not the players' own stones.
+ */
 export default function HellLaunchBanner() {
   const t = useTranslations('Hell');
   const tc = useTranslations('Common');
   const rows = useBlackPieceRanking(3);
+  const week = hellWeekOf();
+  const period = useHellPeriod();
   const top = (rows ?? []).filter((r) => r.rank <= 3);
   const podium = [top[1], top[0], top[2]];
 
@@ -32,19 +37,20 @@ export default function HellLaunchBanner() {
             {HELL_LIVE.map((g) => <span key={g.id} className="rounded-full border border-white/12 bg-white/[0.05] px-2.5 py-1 text-[11px] font-bold text-white/80">{tc(g.id)}{g.hell.query ? ' 1:1' : ''}</span>)}
           </div>
           <p className="mt-2 flex items-start gap-1.5 break-keep text-[11px] font-black leading-4 text-[#ff8ea0] sm:mt-3 sm:inline-flex sm:items-center sm:gap-2 sm:rounded-full sm:border sm:border-[#ff3355]/40 sm:bg-black/40 sm:px-3 sm:py-1.5 sm:text-xs"><BlackPiece size={12} />{t('bannerRule')}</p>
+          <p className="mt-1.5 flex items-center gap-1.5 break-keep text-[11px] font-black leading-4 text-white/80 sm:ml-2 sm:inline-flex sm:rounded-full sm:bg-[#ff2448]/20 sm:px-3 sm:py-1.5 sm:text-xs"><CalendarDays size={12} className="shrink-0 text-[#ff3355]" /><span className="sm:hidden">{period(week, true)}</span><span className="hidden sm:inline">{period(week)}</span></p>
           <span className="hell-btn mt-3 flex w-fit items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-black text-white transition group-hover:gap-3 sm:mt-4 sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm">{t('bannerCta')}<ArrowRight size={16} /></span>
         </div>
 
         {/* Black-piece top three. */}
         <div className="w-full">
-          <p className="mb-1.5 text-center text-[9px] font-black tracking-[0.12em] text-white/45 sm:mb-2 sm:text-[10px] sm:tracking-[0.2em]">{t('bannerTop')}</p>
+          <p className="mb-1.5 text-center text-[9px] font-black tracking-[0.12em] text-white/45 sm:mb-2 sm:text-[10px] sm:tracking-[0.2em]">{t('bannerTop', { n: week })}</p>
           <div className="grid grid-cols-3 items-end gap-0.5 sm:gap-1.5">
             {podium.map((row, i) => {
               const place = [2, 1, 3][i];
               const block = place === 1 ? 'h-10 sm:h-16 from-[#ff2448] to-[#4a0614]' : place === 2 ? 'h-7 sm:h-11 from-[#c8126f] to-[#33061f]' : 'h-5 sm:h-8 from-[#7a1430] to-[#1f050d]';
               return (
                 <div key={place} className="flex min-w-0 flex-col items-center text-center">
-                  {row ? <Stone name={row.nickname} size={place === 1 ? 28 : 22} /> : <span className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-[#ff3355]/40 text-[10px] text-[#ff3355]/70 sm:h-7 sm:w-7 sm:text-[11px]">?</span>}
+                  <span className={`${row ? '' : 'opacity-45'} ${place === 1 ? 'drop-shadow-[0_0_8px_rgba(255,51,85,.6)]' : ''}`}><Stone name={row?.nickname ?? ''} icon={`h${week}-${place}`} size={place === 1 ? 40 : 32} /></span>
                   <span className={`w-full truncate px-0.5 text-[9px] font-black sm:text-[11px] ${row ? '' : 'hidden sm:block'}`}>{row?.nickname ?? t('emptySpot')}</span>
                   {row ? <BlackPieceCount n={row.pieces} size={8} className="text-[9px] sm:text-[11px]" /> : <span className="text-[9px] text-white/35 sm:text-[11px]">—</span>}
                   <span className={`mt-1 flex w-full items-start justify-center rounded-t-xl border-x border-t border-[#ff3355]/35 bg-gradient-to-b pt-0.5 text-xs font-black text-white/90 sm:pt-1 sm:text-lg ${block}`}>{place}</span>

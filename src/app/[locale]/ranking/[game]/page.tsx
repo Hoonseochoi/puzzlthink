@@ -12,6 +12,7 @@ import { pageMetadata } from '@/lib/seo';
 import type { GameId } from '@/lib/stats';
 import RankMove from '@/components/RankMove';
 import StoneAvatar from '@/components/StoneAvatar';
+import CrownCard from '@/components/CrownCard';
 import RankBlock from '@/components/merge2048/RankBlock';
 import { blockOfSub } from '@/lib/merge2048';
 import JsonLd from '@/components/JsonLd';
@@ -125,6 +126,7 @@ export default async function RankingPage({ params }: Params) {
         </div>
 
         <Podium rows={top.rows} color={CERT_GAMES[game].color} title={top.title} empty={t('podiumEmpty')} />
+        <CrownCard game={game} />
 
         <div className="mt-6 grid gap-4">
           {r.scores && (

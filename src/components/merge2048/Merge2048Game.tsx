@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Stone } from '@/components/StoneAvatar';
+import { checkNewIcons } from '@/components/IconUnlock';
 import { Infinity as InfinityIcon, Leaf, Medal, Play, RotateCcw, Trophy, Undo2, Volume2, VolumeX } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import BugReport from '@/components/BugReport';
@@ -63,6 +65,23 @@ export default function Merge2048Game() {
   const [undo, setUndo] = useState<M2State | null>(null);
   const [toast, setToast] = useState<{ v: number; at: number } | null>(null);
   const [won, setWon] = useState(false); // 2048 made this game: the celebration card
+  const ti = useTranslations('Icons');
+  // The 2048 profile icon: claimed the moment a 2048 block appears (signed in); 'new' shows it on the card and
+  // pops the "new icon" notice, 'signin' asks signed-out players to sign in for it.
+  const [icon2048, setIcon2048] = useState<'new' | 'signin' | null>(null);
+  useEffect(() => {
+    if (!won) return;
+    let alive = true;
+    (async () => {
+      const supabase = getSupabase();
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) { if (alive) setIcon2048('signin'); return; }
+      const { data: fresh } = await supabase.rpc('claim_icon_2048');
+      if (alive && fresh === true) { setIcon2048('new'); checkNewIcons(900); }
+    })();
+    return () => { alive = false; };
+  }, [won]);
   const [sound, setSound] = useState(true);
   const boardRef = useRef<HTMLDivElement>(null);
   const reported = useRef('');
@@ -229,6 +248,11 @@ export default function Merge2048Game() {
                     <div className="h-24 w-24 m2-breathe"><BlockFace v={2048} happy /></div>
                     <p className="mt-3 text-2xl font-black">{t('won')}</p>
                     <p className="mt-1 break-keep text-xs text-black/55">{t('wonDesc')}</p>
+                    {icon2048 && (
+                      <p className={`mt-3 flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-xs font-black ${icon2048 === 'new' ? 'bg-[#17201e] text-[#ffd36e]' : 'border border-black/10 bg-white text-black/60'}`}>
+                        <Stone name="2048" size={26} icon="m2048" />{icon2048 === 'new' ? ti('won2048') : ti('won2048SignIn')}
+                      </p>
+                    )}
                     <button type="button" onClick={() => setWon(false)} className="mt-4 rounded-md bg-[#17201e] px-5 py-2.5 text-sm font-black text-white">{t('keepGoing')}</button>
                   </div>
                 )}

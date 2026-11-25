@@ -2,14 +2,15 @@
 
 import { useEffect, useId, useState } from 'react';
 import { getSupabase } from '@/lib/supabase';
+import { CrownStone, HellStone, Tile2048, parseIcon } from './ProfileIcons';
 
 /**
  * Ranking profile pictures: our PUZZLTHINK stones (a glossy disc with the two eyes) instead of Google photos or
  * initials, so no one's real name or face shows on a board. Each player gets one colour, picked from their
  * nickname, so it looks random across a list but stays the same for the same person everywhere.
  * 피스 경쟁전 rankers get a special stone: 1–3 are gold / silver / bronze with a crown, 4–10 gold with a sparkle.
- * A finished week's top three keep their week's champion stone and crown for good (1W: platinum, 2W: jewels),
- * whatever their current rank.
+ * Earned icons (a finished week's champion stone — 1W platinum, 2W jewels — 블랙피스 weekly top three, 2048,
+ * a game's #1; see ProfileIcons) replace the stone wherever it shows.
  */
 
 type Tone = { hi: string; mid: string; lo: string; rim: string; eye: string };
@@ -76,47 +77,17 @@ function loadRankers() {
   return rankersPromise;
 }
 
-// Past weeks' top three by nickname: their best finish (a later week wins a tie), fetched once per page load.
-let championsPromise: Promise<Map<string, Champion>> | null = null;
-function loadChampions() {
-  championsPromise ??= (async () => {
-    const supabase = getSupabase();
-    const map = new Map<string, Champion>();
-    if (!supabase) return map;
-    const { data } = await supabase.rpc('piece_champions');
-    if (Array.isArray(data)) for (const r of data as { week: number; rank: number; nickname: string }[]) {
-      if (r.rank < 1 || r.rank > 3) continue;
-      const best = map.get(r.nickname);
-      if (!best || r.rank < best.place || (r.rank === best.place && r.week > best.week)) map.set(r.nickname, { week: r.week, place: r.rank as 1 | 2 | 3 });
-    }
-    return map;
-  })();
-  return championsPromise;
-}
-
-/** A past week's podium finish for this nickname, or null. Pass `known` to skip the lookup. */
-export function useChampion(name: string, known?: Champion | null) {
-  const [place, setPlace] = useState<Champion | null>(null);
-  useEffect(() => {
-    if (known !== undefined || !name) return;
-    let alive = true;
-    loadChampions().then((m) => { if (alive) setPlace(m.get(name) ?? null); });
-    return () => { alive = false; };
-  }, [name, known]);
-  return known !== undefined ? known : place;
-}
-
 /** The four colours anyone can pick in 기록실 › 닉네임 (champion stones are picked as 'w{week}-{place}'). */
 export const STONE_COLORS = ['black', 'white', 'red', 'blue'] as const;
 export type StoneColor = typeof STONE_COLORS[number];
 const COLOR_TONE: Record<StoneColor, Tone> = { black: TONES[0], white: TONES[1], red: TONES[2], blue: TONES[7] };
-/** A champion stone choice ('w1-1') as a week and place, or null for a colour. */
+/** A champion stone choice ('w1-1') as a week and place, or null for anything else. */
 export const championOf = (stone: string | null | undefined): Champion | null => {
-  const m = stone ? /^w(\d{1,3})-([123])$/.exec(stone) : null;
-  return m ? { week: Number(m[1]), place: Number(m[2]) as 1 | 2 | 3 } : null;
+  const ref = parseIcon(stone);
+  return ref?.kind === 'piece' ? { week: ref.week, place: ref.place } : null;
 };
 
-// Stones players picked themselves, by nickname. Refetched (and every avatar redrawn) after a player changes theirs.
+// Every player's stone by nickname: their pick, or the icon they earned (the server decides, stone_choices_public). Refetched (and every avatar redrawn) after a player changes theirs.
 let choicesPromise: Promise<Map<string, string>> | null = null;
 const choiceListeners = new Set<() => void>();
 function loadChoices() {
@@ -168,17 +139,20 @@ export function usePieceRank(name: string, known?: number | null) {
 
 /**
  * The stone itself. What it looks like, first match wins:
- * - `champion` given (a preview): that champion stone.
- * - the player picked a stone (looked up by nickname unless `stone` is given): that champion stone, or that colour
- *   (a current 피스 경쟁전 top-10 rank still shows its metal look over a colour);
- * - nothing picked: a past week's champion stone if they have one, else the rank look or the nickname's colour.
+ * - `icon` (or `champion`) given — a preview: that icon.
+ * - the player's stone (looked up by nickname unless `stone` is given): an earned icon (champion, 블랙피스, 2048,
+ *   a game's #1), or a picked colour (a current 피스 경쟁전 top-10 rank still shows its metal look over a colour);
+ * - nothing: the rank look or the nickname's colour.
  */
-export function Stone({ name, size, pieceRank = null, champion, stone }: { name: string; size: number; pieceRank?: number | null; champion?: Champion | null; stone?: string | null }) {
+export function Stone({ name, size, pieceRank = null, champion, stone, icon }: { name: string; size: number; pieceRank?: number | null; champion?: Champion | null; stone?: string | null; icon?: string }) {
   const id = useId().replace(/:/g, '');
-  const choice = useStoneChoice(name, stone);
-  const earned = useChampion(name, champion);
-  const champ = champion !== undefined ? champion : choice ? championOf(choice) : earned;
-  if (champ) return <ChampionStone id={id} name={name} size={size} champion={champ} />;
+  const preview = icon ?? (champion ? `w${champion.week}-${champion.place}` : undefined);
+  const choice = useStoneChoice(name, preview ?? stone);
+  const ref = parseIcon(choice);
+  if (ref?.kind === 'piece') return <ChampionStone id={id} name={name} size={size} champion={ref} />;
+  if (ref?.kind === 'hell') return <HellStone id={id} name={name} size={size} place={ref.place} />;
+  if (ref?.kind === 'm2048') return <Tile2048 id={id} name={name} size={size} />;
+  if (ref?.kind === 'crown') return <CrownStone id={id} name={name} size={size} game={ref.game} />;
   const ranker = pieceRank != null && pieceRank <= 10;
   const crown = ranker && pieceRank <= 3;
   const picked = choice && choice in COLOR_TONE ? COLOR_TONE[choice as StoneColor] : null;
