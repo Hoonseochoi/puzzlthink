@@ -151,7 +151,7 @@ export function Stone({ name, size, pieceRank = null, champion, stone, icon }: {
   const ref = parseIcon(choice);
   if (ref?.kind === 'piece') return <ChampionStone id={id} name={name} size={size} champion={ref} />;
   if (ref?.kind === 'hell') return <HellStone id={id} name={name} size={size} place={ref.place} />;
-  if (ref?.kind === 'm2048') return <Tile2048 id={id} name={name} size={size} />;
+  if (ref?.kind === 'm2048') return <Tile2048 id={id} name={name} size={size} tier={ref.tier} />;
   if (ref?.kind === 'crown') return <CrownStone id={id} name={name} size={size} game={ref.game} />;
   const ranker = pieceRank != null && pieceRank <= 10;
   const crown = ranker && pieceRank <= 3;

@@ -1,7 +1,7 @@
 /**
  * Earned profile icons beyond the 피스 경쟁전 champion stones (those live in StoneAvatar):
  * - h{week}-{place}: 블랙피스 경쟁전 weekly top three — obsidian stones with horns and a hellfire halo.
- * - m2048: reached a 2048 block — the golden 2048 tile with our two eyes.
+ * - m{block}: made that block in 2048 (m2048, m4096 … m131072) — the block's tile with our two eyes; each tier has its own look.
  * - c-{game}: a game's ranking #1 — a stone in the game's colour, a gold crown and the game's emblem.
  * All drawn in a 100×100 box like the stones, so they swap in anywhere a stone is shown.
  */
@@ -11,13 +11,17 @@ import { CERT_GAMES } from '@/lib/hardClear';
 export type IconRef =
   | { kind: 'piece'; week: number; place: 1 | 2 | 3 }
   | { kind: 'hell'; week: number; place: 1 | 2 | 3 }
-  | { kind: 'm2048' }
+  | { kind: 'm2048'; tier: number }
   | { kind: 'crown'; game: GameId };
 
-/** 'w2-1' / 'h1-3' / 'm2048' / 'c-wallgo' → what it is; null for a plain colour or anything unknown. */
+/** The 2048 block icons, smallest first: one per block from 2048 up to the biggest a 4×4 board can hold. */
+export const M2048_TIERS = [2048, 4096, 8192, 16384, 32768, 65536, 131072] as const;
+
+/** 'w2-1' / 'h1-3' / 'm4096' / 'c-wallgo' → what it is; null for a plain colour or anything unknown. */
 export function parseIcon(stone: string | null | undefined): IconRef | null {
   if (!stone) return null;
-  if (stone === 'm2048') return { kind: 'm2048' };
+  const m = /^m(\d{4,6})$/.exec(stone);
+  if (m) return (M2048_TIERS as readonly number[]).includes(Number(m[1])) ? { kind: 'm2048', tier: Number(m[1]) } : null;
   const wh = /^([wh])(\d{1,3})-([123])$/.exec(stone);
   if (wh) return { kind: wh[1] === 'w' ? 'piece' : 'hell', week: Number(wh[2]), place: Number(wh[3]) as 1 | 2 | 3 };
   const c = /^c-([a-z0-9_]+)$/.exec(stone);
@@ -75,27 +79,43 @@ export function HellStone({ id, name, size, place }: { id: string; name: string;
 
 // ─── 2048 ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function Tile2048({ id, name, size }: { id: string; name: string; size: number }) {
+type TileLook = { tile: [string, string, string]; rim: string; glow: string; eye: string; text: string; crown: [string, string]; gem?: string; spark: string; stars?: boolean };
+// 2048 gold · 4096 black king (silver crown) · 8192 white king · 16384 aurora · then three cosmic tiles.
+const TILE_LOOKS: Record<number, TileLook> = {
+  2048: { tile: ['#fff3a8', '#f2cf3c', '#c98f06'], rim: '#8a6206', glow: '#ffe066', eye: '#3b2604', text: '#ffffff', crown: ['#ffd23f', '#7d5306'], spark: '#ffffff' },
+  4096: { tile: ['#6a6e78', '#24262d', '#050507'], rim: '#c9ced8', glow: '#aab4c8', eye: '#ffffff', text: '#ffffff', crown: ['#e6e9ef', '#5b616c'], spark: '#ffffff', stars: true },
+  8192: { tile: ['#ffffff', '#f1eee6', '#c2bdb0'], rim: '#b8860b', glow: '#ffd76a', eye: '#17201e', text: '#17201e', crown: ['#ffd23f', '#7d5306'], gem: '#e5484d', spark: '#ffe9a6' },
+  16384: { tile: ['#c9fff0', '#b48cff', '#4b3ab8'], rim: '#2c1f86', glow: '#b48cff', eye: '#ffffff', text: '#ffffff', crown: ['#fff3b8', '#6d3fc4'], gem: '#3ee6c1', spark: '#fff3b8', stars: true },
+  32768: { tile: ['#7cf3ff', '#1e6fd9', '#0a1550'], rim: '#06103c', glow: '#4fc3ff', eye: '#ffffff', text: '#ffffff', crown: ['#bff6ff', '#0b3f8f'], gem: '#ffd23f', spark: '#e2fbff', stars: true },
+  65536: { tile: ['#ffd0f4', '#e0399a', '#4a0a55'], rim: '#33063c', glow: '#ff5fc4', eye: '#ffffff', text: '#ffffff', crown: ['#ffe3f8', '#8c1466'], gem: '#7cf3ff', spark: '#fff0fb', stars: true },
+  131072: { tile: ['#fff3a8', '#ff6b4a', '#6a1bd1'], rim: '#2a0a5c', glow: '#ff9d5c', eye: '#ffffff', text: '#ffffff', crown: ['#ffffff', '#b8860b'], gem: '#3ee6c1', spark: '#ffffff', stars: true },
+};
+
+export function Tile2048({ id, name, size, tier = 2048 }: { id: string; name: string; size: number; tier?: number }) {
+  const k = TILE_LOOKS[tier] ?? TILE_LOOKS[2048];
+  const digits = String(tier).length;
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={name}>
       <defs>
         <linearGradient id={`tg-${id}`} x1="0" y1="0" x2="0.6" y2="1">
-          <stop offset="0%" stopColor="#fff3a8" /><stop offset="45%" stopColor="#f2cf3c" /><stop offset="100%" stopColor="#c98f06" />
+          <stop offset="0%" stopColor={k.tile[0]} /><stop offset="45%" stopColor={k.tile[1]} /><stop offset="100%" stopColor={k.tile[2]} />
         </linearGradient>
         <radialGradient id={`tl-${id}`} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#ffe066" stopOpacity=".7" /><stop offset="100%" stopColor="#ffe066" stopOpacity="0" />
+          <stop offset="0%" stopColor={k.glow} stopOpacity=".7" /><stop offset="100%" stopColor={k.glow} stopOpacity="0" />
         </radialGradient>
       </defs>
       <circle cx="50" cy="56" r="50" fill={`url(#tl-${id})`} />
       <rect x="12" y="21" width="76" height="76" rx="18" fill="rgba(0,0,0,.2)" />
-      <rect x="12" y="18" width="76" height="76" rx="18" fill={`url(#tg-${id})`} stroke="#8a6206" strokeWidth="2.2" />
-      <path d="M22 30 Q24 24 32 23 L52 23" fill="none" stroke="#fffbe0" strokeOpacity=".8" strokeWidth="3" strokeLinecap="round" />
-      <rect x="37" y="36" width="8" height="15" rx="4" fill="#3b2604" />
-      <rect x="55" y="36" width="8" height="15" rx="4" fill="#3b2604" />
-      <text x="50" y="82" textAnchor="middle" fontSize="21" fontWeight="900" fontFamily="ui-rounded, system-ui, sans-serif" fill="#ffffff" stroke="#8a6206" strokeWidth="1.2" paintOrder="stroke" letterSpacing="-0.5">2048</text>
-      <path d="M28 2 L32 10 L39 6 L37 14 H19 L17 6 L24 10 Z" fill="#ffd23f" stroke="#7d5306" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M87 24 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="#ffffff" />
-      <path d="M8 60 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5z" fill="#fff6c4" />
+      <rect x="12" y="18" width="76" height="76" rx="18" fill={`url(#tg-${id})`} stroke={k.rim} strokeWidth="2.2" />
+      <path d="M22 30 Q24 24 32 23 L52 23" fill="none" stroke="#ffffff" strokeOpacity=".7" strokeWidth="3" strokeLinecap="round" />
+      {k.stars && <g fill={k.spark} opacity=".85"><circle cx="24" cy="46" r="1.4" /><circle cx="77" cy="42" r="1.7" /><circle cx="71" cy="60" r="1.1" /><circle cx="29" cy="62" r="1.2" /></g>}
+      <rect x="37" y="36" width="8" height="15" rx="4" fill={k.eye} />
+      <rect x="55" y="36" width="8" height="15" rx="4" fill={k.eye} />
+      <text x="50" y={digits > 5 ? 80 : digits > 4 ? 81 : 82} textAnchor="middle" fontSize={digits > 5 ? 14.5 : digits > 4 ? 17.5 : 21} fontWeight="900" fontFamily="ui-rounded, system-ui, sans-serif" fill={k.text} stroke={k.text === '#ffffff' ? k.rim : '#ffffff'} strokeWidth="1.2" paintOrder="stroke" letterSpacing="-0.5">{tier}</text>
+      <path d="M28 2 L32 10 L39 6 L37 14 H19 L17 6 L24 10 Z" fill={k.crown[0]} stroke={k.crown[1]} strokeWidth="1.6" strokeLinejoin="round" />
+      {k.gem && <circle cx="28" cy="11" r="1.8" fill={k.gem} />}
+      <path d="M87 24 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill={k.spark} />
+      <path d="M8 60 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5z" fill={k.spark} />
     </svg>
   );
 }

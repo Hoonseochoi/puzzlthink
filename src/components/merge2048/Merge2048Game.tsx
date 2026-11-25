@@ -66,22 +66,9 @@ export default function Merge2048Game() {
   const [toast, setToast] = useState<{ v: number; at: number } | null>(null);
   const [won, setWon] = useState(false); // 2048 made this game: the celebration card
   const ti = useTranslations('Icons');
-  // The 2048 profile icon: claimed the moment a 2048 block appears (signed in); 'new' shows it on the card and
-  // pops the "new icon" notice, 'signin' asks signed-out players to sign in for it.
+  // The block icons (m2048, m4096 …): 'new' shows the 2048 one on the card, 'signin' asks signed-out players to sign in.
   const [icon2048, setIcon2048] = useState<'new' | 'signin' | null>(null);
-  useEffect(() => {
-    if (!won) return;
-    let alive = true;
-    (async () => {
-      const supabase = getSupabase();
-      if (!supabase) return;
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) { if (alive) setIcon2048('signin'); return; }
-      const { data: fresh } = await supabase.rpc('claim_icon_2048');
-      if (alive && fresh === true) { setIcon2048('new'); checkNewIcons(900); }
-    })();
-    return () => { alive = false; };
-  }, [won]);
+  const claimed = useRef(0); // the biggest block already claimed this visit
   const [sound, setSound] = useState(true);
   const boardRef = useRef<HTMLDivElement>(null);
   const reported = useRef('');
@@ -193,6 +180,23 @@ export default function Merge2048Game() {
   useEffect(() => { if (mode === 'free' && phase === 'playing' && !startedAt.current) startedAt.current = Date.now(); }, [mode, phase]);
 
   const max = game ? maxTile(game) : 0;
+  // Every block from 2048 up is a profile icon: claimed the moment it appears (or when a saved board that has one
+  // is opened), and the server gives every tier up to it. A new one pops the "new icon" notice.
+  useEffect(() => {
+    if (max < 2048 || max <= claimed.current) return;
+    (async () => {
+      const supabase = getSupabase();
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) { setIcon2048('signin'); return; }
+      if (max <= claimed.current) return;
+      claimed.current = max;
+      const first = await supabase.rpc('claim_icon_2048', { p_max: max });
+      // Before the tiered function is live the server only knows the plain 2048 claim.
+      const fresh = first.error ? (await supabase.rpc('claim_icon_2048')).data : first.data;
+      if (fresh === true) { setIcon2048('new'); checkNewIcons(900); }
+    })();
+  }, [max]);
   const toastOn = toast && now - toast.at < 2400;
   // The toast only needs a fresh clock while it shows.
   useEffect(() => { if (!toast) return; const id = window.setInterval(() => setNow(Date.now()), 300); const stop = window.setTimeout(() => window.clearInterval(id), 2600); return () => { window.clearInterval(id); window.clearTimeout(stop); }; }, [toast]);
@@ -250,7 +254,7 @@ export default function Merge2048Game() {
                     <p className="mt-1 break-keep text-xs text-black/55">{t('wonDesc')}</p>
                     {icon2048 && (
                       <p className={`mt-3 flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-xs font-black ${icon2048 === 'new' ? 'bg-[#17201e] text-[#ffd36e]' : 'border border-black/10 bg-white text-black/60'}`}>
-                        <Stone name="2048" size={26} icon="m2048" />{icon2048 === 'new' ? ti('won2048') : ti('won2048SignIn')}
+                        <Stone name="2048" size={26} icon="m2048" />{icon2048 === 'new' ? ti('won2048', { n: 2048 }) : ti('won2048SignIn')}
                       </p>
                     )}
                     <button type="button" onClick={() => setWon(false)} className="mt-4 rounded-md bg-[#17201e] px-5 py-2.5 text-sm font-black text-white">{t('keepGoing')}</button>
