@@ -11,6 +11,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
 import { CHAMPION_LOOKS, STONE_COLORS, Stone } from './StoneAvatar';
 import { MY_ICON_ANCHOR } from './StonePicker';
+import { M2048_TIERS } from './ProfileIcons';
 
 const CROWN_GAMES = (Object.keys(CERT_GAMES) as GameId[]).filter((g) => gameFromSlug(rankSlug(g)));
 
@@ -104,7 +105,7 @@ export default function IconCollection() {
           ))}</ul>, true)}
 
         {section('m2048', <Sparkles size={18} className="text-[#e8b730]" />, t('m2048Title'), t('m2048Rule'),
-          <ul className={grid}>{cell('m2048', ti('m2048'))}</ul>)}
+          <ul className={grid}>{M2048_TIERS.map((n) => cell(`m${n}`, ti('m2048', { n })))}</ul>)}
 
         {section('crowns', <Gamepad2 size={18} className="text-[#ff6b4a]" />, t('crownTitle'), t('crownRule'),
           <ul className={grid}>{CROWN_GAMES.map((g) => cell(`c-${g}`, gameName(g), holders.get(g) ?? t('noHolder'), `c-${g}`, `/ranking/${rankSlug(g)}`))}</ul>)}

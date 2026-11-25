@@ -5763,7 +5763,7 @@
     "hellTitle": "Black Piece hell mode",
     "hellRule": "Black Piece 7-day week top 3 · given every week · kept for good",
     "m2048Title": "2048",
-    "m2048Rule": "Make a 2048 block in 2048 · kept for good",
+    "m2048Rule": "Make a 2048, 4096, 8192… block in 2048 · every block you reach is kept for good",
     "crownTitle": "Game #1",
     "crownRule": "Each game's ranking #1 · moves to the new #1 when you lose it",
     "noHolder": "No holder"
@@ -5774,7 +5774,7 @@
     "hellName1": "Inferno",
     "hellName2": "Blood Moon",
     "hellName3": "Ember",
-    "m2048": "Reached 2048",
+    "m2048": "Reached {n}",
     "crown": "{game} #1",
     "popupBadge": "NEW ICON",
     "popupTitle": "You got a new icon!",
@@ -5789,7 +5789,7 @@
     "crownCardHolder": "Held by {name}",
     "crownCardEmpty": "No holder yet. Take #1 to get it.",
     "crownCardDesc": "Given to this game's #1. When #1 changes, the icon moves to the new #1.",
-    "won2048": "2048 icon unlocked!",
+    "won2048": "{n} icon unlocked!",
     "won2048SignIn": "Sign in to get the 2048 icon"
   },
   "PieceRace": {
