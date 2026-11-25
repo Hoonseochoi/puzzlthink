@@ -30,6 +30,7 @@ const CHALLENGES: { game: GameId; boards: string[]; kind: PodiumKind }[] = [
   { game: 'equation_signal', boards: ['eqsignal'], kind: 'score' },
   { game: 'equation_tower', boards: ['eqtower'], kind: 'score' },
   { game: 'merge2048', boards: ['merge2048'], kind: 'score' },
+  { game: 'hidden_word', boards: ['hidden_word'], kind: 'score' },
 ];
 
 async function challengePodiums(): Promise<[string, GamePodium][]> {

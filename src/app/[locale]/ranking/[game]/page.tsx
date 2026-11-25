@@ -104,7 +104,7 @@ export default async function RankingPage({ params }: Params) {
   const nemoTop = r.nemo && (r.nemo.hard.length ? r.nemo.hard : r.nemo.normal.length ? r.nemo.normal : r.nemo.easy);
   const top: { title: string; rows: PodiumRow[] } = r.maps
     ? { title: t('mapsTitle'), rows: r.maps.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('maps', { n: x.score }) })) }
-    : r.scores ? { title: t('scoresTitle'), rows: r.scores.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }), block: blockOfSub(x.sub) })) }
+    : r.scores ? { title: t(game === 'hidden_word' ? 'pointsTitle' : 'scoresTitle'), rows: r.scores.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }), block: blockOfSub(x.sub) })) }
     : hasHall(game) && r.hall.length ? { title: t('hallTitle'), rows: r.hall.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: t('wins', { w: x.wins, g: x.games }) })) }
     : nemoTop ? { title: t('nemoTitle', { level: t(`level_${nemoTop === r.nemo!.hard ? 'hard' : nemoTop === r.nemo!.normal ? 'normal' : 'easy'}`) }), rows: nemoTop.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname, stat: `${x.correct}` })) }
     : hasOpen(game) && r.open.length ? { title: t('openTitle'), rows: r.open.slice(0, 3).map((x) => ({ rank: x.rank, name: x.nickname ?? 'Player', stat: t('wld', { w: x.wins, l: x.losses, d: x.draws }) })) }
@@ -130,7 +130,7 @@ export default async function RankingPage({ params }: Params) {
 
         <div className="mt-6 grid gap-4">
           {r.scores && (
-            <Board title={t('scoresTitle')} desc={game === 'merge2048' ? t('scoresDesc') : t('scoresDescSolo')} icon={<InfinityIcon size={18} style={{ color: CERT_GAMES[game].color }} />} empty={t('emptyScores')}
+            <Board title={t(game === 'hidden_word' ? 'pointsTitle' : 'scoresTitle')} desc={game === 'merge2048' ? t('scoresDesc') : game === 'hidden_word' ? t('pointsDesc') : t('scoresDescSolo')} icon={<InfinityIcon size={18} style={{ color: CERT_GAMES[game].color }} />} empty={t('emptyScores')}
               rows={r.scores.map((x) => ({ rank: x.rank, name: x.nickname, stat: t('points', { n: x.score.toLocaleString() }), prev: x.prev_rank, pic: <RankBlock block={blockOfSub(x.sub)} name={x.nickname} size={30} /> }))} />
           )}
           {r.maps && (

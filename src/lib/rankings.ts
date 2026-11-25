@@ -9,19 +9,19 @@ export type MapRow = { rank: number; nickname: string; score: number; sub?: numb
 export type GameRanking = { game: GameId; hall: HallRow[]; open: OpenRow[]; nemo: Record<'hard' | 'normal' | 'easy', NemoRow[]> | null; maps: MapRow[] | null; scores: MapRow[] | null };
 /** Logic puzzles ranked by maps owned (새로운 맵 · 맵 뺏기); the value is their challenge board. */
 /** Games ranked by their best solo score (2048 챌린지 도전, 결합 10분 챌린지, 헥사곤 챌린지, 수식 신호등·수식의 탑 10분 챌린지); the value is their challenge board. */
-export const SCORE_BOARD: Partial<Record<GameId, string>> = { merge2048: 'merge2048', gyulhap: 'gyulhap10', hexagon: 'hexagon', equation_signal: 'eqsignal', equation_tower: 'eqtower' };
+export const SCORE_BOARD: Partial<Record<GameId, string>> = { hidden_word: 'hidden_word', merge2048: 'merge2048', gyulhap: 'gyulhap10', hexagon: 'hexagon', equation_signal: 'eqsignal', equation_tower: 'eqtower' };
 export const MAP_BOARD: Partial<Record<GameId, string>> = { slitherlink: 'slither', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', magicswap: 'magicswap', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram' };
 
 /** URL slug of a game (same as its page path; Sudoku lives at /play). */
 export const rankSlug = (game: GameId) => (CERT_GAMES[game].href === '/play' ? 'sudoku' : CERT_GAMES[game].href.slice(1));
 export const gameFromSlug = (slug: string): GameId | null =>
-  (Object.keys(CERT_GAMES) as GameId[]).find((g) => rankSlug(g) === slug && (hasHall(g) || hasOpen(g))) ?? null;
+  (Object.keys(CERT_GAMES) as GameId[]).find((g) => rankSlug(g) === slug && (hasHall(g) || hasOpen(g) || !!SCORE_BOARD[g])) ?? null;
 export const rankPath = (locale: string, game: GameId) => `/${locale}/ranking/${rankSlug(game)}`;
 export const rankImagePath = (game: GameId, locale: string) => `/api/ranking/${rankSlug(game)}?l=${locale === 'en' ? 'en' : 'ko'}`;
 /** Games ranked by wins against AI (네모 세기 and 결합 use solo challenges instead). */
-export const hasHall = (game: GameId) => game !== 'nemo_count' && game !== 'gyulhap' && game !== 'slitherlink' && game !== 'masyu' && game !== 'nonogram' && game !== 'starbattle' && game !== 'binairo' && game !== 'onestroke' && game !== 'colorlink' && game !== 'magicswap' && game !== 'merge2048' && game !== 'equation_signal' && game !== 'equation_tower';
+export const hasHall = (game: GameId) => game !== 'hidden_word' && game !== 'nemo_count' && game !== 'gyulhap' && game !== 'slitherlink' && game !== 'masyu' && game !== 'nonogram' && game !== 'starbattle' && game !== 'binairo' && game !== 'onestroke' && game !== 'colorlink' && game !== 'magicswap' && game !== 'merge2048' && game !== 'equation_signal' && game !== 'equation_tower';
 /** Open-match ranking (every game but Sudoku). */
-export const hasOpen = (game: GameId) => game !== 'sudoku';
+export const hasOpen = (game: GameId) => game !== 'hidden_word' && game !== 'sudoku';
 
 async function rpc<T>(name: string, body: Record<string, unknown>): Promise<T | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

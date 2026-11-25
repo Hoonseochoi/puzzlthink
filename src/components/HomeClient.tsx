@@ -26,6 +26,7 @@ import type { Board } from '@/lib/fourThree';
 import { newMonorail } from '@/lib/monorail';
 import Merge2048Preview from './merge2048/Merge2048Preview';
 import { HitStayTile } from './hitStay/HitStayPreview';
+import { HiddenWordTile } from './hiddenWord/HiddenWordPreview';
 import { CjTile } from './cardJanggi/CjPreview';
 import { GradationTile } from './gradation/GradationPreview';
 import { SignalTile } from './equationSignal/SignalParts';
@@ -237,6 +238,7 @@ export function GamePreview({ id }: { id: GameId }) {
   switch (id) {
     case 'equationSignal': return <SignalTile />;
     case 'equationTower': return <TowerTile />;
+    case 'hiddenWord': return <HiddenWordTile />;
     case 'gradation': return <GradationTile />;
     case 'cardJanggi': return <CjTile />;
     case 'colorLinkDuel': return <CldTile />;
@@ -283,6 +285,7 @@ export default function HomeClient() {
   // Order: by plays on 2026-11-23 (KST), most played first, 카드 장기 2nd, 컬러 링크 3rd, 수식 신호등 4th, 수식의 탑 5th, Hit,Stay 6th, 그라데이션 7th, 포인트 오목 8th, 마방진 스왑 9th and 2048 10th (same order as the game catalog).
   const games = [
     { title: 'SLITHERLINK', display: tc('slitherlink'), description: t('slitherlinkDescription'), href: '/slitherlink', tag: 'brainSurvival', meta: t('slitherlinkMeta'), color: '#8f7cff', illustration: 'slitherlink', hype: true, updated: true },
+    { title: 'HIDDEN WORD', display: tc('hiddenWord'), description: t('hiddenWordDescription'), href: '/hidden-word', tag: 'brainSurvival', meta: t('hiddenWordMeta'), color: '#a8ef70', illustration: 'hiddenWord', new: true },
     { title: 'CARD JANGGI', display: tc('cardJanggi'), description: t('cardJanggiDescription'), href: '/card-janggi', tag: 'brainSurvival', meta: t('cardJanggiMeta'), color: '#b07cff', illustration: 'cardJanggi', new: true },
     { title: 'COLOR LINK DUEL', display: tc('colorLinkDuel'), description: t('colorLinkDuelDescription'), href: '/color-link-duel', tag: 'brainSurvival', meta: t('colorLinkDuelMeta'), color: '#7c6cff', illustration: 'colorLinkDuel', new: true },
     { title: 'EQUATION SIGNAL', display: tc('equationSignal'), description: t('equationSignalDescription'), href: '/equation-signal', tag: 'brainSurvival', meta: t('equationSignalMeta'), color: '#b6e33a', illustration: 'equationSignal', new: true },

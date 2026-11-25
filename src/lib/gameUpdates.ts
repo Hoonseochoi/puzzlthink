@@ -24,6 +24,16 @@ export type GameUpdateLog = {
 };
 
 export const GAME_UPDATES: Record<string, GameUpdateLog> = {
+  hidden_word: {
+    name: { ko: '히든 워드', en: 'Hidden Word' },
+    items: [
+      {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '히든 워드 출시 — AI 모라와 승점전', desc: '유사도 힌트로 서로의 단어를 맞히는 2라운드 승점전이에요. 끝낸 대전의 승점이 랭킹에 쌓이고, 1위는 히든 워드 아이콘을 가져가요.' },
+        en: { title: 'Hidden Word is here — a point match against MORA', desc: 'Two rounds of finding each other\'s word from similarity hints. Points from finished matches add up in the ranking, and #1 holds the Hidden Word icon.' },
+      },
+    ],
+  },
   equation_signal: {
     name: { ko: '수식 신호등', en: 'Equation Signal' },
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
