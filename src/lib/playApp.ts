@@ -20,7 +20,7 @@
  *       data-play-game="<game id>"      a card / row / item for one game (catalog id 'hitStay' or stats id 'hit_stay')
  *       data-play-hide="<kind>"         one of the PLAY_APP_HIDE keys
  *       any <a> pointing at a blocked page or at the support site (no marker needed)
- *       .play-only                      shown only in app mode (e.g. the account deletion link)
+ *       .play-only                      shown only in app mode (e.g. the neutral notice inside a gated page)
  *  5. isPlayApp() / usePlayApp() are the switch for client code that must not run in the app (ad impressions, …).
  */
 

@@ -92,8 +92,8 @@ export default function AuthButton({ full = false, source = 'other' }: { full?: 
             <p className="truncate text-[11px] text-black/45">{user.email}</p>
           </div>
           <button type="button" onClick={() => { setOpen(false); signOut(); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-black/70 hover:bg-black/[0.04]"><LogOut size={14} />{t('signOut')}</button>
-          {/* Google Play app only: the in-app path to request account deletion (Play's account deletion policy). */}
-          <Link href="/account-deletion" onClick={() => setOpen(false)} className="play-only flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-black/45 hover:bg-black/[0.04]"><UserX size={14} />{locale === 'en' ? 'Delete account' : '계정 삭제 요청'}</Link>
+          {/* 회원탈퇴: the in-app path Google Play's account deletion policy asks for (also on the website). */}
+          <Link href="/account-deletion" onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-black/45 hover:bg-black/[0.04]"><UserX size={14} />{locale === 'en' ? 'Delete account' : '회원탈퇴'}</Link>
         </div>
       )}
     </div>
