@@ -5172,6 +5172,10 @@
     "viewRanking": "🏆 {game} ranking"
   },
   "Slitherlink": {
+    "hintPaid": "Hint · 1 piece",
+    "hintHelpPaid": "Tap a spot: 1 piece is spent and the 3×3 area around it is filled in. (You have {n})",
+    "hintNoPiece": "A challenge hint costs 1 piece. Beat a hard AI to earn pieces.",
+    "hintPayError": "The hint could not be used. Try again in a moment.",
     "metaTitle": "Slitherlink — draw the loop the numbers ask for",
     "metaDescription": "Join the dots into one loop that matches every number. Endless boards from 9×9 to 11×11 with hints, answer reveal and replay. Free.",
     "keywords": [

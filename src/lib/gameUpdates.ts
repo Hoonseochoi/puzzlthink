@@ -123,6 +123,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     note: { ko: '플레이어분이 보내주신 의견을 반영했어요. 고맙습니다!', en: "Made from players' feedback. Thank you!" },
     items: [
       {
+        date: '11/26', icon: Wrench,
+        ko: { title: '챌린지 힌트는 이제 피스 1개를 써요', desc: '새로운 맵·맵 뺏기의 힌트(판마다 1번)는 경쟁전 피스 1개를 쓰고, 쓴 피스는 경쟁전 개수에서 빠져요. 연습 모드 힌트는 그대로 무료예요.' },
+        en: { title: 'A challenge hint now costs 1 piece', desc: 'The one hint in New map and Take a map spends 1 race piece, which comes off your race count. Practice hints stay free.' },
+      },
+      {
         date: '11/25', icon: History,
         ko: { title: '내 풀이 복기에서 정답길을 같이 볼 수 있어요', desc: "정답을 본 뒤 '내 풀이 복기'를 열면 정답길이 연한 초록 띠로 깔리고, 정답과 다른 내 선과 ✕는 빨간색으로 보여요. 어디서 길이 꼬였는지 한눈에 볼 수 있어요. 보드 위 버튼으로 끄고 켤 수 있어요." },
         en: { title: 'See the answer path while replaying your play', desc: "After seeing the answer, open 'Replay my lines': the answer is laid under your lines as a soft green track, and your lines and ✕ that disagree with it show in red, so you can see exactly where your path went wrong. A button above the board turns it on or off." },

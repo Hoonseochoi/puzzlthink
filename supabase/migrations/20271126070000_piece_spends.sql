@@ -280,4 +280,71 @@ begin
   return public.hw_view(g.id, s);
 end $function$;
 
+-- 슬리더링크: the one hint of a challenge run (새로운 맵 · 맵 뺏기) costs one piece as well. Practice hints stay free.
+create or replace function public.my_pieces()
+ returns integer language sql stable security definer set search_path to 'public'
+as $$ select public.piece_balance(auth.uid()); $$;
+grant execute on function public.my_pieces() to authenticated, anon;
+
+create or replace function public.slither_hint(p_run uuid)
+ returns jsonb language plpgsql security definer set search_path to 'public'
+as $$
+declare r public.slither_runs; left_n integer;
+begin
+  select * into r from public.slither_runs where id = p_run and user_id = auth.uid() and finished_at is null for update;
+  if not found then raise exception 'not_found'; end if;
+  left_n := public.piece_balance(r.user_id);
+  if exists (select 1 from public.piece_spends x where x.ref = r.id and x.reason = 'slither_hint') then
+    return jsonb_build_object('ok', false, 'error', 'used', 'pieces', left_n);
+  end if;
+  if left_n < 1 then return jsonb_build_object('ok', false, 'error', 'nopiece', 'pieces', left_n); end if;
+  insert into public.piece_spends (user_id, reason, ref) values (r.user_id, 'slither_hint', r.id);
+  return jsonb_build_object('ok', true, 'pieces', left_n - 1);
+end; $$;
+revoke all on function public.slither_hint(uuid) from public, anon;
+grant execute on function public.slither_hint(uuid) to authenticated;
+
+CREATE OR REPLACE FUNCTION public.slither_finish_checked(p_run uuid, p_user uuid, p_cleared boolean, p_hints integer, p_flag text, p_marks integer, p_erases integer)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare r public.slither_runs; c public.slither_challenges; took integer; ok boolean; place integer; total integer; mine integer;
+        rival uuid; rival_name text; took_n integer; lost_n integer;
+begin
+  select * into r from public.slither_runs where id = p_run and user_id = p_user and finished_at is null for update;
+  if not found then raise exception 'not_found'; end if;
+  took := (extract(epoch from now() - r.started_at) * 1000)::int;
+  select * into c from public.slither_challenges where id = r.challenge_id for update;
+  -- a hint that was not paid for (an older page): take the piece now if the player has one
+  if coalesce(p_hints, 0) > 0 and not exists (select 1 from public.piece_spends x where x.ref = r.id and x.reason = 'slither_hint')
+     and public.piece_balance(p_user) >= 1 then
+    insert into public.piece_spends (user_id, reason, ref) values (p_user, 'slither_hint', r.id);
+  end if;
+  ok := p_cleared and p_flag is null and took <= 3 * 3600 * 1000 and (r.kind = 'new' or took <= c.holder_ms + 1500);
+  update public.slither_runs
+     set finished_at = now(), ms = took, hints = greatest(0, least(coalesce(p_hints, 0), 9)), result = case when ok then 'clear' else 'fail' end,
+         flag = case when p_cleared then p_flag end, mark_moves = p_marks, erase_moves = p_erases
+   where id = r.id;
+  if ok and r.kind = 'new' and c.published_at is null then
+    update public.slither_challenges set published_at = now(), first_user = p_user, first_ms = took, holder = p_user, holder_ms = took where id = c.id;
+  elsif ok and r.kind = 'beat' then
+    rival := c.holder;
+    if rival is not null and rival <> p_user then
+      insert into public.slither_takeovers (challenge_id, taker, loser) values (c.id, p_user, rival);
+      took_n := public.slither_took(p_user, rival);
+      lost_n := public.slither_took(rival, p_user);
+      rival_name := (select coalesce(nullif(btrim(p.nickname), ''), 'Player') from public.profiles p where p.id = rival);
+    end if;
+    update public.slither_challenges set holder = p_user, holder_ms = least(took, c.holder_ms), takeovers = takeovers + 1 where id = c.id;
+  end if;
+  if ok then
+    select x.rnk, x.maps into place, mine from public.slither_owner_rows() x where x.user_id = p_user;
+    select count(*)::int into total from public.slither_owner_rows();
+  end if;
+  return jsonb_build_object('ok', ok, 'ms', took, 'rank', place, 'total', total, 'maps', mine, 'flagged', p_cleared and p_flag is not null, 'flag', case when p_cleared then p_flag end,
+    'rival', rival_name, 'took_n', took_n, 'lost_n', lost_n);
+end; $function$;
+
 notify pgrst, 'reload schema';
