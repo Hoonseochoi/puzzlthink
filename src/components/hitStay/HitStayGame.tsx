@@ -8,6 +8,7 @@ import GameUpdates from '@/components/GameUpdates';
 import { HIT_STAY_ROOM } from '@/hooks/useHitStayRoom';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { HS_PERSONA, HS_STYLES } from '@/lib/hitStay';
+import { PERSONAS } from '@/lib/aiPersona';
 import { createHitStayRoom } from '@/lib/hitStayRoom';
 import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -67,10 +68,10 @@ export function HitStayRules({ t, locale, onClose }: { t: HsCopy; locale: string
         <p className={PANEL_TITLE}>{t.rules}</p>
         <ol className="mt-3 space-y-3 text-[13px] leading-relaxed text-white/75">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol>
         <p className={`${PANEL_TITLE} mt-6`}>{t.aiPersonas}</p>
-        <ul className="mt-3 grid grid-cols-1 gap-1.5">
+        <ul className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
           {HS_STYLES.map((style) => {
             const p = HS_PERSONA[style];
-            return <li key={style} className="flex items-center gap-2.5 rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-2"><HsAvatar name={en ? p.nameEn : p.name} color={p.color} size={24} /><b className="text-sm">{en ? p.nameEn : p.name}</b></li>;
+            return <li key={style} className="flex items-center gap-2.5 rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-2"><HsAvatar name={en ? p.nameEn : p.name} color={p.color} persona={style} size={24} /><span className="min-w-0"><b className="block text-sm">{en ? p.nameEn : p.name}</b><span className="block text-[10px] leading-4 text-white/45">{en ? PERSONAS[style].blurb.en : PERSONAS[style].blurb.ko}</span></span></li>;
           })}
         </ul>
         <p className="mt-2 text-[11px] text-white/40">{t.personaNote}</p>

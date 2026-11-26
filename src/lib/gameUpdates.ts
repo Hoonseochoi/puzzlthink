@@ -168,6 +168,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
     items: [
       {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI가 열 명이 됐어요', desc: '빈자리 넷에 열 명 중 서로 다른 AI가 무작위로 앉아요. 모두 같은 계산으로 최선을 찾고 위험을 대하는 성향만 달라요. 이번 판에서 누가 허세로 레이즈했는지도 기억하고, 결과 화면에서 각자의 성향이 공개돼요.' },
+        en: { title: 'Ten AI players now', desc: 'The four empty seats get four different AIs out of ten. All find the best move with the same calculation and differ only in how they treat risk; they remember who raised on air this match, and the result screen reveals each style.' },
+      },
+      {
         date: '11/25', icon: Coins,
         ko: { title: '한 판이 더 빨리 끝나요 (기본 베팅 변경)', desc: '기본 베팅이 2라운드마다 1칩씩 오르다가, 17라운드부터는 2라운드마다 5칩씩 올라요. 칩이 가장 적은 사람이 낼 수 있는 만큼까지만 걸어요. 한 판이 보통 24라운드 안팎이에요.' },
         en: { title: 'Shorter matches (new ante schedule)', desc: 'The ante goes up by 1 every 2 rounds, then by 5 every 2 rounds from round 17, never above the smallest stack. A match now runs about 24 rounds.' },
@@ -339,9 +344,24 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '흑과 백', en: 'Black & White' },
     items: [
       {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 공격형·신중형·블러퍼·막판 승부사 등 열 명 중 한 명이 무작위로 나와요. 판단력은 모두 같고 큰 숫자를 쓰는 타이밍이 달라요. 이번 판의 내 버릇도 색과 승패로 읽고, 누구였는지는 끝나면 공개돼요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each game draws one of ten (the Attacker, the Careful One, the Bluffer, the Closer…). All judge equally well but spend their big tiles at different times; they read your habits from colours and results, and the personality is revealed at the end.' },
+      },
+      {
         date: '11/26', icon: Scale,
         ko: { title: '어려움 AI가 덜 읽히게 됐어요', desc: '어려움이 보통보다 쉽다는 기록이 나와서 조정했어요. 어려움은 패를 더 섞어 내서 읽기 어렵고, 보통은 네 번에 한 번 감으로 내요.' },
         en: { title: 'Hard AI is harder to read', desc: 'Records showed Hard was easier than Normal. Hard now mixes its tiles more, and Normal plays one tile in four by feel.' },
+      },
+    ],
+  },
+  black_white_2: {
+    name: { ko: '흑과 백 II', en: 'Black & White II' },
+    items: [
+      {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 열 명 중 한 명이 무작위로 나와요. 판단력은 모두 같고 포인트를 몰아 쓰는 판과 색을 쓰는 방식이 달라요. 이번 판의 내 버릇도 색·승패로 읽고, 누구였는지는 끝나면 공개돼요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each game draws one of ten. All judge equally well but spend their points in different rounds and use colours differently; they read your habits from colours and results, and the personality is revealed at the end.' },
       },
     ],
   },
@@ -434,6 +454,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '인디언 포커', en: 'Indian Poker' },
     items: [
       {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 블러퍼·신중형·추격자 등 열 명 중 한 명이 나와 베팅 크기와 블러프 빈도가 달라요. 판단력은 모두 같고, 이제 공개된 카드로 내 베팅 버릇도 읽어요. 어려움은 일부러 하는 실수 없이 둬요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each match draws one of ten (the Bluffer, the Careful One, the Chaser…) with its own bet sizes and bluff rate. All judge equally well, they now read your betting habits from the revealed cards, and hard no longer makes deliberate slips.' },
+      },
+      {
         date: '11/26', icon: Wrench,
         ko: { title: '난이도 버튼의 AI 승률을 실제 기록으로 바꿨어요', desc: '버튼에 적힌 AI 승률이 실제보다 높았어요. 지금까지의 대전 기록으로 고쳤어요.' },
         en: { title: 'AI win rates on the level buttons now match the records', desc: 'The AI win rates shown on the buttons were higher than what really happened. They now come from the matches played so far.' },
@@ -443,6 +468,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   two_sided_poker: {
     name: { ko: '양면 포커', en: 'Two-Sided Poker' },
     items: [
+      {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 블러퍼·함정 설치형·막판 승부사 등 열 명 중 한 명이 나와 베팅 크기와 뒷면 블러프 빈도가 달라요. 판단력은 모두 같고, 쇼다운에서 공개된 카드로 내 뒷면 베팅이 정직했는지도 읽어요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each match draws one of ten (the Bluffer, the Trapper, the Closer…) with its own bet sizes and back-bluff rate. All judge equally well, and they read from showdowns whether your hidden-back bets were honest.' },
+      },
       {
         date: '11/26', icon: Wrench,
         ko: { title: '난이도 버튼의 AI 승률을 실제 기록으로 바꿨어요', desc: '버튼에 적힌 AI 승률이 실제보다 높았어요. 지금까지의 대전 기록으로 고쳤어요.' },

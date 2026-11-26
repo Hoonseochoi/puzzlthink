@@ -24,9 +24,9 @@ function matchStats(rounds: TspRound[]) {
  * End of a match: who won and why, a few numbers, 복기, where the result counts in the ranking,
  * then the shared sign-in / quit / again / share actions.
  */
-export function TspResultModal({ t, won, chips, title, reason, rounds, rankingNote, onReplay, onClose, onAgain, waitingLabel }: {
+export function TspResultModal({ t, won, chips, title, reason, rounds, rankingNote, onReplay, onClose, onAgain, waitingLabel, extra }: {
   t: TspCopy; won: boolean; chips: number; title: string; reason: string; rounds: TspRound[]; rankingNote: string;
-  onReplay: () => void; onClose: () => void; onAgain?: () => void; waitingLabel?: string;
+  onReplay: () => void; onClose: () => void; onAgain?: () => void; waitingLabel?: string; extra?: React.ReactNode;
 }) {
   const stats = matchStats(rounds);
   return (
@@ -43,6 +43,7 @@ export function TspResultModal({ t, won, chips, title, reason, rounds, rankingNo
             <div key={label} className="rounded-md border border-white/10 bg-black/30 px-2 py-2.5"><dt className="text-[10px] font-bold text-white/40">{label}</dt><dd className="mt-0.5 font-mono text-xl font-black text-white">{value}</dd></div>
           ))}
         </dl>
+        {extra && <div className="mt-3 text-left">{extra}</div>}
 
         <ResultActions replay={<>
           {rounds.length > 0 && <ReplayButton onClick={onReplay} />}

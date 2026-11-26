@@ -4,7 +4,7 @@ import { type ReactNode, useEffect, useMemo, useRef, useState, useSyncExternalSt
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bot, ChevronUp, Eye, EyeOff, Hand, Layers, Minus, Plus, ScanEye, Timer } from 'lucide-react';
-import { type HitStay, type HsEvent, HS_PERSONA, HS_PLAYERS, hsAnte, hsPot, hsTotal, hsVisible } from '@/lib/hitStay';
+import { type HitStay, type HsEvent, HS_PERSONA, HS_PLAYERS, hsAnte, hsPot, hsStyle, hsTotal, hsVisible } from '@/lib/hitStay';
 import { type HitStayRoom, type HitStayRoomAction, HS_SHOWDOWN_MS, HS_TURN_SEC, HS_WARN_SEC, hsWaitingOn } from '@/lib/hitStayRoom';
 import { DIAMOND, PANEL, PANEL_TITLE } from '../ui/gameUi';
 import { HS_ACCENT, HS_HIT, HS_INK, type HsCopy } from './copy';
@@ -44,9 +44,9 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
   const nameOf = (s: number) => {
     if (s === mySeat) return t.you;
     const style = room.ai[s] && room.seats[s]?.id.startsWith('ai-') ? room.style[s] : null;
-    return style ? (en ? HS_PERSONA[style].nameEn : HS_PERSONA[style].name) : room.seats[s]?.name ?? `P${s + 1}`;
+    return style ? (en ? HS_PERSONA[hsStyle(style)].nameEn : HS_PERSONA[hsStyle(style)].name) : room.seats[s]?.name ?? `P${s + 1}`;
   };
-  const personaOf = (s: number) => (room.seats[s]?.id.startsWith('ai-') && room.style[s] ? HS_PERSONA[room.style[s]!] : null);
+  const personaOf = (s: number) => (room.seats[s]?.id.startsWith('ai-') && room.style[s] ? HS_PERSONA[hsStyle(room.style[s])] : null);
   const waiting = hsWaitingOn(g);
   const myTurn = mySeat !== null && room.phase === 'playing' && waiting.includes(mySeat) && !room.ai[mySeat];
   // Picking the face-up card is timed in every mode; bets and HIT/STAY only in rooms.
@@ -277,7 +277,7 @@ function Seat({ g, seat, name, persona, t, mySeat, acting, away, stamp }: {
   return (
     <article className={`relative min-w-0 overflow-hidden rounded-[12px] border p-1.5 transition sm:p-2.5 ${won ? 'border-[#ffd36b]/70 bg-[#ffd36b]/[0.08] shadow-[0_0_24px_rgba(255,211,107,.25)]' : asking ? 'border-[#ff4d6d]/60 bg-[#ff4d6d]/[0.06] shadow-[0_0_22px_rgba(255,77,109,.28)]' : acting ? 'border-(--accent)/60 bg-(--accent)/[0.07] shadow-[0_0_18px_var(--accent-glow)]' : 'border-white/10 bg-[#121217]/85'} ${out ? 'opacity-35 grayscale' : folded ? 'opacity-55' : ''}`}>
       <div className="flex items-center gap-1.5 sm:gap-2">
-        <HsAvatar name={name} color={persona?.color} size={22} active={acting} />
+        <HsAvatar name={name} color={persona?.color} persona={persona?.id} size={22} active={acting} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[11px] font-black leading-4 text-white sm:text-[12px]">{name}</p>
           <HsChip n={g.chips[seat]} className="text-[10px] leading-3 text-white/70" />

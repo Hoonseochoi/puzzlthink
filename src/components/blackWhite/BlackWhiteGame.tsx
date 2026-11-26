@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { RotateCcw, Send } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -9,12 +9,13 @@ import ResultActions from '@/components/ResultActions';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN_ACCENT, HEADING, KICKER, MAIN, PANEL, PANEL_TITLE, RESULT_PRIMARY, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { reportGame } from '@/lib/stats';
-import { type BWDifficulty, type BWRound, type Side, chooseAiTile, colorOf, isOver, nextLeader, resolveRound, winnerOf } from '@/lib/blackWhite';
+import { type BWDifficulty, type BWRound, type Side, BW_TELLS, chooseAiTile, colorOf, isOver, nextLeader, resolveRound, winnerOf } from '@/lib/blackWhite';
+import { type PersonaId, drawPersonas, newPersonaSeed, personaMatch, personaName, personaTalk, shouldTalk } from '@/lib/aiPersona';
+import { PersonaReveal, PersonaRoster, PersonaTag, usePersonaSay } from '@/components/ui/AiPersona';
 import { Hand, MemoPad, OpponentTrack, Replay, RoundLog, Scoreboard, Table } from './BWParts';
 import GameUpdates from '@/components/GameUpdates';
 
 const ACCENT = '#e9c46a';
-const AI_NAME = 'LUNA';
 const FLASH_MS = 1700;
 
 type Lead = { side: Side; tile: number } | null;
@@ -28,6 +29,13 @@ export default function BlackWhiteGame() {
   const [flash, setFlash] = useState<BWRound | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [gameNo, setGameNo] = useState(0);
+  // This game's AI persona, drawn at random (never the same one twice in a row) with its own per-match seed.
+  const [persona, setPersona] = useState<{ id: PersonaId; seed: number }>({ id: 'calc', seed: 1 });
+  const lastPersona = useRef<PersonaId | null>(null);
+  const [say, talk] = usePersonaSay();
+  const en = useLocale() === 'en';
+  const match = useMemo(() => personaMatch(persona.id, persona.seed), [persona]);
+  const AI_NAME = personaName(persona.id, en);
 
   const over = isOver(rounds);
   const finished = over && !flash;
@@ -39,6 +47,11 @@ export default function BlackWhiteGame() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- random first player after mount (keeps SSR stable)
     setFirst(Math.random() < 0.5 ? 0 : 1);
+    const id = drawPersonas(1, Math.random, lastPersona.current ? [lastPersona.current] : [])[0];
+    lastPersona.current = id;
+    setPersona({ id, seed: newPersonaSeed() });
+    talk(personaTalk(id, 'hello', en));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per game
   }, [gameNo]);
 
   const resolve = (leadSide: Side, leadTile: number, followTile: number) => {
@@ -48,10 +61,13 @@ export default function BlackWhiteGame() {
     setLead(null);
     setFlash(round);
     setSelected(null);
+    const ev = isOver(next) ? (winnerOf(next) === 1 ? 'winGame' : winnerOf(next) === 0 ? 'loseGame' : null)
+      : round.winner === 1 ? 'winRound' : round.winner === 0 ? 'loseRound' : null;
+    if (ev && shouldTalk(ev)) talk(personaTalk(persona.id, ev, en));
     if (isOver(next)) {
       const w = winnerOf(next);
       reportGame(`black_white-ai-${gameNo}-${next.length}-${Date.now()}`, 'black_white', 'ai', w === 'draw' ? 'draw' : w === 0 ? 'win' : 'loss',
-        { difficulty, rounds: next.length, score: next.filter((r) => r.winner === 0).length, against: next.filter((r) => r.winner === 1).length });
+        { difficulty, persona: persona.id, rounds: next.length, score: next.filter((r) => r.winner === 0).length, against: next.filter((r) => r.winner === 1).length });
     }
   };
 
@@ -60,7 +76,9 @@ export default function BlackWhiteGame() {
     if (!aiTurn) return;
     const timer = window.setTimeout(() => {
       const leadColor = lead ? colorOf(lead.tile) : null;
-      const tile = chooseAiTile(rounds, 1, first, leadColor, difficulty);
+      const tile = chooseAiTile(rounds, 1, first, leadColor, difficulty, Math.random, match);
+      // A lead line now and then, on any tile (it never says anything about the number).
+      if (!lead && rounds.length > 0 && Math.random() < 0.12) talk(personaTalk(persona.id, 'bold', en));
       if (lead) resolve(0, lead.tile, tile);
       else setLead({ side: 1, tile });
     }, lead ? 900 : 1100);
@@ -86,10 +104,10 @@ export default function BlackWhiteGame() {
 
   const names: [string, string] = [t('you'), AI_NAME];
   const final = winnerOf(rounds);
-  const status = finished ? (final === 'draw' ? t('finishedDraw') : final === 0 ? t('finishedWin') : t('finishedLoss'))
+  const status = finished ? (final === 'draw' ? t('finishedDraw') : final === 0 ? t('finishedWin', { name: AI_NAME }) : t('finishedLoss', { name: AI_NAME }))
     : flash ? (flash.winner === null ? t('roundDraw') : flash.winner === 0 ? t('roundWinLong') : t('roundLossLong'))
       : myTurn ? (lead ? t('followYou', { color: t(`color.${colorOf(lead.tile)}`) }) : t('leadYou'))
-        : lead?.side === 0 ? t('aiAnswering') : t('aiLeading');
+        : lead?.side === 0 ? t('aiAnswering', { name: AI_NAME }) : t('aiLeading', { name: AI_NAME });
 
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('180, 180, 190') }}>
@@ -101,16 +119,19 @@ export default function BlackWhiteGame() {
       <main className={MAIN}>
         <section className={STAGE}>
           <div className="mb-3 px-1 sm:mb-4 sm:px-2">
-            <p className={KICKER}>{finished ? t('resultKicker') : t('vsAi', { level: t(`levels.${difficulty}`) })}</p>
+            <p className={KICKER}>{finished ? t('resultKicker') : t('vsAi', { name: AI_NAME, level: t(`levels.${difficulty}`) })}</p>
             <h1 className={`mt-1 ${HEADING}`}>{status}</h1>
           </div>
 
           {finished ? (
             <Replay key={gameNo} rounds={rounds} me={0} names={names}>
+              <PersonaReveal id={persona.id} en={en} tell={BW_TELLS[persona.id]} className="mb-3"
+                lines={[en ? `Its tiles in rounds 1–4 added up to ${rounds.slice(0, 4).reduce((a, r) => a + r.tiles[1], 0)} (an even spread is about 16).` : `1~4라운드에 낸 숫자 합: ${rounds.slice(0, 4).reduce((a, r) => a + r.tiles[1], 0)} (고르게 쓰면 16 안팎)`]} />
               <ResultActions onAgain={reset} gamePath="/black-white" exitPath="/black-white" primaryClass={RESULT_PRIMARY} />
             </Replay>
           ) : (
             <div className="space-y-3 sm:space-y-4">
+              <PersonaTag id={persona.id} en={en} say={say} className="px-1" />
               <Scoreboard rounds={rounds} me={0} names={names} leader={leader} finished={false} />
               <OpponentTrack rounds={rounds} me={0} laid={lead?.side === 1 ? colorOf(lead.tile) : null} name={AI_NAME} />
               <Table me={0} leader={leader} names={names} result={flash}
@@ -139,6 +160,8 @@ export default function BlackWhiteGame() {
               ))}
             </div>
             <p className="mt-2 break-keep text-[10px] leading-4 text-white/40">{t(`levelDesc.${difficulty}`)}</p>
+            <p className={`${PANEL_TITLE} mt-4`}>{t('personaTitle')}</p>
+            <div className="mt-2"><PersonaRoster en={en} note={t('personaNote')} /></div>
           </section>
           {!finished && <MemoPad resetKey={`ai-${gameNo}`} />}
           {!finished && <RoundLog rounds={rounds} me={0} />}
