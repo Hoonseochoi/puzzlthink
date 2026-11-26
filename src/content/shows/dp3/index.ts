@@ -3,6 +3,12 @@
 import type { Show } from '../types';
 import { DISCLAIMER, broadcast, namuExile, namuRules, netflixTeaser } from './shared';
 import eitherOr from './either-or';
+import countTheRectangles from './count-the-rectangles';
+import heavy13 from './heavy-13';
+import mysteryStockMarket from './mystery-stock-market';
+import russianRoulette from './russian-roulette';
+import gemBlackMarket from './gem-black-market';
+import piggyBank from './piggy-bank';
 
 const show: Show = {
   slug: 'devils-plan-3',
@@ -14,7 +20,7 @@ const show: Show = {
   color: '#e0283a',
   spoiler: true,
   updated: '2026-11-26',
-  games: [eitherOr],
+  games: [eitherOr, countTheRectangles, heavy13, mysteryStockMarket, russianRoulette, gemBlackMarket, piggyBank],
   sources: [
     netflixTeaser,
     { label: { ko: '코리아넷 — 「데블스 플랜: 데드 어게인」 11월 10일 첫 공개, 14부작 3주 공개 보도', en: "Korea.net — The Devil's Plan: Dead Again premieres 10 November, 14 episodes over three weeks" }, url: 'https://www.korea.net/NewsFocus/Culture/view?articleId=302597' },
