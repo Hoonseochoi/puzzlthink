@@ -15,10 +15,10 @@ const SPAN = 100 - MARGIN * 2;
 const at = (v: number) => MARGIN + v * (SPAN / (PO_SIZE - 1));
 const STARS = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
 
-/** A go stone: seat 0 black, seat 1 white; a player's own 바둑알 inside a black or white ring when they have one. */
+/** A go stone: seat 0 black, seat 1 white; a player's own 바둑알 when they have one. */
 export function PoStone({ seat, className = '' }: { seat: number; className?: string }) {
   return (
-    <PieceStone seat={seat} color={seat === 0 ? '#22252d' : '#e9ecf2'} className={className}>
+    <PieceStone seat={seat} colors={['#22252d', '#e9ecf2']} className={className}>
     <span
       className={`block h-full w-full rounded-full ${seat === 0 ? 'border border-white/15 shadow-[0_3px_8px_rgba(0,0,0,.7)]' : 'border border-white/80 shadow-[0_3px_8px_rgba(0,0,0,.45)]'} ${className}`}
       style={{ background: seat === 0 ? 'radial-gradient(circle at 34% 30%, #5a5f6b 0%, #15171c 45%, #050507 100%)' : 'radial-gradient(circle at 34% 30%, #ffffff 0%, #e9ecf2 45%, #aab1be 100%)' }}

@@ -110,6 +110,23 @@ export function refreshStoneChoices() {
   choiceListeners.forEach((fn) => fn());
 }
 
+/** Everyone's stone by nickname (empty until loaded); redrawn after a player changes theirs. */
+export function useStoneChoiceMap() {
+  const [map, setMap] = useState<Map<string, string>>(() => new Map());
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    const bump = () => setVersion((v) => v + 1);
+    choiceListeners.add(bump);
+    return () => { choiceListeners.delete(bump); };
+  }, []);
+  useEffect(() => {
+    let alive = true;
+    loadChoices().then((m) => { if (alive) setMap(m); });
+    return () => { alive = false; };
+  }, [version]);
+  return map;
+}
+
 /** The stone this nickname picked ('red', 'w1-1', …), or null. Pass `known` to skip the lookup. */
 export function useStoneChoice(name: string, known?: string | null) {
   const [choice, setChoice] = useState<string | null>(null);

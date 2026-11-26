@@ -11,6 +11,9 @@ export const FLIP_INK = '#06202a';
 /** Player colours: two neon characters. */
 export const STONE_HEX: Record<Player, string> = { 1: '#ff4d6d', 2: '#3fb8ff' };
 
+// Indexed by player (1, 2).
+const FACE_COLORS = [undefined, STONE_HEX[1], STONE_HEX[2]];
+
 const MARGIN = 4.2;
 const pos = (v: number) => MARGIN + v * ((100 - MARGIN * 2) / (SIZE - 1));
 const STARS = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
@@ -23,9 +26,9 @@ function Face({ p, marked = false, dizzy = false, back = false }: { p: Player; m
   const hex = STONE_HEX[p];
   const eye = marked ? STONE_HEX[other(p)] : 'rgba(255,255,255,.95)';
   const mine = usePieceOwner(p);
-  // A player's own 바둑알 inside a ring of their colour; a flipped-over stone keeps a dot of the other colour.
+  // A player's own 바둑알; a flipped-over stone keeps a dot of the other colour.
   if (mine && !dizzy) return <span className={`absolute inset-0 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`} style={{ filter: `drop-shadow(0 0 5px ${hex}88)` }}>
-    <PieceStone seat={p} color={hex} overlay={marked ? <span className="absolute bottom-[3%] right-[3%] h-[26%] w-[26%] rounded-full border border-white/90" style={{ background: STONE_HEX[other(p)] }} /> : null}>{null}</PieceStone>
+    <PieceStone seat={p} colors={FACE_COLORS} overlay={marked ? <span className="absolute bottom-[3%] right-[3%] h-[26%] w-[26%] rounded-full border border-white/90" style={{ background: STONE_HEX[other(p)] }} /> : null}>{null}</PieceStone>
   </span>;
   return <span className={`absolute inset-0 rounded-full border border-white/25 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`}
     style={{ background: `radial-gradient(circle at 34% 28%, color-mix(in srgb, ${hex} 55%, white) 0%, ${hex} 48%, color-mix(in srgb, ${hex} 60%, black) 100%)`, boxShadow: `0 4px 10px rgba(0,0,0,.6), 0 0 10px ${hex}88` }}>

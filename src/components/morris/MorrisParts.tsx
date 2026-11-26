@@ -22,7 +22,7 @@ export function MorrisStone({ color, className = '', ghost = false, doomed = fal
     </svg>
   ) : null;
   return (
-    <PieceStone seat={color} color={black ? '#22252d' : '#eceae4'} className={`transition ${ghost ? 'opacity-45' : ''} ${className}`} overlay={overlay}>
+    <PieceStone seat={color} colors={['#22252d', '#eceae4']} className={`transition ${ghost ? 'opacity-45' : ''} ${className}`} overlay={overlay}>
     <svg viewBox="0 0 100 100" className={`block h-full w-full overflow-visible transition ${ghost ? 'opacity-45' : ''} ${className}`} aria-hidden>
       <defs>
         <radialGradient id={`ms-${color}`} cx="35%" cy="30%" r="75%">
