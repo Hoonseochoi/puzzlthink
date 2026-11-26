@@ -8,6 +8,7 @@ import nInARow from './n-in-a-row';
 import captureGames from './capture-games';
 import memoryGames from './memory-games';
 import hiddenInformation from './hidden-information';
+import cooperativeVsCompetitive from './cooperative-vs-competitive';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -19,6 +20,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   captureGames,
   memoryGames,
   hiddenInformation,
+  cooperativeVsCompetitive,
 ];
 
 export const WIKI_BASE = '/board-games';
