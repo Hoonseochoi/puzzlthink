@@ -7,6 +7,7 @@ import { checkNewIcons } from '@/components/IconUnlock';
 import { Infinity as InfinityIcon, Leaf, Medal, Play, RotateCcw, Trophy, Undo2, Volume2, VolumeX } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import BugReport from '@/components/BugReport';
+import GameUpdates from '@/components/GameUpdates';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
@@ -205,7 +206,7 @@ export default function Merge2048Game() {
     <div className={SHELL} style={{ ...accentVars(M2_ACCENT, M2_INK), backgroundImage: fog('255, 143, 163') }}>
       <Shards tint="#3a2630" />
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title="2048" subtitle={t('subtitle')}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="merge2048" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => { setMergeSound(!sound); setSound(!sound); }} className={BTN} aria-label={t('sound')}>{sound ? <Volume2 size={14} /> : <VolumeX size={14} />}</button>
         {mode === 'free' ? <button type="button" onClick={newFree} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
           : phase !== 'intro' && <button type="button" onClick={restartRun} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('restart')}</span></button>}

@@ -149,6 +149,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
       },
     ],
   },
+  merge2048: {
+    name: { ko: '2048', en: '2048' },
+    items: [
+      {
+        date: '11/26', icon: Crown,
+        ko: { title: '블록 단계마다 아이콘을 받아요 (2048 ~ 131072)', desc: '2048뿐 아니라 4096, 8192 … 131072까지, 만든 가장 큰 블록에 맞는 프로필 아이콘을 얻어요. 이미 세운 기록에도 지급됐어요.' },
+        en: { title: 'An icon for every block tier (2048 to 131072)', desc: 'Not only 2048: 4096, 8192 … up to 131072 each give a profile icon for the biggest block you made. Earlier records got theirs too.' },
+      },
+    ],
+  },
   color_link_duel: {
     name: { ko: '컬러 링크', en: 'Color Link Duel' },
     items: [
