@@ -10,6 +10,7 @@ import aiHitStay from './ai-hit-stay';
 import aiIndianPoker from './ai-indian-poker';
 import aiBlackWhite from './ai-black-white';
 import aiDifficultyTuning from './ai-difficulty-tuning';
+import aiHiddenInfo from './ai-hidden-info';
 import sysIcons from './sys-icons';
 import sysHallOfFame from './sys-hall-of-fame';
 import sysRooms from './sys-rooms';
@@ -27,6 +28,7 @@ const ARTICLES: DevlogArticle[] = [
   aiHitStay,
   aiIndianPoker,
   aiBlackWhite,
+  aiHiddenInfo,
   aiDifficultyTuning,
   sysHallOfFame,
   sysIcons,
