@@ -5818,6 +5818,13 @@
     "missionLocked": "Sign in to see your progress"
   },
   "Icons": {
+    "crownLostTitle": "{name} took your #1 in {game}",
+    "crownLostBody": "The #1 icon went with it. Want it back?",
+    "crownLostNewTop": "New #1 · {name}",
+    "crownLostRevenge": "Go take it back",
+    "crownLostIcons": "Go to icon settings",
+    "crownLostMore": "You lost #1 in {n} more games",
+    "crownLostNext": "Next game",
     "pieceLabel": "Piece week {week} #{place} · {name}",
     "hellLabel": "Black Piece week {week} #{place} · {name}",
     "hellName1": "Inferno",
