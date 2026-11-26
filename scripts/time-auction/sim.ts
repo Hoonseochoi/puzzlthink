@@ -8,7 +8,7 @@ const [nArg = '2000', fmt = 'quick', mix = 'mixed'] = process.argv.slice(2);
 const N = Number(nArg); const format = fmt as TaFormatId;
 const rand = taRng(20261126);
 type Key = string;
-const stat = new Map<Key, { n: number; first: number; out: number; tokens: number; left: number }>();
+const stat = new Map<Key, { n: number; first: number; out: number; tokens: number; minus: number; left: number }>();
 const outcomes = { won: 0, void: 0, empty: 0 }; const prices: number[] = []; let lengthMs = 0;
 for (let game = 0; game < N; game += 1) {
   // Six seats: the five styles plus one repeated at random.
@@ -30,16 +30,16 @@ for (let game = 0; game < N; game += 1) {
   const st = taStandings(g);
   styles.forEach((style, s) => {
     for (const key of [`${style}:${levels[s]}`, `level:${levels[s]}`]) {
-      const row = stat.get(key) ?? { n: 0, first: 0, out: 0, tokens: 0, left: 0 };
-      row.n += 1; row.first += st.place[s] === 1 ? 1 : 0; row.out += st.eliminated.includes(s) ? 1 : 0; row.tokens += g.tokens[s]; row.left += g.bank[s];
+      const row = stat.get(key) ?? { n: 0, first: 0, out: 0, tokens: 0, minus: 0, left: 0 };
+      row.n += 1; row.first += st.place[s] === 1 ? 1 : 0; row.out += st.eliminated.includes(s) ? 1 : 0; row.tokens += g.tokens[s]; row.minus += g.minus[s]; row.left += g.bank[s];
       stat.set(key, row);
     }
   });
 }
 const pct = (a: number, b: number) => `${((100 * a) / b).toFixed(1)}%`.padStart(6);
 console.log(`${N} games · format ${format} (${taClock(TA_FORMATS[format].bank)} × ${TA_FORMATS[format].rounds}) · levels ${mix}`);
-console.log('seat'.padEnd(16), '   n', '   1st', '   out', ' tokens', ' time left');
-for (const [key, r] of [...stat.entries()].sort()) console.log(key.padEnd(16), String(r.n).padStart(5), pct(r.first, r.n), pct(r.out, r.n), (r.tokens / r.n).toFixed(2).padStart(7), taClock(r.left / r.n).padStart(10));
+console.log('seat'.padEnd(16), '   n', '   1st', '   out', ' stones', '  minus', ' time left');
+for (const [key, r] of [...stat.entries()].sort()) console.log(key.padEnd(16), String(r.n).padStart(5), pct(r.first, r.n), pct(r.out, r.n), (r.tokens / r.n).toFixed(2).padStart(7), (r.minus / r.n).toFixed(2).padStart(7), taClock(r.left / r.n).padStart(10));
 const total = outcomes.won + outcomes.void + outcomes.empty; const sorted = [...prices].sort((a, b) => a - b);
 console.log(`auctions: won ${pct(outcomes.won, total)} · void (tie) ${pct(outcomes.void, total)} · nobody bid ${pct(outcomes.empty, total)}`);
 console.log(`winning price: median ${taClock(sorted[sorted.length >> 1])} · p90 ${taClock(sorted[Math.floor(sorted.length * 0.9)])} · board time per match ${taClock(lengthMs / N)}`);

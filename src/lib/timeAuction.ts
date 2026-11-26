@@ -44,6 +44,13 @@
  *       showed this case), they share last place and are all eliminated.
  * 18. Survival maths from [N]: with 6 players and 19 auctions, 4 tokens guarantee survival (5 others × 4 > 15 left).
  *
+ * ── House rule: the minus stone (owner's request, 2026-11-27; on in every match) ───────────────────────────────
+ * Not in the broadcast. In every auction where at least two players actually bid (held past the countdown, so a
+ * recorded bid ≥ 0.1 s), the single shortest bid takes a −1 stone. A tie for the shortest bid (to 0.1 s) voids it,
+ * like the top-bid tie; dropping out in the countdown never takes it; a lone bidder only wins. A player's score is
+ * stones won − minus stones (it can go below zero), and every ranking rule above uses the score where it says
+ * "tokens". With minus stones the survival maths of rule 18 no longer guarantees anything.
+ *
  * ── This site's version ────────────────────────────────────────────────────────────────────────────────────────
  * Same rules, but a full broadcast match lasts well over half an hour, so a match picks a format (TA_FORMATS):
  * 빠른 경매 2:00 × 9 auctions (default), 표준 5:00 × 13, 방송 규칙 10:00 × 19. Players: 6 vs the AI (you + 5),
@@ -75,7 +82,7 @@ export type TaPhase = 'ready' | 'live' | 'reveal' | 'finished';
 export type TaOutcome = 'won' | 'void' | 'empty';
 
 /** One settled auction. `bids` (ms, 0 = did not bid) is hidden from other players until the match ends. */
-export type TaRound = { round: number; outcome: TaOutcome; winner: number | null; price: number; bids: number[] };
+export type TaRound = { round: number; outcome: TaOutcome; winner: number | null; price: number; bids: number[]; minus: number | null };
 
 export type TimeAuction = {
   gid: string;
@@ -84,7 +91,8 @@ export type TimeAuction = {
   startBank: number;
   inGame: boolean[]; // seats taking part (rooms without AI leave some empty)
   bank: number[]; // remaining time, ms (hidden)
-  tokens: number[]; // public
+  tokens: number[]; // stones won (public)
+  minus: number[]; // minus stones taken (public)
   round: number; // 1-based
   phase: TaPhase;
   /** ready: pressing (or passing). Public: the table shows how many are ready. */
@@ -109,7 +117,7 @@ export function newTimeAuction(inGame: boolean[], format: TaFormatId = 'quick', 
   const n = inGame.length;
   return {
     gid, format, rounds, startBank: bank, inGame: [...inGame],
-    bank: inGame.map((on) => (on ? bank : 0)), tokens: fill(n, 0), round: 1, phase: 'ready',
+    bank: inGame.map((on) => (on ? bank : 0)), tokens: fill(n, 0), minus: fill(n, 0), round: 1, phase: 'ready',
     pressed: fill(n, false), pass: fill(n, false), joined: fill(n, false), bids: fill<number | null>(n, null), log: [], place: fill<number | null>(n, null),
   };
 }
@@ -163,13 +171,26 @@ export function taExhaust(g: TimeAuction, elapsed: number): TimeAuction {
 /** Seats still holding the button. */
 export const taHolding = (g: TimeAuction) => g.bids.flatMap((v, i) => (g.phase === 'live' && v === null && g.joined[i] ? [i] : []));
 
-/** The round's result for a list of bids (ms, 0 = none). */
-export function taJudge(bids: number[]): { outcome: TaOutcome; winner: number | null; price: number } {
+/**
+ * The round's result for a list of bids (ms, 0 = none): the top bid wins (a tie voids it) and, with two or more
+ * bidders, the single shortest bid takes the minus stone (a tie voids that too).
+ */
+export function taJudge(bids: number[]): { outcome: TaOutcome; winner: number | null; price: number; minus: number | null } {
   const price = Math.max(0, ...bids);
-  if (price <= 0) return { outcome: 'empty', winner: null, price: 0 };
+  const bidders = bids.flatMap((b, i) => (b > 0 ? [i] : []));
+  let minus: number | null = null;
+  if (bidders.length >= 2) {
+    const low = Math.min(...bidders.map((i) => bids[i]));
+    const lows = bidders.filter((i) => bids[i] === low);
+    if (lows.length === 1 && low < price) minus = lows[0];
+  }
+  if (price <= 0) return { outcome: 'empty', winner: null, price: 0, minus };
   const top = bids.flatMap((b, i) => (b === price ? [i] : []));
-  return top.length > 1 ? { outcome: 'void', winner: null, price } : { outcome: 'won', winner: top[0], price };
+  return top.length > 1 ? { outcome: 'void', winner: null, price, minus } : { outcome: 'won', winner: top[0], price, minus };
 }
+
+/** A seat's score: stones won minus minus stones. */
+export const taScore = (g: Pick<TimeAuction, 'tokens' | 'minus'>, seat: number) => g.tokens[seat] - (g.minus?.[seat] ?? 0);
 
 /**
  * Everyone has let go: the board stops at the top bid. Every bidder pays their own bid; a unique top bid takes the
@@ -178,12 +199,13 @@ export function taJudge(bids: number[]): { outcome: TaOutcome; winner: number | 
 export function taSettle(g: TimeAuction): TimeAuction | null {
   if (g.phase !== 'live' || taHolding(g).length) return null;
   const bids = g.bids.map((b) => b ?? 0);
-  const { outcome, winner, price } = taJudge(bids);
+  const { outcome, winner, price, minus } = taJudge(bids);
   return {
     ...g, phase: 'reveal',
     bank: g.bank.map((b, i) => b - bids[i]),
     tokens: g.tokens.map((t, i) => (i === winner ? t + 1 : t)),
-    log: [...g.log, { round: g.round, outcome, winner, price, bids }],
+    minus: g.minus.map((m, i) => (i === minus ? m + 1 : m)),
+    log: [...g.log, { round: g.round, outcome, winner, price, bids, minus }],
   };
 }
 
@@ -196,12 +218,12 @@ export function taNextRound(g: TimeAuction): TimeAuction | null {
 }
 
 /**
- * Final standings: more tokens first, then more time left. Equal on both = shared place. The best seat wins the
+ * Final standings: higher score (stones won − minus stones) first, then more time left. Equal on both = shared place. The best seat wins the
  * piece only if it is alone at the top; the last place (possibly shared) is eliminated.
  */
 export function taStandings(g: TimeAuction): { order: number[]; place: (number | null)[]; piece: number | null; eliminated: number[] } {
   const seats = g.inGame.flatMap((on, i) => (on ? [i] : []));
-  const key = (s: number) => [g.tokens[s], g.bank[s]] as const;
+  const key = (s: number) => [taScore(g, s), g.bank[s]] as const;
   const order = [...seats].sort((a, b) => key(b)[0] - key(a)[0] || key(b)[1] - key(a)[1] || a - b);
   const place: (number | null)[] = fill(g.inGame.length, null);
   order.forEach((s, i) => {

@@ -14,7 +14,7 @@ export const TA_PERSONA: Record<TaStyle, { name: string; nameEn: string; color: 
   steady: { name: '신중', nameEn: 'Steady', color: '#5ec8ff', ko: '필요한 만큼만, 평소 낙찰가 근처로 입찰해요.', en: 'Bids only as often as it needs, near the usual price.' },
   rush: { name: '돌격', nameEn: 'Rush', color: '#ff5b5b', ko: '초반에 크게 질러 표식을 먼저 모아요.', en: 'Spends big early to bank tokens first.' },
   lurk: { name: '잠복', nameEn: 'Lurker', color: '#b48cff', ko: '초반엔 거의 쉬다가 후반에 시간을 몰아 써요.', en: 'Sits out early, then pours its time into the late auctions.' },
-  penny: { name: '줍줍', nameEn: 'Penny', color: '#ffd166', ko: '0.1초 같은 아주 짧은 입찰로 빈 경매를 노려요.', en: 'Tiny bids, hoping nobody else bothers.' },
+  penny: { name: '줍줍', nameEn: 'Penny', color: '#ffd166', ko: '짧은 입찰로 아무도 없는 경매를 노려요. 들키면 마이너스 바둑알이에요.', en: 'Short bids hoping nobody else bothers — risky with the minus stone.' },
   count: { name: '계산', nameEn: 'Counter', color: '#3ddc97', ko: '낙찰 시간을 세어 상대의 남은 시간 한도를 계산해요.', en: 'Counts winning times to cap what each rival can have left.' },
 };
 
@@ -26,12 +26,13 @@ export type TaAiView = {
   startBank: number;
   myBank: number;
   tokens: number[];
+  minus: number[]; // minus stones (public)
   inGame: boolean[];
   log: { outcome: TimeAuction['log'][number]['outcome']; winner: number | null; price: number }[];
 };
 
 export const taAiView = (g: TimeAuction, seat: number): TaAiView => ({
-  seat, round: g.round, rounds: g.rounds, startBank: g.startBank, myBank: g.bank[seat], tokens: [...g.tokens], inGame: [...g.inGame],
+  seat, round: g.round, rounds: g.rounds, startBank: g.startBank, myBank: g.bank[seat], tokens: [...g.tokens], minus: [...g.minus], inGame: [...g.inGame],
   log: g.log.map((r) => ({ outcome: r.outcome, winner: r.winner, price: r.price })),
 });
 
@@ -60,7 +61,9 @@ export function chooseTaBid(v: TaAiView, style: TaStyle, level: TaLevel, rand: (
   const players = v.inGame.filter(Boolean).length;
   const left = v.rounds - v.round + 1; // this auction included
   const progress = (v.round - 1) / Math.max(1, v.rounds - 1); // 0 at the first auction, 1 at the last
-  const mine = v.tokens[v.seat];
+  // Score = stones won − minus stones (the house rule: the shortest of two or more bids takes a −1 stone).
+  const score = (s: number) => v.tokens[s] - (v.minus?.[s] ?? 0);
+  const mine = score(v.seat);
   const safe = taSafeTokens(v.rounds, players);
   const need = Math.max(0, safe - mine);
   // The usual winning price so far, or a first guess: about a fifth of a bank (the broadcast's first auctions went
@@ -75,7 +78,7 @@ export function chooseTaBid(v: TaAiView, style: TaStyle, level: TaLevel, rand: (
   const perWin = felt / Math.max(1, need);
   const cap = (ms: number) => Math.max(TA_UNIT, Math.min(hard ? bank : felt, ms));
   // Lowest tokens among the others: if nobody is below me, I am the one in danger.
-  const others = v.inGame.flatMap((on, s) => (on && s !== v.seat ? [v.tokens[s]] : []));
+  const others = v.inGame.flatMap((on, s) => (on && s !== v.seat ? [score(s)] : []));
   const bottom = others.length ? Math.min(...others) : 0;
   const behind = mine <= bottom;
 
@@ -93,7 +96,8 @@ export function chooseTaBid(v: TaAiView, style: TaStyle, level: TaLevel, rand: (
   if (hard && perWin < typical * 0.75 && left > need + 1 && rand() < 0.7) return null;
   // Safe already: mostly rest, sometimes a cheap try.
   if (need === 0) {
-    if (style === 'penny' && rand() < 0.5) return cap(r(0.0008, 0.006) * v.startBank);
+    // A tiny try risks the minus stone now, so only now and then.
+    if (style === 'penny' && rand() < 0.08) return cap(r(0.004, 0.02) * v.startBank);
     if (progress > 0.85 && rand() < 0.35) return cap(bank * r(0.5, 1)); // spend what is left: more time wins ties for 1st
     return rand() < 0.15 ? cap(typical * 0.7 * noise) : null;
   }
@@ -111,18 +115,23 @@ export function chooseTaBid(v: TaAiView, style: TaStyle, level: TaLevel, rand: (
       bid = Math.min(typical * r(1.15, 1.55) * noise, perWin * 1.2, felt * 0.4);
       break;
     case 'lurk':
-      if (progress < 0.42) { // looks like it is saving: sits out, or a near-free try now and then
-        enter = 0.18;
-        bid = r(0.0005, 0.004) * v.startBank;
+      if (progress < 0.42) { // saving: sits out, now and then a modest try
+        enter = 0.12;
+        bid = typical * r(0.6, 0.9);
         break;
       }
       enter = pace * 1.7;
       bid = Math.min(perWin * r(0.78, 0.98) * noise, bank);
       break;
     case 'penny':
-      if (rand() < 0.62) return cap(r(0.0003, 0.008) * v.startBank); // 0.1–1 s on a two-minute bank
+      // Short bids hoping nobody else bothers — but a short bid that meets company takes the minus stone, so only
+      // right after an expensive auction, when the others are likely tired.
+      {
+        const last = v.log[v.log.length - 1];
+        if (last && last.price > typical * 1.2 && rand() < (hard ? 0.45 : 0.6)) return cap(r(0.004, 0.03) * v.startBank); // 0.5–3.6 s on 2:00
+      }
       enter = pace * (behind ? 1.4 : 0.8);
-      bid = Math.min(typical * r(0.95, 1.15) * noise, perWin);
+      bid = Math.min(typical * r(1.15, 1.4) * noise, perWin); // when it does go in, it goes in properly
       break;
     case 'count':
     default: {
@@ -135,6 +144,8 @@ export function chooseTaBid(v: TaAiView, style: TaStyle, level: TaLevel, rand: (
     }
   }
   if (rand() >= Math.min(0.95, enter)) return null;
+  // A hard AI would rather sit out than enter with a short bid: the shortest of two or more bids takes −1.
+  if (hard && bid < typical * 0.45 && left > need) return null;
   // A hard AI avoids round numbers (ties void the token) by adding a few hundredths.
   return cap(bid + (hard ? r(0, 90) : 0));
 }

@@ -1,7 +1,7 @@
 // Rules checks for 시간 경매: `npx tsx scripts/time-auction/check.ts`
 import assert from 'node:assert/strict';
 import {
-  type TimeAuction, newTimeAuction, taBeginCountdown, taExhaust, taFloor, taHolding, taNextRound, taPress, taRelease, taSettle, taStandings, taClock, taSafeTokens,
+  type TimeAuction, newTimeAuction, taBeginCountdown, taExhaust, taFloor, taHolding, taNextRound, taPress, taRelease, taSettle, taStandings, taClock, taSafeTokens, taScore,
 } from '../../src/lib/timeAuction';
 
 let passed = 0;
@@ -132,6 +132,37 @@ test('tie for the most tokens and time: no piece', () => {
   assert.deepEqual(st.eliminated, [2]);
 });
 
+test('minus stone: the single shortest of two or more bids takes −1', () => {
+  const g = auction(newTimeAuction([true, true, true, true], 'quick'), [4_000, 9_000, 6_000, -1_000]);
+  assert.equal(g.log[0].winner, 1);
+  assert.equal(g.log[0].minus, 0); // 4.0 s is the shortest real bid; the countdown drop-out (seat 3) is safe
+  assert.deepEqual(g.minus, [1, 0, 0, 0]);
+  assert.equal(taScore(g, 0), -1);
+});
+
+test('minus stone: a lone bidder only wins; a tie for shortest voids it', () => {
+  let g = auction(newTimeAuction([true, true, true], 'quick'), [-1, 3_000, -1]);
+  assert.equal(g.log[0].minus, null);
+  g = auction(newTimeAuction([true, true, true], 'quick'), [2_050, 2_099, 8_000]);
+  assert.equal(g.log[0].minus, null); // 2.0 s and 2.0 s tie to the tenth
+  g = auction(newTimeAuction([true, true], 'quick'), [5_000, 5_000]);
+  assert.equal(g.log[0].outcome, 'void');
+  assert.equal(g.log[0].minus, null); // both bids equal: no winner and no minus stone
+});
+
+test('minus stone: a void at the top can still hand out −1 below it', () => {
+  const g = auction(newTimeAuction([true, true, true], 'quick'), [7_000, 7_000, 1_000]);
+  assert.equal(g.log[0].outcome, 'void');
+  assert.equal(g.log[0].minus, 2);
+});
+
+test('ranking uses the score (stones − minus), then time', () => {
+  const g = { ...newTimeAuction([true, true, true], 'quick'), tokens: [3, 2, 1], minus: [2, 0, 0], bank: [9_000, 1_000, 5_000] };
+  const st = taStandings(g); // scores 1, 2, 1 → seat 1; then seats 0 and 2 on score 1 by time
+  assert.deepEqual(st.order, [1, 0, 2]);
+  assert.deepEqual(st.eliminated, [2]);
+});
+
 test('survival threshold', () => {
   assert.equal(taSafeTokens(19, 6), 4); // the broadcast: 4 tokens guarantee survival
   assert.equal(taSafeTokens(9, 6), 2);
@@ -154,8 +185,10 @@ test('replay of the broadcast (나무위키 round table): tokens 5/1/3/4/3/3, �
   for (const bids of R) { g = auction(g, bids.map((b) => (b ? b : -1))); g = must(taNextRound(g)); }
   assert.equal(g.phase, 'finished');
   assert.deepEqual(g.tokens, [5, 1, 3, 4, 3, 3]);
+  // Under this site's minus stone (house rule) the same bids would also hand out these −1 stones:
+  console.log('     broadcast bids under the minus-stone rule: minus', g.minus.join('/'), '· scores', g.tokens.map((_, s) => taScore(g, s)).join('/'));
   assert.equal(g.bank[0], 0); assert.equal(g.bank[1], 0); assert.equal(g.bank[2], 14_000); assert.equal(g.bank[3], 0); assert.equal(g.bank[5], 0);
-  const st = taStandings(g);
+  const st = taStandings({ ...g, minus: g.minus.map(() => 0) }); // the broadcast had no minus stone
   assert.deepEqual(st.eliminated, [1]);
   assert.equal(st.piece, 0);
 });
