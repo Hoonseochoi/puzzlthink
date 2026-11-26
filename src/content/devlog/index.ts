@@ -2,9 +2,11 @@
 // Server-only: never import this from a client component.
 import type { DevlogArticle, DevlogCategory, DevlogLocale } from './types';
 import aiWallgo from './ai-wallgo';
+import aiTwelveJanggi from './ai-twelve-janggi';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
+  aiTwelveJanggi,
 ];
 
 export const DEVLOG: readonly DevlogArticle[] = ARTICLES;
