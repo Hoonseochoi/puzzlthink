@@ -13,7 +13,7 @@ import { SITE_URL, breadcrumbJsonLd, pageMetadata } from '@/lib/seo';
 
 const COPY = {
   ko: {
-    metaTitle: (shows: string) => `두뇌 서바이벌 게임 정리 — ${shows} 방송 게임 규칙`,
+    metaTitle: (shows: string) => `두뇌 서바이벌 게임 정리 — ${shows}${shows.endsWith('방송') ? '' : ' 방송'} 게임 규칙`,
     metaDescription: (shows: string, games: number) => `${shows}에 나온 게임 ${games}개를 최근 방송 순으로 정리했어요. 게임마다 인원·준비물, 진행 순서, 승리 조건, 예외 규칙과 승부를 가르는 지점, 비슷한 보드게임을 담았어요.`,
     keywords: ['두뇌 서바이벌 게임', '두뇌 서바이벌 게임 규칙', '방송 보드게임'],
     eyebrow: 'BRAIN SURVIVAL GAMES', title: '두뇌 서바이벌 게임 정리',
@@ -111,6 +111,7 @@ export default async function SurvivalGamesHub({ params }: { params: Promise<{ l
           </ul>
         </section>
 
+        {SHOWS_PLANNED.length > 0 && (
         <section className="mt-16">
           <h2 className="text-2xl font-black tracking-[-0.03em]">{ui.planned}</h2>
           <p className="mt-2 break-keep text-sm leading-7 text-white/50">{ui.plannedNote}</p>
@@ -123,6 +124,7 @@ export default async function SurvivalGamesHub({ params }: { params: Promise<{ l
             ))}
           </ul>
         </section>
+        )}
       </div>
     </main>
   );

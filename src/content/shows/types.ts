@@ -11,7 +11,7 @@ export type ShowLocale = 'ko' | 'en';
 export type Bi = { ko: string; en: string };
 
 /** What part of a show a game was: main match, death/prison match, final, a side stage… */
-export type MatchKind = 'main' | 'prison' | 'final' | 'exile' | 'mini' | 'death' | 'hidden' | 'money' | 'opening' | 'casino' | 'semi' | 'revival' | 'tournament' | 'duel';
+export type MatchKind = 'main' | 'prison' | 'final' | 'exile' | 'mini' | 'death' | 'hidden' | 'money' | 'opening' | 'casino' | 'semi' | 'revival' | 'tournament' | 'duel' | 'kairos' | 'checkout' | 'prize';
 
 /** A reference at the bottom of a page. */
 export type Source = { label: Bi; url?: string };
