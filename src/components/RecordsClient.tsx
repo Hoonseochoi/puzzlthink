@@ -44,6 +44,7 @@ const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'equation_signal', href: '/equation-signal', color: '#b6e33a' },
   { id: 'equation_tower', href: '/equation-tower', color: '#f08c5a' },
   { id: 'card_janggi', href: '/card-janggi', color: '#b07cff' },
+  { id: 'sniper_holdem', href: '/sniper-holdem', color: '#ff4f5e' },
   { id: 'hit_stay', href: '/hit-stay', color: '#6f7dff' },
   { id: 'color_link_duel', href: '/color-link-duel', color: '#7c6cff' },
   { id: 'piggy_bank', href: '/piggy-bank', color: '#e0a91c' },
@@ -51,7 +52,7 @@ const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'sudoku', href: '/play', color: '#4b7bff' },
 ];
 /** Common message key for each game's name. */
-const GAME_LABEL: Record<GameId, string> = { hidden_word: 'hiddenWord', hidden_word_plus: 'hiddenWordPlus', equation_signal: 'equationSignal', equation_tower: 'equationTower', gradation: 'gradation', card_janggi: 'cardJanggi', color_link_duel: 'colorLinkDuel', hit_stay: 'hitStay', point_omok: 'pointOmok', merge2048: 'merge2048', magicswap: 'magicswap', four_three: 'fourThree', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram', two_sided_poker: 'twoSidedPoker', monorail: 'monorail', flip_omok: 'flipOmok', nine_mens_morris: 'nineMensMorris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
+const GAME_LABEL: Record<GameId, string> = { sniper_holdem: 'sniperHoldem', hidden_word: 'hiddenWord', hidden_word_plus: 'hiddenWordPlus', equation_signal: 'equationSignal', equation_tower: 'equationTower', gradation: 'gradation', card_janggi: 'cardJanggi', color_link_duel: 'colorLinkDuel', hit_stay: 'hitStay', point_omok: 'pointOmok', merge2048: 'merge2048', magicswap: 'magicswap', four_three: 'fourThree', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram', two_sided_poker: 'twoSidedPoker', monorail: 'monorail', flip_omok: 'flipOmok', nine_mens_morris: 'nineMensMorris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indian_poker: 'indianPoker', wallgo: 'wallgo', heavy13: 'heavy13', janggi: 'janggi', russian_janggi: 'russianJanggi', russian_roulette: 'russianRoulette', blind_gomoku: 'blindGomoku', laser_janggi: 'laserJanggi', nemo_count: 'nemoCount', black_white: 'blackWhite', black_white_2: 'blackWhite2', piggy_bank: 'piggyBank', hexagon: 'hexagon', sudoku: 'sudoku' };
 const MEDALS = ['🥇', '🥈', '🥉'];
 /** Solo challenges have their own tab (they never appear in the AI Hall of Fame). */
 const CHALLENGE_GAMES = new Set<GameId>(['hidden_word', 'hidden_word_plus', 'slitherlink', 'gyulhap', 'nemo_count', 'hexagon', 'masyu', 'nonogram', 'starbattle', 'binairo', 'onestroke', 'colorlink', 'magicswap', 'merge2048', 'equation_signal', 'equation_tower']);
