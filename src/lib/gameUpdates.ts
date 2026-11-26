@@ -25,6 +25,17 @@ export type GameUpdateLog = {
 };
 
 export const GAME_UPDATES: Record<string, GameUpdateLog> = {
+  sniper_holdem: {
+    name: { ko: '스나이퍼 홀덤', en: "Sniper Hold'em" },
+    note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
+    items: [
+      {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '스나이퍼 홀덤이 열렸어요', desc: '데블스 플랜 2(데스룸) 3일차 감옥 매치예요. 상대 족보를 숫자까지 맞혀 저격하면 꼴찌! AI 5인전·1:1, 친구·공개방 2~5명으로 할 수 있어요.' },
+        en: { title: "Sniper Hold'em is open", desc: "The day-3 prison match of The Devil's Plan 2 (Death Room): name an opponent's exact hand and it ranks last. Five-player or 1:1 vs AI, and friend or open rooms for 2–5." },
+      },
+    ],
+  },
   hidden_word: {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
@@ -402,7 +413,7 @@ const ROOM_GAMES: Record<string, { ko: string; en: string }> = {
   blind_gomoku: { ko: '블라인드 오목', en: 'Blind Gomoku' }, card_janggi: { ko: '카드 장기', en: 'Card Janggi' }, color_link_duel: { ko: '컬러 링크', en: 'Color Link Duel' },
   colorlink: { ko: '컬러 잇기', en: 'Color Link' }, equation_signal: { ko: '수식 신호등', en: 'Equation Signal' }, equation_tower: { ko: '수식의 탑', en: 'Tower of Equations' }, flip_omok: { ko: '뒤집기 오목', en: 'Flip Omok' }, four_three: { ko: '4인 3목', en: '4 Player 3 In a Row' },
   gradation: { ko: '그라데이션', en: 'Gradation' }, gyulhap: { ko: '결합', en: 'Gyul! Hap!' }, heavy13: { ko: '무거운 13', en: 'Heavy 13' },
-  hexagon: { ko: '헥사곤', en: 'Hexagon' }, hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay' }, indian_poker: { ko: '인디언 포커', en: 'Indian Poker' },
+  hexagon: { ko: '헥사곤', en: 'Hexagon' }, sniper_holdem: { ko: '스나이퍼 홀덤', en: "Sniper Hold'em" }, hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay' }, indian_poker: { ko: '인디언 포커', en: 'Indian Poker' },
   janggi: { ko: '십이장기', en: '12 Janggi' }, laser_janggi: { ko: '레이저 장기', en: 'Laser Janggi' }, magicswap: { ko: '마방진 스왑', en: 'Magic Square Swap' },
   masyu: { ko: '마슈', en: 'Masyu' }, merge2048: { ko: '2048', en: '2048' }, monorail: { ko: '모노레일', en: 'Monorail' },
   nemo_count: { ko: '네모 세기', en: 'Nemo Count' }, nine_mens_morris: { ko: '나인 멘스 모리스', en: "Nine Men's Morris" }, nonogram: { ko: '노노그램', en: 'Nonogram' },

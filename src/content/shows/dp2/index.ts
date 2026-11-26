@@ -20,6 +20,7 @@ import questionAndTruth from './question-and-truth';
 
 const show: Show = {
   slug: 'devils-plan-2',
+  seo: 'dp2',
   series: 'devils-plan',
   short: { ko: '데블스플랜2', en: "Devil's Plan 2" },
   aired: { start: '2025-05-06', end: '2025-05-20' },

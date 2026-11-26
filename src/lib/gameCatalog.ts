@@ -1,12 +1,12 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
 // Order: by plays on 2026-11-23 (KST), most played first; 카드 장기 (new) is pinned 2nd, 컬러 링크 (new) 3rd, 수식 신호등 (new) 4th, 수식의 탑 (new) 5th, Hit,Stay 6th, 그라데이션 7th, 포인트 오목 8th, 마방진 스왑 9th and 2048 10th.
-export type GameId = 'hiddenWord' | 'equationSignal' | 'equationTower' | 'gradation' | 'cardJanggi' | 'colorLinkDuel' | 'hitStay' | 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
+export type GameId = 'sniperHoldem' | 'hiddenWord' | 'equationSignal' | 'equationTower' | 'gradation' | 'cardJanggi' | 'colorLinkDuel' | 'hitStay' | 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 // Order: by plays on 2026-11-23 (KST), most played first; 컬러 링크 (new) is pinned 2nd, Hit,Stay (new) 3rd, 포인트 오목 (new) 3rd, 마방진 스왑 5th and 2048 (new) 7th.
 
 export interface CatalogGame {
   id: GameId;
   /** Route of the playable page. */
-  href: '/hidden-word' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+  href: '/sniper-holdem' | '/hidden-word' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
   /** Accent color, matching the home page cards. */
   color: string;
   /** Whether the game page renders a long-form guide below the board (anchored at #guide). */
@@ -21,6 +21,7 @@ export interface CatalogGame {
 export const GAMES: readonly CatalogGame[] = [
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
   { id: 'hiddenWord', href: '/hidden-word', color: '#a8ef70', hasGuide: true },
+  { id: 'sniperHoldem', href: '/sniper-holdem', color: '#ff4f5e', hasGuide: true },
   { id: 'cardJanggi', href: '/card-janggi', color: '#b07cff', hasGuide: true },
   { id: 'colorLinkDuel', href: '/color-link-duel', color: '#7c6cff', hasGuide: true, hell: { live: true } },
   { id: 'equationSignal', href: '/equation-signal', color: '#b6e33a', hasGuide: true },

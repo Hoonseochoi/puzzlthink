@@ -38,6 +38,7 @@ const GAMES: { path: string; id: string; label: string }[] = [
   { path: '/equation-signal', id: 'equation_signal', label: 'equationSignal' },
   { path: '/equation-tower', id: 'equation_tower', label: 'equationTower' },
   { path: '/card-janggi', id: 'card_janggi', label: 'cardJanggi' },
+  { path: '/sniper-holdem', id: 'sniper_holdem', label: 'sniperHoldem' },
   { path: '/hit-stay', id: 'hit_stay', label: 'hitStay' },
   { path: '/color-link-duel', id: 'color_link_duel', label: 'colorLinkDuel' },
   { path: '/star-battle', id: 'starbattle', label: 'starbattle' },
