@@ -19,7 +19,7 @@ export function ShCard({ value, size = 'md', dim = false, lifted = false, delay 
   const corner = size === 'md' || size === 'board' || size === 'hand';
   return (
     <motion.span
-      initial={{ y: -12, opacity: 0, rotateY: 90 }} animate={{ y: lifted ? -8 : 0, opacity: dim ? 0.4 : 1, rotateY: 0 }}
+      initial={{ y: -12, opacity: 0, rotate: -4 }} animate={{ y: lifted ? -8 : 0, opacity: dim ? 0.4 : 1, rotate: 0 }}
       transition={{ type: 'spring', stiffness: 360, damping: 26, delay }}
       className={`relative inline-flex shrink-0 select-none items-center justify-center overflow-hidden font-bold leading-none shadow-[0_6px_16px_rgba(0,0,0,.45)] ${box} ${value === null
         ? 'border border-[#ff4f5e]/30 bg-[linear-gradient(150deg,#3a1218,#140608)]'

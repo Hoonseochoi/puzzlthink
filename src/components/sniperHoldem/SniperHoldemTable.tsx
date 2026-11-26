@@ -289,7 +289,7 @@ function MyHand({ g, seat, t, acting, stamp }: { g: SniperHoldem; seat: number; 
           {seat === g.first && !out && !safe && <span className="rounded-[3px] bg-[#ffd36b] px-1 text-[9px] font-black leading-[14px] text-[#2a1d00]">{t.first}</span>}
         </div>
         <div className="flex items-center gap-2">
-          {g.bets[seat] > 0 && !out && !safe && <span className="font-mono text-[11px] font-black text-[#ffd36b]">{t.betBoard} {g.bets[seat]}</span>}
+          {g.bets[seat] > 0 && !out && !safe && <span className="font-mono text-[11px] font-black text-[#ffd36b]">{t.myBet(g.bets[seat])}</span>}
           <ShChip n={g.chips[seat]} className="text-sm text-white" />
         </div>
       </div>
