@@ -221,7 +221,7 @@ const guide: GameGuide = {
       'Equation Signal is a deduction game about a hidden 9-cell equation. Fill nine cells, submit, and every cell lights up: **green** means that symbol is in that cell, **yellow** that it is in the equation somewhere else, **red** that it is not in the equation — or all its copies are already counted. Nine greens and you have it.',
       'This guide is about turning signals into information: what a red says about counts, which cells the equation’s grammar rules out, how the size of the result helps, and a worked example in which two submissions leave a single possible answer. It ends with tips for practice, the 10-minute challenge and rooms with friends.',
     ],
-    gamePageTitle: "Equation Signal — The Devil's Plan 3 final game, rules and strategy",
+    gamePageTitle: "Equation Signal online — the Devil's Plan 3 final game, rules and tips",
     summary: 'Reading signals, counting symbols, operator placement and a two-guess example.',
     sections: [
       {

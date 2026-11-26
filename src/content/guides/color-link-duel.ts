@@ -227,7 +227,7 @@ const guide: GameGuide = {
       'Color Link Duel is a 1:1 duel in which two players take turns placing coloured stones while keeping the board **joinable**: every pair of same-coloured stones must still be linkable by its own line of **6 cells or more**, with no two lines sharing a cell. If you think the board your opponent just left can no longer be joined, you **call it impossible**, and they have 2 minutes to draw every line. Whoever breaks the board loses — but calling a board that still works loses too.',
       'This guide assumes you have read the rules once and goes further: how line length is counted, how a lone stone ties up space, how many colours each board can hold, three shapes that prove a board impossible, and who gets squeezed when the space runs out. Coordinates are (row, column) counted from the top-left.',
     ],
-    gamePageTitle: "Color Link Duel rules and strategy — The Devil's Plan 3 final, round 2",
+    gamePageTitle: "Color Link Duel rules and strategy — The Devil's Plan 3 final, match 2",
     summary: 'The 6-cell rule, lone stones, colours per board, impossible shapes and the space race.',
     sections: [
       {

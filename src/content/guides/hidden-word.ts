@@ -206,7 +206,7 @@ const guide: GameGuide = {
       "Hidden Word is a word duel: hide your own word, find the other side's. Each time the setter gives a hint, its **similarity to the hidden word (0–100%)** is shown, and a hint at 95% or more ends the hints. The guesser reasons from the hints and their numbers alone. The sooner you guess, or the longer you hold out, the more points you score. The words are Korean nouns.",
       'This guide is for players who have read the rules once. It covers where the points are decided, how many hints to give as setter, how to read low numbers, and a worked example narrowing an answer with the game’s real similarity numbers. It also explains what the AI opponent, Mora, looks at when it guesses.',
     ],
-    gamePageTitle: "Hidden Word — The Devil's Plan 3 episode 5 main match, the similarity word game",
+    gamePageTitle: "Hidden Word online — The Devil's Plan 3 episode 5 main match, the similarity word game",
     summary: 'The points table, ending on one 95% hint, reading low numbers, a worked example.',
     sections: [
       {
