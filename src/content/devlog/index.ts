@@ -14,6 +14,7 @@ import sysIcons from './sys-icons';
 import sysHallOfFame from './sys-hall-of-fame';
 import sysRooms from './sys-rooms';
 import sysLoungeSupport from './sys-lounge-support';
+import sysInfra from './sys-infra';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
@@ -29,6 +30,7 @@ const ARTICLES: DevlogArticle[] = [
   sysIcons,
   sysRooms,
   sysLoungeSupport,
+  sysInfra,
 ];
 
 export const DEVLOG: readonly DevlogArticle[] = ARTICLES;
