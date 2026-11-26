@@ -3,10 +3,12 @@
 import type { DevlogArticle, DevlogCategory, DevlogLocale } from './types';
 import aiWallgo from './ai-wallgo';
 import aiTwelveJanggi from './ai-twelve-janggi';
+import aiRussianJanggi from './ai-russian-janggi';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
   aiTwelveJanggi,
+  aiRussianJanggi,
 ];
 
 export const DEVLOG: readonly DevlogArticle[] = ARTICLES;
