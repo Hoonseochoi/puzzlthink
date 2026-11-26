@@ -14,6 +14,7 @@ import publicGoods from './articles/public-goods';
 import ultimatum from './articles/ultimatum-game';
 import auctions from './articles/auctions';
 import voting from './articles/voting-coalitions';
+import backward from './articles/backward-induction';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -33,6 +34,7 @@ export const ARTICLES: GTArticle[] = [
   ultimatum,
   auctions,
   voting,
+  backward,
   // @gt-list
 ];
 
