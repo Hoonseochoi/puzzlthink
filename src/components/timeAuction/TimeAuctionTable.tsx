@@ -236,7 +236,8 @@ function MyBank({ g, me, rec, holding, t }: { g: TaRoom['game']; me: number; rec
   let shown = bank;
   let spent = 0;
   if (g.phase === 'live' && rec) {
-    if (live && now) spent = Math.max(0, Math.min(bank, now - rec.cdEnd));
+    // Truncated to 0.1 s like the recorded bid, so the number does not jump when I let go.
+    if (live && now) spent = Math.max(0, Math.min(bank, Math.floor((now - rec.cdEnd) / TA_UNIT) * TA_UNIT));
     else if (typeof rec.released === 'number' && rec.released >= TA_UNIT) spent = Math.min(bank, Math.floor(rec.released / TA_UNIT) * TA_UNIT);
     shown = bank - spent;
   } else if (g.phase === 'reveal' || g.phase === 'finished') {
