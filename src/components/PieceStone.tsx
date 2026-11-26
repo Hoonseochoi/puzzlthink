@@ -1,8 +1,10 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { getSupabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
 import { Stone, useStoneChoice, useStoneChoiceMap } from './StoneAvatar';
+import { useSupporter } from './SupporterCover';
 
 /**
  * 내 바둑알 on the board: a game's pieces drawn as their player's own profile stone (the colour or earned icon
@@ -11,7 +13,8 @@ import { Stone, useStoneChoice, useStoneChoiceMap } from './StoneAvatar';
  *
  * A game says who sits where with <PieceOwners.Provider value={[nickname per seat]}> (or <MyPieces seat={n}> for
  * a game against the AI) and draws each piece with <PieceStone seat colors>{the game's own piece}</PieceStone>.
- * The stone is the piece: drawn at the piece's own size, with no ring and no supporter cover. Sides must still
+ * The stone is the piece: drawn at the piece's own size, with no ring (a supporter's piece wears a thin rainbow
+ * rim instead of the full cover). Sides must still
  * read apart, so a stone is recoloured (never reshaped) when it would be mistaken for another side's:
  * - two players with the same stone: the later seat's is recoloured;
  * - a plain colour close to the colour of a side that plays the game's own pieces (my black stone against the
@@ -104,24 +107,72 @@ function TintStone({ color }: { color: string }) {
   );
 }
 
+// 벽바둑 II square pieces: everyone's highest 2048 block character by nickname, fetched once per page load.
+let tilesPromise: Promise<Map<string, number>> | null = null;
+function loadTiles() {
+  tilesPromise ??= (async () => {
+    const map = new Map<string, number>();
+    const { data } = (await getSupabase()?.rpc('best_2048_public')) ?? { data: null };
+    if (Array.isArray(data)) for (const r of data as { nickname: string; tier: number }[]) map.set(r.nickname, r.tier);
+    return map;
+  })();
+  return tilesPromise;
+}
+function useBestTiles(enabled: boolean) {
+  const [map, setMap] = useState<Map<string, number>>(() => new Map());
+  useEffect(() => {
+    if (!enabled) return;
+    let alive = true;
+    loadTiles().then((m) => { if (alive) setMap(m); });
+    return () => { alive = false; };
+  }, [enabled]);
+  return map;
+}
+
+const RAINBOW = 'conic-gradient(from 210deg, #ff5f6d, #ffb347, #f9f871, #5ee7a5, #56ccf2, #b28dff, #ff5f6d)';
+/** How far a supporter's piece sits inside its rainbow rim, in percent of the piece. */
+const RIM = 8;
+/** The supporter cover on the board: only a thin rainbow rim round the piece (no wings, star or ribbon). */
+function Rainbow({ square }: { square: boolean }) {
+  const mask = square ? 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)' : `radial-gradient(closest-side, transparent ${100 - RIM * 2 - 1}%, #000 ${100 - RIM * 2 + 1}%)`;
+  return <span aria-hidden className={`pointer-events-none absolute inset-0 ${square ? 'rounded-[18%]' : 'rounded-full'}`}
+    style={{ background: RAINBOW, padding: square ? `${RIM}%` : undefined, WebkitMask: mask, mask, WebkitMaskComposite: square ? 'xor' : undefined, maskComposite: square ? 'exclude' : undefined, boxShadow: '0 0 6px rgba(255,255,255,.35)' }} />;
+}
+
 /**
- * One piece. `colors` are the game's own colours per seat (see usePiece). A `square` piece (벽바둑 II, where the
- * shape is the kind of piece) keeps a rounded-square plate in the side's colour under the stone; every other
- * piece is the stone alone. `overlay` is drawn over it (a selection ring, a cross). Fills its parent.
+ * One piece. `colors` are the game's own colours per seat (see usePiece).
+ * - Round pieces: the player's own stone alone, at the piece's size.
+ * - `square` pieces (벽바둑 II, where the shape is the kind of piece): the highest 2048 block character the player
+ *   has earned (recoloured for a later seat with the same block), or the game's own square without one.
+ * - A supporter's piece — their stone, block or the game's own piece — wears a thin rainbow rim.
+ * `overlay` is drawn over it (a selection ring, a cross). Fills its parent.
  */
 export default function PieceStone({ seat, colors, square = false, className = '', overlay, children }: {
   seat: number | null | undefined; colors: readonly (string | undefined)[]; square?: boolean; className?: string; overlay?: ReactNode; children: ReactNode;
 }) {
+  const owners = useContext(PieceOwners);
+  const name = (seat != null && owners[seat]) || '';
+  const supporter = useSupporter(name);
+  const tiles = useBestTiles(square);
   const piece = usePiece(seat, colors);
-  if (!piece) return <>{children}</>;
-  const own = (seat != null && colors[seat]) || '#888888';
+  const own = seat != null ? colors[seat] : undefined;
+
+  let body: ReactNode = null;
+  if (square) {
+    const tier = name ? tiles.get(name) : undefined;
+    if (tier && seat != null) {
+      const same = colors.some((c, i) => !!c && i < seat && !!owners[i] && tiles.get(owners[i]!) === tier);
+      body = <span className="pointer-events-none absolute inset-0 [&>svg]:h-full [&>svg]:w-full" style={{ filter: same && own ? recolour(own) : undefined }}><Stone name={name} size={64} icon={`m${tier}`} cover={false} /></span>;
+    }
+  } else if (piece) {
+    body = <span className="pointer-events-none absolute inset-0 [&>svg]:h-full [&>svg]:w-full" style={{ filter: piece.filter ?? undefined }}>{piece.tint ? <TintStone color={piece.tint} /> : <Stone name={piece.name} size={64} cover={false} />}</span>;
+  }
+  if (!body && !supporter) return <>{children}</>;
   return (
-    <span className={`relative block h-full w-full ${square ? 'rounded-[18%]' : 'rounded-full'} ${className}`}
-      style={square ? { background: `linear-gradient(145deg, color-mix(in srgb, ${own} 70%, white), ${own} 55%, color-mix(in srgb, ${own} 65%, black))`, boxShadow: '0 3px 8px rgba(0,0,0,.5)' } : { filter: 'drop-shadow(0 2px 3px rgba(0,0,0,.5))' }}>
-      <span className="pointer-events-none absolute [&>svg]:h-full [&>svg]:w-full" style={{ inset: square ? '10%' : 0, filter: piece.filter ?? undefined }}>
-        {piece.tint ? <TintStone color={piece.tint} /> : <Stone name={piece.name} size={64} cover={false} />}
-      </span>
-      {overlay}
+    <span className={`relative block h-full w-full ${body ? className : ''}`} style={body ? { filter: 'drop-shadow(0 2px 3px rgba(0,0,0,.5))' } : undefined}>
+      <span className="absolute" style={{ inset: supporter ? `${RIM}%` : 0 }}>{body ?? children}</span>
+      {supporter && <Rainbow square={square} />}
+      {body ? overlay : null}
     </span>
   );
 }
