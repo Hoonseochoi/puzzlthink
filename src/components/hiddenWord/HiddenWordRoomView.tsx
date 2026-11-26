@@ -14,11 +14,11 @@ import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANE
 import { useHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
-import { HW_ENVELOPES, hwClean, isHwWord } from '@/lib/hiddenWord';
+import { HW_ENVELOPES, type HwLevel, hwClean, isHwWord } from '@/lib/hiddenWord';
 import { HWR_CFG, type HwrRoom, type HwrTurn, hwrDeal, hwrHintsLeft, hwrLock, hwrReveal, hwrScore, hwrUsed } from '@/lib/hiddenWordRoom';
 import { reportGame } from '@/lib/stats';
 import { HW_ACCENT, HW_GOLD, HW_ROOT_STYLE, type HwCopy, hwCopy } from './copy';
-import { Envelope, SecretCard, SimRow, StageTrack, TimerRing, WordCard } from './HiddenWordParts';
+import { Envelope, LevelPicker, SecretCard, SimRow, StageTrack, TimerRing, WordCard } from './HiddenWordParts';
 
 type Errors = 'invalid' | 'secret' | 'duplicate' | 'unknown' | 'server' | null;
 const PHASE_SECS = { hint: HWR_CFG.hintSecs, guess: HWR_CFG.guessSecs } as const;
@@ -80,9 +80,10 @@ export default function HiddenWordRoomView({ code }: { code: string }) {
   const start = async () => {
     if (starting) return;
     setStarting(true);
-    const deal = await hwrDeal();
+    const level = state?.level ?? 'basic';
+    const deal = await hwrDeal(level);
     setStarting(false);
-    if (deal && !deal.error && Array.isArray(deal.envelopes)) dispatch({ t: 'start', deal: deal.deal, envelopes: deal.envelopes });
+    if (deal && !deal.error && Array.isArray(deal.envelopes)) dispatch({ t: 'start', deal: deal.deal, envelopes: deal.envelopes, level });
   };
 
   const notice = status === 'unconfigured' ? r.unconfigured : status === 'error' ? r.connectionError : !state && waitedLong ? r.roomNotFound : state && !me?.isHost && !hostOnline ? r.hostOffline : null;
@@ -124,6 +125,7 @@ export default function HiddenWordRoomView({ code }: { code: string }) {
                 </p>
               ))}
             </div>
+            <div className={PANEL}><LevelPicker t={t} level={state.level ?? 'basic'} disabled={!me?.isHost || starting} onPick={(level) => dispatch({ t: 'level', level })} /></div>
             <form onSubmit={(e) => { e.preventDefault(); rename(nameDraft); setNameDraft(''); }} className="flex items-center gap-2">
               <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} maxLength={16} placeholder={me?.name ?? ''} aria-label={r.nickname} className={INPUT} />
               <button type="submit" className={`shrink-0 px-4 py-2.5 ${BTN}`}>{r.rename}</button>
@@ -146,7 +148,7 @@ export default function HiddenWordRoomView({ code }: { code: string }) {
                 <TurnStage key={`${state.sid}-${state.round}-${state.turnNo}`} state={state} turn={turn} mySeat={mySeat} name={name} seconds={seconds} t={t}
                   onHint={(word, s, rev) => dispatch({ t: 'hint', word, s, rev })} onGuess={(words, s) => dispatch({ t: 'guess', words, s })} onNext={() => dispatch({ t: 'next' })} />
               )}
-              {phase === 'finished' && <OverStage state={state} mySeat={mySeat} name={name} t={t} isHost={!!me?.isHost} starting={starting} onAgain={() => void start()} />}
+              {phase === 'finished' && <OverStage state={state} mySeat={mySeat} name={name} t={t} isHost={!!me?.isHost} starting={starting} onAgain={() => void start()} onLevel={(level) => dispatch({ t: 'level', level })} />}
               {!playing && phase !== 'finished' && <p className="mt-3 text-center text-xs text-white/45">{r.spectating}</p>}
             </div>
           </>
@@ -410,7 +412,7 @@ function TurnEnd({ state, turn, name, t, canNext, onNext }: { state: HwrRoom; tu
   );
 }
 
-function OverStage({ state, mySeat, name, t, isHost, starting, onAgain }: { state: HwrRoom; mySeat: number | null; name: (s: number) => string; t: HwCopy; isHost: boolean; starting: boolean; onAgain: () => void }) {
+function OverStage({ state, mySeat, name, t, isHost, starting, onAgain, onLevel }: { state: HwrRoom; mySeat: number | null; name: (s: number) => string; t: HwCopy; isHost: boolean; starting: boolean; onAgain: () => void; onLevel: (level: HwLevel) => void }) {
   const r = t.room;
   const [a, b] = state.scores;
   const winner = a === b ? null : a > b ? 0 : 1;
@@ -435,6 +437,7 @@ function OverStage({ state, mySeat, name, t, isHost, starting, onAgain }: { stat
           </li>
         ))}
       </ul>
+      {isHost && <div className="mt-5"><LevelPicker t={t} level={state.level ?? 'basic'} disabled={starting} onPick={onLevel} /></div>}
       {isHost
         ? <button type="button" disabled={starting} onClick={onAgain} className={`${BTN_ACCENT} mt-5 w-full !py-3.5 !text-sm`}>{starting ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} />}{r.rematch}</button>
         : <p className="mt-5 text-xs text-white/45">{r.rematchWait}</p>}
