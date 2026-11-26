@@ -30,6 +30,7 @@ const CHALLENGES: { game: GameId; boards: string[]; kind: PodiumKind }[] = [
   { game: 'equation_signal', boards: ['eqsignal'], kind: 'score' },
   { game: 'equation_tower', boards: ['eqtower'], kind: 'score' },
   { game: 'merge2048', boards: ['merge2048'], kind: 'score' },
+  { game: 'hidden_word_plus', boards: ['hidden_word_plus'], kind: 'score' },
   { game: 'hidden_word', boards: ['hidden_word'], kind: 'score' },
 ];
 
@@ -40,7 +41,7 @@ async function challengePodiums(): Promise<[string, GamePodium][]> {
   const tops = new Map(await Promise.all(boards.map(async (b) => {
     const { data } = await supabase.rpc('challenge_top', { p_board: b, p_limit: 3 });
     // Ties share a rank (two players on 15 maps are both 1st): the podium places them in list order instead.
-    return [b, ((data as { rank: number; nickname: string; score: number; sub: number | null }[] | null) ?? []).map((r, i) => ({ rank: i + 1, nickname: r.nickname, n: b === 'hidden_word' ? r.score / 10 : r.score, block: b === 'merge2048' ? blockOfSub(r.sub) : null }))] as const;
+    return [b, ((data as { rank: number; nickname: string; score: number; sub: number | null }[] | null) ?? []).map((r, i) => ({ rank: i + 1, nickname: r.nickname, n: b === 'hidden_word' || b === 'hidden_word_plus' ? r.score / 10 : r.score, block: b === 'merge2048' ? blockOfSub(r.sub) : null }))] as const;
   })));
   const out: [string, GamePodium][] = [];
   for (const c of CHALLENGES) {

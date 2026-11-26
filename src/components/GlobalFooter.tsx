@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, Link } from '@/i18n/routing';
 import SupportLink from './SupportLink';
 
-const HIDE_ON = ['/hidden-word', '/equation-signal', '/equation-tower', '/card-janggi', '/point-omok', '/2048', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/gyulhap', '/indian-poker', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker'];
+const HIDE_ON = ['/hidden-word', '/hidden-word-plus', '/equation-signal', '/equation-tower', '/card-janggi', '/point-omok', '/2048', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/gyulhap', '/indian-poker', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker'];
 
 export default function GlobalFooter() {
   const pathname = usePathname();

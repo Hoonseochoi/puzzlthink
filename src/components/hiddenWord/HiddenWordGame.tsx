@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useLocale } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import { ArrowRight, BookOpen, Loader2, RotateCcw, Send, Sparkles, Trophy, X } from 'lucide-react';
 import { Piece } from '@/components/CompetitionBoard';
 import { useAuth } from '@/components/AuthProvider';
@@ -9,15 +10,15 @@ import AuthButton from '@/components/AuthButton';
 import BugReport from '@/components/BugReport';
 import GameUpdates from '@/components/GameUpdates';
 import { setRoomPlaying } from '@/lib/roomChat';
-import { type HwAction, type HwEntry, type HwLevel, type HwRankRow, type HwTurn, type HwView, hwAct, hwClean, hwRanking, hwStart, hwState, hwTimeline, isHwLevel, isHwWord, HW_ENVELOPES, HW_LEVELS, HW_RANK_MIN } from '@/lib/hiddenWord';
+import { type HwAction, type HwEntry, type HwLevel, type HwRankRow, type HwTurn, type HwView, hwAct, hwClean, hwRanking, hwStart, hwState, hwTimeline, isHwWord, HW_ENVELOPES, HW_RANK_MIN } from '@/lib/hiddenWord';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL_TITLE, SHELL, STAGE } from '../ui/gameUi';
-import { HW_GOLD, HW_ROOT_STYLE, type HwCopy, hwCopy } from './copy';
-import { Envelope, LevelPicker, MoraFace, SecretCard, SimRow, StageTrack, TimerRing, WordCard } from './HiddenWordParts';
+import { HW_GOLD, HWP_GOLD, type HwCopy, hwCopy, hwRootStyle } from './copy';
+import { EditionMark, Envelope, MoraFace, RichText, SecretCard, SimRow, StageTrack, TimerRing, WordCard } from './HiddenWordParts';
 
-const GAME_KEY = 'puzzlthink_hw_game';
-const LEVEL_KEY = 'puzzlthink_hw_level';
+/** The match to resume, per game (히든 워드 / 확장판). */
+const GAME_KEY: Record<HwLevel, string> = { basic: 'puzzlthink_hw_game', plus: 'puzzlthink_hwp_game' };
 const byMe = (entry: HwEntry) => ('hint' in entry ? entry.hint.by === 'me' : entry.guess.by === 'me');
 
 /** Points a turn has paid out so far, counting only the answers already shown on the board. */
@@ -32,10 +33,12 @@ function shownPoints(turn: HwTurn, entries: HwEntry[], view: HwView) {
   return { me, ai };
 }
 
-/** 히든 워드 against MORA: two rounds, I set a word and guess hers, my points go to the ranking. */
-export default function HiddenWordGame() {
+/** 히든 워드 against MORA: two rounds, I set a word and guess hers, my points go to the ranking.
+ * level 'plus' is 히든 워드 확장판: the same match on the 확장 words, its own look and its own ranking. */
+export default function HiddenWordGame({ level = 'basic' }: { level?: HwLevel }) {
   const locale = useLocale();
-  const t = hwCopy(locale);
+  const t = hwCopy(locale, level);
+  const plus = level === 'plus';
   const { user } = useAuth();
   const [view, setView] = useState<HwView | null>(null);
   const [failed, setFailed] = useState(false);
@@ -45,8 +48,6 @@ export default function HiddenWordGame() {
   const [shown, setShown] = useState({ key: '', n: 0 });
   const [rulesOpen, setRulesOpen] = useState(false);
   const [rankOpen, setRankOpen] = useState(false);
-  /** The level a new match starts at: the last one picked on this browser. */
-  const [level, setLevel] = useState<HwLevel>('basic');
   const loading = useRef(false);
   const timedOut = useRef(0);
 
@@ -55,25 +56,20 @@ export default function HiddenWordGame() {
   const accept = useCallback((next: HwView) => {
     setClock({ offset: next.now - Date.now(), now: Date.now() });
     setView(next);
-    try { localStorage.setItem(GAME_KEY, next.id); } catch { /* private mode: no resume */ }
-  }, []);
+    try { localStorage.setItem(GAME_KEY[level], next.id); } catch { /* private mode: no resume */ }
+  }, [level]);
 
-  const begin = useCallback(async (fresh: boolean, pick?: HwLevel) => {
+  const begin = useCallback(async (fresh: boolean) => {
     if (loading.current) return;
     loading.current = true; setFailed(false); setError(null);
-    let saved: string | null = null, chosen: HwLevel = 'basic';
-    try {
-      saved = fresh ? null : localStorage.getItem(GAME_KEY);
-      const stored = localStorage.getItem(LEVEL_KEY);
-      if (pick) localStorage.setItem(LEVEL_KEY, pick); else if (isHwLevel(stored)) chosen = stored;
-    } catch { /* no storage */ }
-    if (pick) chosen = pick;
+    let saved: string | null = null;
+    try { saved = fresh ? null : localStorage.getItem(GAME_KEY[level]); } catch { /* no storage */ }
     let next = saved ? await hwState(saved) : null;
-    if (!next || next.phase === 'over') next = await hwStart(chosen);
+    // a finished match, or one of the other game (a 확장 match started on this page before the 확장판 had its own), starts over
+    if (!next || next.phase === 'over' || (next.level ?? 'basic') !== level) next = await hwStart(level);
     loading.current = false;
-    setLevel(next?.level ?? chosen);
     if (next && !next.error) accept(next); else setFailed(true);
-  }, [accept]);
+  }, [accept, level]);
   useEffect(() => { void begin(false); }, [begin]);
 
   const act = useCallback(async (action: HwAction) => {
@@ -124,12 +120,12 @@ export default function HiddenWordGame() {
   const ai = view ? view.ai - (view.t ? view.t.ai - turnShown.ai : 0) : 0;
 
   return (
-    <div className={SHELL} style={HW_ROOT_STYLE}>
-      <GameHeader ai backHref="/hidden-word" backLabel={t.back} title={t.title} titleClass="font-black !text-[13px] !tracking-[0.04em] min-[400px]:!text-[15px] sm:!text-xl sm:!tracking-[0.12em]" subtitle={t.subtitle}>
+    <div className={SHELL} style={hwRootStyle(level)} data-hw={level}>
+      <GameHeader ai backHref={plus ? '/hidden-word-plus' : '/hidden-word'} backLabel={t.back} title={plus ? <>{t.title}<EditionMark label={t.edition} /></> : t.title} titleClass="font-black !text-[13px] !tracking-[0.04em] min-[400px]:!text-[15px] sm:!text-xl sm:!tracking-[0.12em]" subtitle={t.subtitle}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <button type="button" onClick={() => setRankOpen(true)} className={BTN} aria-label={t.ranking}><Trophy size={14} /><span className="hidden sm:inline">{t.ranking}</span></button>
-        <span className="hidden sm:contents"><GameUpdates game="hidden_word" /><BugReport /><LanguageSwitcher compact dark /></span>
-        <button type="button" onClick={() => void begin(true, level)} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>
+        <span className="hidden sm:contents"><GameUpdates game={plus ? 'hidden_word_plus' : 'hidden_word'} /><BugReport /><LanguageSwitcher compact dark /></span>
+        <button type="button" onClick={() => void begin(true)} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>
       </GameHeader>
       <main className="relative z-10 mx-auto w-full max-w-[640px] px-3 pb-10 pt-3 sm:px-4 sm:pt-5">
         {!view ? (
@@ -144,18 +140,18 @@ export default function HiddenWordGame() {
             <Hud view={view} me={me} ai={ai} t={t} thinking={revealing} />
             {!user && view.phase !== 'over' && <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-[11px] text-white/40"><Sparkles size={11} />{t.loginToRecord}</p>}
             <div className="mt-3">
-              {view.phase === 'envelope' && <EnvelopeStage key={view.id} t={t} busy={busy} level={view.level ?? 'basic'} onLevel={(next) => void begin(true, next)} onPick={(i) => void act({ t: 'envelope', i })} />}
-              {view.phase === 'pick' && <PickStage view={view} t={t} busy={busy} onPick={(word) => void act({ t: 'pick', word })} />}
+              {view.phase === 'envelope' && <EnvelopeStage key={view.id} t={t} busy={busy} plus={plus} onPick={(i) => void act({ t: 'envelope', i })} />}
+              {view.phase === 'pick' && <PickStage view={view} t={t} busy={busy} plus={plus} onPick={(word) => void act({ t: 'pick', word })} />}
               {view.t && (view.phase === 'hint' || view.phase === 'guess' || view.phase === 'turnEnd') && (
                 <TurnStage key={turnKey} view={view} turn={view.t} visible={visible} pending={revealing ? timeline[n] : null} seconds={seconds} busy={busy} error={error} t={t} act={act} clearError={() => setError(null)} />
               )}
-              {view.phase === 'over' && <OverStage view={view} t={t} signedIn={!!user} onAgain={() => void begin(true, view.level ?? 'basic')} onRank={() => setRankOpen(true)} />}
+              {view.phase === 'over' && <OverStage view={view} level={level} t={t} signedIn={!!user} onAgain={() => void begin(true)} onRank={() => setRankOpen(true)} />}
             </div>
           </>
         )}
       </main>
       {rulesOpen && <RulesModal t={t} onClose={() => setRulesOpen(false)} />}
-      {rankOpen && <RankModal t={t} level={view?.level ?? level} onClose={() => setRankOpen(false)} />}
+      {rankOpen && <RankModal t={t} level={level} onClose={() => setRankOpen(false)} />}
     </div>
   );
 }
@@ -170,7 +166,7 @@ function Hud({ view, me, ai, t, thinking }: { view: HwView; me: number; ai: numb
         <strong key={me} className="font-mono text-2xl font-black tabular-nums text-(--accent) [animation:hwPop_.4s_ease-out] sm:text-3xl">{me}</strong>
       </div>
       <div className="text-center">
-        <p className="font-mono text-[10px] font-black tracking-[0.2em] text-white/50">{t.round(view.round)}{view.round === 2 && <span className="ml-1.5 rounded-sm px-1 py-px tracking-normal" style={{ background: `${HW_GOLD}26`, color: HW_GOLD }}>×2</span>}{view.level === 'plus' && <span className="ml-1.5 rounded-sm bg-(--accent)/15 px-1 py-px tracking-normal text-(--accent)">{t.levelName.plus}</span>}</p>
+        <p className="font-mono text-[10px] font-black tracking-[0.2em] text-white/50">{t.round(view.round)}{view.round === 2 && <span className="ml-1.5 rounded-sm px-1 py-px tracking-normal" style={{ background: `${HW_GOLD}26`, color: HW_GOLD }}>×2</span>}{view.level === 'plus' && <span className="ml-1.5 rounded-sm px-1 py-px tracking-normal" style={{ background: `${HWP_GOLD}24`, color: HWP_GOLD }}>{t.edition}</span>}</p>
         <p className="mt-0.5 text-[11px] font-black text-white/80">{kind ? t[kind === 'set' ? 'turnSet' : 'turnGuess'] : view.phase === 'over' ? t.finalScore : t.envelopeTitle}</p>
         <div className="mt-1 flex justify-center gap-1" aria-hidden>{[0, 1, 2, 3].map((i) => <span key={i} className={`h-1 w-4 rounded-full ${i < turnIndex ? 'bg-(--accent)' : i === turnIndex ? 'bg-white/70' : 'bg-white/12'}`} />)}</div>
       </div>
@@ -182,31 +178,31 @@ function Hud({ view, me, ai, t, thinking }: { view: HwView; me: number; ai: numb
   );
 }
 
-function EnvelopeStage({ t, busy, level, onLevel, onPick }: { t: HwCopy; busy: boolean; level: HwLevel; onLevel: (level: HwLevel) => void; onPick: (i: number) => void }) {
+function EnvelopeStage({ t, busy, plus, onPick }: { t: HwCopy; busy: boolean; plus: boolean; onPick: (i: number) => void }) {
   const [picked, setPicked] = useState<number | null>(null);
   return (
     <section className={`${STAGE} !p-5 sm:!p-7`}>
-      <LevelPicker t={t} level={level} disabled={busy || picked !== null} onPick={(next) => { if (next !== level) onLevel(next); }} />
       <h2 className="text-center text-xl font-black tracking-[-0.03em] sm:text-2xl">{t.envelopeTitle}</h2>
       <p className="mx-auto mt-2 max-w-sm break-keep text-center text-[13px] leading-6 text-white/55">{t.envelopeDesc}</p>
       <div className="mx-auto mt-6 grid max-w-[420px] grid-cols-3 gap-3 sm:gap-4">
         {Array.from({ length: HW_ENVELOPES }, (_, i) => (
-          <Envelope key={i} n={i + 1} label={t.envelope(i + 1)} state={picked === null ? (busy ? 'dim' : 'idle') : picked === i ? 'opening' : 'dim'}
+          <Envelope key={i} n={i + 1} plus={plus} label={t.envelope(i + 1)} state={picked === null ? (busy ? 'dim' : 'idle') : picked === i ? 'opening' : 'dim'}
             onPick={() => { setPicked(i); window.setTimeout(() => onPick(i), 520); }} />
         ))}
       </div>
+      <p className="mt-6 text-center"><Link href={t.otherGameHref} className="inline-flex items-center gap-1 text-[12px] font-black text-white/45 underline-offset-4 transition hover:text-(--accent) hover:underline">{t.otherGame}<ArrowRight size={13} /></Link></p>
     </section>
   );
 }
 
-function PickStage({ view, t, busy, onPick }: { view: HwView; t: HwCopy; busy: boolean; onPick: (word: string) => void }) {
+function PickStage({ view, t, busy, plus, onPick }: { view: HwView; t: HwCopy; busy: boolean; plus: boolean; onPick: (word: string) => void }) {
   const [word, setWord] = useState<string | null>(null);
   return (
     <section className={`${STAGE} !p-5 sm:!p-7`}>
       <h2 className="text-center text-xl font-black tracking-[-0.03em] sm:text-2xl">{t.pickTitle}</h2>
       <p className="mx-auto mt-2 max-w-sm break-keep text-center text-[13px] leading-6 text-white/55">{t.pickDesc}</p>
       <div className="mt-5 grid grid-cols-2 gap-2.5 min-[420px]:grid-cols-3 sm:gap-3">
-        {view.hand.map((card, i) => <WordCard key={card} word={card} index={i} selected={word === card} onClick={() => setWord(card)} />)}
+        {view.hand.map((card, i) => <WordCard key={card} word={card} index={i} plus={plus} selected={word === card} onClick={() => setWord(card)} />)}
       </div>
       <button type="button" disabled={!word || busy} onClick={() => word && onPick(word)} className={`${BTN_ACCENT} mt-5 w-full !py-3.5 !text-sm`}>
         {busy ? <Loader2 size={15} className="animate-spin" /> : <ArrowRight size={15} />}{word ? t.pickConfirm(word) : t.pickTitle}
@@ -386,10 +382,10 @@ function TurnEnd({ view, turn, t, busy, onNext }: { view: HwView; turn: HwTurn; 
   );
 }
 
-function OverStage({ view, t, signedIn, onAgain, onRank }: { view: HwView; t: HwCopy; signedIn: boolean; onAgain: () => void; onRank: () => void }) {
+function OverStage({ view, level, t, signedIn, onAgain, onRank }: { view: HwView; level: HwLevel; t: HwCopy; signedIn: boolean; onAgain: () => void; onRank: () => void }) {
   const result = view.me > view.ai ? t.overWin : view.me < view.ai ? t.overLoss : t.overDraw;
   const [rows, setRows] = useState<HwRankRow[] | null>(null);
-  useEffect(() => { hwRanking(5, view.level ?? 'basic').then(setRows); }, [view.level]);
+  useEffect(() => { hwRanking(5, level).then(setRows); }, [level]);
   const mine = rows?.find((row) => row.is_me);
   return (
     <section className={`${STAGE} !p-5 text-center sm:!p-7`}>
@@ -434,34 +430,22 @@ function RulesModal({ t, onClose }: { t: HwCopy; onClose: () => void }) {
         <button type="button" onClick={onClose} aria-label={t.close} className={MODAL_CLOSE}><X size={16} /></button>
         <p className={PANEL_TITLE}>{t.rules}</p>
         <ol className="mt-3 space-y-3 text-[13px] leading-relaxed text-white/75">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol>
-        <p className="mt-4 break-keep border-t border-white/10 pt-3 text-[11.5px] leading-5 text-white/60">{t.levelsAbout}</p>
+        <p className="mt-4 break-keep border-t border-white/10 pt-3 text-[11.5px] leading-5 text-white/60"><RichText text={t.about} /> <Link href={t.otherGameHref} className="font-black text-(--accent) underline-offset-4 hover:underline">{t.otherGame} →</Link></p>
         <p className="mt-2 break-keep text-[11.5px] leading-5 text-white/45">{t.aboutSim}</p>
       </div>
     </div>
   );
 }
 
-function RankModal({ t, level: start, onClose }: { t: HwCopy; level: HwLevel; onClose: () => void }) {
-  const [level, setLevel] = useState<HwLevel>(start);
-  const [got, setGot] = useState<{ level: HwLevel; rows: HwRankRow[] | null } | null>(null);
-  useEffect(() => {
-    let live = true;
-    hwRanking(20, level).then((rows) => { if (live) setGot({ level, rows }); });
-    return () => { live = false; };
-  }, [level]);
-  const rows = got?.level === level ? got.rows : undefined;
+function RankModal({ t, level, onClose }: { t: HwCopy; level: HwLevel; onClose: () => void }) {
+  const [rows, setRows] = useState<HwRankRow[] | null | undefined>(undefined);
+  useEffect(() => { hwRanking(20, level).then(setRows); }, [level]);
   return (
     <div className={MODAL_BACKDROP} onClick={onClose}>
       <div className={`${MODAL} max-w-md !p-6 text-left text-white`} onClick={(event) => event.stopPropagation()}>
         <button type="button" onClick={onClose} aria-label={t.close} className={MODAL_CLOSE}><X size={16} /></button>
         <p className={PANEL_TITLE}>{t.rankTitle}</p>
-        <div className="mt-2 grid grid-cols-2 gap-1 rounded-[10px] border border-white/10 bg-black/30 p-1" role="tablist" aria-label={t.levelTitle}>
-          {HW_LEVELS.map((id) => (
-            <button key={id} type="button" role="tab" aria-selected={level === id} onClick={() => setLevel(id)}
-              className={`rounded-[8px] py-1.5 text-[12px] font-black transition ${level === id ? 'bg-(--accent) text-(--accent-ink)' : 'text-white/55 hover:text-white'}`}>{t.levelName[id]}</button>
-          ))}
-        </div>
-        <p className="mt-2 break-keep text-[12px] leading-5 text-white/50">{t.rankDesc} {t.rankLevels}</p>
+        <p className="mt-1 break-keep text-[12px] leading-5 text-white/50">{t.rankDesc} {t.rankSeparate}</p>
         <p className="mt-2 rounded-[10px] border border-white/10 bg-black/30 px-3 py-2 text-center font-mono text-[11.5px] font-bold text-white/70">{t.rankFormula}</p>
         {rows === undefined ? <div className="grid h-32 place-items-center"><Loader2 className="animate-spin text-(--accent)" size={22} /></div>
           : !rows?.length ? <p className="py-10 text-center text-[13px] text-white/45">{rows === null ? t.offline : t.rankEmpty}</p>
