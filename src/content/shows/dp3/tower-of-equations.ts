@@ -66,7 +66,7 @@ const game: ShowGame = {
     ],
     siteDiff: [
       { type: 'list', items: [
-        '방송은 블록 구성과 기호가 어떻게 이어지는지를 모두 공개하지 않았어요. 그래서 PUZZLTHINK 수식의 탑의 **블록 세트와 계산 방식은 사이트가 정한 것**이에요. 사이트에서는 맨 위 숫자부터 아래 블록의 연산을 차례대로 적용해요(5, +3, ×2 → (5+3)×2 = 16).',
+        '방송은 블록 구성과 기호가 어떻게 이어지는지를 모두 공개하지 않았어요. 그래서 PUZZLTHINK 수식의 탑의 **블록 세트와 계산 방식은 사이트가 정한 것**이에요. 사이트에서는 위에서 아래로 읽은 식을 일반 수식처럼 계산해서, ×와 ÷를 +와 −보다 먼저 해요(5, +3, ×2 → 5+3×2 = 11).',
         '블록은 네 자리에 쌓여 있고, 옮기지 않고 제자리에서 뒤집는 것도 1회 이동으로 쳐요.',
         '혼자 연습, 10분 챌린지(랭킹), 친구·공개방 2–4명 버저 대결이 있어요. 버저 대결의 점수(처음 제시 ±1, 더 적게 불러 가져감 ±2)는 방송과 같아요.',
       ] },
@@ -135,7 +135,7 @@ const game: ShowGame = {
     ],
     siteDiff: [
       { type: 'list', items: [
-        'The show did not publish its full block set or how signs chain, so **PUZZLTHINK’s block set and evaluation are the site’s own choice**. The site applies each operation in turn from the top (5, +3, ×2 → (5+3)×2 = 16).',
+        'The show did not publish its full block set or how signs chain, so **PUZZLTHINK’s block set and evaluation are the site’s own choice**. The site reads the tower top-down as an ordinary formula, × and ÷ before + and − (5, +3, ×2 → 5+3×2 = 11).',
         'Blocks stand in four stacks, and turning a bundle over in place also counts as a move.',
         'There is solo practice, a 10-minute challenge with a ranking, and buzzer matches for 2–4 friends or open rooms with the show’s scoring (first call ±1, undercut ±2).',
       ] },
