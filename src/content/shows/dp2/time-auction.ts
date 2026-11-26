@@ -68,7 +68,8 @@ const game: ShowGame = {
     siteDiff: [
       { type: 'list', items: [
         'PUZZLTHINK 시간 경매는 방송 규칙(5초 카운트다운과 포기, 0.1초 기록, 올페이, 동점 유찰, 시간 소진 시 버튼 밀림, 남은 시간 비공개, 표식·남은 시간 순위)을 그대로 따라요.',
-        '**규모를 고를 수 있어요.** 방송은 6명이 10분으로 19번 경매했어요. 사이트는 같은 형식(10분 × 19경매) 외에 빠른 경매(2분 × 9경매, 기본)와 표준(5분 × 13경매)이 있어요.',
+        '**내 남은 시간(사이트 규칙)**: 방송에서는 자기 남은 시간도 보이지 않았지만, 사이트에서는 내 시간만 내 화면에 보여요. 다른 사람의 시간은 그대로 비공개이고, 친구 방에서는 방장이 방송처럼 숨길 수 있어요.',
+        '**규모를 고를 수 있어요.** 방송은 6명이 10분으로 19번 경매했어요. 사이트는 같은 형식(10분 × 19경매) 외에 표준(5분 × 13경매, 기본)과 빠른 경매(2분 × 9경매)가 있어요.',
         '**인원**: AI전은 방송처럼 6명(나 + AI 5명), 친구·공개방은 2~6명이에요. 피스 대신 1위·탈락이 기록에 남아요.',
         '**바둑알 점수(사이트 추가 규칙)**: 경매마다 PUZZLTHINK 아이콘 모양의 바둑알이 하나 올라오고, 기본 바둑알 1점, 세 번째 경매마다 중급 아이콘 2점, 마지막 최상급 아이콘 3점이에요(게임 속 점수일 뿐 실제 아이콘은 지급되지 않아요). 방송에서는 모든 승리 표식이 같은 1개였어요.',
         '**마이너스 바둑알(사이트 추가 규칙)**: 두 명 이상 입찰한 경매에서는 가장 먼저 손을 뗀 1명이 −1점을 받아요(0.1초까지 같으면 없음, 카운트다운 안에 포기하면 안전). 순위와 탈락은 점수(딴 바둑알 점수 − 마이너스)로 정해요. 방송에는 없는 규칙이에요.',
@@ -133,7 +134,8 @@ const game: ShowGame = {
     siteDiff: [
       { type: 'list', items: [
         "PUZZLTHINK's Time Auction follows the broadcast rules: the 5-second countdown and dropping out, 0.1 s recording, all-pay, top-bid ties void, the button pushed out when time runs out, hidden remaining time, ranking by tokens then time.",
-        '**You pick the size.** The show had six players with 10:00 for 19 auctions. The site has that format plus Quick (2:00 × 9, the default) and Standard (5:00 × 13).',
+        '**Your own time (site rule)**: on the show even your own remaining time was hidden; here you see yours, and only yours. Everyone else\'s stays hidden, and a friend-room host can hide it as on the show.',
+        '**You pick the size.** The show had six players with 10:00 for 19 auctions. The site has that format plus Standard (5:00 × 13, the default) and Quick (2:00 × 9).',
         '**Players**: six against the AI (you + 5 AI) as on the show; 2–6 in friend and open rooms. Instead of a piece, 1st place and elimination go into your records.',
         '**Stone values (house rule)**: each auction puts up a piece drawn as a PUZZLTHINK icon: a starter piece worth 1 point, every third a mid-tier icon worth 2, the last a top icon worth 3 (points only; no real icon is granted). On the show every victory token counted the same.',
         '**The minus stone (house rule)**: when two or more bid, whoever let go first takes −1 (a tie to 0.1 s: nobody; dropping out in the countdown is safe). Places and elimination go by score (points won − minus). The show had no such rule.',

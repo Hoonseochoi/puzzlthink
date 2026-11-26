@@ -61,6 +61,8 @@ export type TaRoom = BaseRoom & AwayFields & {
   level: TaLevel;
   format: TaFormatId;
   fillAi?: boolean; // rooms: empty seats become AI (default) or stay out
+  /** Rooms: the broadcast rule — players do not see even their own remaining time (default off: you see yours). */
+  hideOwn?: boolean;
   solo?: boolean; // the AI match: no ready clock
   game: TimeAuction;
   liveAt: number; // host clock: when this auction's countdown started
@@ -79,6 +81,7 @@ const readBeat = (m: string): number | null | 'unknown' => (m[0] === 'u' ? 'unkn
 export type TaRoomAction =
   | { t: 'start' }
   | { t: 'fillAi'; on: boolean }
+  | { t: 'hideOwn'; on: boolean }
   | { t: 'format'; format: TaFormatId }
   | { t: 'level'; level: TaLevel }
   | { t: 'press'; r: number; on: boolean; pass?: boolean }
@@ -96,8 +99,8 @@ export function createTaRoom(host: Peer, opts: { solo?: boolean; format?: TaForm
   seats[0] = { id: host.id, name: host.name };
   const room: TaRoom = {
     sid: newSid(), v: 1, seats, phase: 'lobby', deadline: 0, ai: fill(false), style: fill(null),
-    level: opts.level ?? 'hard', format: opts.format ?? 'quick', solo: !!opts.solo,
-    game: newTimeAuction(fill(false), opts.format ?? 'quick'), liveAt: 0, readyUntil: 0, revealUntil: 0, hidden: { plan: fill(null), beat: fill(0) },
+    level: opts.level ?? 'hard', format: opts.format ?? 'standard', solo: !!opts.solo,
+    game: newTimeAuction(fill(false), opts.format ?? 'standard'), liveAt: 0, readyUntil: 0, revealUntil: 0, hidden: { plan: fill(null), beat: fill(0) },
   };
   return opts.solo ? startRoom(room, false) : room;
 }
@@ -218,6 +221,9 @@ export function reduceTaRoom(state: TaRoom, action: TaRoomAction, seat: number |
   switch (action.t) {
     case 'fillAi':
       if (isHost && state.phase !== 'playing') next = { ...state, fillAi: action.on };
+      break;
+    case 'hideOwn':
+      if (isHost && state.phase !== 'playing') next = { ...state, hideOwn: action.on };
       break;
     case 'format':
       if (isHost && state.phase !== 'playing') next = { ...state, format: action.format };

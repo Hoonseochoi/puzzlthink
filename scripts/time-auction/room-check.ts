@@ -116,7 +116,7 @@ test('redaction hides every time and live bid; my secret restores only mine', ()
   assert.ok(pub.game.joined.every((v) => !v));
   assert.equal(pub.hidden.plan.length, 0);
   const mine = withTaRoomSecret(pub, taRoomSecret(s, a), a);
-  assert.equal(mine.game.bank[a], 120_000);
+  assert.equal(mine.game.bank[a], 300_000); // standard (5:00) is the default format
   assert.equal(mine.game.bank.filter((v) => v >= 0).length, 1);
   assert.equal(mine.game.joined[a], true);
 });
@@ -159,6 +159,21 @@ test('AI seats: distinct personalities from the roster, a rolled mind each, hidd
   assert.ok(s.mind?.every((m, i) => !s.ai[i] || (m && m.style === s.style[i] && m.aggr >= 0.85 && m.chaos <= 0.12)));
   const r = room(['a'], true);
   assert.equal(redactTaRoom(r).mind, undefined);
+});
+
+test('own time: shown by default, a host can hide it (broadcast rule); others\' time never reaches a guest', () => {
+  let s = createTaRoom({ id: 'h', name: 'h', at: 0 });
+  assert.equal(s.hideOwn, undefined);
+  s = syncTaSeats(s, peers(['h', 'a']));
+  s = act(s, { t: 'hideOwn', on: true }, 0, true);
+  assert.equal(s.hideOwn, true);
+  assert.equal(reduceTaRoom(s, { t: 'hideOwn', on: false }, 1, false), null); // only the host
+  s = act(s, { t: 'start' }, 0, true);
+  assert.equal(reduceTaRoom(s, { t: 'hideOwn', on: false }, 0, true), null); // not during a match
+  const a = seatOf(s, 'a');
+  const view = withTaRoomSecret(redactTaRoom(s), taRoomSecret(s, a), a);
+  assert.equal(view.game.bank.filter((b) => b >= 0).length, 1);
+  assert.equal(view.game.bank[a], 300_000);
 });
 
 test('stale heartbeats from another round are ignored', () => {

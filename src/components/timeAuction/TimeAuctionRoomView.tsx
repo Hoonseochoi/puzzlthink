@@ -132,6 +132,13 @@ function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy,
             </div>
           </div>
           <p className="-mt-2 break-keep text-[11px] leading-4 text-white/45">{fill ? t.fillAiDescOn : t.fillAiDescOff}</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[12px] font-black">{t.hideOwnTitle}</p>
+            <div className="grid shrink-0 grid-cols-2 gap-1" role="radiogroup" aria-label={t.hideOwnTitle}>
+              {[false, true].map((on) => <button key={String(on)} type="button" role="radio" aria-checked={!!state.hideOwn === on} disabled={!host} onClick={() => dispatch({ t: 'hideOwn', on })} className={seg(!!state.hideOwn === on)}>{on ? t.hideOwnOn : t.hideOwnOff}</button>)}
+            </div>
+          </div>
+          <p className="-mt-2 break-keep text-[11px] leading-4 text-white/45">{t.hideOwnDesc}</p>
           {fill && (
             <div className="flex items-center justify-between gap-3">
               <p className="text-[12px] font-black">{t.levelTitle}</p>

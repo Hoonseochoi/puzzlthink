@@ -199,7 +199,7 @@ export function chooseTaBid(v: TaAiView, who: TaMind | TaStyle, level: TaLevel, 
   let bid = typical;
   switch (style) {
     case 'steady':
-      enter = pace * (behind ? 1.4 : 1.05);
+      enter = pace * (behind ? 1.3 : 1.0);
       bid = Math.min(typical * r(1.08, 1.3) * noise, perWin * 0.95);
       break;
     case 'rush':
@@ -213,11 +213,11 @@ export function chooseTaBid(v: TaAiView, who: TaMind | TaStyle, level: TaLevel, 
       break;
     case 'calc':
       enter = pace * (afterBig ? 1.6 : 1.0) * (behind ? 1.3 : 1);
-      bid = Math.min(typical * r(1.15, 1.4) * noise, Math.max(((bank * value) / pointsLeft) * 2.2, typical * 1.05));
+      bid = Math.min(typical * r(1.15, 1.4) * noise, Math.max(((bank * value) / pointsLeft) * 2.2, typical * 1.2));
       break;
     case 'even':
       // Spreads its time by value over what is left — but never short enough to be the shortest bid.
-      enter = 0.3 + 0.25 * mind.aggr * (behind ? 1.2 : 1);
+      enter = 0.35 + 0.25 * mind.aggr * (behind ? 1.2 : 1);
       bid = Math.max(((felt * value) / pointsLeft) * r(1.9, 2.5) * mind.aggr, typical * r(1.12, 1.3));
       break;
     case 'bluff':
