@@ -79,10 +79,12 @@ const guide: GameGuide = {
       '벽바둑은 7×7 판 위에서 말을 움직이고, 움직인 말 옆에 벽을 하나씩 세워 서로의 공간을 갈라 놓는 영역 싸움이에요. 마지막에 **내 말이 들어 있는 구역의 칸 수**가 가장 많은 사람이 이겨요. 바둑처럼 집을 다투지만, 돌을 놓는 대신 칸과 칸 사이에 경계를 긋는다는 점이 다르죠.',
       '이 공략은 게임 화면 아래의 짧은 설명을 이미 읽었다고 보고, 그다음 단계를 다뤄요. 규칙이 헷갈리는 예외 상황을 먼저 정리하고, 입문·중급·고급으로 나눠 배치, 길 막기, 문 닫기 싸움, 끝내기 계산을 차례로 설명해요. 판 그림의 좌표는 가로 A~G, 세로 1~7(위에서부터)이에요.',
     ],
+    gamePageTitle: '벽바둑 온라인 — 데블스플랜 그 게임을 웹에서',
     summary: '이동·벽 규칙의 예외, 배치 요령, 문 닫기 싸움, 끝내기 칸 수 계산까지.',
     sections: [
       {
         id: 'background',
+        onGamePage: true,
         title: '벽바둑은 어떤 게임인가요',
         blocks: [
           { type: 'p', text: '벽바둑은 넷플릭스 두뇌 서바이벌 예능 「데블스 플랜: 데드 어게인」에 나와 알려진 게임이에요. PUZZLTHINK의 벽바둑은 방송에 나온 핵심 규칙인 이동, 벽 세우기, 영역 계산을 그대로 살려 웹에서 혼자서도, 친구와도 둘 수 있게 만든 팬 제작 버전이에요.' },
@@ -92,6 +94,7 @@ const guide: GameGuide = {
       },
       {
         id: 'rules',
+        onGamePage: true,
         title: '규칙 정리 — 한 차례에 하는 일',
         lead: '한 차례는 언제나 "말 하나 이동 → 그 말 옆에 벽 하나" 두 단계예요.',
         blocks: [
@@ -108,6 +111,7 @@ const guide: GameGuide = {
       },
       {
         id: 'edge-cases',
+        onGamePage: true,
         title: '헷갈리는 규칙 — 이럴 땐 어떻게 되나요',
         blocks: [
           { type: 'cards', items: [
@@ -135,6 +139,7 @@ const guide: GameGuide = {
       {
         id: 'beginner',
         level: 'beginner',
+        onGamePage: true,
         title: '입문 전략 — 갇히지 않고 넓게',
         blocks: [
           { type: 'p', text: '처음 몇 판은 "넓게 차지하기"보다 "갇히지 않기"가 먼저예요. 벽바둑에서 가장 크게 지는 방법은 말 하나가 귀퉁이 몇 칸에 갇히는 거예요.' },
@@ -263,10 +268,12 @@ const guide: GameGuide = {
       'Wallgo is a territory game on a 7×7 board: you move a piece, then build one wall next to that piece, and little by little the players cut the board apart. At the end, whoever has the most **squares in the areas holding their pieces** wins. It is about territory like Go, but instead of placing stones you draw borders between squares.',
       'This guide assumes you have read the short notes under the board and goes further. First the edge cases of the rules, then strategy in three levels: placement, blocking, the fight over gates and endgame counting. Board diagrams use columns A–G and rows 1–7 from the top.',
     ],
+    gamePageTitle: "Wallgo Online — the Devil's Plan game, on the web",
     summary: 'Edge cases of the rules, placement, the gate fight and endgame counting.',
     sections: [
       {
         id: 'background',
+        onGamePage: true,
         title: 'What kind of game is Wallgo?',
         blocks: [
           { type: 'p', text: "Wallgo became known through the Netflix brain-survival show The Devil's Plan: Dead Again. PUZZLTHINK's Wallgo keeps the core rules seen on the show — moving, building walls and scoring territory — in a fan-made web version you can play alone or with friends." },
@@ -276,6 +283,7 @@ const guide: GameGuide = {
       },
       {
         id: 'rules',
+        onGamePage: true,
         title: 'The rules — what happens on a turn',
         lead: 'A turn is always two steps: move one piece, then build one wall next to that piece.',
         blocks: [
@@ -292,6 +300,7 @@ const guide: GameGuide = {
       },
       {
         id: 'edge-cases',
+        onGamePage: true,
         title: 'Tricky rules — what happens if…',
         blocks: [
           { type: 'cards', items: [
@@ -319,6 +328,7 @@ const guide: GameGuide = {
       {
         id: 'beginner',
         level: 'beginner',
+        onGamePage: true,
         title: 'Beginner strategy — stay free, spread out',
         blocks: [
           { type: 'p', text: 'For your first games, not getting trapped matters more than grabbing space. The biggest way to lose Wallgo is one piece shut into a few corner squares.' },

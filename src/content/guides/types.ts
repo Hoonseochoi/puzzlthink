@@ -42,6 +42,8 @@ export type GuideSection = {
   level?: GuideLevel;
   /** One short paragraph under the heading. */
   lead?: string;
+  /** Also shown in the condensed article on the game page (GameArticle). See docs/guide-authoring.md. */
+  onGamePage?: boolean;
   blocks: GuideBlock[];
 };
 
@@ -62,6 +64,8 @@ export type GuideCopy = {
   faq: GuideFaq[];
   /** The play button panel. */
   cta: { title: string; body: string; button: string };
+  /** The <h1> of the condensed article on the game page; defaults to `title`. Keep the game page's search-tuned heading here. */
+  gamePageTitle?: string;
   /** Fan-project notice for show games; omit for classic/original games. */
   disclaimer?: string;
 };

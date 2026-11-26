@@ -72,10 +72,12 @@ const guide: GameGuide = {
       '십이장기는 가로 3칸, 세로 4칸짜리 작은 판에서 두는 미니 장기예요. 각자 王·將·相·子 네 개로 시작하고, **잡은 상대 말을 내 말로 다시 내려놓을 수 있다**는 규칙 덕분에 말이 줄지 않고 계속 돌아요. 판이 작아서 한 수 실수가 곧바로 王을 잃는 일로 이어져요.',
       '이 공략은 게임 화면 아래의 짧은 규칙을 읽었다고 보고 그다음을 다뤄요. 헷갈리는 예외 규칙, 첫 수 교환을 실제로 따라 두는 예시, 입문·중급·고급 전략, 자주 하는 실수와 용어를 차례로 정리했어요. 좌표는 왼쪽부터 A~C열, 내 쪽 끝줄을 1줄로 해서 1~4줄이에요(게임의 기보 표기와 같아요).',
     ],
+    gamePageTitle: '십이장기 온라인 — 더 지니어스 그 게임을 웹에서',
     summary: '첫 수 교환 따라 두기, 지켜진 말과 王, 포로 활용, 입성 수읽기까지.',
     sections: [
       {
         id: 'background',
+        onGamePage: true,
         title: '십이장기는 어떤 게임인가요',
         blocks: [
           { type: 'p', text: '십이장기는 두뇌 서바이벌 예능 「더 지니어스」에 등장하면서 널리 알려졌어요. 열두 칸 판, 네 개의 말, 잡은 말을 다시 쓰는 규칙이 짧은 시간 안에 깊은 수읽기를 만들어서 방송에서도 긴장감 있는 대국이 나왔죠.' },
@@ -85,6 +87,7 @@ const guide: GameGuide = {
       },
       {
         id: 'rules',
+        onGamePage: true,
         title: '규칙 정리',
         blocks: [
           { type: 'list', ordered: true, items: [
@@ -109,6 +112,7 @@ const guide: GameGuide = {
       },
       {
         id: 'edge-cases',
+        onGamePage: true,
         title: '헷갈리는 규칙 — 이럴 땐 어떻게 되나요',
         blocks: [
           { type: 'cards', items: [
@@ -138,6 +142,7 @@ const guide: GameGuide = {
       {
         id: 'beginner',
         level: 'beginner',
+        onGamePage: true,
         title: '입문 전략 — 王부터 지키기',
         blocks: [
           { type: 'p', text: '십이장기의 패배는 대부분 "王이 잡히는 칸을 못 봤다"에서 나와요. 판이 12칸뿐이라 모든 말의 닿는 칸을 머릿속으로 다 그릴 수 있어요. 입문 단계에서는 이 습관 하나면 충분해요.' },
@@ -263,10 +268,12 @@ const guide: GameGuide = {
       '12 Janggi is a miniature janggi played on a board 3 squares wide and 4 tall. Each side starts with a king (王), general (將), minister (相) and pawn (子), and because **captured enemy pieces can be dropped back in as your own**, pieces never really leave the game. The board is so small that one slip usually costs the king.',
       'This guide assumes you have read the short rules under the board and goes further: the tricky rules, the opening trade played out move by move, beginner to advanced strategy, common mistakes and a glossary. Coordinates use columns A–C from the left and ranks 1–4 counted from your side, the same as the game’s move log.',
     ],
+    gamePageTitle: '12 Janggi Online — the game from The Genius',
     summary: 'The opening trade move by move, guarded pieces, drops and reading king entries.',
     sections: [
       {
         id: 'background',
+        onGamePage: true,
         title: 'What kind of game is 12 Janggi?',
         blocks: [
           { type: 'p', text: 'Twelve-square janggi became widely known through the Korean brain-survival show The Genius. Twelve squares, four pieces and the rule that captured pieces return create deep calculation in very little time, and it produced some of the show’s tensest matches.' },
@@ -276,6 +283,7 @@ const guide: GameGuide = {
       },
       {
         id: 'rules',
+        onGamePage: true,
         title: 'The rules',
         blocks: [
           { type: 'list', ordered: true, items: [
@@ -300,6 +308,7 @@ const guide: GameGuide = {
       },
       {
         id: 'edge-cases',
+        onGamePage: true,
         title: 'Tricky rules — what happens if…',
         blocks: [
           { type: 'cards', items: [
@@ -329,6 +338,7 @@ const guide: GameGuide = {
       {
         id: 'beginner',
         level: 'beginner',
+        onGamePage: true,
         title: 'Beginner strategy — guard the king first',
         blocks: [
           { type: 'p', text: 'Most 12 Janggi losses come from not seeing a square where the king can be taken. With only 12 squares you can picture every piece’s reach in your head; at the start, that one habit is enough.' },
