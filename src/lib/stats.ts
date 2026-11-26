@@ -3,7 +3,7 @@ import { getSupabase } from './supabase';
 import { HARD_CLEAR_EVENT, type HardClearDetail, isHardClear } from './hardClear';
 import { HELL_CLEAR_EVENT, type HellClearDetail, isHellClear } from './hell';
 
-export type GameId = 'hidden_word' | 'hidden_word_plus' | 'equation_signal' | 'equation_tower' | 'gradation' | 'card_janggi' | 'color_link_duel' | 'hit_stay' | 'time_auction' | 'point_omok' | 'merge2048' | 'magicswap' | 'four_three' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'two_sided_poker' | 'monorail' | 'flip_omok' | 'nine_mens_morris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indian_poker' | 'wallgo' | 'janggi' | 'heavy13' | 'sudoku' | 'russian_roulette' | 'russian_janggi' | 'blind_gomoku' | 'laser_janggi' | 'nemo_count' | 'black_white' | 'black_white_2' | 'piggy_bank' | 'hexagon';
+export type GameId = 'sniper_holdem' | 'hidden_word' | 'hidden_word_plus' | 'equation_signal' | 'equation_tower' | 'gradation' | 'card_janggi' | 'color_link_duel' | 'hit_stay' | 'time_auction' | 'point_omok' | 'merge2048' | 'magicswap' | 'four_three' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'two_sided_poker' | 'monorail' | 'flip_omok' | 'nine_mens_morris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indian_poker' | 'wallgo' | 'janggi' | 'heavy13' | 'sudoku' | 'russian_roulette' | 'russian_janggi' | 'blind_gomoku' | 'laser_janggi' | 'nemo_count' | 'black_white' | 'black_white_2' | 'piggy_bank' | 'hexagon';
 /** Wins needed before a player can appear in the Hall of Fame (same number as the SQL function). */
 export const HALL_MIN_WINS = 1;
 export const HALL_RANK_EVENT = 'puzzlthink:hall-rank';

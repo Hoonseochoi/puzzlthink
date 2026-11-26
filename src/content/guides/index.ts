@@ -35,6 +35,7 @@ import play from './play';
 import pointOmok from './point-omok';
 import russianJanggi from './russian-janggi';
 import russianRoulette from './russian-roulette';
+import sniperHoldem from './sniper-holdem';
 import twoSidedPoker from './two-sided-poker';
 import wallgo from './wallgo';
 import wallgo2 from './wallgo-2';
@@ -57,6 +58,7 @@ const REGISTRY: Partial<Record<GameId, GameGuide | null>> = {
   hiddenWord,
   hiddenWordPlus,
   hitStay,
+  sniperHoldem,
   indianPoker,
   janggi,
   laserJanggi,
