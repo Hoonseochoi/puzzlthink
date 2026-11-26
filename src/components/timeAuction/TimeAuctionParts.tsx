@@ -158,7 +158,7 @@ export function AuctionBlock({ room, mySeat, en, winnerLabel, minusLabel, outcom
         <div className={won === null && !dim ? 'drop-shadow-[0_0_22px_rgba(255,230,170,.35)]' : ''}>
           <LotStone lot={lot} size={70} dim={dim} label={lotName(lot, en)} />
         </div>
-        <span className={`absolute -right-3 -top-1 rounded-full px-1.5 py-0.5 font-mono text-[11px] font-black shadow ${lot.value === 3 ? 'bg-[#f2c53d] text-black' : lot.value === 2 ? 'bg-[#dfe3ea] text-black' : 'bg-white/15 text-white'}`}>+{lot.value}{en ? '' : '점'}</span>
+        <span className={`absolute -right-9 top-0 rounded-full px-1.5 py-0.5 font-mono text-[11px] font-black shadow ${lot.value === 3 ? 'bg-[#f2c53d] text-black' : lot.value === 2 ? 'bg-[#dfe3ea] text-black' : 'bg-white/15 text-white'}`}>+{lot.value}{en ? '' : '점'}</span>
       </motion.div>
       {won !== null && (
         <motion.div className="absolute bottom-2 left-1/2 ml-[46px] flex items-center gap-1.5 sm:ml-[56px]"
