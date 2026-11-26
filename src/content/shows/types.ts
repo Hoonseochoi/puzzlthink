@@ -86,6 +86,8 @@ export type Show = {
   seo?: ShowId;
   /** Series key, to group seasons on the hub ('devils-plan'). */
   series: string;
+  /** Short name for the hub's title and lists ('데블스플랜3'). */
+  short: Bi;
   /** First and last release dates, 'YYYY-MM-DD'. The hub sorts by `start`, newest first. */
   aired: { start: string; end: string };
   network: Bi;

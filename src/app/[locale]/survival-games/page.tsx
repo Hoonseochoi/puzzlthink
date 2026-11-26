@@ -13,9 +13,9 @@ import { SITE_URL, breadcrumbJsonLd, pageMetadata } from '@/lib/seo';
 
 const COPY = {
   ko: {
-    metaTitle: '두뇌 서바이벌 게임 정리 — 데블스플랜3부터 더 지니어스까지 방송 게임 규칙',
-    metaDescription: '데블스 플랜: 데드 어게인(데블스플랜3)을 시작으로 두뇌 서바이벌 방송에 나온 게임을 최근 방송 순으로 정리했어요. 게임마다 인원·준비물, 진행 순서, 승리 조건, 예외 규칙과 승부를 가르는 지점, 비슷한 보드게임을 담았어요.',
-    keywords: ['두뇌 서바이벌 게임', '데블스플랜3 게임', '데블스 플랜 3 게임 정리', '데블스 플랜 데드 어게인 게임', '데블스플랜 게임 규칙', '두뇌 서바이벌 게임 규칙', '더 지니어스 게임', '방송 보드게임'],
+    metaTitle: (shows: string) => `두뇌 서바이벌 게임 정리 — ${shows} 방송 게임 규칙`,
+    metaDescription: (shows: string, games: number) => `${shows}에 나온 게임 ${games}개를 최근 방송 순으로 정리했어요. 게임마다 인원·준비물, 진행 순서, 승리 조건, 예외 규칙과 승부를 가르는 지점, 비슷한 보드게임을 담았어요.`,
+    keywords: ['두뇌 서바이벌 게임', '두뇌 서바이벌 게임 규칙', '방송 보드게임'],
     eyebrow: 'BRAIN SURVIVAL GAMES', title: '두뇌 서바이벌 게임 정리',
     lead: '방송에서 본 그 게임, 규칙부터 승부처까지 한 페이지에.',
     intro: [
@@ -24,9 +24,9 @@ const COPY = {
     ],
   },
   en: {
-    metaTitle: "Brain-survival show games — every game from The Devil's Plan 3 to The Genius, explained",
-    metaDescription: "The games of Korean brain-survival shows, newest show first, starting with The Devil's Plan: Dead Again (season 3). Each game: players and components, how a round goes, how to win, edge cases, what decides it, and similar board games.",
-    keywords: ["The Devil's Plan 3 games", "The Devil's Plan Dead Again games", 'Korean brain survival show games', 'The Genius games', 'game show board games'],
+    metaTitle: (shows: string) => `Brain-survival show games — ${shows}: every game explained`,
+    metaDescription: (shows: string, games: number) => `The ${games} games of ${shows}, newest show first. Each game: players and components, how a round goes, how to win, edge cases, what decides it, and similar board games.`,
+    keywords: ['Korean brain survival show games', 'game show board games'],
     eyebrow: 'BRAIN SURVIVAL GAMES', title: 'Brain-survival show games',
     lead: 'The game you saw on the show — rules to the deciding moves, on one page.',
     intro: [
@@ -36,10 +36,19 @@ const COPY = {
   },
 } as const;
 
+/** The shows written so far, for the title and description: they always say exactly what the section covers. */
+function covered(loc: 'ko' | 'en') {
+  const names = SHOWS_WRITTEN.map((s) => s.short[loc]);
+  const list = names.length <= 3 ? names.join(loc === 'ko' ? '·' : ', ') : `${names.slice(0, 3).join(loc === 'ko' ? '·' : ', ')}${loc === 'ko' ? ` 외 ${names.length - 3}개 방송` : ` and ${names.length - 3} more shows`}`;
+  return { list, games: SHOWS_WRITTEN.reduce((n, s) => n + s.games.length, 0) };
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const c = COPY[showLocale(locale)];
-  return pageMetadata({ locale, path: SECTION_PATH, title: c.metaTitle, description: c.metaDescription, keywords: [...c.keywords] });
+  const loc = showLocale(locale);
+  const c = COPY[loc];
+  const { list, games } = covered(loc);
+  return pageMetadata({ locale, path: SECTION_PATH, title: c.metaTitle(list), description: c.metaDescription(list, games), keywords: [...c.keywords, ...SHOWS_WRITTEN.flatMap((s) => s[loc].meta.keywords.slice(0, 2))] });
 }
 
 export default async function SurvivalGamesHub({ params }: { params: Promise<{ locale: string }> }) {
@@ -54,7 +63,7 @@ export default async function SurvivalGamesHub({ params }: { params: Promise<{ l
   return (
     <main className="min-h-screen bg-[#0a0b10] px-5 pb-20 pt-10 text-[#eceff4] sm:pt-14" style={{ ['--accent' as string]: '#ff5d6c' }}>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
-        { '@type': 'CollectionPage', name: c.title, description: c.metaDescription, inLanguage: locale, url: `${SITE_URL}/${locale}${SECTION_PATH}`,
+        { '@type': 'CollectionPage', name: c.title, description: c.metaDescription(covered(loc).list, covered(loc).games), inLanguage: locale, url: `${SITE_URL}/${locale}${SECTION_PATH}`,
           mainEntity: { '@type': 'ItemList', itemListElement: SHOWS_WRITTEN.map((show, i) => ({ '@type': 'ListItem', position: i + 1, name: show[loc].name, url: `${SITE_URL}/${locale}${showPath(show)}` })) } },
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: c.title, path: SECTION_PATH }]),
       ] }} />
