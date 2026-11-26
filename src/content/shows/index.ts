@@ -5,8 +5,9 @@ import type { MatchKind, Show, ShowGame, ShowLocale } from './types';
 import devilsPlan3 from './dp3';
 import devilsPlan2 from './dp2';
 import bloodyGameX from './bgx';
+import deathGame2 from './dg2';
 
-const SHOW_LIST: Show[] = [devilsPlan3, devilsPlan2, bloodyGameX];
+const SHOW_LIST: Show[] = [devilsPlan3, devilsPlan2, bloodyGameX, deathGame2];
 
 /** Written shows, most recently released first. */
 export const SHOWS_WRITTEN: Show[] = [...SHOW_LIST].sort((a, b) => b.aired.start.localeCompare(a.aired.start));
@@ -42,6 +43,8 @@ export const KIND_LABEL: Record<MatchKind, { ko: string; en: string }> = {
   casino: { ko: '유령 카지노', en: 'Ghost casino' },
   semi: { ko: '세미파이널', en: 'Semifinal' },
   revival: { ko: '리바이벌 매치', en: 'Revival match' },
+  tournament: { ko: '토너먼트', en: 'Tournament' },
+  duel: { ko: '1:1 매치', en: 'One-on-one match' },
 };
 
 /**
