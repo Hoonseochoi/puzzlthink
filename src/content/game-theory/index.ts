@@ -20,32 +20,18 @@ import signaling from './articles/signaling-cheap-talk';
 import tournaments from './articles/tournament-incentives';
 import dominantStrategy from './articles/dominant-strategy';
 import zeroSum from './articles/zero-sum';
-// @gt-imports
 
 export const GT_PATH = '/game-theory';
 export const gtLocale = (locale: string): GTLocale => (locale === 'en' ? 'en' : 'ko');
 export const articlePath = (slug: string) => `${GT_PATH}/${slug}`;
 
 export const ARTICLES: GTArticle[] = [
-  nashEquilibrium,
-  prisonersDilemma,
-  titForTat,
-  blotto,
-  bluffing,
-  minimaxMixed,
-  chicken,
-  stagHunt,
-  publicGoods,
-  ultimatum,
-  auctions,
-  voting,
-  backward,
-  commitment,
-  signaling,
-  tournaments,
-  dominantStrategy,
-  zeroSum,
-  // @gt-list
+  nashEquilibrium, dominantStrategy, zeroSum, minimaxMixed,
+  prisonersDilemma, titForTat, chicken, stagHunt, publicGoods, ultimatum,
+  bluffing, signaling,
+  blotto, auctions,
+  voting, tournaments,
+  backward, commitment,
 ];
 
 export const articleBySlug = (slug: string) => ARTICLES.find((a) => a.slug === slug) ?? null;
