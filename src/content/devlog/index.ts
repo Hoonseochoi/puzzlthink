@@ -9,6 +9,7 @@ import aiColorLinkDuel from './ai-color-link-duel';
 import aiHitStay from './ai-hit-stay';
 import aiIndianPoker from './ai-indian-poker';
 import aiBlackWhite from './ai-black-white';
+import aiDifficultyTuning from './ai-difficulty-tuning';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
@@ -19,6 +20,7 @@ const ARTICLES: DevlogArticle[] = [
   aiHitStay,
   aiIndianPoker,
   aiBlackWhite,
+  aiDifficultyTuning,
 ];
 
 export const DEVLOG: readonly DevlogArticle[] = ARTICLES;
