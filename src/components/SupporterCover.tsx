@@ -51,41 +51,37 @@ export function useSupporter(name: string, skip = false) {
 /** The share of the box the icon keeps inside the cover. */
 export const COVER_INNER = 0.64;
 
-/** A pointed feather from its root (bx, by) out along `deg` (screen degrees, y down), as a path. */
+/** A rounded feather from its root (bx, by) out along `deg` (screen degrees, y down): an ellipse along that line. */
 function feather(bx: number, by: number, deg: number, len: number, width: number) {
   const a = (deg * Math.PI) / 180;
-  const dx = Math.cos(a), dy = Math.sin(a);
-  const tx = bx + len * dx, ty = by + len * dy;
-  const mx = bx + len * 0.42 * dx, my = by + len * 0.42 * dy;
-  const f = (n: number) => n.toFixed(2);
-  return {
-    d: `M${f(bx)} ${f(by)} Q${f(mx - width * dy)} ${f(my + width * dx)} ${f(tx)} ${f(ty)} Q${f(mx + width * dy)} ${f(my - width * dx)} ${f(bx)} ${f(by)}Z`,
-    vein: `M${f(bx)} ${f(by)} L${f(bx + len * 0.78 * dx)} ${f(by + len * 0.78 * dy)}`,
-  };
+  const f = (n: number) => +n.toFixed(2);
+  return { cx: f(bx + (len / 2) * Math.cos(a)), cy: f(by + (len / 2) * Math.sin(a)), rx: f(len / 2), ry: f(width), rot: f(deg) };
 }
-// The left wing: long flight feathers fanning from up-and-out to straight out, short coverts over their roots.
-const PRIMARIES = Array.from({ length: 7 }, (_, i) => feather(13 - i * 0.3, 36 + i * 3.4, 252 - i * 9.5, 22 + i * 1.6, 5 + i * 0.15));
-const COVERTS = Array.from({ length: 6 }, (_, i) => feather(12, 40 + i * 3.2, 238 - i * 8.5, 15 + i * 0.6, 4));
+type Feather = ReturnType<typeof feather>;
+// The left wing in three soft layers, swept up and out like an angel's: long flight feathers, a middle row, and a
+// white shoulder over their roots.
+const FLIGHT = Array.from({ length: 5 }, (_, i) => feather(11, 42 + i * 3.4, 232 - i * 9, 30 - i * 3, 3.9));
+const MIDDLE = Array.from({ length: 4 }, (_, i) => feather(12, 43 + i * 3.4, 226 - i * 9, 19 - i * 1.8, 3.6));
+const SHOULDER = [feather(13, 41, 221, 17, 5.2), feather(13, 47, 206, 11, 4.4)];
 
 /** One wing (the left one), flapping gently from its root at the band. */
 function Wing({ id, motion }: { id: string; motion: boolean }) {
+  const layer = (list: Feather[], fill: string, stroke: string, key: string) => [...list].reverse().map((e, i) => (
+    <ellipse key={`${key}${i}`} cx={e.cx} cy={e.cy} rx={e.rx} ry={e.ry} transform={`rotate(${e.rot} ${e.cx} ${e.cy})`} fill={fill} stroke={stroke} strokeWidth=".7" />
+  ));
   return (
     <g>
-      {motion && <animateTransform attributeName="transform" type="rotate" values="-7 12 48;10 12 48;-7 12 48" keyTimes="0;.45;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="1.9s" repeatCount="indefinite" />}
-      {[...PRIMARIES].reverse().map((p, i) => (
-        <g key={`p${i}`}>
-          <path d={p.d} fill={`url(#cw-${id})`} stroke="#b0700f" strokeWidth=".6" strokeLinejoin="round" />
-          <path d={p.vein} stroke="#ffffff" strokeOpacity=".7" strokeWidth=".55" strokeLinecap="round" />
-        </g>
-      ))}
-      {[...COVERTS].reverse().map((p, i) => <path key={`c${i}`} d={p.d} fill={`url(#cf-${id})`} stroke="#c98a1a" strokeWidth=".5" strokeLinejoin="round" />)}
+      {motion && <animateTransform attributeName="transform" type="rotate" values="-6 12 46;9 12 46;-6 12 46" keyTimes="0;.45;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="2s" repeatCount="indefinite" />}
+      {layer(FLIGHT, `url(#cw-${id})`, '#c98a1a', 'f')}
+      {layer(MIDDLE, `url(#cm-${id})`, '#d9a53a', 'm')}
+      {layer(SHOULDER, `url(#cf-${id})`, '#e0b24a', 's')}
     </g>
   );
 }
 
 /**
  * The cover, drawn over a box of `size` (the icon sits inside at COVER_INNER): a holographic band with a light
- * sweeping round it, a turning ring of gold dots, feathered wings that flap (from 48px, reaching past the box), a star on top and a ruby heart on a ribbon.
+ * sweeping round it, a turning ring of gold dots, soft feathered wings that flap (from 48px, reaching past the box), a star on top and a ruby heart on a ribbon.
  * Under 36px only the band and the heart are drawn, without motion.
  */
 export function CoverRing({ size }: { size: number }) {
@@ -108,6 +104,10 @@ export function CoverRing({ size }: { size: number }) {
           <stop offset="40%" stopColor="#ffc93c" />
           <stop offset="78%" stopColor="#ff8fb4" />
           <stop offset="100%" stopColor="#b48cff" />
+        </linearGradient>
+        <linearGradient id={`cm-${id}`} x1="1" y1=".5" x2="0" y2="0">
+          <stop offset="0%" stopColor="#fffaf0" />
+          <stop offset="100%" stopColor="#ffd56a" />
         </linearGradient>
         <linearGradient id={`cf-${id}`} x1="1" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#ffffff" />
