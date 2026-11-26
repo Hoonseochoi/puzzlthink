@@ -20,6 +20,7 @@ import sudokuHistory from './sudoku-history';
 import nonogramHistory from './nonogram-history';
 import nikoliPuzzles from './nikoli-puzzles';
 import slidingNumberPuzzles from './sliding-number-puzzles';
+import perfectInformation from './perfect-information';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -43,6 +44,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   nonogramHistory,
   nikoliPuzzles,
   slidingNumberPuzzles,
+  perfectInformation,
 ];
 
 export const WIKI_BASE = '/board-games';
