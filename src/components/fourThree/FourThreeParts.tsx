@@ -14,7 +14,7 @@ export const COLOR_KEYS = ['red', 'yellow', 'green', 'blue'] as const;
 /** A piece: a glossy disc in its colour with the PUZZLTHINK eyes. The guest's pieces wear a small star. */
 export function FtPiece({ color, guest = false, className = '', ghost = false }: { color: number; guest?: boolean; className?: string; ghost?: boolean }) {
   return (
-    <PieceStone seat={guest ? null : color} color={FT_COLORS[color]} className={`${ghost ? 'opacity-40' : ''} ${className}`}>
+    <PieceStone seat={guest ? null : color} colors={FT_COLORS} className={`${ghost ? 'opacity-40' : ''} ${className}`}>
     <svg viewBox="0 0 100 100" className={`block h-full w-full overflow-visible ${ghost ? 'opacity-40' : ''} ${className}`} aria-hidden>
       <defs>
         <radialGradient id={`ftp-${color}`} cx="35%" cy="30%" r="75%">

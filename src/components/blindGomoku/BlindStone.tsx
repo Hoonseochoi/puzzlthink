@@ -12,11 +12,11 @@ export default function BlindStone({ color, owner, revealed = false, latest = fa
     : `linear-gradient(145deg, color-mix(in srgb, ${color} 72%, white) 0%, ${color} 47%, color-mix(in srgb, ${color} 73%, black) 100%)`;
   const eye = revealed && owner === 'white' ? '#30343b' : '#ffffff';
 
-  // Face up, a stone is its player's own 바둑알 (ring: black or white side). Face down it stays a plain colour, so nothing gives the owner away.
+  // Face up, a stone is its player's own 바둑알 (recoloured when both sides would look alike). Face down it stays a plain colour, so nothing gives the owner away.
   const mine = usePieceOwner(revealed ? (owner === 'black' ? 0 : 1) : null);
   if (mine) return (
     <span className={`relative block h-full w-full transition-transform duration-300 ${latest ? 'scale-110 rounded-full ring-2 ring-[#ffd76b] ring-offset-2 ring-offset-transparent' : ''}`}>
-      <PieceStone seat={owner === 'black' ? 0 : 1} color={owner === 'black' ? '#22252d' : '#e9ecf2'}>{null}</PieceStone>
+      <PieceStone seat={owner === 'black' ? 0 : 1} colors={['#22252d', '#e9ecf2']}>{null}</PieceStone>
     </span>
   );
   return (

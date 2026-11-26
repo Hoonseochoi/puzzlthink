@@ -19,7 +19,7 @@ export default function WallGoCharacter({ player, selected = false, label, class
       aria-hidden={label ? undefined : true}
       className={`relative flex aspect-square items-center justify-center ${square ? 'rounded-[18%]' : 'rounded-full'} transition ${selected ? 'scale-110 shadow-[0_0_0_3px_#f1f4fa,0_0_18px_rgba(241,244,250,.55)]' : 'shadow-[0_6px_14px_rgba(0,0,0,.55)]'} ${className}`}
     >
-      <PieceStone seat={player} color={colors[player]} square={square} inset={square ? 12 : 13}>
+      <PieceStone seat={player} colors={colors} square={square}>
       <svg viewBox="0 0 100 100" className="h-full w-full">
         {square ? <>
           <rect x="2" y="2" width="96" height="96" rx="17" fill={colors[player]} />

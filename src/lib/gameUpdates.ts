@@ -174,8 +174,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
-        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
-        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어 나오고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. If both players have the same stone or the colours clash, one of them is recoloured; without a pick the pieces look as before.' },
       },
       {
         date: '11/26', icon: Scale,
@@ -209,8 +209,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
-        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
-        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어 나오고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. If both players have the same stone or the colours clash, one of them is recoloured; without a pick the pieces look as before.' },
       },
       {
         date: '11/26', icon: Scale,
@@ -269,8 +269,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
-        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
-        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어 나오고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. If both players have the same stone or the colours clash, one of them is recoloured; without a pick the pieces look as before.' },
       },
     ],
   },
@@ -279,8 +279,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
-        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
-        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어 나오고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. If both players have the same stone or the colours clash, one of them is recoloured; without a pick the pieces look as before.' },
       },
     ],
   },
@@ -289,8 +289,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
-        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
-        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어 나오고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. If both players have the same stone or the colours clash, one of them is recoloured; without a pick the pieces look as before.' },
       },
       {
         date: '11/26', icon: Scale,
@@ -304,8 +304,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
-        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
-        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어 나오고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. If both players have the same stone or the colours clash, one of them is recoloured; without a pick the pieces look as before.' },
       },
       {
         date: '11/26', icon: Scale,
@@ -319,8 +319,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
-        ko: { title: '내 바둑알로 둬요', desc: '돌을 뒤집어 공개할 때 각자의 내 바둑알(기록실에서 고른 색·아이콘)로 보여요. 가려진 동안에는 주인이 드러나지 않게 색 돌 그대로예요.' },
-        en: { title: 'Play with your own stone', desc: 'When the stones are turned face up, each shows its player\'s own stone (the colour or icon picked in Records). Face down they stay plain colours, so the owner stays hidden.' },
+        ko: { title: '내 바둑알로 둬요', desc: '돌을 뒤집어 공개할 때 각자의 내 바둑알(기록실에서 고른 색·아이콘)로 보여요. 가려진 동안에는 주인이 드러나지 않게 색 돌 그대로이고, 둘의 바둑알이 같으면 한쪽은 색만 바뀌어요.' },
+        en: { title: 'Play with your own stone', desc: 'When the stones are turned face up, each shows its player\'s own stone (the colour or icon picked in Records). Face down they stay plain colours, so the owner stays hidden; if both players have the same stone, one is recoloured.' },
       },
       {
         date: '11/26', icon: Scale,
