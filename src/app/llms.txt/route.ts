@@ -5,6 +5,7 @@ import { SITE_URL } from '@/lib/seo';
 import { HELL_LIVE } from '@/lib/hell';
 import { guideListings } from '@/content/guides';
 import { DEVLOG, devlogPath } from '@/content/devlog';
+import { ARTICLES, WIKI_BASE, wikiPath } from '@/content/encyclopedia';
 import type { GameId } from '@/lib/stats';
 
 export const dynamic = 'force-static';
@@ -41,6 +42,9 @@ export function GET() {
     '## Dev notes (개발 노트)',
     `- [개발 노트 (Dev notes: how the games, their AIs and the site were built)](${SITE_URL}/ko/devlog)`,
     ...DEVLOG.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${devlogPath(a.slug)})`),
+    '## Board game encyclopedia',
+    `- [보드게임 백과 (Board game encyclopedia: genres, history and concepts)](${SITE_URL}/ko${WIKI_BASE})`,
+    ...ARTICLES.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${wikiPath(a.slug)})`),
     '',
     '## About',
     `- [소개 (About)](${SITE_URL}/ko/about)`,

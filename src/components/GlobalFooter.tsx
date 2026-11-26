@@ -26,6 +26,7 @@ export default function GlobalFooter() {
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
           <Link href="/guides" className="hover:text-black">{t('guides')}</Link>
           <Link href="/devlog" className="hover:text-black">{locale === 'en' ? 'Dev notes' : '개발 노트'}</Link>
+          <Link href="/board-games" className="hover:text-black">{locale === 'en' ? 'Board game encyclopedia' : '보드게임 백과'}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>
           <SupportLink />
