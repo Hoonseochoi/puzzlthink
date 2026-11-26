@@ -6,6 +6,8 @@
 // it takes 10 extra chips on a win, and folding against it also pays 10. Ties carry the pot to the next winner.
 // The game ends when a player has no chips left.
 
+import { type PersonaId, type PersonaMatch, smoothedShare } from './aiPersona';
+
 export type TspSide = 0 | 1;
 export type TspFace = 'front' | 'back' | 'both';
 export type TspLevel = 'easy' | 'normal' | 'hard';
@@ -254,8 +256,20 @@ function winChance(state: TspState, me: TspSide, myFace: TspFace, dist: Dist) {
 }
 
 /** The AI's move. It sees its own card, the player's front, the shoe it remembers — never the player's back. */
-export function chooseTspAiAction(state: TspState, me: TspSide, rand: () => number = Math.random): TspAction {
-  const profile = PROFILE[state.level];
+export function chooseTspAiAction(state: TspState, me: TspSide, rand: () => number = Math.random, persona?: PersonaMatch): TspAction {
+  const profile = { ...PROFILE[state.level] };
+  const style = persona ? tspStyle(persona, state, me, rand) : null;
+  if (style) {
+    // The level's own skill stays (count, read, noise); the persona leans around it.
+    profile.bluff = Math.min(0.6, profile.bluff * style.bluff);
+    profile.value *= style.value;
+    profile.raise = Math.min(0.97, profile.raise * style.raise);
+    profile.double = Math.min(0.99, profile.double + style.double);
+    profile.openFold = Math.max(0, profile.openFold + style.openFold);
+    profile.loose += style.loose;
+    // How honestly this player's hidden-back bets have matched their cards at showdowns this match.
+    profile.read = Math.min(1.3, profile.read * backHonesty(state, me));
+  }
   const them = tspOther(me);
   const opts = tspOptions(state, me);
   if (!opts.faces.length) return { t: 'fold' };
@@ -300,11 +314,72 @@ export function chooseTspAiAction(state: TspState, me: TspSide, rand: () => numb
   if (p <= 0) return { t: 'fold' }; // never pay off a hand that cannot win
   if (p < need - profile.loose && !bluff) return { t: 'fold' };
   const canRaise = max > opts.callLevel;
+  // Slow play: a strong hand only calls now and then, so the player keeps betting into it.
+  if (style && p > 0.8 && rand() < style.slow) return call;
   if (canRaise && p >= 0.999) return { t: 'bet', face, level: sized(profile.value * (0.8 + rand() * 0.6)) };
   if (canRaise && p > 0.8 && rand() < profile.raise) return { t: 'bet', face, level: sized(profile.value * 0.8) };
   if (canRaise && bluff && state.log.filter((l) => l.kind === 'raise').length < 2) return { t: 'bet', face, level: sized(0.8) };
   return call;
 }
+
+// ---------------------------------------------------------------- personas
+
+type TspStyle = { bluff: number; value: number; raise: number; double: number; openFold: number; loose: number; slow: number };
+const PLAIN: TspStyle = { bluff: 1, value: 1, raise: 1, double: 0, openFold: 0, loose: 0, slow: 0 };
+
+/**
+ * Hidden-back honesty from the showdowns this match: when the player bet a face the AI could not see (back or 양면),
+ * was that number strong (≥ 6)? Honest bettors get the full read of their bets, frequent bluffers a weaker one.
+ */
+export function backHonesty(state: TspState, me: TspSide): number {
+  const them = tspOther(me);
+  let n = 0, strong = 0;
+  for (const r of state.rounds) {
+    if (r.reason !== 'showdown') continue;
+    const f = r.faces[them];
+    if (f !== 'back' && f !== 'both') continue;
+    const c = r.cards[them];
+    const v = f === 'both' ? Math.min(c.front, c.back) : c.back;
+    n += 1; if (v >= 6) strong += 1;
+  }
+  return Math.max(0.4, Math.min(1.3, 0.4 + 1.2 * smoothedShare(strong, n, 0.6, 3)));
+}
+
+function tspStyle(p: PersonaMatch, state: TspState, me: TspSide, rand: () => number): TspStyle {
+  if (rand() < 0.08) return PLAIN; // now and then without the style, so a tell is never certain
+  const v = (k: string) => p.vary(k, 0.2) * (1 + 0.15 * p.mood);
+  const lead = state.chips[me] - state.chips[tspOther(me)];
+  const bold: TspStyle = { bluff: 1.5, value: 1.25, raise: 1.05, double: -0.04, openFold: -0.06, loose: 0.03, slow: 0 };
+  const calm: TspStyle = { bluff: 0.5, value: 0.85, raise: 0.9, double: 0.05, openFold: 0.05, loose: -0.03, slow: 0.05 };
+  const early = state.hand <= 10;
+  const table: Record<PersonaId, TspStyle> = {
+    calc: PLAIN,
+    aggro: { ...bold, bluff: 1.4 * v('b'), value: 1.25 * v('s') },
+    careful: calm,
+    bluffer: { ...PLAIN, bluff: 2.2 * v('b'), slow: 0.1 },
+    trap: { ...PLAIN, value: 0.9, raise: 1.1, slow: 0.25 * v('t') },
+    chaser: lead < -4 ? bold : lead > 4 ? calm : PLAIN,
+    whim: { bluff: 0.5 + rand() * 1.5, value: 0.75 + rand() * 0.6, raise: 0.85 + rand() * 0.25, double: (rand() - 0.5) * 0.08, openFold: (rand() - 0.5) * 0.1, loose: (rand() - 0.5) * 0.04, slow: rand() * 0.3 },
+    grinder: { ...PLAIN, value: 0.7 * v('s'), double: 0.04, loose: 0.02, bluff: 0.7, slow: 0.1 },
+    opener: early ? bold : calm,
+    closer: early ? calm : bold,
+  };
+  return table[p.id];
+}
+
+/** How to read each persona in 양면 포커. */
+export const TSP_TELLS: Record<PersonaId, { ko: string; en: string }> = {
+  calc: { ko: '카운팅한 확률대로만 베팅해요. 뒷면 베팅이 크면 대개 진짜예요.', en: 'Bets by the counted odds; a big hidden-back bet is usually real.' },
+  aggro: { ko: '포기하지 않고 크게 걸어요. 앞면이 낮아도 시작 베팅을 잘 내요.', en: 'Rarely gives up and bets big; opens even on a low front.' },
+  careful: { ko: '애매하면 앤티를 버리고 양면베팅은 거의 확실할 때만 해요. 이 성향의 큰 베팅은 믿어도 돼요.', en: 'Gives up close hands and goes 양면 only when nearly sure; its big bets can be trusted.' },
+  bluffer: { ko: '앞면이 높을 때 낮은 뒷면으로 거짓 베팅을 가장 자주 해요. 앞면 6 이상에서 뒷면을 걸면 의심해 보세요.', en: 'Bluffs with a low back behind a high front most often; doubt a back bet behind a front of 6+.' },
+  trap: { ko: '작게 걸고 강한 손으로는 콜만 하다가, 내가 올리면 다시 올려요. 조용히 따라오는 판이 위험해요.', en: 'Bets small and just calls with strong hands, then re-raises when you raise; the quiet callers are the danger.' },
+  chaser: { ko: '칩이 4개 넘게 뒤지면 과감해지고, 앞서면 조여요. 칩 차이를 보세요.', en: 'Bold when more than 4 chips behind, tight when ahead: watch the chip gap.' },
+  whim: { ko: '핸드마다 베팅 습관이 바뀌어요. 패턴보다 남은 카드와 팟을 보세요.', en: 'Changes its habits every hand; read the shoe and the pot, not patterns.' },
+  grinder: { ko: '작게 걸고 잘 따라와요. 큰 판보다 작은 판을 많이 가져가요.', en: 'Bets small and calls a lot; wins many small pots.' },
+  opener: { ko: '처음 10핸드는 몰아치고 그 뒤로 조용해져요.', en: 'Storms the first 10 hands, then quietens.' },
+  closer: { ko: '처음 10핸드는 아끼다가 그 뒤로 베팅이 커져요.', en: 'Saves for the first 10 hands, then bets grow.' },
+};
 
 // ---------------------------------------------------------------- views
 

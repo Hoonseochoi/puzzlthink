@@ -5,7 +5,7 @@ const article: DevlogArticle = {
   category: 'ai',
   games: ['blackWhite', 'blackWhite2'],
   published: '2026-11-26',
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   ko: {
     meta: {
       title: '흑과 백 AI 개발기 — 계산을 정확하게 할수록 사람이 더 이겼어요 | 개발 노트',
@@ -77,6 +77,33 @@ const article: DevlogArticle = {
             ['흑과 백 II · 어려움', '38.4%', '2.3%', '341판'],
           ] },
           { type: 'p', text: '흑과 백 어려움 AI를 이겨 클리어 인증을 받은 사람은 85명으로, 인디언 포커 다음으로 많아요. 흑과 백 II는 42명이에요. 전체 판수(로그인 여부 무관)는 흑과 백 2,996판(AI전 2,236판), 흑과 백 II 1,201판(AI전 950판)이에요.' },
+        ],
+      },
+      {
+        id: 'personas',
+        title: '11/27: 열 가지 성향 — 실력은 같고 스타일만 달라요',
+        blocks: [
+          { type: 'p', text: '"정확할수록 읽힌다"는 문제를 이번엔 다른 방법으로 풀었어요. 계산은 그대로(오히려 샘플 160개로 더 정확하게) 두고, 판마다 **성향**을 하나 뽑아요. 성향은 비슷하게 좋은 타일 사이에서 어느 쪽으로 기우는지만 정해요. 승률 추정치에 보통 0.1 안팎(최대 약 0.18)의 보너스를 얹는 방식이라, 차이가 큰 수를 버리지는 않아요.' },
+          { type: 'list', items: [
+            '공격형은 선에서 큰 수, 신중형은 큰 수를 아끼기, 초반 승부사는 1~4라운드에 힘 쓰기, 막판 승부사는 5라운드부터 힘 쓰기처럼 **큰 숫자를 쓰는 타이밍**이 성향마다 달라요.',
+            '판마다 성향의 세기와 기분(조금 더 과감하거나 차분한 날)이 시드로 조금씩 달라지고, 8%는 일부러 스타일을 벗어나요.',
+            '버릇 읽기: 내 선공이 얼마나 자주 이겼는지(큰 수로 선을 잡는 사람인지), 응수가 얼마나 자주 이겼는지를 색과 승패로만 세서, 시뮬레이션 속 내 수를 그쪽으로 기울여요. 숫자는 여전히 보지 않아요.',
+          ] },
+          { type: 'p', text: '성향마다 이전 어려움 AI와 300판씩 붙여 본 결과는 46.8~57.3%(같으면 50%, 오차 ±6%p)였고, 1~4라운드에 쓴 숫자 합은 막판 승부사 12.3에서 초반 승부사 15.9까지 벌어졌어요. 난이도는 그대로예요. 쉬움·보통은 같은 성향 위에 원래의 무작위·감 수가 섞여요.' },
+        ],
+      },
+      {
+        id: 'bw2-personas',
+        title: '11/27: 흑과 백 II의 열 가지 성향',
+        blocks: [
+          { type: 'p', text: '흑과 백 II도 같은 열 명을 써요. 계산(상대 남은 포인트 범위를 좁히고 후보 금액마다 수백 번 시뮬레이션)은 그대로이고, 성향은 승률 추정치에 최대 0.03 정도의 작은 보너스를 얹어 비슷한 금액 사이에서만 기울어요. 어려움의 소프트맥스 온도(0.025)가 낮아서 흑과 백보다 작은 보너스로도 성향이 드러나요.' },
+          { type: 'list', items: [
+            '공격형·초반 승부사는 "공정한 몫"(남은 포인트 ÷ 남은 판)보다 큰 금액, 신중형·막판 승부사(초반)는 작은 금액 쪽으로 기울어요.',
+            '블러퍼는 10~13의 싼 흰색과 7~9의 비싼 검은색을 좋아해요. 색이 크기를 가장 적게 말해 주는 금액이에요.',
+            '함정 설치형은 선일 때 검은색(0~9)으로 미끼를 던지고, 버티기형은 공정한 몫 근처로 고르게 걸어요.',
+            '버릇 읽기는 흑과 백과 같아요. 내 선공·응수가 이긴 비율을 색과 결과로만 세서, 시뮬레이션 속 내 금액을 그쪽으로 기울여요.',
+          ] },
+          { type: 'p', text: '성향마다 이전 어려움 AI와 300판씩 붙인 결과는 47.8~56.7%(같으면 50%, 오차 ±6%p)였고, 1~4라운드에 쓴 포인트는 함정 설치형 37.4에서 공격형 43.6까지 달랐어요. 쉬움은 원래처럼 감으로만 두기 때문에 성향은 이름과 말투로만 나오고, 보통·어려움에서 스타일이 적용돼요.' },
         ],
       },
       {
@@ -170,6 +197,33 @@ const article: DevlogArticle = {
             ['B&W II · Hard', '38.4%', '2.3%', '341'],
           ] },
           { type: 'p', text: 'Eighty-five players hold a Black & White Hard-AI clear certificate, second only to Indian Poker; Black & White II has 42. Counting everyone, Black & White had been played 2,996 times (2,236 against the AI) and Black & White II 1,201 times (950).' },
+        ],
+      },
+      {
+        id: 'personas',
+        title: '11/27: ten personalities — same skill, different style',
+        blocks: [
+          { type: 'p', text: 'This time the "precise means readable" problem got a different fix. The calculation stays (a little sharper, 160 samples) and each game draws a **personality**, which only decides which way to lean between tiles the estimate rates about equal: a bonus of about 0.1 (at most ~0.18) on the win-rate estimate, so it never throws away a clearly better tile.' },
+          { type: 'list', items: [
+            'The Attacker leads high, the Careful One hoards big tiles, the Fast Starter spends in rounds 1–4, the Closer from round 5: personalities differ in **when the big tiles come out**.',
+            'Every game the lean’s strength and a mood (a little bolder or calmer) vary with a seed, and 8% of moves drop the style on purpose.',
+            'Reading you: it counts, from colours and results only, how often your leads win (do you lead high?) and how often your answers win, and leans its picture of your play that way. It still never sees your numbers.',
+          ] },
+          { type: 'p', text: 'Against the previous Hard AI each personality scored 46.8–57.3% over 300 games (50% = equal, ±6 points of noise), and the sum of tiles spent in rounds 1–4 ranged from 12.3 (the Closer) to 15.9 (the Fast Starter). Levels stay: easy and normal play the same personality with their usual random or by-feel tiles on top.' },
+        ],
+      },
+      {
+        id: 'bw2-personas',
+        title: '11/27: ten personalities in Black & White II',
+        blocks: [
+          { type: 'p', text: 'Black & White II uses the same ten. The calculation (narrow down your remaining points, then play each candidate bid out hundreds of times) is unchanged; a personality adds a small bonus of at most about 0.03 to the win-rate estimate and only leans between bids rated close. Hard’s low softmax temperature (0.025) lets a smaller bonus than in Black & White show as a style.' },
+          { type: 'list', items: [
+            'The Attacker and the Fast Starter lean above the "fair share" (points left ÷ rounds left); the Careful One and the Closer (early on) below it.',
+            'The Bluffer likes cheap whites (10–13) and dear blacks (7–9): the amounts whose colour says least about their size.',
+            'The Trapper leads with blacks (0–9) as bait; the Grinder bids close to the fair share every round.',
+            'Reading you works as in Black & White: from colours and results only it counts how often your leads and answers win, and leans its picture of your bids that way.',
+          ] },
+          { type: 'p', text: 'Against the previous hard AI each personality scored 47.8–56.7% over 300 games (50% = equal, ±6 points noise), and points spent in rounds 1–4 ranged from 37.4 (the Trapper) to 43.6 (the Attacker). Easy still bids purely by feel, so there the personality shows only in name and table talk; the style applies on normal and hard.' },
         ],
       },
       {

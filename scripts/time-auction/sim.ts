@@ -11,13 +11,13 @@ const rand = taRng(20261127);
 type Row = { n: number; first: number; out: number; points: number; minus: number; left: number };
 const stat = new Map<string, Row>();
 const add = (key: string, f: (r: Row) => void) => { const row = stat.get(key) ?? { n: 0, first: 0, out: 0, points: 0, minus: 0, left: 0 }; f(row); stat.set(key, row); };
-const outcomes = { won: 0, void: 0, empty: 0 }; const byValue: Record<number, number[]> = { 1: [], 2: [], 3: [] }; let board = 0;
+const outcomes = { won: 0, void: 0, empty: 0 }; const byValue: Record<number, number[]> = { 1: [], 2: [], 3: [] }; let board = 0; const lengths: number[] = []; let thisBoard = 0;
 const winnerStyle = new Map<string, number>(); const leadRound = new Map<number, number>(); const winnerSpent: number[] = []; const winScores: number[] = [];
 for (let game = 0; game < N; game += 1) {
   const styles = pickTaStyles(6, rand);
   const minds = styles.map((st) => rollTaMind(st, rand));
   const levels: TaLevel[] = styles.map((_, i) => (mix === 'all-hard' ? 'hard' : mix === 'all-normal' ? 'normal' : (i + game) % 2 ? 'hard' : 'normal'));
-  let g = newTimeAuction(Array(6).fill(true), format);
+  let g = newTimeAuction(Array(6).fill(true), format); thisBoard = 0;
   const leaders: number[][] = [];
   while (g.phase !== 'finished') {
     for (let s = 0; s < 6; s += 1) g = taPress(g, s, true) ?? g;
@@ -27,11 +27,13 @@ for (let game = 0; game < N; game += 1) {
     for (const { p, s } of order) { if (!g.joined[s]) continue; g = taExhaust(g, p); g = taRelease(g, s, p) ?? g; }
     g = taSettle(taExhaust(g, Number.MAX_SAFE_INTEGER))!;
     const last = g.log[g.log.length - 1];
-    outcomes[last.outcome] += 1; if (last.outcome !== 'empty') { byValue[last.value].push(last.price); board += last.price; }
+    outcomes[last.outcome] += 1; if (last.outcome !== 'empty') { byValue[last.value].push(last.price); board += last.price; thisBoard += last.price; }
     const best = Math.max(...[0, 1, 2, 3, 4, 5].map((s) => taScore(g, s)));
     leaders.push([0, 1, 2, 3, 4, 5].filter((s) => taScore(g, s) === best));
     g = taNextRound(g)!;
   }
+  // Wall clock: the board time plus ~10 s per auction (pressing in, the 5 s countdown, the 3.8 s reveal).
+  lengths.push(thisBoard + g.rounds * 10_000);
   const st = taStandings(g);
   const champ = st.order[0];
   winnerStyle.set(styles[champ], (winnerStyle.get(styles[champ]) ?? 0) + 1);
@@ -58,3 +60,4 @@ const ent = [...winnerStyle.values()].reduce((h, c) => h - (c / N) * Math.log2(c
 console.log(`variety · winner's personality: ${winnerStyle.size} different, entropy ${ent.toFixed(2)} bits (max ${Math.log2(TA_STYLES.length).toFixed(2)})`);
 console.log(`variety · auction from which the winner led alone to the end: ${[...leadRound.entries()].sort((a, b) => a[0] - b[0]).map(([k, c]) => `${k}:${pct(c, N).trim()}`).join(' ')}`);
 console.log(`variety · winner's time spent p10/p50/p90 ${taClock(q(winnerSpent, 0.1))} / ${taClock(q(winnerSpent, 0.5))} / ${taClock(q(winnerSpent, 0.9))} · winning score p10/p50/p90 ${q(winScores, 0.1)} / ${q(winScores, 0.5)} / ${q(winScores, 0.9)}`);
+console.log(`match length (board + ~10 s per auction): median ${taClock(q(lengths, 0.5))} · p90 ${taClock(q(lengths, 0.9))} · p99 ${taClock(q(lengths, 0.99))} · max ${taClock(Math.max(...lengths))}`);

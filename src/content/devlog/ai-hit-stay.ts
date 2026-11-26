@@ -5,7 +5,7 @@ const article: DevlogArticle = {
   category: 'ai',
   games: ['hitStay'],
   published: '2026-11-26',
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   ko: {
     meta: {
       title: 'Hit,Stay AI 개발기 — 몬테카를로로 판단하고 성격으로 베팅하는 다섯 AI | 개발 노트',
@@ -59,6 +59,20 @@ const article: DevlogArticle = {
           { type: 'p', text: '"블러프"는 패가 없어도 작은 레이즈를 하는 확률이에요. 모든 레이즈가 강한 패로 읽히지 않게 하려는 장치예요. 다만 콜하는 것이 폴드보다 거의 같거나 나을 때만 해요.' },
           { type: 'h3', text: '루나가 덱을 다 뽑던 버그' },
           { type: 'p', text: '출시 다음 날 새벽에 고친 버그예요. 루나는 HIT 쪽에 고정으로 +0.02를 얹어 판단했는데, 이미 진 패(HIT도 STAY도 승률이 거의 0)에서는 이 0.02가 늘 이겨서 **덱이 바닥날 때까지 카드를 뽑았어요.** 그래서 이 기울기를 min(HIT 승률, STAY 승률, 1 − STAY 승률)에 비례하게 바꿨어요. 이미 졌거나 이미 이긴 판에서는 0이 되고, 팽팽할 때만 판단을 기울여요. 시뮬레이션으로 루나의 한 판 평균 HIT가 4.7장에서 1.3장(최대 29장에서 9장)으로 줄어 다른 AI와 비슷해졌어요.' },
+        ],
+      },
+      {
+        id: 'personas',
+        title: '11/27: 다섯에서 열로 — 같은 계산, 다른 성향',
+        blocks: [
+          { type: 'p', text: '11월 27일에 AI가 열 명이 됐어요. 사이트의 베팅 게임 다섯 개(흑과 백, 흑과 백 II, 인디언 포커, 양면 포커, Hit,Stay)가 같은 열 명을 써요. 원래의 다섯 명은 이름과 색, 성격이 그대로이고(레오=공격형, 모아=신중형, 루나=블러퍼, 카이=함정 설치형, 제로=계산기), 추격자 베가, 변덕쟁이 미로, 버티기형 도담, 초반 승부사 하루, 막판 승부사 녹스가 새로 앉아요.' },
+          { type: 'list', items: [
+            '**같은 계산**: 모두 360번의 시뮬레이션으로 같은 승률을 구해요. 성향은 위의 표처럼 조심성(risk), 레이즈 쪽 가중치, 블러프·슬로플레이 빈도, HIT 쪽 기울기만 바꿔요.',
+            '**상황에 따라 바뀌는 성향**: 추격자는 칩 순위가 아래 절반이면 과감해지고 1등이면 조여요. 초반 승부사는 10라운드까지, 막판 승부사는 13라운드부터 과감해져요(기본 베팅은 17라운드부터 빠르게 커져요). 변덕쟁이는 결정마다 성향을 새로 뽑아요.',
+            '**판마다 조금씩 다르게**: 매치마다 시드로 조심성 ±4%, 블러프 ±20%가 달라지고, 결정의 8%는 기준형으로 둬요.',
+            '**레이즈 읽기**: 예전에는 베팅이 상한에 가까울수록 누가 올렸든 같은 비율(40%)로 "강하다"고 읽었어요. 이제는 이번 판에서 마지막으로 올린 사람이 지난 라운드들에서 레이즈한 뒤 쇼다운에서 이겼는지를 세서, 0.4~1.6배로 읽어요. 공개된 정보(레이즈와 쇼다운 패)만 써요.',
+          ] },
+          { type: 'p', text: '시뮬레이션(한 결정당 200번으로 줄여 모두 같은 조건)에서 성향 하나를 예전 AI 넷과 붙이면 1등 비율이 16.7~24.3%(공평하면 20%, 오차 ±5%p), 열 명 중 다섯을 무작위로 앉힌 700판에서는 14.9~23.7%였어요. 버티기형 도담이 리그에서 가장 낮게 나왔는데, 설정이 계산기와 거의 같아 운의 몫이 큰 것으로 보고 있어요. 이 과정에서 하나 배운 점: HIT 쪽 기울기가 음수인 성향(STAY를 선호)이 꾸준히 졌어요. 공통 계산이 원래 살짝 STAY 쪽이라는 뜻이라, 성향의 기울기를 0~+0.015 안으로 좁혔어요.' },
         ],
       },
       {
@@ -161,6 +175,20 @@ const article: DevlogArticle = {
           { type: 'p', text: 'A "bluff" is a small raise without the hand, so that not every raise reads as strength — made only when calling is about as good as folding or better.' },
           { type: 'h3', text: 'The bug that made LUNA draw the whole deck' },
           { type: 'p', text: 'Fixed in the early hours after launch. LUNA added a fixed +0.02 to the HIT side, and in a lost hand (both HIT and STAY near 0) that 0.02 always won — so **it drew until the deck ran out**. The lean now scales with min(HIT, STAY, 1 − STAY): zero when the round is already lost or won, tipping only close calls. In simulation LUNA’s average went from 4.7 to 1.3 hits a round (maximum 29 → 9), in line with the others.' },
+        ],
+      },
+      {
+        id: 'personas',
+        title: '11/27: from five to ten — same calculation, different temperaments',
+        blocks: [
+          { type: 'p', text: 'On 27 November the AI grew to ten. All five betting games on the site (Black & White, Black & White II, Indian Poker, Two-Sided Poker, Hit,Stay) now share the same ten. The original five keep their names, colours and characters (LEO the Attacker, MOA the Careful One, LUNA the Bluffer, KAI the Trapper, ZERO the Calculator), joined by VEGA the Chaser, MIRO the Wildcard, DODAM the Grinder, HARU the Fast Starter and NOX the Closer.' },
+          { type: 'list', items: [
+            '**Same calculation**: all of them get the same win chance from 360 simulations. A temperament only changes caution (risk), the weight on raising, bluff and slow-play rates and a lean toward HIT.',
+            '**Temperaments that move**: the Chaser turns bold in the bottom half of the chip ranking and tight as the leader; the Fast Starter is bold until round 10, the Closer from round 13 (antes grow fast from round 17); the Wildcard draws a new temperament every decision.',
+            '**A little different every match**: a seed moves caution by ±4% and bluffing by ±20% per match, and 8% of decisions use the plain base.',
+            '**Reading raises**: the old AI read a bet near the cap as strength by the same 40% whoever raised. Now it counts whether the last raiser’s earlier raises won at the showdown and reads them 0.4–1.6× as strongly. Only public information is used (raises and shown hands).',
+          ] },
+          { type: 'p', text: 'In simulation (200 deals per decision for every seat alike), one personality against four of the old AIs took first place 16.7–24.3% of the time (20% = even, ±5 points noise), and in 700 tables of five random personalities 14.9–23.7%. DODAM the Grinder came out lowest in the league; its settings are close to the Calculator’s, so luck is a big part of that. One lesson on the way: personalities with a negative HIT lean (preferring STAY) kept losing, which means the shared estimate already leans slightly toward STAY, so the leans now stay within 0 to +0.015.' },
         ],
       },
       {

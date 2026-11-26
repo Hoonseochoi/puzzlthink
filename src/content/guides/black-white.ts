@@ -6,11 +6,13 @@
 // BlackWhiteGame.tsx has no turn clock. Inline guide: BlackWhiteGuide in ko/en.json.
 // The answer table assumes the leader's colour is all the follower knows (round 1); counted by hand.
 import type { GameGuide } from './types';
+import { BW_TELLS } from '@/lib/blackWhite';
+import { personaSection } from './personaSection';
 
 const guide: GameGuide = {
   game: 'blackWhite',
   origin: { kind: 'show', show: 'genius2' },
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   related: ['blackWhite2', 'indianPoker', 'twoSidedPoker', 'monorail'],
   inlineNamespace: 'BlackWhiteGuide',
   ko: {
@@ -153,11 +155,15 @@ const guide: GameGuide = {
             ['쉬움', '절반은 아무 타일이나 내고, 나머지는 색만 보고 감으로 둬요.'],
             ['보통', '대부분은 어려움과 같은 방식으로 두지만, 네 번에 한 번은 감으로 둬요.'],
             ['어려움', '지금까지의 색과 승패에 맞는 내 타일 순서를 모두 따져 본 뒤, 남은 게임을 여러 번 시뮬레이션해서 가장 잘 이기는 타일을 골라요. 같은 상황에서 늘 같은 수를 두면 읽히기 때문에 일부러 선택을 섞어요.'],
+            ['성향', '모든 난이도에서 열 가지 성향 중 하나가 무작위로 나와요. 어려움은 성향 그대로 전력으로 두고, 쉬움·보통은 같은 성향에 그 난이도의 실수(무작위·감으로 두기)가 그대로 섞여요.'],
             ['친구전', '초대 링크나 4자리 코드로 1:1 대결해요. 턴 시간은 15·30·60초 중에서 골라요. 시간이 지나면 무작위 타일이 나가고, 세 번 연속이면 패배예요.'],
             ['복기', '끝나면 모든 타일이 공개되고, "그때 내가 본 화면"과 "전부 공개"를 오가며 볼 수 있어요. 한 끗 승리(1 차이), 미끼(1 이하로 져서 상대의 6 이상을 끌어냄), 과한 승리(5 이상 차이) 같은 라운드에 표시가 붙어요.'],
           ] },
         ],
       },
+      personaSection('ko', BW_TELLS, [
+        '흑과 백에서 성향이 드러나는 곳은 **큰 숫자를 언제 쓰느냐**예요. 같은 판이라도 공격형은 이길 수 있는 판을 큰 수로 확실히 가져가고, 신중형과 막판 승부사는 작은 수로 흘려보내며 큰 수를 뒤로 미뤄요. AI는 내 숫자를 볼 수 없으니, 내 버릇도 **색과 승패**로만 읽어요. 예를 들어 내가 선으로 낸 판을 자주 이긴다면 "선에 큰 수를 내는 사람"으로 보고 응수를 조정해요.',
+      ], ['복기 화면의 성향 카드에는 AI가 1~4라운드에 낸 숫자 합도 나와요. 고르게 쓰면 16 안팎이고, 이보다 크면 초반에 힘을 쓴 판, 작으면 아껴 둔 판이에요.']),
       {
         id: 'glossary',
         title: '용어 정리',
@@ -325,11 +331,15 @@ const guide: GameGuide = {
             ['Easy', 'Plays a random tile half the time and goes by colour feel otherwise.'],
             ['Normal', 'Plays mostly like Hard, but one tile in four by feel.'],
             ['Hard', 'Lists every sequence of your tiles consistent with the colours and results, plays the rest of the game out many times and picks the tile that wins most often. It mixes its choices on purpose, because a fixed choice in the same spot gets read.'],
+            ['Personality', 'Every level draws one of ten personalities at random. Hard plays it at full strength; easy and normal play the same personality with their level’s usual mistakes (random or by-feel tiles) on top.'],
             ['Friend matches', 'One-on-one by invite link or 4-digit code. Turns of 15, 30 or 60 seconds; a timeout plays a random tile, and three in a row loses.'],
             ['Replay', 'Every tile is revealed and you can switch between "what I saw then" and "everything". Rounds are tagged: a one-point win, a bait (lost with 1 or less while drawing out their 6+) and an overkill (won by 5 or more).'],
           ] },
         ],
       },
+      personaSection('en', BW_TELLS, [
+        'In Black & White a personality shows in **when it spends its big tiles**. In the same spot the Attacker takes a winnable round with a big tile, while the Careful One and the Closer let it go cheaply and keep the big ones for later. The AI cannot see your numbers, so it reads your habits from **colours and results** only: if your leads keep winning, it takes you for someone who leads high and answers accordingly.',
+      ], ['The personality card on the replay also shows the sum of the AI’s tiles in rounds 1–4. An even spread is about 16; more means it spent early, less means it saved.']),
       {
         id: 'glossary',
         title: 'Glossary',

@@ -1,4 +1,4 @@
-import { Bot, Coins, Crown, Flame, History, MousePointerClick, PenLine, Scale, Sparkles, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { Bot, Coins, Crown, Flame, History, MousePointerClick, PenLine, Scale, Sparkles, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -152,6 +152,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '시간 경매', en: 'Time Auction' },
     items: [
       {
+        date: '11/27', icon: Timer,
+        ko: { title: '내 남은 시간이 보여요 · 기본은 표준 5분', desc: '버튼 위에 내 남은 시간이 보이고, 누르는 동안 0.1초 단위로 줄어요. 다른 사람의 시간은 그대로 비공개예요(친구 방은 방장이 방송처럼 숨길 수 있어요). 기본 경매는 표준 5분 × 13경매가 됐어요.' },
+        en: { title: 'See your own time · Standard 5:00 by default', desc: 'Your remaining time now shows above the button and drains to 0.1 s while you hold; everyone else\'s stays hidden (friend-room hosts can hide it as on the show). The default is now Standard, 5:00 × 13 auctions.' },
+      },
+      {
         date: '11/27', icon: Sparkles,
         ko: { title: '시간 경매가 열렸어요', desc: '데블스 플랜 2 감옥매치를 방송 규칙대로 옮겼어요. 경매마다 바둑알 하나가 올라오고 버튼을 가장 오래 누른 사람이 가져가요. PUZZLTHINK 아이콘이 바둑알로 올라오고, 좋은 아이콘일수록 점수가 커요(중급 2점, 마지막 최상급 3점 · 실제 아이콘은 지급되지 않아요). 가장 먼저 손을 뗀 사람은 헬모드 마이너스 바둑알(−1)을 받아요. AI는 10명의 캐릭터 중 5명이 매 판 다른 기분으로 앉아요. 친구·공개방 2~6명.' },
         en: { title: 'Time Auction is open', desc: "The Devil's Plan 2 prison match with the broadcast rules: each auction puts up one go stone and whoever holds longest takes it. PUZZLTHINK icons go up as pieces and better icons score more (mid-tier 2, the last top icon 3; no real icon is granted); whoever lets go first takes the hell-mode minus stone (−1). Five of ten AI characters sit each match, each in a different mood; 2–6 in rooms." },
@@ -162,6 +167,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: 'Hit,Stay', en: 'Hit,Stay' },
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
     items: [
+      {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI가 열 명이 됐어요', desc: '빈자리 넷에 열 명 중 서로 다른 AI가 무작위로 앉아요. 모두 같은 계산으로 최선을 찾고 위험을 대하는 성향만 달라요. 이번 판에서 누가 허세로 레이즈했는지도 기억하고, 결과 화면에서 각자의 성향이 공개돼요.' },
+        en: { title: 'Ten AI players now', desc: 'The four empty seats get four different AIs out of ten. All find the best move with the same calculation and differ only in how they treat risk; they remember who raised on air this match, and the result screen reveals each style.' },
+      },
       {
         date: '11/25', icon: Coins,
         ko: { title: '한 판이 더 빨리 끝나요 (기본 베팅 변경)', desc: '기본 베팅이 2라운드마다 1칩씩 오르다가, 17라운드부터는 2라운드마다 5칩씩 올라요. 칩이 가장 적은 사람이 낼 수 있는 만큼까지만 걸어요. 한 판이 보통 24라운드 안팎이에요.' },
@@ -334,9 +344,24 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '흑과 백', en: 'Black & White' },
     items: [
       {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 공격형·신중형·블러퍼·막판 승부사 등 열 명 중 한 명이 무작위로 나와요. 판단력은 모두 같고 큰 숫자를 쓰는 타이밍이 달라요. 이번 판의 내 버릇도 색과 승패로 읽고, 누구였는지는 끝나면 공개돼요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each game draws one of ten (the Attacker, the Careful One, the Bluffer, the Closer…). All judge equally well but spend their big tiles at different times; they read your habits from colours and results, and the personality is revealed at the end.' },
+      },
+      {
         date: '11/26', icon: Scale,
         ko: { title: '어려움 AI가 덜 읽히게 됐어요', desc: '어려움이 보통보다 쉽다는 기록이 나와서 조정했어요. 어려움은 패를 더 섞어 내서 읽기 어렵고, 보통은 네 번에 한 번 감으로 내요.' },
         en: { title: 'Hard AI is harder to read', desc: 'Records showed Hard was easier than Normal. Hard now mixes its tiles more, and Normal plays one tile in four by feel.' },
+      },
+    ],
+  },
+  black_white_2: {
+    name: { ko: '흑과 백 II', en: 'Black & White II' },
+    items: [
+      {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 열 명 중 한 명이 무작위로 나와요. 판단력은 모두 같고 포인트를 몰아 쓰는 판과 색을 쓰는 방식이 달라요. 이번 판의 내 버릇도 색·승패로 읽고, 누구였는지는 끝나면 공개돼요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each game draws one of ten. All judge equally well but spend their points in different rounds and use colours differently; they read your habits from colours and results, and the personality is revealed at the end.' },
       },
     ],
   },
@@ -429,6 +454,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '인디언 포커', en: 'Indian Poker' },
     items: [
       {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 블러퍼·신중형·추격자 등 열 명 중 한 명이 나와 베팅 크기와 블러프 빈도가 달라요. 판단력은 모두 같고, 이제 공개된 카드로 내 베팅 버릇도 읽어요. 어려움은 일부러 하는 실수 없이 둬요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each match draws one of ten (the Bluffer, the Careful One, the Chaser…) with its own bet sizes and bluff rate. All judge equally well, they now read your betting habits from the revealed cards, and hard no longer makes deliberate slips.' },
+      },
+      {
         date: '11/26', icon: Wrench,
         ko: { title: '난이도 버튼의 AI 승률을 실제 기록으로 바꿨어요', desc: '버튼에 적힌 AI 승률이 실제보다 높았어요. 지금까지의 대전 기록으로 고쳤어요.' },
         en: { title: 'AI win rates on the level buttons now match the records', desc: 'The AI win rates shown on the buttons were higher than what really happened. They now come from the matches played so far.' },
@@ -438,6 +468,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   two_sided_poker: {
     name: { ko: '양면 포커', en: 'Two-Sided Poker' },
     items: [
+      {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 블러퍼·함정 설치형·막판 승부사 등 열 명 중 한 명이 나와 베팅 크기와 뒷면 블러프 빈도가 달라요. 판단력은 모두 같고, 쇼다운에서 공개된 카드로 내 뒷면 베팅이 정직했는지도 읽어요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each match draws one of ten (the Bluffer, the Trapper, the Closer…) with its own bet sizes and back-bluff rate. All judge equally well, and they read from showdowns whether your hidden-back bets were honest.' },
+      },
       {
         date: '11/26', icon: Wrench,
         ko: { title: '난이도 버튼의 AI 승률을 실제 기록으로 바꿨어요', desc: '버튼에 적힌 AI 승률이 실제보다 높았어요. 지금까지의 대전 기록으로 고쳤어요.' },

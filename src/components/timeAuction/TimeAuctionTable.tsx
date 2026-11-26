@@ -216,6 +216,45 @@ function Board({ room, rec, t, mySeat, en }: { room: TaRoom; rec: Rec | null; t:
   );
 }
 
+/**
+ * My own remaining time (a site rule; the broadcast hid it even from yourself — a room host can bring that back).
+ * Shown only on my screen: it drains live while I hold (to 0.1 s), and after an auction shows what I spent.
+ * Other players' time is never shown or sent (their banks are redacted from my state).
+ */
+function MyBank({ g, me, rec, holding, t }: { g: TaRoom['game']; me: number; rec: Rec | null; holding: boolean; t: TaCopy }) {
+  const bank = g.bank[me];
+  const [now, setNow] = useState(0);
+  const live = g.phase === 'live' && !!rec && rec.released === null && holding;
+  useEffect(() => {
+    if (!live) return;
+    let frame = 0, last = -1;
+    const loop = () => { const k = Math.floor(performance.now() / 50); if (k !== last) { last = k; setNow(performance.now()); } frame = requestAnimationFrame(loop); };
+    frame = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frame);
+  }, [live]);
+  if (bank < 0) return null;
+  let shown = bank;
+  let spent = 0;
+  if (g.phase === 'live' && rec) {
+    // Truncated to 0.1 s like the recorded bid, so the number does not jump when I let go.
+    if (live && now) spent = Math.max(0, Math.min(bank, Math.floor((now - rec.cdEnd) / TA_UNIT) * TA_UNIT));
+    else if (typeof rec.released === 'number' && rec.released >= TA_UNIT) spent = Math.min(bank, Math.floor(rec.released / TA_UNIT) * TA_UNIT);
+    shown = bank - spent;
+  } else if (g.phase === 'reveal' || g.phase === 'finished') {
+    spent = g.log[g.log.length - 1]?.bids[me] ?? 0;
+  }
+  const low = shown < g.startBank * 0.15;
+  return (
+    <div className="flex w-full items-center justify-between gap-2 rounded-[10px] border border-white/10 bg-black/40 px-3 py-2" aria-live="off">
+      <span className="text-[11px] font-black text-white/55">{t.myTime}</span>
+      <span className="flex items-baseline gap-2">
+        {spent > 0 && <span className="font-mono text-[12px] font-bold text-[#ff7b72]">−{taClock(spent)}</span>}
+        <b className={`font-mono text-[22px] font-black tabular-nums leading-none ${live ? 'text-(--accent)' : low ? 'text-[#ffb547]' : 'text-white'}`}>{taClock(shown)}</b>
+      </span>
+    </div>
+  );
+}
+
 /** One auction table: the board, the hold button and the public record (tokens and winners). */
 export default function TimeAuctionTable({ room, mySeat, onAction, t, locale, direct, rooms }: {
   room: TaRoom; mySeat: number | null; onAction: (a: TaRoomAction) => void; t: TaCopy; locale: string;
@@ -274,6 +313,7 @@ export default function TimeAuctionTable({ room, mySeat, onAction, t, locale, di
             <span className="flex items-center gap-1"><Hand size={12} className="text-(--accent)" />{g.phase === 'ready' ? t.readyCount(ready, players) : g.phase === 'live' ? t.watching : ' '}</span>
             {rooms && g.phase === 'ready' && <span className="flex items-center gap-1 font-mono"><Timer size={12} />{readyLeft}s</span>}
           </div>
+          {me !== null && !room.hideOwn && <MyBank g={g} me={me} rec={rec} holding={isDown} t={t} />}
           <button
             type="button" aria-label={label} aria-pressed={isDown} disabled={disabled && !isDown}
             {...handlers}
@@ -289,7 +329,7 @@ export default function TimeAuctionTable({ room, mySeat, onAction, t, locale, di
             <button type="button" onClick={pass} className="rounded-md border border-white/15 px-3 py-1.5 text-[11px] font-bold text-white/60 hover:bg-white/10">{t.pass}</button>
           )}
           {rooms && g.phase === 'ready' && <p className="text-[10.5px] text-white/35">{t.readyClock(TA_READY_SEC)}</p>}
-          <p className="max-w-sm break-keep text-center text-[11px] leading-4 text-white/40">{t.memory}</p>
+          <p className="max-w-sm break-keep text-center text-[11px] leading-4 text-white/40">{room.hideOwn ? t.memory : t.memoryOwn}</p>
         </div>
       </section>
       <aside className="grid content-start gap-3">

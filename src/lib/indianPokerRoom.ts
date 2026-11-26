@@ -1,5 +1,6 @@
 import { type PokerDifficulty, type PokerRound, type PokerSide, POKER_ANTE, POKER_START_CHIPS, choosePokerAiAction, maxMatchableBet, pokerOther, pokerWinner, shufflePokerDeck } from './indianPoker';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
+import { type PersonaId, drawPersonas, newPersonaSeed, personaMatch } from './aiPersona';
 
 export const POKER_TURN_OPTIONS = [30, 20, 45] as const;
 export type PokerTurnSeconds = (typeof POKER_TURN_OPTIONS)[number];
@@ -29,6 +30,9 @@ export type IndianPokerRoom = BaseRoom & {
   timeouts: [number, number];
   /** Optional: rooms saved before it existed simply have none. */
   lastAct?: PokerLastAct | null;
+  /** AI persona per seat (null for people) and its per-match seed; drawn again every match. Absent in older rooms. */
+  persona?: (PersonaId | null)[];
+  personaSeed?: number;
 };
 
 export type IndianPokerAction =
@@ -71,8 +75,11 @@ function deal(state: IndianPokerRoom, first: PokerSide): IndianPokerRoom {
 function startGame(state: IndianPokerRoom): IndianPokerRoom | null {
   if (state.seats.some((seat) => !seat)) return null;
   const first = (Math.random() < 0.5 ? 0 : 1) as PokerSide;
+  // Every AI seat gets a persona at random (never last match's), with its own seed for this match.
+  const drawn = drawPersonas(2, Math.random, (state.persona ?? []).filter((p): p is PersonaId => !!p));
   const next: IndianPokerRoom = {
-    ...state, sid: newSid(), chips: [POKER_START_CHIPS, POKER_START_CHIPS], deck: shufflePokerDeck(), deckPos: 0,
+    ...state, sid: newSid(), persona: state.ai.map((ai, i) => (ai ? drawn[i] : null)), personaSeed: newPersonaSeed(),
+    chips: [POKER_START_CHIPS, POKER_START_CHIPS], deck: shufflePokerDeck(), deckPos: 0,
     carry: 0, rounds: [], winner: null, reason: null, timeouts: [0, 0], first, turn: first, opened: false,
   };
   return deal(next, first);
@@ -166,6 +173,7 @@ export function reduceIndianPokerRoom(state: IndianPokerRoom, action: IndianPoke
       const choice = choosePokerAiAction({
         opponentCard: state.cards[pokerOther(me)], usedCards: [...state.rounds.slice(-handsInDeck).flatMap((round) => round.cards), state.cards[pokerOther(me)]],
         chips: state.chips, bets: state.bets, carry: state.carry, me, level: state.aiLevel, canCheck: state.opened,
+        persona: personaMatch(pokerPersonaOf(state, me), (state.personaSeed ?? 1) + me), history: state.rounds,
       });
       next = choice.t === 'fold' ? fold(state, me) : bet(state, me, choice.total);
       break;
@@ -188,6 +196,9 @@ export function reduceIndianPokerRoom(state: IndianPokerRoom, action: IndianPoke
   }
   return next ? bump(next) : null;
 }
+
+/** The persona playing `seat` (a room saved before personas, or a seat the AI took over, plays as the calculator). */
+export const pokerPersonaOf = (state: IndianPokerRoom, seat: PokerSide): PersonaId => state.persona?.[seat] ?? 'calc';
 
 export const indianPokerAutoAction = (state: IndianPokerRoom): IndianPokerAction | null =>
   state.phase === 'playing' && state.ai[state.turn] ? { t: 'ai' } : null;

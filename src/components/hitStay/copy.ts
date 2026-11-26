@@ -153,7 +153,7 @@ const ko = {
   left: (name: string) => `${name} 퇴장`,
   guest: '게스트',
   aiPersonas: 'AI 플레이어',
-  personaNote: '모든 AI는 매 순간 자기 상황에서 최선의 수를 계산해요.',
+  personaNote: '빈자리마다 열 명 중 서로 다른 AI가 무작위로 앉아요. 모두 매 순간 같은 계산으로 최선의 수를 찾고, 위험을 대하는 성향만 달라요. 이번 판에서 누가 레이즈를 정직하게 했는지도 기억해요. 성향은 결과 화면에서 공개돼요.',
 };
 
 export type HsCopy = typeof ko;
@@ -288,7 +288,7 @@ const en: HsCopy = {
   left: (name) => `${name} left`,
   guest: 'Guest',
   aiPersonas: 'AI players',
-  personaNote: 'Every AI works out its best move for its own situation, every time.',
+  personaNote: 'Each empty seat gets a different one of ten AIs at random. All of them work out the best move with the same calculation and differ only in how they treat risk; they also remember whose raises were honest this match. Styles are revealed on the result screen.',
 };
 
 export const hsCopy = (locale: string): HsCopy => (locale === 'en' ? en : ko);

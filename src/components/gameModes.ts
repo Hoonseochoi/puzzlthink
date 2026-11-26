@@ -94,7 +94,7 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
   hitStay: { path: '/hit-stay', ai: [{ label: 'hsAi' }], rooms: [{ label: 'hsRoom', create: prepareHitStayRoom, openMin: 2 }], useRoom: useHitStayRoom },
   timeAuction: {
     path: '/time-auction',
-    ai: [{ label: 'taQuick', query: 'format=quick&difficulty=hard' }, { label: 'taQuickNormal', query: 'format=quick&difficulty=normal' }, { label: 'taBroadcast', query: 'format=broadcast&difficulty=hard' }],
+    ai: [{ label: 'taStandard', query: 'format=standard&difficulty=hard' }, { label: 'taStandardNormal', query: 'format=standard&difficulty=normal' }, { label: 'taQuick', query: 'format=quick&difficulty=hard' }, { label: 'taBroadcast', query: 'format=broadcast&difficulty=hard' }],
     rooms: [{ label: 'taRoom', create: prepareTimeAuctionRoom, openMin: 2 }], useRoom: useTimeAuctionRoom,
   },
   merge2048: {

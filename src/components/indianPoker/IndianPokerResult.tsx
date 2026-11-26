@@ -44,9 +44,9 @@ function BigCount({ value }: { value: number }) {
  * End of a match: who won and why, the final stack, a few numbers and the revealed hands,
  * then the shared sign-in / quit / again / share actions (with the sponsor card).
  */
-export function IndianPokerResultModal({ winner, chips, reason, rounds, names, onClose, onAgain, waitingLabel }: {
+export function IndianPokerResultModal({ winner, chips, reason, rounds, names, onClose, onAgain, waitingLabel, extra }: {
   winner: PokerSide | 'draw'; chips: number; reason: string; rounds: PokerRound[]; names: [string, string];
-  onClose: () => void; onAgain?: () => void; waitingLabel?: string;
+  onClose: () => void; onAgain?: () => void; waitingLabel?: string; extra?: React.ReactNode;
 }) {
   const t = useTranslations('IndianPoker');
   const won = winner === 0;
@@ -70,6 +70,7 @@ export function IndianPokerResultModal({ winner, chips, reason, rounds, names, o
             <div key={label} className="rounded-md border border-white/10 bg-black/30 px-1 py-2"><dt className="text-[9px] font-bold text-white/40">{label}</dt><dd className="mt-0.5 font-mono text-lg font-black text-white">{value}</dd></div>
           ))}
         </dl>
+        {extra && <div className="mt-3 text-left">{extra}</div>}
         {rounds.length > 0 && <div className="mt-3 text-left"><PokerHistory rounds={rounds} names={names} /></div>}
 
         <ResultActions replay={
