@@ -29,6 +29,7 @@ export default function GlobalFooter() {
           <Link href="/devlog" className="hover:text-black">{locale === 'en' ? 'Dev notes' : '개발 노트'}</Link>
           <Link href="/board-games" className="hover:text-black">{locale === 'en' ? 'Board game encyclopedia' : '보드게임 백과'}</Link>
           <Link href="/survival-games" className="hover:text-black">{locale === 'en' ? 'Show games' : '서바이벌 게임 정리'}</Link>
+          <Link href="/game-theory" className="hover:text-black">{locale === 'en' ? 'Game theory' : '게임 이론'}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>
           <SupportLink />

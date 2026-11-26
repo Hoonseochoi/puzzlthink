@@ -7,6 +7,7 @@ import { guideListings } from '@/content/guides';
 import { DEVLOG, devlogPath } from '@/content/devlog';
 import { ARTICLES, WIKI_BASE, wikiPath } from '@/content/encyclopedia';
 import { SHOWS_WRITTEN, gamePath, showPath } from '@/content/shows';
+import { ARTICLES, GT_PATH, articlePath } from '@/content/game-theory';
 import type { GameId } from '@/lib/stats';
 
 export const dynamic = 'force-static';
@@ -49,6 +50,9 @@ export function GET() {
     ...ARTICLES.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${wikiPath(a.slug)})`),
     '## Brain-survival show games',
     ...SHOWS_WRITTEN.flatMap((show) => [`- [${show.ko.name} (${show.en.name})](${SITE_URL}/ko${showPath(show)})`, ...show.games.map((g) => `  - [${g.ko.name} (${g.en.name})](${SITE_URL}/ko${gamePath(show, g)})`)]),
+    '## Game theory',
+    `- [게임 이론 (Game theory articles, with survival-show and PUZZLTHINK game examples)](${SITE_URL}/ko${GT_PATH})`,
+    ...ARTICLES.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${articlePath(a.slug)})`),
     '',
     '## About',
     `- [소개 (About)](${SITE_URL}/ko/about)`,
