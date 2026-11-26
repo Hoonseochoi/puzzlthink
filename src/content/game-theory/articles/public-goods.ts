@@ -73,7 +73,7 @@ const article: GTArticle = {
             '**기금 규모를 모르니 계산이 어려워요.** 기금이 지금 얼마인지 아무도 몰라서, 내가 낸 크레딧이 문턱을 넘길지, 헛되이 사라질지 알 수 없어요. 넘친 크레딧은 버려지니 크게 낼수록 낭비 위험도 커요.',
             '**정보가 몰래 낡아요.** 누군가 약실을 바꾸면, 앞서 조사한 사람들의 정보가 아무도 모르게 틀려져요. 남의 조사 결과에 무임승차하는 전략에도 위험이 생기는 거예요.',
           ] },
-          { type: 'callout', tone: 'tip', title: '러시안 룰렛에서 써먹기', text: '다른 사람의 비공개 행동은 기록에 "비밀 행동"으로만 남아서, 그게 비공개 조사인지 조작인지는 알 수 없어요. 그래도 비밀 행동이 여러 번 쌓였다면 기금이 문턱 근처일 가능성을 따져 보고, 그때 내가 마무리하는 편이 효율적이에요. 반대로 혼자 일찍 많이 넣는 건 남 좋은 일을 해 줄 위험이 커요.' },
+          { type: 'callout', tone: 'tip', title: '러시안 룰렛에서 써먹기', text: '다른 사람의 비공개 행동은 기록에 "비공개 행동"으로만 남아서, 그게 비공개 조사인지 조작인지는 알 수 없어요. 그래도 비공개 행동이 여러 번 쌓였다면 기금이 문턱 근처일 가능성을 따져 보고, 그때 내가 마무리하는 편이 효율적이에요. 반대로 혼자 일찍 많이 넣는 건 남 좋은 일을 해 줄 위험이 커요.' },
         ],
       },
       {
@@ -165,7 +165,7 @@ const article: GTArticle = {
             '**Nobody knows the fund’s size.** You cannot tell whether your credits will cross the threshold or vanish, and since overflow is discarded, paying more risks more waste.',
             '**Information goes stale in secret.** When someone swaps chambers, earlier inspections become wrong without anyone knowing. Free riding on other players’ inspections carries a risk too.',
           ] },
-          { type: 'callout', tone: 'tip', title: 'Using it in Russian Roulette', text: 'Other players’ private moves appear in the log only as "secret actions", so you cannot tell a private inspection from a manipulation. Still, when secret actions pile up, consider that the fund may be near the threshold, and finish it yourself then. Paying in a lot, early and alone, risks doing someone else a favour.' },
+          { type: 'callout', tone: 'tip', title: 'Using it in Russian Roulette', text: 'Other players’ private moves appear in the log only as "private actions", so you cannot tell a private inspection from a manipulation. Still, when private actions pile up, consider that the fund may be near the threshold, and finish it yourself then. Paying in a lot, early and alone, risks doing someone else a favour.' },
         ],
       },
       {
