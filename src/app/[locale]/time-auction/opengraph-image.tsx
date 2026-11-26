@@ -18,9 +18,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
   return new ImageResponse(
     <GameOgCard {...c} accent="#ff3b30" glow="rgba(255,59,48,0.3)" art={
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: 392, height: 392, borderRadius: 18, background: 'radial-gradient(circle at 50% 28%, #5a1410, #0b0b0e 72%)', border: '3px solid #ff3b30' }}>
-        <div style={{ display: 'flex', width: 92, height: 92, borderRadius: 46, marginBottom: 18, background: 'radial-gradient(circle at 35% 30%, #fff3b8, #e8b730 55%, #9c6c0a)', border: '3px solid #7d5306', boxShadow: '0 0 30px rgba(255,220,140,0.45)' }} />
         <div style={{ display: 'flex', padding: '8px 22px', borderRadius: 12, background: '#000', color: '#ff3b30', fontSize: 76, fontWeight: 900, letterSpacing: -2 }}>1:49.8</div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 22, width: 120, height: 120, borderRadius: 60, border: '8px solid #ff3b30', background: 'radial-gradient(circle at 50% 35%, #ff6a5f, #7a0d07 75%)', color: '#fff', fontSize: 26, fontWeight: 900, letterSpacing: 6 }}>HOLD</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 30, width: 140, height: 140, borderRadius: 70, border: '8px solid #ff3b30', background: 'radial-gradient(circle at 50% 35%, #ff6a5f, #7a0d07 75%)', color: '#fff', fontSize: 26, fontWeight: 900, letterSpacing: 6 }}>HOLD</div>
         <div style={{ display: 'flex', marginTop: 22, fontSize: 22, fontWeight: 900, color: 'rgba(255,255,255,0.55)', letterSpacing: 4 }}>10:00 × 19</div>
       </div>
     } />,

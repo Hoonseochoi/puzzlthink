@@ -50,8 +50,9 @@
  * like the top-bid tie; dropping out in the countdown never takes it; a lone bidder only wins.
  *
  * ── House rule: stone values (owner's request, 2026-11-27) ─────────────────────────────────────────────────────
- * Each auction puts up a stone whose worth is fixed and shown in advance (taLotValue): the last auction's gold stone
- * is worth 3 points, every third auction's silver stone 2, every other stone 1. A player's score is points won −
+ * Each auction puts up a piece whose worth is fixed and shown in advance (taLotValue): the last auction's piece is
+ * worth 3 points, every third auction's 2, every other 1. (The UI draws them as the site's profile icons by tier —
+ * src/components/timeAuction/TimeAuctionParts.tsx — as points only; no icon is granted.) A player's score is points won −
  * minus stones (it can go below zero), and every ranking rule above uses the score where it says "tokens". With
  * values and minus stones the survival maths of rule 18 no longer guarantees anything.
  *
@@ -194,7 +195,7 @@ export function taJudge(bids: number[]): { outcome: TaOutcome; winner: number | 
   return top.length > 1 ? { outcome: 'void', winner: null, price, minus } : { outcome: 'won', winner: top[0], price, minus };
 }
 
-/** What auction `round` (1-based) is worth: the last one 3 (gold), every third one 2 (silver), the rest 1. */
+/** What auction `round` (1-based) is worth: the last one 3, every third one 2, the rest 1. */
 export const taLotValue = (round: number, rounds: number) => (round === rounds ? 3 : round % 3 === 0 ? 2 : 1);
 
 /** A seat's score: points won (stone values) minus minus stones. */

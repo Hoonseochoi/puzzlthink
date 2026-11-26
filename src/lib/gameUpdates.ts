@@ -132,8 +132,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/27', icon: Sparkles,
-        ko: { title: '시간 경매가 열렸어요', desc: '데블스 플랜 2 감옥매치를 방송 규칙대로 옮겼어요. 경매마다 바둑알 하나가 올라오고 버튼을 가장 오래 누른 사람이 가져가요. 좋은 바둑알일수록 점수가 커요(은 2점, 마지막 황금 3점). 가장 먼저 손을 뗀 사람은 헬모드 마이너스 바둑알(−1)을 받아요. AI 5명과 6인전, 친구·공개방 2~6명.' },
-        en: { title: 'Time Auction is open', desc: "The Devil's Plan 2 prison match with the broadcast rules: each auction puts up one go stone and whoever holds longest takes it. Better stones score more (silver 2, the last gold 3); whoever lets go first takes the hell-mode minus stone (−1). Six players vs five AIs, or 2–6 in rooms." },
+        ko: { title: '시간 경매가 열렸어요', desc: '데블스 플랜 2 감옥매치를 방송 규칙대로 옮겼어요. 경매마다 바둑알 하나가 올라오고 버튼을 가장 오래 누른 사람이 가져가요. PUZZLTHINK 아이콘이 바둑알로 올라오고, 좋은 아이콘일수록 점수가 커요(중급 2점, 마지막 최상급 3점 · 실제 아이콘은 지급되지 않아요). 가장 먼저 손을 뗀 사람은 헬모드 마이너스 바둑알(−1)을 받아요. AI 5명과 6인전, 친구·공개방 2~6명.' },
+        en: { title: 'Time Auction is open', desc: "The Devil's Plan 2 prison match with the broadcast rules: each auction puts up one go stone and whoever holds longest takes it. PUZZLTHINK icons go up as pieces and better icons score more (mid-tier 2, the last top icon 3; no real icon is granted); whoever lets go first takes the hell-mode minus stone (−1). Six players vs five AIs, or 2–6 in rooms." },
       },
     ],
   },

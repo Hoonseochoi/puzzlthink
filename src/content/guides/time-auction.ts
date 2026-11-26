@@ -51,7 +51,7 @@ const guide: GameGuide = {
             '마지막까지 누르고 있던 사람이 손을 떼면 전광판이 멈추고, 그 사람이 **승리 표식**을 받아요. 낙찰자와 멈춘 시간만 공개돼요.',
             '진 사람도 자기가 누른 시간만큼 잃어요.',
             '남은 시간은 **본인에게도** 보이지 않아요. 쓴 시간을 기억해야 해요.',
-            '**바둑알 점수(사이트 추가 규칙)**: 보통 바둑알은 1점, 세 번째 경매마다 나오는 은 바둑알은 2점, 마지막 경매의 황금 바둑알은 3점이에요. 어떤 경매에 어떤 바둑알이 나오는지는 처음부터 화면 위에 보여요.',
+            '**바둑알 점수(사이트 추가 규칙)**: 경매에는 PUZZLTHINK 프로필 아이콘 모양의 바둑알이 올라와요. 기본 바둑알(기본 컬러, 플레이 10·20시간, 2048)은 1점, 세 번째 경매마다 나오는 중급 아이콘(플레이 30·50시간, 친구·오픈 대전 승리, 시간 경매 어려움 클리어 등)은 2점, 마지막 경매의 최상급 아이콘(오픈대전 1위, 플레이 100시간, 피스 2W 1위, 시간 경매 1위 등)은 3점이에요. 어떤 경매에 어떤 바둑알이 나오는지는 처음부터 화면 위에 보여요. 경매에 나오는 바둑알은 게임 속 점수예요. 실제 아이콘은 지급되지 않아요.',
             '**마이너스 바둑알(사이트 추가 규칙)**: 헬모드 바둑알 모양이에요. 두 명 이상 입찰한 경매에서는 가장 먼저 손을 뗀 1명이 −1점을 받아요. 카운트다운 안에 포기한 사람은 받지 않아요.',
             '마지막 경매가 끝나면 점수(딴 바둑알 점수의 합 − 마이너스 바둑알 수)가 가장 높은 사람이 1위(방송에서는 표식 수로 피스), 가장 낮은 사람이 탈락이에요.',
           ] },
@@ -124,7 +124,7 @@ const guide: GameGuide = {
         title: '고급: 경매를 고르는 눈',
         blocks: [
           { type: 'cards', items: [
-            { title: '은과 황금은 값을 따로 매기세요', body: '은 바둑알 하나는 보통 바둑알 두 개, 마지막 황금 바둑알은 세 개와 같아요. AI끼리 3,000판을 돌려 보면 은 바둑알은 보통 바둑알의 약 두 배 값에 낙찰됐는데, 황금 바둑알은 다들 시간이 바닥난 마지막이라 은보다 비싸지 않았어요. 끝까지 시간을 남겨 둔 사람에게 황금은 가장 싼 3점이 될 수 있어요.' },
+            { title: '2점과 3점은 값을 따로 매기세요', body: '중급 아이콘 하나는 기본 바둑알 두 개, 마지막 최상급 아이콘은 세 개와 같아요. AI끼리 3,000판을 돌려 보면 2점짜리는 1점짜리의 약 두 배 값에 낙찰됐는데, 3점짜리는 다들 시간이 바닥난 마지막이라 2점짜리보다 비싸지 않았어요. 끝까지 시간을 남겨 둔 사람에게 마지막 최상급 아이콘은 가장 싼 3점이 될 수 있어요.' },
             { title: '비싼 경매 다음 경매', body: '누군가 큰 시간으로 낙찰받았다면 그 경매에서 진 사람도 크게 잃었을 가능성이 높아요. 바로 다음 경매는 다들 몸을 사리기 쉬워 싸게 딸 기회예요.' },
             { title: '짧은 입찰은 양날의 검', body: '아무도 입찰하지 않을 것 같은 경매에 몇 초만 걸어 두면, 다른 사람이 모두 빠졌을 때 거의 공짜로 바둑알을 얻어요. 하지만 이 사이트에서는 누군가 함께 입찰하는 순간 내가 가장 먼저 손을 뗀 사람이 되어 **마이너스 바둑알**을 받아요. 들어갈 거면 제대로 들어가고, 아니면 카운트다운 안에 빠지는 것이 기본이에요. 비싼 경매 바로 다음처럼 다들 지친 때만 노려 보세요.' },
             { title: '동점을 피하는 시간', body: '2분 00초나 1분 30초처럼 딱 떨어지는 시간은 다른 사람도 고르기 쉬워요. 동점이면 둘 다 잃고 표식은 사라지니, 노린 시간보다 조금 더 버티는 버릇을 들이세요.' },
@@ -162,9 +162,9 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['', '방송', 'PUZZLTHINK'], rows: [
             ['인원', '6명', 'AI전 6명 · 친구·공개방 2~6명'],
-            ['바둑알 점수', '모든 표식 1개씩', '보통 1점 · 세 번째마다 은 2점 · 마지막 황금 3점'],
+            ['바둑알 점수', '모든 표식 1개씩', '기본 바둑알 1점 · 세 번째마다 중급 아이콘 2점 · 마지막 최상급 아이콘 3점'],
             ['마이너스 바둑알', '없음', '두 명 이상 입찰하면 가장 먼저 뗀 1명이 −1 (0.1초 동점이면 없음). 순위는 점수(바둑알 − 마이너스)'],
-            ['경매 물건', '승리 표식', '경매마다 바둑알 하나(마지막은 황금 바둑알). 모양만 다를 뿐 승리 표식과 똑같이 세요'],
+            ['경매 물건', '승리 표식', '경매마다 아이콘 바둑알 하나. 점수만 다를 뿐 승리 표식처럼 세고, 실제 아이콘은 지급되지 않아요'],
             ['시간 × 경매 수', '10분 × 19번', '2분 × 9번(기본) · 5분 × 13번 · 10분 × 19번'],
             ['보상', '1위 피스 1개 · 꼴찌 탈락', '1위 · 꼴찌 탈락(기록에 남아요)'],
             ['포기', '카운트다운 안에 손 떼기', '같음 + "이번 경매는 포기" 버튼'],
@@ -191,7 +191,7 @@ const guide: GameGuide = {
       { q: '시간 경매에서 진 사람도 시간을 잃나요?', a: '네. 카운트다운이 끝난 뒤 버튼을 누르고 있던 시간은 낙찰받지 못해도 모두 잃어요. 시간이 들지 않는 건 카운트다운 안에 손을 뗀 경우뿐이에요.' },
       { q: '내 남은 시간은 어디서 보나요?', a: '보이지 않아요. 방송 규칙 그대로 남은 시간은 본인에게도 공개되지 않으니 쓴 시간을 기억해야 해요. 시간을 다 쓰면 버튼이 밀려나며 진동으로 알려 주고, 경기가 끝나면 모두의 남은 시간과 입찰 기록이 공개돼요.' },
       { q: '몇 개를 따야 탈락하지 않나요?', a: '바둑알만 보면 경매 수 ÷ 인원보다 많이 따면 안전해요(6명 기준 빠른 경매 2개, 표준 3개, 방송 규칙 4개). 다만 이 사이트는 가장 먼저 손을 뗀 사람에게 마이너스 바둑알을 주니, 순위는 점수(바둑알 − 마이너스)로 정해지고 확실한 보장은 없어요.' },
-      { q: '마이너스 바둑알과 바둑알 점수는 방송 규칙인가요?', a: '아니에요. 둘 다 PUZZLTHINK에서 더한 규칙이에요. 바둑알은 보통 1점, 은 2점, 마지막 황금 3점이고, 두 명 이상 입찰한 경매에서 가장 먼저 손을 뗀 1명이 −1점을 받고, 카운트다운 안에 포기한 사람은 받지 않아요.' },
+      { q: '마이너스 바둑알과 바둑알 점수는 방송 규칙인가요?', a: '아니에요. 둘 다 PUZZLTHINK에서 더한 규칙이에요. 바둑알은 기본 1점, 중급 아이콘 2점, 마지막 최상급 아이콘 3점이고(실제 아이콘은 지급되지 않아요), 두 명 이상 입찰한 경매에서 가장 먼저 손을 뗀 1명이 −1점을 받고, 카운트다운 안에 포기한 사람은 받지 않아요.' },
       { q: '0.1초까지 같은 시간에 손을 떼면 어떻게 되나요?', a: '가장 오래 버틴 사람끼리 0.1초까지 같으면 그 경매는 유찰되어 아무도 표식을 받지 못하고, 동점자들도 시간은 그대로 잃어요.' },
       { q: '방송과 같은 10분 19번 경매로 할 수 있나요?', a: '네. 게임 시작에서 "방송 규칙 10분 × 19경매"를 고르거나, 친구 방에서 방장이 경매 규모를 방송 규칙으로 바꾸면 돼요. 한 판에 40분 안팎 걸려요.' },
       { q: '인터넷이 느리면 불리한가요?', a: '아니에요. 입찰 시간은 각자의 기기에서 자기 카운트다운 기준으로 재기 때문에 지연이 시간에 더해지지 않아요. 방장 기기는 그 기록이 실제로 가능한 범위인지만 확인해요.' },
@@ -238,7 +238,7 @@ const guide: GameGuide = {
             'When the last player lets go the board stops and that player wins a **victory token**. Only the winner and the stopped time are announced.',
             'Losers lose the time they held too.',
             'Your remaining time is hidden, **even from you**. Remember what you spend.',
-            '**Stone values (house rule)**: a plain stone is worth 1 point, every third auction\'s silver stone 2, the last auction\'s gold stone 3. The whole order is shown from the start.',
+            '**Piece values (house rule)**: the auctions put up pieces drawn as PUZZLTHINK profile icons. Starter pieces (basic colours, 10/20 hours played, 2048) are worth 1 point, every third auction\'s mid-tier icon (30/50 hours played, friend/open match wins, Time Auction Hard clear…) 2, the last auction\'s top icon (Open match #1, 100 hours played, Piece week 2 #1, Time Auction #1…) 3. The whole order is shown from the start. The pieces on auction are points in this game only; no real profile icon is granted.',
             '**The minus stone (house rule)**: it looks like the hell-mode stone. When two or more bid in an auction, whoever let go first takes −1. Dropping out during the countdown never takes it.',
             'After the last auction, the highest score (points won − minus stones) is 1st (on the show: most tokens took the piece); the lowest is eliminated.',
           ] },
@@ -311,7 +311,7 @@ const guide: GameGuide = {
         title: 'Advanced: choosing your auctions',
         blocks: [
           { type: 'cards', items: [
-            { title: 'Price silver and gold separately', body: 'A silver stone is worth two plain ones, the final gold three. In 3,000 AI-only matches silver went for about twice a plain stone, but gold — in the last auction, when everyone is nearly out of time — went for no more than silver. Whoever kept time to the end can take the cheapest 3 points of the match.' },
+            { title: 'Price 2- and 3-point pieces separately', body: 'A mid-tier icon is worth two starter pieces, the final top icon three. In 3,000 AI-only matches 2-point pieces went for about twice a 1-point piece, but the 3-pointer — in the last auction, when everyone is nearly out of time — went for no more than a 2-pointer. Whoever kept time to the end can take the cheapest 3 points of the match.' },
             { title: 'After an expensive auction', body: 'A big winning price usually means the runner-up lost big too. Everyone tends to hold back in the very next auction — a chance to win cheaply.' },
             { title: 'Short bids cut both ways', body: 'A few seconds in an auction nobody seems to want wins a near-free stone when everyone else drops out. But here, as soon as anyone else bids, you are the first to let go and take the **minus stone**. Go in properly or drop out in the countdown; try short bids only when everyone is likely tired, such as right after an expensive auction.' },
             { title: 'Avoid round numbers', body: 'Times like 2:00 or 1:30 are easy for others to pick too. A tie loses both bids and the token, so get used to holding a little past your target.' },
@@ -349,9 +349,9 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['', 'Broadcast', 'PUZZLTHINK'], rows: [
             ['Players', '6', '6 vs AI · 2–6 in rooms'],
-            ['Stone values', 'Every token counts 1', 'Plain 1 · every third silver 2 · the last gold 3'],
+            ['Piece values', 'Every token counts 1', 'Starter 1 · every third a mid-tier icon 2 · the last a top icon 3'],
             ['Minus stone', 'None', 'With two or more bids, the first to let go takes −1 (a tie to 0.1 s: nobody). Places go by score (stones − minus)'],
-            ['What is sold', 'A victory token', 'One go stone per auction (gold for the last). Only the look differs: it counts exactly like a token'],
+            ['What is sold', 'A victory token', 'One icon piece per auction. Only the points differ from a token; no real icon is granted'],
             ['Time × auctions', '10:00 × 19', '2:00 × 9 (default) · 5:00 × 13 · 10:00 × 19'],
             ['Stakes', '1st gets a piece · last is eliminated', '1st · last is eliminated (kept in your records)'],
             ['Dropping out', 'Let go in the countdown', 'Same, plus a "sit this one out" button'],
@@ -378,7 +378,7 @@ const guide: GameGuide = {
       { q: 'Do losers lose time in Time Auction?', a: 'Yes. Everything you hold after the countdown is gone even if you do not win. Only letting go during the countdown is free.' },
       { q: 'Where do I see my remaining time?', a: 'You do not. As on the show, your remaining time is hidden even from you, so you must remember what you spent. When it runs out the button is pushed out and your phone vibrates; at the end everyone’s time and every bid is revealed.' },
       { q: 'How many stones do I need to survive?', a: 'Counting stones only, more than auctions ÷ players is safe (with six: 2 in Quick, 3 in Standard, 4 in Broadcast). But this site gives a minus stone to whoever lets go first, so places go by score (stones − minus) and nothing is guaranteed.' },
-      { q: 'Are the minus stone and stone values broadcast rules?', a: 'No, both are PUZZLTHINK house rules. Stones are worth 1, silver 2 and the last gold 3; When two or more bid, the first to let go takes −1; dropping out in the countdown never takes it.' },
+      { q: 'Are the minus stone and stone values broadcast rules?', a: 'No, both are PUZZLTHINK house rules. Pieces are worth 1, mid-tier 2 and the last top icon 3 (no real icon is granted); when two or more bid, the first to let go takes −1; dropping out in the countdown never takes it.' },
       { q: 'What if two players let go at the same tenth of a second?', a: 'If the longest holds tie to 0.1 s, the auction is void: nobody gets the token and the tied players still lose their time.' },
       { q: 'Can I play the broadcast format, 10 minutes and 19 auctions?', a: 'Yes. Pick "Broadcast rules 10:00 × 19" when you start, or set the match size to Broadcast in a friend room. A match takes about 40 minutes.' },
       { q: 'Does a slow connection hurt me?', a: 'No. Your hold is timed on your own device from your own countdown, so delay is not added to your bid. The host’s device only checks the claim is possible.' },
