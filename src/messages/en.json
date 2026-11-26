@@ -5744,6 +5744,13 @@
   },
   "PlayerStrip": {"label": "Players", "me": "ME", "guest": "Guest", "ai": "AI"},
   "SupporterCover": {
+    "thanksTitle": "Thank you for your support",
+    "thanksName": "{name}",
+    "thanksBody": "PUZZLTHINK stays open because of you. Thank you, truly.",
+    "thanksServer": "Every bit of it goes to the servers, so everyone can keep playing for free.",
+    "thanksCover": "Your supporter cover is on, with our thanks",
+    "thanksSee": "See my icon",
+    "thanksClose": "Close",
     "confirmToggle": "Supported already? Ask us to confirm it",
     "confirmDesc": "After supporting, leave a confirmation request here! Write your supporter name and nickname and we will add the cover once we see it.",
     "confirmDonor": "Supporter name (as shown on CTEE)",
