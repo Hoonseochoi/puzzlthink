@@ -31,7 +31,7 @@ const ko = {
   wonMe: (t: string) => `낙찰! ${t}`,
   void: (t: string) => `유찰 · ${t}에 동시에 손을 뗐어요`,
   empty: '아무도 입찰하지 않았어요',
-  tokens: '승리 표식', history: '경매 기록', safe: (n: number) => `${n}개면 탈락 확정 면제`,
+  tokens: '승리 표식', history: '경매 기록', safe: (n: number) => `${n}개면 꼴찌가 될 수 없어요`,
   memory: '남은 시간은 나에게도 보이지 않아요. 쓴 시간을 기억하세요.',
   board: 'BOARD',
   resultTitle: '최종 결과', piece: '피스 (1위)', eliminated: '탈락', survived: '생존', place: (p: number) => `${p}위`,

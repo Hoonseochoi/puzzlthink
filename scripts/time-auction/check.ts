@@ -1,7 +1,7 @@
 // Rules checks for 시간 경매: `npx tsx scripts/time-auction/check.ts`
 import assert from 'node:assert/strict';
 import {
-  type TimeAuction, newTimeAuction, taBeginCountdown, taExhaust, taFloor, taHolding, taJudge, taNextRound, taPress, taRelease, taSettle, taStandings, taClock, taSafeTokens,
+  type TimeAuction, newTimeAuction, taBeginCountdown, taExhaust, taFloor, taHolding, taNextRound, taPress, taRelease, taSettle, taStandings, taClock, taSafeTokens,
 } from '../../src/lib/timeAuction';
 
 let passed = 0;

@@ -128,10 +128,13 @@ function startRoom(state: TaRoom, shuffleHumans = true): TaRoom {
   return toReady({ ...state, seats, ai, style, phase: 'playing', ...resetAway(N), game, liveAt: 0, revealUntil: 0, hidden: { plan: fill(null), beat: fill(0) } }, Date.now());
 }
 
-/** A new ready step: AI seats press at once. */
+/**
+ * A new ready step: AI seats press at once. In the AI match a person with no time left sits out automatically (in
+ * rooms their own browser does it after a short random wait, so an instant "ready" does not give them away).
+ */
 function toReady(state: TaRoom, now: number): TaRoom {
   let game = state.game;
-  state.ai.forEach((ai, s) => { if (ai && game.inGame[s]) game = taPress(game, s, true) ?? game; });
+  state.ai.forEach((ai, s) => { if ((ai || (state.solo && !taCanBid(game, s))) && game.inGame[s]) game = taPress(game, s, true) ?? game; });
   const next = { ...state, game, readyUntil: state.solo ? Number.MAX_SAFE_INTEGER : now + TA_READY_SEC * 1000 };
   return taAllReady(game) ? begin(next, now) : next;
 }

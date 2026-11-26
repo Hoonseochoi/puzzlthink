@@ -109,7 +109,7 @@ test('time used up: the host pushes a silent holder out at exactly their time', 
 });
 
 test('redaction hides every time and live bid; my secret restores only mine', () => {
-  let s = pressAll(room(['a', 'b']));
+  const s = pressAll(room(['a', 'b']));
   const a = seatOf(s, 'a');
   const pub = redactTaRoom(s);
   assert.ok(pub.game.bank.every((v) => v === -1));
@@ -140,8 +140,19 @@ test('ready clock: a player who does not press sits out; two misses hand the sea
   assert.equal(s.away?.[b], true);
 });
 
+test('AI match: a player with no time left is passed automatically (no stall)', () => {
+  let s = createTaRoom({ id: 'me', name: 'me', at: 0 }, { solo: true });
+  s = { ...s, game: { ...s.game, bank: s.game.bank.map((v, i) => (i === 0 ? 0 : v)) } };
+  s = act(s, { t: 'press', r: 1, on: true, pass: true }, 0, true); // round 1 as usual
+  let guard = 0;
+  while (s.game.round === 1 && guard++ < 500) { clock = Math.max(clock + 50, Math.min(taNextEventAt(s), clock + 5_000)); const a = taAutoAction(s); if (a) s = act(s, a, 0, true); }
+  assert.equal(s.game.round, 2);
+  assert.equal(s.game.phase, 'live'); // round 2 started without the player pressing
+  assert.equal(s.game.joined[0], false);
+});
+
 test('stale heartbeats from another round are ignored', () => {
-  let s = pressAll(room(['a']));
+  const s = pressAll(room(['a']));
   const a = seatOf(s, 'a');
   clock += TA_COUNTDOWN_MS + 2_000;
   assert.equal(reduceTaRoom(s, { t: 'hb', r: 5, m: taBeat(1_000) }, a, false), null);

@@ -71,14 +71,15 @@ function useHold(room: TaRoom, mySeat: number | null, onAction: (a: TaRoomAction
     const cdEnd = direct ? now + (room.liveAt + TA_COUNTDOWN_MS - Date.now()) : now + TA_COUNTDOWN_MS;
     const midway = sawReady.current !== g.round;
     rec.current = { round: g.round, cdEnd, released: null, pushed: false, sentAt: 0 };
-    if (!g.joined[me] && !midway) rec.current.released = -TA_COUNTDOWN_MS; // not in this auction
-    else if (midway && !direct) rec.current.released = g.joined[me] && g.bids[me] === null ? 'unknown' : -TA_COUNTDOWN_MS;
+    // Decide from what this device knows (is the button down?), not from the per-seat secret, which can arrive a
+    // moment after the public state. The host ignores a let-go from a seat that is not in the auction.
+    if (midway && !direct) rec.current.released = 'unknown'; // loaded mid-auction: the host charges up to now
     else if (!down.current) letGo(now - cdEnd);
     show();
     setCounting(cdEnd > now);
     const timer = window.setTimeout(() => setCounting(false), Math.max(0, cdEnd - now) + 10);
     return () => window.clearTimeout(timer);
-  }, [g.phase, g.round, g.joined, g.bids, me, direct, room.liveAt, letGo, show]);
+  }, [g.phase, g.round, me, direct, room.liveAt, letGo, show]);
 
   // Heartbeats while an auction runs (rooms): every seated person, holding or not, about once a second.
   useEffect(() => {
@@ -129,6 +130,15 @@ function useHold(room: TaRoom, mySeat: number | null, onAction: (a: TaRoomAction
   }, [me, g.phase, g.round, g.pressed, g.pass, letGo, direct, send]);
 
   const pass = useCallback(() => { if (me !== null && g.phase === 'ready') act.current({ t: 'press', r: g.round, on: true, pass: true }); }, [me, g.phase, g.round]);
+
+  // No time left: sit out by itself after a short random wait (rooms; the AI match does it on the host).
+  const empty = me !== null && myBank >= 0 && myBank < TA_UNIT;
+  const waiting = g.phase === 'ready' && me !== null && !g.pressed[me];
+  useEffect(() => {
+    if (!rooms || !empty || !waiting) return;
+    const timer = window.setTimeout(() => act.current({ t: 'press', r: g.round, on: true, pass: true }), 600 + Math.random() * 1800);
+    return () => window.clearTimeout(timer);
+  }, [rooms, empty, waiting, g.round]);
 
   // Hiding the tab, leaving the page or the window losing focus counts as letting go.
   useEffect(() => {
