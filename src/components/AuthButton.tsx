@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { LogOut, X } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { LogOut, UserX, X } from 'lucide-react';
+import { Link } from '@/i18n/routing';
 import { avatarUrl, displayName, useAuth } from './AuthProvider';
 import GoogleSignInButton from './GoogleSignInButton';
 import { type SignupSource, markSignupSource } from '@/lib/signupSource';
@@ -23,6 +24,7 @@ function GoogleMark({ size = 16 }: { size?: number }) {
 export default function AuthButton({ full = false, source = 'other' }: { full?: boolean; source?: SignupSource }) {
   const t = useTranslations('Auth');
   const { user, ready, configured, error, signIn, signOut, clearError, setError } = useAuth();
+  const locale = useLocale();
   const [useRedirect, setUseRedirect] = useState(false);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -90,6 +92,8 @@ export default function AuthButton({ full = false, source = 'other' }: { full?: 
             <p className="truncate text-[11px] text-black/45">{user.email}</p>
           </div>
           <button type="button" onClick={() => { setOpen(false); signOut(); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-black/70 hover:bg-black/[0.04]"><LogOut size={14} />{t('signOut')}</button>
+          {/* Google Play app only: the in-app path to request account deletion (Play's account deletion policy). */}
+          <Link href="/account-deletion" onClick={() => setOpen(false)} className="play-only flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-black/45 hover:bg-black/[0.04]"><UserX size={14} />{locale === 'en' ? 'Delete account' : '계정 삭제 요청'}</Link>
         </div>
       )}
     </div>

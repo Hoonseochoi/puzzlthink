@@ -143,7 +143,7 @@ export function playAppCss(routes: readonly string[]): string {
     hide.push(`${A} li:has(> a[href$="${x}"])`, `${A} li:has(> a[href*="${x}/"])`, `${A} li:has(> a[href*="${x}?"])`);
   }
   if (PLAY_APP_HIDE.support) for (const h of SUPPORT_HOSTS) hide.push(`${A} a[href^="${sel(h)}"]`);
-  return `.play-only{display:none!important}${A} .play-only{display:revert!important}${hide.join(',')}{display:none!important}`;
+  return `html:not([data-app="${PLAY_APP_VALUE}"]) .play-only{display:none!important}${hide.join(',')}{display:none!important}`;
 }
 
 /**
