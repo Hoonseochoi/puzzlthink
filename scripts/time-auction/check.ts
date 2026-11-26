@@ -1,7 +1,7 @@
 // Rules checks for 시간 경매: `npx tsx scripts/time-auction/check.ts`
 import assert from 'node:assert/strict';
 import {
-  type TimeAuction, newTimeAuction, taBeginCountdown, taExhaust, taFloor, taHolding, taNextRound, taPress, taRelease, taSettle, taStandings, taClock, taSafeTokens, taScore,
+  type TimeAuction, newTimeAuction, taBeginCountdown, taExhaust, taFloor, taHolding, taNextRound, taPress, taRelease, taSettle, taStandings, taClock, taSafeTokens, taScore, taLotValue,
 } from '../../src/lib/timeAuction';
 
 let passed = 0;
@@ -114,7 +114,7 @@ test('release is refused twice and outside the live phase', () => {
 
 test('last round ends the match; standings and tie-breaks', () => {
   let g = newTimeAuction([true, true, true, true], 'quick');
-  g = { ...g, round: g.rounds, tokens: [2, 2, 1, 1], bank: [5_000, 9_000, 3_000, 3_000] };
+  g = { ...g, round: g.rounds, tokens: [2, 2, 1, 1], points: [2, 2, 1, 1], bank: [5_000, 9_000, 3_000, 3_000] };
   g = auction(g, [-1, -1, -1, -1]);
   g = must(taNextRound(g));
   assert.equal(g.phase, 'finished');
@@ -126,7 +126,7 @@ test('last round ends the match; standings and tie-breaks', () => {
 });
 
 test('tie for the most tokens and time: no piece', () => {
-  const g = { ...newTimeAuction([true, true, true], 'quick'), tokens: [3, 3, 1], bank: [0, 0, 7_000] };
+  const g = { ...newTimeAuction([true, true, true], 'quick'), tokens: [3, 3, 1], points: [3, 3, 1], bank: [0, 0, 7_000] };
   const st = taStandings(g);
   assert.equal(st.piece, null);
   assert.deepEqual(st.eliminated, [2]);
@@ -157,10 +157,22 @@ test('minus stone: a void at the top can still hand out −1 below it', () => {
 });
 
 test('ranking uses the score (stones − minus), then time', () => {
-  const g = { ...newTimeAuction([true, true, true], 'quick'), tokens: [3, 2, 1], minus: [2, 0, 0], bank: [9_000, 1_000, 5_000] };
+  const g = { ...newTimeAuction([true, true, true], 'quick'), tokens: [3, 2, 1], points: [3, 2, 1], minus: [2, 0, 0], bank: [9_000, 1_000, 5_000] };
   const st = taStandings(g); // scores 1, 2, 1 → seat 1; then seats 0 and 2 on score 1 by time
   assert.deepEqual(st.order, [1, 0, 2]);
   assert.deepEqual(st.eliminated, [2]);
+});
+
+test('stone values: 1, every third auction 2, the last 3; score = points − minus', () => {
+  assert.deepEqual(Array.from({ length: 9 }, (_, i) => taLotValue(i + 1, 9)), [1, 1, 2, 1, 1, 2, 1, 1, 3]);
+  let g = newTimeAuction([true, true], 'quick');
+  for (let r = 1; r <= 9; r += 1) { g = auction(g, r % 3 === 0 || r === 9 ? [9_000, 1_000] : [1_000, 9_000]); g = must(taNextRound(g)); }
+  assert.deepEqual(g.tokens, [3, 6]);
+  assert.deepEqual(g.points, [2 + 2 + 3, 6]); // seat 0 won auctions 3, 6 and 9
+  assert.deepEqual(g.minus, [6, 3]);
+  assert.equal(taScore(g, 0), 1);
+  assert.equal(taScore(g, 1), 3);
+  assert.deepEqual(g.log.map((r) => r.value), [1, 1, 2, 1, 1, 2, 1, 1, 3]);
 });
 
 test('survival threshold', () => {
@@ -188,7 +200,7 @@ test('replay of the broadcast (나무위키 round table): tokens 5/1/3/4/3/3, �
   // Under this site's minus stone (house rule) the same bids would also hand out these −1 stones:
   console.log('     broadcast bids under the minus-stone rule: minus', g.minus.join('/'), '· scores', g.tokens.map((_, s) => taScore(g, s)).join('/'));
   assert.equal(g.bank[0], 0); assert.equal(g.bank[1], 0); assert.equal(g.bank[2], 14_000); assert.equal(g.bank[3], 0); assert.equal(g.bank[5], 0);
-  const st = taStandings({ ...g, minus: g.minus.map(() => 0) }); // the broadcast had no minus stone
+  const st = taStandings({ ...g, minus: g.minus.map(() => 0), points: [...g.tokens] }); // the broadcast: no minus stone, every token worth 1
   assert.deepEqual(st.eliminated, [1]);
   assert.equal(st.piece, 0);
 });

@@ -9,7 +9,7 @@ const N = Number(nArg); const format = fmt as TaFormatId;
 const rand = taRng(20261126);
 type Key = string;
 const stat = new Map<Key, { n: number; first: number; out: number; tokens: number; minus: number; left: number }>();
-const outcomes = { won: 0, void: 0, empty: 0 }; const prices: number[] = []; let lengthMs = 0;
+const outcomes = { won: 0, void: 0, empty: 0 }; const prices: number[] = []; const byValue: Record<number, number[]> = { 1: [], 2: [], 3: [] }; let lengthMs = 0;
 for (let game = 0; game < N; game += 1) {
   // Six seats: the five styles plus one repeated at random.
   const styles: TaStyle[] = [...TA_STYLES, TA_STYLES[Math.floor(rand() * 5)]].sort(() => rand() - 0.5);
@@ -24,7 +24,7 @@ for (let game = 0; game < N; game += 1) {
     for (const { p, s } of order) { if (!g.joined[s]) continue; g = taExhaust(g, p); g = taRelease(g, s, p) ?? g; }
     g = taSettle(taExhaust(g, Number.MAX_SAFE_INTEGER))!;
     const last = g.log[g.log.length - 1];
-    outcomes[last.outcome] += 1; if (last.outcome !== 'empty') { prices.push(last.price); lengthMs += last.price; }
+    outcomes[last.outcome] += 1; if (last.outcome !== 'empty') { prices.push(last.price); byValue[last.value].push(last.price); lengthMs += last.price; }
     g = taNextRound(g)!;
   }
   const st = taStandings(g);
@@ -43,3 +43,6 @@ for (const [key, r] of [...stat.entries()].sort()) console.log(key.padEnd(16), S
 const total = outcomes.won + outcomes.void + outcomes.empty; const sorted = [...prices].sort((a, b) => a - b);
 console.log(`auctions: won ${pct(outcomes.won, total)} · void (tie) ${pct(outcomes.void, total)} · nobody bid ${pct(outcomes.empty, total)}`);
 console.log(`winning price: median ${taClock(sorted[sorted.length >> 1])} · p90 ${taClock(sorted[Math.floor(sorted.length * 0.9)])} · board time per match ${taClock(lengthMs / N)}`);
+
+const med = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); return s.length ? taClock(s[s.length >> 1]) : '-'; };
+console.log(`median price by stone value: 1pt ${med(byValue[1])} · 2pt ${med(byValue[2])} · 3pt ${med(byValue[3])}`);

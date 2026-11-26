@@ -3,7 +3,7 @@
 // stopped), everyone's tokens, and its own remaining time and past bids. It never sees who is pressing now, anyone
 // else's remaining time, or losing bids. Five styles, two levels (normal: noisy, no counting; hard: counts the most
 // time each rival can still have and plays the end game exactly).
-import { TA_UNIT, type TimeAuction, taSafeTokens } from './timeAuction';
+import { TA_UNIT, type TimeAuction, taLotValue } from './timeAuction';
 
 export type TaStyle = 'steady' | 'rush' | 'lurk' | 'penny' | 'count';
 export type TaLevel = 'normal' | 'hard';
@@ -27,13 +27,14 @@ export type TaAiView = {
   myBank: number;
   tokens: number[];
   minus: number[]; // minus stones (public)
+  points: number[]; // value of the stones won (public)
   inGame: boolean[];
-  log: { outcome: TimeAuction['log'][number]['outcome']; winner: number | null; price: number }[];
+  log: { outcome: TimeAuction['log'][number]['outcome']; winner: number | null; price: number; value: number }[];
 };
 
 export const taAiView = (g: TimeAuction, seat: number): TaAiView => ({
-  seat, round: g.round, rounds: g.rounds, startBank: g.startBank, myBank: g.bank[seat], tokens: [...g.tokens], minus: [...g.minus], inGame: [...g.inGame],
-  log: g.log.map((r) => ({ outcome: r.outcome, winner: r.winner, price: r.price })),
+  seat, round: g.round, rounds: g.rounds, startBank: g.startBank, myBank: g.bank[seat], tokens: [...g.tokens], minus: [...g.minus], points: [...g.points], inGame: [...g.inGame],
+  log: g.log.map((r) => ({ outcome: r.outcome, winner: r.winner, price: r.price, value: r.value ?? 1 })),
 });
 
 const median = (xs: number[]) => { if (!xs.length) return 0; const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
@@ -61,21 +62,28 @@ export function chooseTaBid(v: TaAiView, style: TaStyle, level: TaLevel, rand: (
   const players = v.inGame.filter(Boolean).length;
   const left = v.rounds - v.round + 1; // this auction included
   const progress = (v.round - 1) / Math.max(1, v.rounds - 1); // 0 at the first auction, 1 at the last
-  // Score = stones won − minus stones (the house rule: the shortest of two or more bids takes a −1 stone).
-  const score = (s: number) => v.tokens[s] - (v.minus?.[s] ?? 0);
+  // Score = points won (stone values: 1, silver 2, the last gold 3) − minus stones (the shortest of two or more bids).
+  const score = (s: number) => (v.points?.[s] ?? v.tokens[s]) - (v.minus?.[s] ?? 0);
   const mine = score(v.seat);
-  const safe = taSafeTokens(v.rounds, players);
-  const need = Math.max(0, safe - mine);
+  const value = taLotValue(v.round, v.rounds);
+  const valueAt = (r: number) => taLotValue(r, v.rounds);
+  let total = 0, pointsLeft = 0;
+  for (let r = 1; r <= v.rounds; r += 1) { total += valueAt(r); if (r >= v.round) pointsLeft += valueAt(r); }
+  const avgLeft = pointsLeft / left;
+  // A points target that is usually enough (no longer a guarantee once minus stones exist), as wins still needed.
+  const needPts = Math.max(0, Math.floor(total / players) + 1 - mine);
+  const need = needPts > 0 ? Math.max(1, Math.ceil(needPts / avgLeft)) : 0;
   // The usual winning price so far, or a first guess: about a fifth of a bank (the broadcast's first auctions went
   // for 1:23–1:50 of 10:00).
-  const prices = v.log.filter((x) => x.outcome !== 'empty').map((x) => x.price);
+  // Prices per point: a silver stone (2) goes for about twice a plain one.
+  const prices = v.log.filter((x) => x.outcome !== 'empty').map((x) => x.price / Math.max(1, x.value));
   // A hard AI reads the price it takes to win as the upper part of what winners have paid (a normal AI, the middle).
   const sorted = [...prices.slice(-8)].sort((a, b) => a - b);
   const quantile = (q: number) => sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * q))];
-  const first = v.startBank * 0.17;
-  const typical = prices.length >= 2 ? (hard ? quantile(0.6) : median(prices.slice(-6))) : first;
+  const first = v.startBank * 0.12;
+  const typical = (prices.length >= 2 ? (hard ? quantile(0.6) : median(prices.slice(-6))) : first) * value;
   const noise = hard ? r(0.95, 1.06) : r(0.75, 1.3);
-  const perWin = felt / Math.max(1, need);
+  const perWin = (felt / Math.max(1, need)) * (value / avgLeft);
   const cap = (ms: number) => Math.max(TA_UNIT, Math.min(hard ? bank : felt, ms));
   // Lowest tokens among the others: if nobody is below me, I am the one in danger.
   const others = v.inGame.flatMap((on, s) => (on && s !== v.seat ? [score(s)] : []));
@@ -91,7 +99,7 @@ export function chooseTaBid(v: TaAiView, style: TaStyle, level: TaLevel, rand: (
     if (sure <= bank && (left <= need + 1 || sure <= perWin * (style === 'count' ? 1.0 : 0.9))) return cap(sure + r(0, 60));
   }
   // Out of auctions: everything left goes into the ones that remain.
-  if (need > 0 && left <= need) return cap((felt / left) * r(0.97, 1));
+  if (need > 0 && left <= need) return cap(((felt * value) / pointsLeft) * r(0.97, 1));
   // A hard AI does not join a fight it cannot afford to win while it still has auctions to spare.
   if (hard && perWin < typical * 0.75 && left > need + 1 && rand() < 0.7) return null;
   // Safe already: mostly rest, sometimes a cheap try.

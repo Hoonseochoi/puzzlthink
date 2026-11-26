@@ -10,7 +10,7 @@ import { type RoomEngine, prepareRoom, useRealtimeRoom } from './useRealtimeRoom
 export const TIME_AUCTION_ROOM: RoomEngine<TaRoom, TaRoomAction> = {
   channel: 'time-auction-room', storage: 'puzzlthink_time_auction',
   create: (value, host) => (value === 'time-auction' ? createTaRoom(host) : null),
-  restorable: (saved) => Array.isArray(saved?.seats) && saved.seats.length === TA_MAX_PLAYERS && !!saved.game && Array.isArray(saved.game.bank) && Array.isArray(saved.game.minus) && !!saved.hidden,
+  restorable: (saved) => Array.isArray(saved?.seats) && saved.seats.length === TA_MAX_PLAYERS && !!saved.game && Array.isArray(saved.game.bank) && Array.isArray(saved.game.minus) && Array.isArray(saved.game.points) && !!saved.hidden,
   reduce: reduceTaRoom, syncSeats: syncTaSeats,
   running: () => false, timeoutAction: { t: 'tick' }, autoAction: taAutoAction, autoDelay: 0,
   redact: redactTaRoom, privateFor: taRoomSecret, withPrivate: withTaRoomSecret,
