@@ -10,6 +10,7 @@ import aiHitStay from './ai-hit-stay';
 import aiIndianPoker from './ai-indian-poker';
 import aiBlackWhite from './ai-black-white';
 import aiDifficultyTuning from './ai-difficulty-tuning';
+import sysIcons from './sys-icons';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
@@ -21,6 +22,7 @@ const ARTICLES: DevlogArticle[] = [
   aiIndianPoker,
   aiBlackWhite,
   aiDifficultyTuning,
+  sysIcons,
 ];
 
 export const DEVLOG: readonly DevlogArticle[] = ARTICLES;
