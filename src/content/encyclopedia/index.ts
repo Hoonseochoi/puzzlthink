@@ -24,6 +24,7 @@ import perfectInformation from './perfect-information';
 import zeroSum from './zero-sum';
 import firstMoveAdvantage from './first-move-advantage';
 import solvedGames from './solved-games';
+import luckAndSkill from './luck-and-skill';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -51,6 +52,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   zeroSum,
   firstMoveAdvantage,
   solvedGames,
+  luckAndSkill,
 ];
 
 export const WIKI_BASE = '/board-games';
