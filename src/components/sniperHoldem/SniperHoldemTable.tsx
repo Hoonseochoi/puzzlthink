@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bot, ChevronUp, Hand, History, Minus, Plus, ShieldCheck, Volume2, VolumeX, X } from 'lucide-react';
 import {
   type ShCat, type ShEvent, type ShTarget, type SniperHoldem, SH_CATS, SH_SEATS,
-  shCanAct, shEvaluate, shHandOf, shMinTop, shPossibleTargets, shPot, shSameTarget, shTargetOf, shVisible,
+  shAnte, shCanAct, shEvaluate, shNextAnte, shHandOf, shMinTop, shPossibleTargets, shPot, shSameTarget, shTargetOf, shVisible,
 } from '@/lib/sniperHoldem';
 import { SH_PERSONA } from '@/lib/sniperHoldemAi';
 import { type SniperHoldemRoom, type SniperHoldemRoomAction, SH_SHOWDOWN_MS, SH_WARN_SEC, shWaitingOn } from '@/lib/sniperHoldemRoom';
@@ -141,6 +141,22 @@ function Layer({ children }: { children: ReactNode }) {
 
 /* ------------------------------------------------------------------ board */
 
+/**
+ * The ante now and when it next goes up (the site's rising ante; a fixed-ante table says so). The round it rises,
+ * the cell lights up.
+ */
+function AnteCell({ g, t }: { g: SniperHoldem; t: ShCopy }) {
+  const next = shNextAnte(g.anteRule, g.round, g.startChips);
+  const rose = g.round > 1 && shAnte(g.anteRule, g.round, g.startChips) > shAnte(g.anteRule, g.round - 1, g.startChips);
+  return (
+    <motion.span key={`${g.round}-${rose}`} initial={rose ? { scale: 1.25, backgroundColor: 'rgba(255,79,94,.45)' } : false} animate={{ scale: 1, backgroundColor: rose ? 'rgba(255,79,94,.16)' : 'rgba(0,0,0,.3)' }} transition={{ duration: 0.6 }}
+      className={`min-w-0 rounded py-1 ${rose ? 'text-[#ffb3ba] ring-1 ring-(--accent)/60' : ''}`}>
+      {t.anteTitle}<b className="block font-mono text-[12px] text-white">{rose && '↑'}{g.ante}</b>
+      <span className="block truncate px-0.5 text-[8px] leading-3 text-white/40">{next ? t.anteNext(next.round, next.ante) : g.anteRule === 'rise' ? '' : t.anteFixed}</span>
+    </motion.span>
+  );
+}
+
 function BoardPanel({ g, t, nameOf, sound, onSound, onHistory }: { g: SniperHoldem; t: ShCopy; nameOf: (s: number) => string; sound: boolean; onSound: () => void; onHistory: () => void }) {
   const pot = shPot(g);
   const boardHand = g.shown >= 2 ? shEvaluate(g.board.slice(0, g.shown).filter((c): c is number => c !== null)) : null;
@@ -156,8 +172,9 @@ function BoardPanel({ g, t, nameOf, sound, onSound, onHistory }: { g: SniperHold
       <div className="mt-2 flex items-center justify-center gap-1.5 sm:gap-2.5">
         {[0, 1, 2, 3].map((i) => <ShCard key={`${g.round}-${i}-${i < g.shown}`} value={i < g.shown ? g.board[i] ?? null : null} size="board" delay={i * 0.06} />)}
       </div>
-      <div className="mt-2 grid grid-cols-4 gap-1 text-center text-[9px] font-bold text-white/45">
-        <span className="rounded bg-black/30 py-1">{t.first}<b className="block truncate px-1 text-[11px] text-white">{nameOf(g.first)}</b></span>
+      <div className="mt-2 grid grid-cols-5 gap-1 text-center text-[9px] font-bold text-white/45">
+        <span className="min-w-0 rounded bg-black/30 py-1">{t.first}<b className="block truncate px-1 text-[11px] text-white">{nameOf(g.first)}</b></span>
+        <AnteCell g={g} t={t} />
         <span className="rounded bg-black/30 py-1">{t.cap}<b className="block font-mono text-[12px] text-white">{g.cap}</b></span>
         <span className="rounded bg-black/30 py-1"><ShieldCheck size={10} className="mx-auto inline -mt-0.5" /> {t.safe}<b className="block font-mono text-[12px] text-[#7ef0b0]">{g.target}</b></span>
         <span className="rounded border border-[#ffd36b]/30 bg-[#ffd36b]/[0.08] py-1 text-[#ffd36b]"><span className="flex items-center justify-center gap-1">{t.pot}<StonePile n={pot} size={9} /></span><motion.b key={pot} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="block font-mono text-[13px]">{pot}</motion.b></span>
@@ -636,7 +653,7 @@ function HistorySheet({ g, t, nameOf, mySeat, onClose }: { g: SniperHoldem; t: S
 function LogList({ g, t, nameOf }: { g: SniperHoldem; t: ShCopy; nameOf: (s: number) => string }) {
   const line = (e: ShEvent) => {
     switch (e.k) {
-      case 'round': return t.logRound(e.round, nameOf(e.first), e.cap);
+      case 'round': return t.logRound(e.round, nameOf(e.first), e.cap, e.ante);
       case 'board': return t.logBoard(e.cards[0], e.cards[1]);
       case 'call': return t.logCall(nameOf(e.seat), e.to);
       case 'raise': return t.logRaise(nameOf(e.seat), e.to, e.open);

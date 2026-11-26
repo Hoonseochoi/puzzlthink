@@ -7,7 +7,7 @@ const game: ShowGame = {
   when: { ko: '3일차', en: 'Day 3' },
   site: 'sniperHoldem',
   related: ['indianPoker', 'twoSidedPoker', 'hitStay'],
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   sources: [
     namuDay(3),
     { label: { ko: 'Yoshiki O, 「Devil’s Plan Season 2 Day 3 Prison Match “Sniper Hold’em” Analysis」 (Medium, 영어)', en: 'Yoshiki O, "Devil’s Plan Season 2 Day 3 Prison Match ‘Sniper Hold’em’ Analysis" (Medium)' }, url: 'https://medium.com/@yoshiki_o/devils-plan-season-2-day-3-prison-match-sniper-hold-em-analysis-fb81e75484b4' },
@@ -77,7 +77,8 @@ const game: ShowGame = {
     ],
     siteDiff: [
       { type: 'list', items: [
-        'PUZZLTHINK 스나이퍼 홀덤은 방송 규칙(40장 덱, 칩 60개와 기본 1칩, 공유 카드 2+2장, 체크 없는 두 번의 베팅과 상한, 저격 선언법, 동점·무승부 처리, 생존과 탈락)을 그대로 따라요.',
+        '**기본 베팅이 점점 올라가요** (방송은 매 라운드 1칩): 처음 4라운드는 방송처럼 1칩, 5라운드 2칩 · 7라운드 3칩 · 9라운드 4칩 · 11라운드 6칩 · 13라운드 8칩, 그다음 2라운드마다 3칩씩 올라요(24칩 판은 0.4배, 최소 1칩). 1칩 고정이면 AI 5인전이 보통 30라운드를 넘고 길면 100라운드도 넘게 이어져서 정한 사이트 규칙이에요. 친구·공개방에서는 방장이 **방송 규칙(1칩 고정)**을 고를 수 있어요.',
+        'PUZZLTHINK 스나이퍼 홀덤은 그 밖의 방송 규칙(40장 덱, 칩 60개, 공유 카드 2+2장, 체크 없는 두 번의 베팅과 상한, 저격 선언법, 동점·무승부 처리, 생존과 탈락)을 그대로 따라요.',
         '방송은 5명이지만 PUZZLTHINK에서는 **2~5명**으로 할 수 있어요. 인원이 달라도 같은 구조가 되도록 생존선을 시작 칩 × 인원 ÷ (인원 − 1)로 정해요(5명 75 · 4명 80 · 3명 90 · 2명 120). 친구 방에서는 빠른 판(시작 칩 24개)도 고를 수 있어요.',
         '생존자의 남는 칩은 직접 고르지 않고, 0칩인 사람에게 1개씩 먼저 준 뒤 칩이 적은 사람부터 고르게 나눠 줘요. 친구·공개방은 베팅과 저격마다 30초 제한이 있어요.',
       ] },
@@ -147,7 +148,8 @@ const game: ShowGame = {
     ],
     siteDiff: [
       { type: 'list', items: [
-        "PUZZLTHINK's Sniper Hold'em follows the broadcast rules: the 40-card deck, 60 chips and a 1-chip ante, 2 + 2 shared cards, two betting rounds with no checking and the cap, how snipes are called, ties and draws, safety and elimination.",
+        '**The ante rises** (the show kept it at 1): 1 chip for the first 4 rounds as on the show, then 2 from round 5, 3 from 7, 4 from 9, 6 from 11, 8 from 13, and 3 more every 2 rounds after that (×0.4 at 24 chips, never below 1). With a fixed 1-chip ante a five-player AI match often ran past 30 rounds and sometimes past 100, so this is a site rule. In friend and open rooms the host can pick **show rules (fixed 1-chip ante)**.',
+        "Otherwise PUZZLTHINK's Sniper Hold'em follows the broadcast rules: the 40-card deck, 60 chips, 2 + 2 shared cards, two betting rounds with no checking and the cap, how snipes are called, ties and draws, safety and elimination.",
         'The show had 5 players; PUZZLTHINK plays with **2–5**. To keep the same structure the safety line is start × players ÷ (players − 1) (5 → 75, 4 → 80, 3 → 90, 2 → 120). Rooms can also pick a quick table with 24 starting chips.',
         'A survivor’s surplus is not handed out by choice: 1 to each 0-chip player first, then evenly, smaller stacks first. Friend and open rooms give 30 seconds per bet or snipe.',
       ] },

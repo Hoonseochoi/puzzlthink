@@ -11,7 +11,7 @@ import type { GameGuide } from './types';
 const guide: GameGuide = {
   game: 'sniperHoldem',
   origin: { kind: 'show', show: 'dp2' },
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   related: ['hitStay', 'indianPoker', 'twoSidedPoker', 'heavy13'],
   ko: {
     meta: {
@@ -44,7 +44,7 @@ const guide: GameGuide = {
         title: '기본 규칙',
         blocks: [
           { type: 'steps', items: [
-            { title: '기본 베팅과 개인 카드', body: '라운드마다 모두 칩 1개를 내고, 나만 보는 개인 카드 2장을 받아요. 선(먼저 행동하는 사람)은 라운드마다 한 자리씩 옮겨가요.' },
+            { title: '기본 베팅과 개인 카드', body: '라운드마다 모두 기본 베팅을 내고(방송은 늘 1칩, PUZZLTHINK는 처음 4라운드 1칩 뒤로 점점 올라요 — 아래 「방송과 다른 점」), 나만 보는 개인 카드 2장을 받아요. 선(먼저 행동하는 사람)은 라운드마다 한 자리씩 옮겨가요.' },
             { title: '공유 카드 2장 → 1차 베팅', body: '공유 카드 2장을 공개하고 선부터 베팅해요. **체크는 없어요.** 첫 사람은 최소 1칩을 걸거나 포기하고, 다음 사람들은 콜(같은 만큼)·레이즈(더 많이)·포기 중에서 골라요. 모두 같은 칩을 내면 끝나요.' },
             { title: '공유 카드 2장 더 → 2차 베팅', body: '공유 카드 2장을 더 공개하고 같은 방식으로 2차 베팅을 해요.' },
             { title: '저격', body: '개인 카드를 공개하기 전, 남은 사람들이 선부터 차례로 족보 하나를 저격하거나 넘어가요. 앞사람의 저격은 모두가 듣고 정해요.' },
@@ -90,6 +90,7 @@ const guide: GameGuide = {
           { type: 'table', head: ['', '방송', 'PUZZLTHINK'], rows: [
             ['인원', '5명', '2~5명 (AI전 5명 또는 1:1, 방은 AI로 채우기 선택)'],
             ['시작 칩', '60개', '60개 (방에서는 빠른 판 24개도 선택)'],
+            ['기본 베팅', '매 라운드 1칩', '처음 4라운드 1칩 → 5R 2 · 7R 3 · 9R 4 · 11R 6 · 13R 8 → 2라운드마다 +3 (24칩 판은 0.4배). 친구·공개방은 방송 규칙(1칩 고정)도 선택'],
             ['생존선', '75개', '시작 칩 × 인원 ÷ (인원 − 1): 5명 75 · 4명 80 · 3명 90 · 2명 120 (24칩이면 30 · 32 · 36 · 48)'],
             ['남은 칩 나누기', '생존자가 원하는 대로 (0칩에게 최소 1개)', '0칩에게 1개씩 먼저, 나머지는 칩이 적은 사람부터 고르게'],
             ['시간', '제한 없음', 'AI전은 제한 없음, 친구·공개방은 베팅·저격마다 30초 (넘기면 AI가 대신)'],
@@ -136,7 +137,7 @@ const guide: GameGuide = {
             { title: '"보드만으로 보이는 족보"는 위험해요', body: '내 족보가 공유 카드만으로 만든 족보와 같다면, 상대도 그 족보를 그대로 부를 수 있어요. 게임 화면의 "내 족보" 아래에 공유 카드에 다 보이는 족보인지 알려 줘요. 그런 패로는 크게 걸지 마세요.' },
             { title: '히든 페어는 아껴 키우세요', body: '개인 카드 2장이 같은 숫자이고 공유 카드에 그 숫자가 없으면, 상대가 저격할 단서가 거의 없어요. 열세 판에 한 번꼴로 오는 기회라, 이때는 조금씩 올리며 따라오게 만드는 것이 좋아요.' },
             { title: '저격은 "내 패보다 위에 있을 가장 그럴듯한 족보"', body: '공유 카드를 보고 상대가 가졌을 만한 족보 중, 내 패를 이기는 것 하나를 고르세요. 크게 레이즈한 사람이 있다면 그 사람이 무엇을 노렸는지가 힌트예요.' },
-            { title: '포기는 손해가 아니에요', body: '기본 베팅은 1칩뿐이에요. 패도 약하고 저격으로 뒤집을 그림도 안 보이면 1차 베팅에서 바로 접는 것이 가장 싸요. 방송에서도 대부분의 라운드가 포기로 작게 끝났어요.' },
+            { title: '포기는 손해가 아니에요', body: '초반 기본 베팅은 1칩뿐이에요. 기본 베팅이 오르는 후반에는 포기도 비싸지니, 약한 패는 초반에 정리하세요. 패도 약하고 저격으로 뒤집을 그림도 안 보이면 1차 베팅에서 바로 접는 것이 가장 싸요. 방송에서도 대부분의 라운드가 포기로 작게 끝났어요.' },
           ] },
         ],
       },
@@ -186,7 +187,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'glossary', items: [
             { term: '선', def: '그 라운드에 가장 먼저 베팅하고 가장 먼저 저격하는 사람. 라운드마다 한 자리씩 옮겨가요.' },
-            { term: '기본 베팅', def: '라운드마다 모두 내는 1칩.' },
+            { term: '기본 베팅', def: '라운드마다 모두 내는 칩. 방송은 늘 1칩, PUZZLTHINK는 처음 4라운드 1칩 뒤로 올라가요.' },
             { term: '공유 카드', def: '모두가 함께 쓰는 4장. 2장씩 두 번 공개돼요.' },
             { term: '개인 카드', def: '나만 보는 2장. 승부 때 공개돼요.' },
             { term: '저격', def: '"숫자 + 족보"로 족보 하나를 지목해, 그 족보를 가진 사람을 모두 꼴찌로 만드는 선언.' },
@@ -239,7 +240,7 @@ const guide: GameGuide = {
         title: 'Rules',
         blocks: [
           { type: 'steps', items: [
-            { title: 'Ante and private cards', body: 'Each round everyone antes 1 chip and gets two private cards only they see. The first player (who acts first) moves one seat every round.' },
+            { title: 'Ante and private cards', body: 'Each round everyone pays the ante (always 1 on the show; on PUZZLTHINK 1 for the first 4 rounds, then rising — see "How the PUZZLTHINK version differs") and gets two private cards only they see. The first player (who acts first) moves one seat every round.' },
             { title: 'Two shared cards → bet 1', body: 'Two shared cards go up and betting starts from the first player. **There is no checking.** The opener bets at least 1 or folds; the others call, raise or fold. It ends when everyone still in has put in the same.' },
             { title: 'Two more → bet 2', body: 'Two more shared cards go up, and a second round of betting follows the same way.' },
             { title: 'Snipes', body: 'Before private cards are shown, the players still in may each snipe one hand or pass, in turn from the first player. Everyone hears the earlier snipes.' },
@@ -285,6 +286,7 @@ const guide: GameGuide = {
           { type: 'table', head: ['', 'The show', 'PUZZLTHINK'], rows: [
             ['Players', '5', '2–5 (AI: five or 1:1; rooms can fill seats with AI)'],
             ['Starting chips', '60', '60 (rooms can pick a quick 24)'],
+            ['Ante', '1 every round', '1 for rounds 1–4 → 2 from R5 · 3 R7 · 4 R9 · 6 R11 · 8 R13 → +3 every 2 rounds (×0.4 at 24 chips). Rooms can pick show rules (fixed 1)'],
             ['Safety line', '75', 'start × players ÷ (players − 1): 5 → 75 · 4 → 80 · 3 → 90 · 2 → 120 (at 24 chips: 30 · 32 · 36 · 48)'],
             ['Surplus chips', 'As the survivor likes (at least 1 to anyone on 0)', '1 to each 0-chip player first, the rest evenly, smaller stacks first'],
             ['Time', 'No clock', 'No clock vs AI; 30 s per bet or snipe in rooms (then the AI takes over)'],
@@ -331,7 +333,7 @@ const guide: GameGuide = {
             { title: 'A hand the board shows is a target', body: 'If your hand is the same as the board’s own hand, opponents can call it straight off the board. Under "My hand" the table tells you when your hand is all on the shared cards. Don’t bet big with those.' },
             { title: 'Grow hidden pairs slowly', body: 'Two private cards of one number, with that number not on the board, leave almost no clue. It comes about once in thirteen hands: raise a little at a time and keep the others calling.' },
             { title: 'Snipe "the likeliest hand above mine"', body: 'From the board, pick the hand an opponent most plausibly holds that beats yours. A big raise is a hint at what they are playing.' },
-            { title: 'Folding is cheap', body: 'The ante is a single chip. With a weak hand and no snipe likely to save it, folding in bet 1 is the cheapest move. On the show most rounds ended small, with folds.' },
+            { title: 'Folding is cheap', body: 'Early on the ante is a single chip (later, as it rises, folding costs more — clear weak hands early). With a weak hand and no snipe likely to save it, folding in bet 1 is the cheapest move. On the show most rounds ended small, with folds.' },
           ] },
         ],
       },
@@ -381,7 +383,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'glossary', items: [
             { term: 'First player (선)', def: 'Bets first and snipes first in a round; moves one seat each round.' },
-            { term: 'Ante', def: 'The 1 chip everyone puts in every round.' },
+            { term: 'Ante', def: 'What everyone puts in every round: always 1 on the show; on PUZZLTHINK 1 for the first 4 rounds, then rising.' },
             { term: 'Shared cards', def: 'The four cards everyone uses, turned up two at a time.' },
             { term: 'Private cards', def: 'Your two cards, shown at the showdown.' },
             { term: 'Snipe', def: 'Calling a hand by "number + type"; everyone holding it ranks last.' },

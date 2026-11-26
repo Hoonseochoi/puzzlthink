@@ -40,6 +40,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
     items: [
       {
+        date: '11/27', icon: Coins,
+        ko: { title: '기본 베팅이 점점 올라요', desc: '처음 4라운드는 방송처럼 1칩, 그 뒤로 2라운드마다 올라서(2·3·4·6·8칩, 그다음 +3칩씩) 한 판이 늘어지지 않아요. AI 5인전은 보통 15라운드 안팎에 끝나요. 친구·공개방은 방장이 방송 규칙(1칩 고정)을 고를 수 있고, 테이블에 지금 기본 베팅과 다음에 오르는 라운드가 보여요.' },
+        en: { title: 'The ante now rises', desc: 'One chip for the first 4 rounds, as on the show, then it goes up every 2 rounds (2, 3, 4, 6, 8, then +3 each time), so matches no longer drag: about 15 rounds at five against the AI. Room hosts can pick show rules (fixed 1 chip), and the table shows the ante and when it rises next.' },
+      },
+      {
         date: '11/27', icon: Sparkles,
         ko: { title: '스나이퍼 홀덤이 열렸어요', desc: '데블스 플랜 2(데스룸) 3일차 감옥 매치예요. 상대 족보를 숫자까지 맞혀 저격하면 꼴찌! AI 5인전·1:1, 친구·공개방 2~5명으로 할 수 있어요.' },
         en: { title: "Sniper Hold'em is open", desc: "The day-3 prison match of The Devil's Plan 2 (Death Room): name an opponent's exact hand and it ranks last. Five-player or 1:1 vs AI, and friend or open rooms for 2–5." },

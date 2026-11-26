@@ -1,7 +1,10 @@
-// AI vs AI for 스나이퍼 홀덤: `npx tsx scripts/sniper-holdem-arena.ts hard,normal,normal,easy,easy 40 [chips]`
+// AI vs AI for 스나이퍼 홀덤: `npx tsx scripts/sniper-holdem-arena.ts hard,normal,normal,easy,easy 40 [chips] [rise|fixed]`
+// Ante tuning: SH_STEPS='[[1,1],[5,2]]' SH_TAIL='2,3' override the rising schedule.
 // Seats get the listed levels (rotated every match so no level keeps a seat). Reports, per level, how often it was
 // eliminated (the last one left) and its average place, plus match length and the slowest AI move.
-import { type SniperHoldem, SH_SEATS, applyShAction, newSniperHoldem, startRound } from '../src/lib/sniperHoldem';
+import { type ShAnteRule, type SniperHoldem, SH_ANTE_STEPS, SH_ANTE_TAIL, SH_SEATS, applyShAction, newSniperHoldem, startRound } from '../src/lib/sniperHoldem';
+if (process.env.SH_STEPS) SH_ANTE_STEPS.splice(0, SH_ANTE_STEPS.length, ...JSON.parse(process.env.SH_STEPS));
+if (process.env.SH_TAIL) { const [e, a, p] = process.env.SH_TAIL.split(',').map(Number); SH_ANTE_TAIL.every = e; SH_ANTE_TAIL.add = a; if (p) SH_ANTE_TAIL.scalePow = p; }
 import { type ShLevel, SH_STYLES, SH_TUNING, chooseShAction, setShFoldScale } from '../src/lib/sniperHoldemAi';
 if (process.env.SH_FOLD) setShFoldScale(Number(process.env.SH_FOLD));
 import { shEvaluate } from '../src/lib/sniperHoldem';
@@ -15,7 +18,8 @@ for (const spec of (process.env.SH_VARIANTS ?? '').split(' ').filter(Boolean)) {
   SH_TUNING[name] = t as never;
 }
 
-const [list = 'hard,normal,normal,easy,easy', n = '30', chips = '60'] = process.argv.slice(2);
+const [list = 'hard,normal,normal,easy,easy', n = '30', chips = '60', rule = 'rise'] = process.argv.slice(2);
+const lengths: number[] = [];
 const levels = list.split(',') as ShLevel[];
 const players = levels.length;
 const stats = new Map<ShLevel, { seats: number; out: number; place: number }>();
@@ -25,7 +29,7 @@ let rounds = 0, slowest = 0, moves = 0, time = 0, snipes = 0, snipeHits = 0;
 for (let m = 0; m < Number(n); m += 1) {
   const order = levels.map((_, i) => levels[(i + m) % players]);
   const seated = Array.from({ length: SH_SEATS }, (_, i) => i < players);
-  let g: SniperHoldem = newSniperHoldem(seated, Number(chips));
+  let g: SniperHoldem = newSniperHoldem(seated, Number(chips), undefined, rule as ShAnteRule);
   for (let step = 0; step < 100000 && g.phase !== 'finished'; step += 1) {
     if (g.phase === 'showdown') { g = startRound(g); continue; }
     const s = g.turn;
@@ -48,12 +52,16 @@ for (let m = 0; m < Number(n); m += 1) {
     g = next;
   }
   rounds += g.round;
+  lengths.push(g.round);
   for (let s = 0; s < players; s += 1) {
     const st = stats.get(order[s]) ?? { seats: 0, out: 0, place: 0 };
     st.seats += 1; st.place += g.place[s] ?? players; if (g.place[s] === players) st.out += 1;
     stats.set(order[s], st);
   }
 }
+lengths.sort((a, b) => a - b);
+const pct = (q: number) => lengths[Math.min(lengths.length - 1, Math.floor(q * lengths.length))];
+console.log(`${rule} ante: rounds median ${pct(0.5)}, p90 ${pct(0.9)}, longest ${lengths[lengths.length - 1]}`);
 console.log(`${n} matches, ${players} players, ${chips} chips: ${(rounds / Number(n)).toFixed(1)} rounds/match, AI move avg ${(time / moves).toFixed(1)} ms, slowest ${slowest.toFixed(0)} ms, ${snipes} snipes / ${snipeHits} hands sniped`);
 for (const [l, x] of act) { const b = x.fold + x.call + x.raise; console.log(`  ${l.padEnd(8)} fold ${(100 * x.fold / b).toFixed(0)}% call ${(100 * x.call / b).toFixed(0)}% raise ${(100 * x.raise / b).toFixed(0)}% (all-in ${x.allin}) · snipe ${x.snipe} hit ${(100 * x.hit / Math.max(1, x.snipe)).toFixed(0)}% pass ${x.pass} · showdowns ${x.sd} won ${(100 * x.sdWin / Math.max(1, x.sd)).toFixed(0)}%`); }
 for (const [level, st] of stats) console.log(`  ${level.padEnd(6)} eliminated ${(100 * st.out / st.seats).toFixed(1)}% (fair ${(100 / players).toFixed(1)}%), avg place ${(st.place / st.seats).toFixed(2)} over ${st.seats} seats`);

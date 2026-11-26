@@ -16,7 +16,10 @@ for (let m = 0; m < n; m += 1) {
   s = { ...s, seats: s.seats.map((seat, i) => (i < people ? { id: `p${i}`, name: `P${i}` } : null)) };
   if (m % 2) s = reduceSniperHoldemRoom(s, { t: 'fillAi', on: false }, 0, true)!;
   if (m % 4 === 1) s = reduceSniperHoldemRoom(s, { t: 'chips', chips: 24 }, 0, true)!;
+  const rule = m % 3 === 2 ? 'fixed' : 'rise';
+  if (rule === 'fixed') s = reduceSniperHoldemRoom(s, { t: 'ante', rule }, 0, true)!;
   s = reduceSniperHoldemRoom(s, { t: 'start' }, 0, true)!;
+  if (s.game.anteRule !== rule) fail(`ante rule ${s.game.anteRule} != ${rule}`);
   const seated = s.seats.filter(Boolean).length;
   if (seated !== (m % 2 ? people : SH_SEATS)) fail(`seated ${seated}`);
   let tookOver = false, gaveBack = false;
