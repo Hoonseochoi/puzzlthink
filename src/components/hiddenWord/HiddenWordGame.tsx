@@ -6,6 +6,7 @@ import { Link } from '@/i18n/routing';
 import { ArrowRight, BookOpen, Loader2, LockKeyhole, RotateCcw, Send, Sparkles, Trophy, X } from 'lucide-react';
 import { Piece } from '@/components/CompetitionBoard';
 import { useAuth } from '@/components/AuthProvider';
+import { markSignupSource } from '@/lib/signupSource';
 import AuthButton from '@/components/AuthButton';
 import BugReport from '@/components/BugReport';
 import GameUpdates from '@/components/GameUpdates';
@@ -136,7 +137,7 @@ export default function HiddenWordGame({ level = 'basic' }: { level?: HwLevel })
               <LockKeyhole className="text-(--accent)" size={28} />
               <h2 className="text-lg font-black text-white">{t.membersTitle}</h2>
               <p className="max-w-[320px] break-keep text-sm leading-6 text-white/60">{t.membersDesc}</p>
-              <button type="button" onClick={() => void signIn()} className={BTN_ACCENT}>{t.membersSignIn}</button>
+              <button type="button" onClick={() => { markSignupSource('hidden_word_plus'); void signIn(); }} className={BTN_ACCENT}>{t.membersSignIn}</button>
             </> : failed ? <>
               <p className="text-sm text-white/70">{t.offline}</p>
               <button type="button" onClick={() => void begin(false)} className={BTN_ACCENT}><RotateCcw size={14} />{t.retry}</button>

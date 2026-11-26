@@ -31,7 +31,7 @@ GAME_KO = {"wallgo": "벽바둑", "heavy13": "무거운 13", "janggi": "십이�
 MODE_KO = {"ai": "AI", "friend": "친구", "solo": "혼자"}
 SOURCE_KO = {"header": "상단 헤더", "header_menu": "모바일 메뉴", "result": "게임 결과 화면", "open_room": "오픈 대전 대기방",
              "game_open": "게임 페이지 오픈 대전", "home_open": "홈 오픈 대전 카드", "hard_clear": "어려움 클리어 팝업",
-             "records": "기록실", "other": "기타"}
+             "records": "기록실", "hidden_word_plus": "히든 워드 확장판 (가입자 전용)", "slitherlink": "슬리더링크", "other": "기타"}
 SUPPORT_KO = {"card": "후원 카드", "footer": "푸터 링크", "result": "결과 화면 문구", "hall": "명예의 전당 팝업",
               "open_rank": "오픈 랭킹 팝업", "hard_clear": "클리어 인증서 팝업"}
 
