@@ -330,6 +330,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
       },
     ],
   },
+  black_white_2: {
+    name: { ko: '흑과 백 II', en: 'Black & White II' },
+    items: [
+      {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 열 명 중 한 명이 무작위로 나와요. 판단력은 모두 같고 포인트를 몰아 쓰는 판과 색을 쓰는 방식이 달라요. 이번 판의 내 버릇도 색·승패로 읽고, 누구였는지는 끝나면 공개돼요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each game draws one of ten. All judge equally well but spend their points in different rounds and use colours differently; they read your habits from colours and results, and the personality is revealed at the end.' },
+      },
+    ],
+  },
   heavy13: {
     name: { ko: 'HEAVY 13', en: 'HEAVY 13' },
     items: [

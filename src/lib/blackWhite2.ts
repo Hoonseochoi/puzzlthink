@@ -2,6 +2,8 @@
 // A one-digit bid is shown as black, a two-digit bid as white. Exact bids stay hidden until the
 // game ends, while each player's remaining-point gauge (five 20-point bands) is always public.
 
+import { type PersonaId, type PersonaMatch } from './aiPersona';
+
 export type BW2Side = 0 | 1;
 export type BW2Color = 'black' | 'white';
 export type BW2Stage = 'main' | 'overtime';
@@ -111,6 +113,8 @@ type AiInput = {
   lead: { color: BW2Color; gaugeAfter: number } | null;
   level: BW2Difficulty;
   rand?: Rand;
+  /** This match's persona; without one the AI plays exactly as before personas. */
+  persona?: PersonaMatch;
 };
 
 /** Small seeded generator, so every candidate bid is played out against the same luck. */
@@ -227,6 +231,9 @@ export function chooseBw2AiBid(input: AiInput): number {
   }
 
   const [bankLo, bankHi] = rivalBankRange(rounds, me, stage);
+  // The player's habits from colours and results only (bids stay hidden until the end): leads that keep winning are
+  // big leads, answers that keep winning are hard answers.
+  const habit = input.persona ? readBw2Habits(rounds, me) : null;
   const samples = level === 'hard' ? 500 : 120;
   const candidates = candidateBids(myBank);
   const totals = new Map<number, number>(candidates.map((c) => [c, 0]));
@@ -241,7 +248,7 @@ export function chooseBw2AiBid(input: AiInput): number {
       const [gLo, gHi] = bw2GaugeRange(lead.gaugeAfter);
       const lo = Math.max(cLo, rivalBank - gHi), hi = Math.min(cHi, rivalBank - gLo);
       if (lo > hi) continue;
-      leadBid = lo + randomInt(hi - lo, rand);
+      leadBid = habit?.leadTilt ? lo + Math.min(hi - lo, Math.floor((hi - lo + 1) * Math.pow(rand(), Math.exp(-habit.leadTilt)))) : lo + randomInt(hi - lo, rand);
     }
     used += 1;
     const seed = Math.floor(rand() * 2 ** 31);
@@ -249,20 +256,81 @@ export function chooseBw2AiBid(input: AiInput): number {
       const luck = seeded(seed);
       const g: Sim = { ...base, main: [...base.main] as [number, number], ot: [...base.ot] as [number, number], banks: (me === 0 ? [myBank, rivalBank] : [rivalBank, myBank]) as [number, number] };
       if (leadBid !== null) simPlay(g, leadBid, c);
-      else simPlay(g, c, Math.min(g.banks[opp], quickFollow(g, opp, bw2ColorOf(c), luck)));
+      else simPlay(g, c, Math.min(g.banks[opp], habit?.eager ? clampBid(quickFollow(g, opp, bw2ColorOf(c), luck) * (1 + 0.3 * habit.eager), g.banks[opp]) : quickFollow(g, opp, bw2ColorOf(c), luck)));
       totals.set(c, totals.get(c)! + playOutSim(g, me, luck));
     }
   }
   if (!used) return clampBid(myBank / Math.max(1, bw2RoundsLeft(rounds, stage)), myBank);
-  // Softmax over win rates so the AI is not predictable: sharper on hard.
-  const temp = level === 'hard' ? 0.025 : 0.06;
-  const entries = [...totals.entries()].map(([c, v]) => [c, v / used] as const);
+  // Softmax over win rates so the AI is not predictable: sharper on hard. A persona adds its small lean.
+  const style = input.persona ? bw2Style(input.persona, { rounds, me, stage, myBank, leading: !lead, rand }) : null;
+  const temp = (level === 'hard' ? 0.025 : 0.06) * (style?.temp ?? 1);
+  const entries = [...totals.entries()].map(([c, v]) => [c, v / used + (style?.bonus(c) ?? 0)] as const);
   const top = Math.max(...entries.map(([, v]) => v));
   const weights = entries.map(([c, v]) => [c, Math.exp((v - top) / temp)] as const);
   let r = rand() * weights.reduce((a, [, w]) => a + w, 0);
   for (const [c, w] of weights) { r -= w; if (r <= 0) return c; }
   return entries[0][0];
 }
+
+// -------------------------------------------------------------------------------------------------
+// Personas: the same estimate for all of them; a persona leans between bids the estimate rates close.
+
+/** Lead/answer win shares of the other side, as −1..1 leans (0 with no data), from colours and results. */
+export function readBw2Habits(rounds: BW2Round[], me: BW2Side) {
+  const opp = bw2Other(me);
+  let leads = 0, leadWins = 0, answers = 0, answerWins = 0;
+  for (const r of rounds) {
+    if (r.winner === null) continue;
+    if (r.leader === opp) { leads += 1; if (r.winner === opp) leadWins += 1; } else { answers += 1; if (r.winner === opp) answerWins += 1; }
+  }
+  const lean = (hits: number, n: number) => ((hits + 1.5) / (n + 3) - 0.5) * 2;
+  return { leadTilt: Math.max(-1, Math.min(1, lean(leadWins, leads) * 1.4)), eager: Math.max(-1, Math.min(1, lean(answerWins, answers))) };
+}
+
+/** Tuning knob (exported for the arena script): the largest lean, in win-rate units. */
+export const BW2_PERSONA_TUNING = { lean: 0.02 };
+
+function bw2Style(p: PersonaMatch, ctx: { rounds: BW2Round[]; me: BW2Side; stage: BW2Stage; myBank: number; leading: boolean; rand: Rand }) {
+  if (ctx.rand() < 0.08) return { temp: 1.3, bonus: () => 0 }; // now and then without the style
+  const size = BW2_PERSONA_TUNING.lean * p.vary('bw2Lean', 0.3) * (1 + 0.25 * p.mood);
+  const left = bw2RoundsLeft(ctx.rounds, ctx.stage);
+  const fair = ctx.myBank / Math.max(1, left);
+  const x = (c: number) => Math.min(1, c / Math.max(1, 2 * fair)); // 0 = nothing, 0.5 = a fair share, 1 = twice that
+  const played = bw2StageRounds(ctx.rounds, ctx.stage).length;
+  const score = bw2ScoresOf(bw2StageRounds(ctx.rounds, ctx.stage));
+  const diff = score[ctx.me] - score[bw2Other(ctx.me)];
+  const noise = new Map<number, number>();
+  const n = (c: number) => { if (!noise.has(c)) noise.set(c, ctx.rand() * 2 - 1); return noise.get(c)!; };
+  const lean: Record<PersonaId, { temp: number; f: (c: number) => number }> = {
+    calc: { temp: 0.8, f: () => 0 },
+    aggro: { temp: 1, f: (c) => x(c) },
+    careful: { temp: 1, f: (c) => -x(c) },
+    // A cheap white (10–13) looks expensive and a top black (7–9) looks cheap: the colour says the least.
+    bluffer: { temp: 1.1, f: (c) => (c >= 10 && c <= 13) || (c >= 7 && c <= 9) ? 1 : 0 },
+    trap: { temp: 1, f: (c) => (ctx.leading ? (c <= 9 ? 1 : -0.3) : 0) },
+    chaser: { temp: diff < 0 ? 1.5 : 1, f: (c) => (diff > 0 ? -x(c) : 0) },
+    whim: { temp: 1.4, f: n },
+    grinder: { temp: 1, f: (c) => 1 - Math.min(1, Math.abs(c - fair) / Math.max(4, fair)) },
+    opener: { temp: 1, f: (c) => (ctx.stage === 'main' && played < 4 ? x(c) : -0.5 * x(c)) },
+    closer: { temp: 1, f: (c) => (ctx.stage === 'main' && played < 5 ? -x(c) : x(c)) },
+  };
+  const l = lean[p.id];
+  return { temp: l.temp, bonus: (c: number) => size * l.f(c) };
+}
+
+/** How to read each persona in 흑과 백 II. */
+export const BW2_TELLS: Record<PersonaId, { ko: string; en: string }> = {
+  calc: { ko: '승률이 가장 높은 금액만 걸어요. 게이지가 고르게 줄어요.', en: 'Bids the best-rated amount; its gauge drops evenly.' },
+  aggro: { ko: '이길 판에 넉넉하게 걸어요. 게이지가 빨리 줄면 후반이 가벼워요.', en: 'Bids generously to win; when its gauge drops fast, its late game is light.' },
+  careful: { ko: '포인트를 끝까지 아껴요. 게이지가 오래 높게 남아 있으면 마지막 판들이 무거워요.', en: 'Saves points to the end; a gauge that stays high means heavy final rounds.' },
+  bluffer: { ko: '10~13 같은 싼 흰색과 7~9 같은 비싼 검은색을 즐겨 내요. 색만으로 크기를 판단하기 어려워요.', en: 'Likes cheap whites (10–13) and dear blacks (7–9); colour alone says little.' },
+  trap: { ko: '선일 때 검은색(0~9)으로 미끼를 던져요. 선 판을 쉽게 내준다면 내 포인트를 빼려는 거예요.', en: 'Leads with blacks (0–9) as bait; cheap lead losses are there to drain your points.' },
+  chaser: { ko: '앞서면 아끼고, 뒤처지면 수가 갑자기 읽기 어려워져요.', en: 'Saves when ahead; when behind its bids suddenly get hard to read.' },
+  whim: { ko: '비슷한 금액 사이에서 매번 다르게 골라요. 게이지와 남은 판 수로만 판단하세요.', en: 'Picks differently each time between close bids; judge by gauge and rounds left.' },
+  grinder: { ko: '남은 포인트를 남은 판 수로 나눈 만큼씩 고르게 걸어요.', en: 'Bids close to its points divided by the rounds left, round after round.' },
+  opener: { ko: '처음 네 판에 크게 걸어 점수를 먼저 벌려요. 그 뒤로는 게이지가 낮아요.', en: 'Bids big in the first four rounds to get ahead; its gauge is low afterwards.' },
+  closer: { ko: '처음 다섯 판은 작게, 그 뒤로 남겨 둔 포인트를 몰아 써요.', en: 'Small for the first five rounds, then spends what it saved.' },
+};
 
 // -------------------------------------------------------------------------------------------------
 // Post-game reading. Every exact bid is revealed and translated into a concise strategic story.

@@ -7,11 +7,13 @@
 // remaining points redacted for the other seat). Inline guide: BlackWhite2Guide in ko/en.json.
 // Bid ranges in the walkthrough were worked out from colour + result + gauge, as the AI's rivalBankRange does.
 import type { GameGuide } from './types';
+import { BW2_TELLS } from '@/lib/blackWhite2';
+import { personaSection } from './personaSection';
 
 const guide: GameGuide = {
   game: 'blackWhite2',
   origin: { kind: 'show', show: 'genius3' },
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   related: ['blackWhite', 'twoSidedPoker', 'indianPoker', 'heavy13'],
   inlineNamespace: 'BlackWhite2Guide',
   ko: {
@@ -150,11 +152,13 @@ const guide: GameGuide = {
             ['쉬움', '계산 없이 감으로 둬요. 선일 때는 대략 "남은 포인트 ÷ 필요한 승수" 근처를 내고, 흑을 보면 대부분 10으로 답해요.'],
             ['보통', '색·승패·표시등으로 내 잔액 범위를 좁힌 뒤, 여러 후보 입찰을 남은 게임까지 120번 정도 시뮬레이션해서 골라요.'],
             ['어려움', '같은 방식으로 500번 시뮬레이션하고, 가장 좋은 수를 더 일관되게 골라요. 그래도 완전히 같은 수만 두지는 않아요.'],
+            ['성향', '모든 난이도에서 열 가지 성향 중 하나가 무작위로 나와요. 어려움은 성향 그대로 전력으로 두고, 쉬움·보통은 같은 성향에 그 난이도의 감·적은 시뮬레이션이 그대로 적용돼요.'],
             ['친구전', '초대 링크나 4자리 코드로 1:1 대결해요. 턴 시간은 30·45·60초 중에서 골라요. 시간이 지나면 "남은 포인트를 남은 라운드로 나눈 값"의 두 배 이내에서 무작위로 입찰되고, 세 번 연속이면 패배예요. 상대 화면에는 내 정확한 숫자와 잔액이 전달되지 않아요.'],
             ['복기', '끝나면 모든 숫자가 공개돼요. 1~2 차이 승리, 미끼(흑으로 져서 상대의 백을 끌어냄), 과한 승리(12 이상 차이), 올인, 표시등 압박 같은 라운드에 해설이 붙어요.'],
           ] },
         ],
       },
+      personaSection('ko', BW2_TELLS, ['흑과 백 II에서 성향이 드러나는 곳은 **99포인트를 어느 판에 몰아 쓰느냐**와 **색으로 무엇을 숨기느냐**예요. 같은 판이라도 초반 승부사는 처음 네 판에 크게 걸어 점수를 벌리고, 막판 승부사는 다섯 판을 작게 넘긴 뒤 몰아 써요. 블러퍼는 10~13 같은 싼 흰색과 7~9 같은 비싼 검은색으로 색을 흐려요. AI도 내 금액은 볼 수 없어서 **색·승패·게이지**로만 내 버릇을 읽어요. 내 선공이 자주 이기면 "선에 크게 거는 사람"으로 보고 응수를 맞춰요.'], ['복기 화면의 성향 카드에는 AI가 1~4라운드에 쓴 포인트도 나와요.']),
       {
         id: 'glossary',
         title: '용어 정리',
@@ -318,11 +322,13 @@ const guide: GameGuide = {
             ['Easy', 'Plays by feel: leads roughly "points left ÷ wins needed" and usually answers black with 10.'],
             ['Normal', 'Narrows your balance from colours, results and gauge, then plays each candidate bid out to the end about 120 times.'],
             ['Hard', 'The same with 500 play-outs, choosing the best bid more consistently — though never the exact same bid every time.'],
+            ['Personality', 'Every level draws one of ten personalities. Hard plays it at full strength; easy and normal play the same personality with their level’s by-feel bids or fewer play-outs.'],
             ['Friend matches', 'One-on-one by invite link or 4-digit code. Turns of 30, 45 or 60 seconds; a timeout places a random bid of up to twice "points left ÷ rounds left", and three in a row loses. Your exact bids and balance are never sent to their screen.'],
             ['Replay', 'Every number is revealed, with notes on rounds won by 1–2, baits (a black loss that drew out a white), overkills (won by 12+), all-ins and gauge pressure.'],
           ] },
         ],
       },
+      personaSection('en', BW2_TELLS, ['In Black & White II a personality shows in **where it spends its 99 points** and **what it hides behind a colour**. The Fast Starter bids big in the first four rounds to get ahead; the Closer lets five rounds go cheaply and then spends; the Bluffer blurs colours with cheap whites (10–13) and dear blacks (7–9). The AI cannot see your amounts either, so it reads your habits from **colours, results and gauges**: if your leads keep winning, it takes you for someone who leads big.'], ['The personality card on the replay also shows how many points the AI spent in rounds 1–4.']),
       {
         id: 'glossary',
         title: 'Glossary',

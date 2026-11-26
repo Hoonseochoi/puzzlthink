@@ -3784,7 +3784,7 @@
     "newGame": "New game",
     "resultKicker": "THE REVEAL",
     "overtimeKicker": "OVERTIME · 33 POINTS",
-    "vsAi": "VS NOIR · {level}",
+    "vsAi": "VS {name} · {level}",
     "levels": {
       "easy": "Easy",
       "normal": "Normal",
@@ -3796,10 +3796,12 @@
       "hard": "Same idea with hundreds of play-outs, mixing close options so it is hard to read."
     },
     "difficulty": "AI level",
+    "personaTitle": "AI personality",
+    "personaNote": "Each game draws one of ten personalities at random. They differ in style only and all judge equally well; easy and normal add their usual mistakes on top. The personality is revealed when the game ends.",
     "you": "You",
     "finishedDraw": "Still level after overtime — draw",
-    "finishedWin": "You beat NOIR!",
-    "finishedLoss": "NOIR wins this one",
+    "finishedWin": "You beat {name}!",
+    "finishedLoss": "{name} wins this one",
     "roundDraw": "DRAW",
     "roundWin": "WIN",
     "roundLoss": "LOSE",
@@ -3810,9 +3812,9 @@
     "overtimeNotice": "Main-game points are gone. Both players receive a fresh 33 points for a best-of-three overtime.",
     "followYou": "Your rival showed {color}. Read the gauge and answer",
     "leadYou": "You lead. Choose how many points to spend",
-    "aiAnswering": "NOIR is reading the colour and gauge…",
-    "aiLeading": "NOIR is choosing its opening bid…",
-    "thinking": "NOIR is calculating…",
+    "aiAnswering": "{name} is reading the colour and gauge…",
+    "aiLeading": "{name} is choosing its opening bid…",
+    "thinking": "{name} is calculating…",
     "color": {
       "black": "black",
       "white": "white"

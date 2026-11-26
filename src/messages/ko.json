@@ -3861,7 +3861,7 @@
     "newGame": "새 게임",
     "resultKicker": "THE REVEAL · 복기",
     "overtimeKicker": "OVERTIME · 33 POINTS",
-    "vsAi": "VS NOIR · {level}",
+    "vsAi": "VS {name} · {level}",
     "levels": {
       "easy": "쉬움",
       "normal": "보통",
@@ -3873,10 +3873,12 @@
       "hard": "같은 방식으로 수백 번 시뮬레이션하고, 읽히지 않도록 비슷한 선택지를 섞어서 내요."
     },
     "difficulty": "AI 난이도",
+    "personaTitle": "AI 성향",
+    "personaNote": "매 판 열 가지 성향 중 하나가 무작위로 나와요. 성향은 스타일만 다르고 판단력은 같습니다. 쉬움·보통은 그 위에 난이도만큼 실수가 섞여요. 어떤 성향이었는지는 게임이 끝나면 공개돼요.",
     "you": "나",
     "finishedDraw": "연장전까지 동점 — 무승부",
-    "finishedWin": "NOIR를 이겼어요!",
-    "finishedLoss": "NOIR에게 졌어요",
+    "finishedWin": "{name}에게 이겼어요!",
+    "finishedLoss": "{name}에게 졌어요",
     "roundDraw": "DRAW",
     "roundWin": "WIN",
     "roundLoss": "LOSE",
@@ -3887,9 +3889,9 @@
     "overtimeNotice": "본 게임 포인트는 소멸했습니다. 두 플레이어 모두 새 33포인트로 최대 3라운드를 진행합니다. 2승을 먼저 하면 승리해요.",
     "followYou": "상대가 {color}을 냈어요. 표시등을 읽고 맞받으세요",
     "leadYou": "내가 선입니다. 먼저 사용할 포인트를 정하세요",
-    "aiAnswering": "NOIR가 표시등과 색을 읽는 중…",
-    "aiLeading": "NOIR가 먼저 사용할 포인트를 정하는 중…",
-    "thinking": "NOIR가 계산 중…",
+    "aiAnswering": "{name} · 표시등과 색을 읽는 중…",
+    "aiLeading": "{name} · 먼저 사용할 포인트를 정하는 중…",
+    "thinking": "{name} · 계산 중…",
     "color": {
       "black": "흑",
       "white": "백"
