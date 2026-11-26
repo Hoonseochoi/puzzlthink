@@ -9,6 +9,7 @@ import JsonLd from '@/components/JsonLd';
 import { Section, card, prose, rich } from '@/components/guide/GuideBlocks';
 import { anyGuidePath } from '@/content/guides';
 import { GAMES } from '@/lib/gameCatalog';
+import PlayAppGate from '@/components/playApp/PlayAppGate';
 import { SITE_URL, breadcrumbJsonLd } from '@/lib/seo';
 import { KIND_LABEL, SECTION_PATH, gamePath, showLocale, showPath } from '@/content/shows';
 import type { Show, ShowGame } from '@/content/shows/types';
@@ -41,6 +42,7 @@ export default async function ShowGamePage({ show, game, locale }: { show: Show;
   const toc = [...sections.map((x) => ({ id: x.id, title: x.title })), { id: 'similar', title: ui.similar }, { id: 'sources', title: ui.sources }];
 
   return (
+    <PlayAppGate game={game.site} locale={locale}>
     <main className="min-h-screen bg-[#0a0b10] px-5 pb-20 pt-10 text-[#eceff4] sm:pt-14" style={{ ['--accent' as string]: accent }}>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
         {
@@ -141,13 +143,14 @@ export default async function ShowGamePage({ show, game, locale }: { show: Show;
         </section>
 
         <nav className="mt-14 grid gap-3 sm:grid-cols-2" aria-label={s.name}>
-          {prev ? <Link href={gamePath(show, prev)} className={`p-4 ${card} hover:border-white/25`}><p className="text-[11px] font-bold text-white/40">← {ui.prev}</p><p className="mt-1 font-black">{prev[loc].name}</p></Link> : <span />}
-          {next ? <Link href={gamePath(show, next)} className={`p-4 text-right ${card} hover:border-white/25`}><p className="text-[11px] font-bold text-white/40">{ui.next} →</p><p className="mt-1 font-black">{next[loc].name}</p></Link> : <span />}
+          {prev ? <Link data-play-game={prev.site} href={gamePath(show, prev)} className={`p-4 ${card} hover:border-white/25`}><p className="text-[11px] font-bold text-white/40">← {ui.prev}</p><p className="mt-1 font-black">{prev[loc].name}</p></Link> : <span />}
+          {next ? <Link data-play-game={next.site} href={gamePath(show, next)} className={`p-4 text-right ${card} hover:border-white/25`}><p className="text-[11px] font-bold text-white/40">{ui.next} →</p><p className="mt-1 font-black">{next[loc].name}</p></Link> : <span />}
         </nav>
         <Link href={showPath(show)} className="mt-6 inline-block text-sm font-black text-(--accent) hover:underline">← {ui.backShow} · {s.name}</Link>
 
         <p className="mt-14 text-[11px] leading-5 text-white/30">{s.disclaimer}</p>
       </article>
     </main>
+    </PlayAppGate>
   );
 }

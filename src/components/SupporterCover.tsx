@@ -188,7 +188,8 @@ export function SupporterCoverCard({ name, stone, signedIn, place, tone = 'light
   const dark = tone === 'dark';
   const has = !!mine?.has;
   return (
-    <section className={`relative overflow-hidden rounded-[24px] border p-5 ${dark ? 'border-[#ff8a73]/30 bg-[#1d1418] text-white' : 'border-[#ff6b4a]/30 bg-[linear-gradient(135deg,#fff4ec,#ffeef7)] text-[#17201e]'}`}>
+    // Inside the Google Play app the card is only for players who already have the cover (no external-payment CTA).
+    <section data-play-hide={has ? undefined : 'support'} className={`relative overflow-hidden rounded-[24px] border p-5 ${dark ? 'border-[#ff8a73]/30 bg-[#1d1418] text-white' : 'border-[#ff6b4a]/30 bg-[linear-gradient(135deg,#fff4ec,#ffeef7)] text-[#17201e]'}`}>
       <span className="pointer-events-none absolute -right-12 -top-14 h-44 w-44 rounded-full bg-[#ff6bc4]/20 blur-3xl" />
       <div className="relative flex items-center gap-4">
         <span className={`flex h-[84px] w-[84px] shrink-0 items-center justify-center rounded-[24px] ${dark ? 'bg-white/[.06]' : 'bg-white/80'}`}>

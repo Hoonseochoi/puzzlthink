@@ -50,7 +50,7 @@ export default function OpenRankingBoard() {
           const ranking = rankings[game.id];
           const me = ranking?.near.find((row) => row.is_me);
           return (
-            <section key={game.id} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4">
+            <section key={game.id} data-play-game={game.id} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="truncate text-sm font-black">{tc(GAME_LABEL[game.id])}</h3>
                 <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: game.color }} />

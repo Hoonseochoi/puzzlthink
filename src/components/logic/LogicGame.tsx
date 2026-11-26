@@ -426,7 +426,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
                       <button type="button" onClick={() => switchMode('beat')} className={`py-3 ${BTN}`}><Swords size={14} />{t('mode_beat')}</button>
                     </>}
                   </div>
-                  {phase === 'solved' && <div className="mt-4"><ResultBannerSlot won /></div>}
+                  {phase === 'solved' && <ResultBannerSlot won className="mt-4" />}
                 </div>
               )}
             </>

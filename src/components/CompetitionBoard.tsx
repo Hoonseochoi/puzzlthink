@@ -68,7 +68,7 @@ function GameWins({ row, cap }: { row: Row; cap: number }) {
   return (
     <ul className="grid gap-1.5 sm:grid-cols-2">
       {games.map(([game, n]) => (
-        <li key={game} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold">
+        <li key={game} data-play-game={game} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold">
           <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: CERT_GAMES[game].color }} />
           <span className="min-w-0 flex-1 truncate">{tc(GAME_LABEL[game])}</span>
           {n >= cap && <span className="shrink-0 rounded-full bg-[#e8a33c] px-1.5 py-0.5 text-[9px] font-black text-white">MAX</span>}

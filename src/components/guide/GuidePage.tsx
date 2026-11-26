@@ -115,7 +115,7 @@ export default async function GuidePage({ guide, locale }: { guide: GameGuide; l
             <h2 className="text-xl font-black tracking-[-0.03em]">{ui.related}</h2>
             <ul className="mt-5 grid gap-3 sm:grid-cols-2">
               {related.map((r) => (
-                <li key={r.id} className={`flex flex-col p-5 ${card}`}>
+                <li key={r.id} data-play-game={r.id} className={`flex flex-col p-5 ${card}`}>
                   <p className="flex items-center gap-2 font-black"><span className="h-2.5 w-2.5 rounded-full" style={{ background: r.color }} />{r.name}</p>
                   {r.summary && <p className="mt-1.5 break-keep text-[13px] leading-6 text-white/55">{r.summary}</p>}
                   <div className="mt-auto flex gap-4 pt-3 text-xs font-black">

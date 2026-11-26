@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { UserRound } from 'lucide-react';
 import { useAuth } from './AuthProvider';
-import { isNicknameTaken, nicknameAvailable } from '@/lib/stats';
+import { NICKNAME_REFUSED, isNicknameRefused, isNicknameTaken, nicknameAvailable } from '@/lib/stats';
 
 const ADJ = {
   ko: ['불쌍한', '배고픈', '졸린', '용감한', '수줍은', '심심한', '똑똑한', '느긋한', '수상한', '행복한', '엉뚱한', '날쌘'],
@@ -64,6 +64,7 @@ export default function NicknamePrompt() {
     const failed = await saveNickname(value);
     setBusy(false);
     if (isNicknameTaken(failed)) { setTaken(value); return; }
+    if (isNicknameRefused(failed)) { setError(NICKNAME_REFUSED[locale === 'en' ? 'en' : 'ko']); return; }
     if (failed) setError(t('failed'));
   };
 

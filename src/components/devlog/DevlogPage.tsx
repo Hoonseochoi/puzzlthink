@@ -5,6 +5,7 @@ import { Link } from '@/i18n/routing';
 import AdSlot from '@/components/AdSlot';
 import JsonLd from '@/components/JsonLd';
 import { Section, card, prose, rich } from '@/components/guide/GuideBlocks';
+import PlayAppGate from '@/components/playApp/PlayAppGate';
 import { GAMES } from '@/lib/gameCatalog';
 import { SITE_URL, breadcrumbJsonLd } from '@/lib/seo';
 import { DEVLOG_CATEGORIES, devlogLocale, devlogPath, relatedDevlog } from '@/content/devlog';
@@ -31,6 +32,7 @@ export default async function DevlogPage({ article, locale }: { article: DevlogA
   const adAfter = c.sections.length > 3 ? 1 : -1;
 
   return (
+    <PlayAppGate game={main?.id} locale={locale}>
     <main className="min-h-screen bg-[#0a0b10] px-5 pb-20 pt-10 text-[#eceff4] sm:pt-14" style={{ ['--accent' as string]: accent }}>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
         {
@@ -89,7 +91,7 @@ export default async function DevlogPage({ article, locale }: { article: DevlogA
             <h2 className="text-xl font-black tracking-[-0.03em]">{ui.next}</h2>
             <ul className="mt-5 grid gap-3 sm:grid-cols-3">
               {next.map((a) => (
-                <li key={a.slug} className={`p-5 ${card}`}>
+                <li key={a.slug} data-play-game={a.games[0]} className={`p-5 ${card}`}>
                   <Link href={devlogPath(a.slug)} className="font-black hover:text-(--accent)">{a[loc].title}</Link>
                   <p className="mt-1.5 break-keep text-[13px] leading-6 text-white/50">{a[loc].summary}</p>
                 </li>
@@ -100,5 +102,6 @@ export default async function DevlogPage({ article, locale }: { article: DevlogA
         )}
       </article>
     </main>
+    </PlayAppGate>
   );
 }

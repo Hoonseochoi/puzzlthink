@@ -11,6 +11,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ChevronRight, Crown, Flame, Play, Puzzle, Skull, Swords, Trophy, Zap } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { GAMES, type CatalogGame, type GameId } from '@/lib/gameCatalog';
+import { useAppGames, usePlayApp } from '@/components/playApp/usePlayApp';
+import { hiddenGameOfPath } from '@/lib/playApp';
 import { CERT_GAMES } from '@/lib/hardClear';
 import { listAllOpenRooms, listLiveRooms } from '@/lib/openRooms';
 import { getSupabase } from '@/lib/supabase';
@@ -275,15 +277,17 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const races = useRaces(user?.id ?? null);
   const myPiece = races.piece.find((r) => r.is_me), myBlack = races.black.find((r) => r.is_me);
   const podiums = useHallPodiums();
-  const feed = useFeed();
+  const playApp = usePlayApp();
+  const feed = useFeed().filter((item) => !(playApp && hiddenGameOfPath(item.href, GAMES))); // Google Play app: no hidden games
   const [cat, setCat] = useState<Cat>('all');
   const [ev, setEv] = useState(0);
-  const list = GAMES.filter((g) => inCat(g, cat));
+  const games = useAppGames(); // without the games hidden in the Google Play app
+  const list = games.filter((g) => inCat(g, cat));
   // Today's pick is chosen by hand (TODAY_PICK); a category shows the first game of its list instead.
   const hero = cat === 'all' ? GAMES.find((g) => g.id === TODAY_PICK) ?? list[0] : list[0];
   const rest = list.filter((g) => g !== hero);
   const name = nickname?.trim() || '';
-  const recent = me.recent.map((href) => GAMES.find((g) => g.href === href)).filter((g): g is CatalogGame => !!g).slice(0, 6);
+  const recent = me.recent.map((href) => games.find((g) => g.href === href)).filter((g): g is CatalogGame => !!g).slice(0, 6);
   const heroPodium = hero ? podiums?.get(hero.href) : undefined;
 
   const events = useHomeEvents(races);
@@ -365,7 +369,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
         {CATS.map((c) => (
           <button key={c} type="button" onClick={() => setCat(c)}
             className={`shrink-0 rounded-full px-3.5 py-1.5 text-[12.5px] font-black transition active:scale-95 ${cat === c ? 'bg-[#17201e] text-white' : 'bg-white text-black/55 ring-1 ring-black/10'}`}>
-            {th(`cat_${c}`)}<span className={`ml-1 text-[10.5px] ${cat === c ? 'text-white/50' : 'text-black/30'}`}>{GAMES.filter((g) => inCat(g, c)).length}</span>
+            {th(`cat_${c}`)}<span className={`ml-1 text-[10.5px] ${cat === c ? 'text-white/50' : 'text-black/30'}`}>{games.filter((g) => inCat(g, c)).length}</span>
           </button>
         ))}
       </nav>

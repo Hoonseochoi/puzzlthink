@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Ban, ChevronRight, Flag, MessageCircle, MessageCircleOff, Send, X } from 'lucide-react';
 import { getSupabase } from '@/lib/supabase';
-import { usePathname } from '@/i18n/routing';
+import { Link, usePathname } from '@/i18n/routing';
 import { LOUNGE_OPEN_EVENT, isGamePath, setLoungeUnread, useOnlineCount } from '@/lib/siteBus';
 import { GAMES } from '@/lib/gameCatalog';
 import { chatPrefs, chatPrefsServer, clearMuted, isMuted, roomPlaying, setMuted, subscribeChat } from '@/lib/roomChat';
@@ -31,6 +31,7 @@ export default function LoungeChat() {
   const game = GAMES.find((g) => pathname === g.href || pathname.startsWith(`${g.href}/`))?.id ?? null;
   const playing = useSyncExternalStore(subscribeChat, roomPlaying, () => false);
   const t = useTranslations('Lounge');
+  const locale = useLocale();
   const tc = useTranslations('Common');
   const { user, configured } = useAuth();
   const prefs = useSyncExternalStore(subscribeChat, chatPrefs, chatPrefsServer);
@@ -299,6 +300,12 @@ export default function LoungeChat() {
                     />
                     <button type="submit" disabled={!draft.trim() || sending} className="flex items-center justify-center rounded-lg bg-(--accent,#e8b04a) px-3 text-(--accent-ink,#1c1406) disabled:opacity-40" aria-label={t('send')}><Send size={15} /></button>
                   </div>
+                  {/* The rules every sender agrees to (이용약관 7, Google Play's user-generated content policy). */}
+                  <p className="mt-1 px-1 text-[10px] leading-4 text-white/30">
+                    {locale === 'en' ? 'Sending means you agree to the ' : '보내면 '}
+                    <Link href="/terms" className="underline underline-offset-2 hover:text-white/60">{locale === 'en' ? 'Lounge rules' : '라운지 규칙(이용약관 7조)'}</Link>
+                    {locale === 'en' ? '. Use Report and Block on any message.' : '에 동의한 것으로 봐요. 메시지마다 신고·차단할 수 있어요.'}
+                  </p>
                 </form>
               )}
             </div>
