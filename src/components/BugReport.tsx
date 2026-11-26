@@ -41,6 +41,7 @@ const GAMES: { path: string; id: string; label: string }[] = [
   { path: '/card-janggi', id: 'card_janggi', label: 'cardJanggi' },
   { path: '/sniper-holdem', id: 'sniper_holdem', label: 'sniperHoldem' },
   { path: '/hit-stay', id: 'hit_stay', label: 'hitStay' },
+  { path: '/time-auction', id: 'time_auction', label: 'timeAuction' },
   { path: '/color-link-duel', id: 'color_link_duel', label: 'colorLinkDuel' },
   { path: '/star-battle', id: 'starbattle', label: 'starbattle' },
   { path: '/masyu', id: 'masyu', label: 'masyu' },

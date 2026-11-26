@@ -22,6 +22,7 @@ import Merge2048Preview from './merge2048/Merge2048Preview';
 import { HitStayTile } from './hitStay/HitStayPreview';
 import { SniperHoldemTile } from './sniperHoldem/SniperHoldemPreview';
 import { HiddenWordTile } from './hiddenWord/HiddenWordPreview';
+import { TimeAuctionTile } from './timeAuction/TimeAuctionPreview';
 import { HiddenWordPlusTile } from './hiddenWord/HiddenWordPlusArt';
 import { CjTile } from './cardJanggi/CjPreview';
 import { GradationTile } from './gradation/GradationPreview';
@@ -231,6 +232,7 @@ export function GamePreview({ id }: { id: GameId }) {
     case 'colorLinkDuel': return <CldTile />;
     case 'sniperHoldem': return <SniperHoldemTile />;
     case 'hitStay': return <HitStayTile />;
+    case 'timeAuction': return <TimeAuctionTile />;
     case 'pointOmok': return <PointOmokPreview />;
     case 'magicswap': return <MagicSwapPreview />;
     case 'fourThree': return <FourThreePreview />;
@@ -278,6 +280,7 @@ export default function HomeClient() {
       equationSignal: <SignalTile />, equationTower: <TowerTile />, gradation: <GradationTile />, cardJanggi: <CjTile />, colorLinkDuel: <CldTile />, hitStay: <HitStayTile />, sniperHoldem: <SniperHoldemTile />, pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
+      timeAuction: <TimeAuctionTile />,
     }} />;
   // Phones get the app home, wider screens (foldables, tablets, desktop) the web home. Both are in the server HTML (CSS picks one);
   // once the browser knows its width the other is dropped.

@@ -43,6 +43,11 @@ export type RoomEngine<S extends BaseRoom, A> = {
    * the room back to the lobby. Not called in the lobby or once the game is finished (nothing is hidden then).
    */
   resume?: (view: S, seat: number | null) => S | null;
+  /**
+   * Host: a change to keep without broadcasting it (or sending secrets), e.g. a hidden release in 시간 경매 whose timing
+   * must not reach other browsers. The next ordinary change carries it.
+   */
+  quiet?: (prev: S, next: S) => boolean;
 };
 
 /** How long the host may be missing from presence (a refresh takes a few seconds) before a guest takes over. */
@@ -191,8 +196,16 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     const current = stateRef.current;
     if (!current) return;
     const next = engine.reduce(current, action, seatOf(current, fromId), meRef.current?.isHost ?? false);
-    if (next) commit(next);
-  }, [engine, commit]);
+    if (!next) return;
+    if (engine.quiet?.(current, next)) {
+      stateRef.current = next;
+      lastChange.current = Date.now();
+      setState(next);
+      write(stateKeyFor(engine.storage, code), JSON.stringify(next));
+      return;
+    }
+    commit(next);
+  }, [engine, commit, code]);
 
   useEffect(() => {
     const id = clientId();

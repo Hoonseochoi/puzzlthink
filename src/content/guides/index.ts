@@ -23,6 +23,7 @@ import hexagon from './hexagon';
 import hiddenWord from './hidden-word';
 import hiddenWordPlus from './hidden-word-plus';
 import hitStay from './hit-stay';
+import timeAuction from './time-auction';
 import indianPoker from './indian-poker';
 import janggi from './janggi';
 import laserJanggi from './laser-janggi';
@@ -72,6 +73,7 @@ const REGISTRY: Partial<Record<GameId, GameGuide | null>> = {
   twoSidedPoker,
   wallgo,
   wallgo2,
+  timeAuction,
 };
 
 /** Catalog href of a game ('/wallgo'). */

@@ -40,6 +40,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
     items: [
       {
+        date: '11/27', icon: Bot,
+        ko: { title: 'AI 상대 10가지 성향과 심리전', desc: '블러퍼, 바위, 콜링 스테이션, 저격 난사꾼, 큰 판만 노리는 독사 등 10가지 성향 중 매 판 무작위로 앉고 그날 기분도 달라요. 지난 판에 공개된 패와 저격을 기억해 당신의 버릇을 읽고, 가끔은 성향과 다르게 둬요. 대사도 하고, 진짜 성향은 결과 화면에서 공개돼요.' },
+        en: { title: '10 AI personalities and mind games', desc: 'Bluffers, rocks, calling stations, trigger-happy snipers, a viper that waits for big pots and more: each match seats a random few, each in its own mood. They remember hands shown and snipes made to read your habits, sometimes play out of character, talk at the table, and their true styles are revealed at the end.' },
+      },
+      {
+        date: '11/27', icon: Coins,
+        ko: { title: '기본 베팅이 점점 올라요', desc: '처음 4라운드는 방송처럼 1칩, 그 뒤로 2라운드마다 올라서(2·3·4·6·8칩, 그다음 +3칩씩) 한 판이 늘어지지 않아요. AI 5인전은 보통 15라운드 안팎에 끝나요. 친구·공개방은 방장이 방송 규칙(1칩 고정)을 고를 수 있고, 테이블에 지금 기본 베팅과 다음에 오르는 라운드가 보여요.' },
+        en: { title: 'The ante now rises', desc: 'One chip for the first 4 rounds, as on the show, then it goes up every 2 rounds (2, 3, 4, 6, 8, then +3 each time), so matches no longer drag: about 15 rounds at five against the AI. Room hosts can pick show rules (fixed 1 chip), and the table shows the ante and when it rises next.' },
+      },
+      {
         date: '11/27', icon: Sparkles,
         ko: { title: '스나이퍼 홀덤이 열렸어요', desc: '데블스 플랜 2(데스룸) 3일차 감옥 매치예요. 상대 족보를 숫자까지 맞혀 저격하면 꼴찌! AI 5인전·1:1, 친구·공개방 2~5명으로 할 수 있어요.' },
         en: { title: "Sniper Hold'em is open", desc: "The day-3 prison match of The Devil's Plan 2 (Death Room): name an opponent's exact hand and it ranks last. Five-player or 1:1 vs AI, and friend or open rooms for 2–5." },
@@ -135,6 +145,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
         date: '11/26', icon: Sparkles,
         ko: { title: '수식의 탑이 열렸어요', desc: '데블스 플랜 3 감옥 매치 게임이에요. 연습하기, 10분 챌린지(랭킹), 친구·공개방 2~4명 버저 대결을 할 수 있어요.' },
         en: { title: 'Tower of Equations is open', desc: 'A prison match from The Devil\'s Plan 3. Practice, a ranked 10-minute challenge, and a buzzer game in friend or open rooms for 2–4.' },
+      },
+    ],
+  },
+  time_auction: {
+    name: { ko: '시간 경매', en: 'Time Auction' },
+    items: [
+      {
+        date: '11/27', icon: Sparkles,
+        ko: { title: '시간 경매가 열렸어요', desc: '데블스 플랜 2 감옥매치를 방송 규칙대로 옮겼어요. 경매마다 바둑알 하나가 올라오고 버튼을 가장 오래 누른 사람이 가져가요. PUZZLTHINK 아이콘이 바둑알로 올라오고, 좋은 아이콘일수록 점수가 커요(중급 2점, 마지막 최상급 3점 · 실제 아이콘은 지급되지 않아요). 가장 먼저 손을 뗀 사람은 헬모드 마이너스 바둑알(−1)을 받아요. AI는 10명의 캐릭터 중 5명이 매 판 다른 기분으로 앉아요. 친구·공개방 2~6명.' },
+        en: { title: 'Time Auction is open', desc: "The Devil's Plan 2 prison match with the broadcast rules: each auction puts up one go stone and whoever holds longest takes it. PUZZLTHINK icons go up as pieces and better icons score more (mid-tier 2, the last top icon 3; no real icon is granted); whoever lets go first takes the hell-mode minus stone (−1). Five of ten AI characters sit each match, each in a different mood; 2–6 in rooms." },
       },
     ],
   },
@@ -450,6 +470,7 @@ const ROOM_GAMES: Record<string, { ko: string; en: string }> = {
   onestroke: { ko: '한붓길', en: 'One Stroke' }, piggy_bank: { ko: '돼지 저금통', en: 'Piggy Bank' }, point_omok: { ko: '포인트 오목', en: 'Point Omok' },
   russian_janggi: { ko: '러시아장기', en: 'Russian Janggi' }, russian_roulette: { ko: '러시안 룰렛', en: 'Russian Roulette' }, slitherlink: { ko: '슬리더링크', en: 'Slitherlink' },
   starbattle: { ko: '스타배틀', en: 'Star Battle' }, two_sided_poker: { ko: '양면포커', en: 'Two-Sided Poker' }, wallgo: { ko: '벽바둑', en: 'Wallgo' }, wallgo2: { ko: '벽바둑 II', en: 'Wallgo II' },
+  time_auction: { ko: '시간 경매', en: 'Time Auction' },
 };
 
 for (const [key, name] of Object.entries(ROOM_GAMES)) {

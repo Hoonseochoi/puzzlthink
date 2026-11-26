@@ -42,6 +42,7 @@ import { prepareColorLinkDuelRoom, useColorLinkDuelRoom } from '@/hooks/useColor
 import { prepareEquationSignalRoom, useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
 import { prepareEquationTowerRoom, useEquationTowerRoom } from '@/hooks/useEquationTowerRoom';
 import { prepareHiddenWordPlusRoom, prepareHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
+import { prepareTimeAuctionRoom, useTimeAuctionRoom } from '@/hooks/useTimeAuctionRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
 export type PlayOption = { label: string; query?: string };
@@ -91,6 +92,11 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
     rooms: [{ label: 'shRoom', create: prepareSniperHoldemRoom, openMin: 2 }], useRoom: useSniperHoldemRoom,
   },
   hitStay: { path: '/hit-stay', ai: [{ label: 'hsAi' }], rooms: [{ label: 'hsRoom', create: prepareHitStayRoom, openMin: 2 }], useRoom: useHitStayRoom },
+  timeAuction: {
+    path: '/time-auction',
+    ai: [{ label: 'taQuick', query: 'format=quick&difficulty=hard' }, { label: 'taQuickNormal', query: 'format=quick&difficulty=normal' }, { label: 'taBroadcast', query: 'format=broadcast&difficulty=hard' }],
+    rooms: [{ label: 'taRoom', create: prepareTimeAuctionRoom, openMin: 2 }], useRoom: useTimeAuctionRoom,
+  },
   merge2048: {
     path: '/2048', solo: true, ai: [{ label: 'm2Free', query: 'mode=free' }, { label: 'm2Endless', query: 'mode=endless' }],
     rooms: [{ label: 'm2Room', create: prepareMerge2048Room, openMin: 2, play: 'mode=free', fillAi: false }], useRoom: useMerge2048Room,
