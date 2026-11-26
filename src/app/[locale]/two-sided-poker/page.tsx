@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 import JsonLd from '@/components/JsonLd';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import GameGate from '@/components/GameGate';
 import GameIntroHero from '@/components/GameIntroHero';
 import { TSP_ACCENT, TSP_INK } from '@/components/twoSidedPoker/copy';
@@ -39,10 +39,10 @@ export default async function TwoSidedPokerPage({ params }: { params: Promise<{ 
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
         gameJsonLd({ locale, path: '/two-sided-poker', name: tc('twoSidedPoker'), alternateName: ['양면포커', '양면 포커', 'Two-Sided Poker'], description: g('intro'), genre: ['Poker', 'Bluffing', 'Card game'], players: { min: 1, max: 2 }, show: 'genius3' }),
-        faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
+        faqJsonLd(guideFaq('twoSidedPoker', locale)!), // the FAQ GameArticle shows below the board
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: korean ? '양면포커' : 'Two-Sided Poker', path: '/two-sided-poker' }]),
       ] }} />
-      <GameGate game="twoSidedPoker" accent={TSP_ACCENT} ink={TSP_INK} hero={hero} tutorial={<TwoSidedPokerTutorialSteps locale={locale} />} guide={<TextGuide locale={locale} namespace="TwoSidedPokerGuide" />}>
+      <GameGate game="twoSidedPoker" accent={TSP_ACCENT} ink={TSP_INK} hero={hero} tutorial={<TwoSidedPokerTutorialSteps locale={locale} />} guide={<GameArticle locale={locale} game="twoSidedPoker" />}>
         <TwoSidedPokerGame locale={locale} />
       </GameGate>
     </>
