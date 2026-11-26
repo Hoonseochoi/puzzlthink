@@ -4,6 +4,7 @@ import { gameFromSlug } from '@/lib/rankings';
 import { HELL_LIVE } from '@/lib/hell';
 import { GUIDES, guidePath } from '@/content/guides';
 import { LEGACY_GUIDES } from '@/content/guides/legacy';
+import { ARTICLES, WIKI_BASE, wikiPath } from '@/content/encyclopedia';
 
 const BASE_URL = 'https://www.puzzlthink.com';
 const locales = ['ko', 'en'] as const;
@@ -20,6 +21,9 @@ const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekl
   // Guide pages: the hub, then every guide (the 8 logic-puzzle pages and each one registered in src/content/guides).
   { path: '/guides', priority: 0.8, changeFrequency: 'weekly' },
   ...[...LEGACY_GUIDES.map((g) => g.path), ...GUIDES.map((g) => guidePath(g.game))].map((path) => ({ path, priority: 0.7, changeFrequency: 'monthly' as const })),
+  // 보드게임 백과: the hub, then every article in src/content/encyclopedia.
+  { path: WIKI_BASE, priority: 0.8, changeFrequency: 'weekly' },
+  ...ARTICLES.map((a) => ({ path: wikiPath(a.slug), priority: 0.6, changeFrequency: 'monthly' as const })),
   { path: '/records', priority: 0.5, changeFrequency: 'daily' },
   { path: '/icons', priority: 0.4, changeFrequency: 'daily' },
   ...GAME_PATHS.map((path) => (path === '/play' ? 'sudoku' : path.slice(1))).filter((slug) => gameFromSlug(slug)).map((slug) => ({ path: `/ranking/${slug}`, priority: 0.6, changeFrequency: 'daily' as const })),

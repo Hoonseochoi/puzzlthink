@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, Link } from '@/i18n/routing';
 import SupportLink from './SupportLink';
 
@@ -9,6 +9,7 @@ const HIDE_ON = ['/hidden-word', '/equation-signal', '/equation-tower', '/card-j
 export default function GlobalFooter() {
   const pathname = usePathname();
   const t = useTranslations('Common');
+  const locale = useLocale();
   // Game pages hide the footer; their guide pages (/<game>/guide) keep it.
   if (!pathname.endsWith('/guide') && HIDE_ON.some((segment) => pathname.includes(segment))) return null;
 
@@ -24,6 +25,7 @@ export default function GlobalFooter() {
         </div>
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
           <Link href="/guides" className="hover:text-black">{t('guides')}</Link>
+          <Link href="/board-games" className="hover:text-black">{locale === 'en' ? 'Board game encyclopedia' : '보드게임 백과'}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>
           <SupportLink />

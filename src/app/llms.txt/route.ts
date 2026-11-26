@@ -4,6 +4,7 @@ import { CERT_GAMES } from '@/lib/hardClear';
 import { SITE_URL } from '@/lib/seo';
 import { HELL_LIVE } from '@/lib/hell';
 import { guideListings } from '@/content/guides';
+import { ARTICLES, WIKI_BASE, wikiPath } from '@/content/encyclopedia';
 import type { GameId } from '@/lib/stats';
 
 export const dynamic = 'force-static';
@@ -36,6 +37,10 @@ export function GET() {
     '',
     '## Guides',
     ...GUIDES.map(([path, name]) => `- [${name}](${SITE_URL}/ko${path})`),
+    '',
+    '## Board game encyclopedia',
+    `- [보드게임 백과 (Board game encyclopedia: genres, history and concepts)](${SITE_URL}/ko${WIKI_BASE})`,
+    ...ARTICLES.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${wikiPath(a.slug)})`),
     '',
     '## About',
     `- [소개 (About)](${SITE_URL}/ko/about)`,
