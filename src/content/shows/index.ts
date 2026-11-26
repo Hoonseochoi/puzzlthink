@@ -7,8 +7,9 @@ import devilsPlan2 from './dp2';
 import bloodyGameX from './bgx';
 import deathGame2 from './dg2';
 import deathGame1 from './dg1';
+import bloodyGame3 from './bg3';
 
-const SHOW_LIST: Show[] = [devilsPlan3, devilsPlan2, bloodyGameX, deathGame2, deathGame1];
+const SHOW_LIST: Show[] = [devilsPlan3, devilsPlan2, bloodyGameX, deathGame2, deathGame1, bloodyGame3];
 
 /** Written shows, most recently released first. */
 export const SHOWS_WRITTEN: Show[] = [...SHOW_LIST].sort((a, b) => b.aired.start.localeCompare(a.aired.start));
