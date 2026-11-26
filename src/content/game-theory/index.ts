@@ -3,6 +3,7 @@
 // Server-only: never import from a client component.
 import type { GTArticle, GTCategory, GTLocale } from './types';
 import nashEquilibrium from './articles/nash-equilibrium';
+import prisonersDilemma from './articles/prisoners-dilemma';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -11,6 +12,7 @@ export const articlePath = (slug: string) => `${GT_PATH}/${slug}`;
 
 export const ARTICLES: GTArticle[] = [
   nashEquilibrium,
+  prisonersDilemma,
   // @gt-list
 ];
 
