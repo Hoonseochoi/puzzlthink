@@ -19,6 +19,7 @@ import commitment from './articles/commitment-threats';
 import signaling from './articles/signaling-cheap-talk';
 import tournaments from './articles/tournament-incentives';
 import dominantStrategy from './articles/dominant-strategy';
+import zeroSum from './articles/zero-sum';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -43,6 +44,7 @@ export const ARTICLES: GTArticle[] = [
   signaling,
   tournaments,
   dominantStrategy,
+  zeroSum,
   // @gt-list
 ];
 
