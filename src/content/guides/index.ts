@@ -22,6 +22,7 @@ import heavy13 from './heavy13';
 import hexagon from './hexagon';
 import hiddenWord from './hidden-word';
 import hitStay from './hit-stay';
+import timeAuction from './time-auction';
 import indianPoker from './indian-poker';
 import janggi from './janggi';
 import laserJanggi from './laser-janggi';
@@ -54,6 +55,7 @@ const REGISTRY: Partial<Record<GameId, GameGuide | null>> = {
   hexagon,
   hiddenWord,
   hitStay,
+  timeAuction,
   indianPoker,
   janggi,
   laserJanggi,

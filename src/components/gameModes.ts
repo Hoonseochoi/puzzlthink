@@ -41,6 +41,7 @@ import { prepareColorLinkDuelRoom, useColorLinkDuelRoom } from '@/hooks/useColor
 import { prepareEquationSignalRoom, useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
 import { prepareEquationTowerRoom, useEquationTowerRoom } from '@/hooks/useEquationTowerRoom';
 import { prepareHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
+import { prepareTimeAuctionRoom, useTimeAuctionRoom } from '@/hooks/useTimeAuctionRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
 export type PlayOption = { label: string; query?: string };
@@ -82,6 +83,11 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
   gradation: { path: '/gradation', ai: [{ label: 'grAi' }], rooms: [{ label: 'roomTwo', create: prepareGradationRoom }], useRoom: useGradationRoom },
   cardJanggi: { path: '/card-janggi', ai: [{ label: 'cjAi' }], rooms: [{ label: 'roomTwo', create: prepareCardJanggiRoom }], useRoom: useCardJanggiRoom },
   colorLinkDuel: { path: '/color-link-duel', ai: [{ label: 'cldNormal', query: 'difficulty=normal' }, { label: 'cldHard', query: 'difficulty=hard' }, { label: 'cldHell', query: 'difficulty=hell' }], rooms: [{ label: 'roomTwo', create: prepareColorLinkDuelRoom }], useRoom: useColorLinkDuelRoom },
+  timeAuction: {
+    path: '/time-auction',
+    ai: [{ label: 'taQuick', query: 'format=quick&difficulty=hard' }, { label: 'taQuickNormal', query: 'format=quick&difficulty=normal' }, { label: 'taBroadcast', query: 'format=broadcast&difficulty=hard' }],
+    rooms: [{ label: 'taRoom', create: prepareTimeAuctionRoom, openMin: 2 }], useRoom: useTimeAuctionRoom,
+  },
   hitStay: { path: '/hit-stay', ai: [{ label: 'hsAi' }], rooms: [{ label: 'hsRoom', create: prepareHitStayRoom, openMin: 2 }], useRoom: useHitStayRoom },
   merge2048: {
     path: '/2048', solo: true, ai: [{ label: 'm2Free', query: 'mode=free' }, { label: 'm2Endless', query: 'mode=endless' }],

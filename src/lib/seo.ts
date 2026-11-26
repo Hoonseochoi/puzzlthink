@@ -32,6 +32,7 @@ export function pageMetadata({ locale, path = '', title, description, keywords, 
 export const SHOWS = {
   genius1: { ko: '더 지니어스: 게임의 법칙', en: 'The Genius: Rules of the Game' },
   dp1: { ko: '데블스 플랜', en: "The Devil's Plan" },
+  dp2: { ko: '데블스 플랜: 데스룸', en: "The Devil's Plan: Death Room" },
   dp3: { ko: '데블스 플랜: 데드 어게인', en: "The Devil's Plan: Dead Again" },
   genius2: { ko: '더 지니어스: 룰 브레이커', en: 'The Genius: Rule Breaker' },
   genius3: { ko: '더 지니어스: 블랙가넷', en: 'The Genius: Black Garnet' },
