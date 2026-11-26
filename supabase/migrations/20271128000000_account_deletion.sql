@@ -17,8 +17,8 @@
 --  * rpc_cache (cached rankings, which carry nicknames) is cleared so no ranking shows the old nickname.
 -- Rankings are computed from the remaining rows, so the player simply drops out of them.
 --
--- Tested on a scratch database built from every migration in supabase/migrations (see
--- supabase/tests/account_deletion.sql). Apply by hand on the live DB, like the other migrations.
+-- Tested on a scratch database built from every migration in supabase/migrations (run
+-- supabase/tests/play_store/run.sh). Apply by hand on the live DB, like the other migrations.
 
 create or replace function public.delete_account_data(p_user uuid)
 returns void

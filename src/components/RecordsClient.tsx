@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Award, Bot, Clock3, Crown, DoorOpen, Flame, Gamepad2, Medal, Skull, Swords, Trophy } from 'lucide-react';
 import { Link } from '@/i18n/routing';
-import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfFame, fetchMyRecords, isNicknameTaken, saveProfile } from '@/lib/stats';
+import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfFame, fetchMyRecords, isNicknameRefused, isNicknameTaken, NICKNAME_REFUSED, saveProfile } from '@/lib/stats';
 import { clearLabel } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
 import AuthButton from './AuthButton';
@@ -79,6 +79,7 @@ export default function RecordsClient() {
   const [showInHall, setShowInHall] = useState(true);
   const [saved, setSaved] = useState(false);
   const [nameTaken, setNameTaken] = useState(false);
+  const [nameRefused, setNameRefused] = useState(false);
   const [recordView, setRecordView] = useState<'ai' | 'open' | 'challenge' | 'competition' | 'black-piece'>('ai');
   const [certs, setCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
   const [hellCerts, setHellCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
@@ -123,6 +124,7 @@ export default function RecordsClient() {
   const onSave = async () => {
     const error = await saveProfile(nickname, showInHall);
     setNameTaken(isNicknameTaken(error));
+    setNameRefused(isNicknameRefused(error));
     if (!error && nickname.trim().length >= 2) {
       const trimmed = nickname.trim();
       await saveNickname(trimmed); // rooms and rankings use it from now on
@@ -196,6 +198,7 @@ export default function RecordsClient() {
                 </div>
               } />
               {nameTaken && <p className="mt-2 text-xs font-bold text-[#c2410c]">{t('nicknameTaken')}</p>}
+              {nameRefused && <p className="mt-2 text-xs font-bold text-[#c2410c]">{NICKNAME_REFUSED[locale === 'en' ? 'en' : 'ko']}</p>}
               <p className="mt-2 break-keep text-[11px] font-bold text-black/55">{t('nicknameNote')}</p>
               <p className="mt-1 flex items-center gap-1.5 text-[11px] text-black/40"><Crown size={11} />{t('privacyNote')}</p>
 
