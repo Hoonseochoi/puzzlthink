@@ -5836,6 +5836,13 @@
   },
   "PlayerStrip": {"label": "플레이어", "me": "나", "guest": "게스트", "ai": "AI"},
   "SupporterCover": {
+    "thanksTitle": "후원해 주셔서 감사합니다",
+    "thanksName": "{name}님",
+    "thanksBody": "보내 주신 마음 덕분에 PUZZLTHINK가 계속 열려 있어요. 진심으로 감사드립니다.",
+    "thanksServer": "후원금은 전액 서버비에 소중히 쓰겠습니다. 모두가 무료로 즐길 수 있게 지켜 갈게요.",
+    "thanksCover": "감사의 마음으로 후원자 커버를 달아 드렸어요",
+    "thanksSee": "내 아이콘 보러 가기",
+    "thanksClose": "닫기",
     "confirmToggle": "후원 완료하셨나요? 후원 확인 요청 남기기",
     "confirmDesc": "후원 완료 후 여기에 후원 확인 요청을 남겨 주세요! 후원자 아이디와 닉네임을 적어 주시면 확인 후 반영해 드릴게요!",
     "confirmDonor": "후원자 아이디 (CTEE 후원 때 이름)",
