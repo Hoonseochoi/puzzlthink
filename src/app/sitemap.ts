@@ -7,7 +7,7 @@ import { LEGACY_GUIDES } from '@/content/guides/legacy';
 import { DEVLOG, devlogPath } from '@/content/devlog';
 import { ARTICLES, WIKI_BASE, wikiPath } from '@/content/encyclopedia';
 import { SECTION_PATHS } from '@/content/shows';
-import { ARTICLES, GT_PATH, articlePath } from '@/content/game-theory';
+import { ARTICLES as GT_ARTICLES, GT_PATH, articlePath as gtArticlePath } from '@/content/game-theory';
 
 const BASE_URL = 'https://www.puzzlthink.com';
 const locales = ['ko', 'en'] as const;
@@ -34,7 +34,7 @@ const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekl
   ...SECTION_PATHS.map((path, i) => ({ path, priority: i === 0 ? 0.8 : 0.7, changeFrequency: 'monthly' as const })),
   // 게임 이론 section: the hub, then every article in src/content/game-theory.
   { path: GT_PATH, priority: 0.7, changeFrequency: 'weekly' },
-  ...ARTICLES.map((a) => ({ path: articlePath(a.slug), priority: 0.6, changeFrequency: 'monthly' as const })),
+  ...GT_ARTICLES.map((a) => ({ path: gtArticlePath(a.slug), priority: 0.6, changeFrequency: 'monthly' as const })),
   { path: '/records', priority: 0.5, changeFrequency: 'daily' },
   { path: '/icons', priority: 0.4, changeFrequency: 'daily' },
   ...GAME_PATHS.map((path) => (path === '/play' ? 'sudoku' : path.slice(1))).filter((slug) => gameFromSlug(slug)).map((slug) => ({ path: `/ranking/${slug}`, priority: 0.6, changeFrequency: 'daily' as const })),
