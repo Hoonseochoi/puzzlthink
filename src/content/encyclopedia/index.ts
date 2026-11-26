@@ -22,6 +22,7 @@ import nikoliPuzzles from './nikoli-puzzles';
 import slidingNumberPuzzles from './sliding-number-puzzles';
 import perfectInformation from './perfect-information';
 import zeroSum from './zero-sum';
+import firstMoveAdvantage from './first-move-advantage';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -47,6 +48,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   slidingNumberPuzzles,
   perfectInformation,
   zeroSum,
+  firstMoveAdvantage,
 ];
 
 export const WIKI_BASE = '/board-games';
