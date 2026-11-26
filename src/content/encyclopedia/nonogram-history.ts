@@ -1,5 +1,5 @@
 import type { WikiArticle } from './types';
-import { p, h3, ul, table, tip, note, sec } from './blocks';
+import { p, h3, table, tip, note, sec } from './blocks';
 
 const article: WikiArticle = {
   slug: 'nonogram-history',

@@ -19,6 +19,7 @@ import morrisFamily from './morris-family';
 import sudokuHistory from './sudoku-history';
 import nonogramHistory from './nonogram-history';
 import nikoliPuzzles from './nikoli-puzzles';
+import slidingNumberPuzzles from './sliding-number-puzzles';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -41,6 +42,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   sudokuHistory,
   nonogramHistory,
   nikoliPuzzles,
+  slidingNumberPuzzles,
 ];
 
 export const WIKI_BASE = '/board-games';
