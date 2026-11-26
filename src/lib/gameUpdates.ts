@@ -72,8 +72,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Scale,
-        ko: { title: '난이도 보통·어려움', desc: '연습, 10분 챌린지, 친구·공개방에서 난이도를 고를 수 있어요. 어려움은 최소 이동 4회 이상, × 블록 2개에 더 큰 타깃이 나오고 챌린지 랭킹도 따로예요.' },
-        en: { title: 'Normal and Hard', desc: 'Pick a difficulty in practice, the 10-minute challenge and friend or open rooms. Hard asks for 4 or more moves at best, has two × blocks and bigger targets, and ranks its challenge separately.' },
+        ko: { title: '난이도 보통·어려움, 챌린지는 어려움으로', desc: '연습과 친구·공개방에서 보통·어려움을 고를 수 있어요. 어려움은 최소 이동 4회 이상, × 블록 2개에 더 큰 타깃. 10분 챌린지와 랭킹은 어려움으로만 진행되고, 지금까지의 기록은 그대로 남아요.' },
+        en: { title: 'Normal and Hard; the challenge is Hard', desc: 'Pick Normal or Hard in practice and in friend or open rooms. Hard asks for 4 or more moves at best, with two × blocks and bigger targets. The 10-minute challenge and its ranking are Hard only, and records so far stay.' },
       },
       {
         date: '11/26', icon: Scale,
