@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Award, Bot, Clock3, Crown, DoorOpen, Flame, Gamepad2, Medal, Skull, Swords, Trophy } from 'lucide-react';
 import { Link } from '@/i18n/routing';
-import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfFame, fetchMyRecords, isNicknameTaken, saveProfile } from '@/lib/stats';
+import { type GameId, type HallEntry, type Profile, type ResultRow, fetchHallOfFame, fetchMyRecords, isNicknameRefused, isNicknameTaken, NICKNAME_REFUSED, saveProfile } from '@/lib/stats';
 import { clearLabel } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
 import AuthButton from './AuthButton';
@@ -79,6 +79,7 @@ export default function RecordsClient() {
   const [showInHall, setShowInHall] = useState(true);
   const [saved, setSaved] = useState(false);
   const [nameTaken, setNameTaken] = useState(false);
+  const [nameRefused, setNameRefused] = useState(false);
   const [recordView, setRecordView] = useState<'ai' | 'open' | 'challenge' | 'competition' | 'black-piece'>('ai');
   const [certs, setCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
   const [hellCerts, setHellCerts] = useState<{ id: string; game: GameId; clear_no: number }[]>([]);
@@ -123,6 +124,7 @@ export default function RecordsClient() {
   const onSave = async () => {
     const error = await saveProfile(nickname, showInHall);
     setNameTaken(isNicknameTaken(error));
+    setNameRefused(isNicknameRefused(error));
     if (!error && nickname.trim().length >= 2) {
       const trimmed = nickname.trim();
       await saveNickname(trimmed); // rooms and rankings use it from now on
@@ -151,7 +153,7 @@ export default function RecordsClient() {
           const stats = byGame[game.id];
           const record = view === 'open' ? stats.open : game.id === 'sudoku' ? stats.solo : stats.ai;
           return (
-            <Link key={game.id} href={game.href} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4 transition hover:-translate-y-0.5 hover:bg-white">
+            <Link key={game.id} data-play-game={game.id} href={game.href} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4 transition hover:-translate-y-0.5 hover:bg-white">
               <div className="flex items-center justify-between"><h3 className="text-sm font-black">{tc(GAME_LABEL[game.id])}</h3><span className="h-2.5 w-2.5 rounded-full" style={{ background: game.color }} /></div>
               <p className="mt-3 text-[10px] font-bold uppercase tracking-wider text-black/40">{view === 'open' ? t('openLabel') : game.id === 'sudoku' ? t('soloLabel') : t('aiLabel')}</p>
               <p className="mt-0.5 text-xl font-black">{game.id === 'sudoku' ? t('solvedLine', { s: record.win, f: record.loss }) : line(record, game.id)}</p>
@@ -196,6 +198,7 @@ export default function RecordsClient() {
                 </div>
               } />
               {nameTaken && <p className="mt-2 text-xs font-bold text-[#c2410c]">{t('nicknameTaken')}</p>}
+              {nameRefused && <p className="mt-2 text-xs font-bold text-[#c2410c]">{NICKNAME_REFUSED[locale === 'en' ? 'en' : 'ko']}</p>}
               <p className="mt-2 break-keep text-[11px] font-bold text-black/55">{t('nicknameNote')}</p>
               <p className="mt-1 flex items-center gap-1.5 text-[11px] text-black/40"><Crown size={11} />{t('privacyNote')}</p>
 
@@ -255,7 +258,7 @@ export default function RecordsClient() {
                 {byGameOrder(GAMES.filter((g) => !CHALLENGE_GAMES.has(g.id)), (g) => g.id, (g) => hall.some((e) => e.game === g.id)).map((game) => {
                   const top = hall.filter((entry) => entry.game === game.id).sort((a, b) => a.rank - b.rank);
                   return (
-                    <section key={game.id} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4">
+                    <section key={game.id} data-play-game={game.id} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4">
                       <div className="flex items-center justify-between"><h3 className="text-sm font-black">{tc(GAME_LABEL[game.id])}</h3><span className="h-2.5 w-2.5 rounded-full" style={{ background: game.color }} /></div>
                       <ol className="mt-3 space-y-2">
                         {[0, 1, 2].map((index) => {

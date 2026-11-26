@@ -8,6 +8,7 @@ import AdSlot from '@/components/AdSlot';
 import JsonLd from '@/components/JsonLd';
 import { card } from '@/components/guide/GuideBlocks';
 import { GAMES } from '@/lib/gameCatalog';
+import { isHiddenInPlayApp } from '@/lib/playApp';
 import { SITE_URL, breadcrumbJsonLd } from '@/lib/seo';
 import { CATEGORIES, GT_PATH, articleBySlug, articlePath, gtLocale } from '@/content/game-theory';
 import type { GTArticle } from '@/content/game-theory/types';
@@ -88,11 +89,11 @@ export default async function GTArticlePage({ article, locale }: { article: GTAr
         <AdSlot placement="inline" tone="dark" className="mt-12" />
 
         {games.length > 0 && (
-          <section className="mt-16">
+          <section data-play-game={games.every((g) => isHiddenInPlayApp(g.id)) ? games[0].id : undefined} className="mt-16">
             <h2 className="text-xl font-black tracking-[-0.03em]">{ui.games}</h2>
             <ul className="mt-5 grid gap-3 sm:grid-cols-2">
               {games.map((g) => (
-                <li key={g.id} className={`flex items-center justify-between gap-3 p-4 ${card}`}>
+                <li key={g.id} data-play-game={g.id} className={`flex items-center justify-between gap-3 p-4 ${card}`}>
                   <p className="flex items-center gap-2 font-black"><span className="h-2.5 w-2.5 rounded-full" style={{ background: g.color }} />{tc(g.id)}</p>
                   <Link href={g.href} className="inline-flex items-center gap-1 text-xs font-black text-(--accent) hover:underline"><Play size={12} fill="currentColor" />{ui.play}</Link>
                 </li>

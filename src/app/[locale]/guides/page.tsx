@@ -66,7 +66,7 @@ export default async function GuidesHub({ params }: { params: Promise<{ locale: 
           {list.map((item) => {
             const game = GAMES.find((g) => g.id === item.game)!;
             return (
-              <li key={item.game} className="flex flex-col rounded-[18px] border border-white/10 bg-white/[0.035] p-5" style={{ ['--accent' as string]: game.color }}>
+              <li key={item.game} data-play-game={item.game} className="flex flex-col rounded-[18px] border border-white/10 bg-white/[0.035] p-5" style={{ ['--accent' as string]: game.color }}>
                 <p className="flex items-center gap-2 text-[11px] font-black text-white/45"><span className="h-2.5 w-2.5 rounded-full bg-(--accent)" />{tc(item.game)}</p>
                 <h2 className="mt-2 text-lg font-black"><Link href={item.path} className="hover:text-(--accent)">{item.title}</Link></h2>
                 <p className="mt-1.5 break-keep text-sm leading-7 text-white/55">{item.summary}</p>

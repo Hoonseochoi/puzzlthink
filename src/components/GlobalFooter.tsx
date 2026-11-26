@@ -35,6 +35,7 @@ export default function GlobalFooter() {
           <SupportLink />
           <Link href="/privacy-policy" className="hover:text-black">{t('privacy')}</Link>
           <Link href="/terms" className="hover:text-black">{t('terms')}</Link>
+          <Link href="/account-deletion" className="hover:text-black">{locale === 'en' ? 'Delete account' : '회원탈퇴'}</Link>
           <span>© {new Date().getFullYear()}</span>
         </div>
       </div>

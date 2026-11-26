@@ -15,6 +15,8 @@ import { useTranslations } from 'next-intl';
 import { ArrowRight, ChevronRight, Flame, Play, Skull, Sparkles } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { GAMES, type CatalogGame, type GameId } from '@/lib/gameCatalog';
+import { useAppGames, usePlayApp } from '@/components/playApp/usePlayApp';
+import { hiddenGameOfPath } from '@/lib/playApp';
 import { useChallengeRates } from '@/lib/challengeRates';
 import AdSlot from './AdSlot';
 import { useAuth } from './AuthProvider';
@@ -83,15 +85,17 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
   const events = useHomeEvents(races);
   const podiums = useHallPodiums();
   const rates = useChallengeRates();
-  const feed = useFeed();
+  const playApp = usePlayApp();
+  const feed = useFeed().filter((item) => !(playApp && hiddenGameOfPath(item.href, GAMES))); // Google Play app: no hidden games
   const [cat, setCat] = useState<Cat>('all');
 
   const name = nickname?.trim() || '';
   const myPiece = races.piece.find((r) => r.is_me), myBlack = races.black.find((r) => r.is_me);
-  const list = GAMES.filter((g) => inCat(g, cat));
+  const games = useAppGames(); // without the games hidden in the Google Play app
+  const list = games.filter((g) => inCat(g, cat));
   const pick = GAMES.find((g) => g.id === TODAY_PICK) ?? GAMES[0];
   const pickPodium = podiums?.get(pick.href);
-  const recent = me.recent.map((href) => GAMES.find((g) => g.href === href)).filter((g): g is CatalogGame => !!g).slice(0, 5);
+  const recent = me.recent.map((href) => games.find((g) => g.href === href)).filter((g): g is CatalogGame => !!g).slice(0, 5);
   const desc = (g: CatalogGame) => { const key = DESC_KEY[g.id] ?? `${g.id}Description`; return t.has(key) ? t(key) : ''; };
 
   const pieceBox = (
@@ -207,7 +211,7 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
                 {CATS.map((c) => (
                   <button key={c} type="button" onClick={() => setCat(c)} aria-pressed={cat === c}
                     className={`shrink-0 rounded-full px-3.5 py-1.5 text-[12.5px] font-black transition active:scale-95 ${cat === c ? 'bg-[#17201e] text-white' : 'bg-white text-black/55 ring-1 ring-black/10 hover:text-black hover:ring-black/25'}`}>
-                    {th(`cat_${c}`)}<span className={`ml-1 text-[10.5px] ${cat === c ? 'text-white/50' : 'text-black/30'}`}>{GAMES.filter((g) => inCat(g, c)).length}</span>
+                    {th(`cat_${c}`)}<span className={`ml-1 text-[10.5px] ${cat === c ? 'text-white/50' : 'text-black/30'}`}>{games.filter((g) => inCat(g, c)).length}</span>
                   </button>
                 ))}
               </nav>

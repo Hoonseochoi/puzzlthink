@@ -199,6 +199,9 @@ export async function nicknameAvailable(name: string): Promise<boolean | null> {
   return error || typeof data !== 'boolean' ? null : data;
 }
 export const isNicknameTaken = (message: string | null | undefined) => !!message && message.includes('nickname_taken');
+/** The nickname filter (same as the 라운지 filter) refused it: supabase/migrations/20271128010000_nickname_filter.sql. */
+export const isNicknameRefused = (message: string | null | undefined) => !!message && message.includes('nickname_not_allowed');
+export const NICKNAME_REFUSED = { ko: '쓸 수 없는 말이 들어 있는 닉네임이에요.', en: 'That nickname contains words that are not allowed.' } as const;
 
 export async function saveProfile(nickname: string, showInHall: boolean) {
   const { error } = await getSupabase()!.rpc('update_profile', { p_nickname: nickname, p_show_in_hall: showInHall });

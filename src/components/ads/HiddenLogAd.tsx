@@ -5,6 +5,8 @@ import { useLocale } from 'next-intl';
 import localFont from 'next/font/local';
 import { getSupabase } from '@/lib/supabase';
 import { usePathname } from '@/i18n/routing';
+import { PLAY_APP_HIDE, isPlayApp } from '@/lib/playApp';
+import { usePlayApp } from '@/components/playApp/usePlayApp';
 import { CoffeeNudge, SupportBanner } from '../SupportLink';
 
 /**
@@ -29,6 +31,7 @@ type AdEvent = 'impression' | 'click';
 function trackAd(place: Place, event: AdEvent) {
   // Local dev talks to the live DB too; only the deployed site may count toward the advertiser's numbers.
   if (process.env.NODE_ENV !== 'production') return;
+  if (PLAY_APP_HIDE.hiddenlog && isPlayApp()) return; // switched off inside the Google Play app (src/lib/playApp.ts)
   try { getSupabase()?.rpc('count_ad_event', { p_campaign: CAMPAIGN, p_place: place, p_event: event }).then(() => {}); } catch { /* optional */ }
 }
 
@@ -41,7 +44,7 @@ function useCampaignLive() {
 /** The advertiser counts arrivals by referrer, so the link keeps it (noopener only, no noreferrer). */
 function AdLink({ place, className, children }: { place: Place; className: string; children: React.ReactNode }) {
   return (
-    <a href={LINKS[place]} target="_blank" rel="noopener sponsored" referrerPolicy="strict-origin-when-cross-origin" onClick={() => trackAd(place, 'click')} className={className}>
+    <a data-play-hide="hiddenlog" href={LINKS[place]} target="_blank" rel="noopener sponsored" referrerPolicy="strict-origin-when-cross-origin" onClick={() => trackAd(place, 'click')} className={className}>
       {children}
     </a>
   );
@@ -90,6 +93,8 @@ function HiddenLogTopBanner() {
 /** Top strip above the header: the campaign while it runs (no close button, per the deal), otherwise the support banner. */
 export function TopBannerSlot() {
   const live = useCampaignLive();
+  // Google Play app (src/lib/playApp.ts): neither the campaign nor the support banner. CSS hides them before this runs.
+  if (usePlayApp() && (live ? PLAY_APP_HIDE.hiddenlog : PLAY_APP_HIDE.support)) return null;
   return live ? <HiddenLogTopBanner /> : <SupportBanner />;
 }
 
@@ -138,6 +143,7 @@ function HiddenLogResultCard({ won, className }: { won?: boolean; className: str
 /** Post-game card under the result buttons: the campaign while it runs, otherwise the support card. */
 export function ResultBannerSlot({ won, className = '' }: { won?: boolean; className?: string }) {
   const live = useCampaignLive();
+  if (usePlayApp() && (live ? PLAY_APP_HIDE.hiddenlog : PLAY_APP_HIDE.support)) return null; // Google Play app
   if (!live) return <CoffeeNudge className={className} />;
   return <HiddenLogResultCard won={won} className={className} />;
 }

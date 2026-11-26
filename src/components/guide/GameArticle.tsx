@@ -45,7 +45,7 @@ export default function GameArticle({ locale, game, extra }: { locale: string; g
         {shown.map((section) => <Section key={section.id} section={section} idPrefix="guide-" levelLabel={section.level ? ui.level[section.level] : undefined} />)}
 
         {rest.length > 0 && (
-          <aside className={`mt-14 p-6 ${card}`}>
+          <aside data-play-hide="articles" className={`mt-14 p-6 ${card}`}>
             <p className="text-lg font-black">{ui.more}</p>
             <p className="mt-1 text-sm text-white/50">{ui.moreBody}</p>
             <ul className="mt-4 space-y-1.5 text-sm font-bold">

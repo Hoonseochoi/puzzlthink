@@ -75,7 +75,7 @@ export default function ShowPage({ show, locale }: { show: Show; locale: string 
             {show.games.map((g, i) => {
               const site = g.site ? GAMES.find((x) => x.id === g.site) : undefined;
               return (
-                <li key={g.slug} className={`flex flex-col gap-3 p-5 sm:flex-row sm:items-center ${card}`}>
+                <li key={g.slug} data-play-game={g.site} className={`flex flex-col gap-3 p-5 sm:flex-row sm:items-center ${card}`}>
                   <span className="font-mono text-sm font-black text-(--accent)">{String(i + 1).padStart(2, '0')}</span>
                   <div className="min-w-0 flex-1">
                     <p className="text-[11px] font-bold text-white/45">{g.when[loc]}{g.episode ? ` · ${g.episode[loc]}` : ''} · {KIND_LABEL[g.kind][loc]}</p>

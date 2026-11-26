@@ -11,6 +11,7 @@ import { anyGuidePath } from '@/content/guides';
 import { WIKI_BASE, articleBySlug, categoryOf, wikiLocale, wikiPath } from '@/content/encyclopedia';
 import type { WikiArticle } from '@/content/encyclopedia/types';
 import { GAMES } from '@/lib/gameCatalog';
+import { isHiddenInPlayApp } from '@/lib/playApp';
 import { SITE_URL, breadcrumbJsonLd } from '@/lib/seo';
 
 const UI = {
@@ -85,12 +86,12 @@ export default async function WikiArticlePage({ article, locale }: { article: Wi
         ))}
 
         {games.length > 0 && (
-          <section id="games" className="mt-16 scroll-mt-20">
+          <section id="games" data-play-game={games.every((g) => isHiddenInPlayApp(g.game)) ? games[0].game : undefined} className="mt-16 scroll-mt-20">
             <h2 className="text-2xl font-black tracking-[-0.03em] sm:text-[28px]">{ui.games}</h2>
             <p className="mt-3 break-keep text-[15px] leading-7 text-white/55">{ui.gamesLead}</p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">
               {games.map((g) => (
-                <li key={g.game} className={`flex flex-col p-5 ${card}`}>
+                <li key={g.game} data-play-game={g.game} className={`flex flex-col p-5 ${card}`}>
                   <p className="flex items-center gap-2 font-black"><span className="h-2.5 w-2.5 rounded-full" style={{ background: g.color }} />{g.name}</p>
                   <p className="mt-1.5 break-keep text-[13px] leading-6 text-white/55">{rich(g[loc])}</p>
                   <div className="mt-auto flex gap-4 pt-3 text-xs font-black">

@@ -9,6 +9,8 @@ import { CERT_GAMES, HARD_GAMES } from '@/lib/hardClear';
 import { HELL_GAMES } from '@/lib/hell';
 import { gameFromSlug, rankSlug } from '@/lib/rankings';
 import { getSupabase } from '@/lib/supabase';
+import { GAMES } from '@/lib/gameCatalog';
+import { hiddenGameOfPath } from '@/lib/playApp';
 import { useAuth } from './AuthProvider';
 import { CHAMPION_LOOKS, STONE_COLORS, Stone } from './StoneAvatar';
 import { MY_ICON_ANCHOR } from './StonePicker';
@@ -111,7 +113,7 @@ export default function IconCollection() {
       </>
     );
     const cls = `relative flex flex-col items-center rounded-2xl border px-1.5 pb-2.5 pt-3 ${mine ? 'border-[#ff6b4a]/60 bg-[#fff0eb]' : 'border-black/10 bg-white'}`;
-    return <li key={icon}>{free ? <div className={cls}>{body}</div> : <button type="button" onClick={() => setDetail({ key: icon, icon, name, href })} className={`${cls} w-full transition hover:border-black/25`}>{body}</button>}</li>;
+    return <li key={icon} data-play-game={href ? hiddenGameOfPath(href, GAMES) : undefined}>{free ? <div className={cls}>{body}</div> : <button type="button" onClick={() => setDetail({ key: icon, icon, name, href })} className={`${cls} w-full transition hover:border-black/25`}>{body}</button>}</li>;
   };
 
   const section = (key: string, icon: React.ReactNode, title: string, rule: string, items: React.ReactNode, dark = false) => (
