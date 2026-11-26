@@ -3,16 +3,18 @@
 // stopped, the piece's value, who took the minus stone), everyone's points, the visible order of pieces still to
 // come, and its own remaining time. It never sees who is pressing now, anyone else's remaining time or losing bids.
 //
-// A roster of twelve personalities (more than there are seats), each a parameterised style with a tell. Every match
+// A roster of ten personalities (more than there are seats), each a parameterised style with a tell. Every match
 // rolls a fresh "mind" per AI seat (rollTaMind): the personality plus random aggression, patience, chaos (how often
-// it breaks character) and a seed for its mood, so the same personality never plays the same match twice. Levels
-// change how well a personality executes — memory of its own time, reading prices, counting rivals' time, punishing
-// predictable rivals, avoiding the minus stone — not which personalities exist.
+// it breaks character) and a seed for its mood, so the same personality never plays the same match twice.
+// Every personality bids WELL: they share one valuation (price per point, points still needed, counting rivals'
+// time, never bidding short into the minus stone) and differ only in which pieces they go for, when they spend and
+// how they bait. Levels apply on top of the same personality: at 어려움 it plays at full strength; at 보통 it keeps
+// only a rough count of its own time, reads prices from the median, bids noisily and does not count or punish.
 import { TA_UNIT, type TimeAuction, taLotValue } from './timeAuction';
 
-export type TaStyle = 'steady' | 'rush' | 'snipe' | 'penny' | 'calc' | 'even' | 'bluff' | 'coward' | 'chaser' | 'fickle' | 'dumper' | 'watcher';
+export type TaStyle = 'steady' | 'rush' | 'snipe' | 'calc' | 'even' | 'bluff' | 'chaser' | 'fickle' | 'dumper' | 'watcher';
 export type TaLevel = 'normal' | 'hard';
-export const TA_STYLES: TaStyle[] = ['steady', 'rush', 'snipe', 'penny', 'calc', 'even', 'bluff', 'coward', 'chaser', 'fickle', 'dumper', 'watcher'];
+export const TA_STYLES: TaStyle[] = ['steady', 'rush', 'snipe', 'calc', 'even', 'bluff', 'chaser', 'fickle', 'dumper', 'watcher'];
 
 type Bi = { ko: string; en: string };
 /**
@@ -20,53 +22,47 @@ type Bi = { ko: string; en: string };
  * its tell. Talk lines are said sparingly at the table (win / minus).
  */
 export const TA_PERSONA: Record<TaStyle, { name: string; nameEn: string; face: string; color: string; blurb: Bi; label: Bi; tell: Bi; win: Bi; minus: Bi }> = {
-  steady: { name: '거북이', nameEn: 'Tortoise', face: 'w1-2', color: '#5ec8ff',
-    blurb: { ko: '천천히, 하지만 확실하게.', en: 'Slow, but sure.' },
-    label: { ko: '신중형', en: 'Steady' }, tell: { ko: '필요한 만큼만, 평소 낙찰가보다 조금 높게 들어와요.', en: 'Bids only as often as it needs, a little above the usual price.' },
-    win: { ko: '계획대로예요.', en: 'As planned.' }, minus: { ko: '이번엔 제가 서둘렀네요.', en: 'I rushed that one.' } },
-  rush: { name: '불도저', nameEn: 'Bulldozer', face: 'm4096', color: '#ff5b5b',
-    blurb: { ko: '처음부터 밀어붙이는 게 최고지!', en: 'Push from the very start!' },
-    label: { ko: '초반 올인형', en: 'Early all-in' }, tell: { ko: '초반 경매에 크게 질러 먼저 모으고, 후반엔 시간이 없어요.', en: 'Burns big early for the first pieces, then runs dry.' },
-    win: { ko: '밀어붙이면 되는 거야!', en: 'Just push!' }, minus: { ko: '어라, 벌써 바닥?', en: 'Huh, empty already?' } },
-  snipe: { name: '저격수', nameEn: 'Sniper', face: 'hc', color: '#b48cff',
-    blurb: { ko: '좋은 것만 노려요.', en: 'Only the good ones.' },
-    label: { ko: '막판 저격형', en: 'Late sniper' }, tell: { ko: '1점짜리는 거의 쉬고, 2·3점 바둑알과 막판에 시간을 몰아 써요.', en: 'Skips most 1-point pieces and pours its time into 2- and 3-pointers and the end.' },
-    win: { ko: '기다린 보람이 있네요.', en: 'Worth the wait.' }, minus: { ko: '…조준이 빗나갔어요.', en: '…missed my shot.' } },
-  penny: { name: '다람쥐', nameEn: 'Squirrel', face: 'm16384', color: '#ffd166',
-    blurb: { ko: '아무도 없을 때 슬쩍 주워 가요.', en: 'Grabs what nobody is watching.' },
-    label: { ko: '줍줍형', en: 'Penny grabber' }, tell: { ko: '비싼 경매 바로 다음에 아주 짧게 입찰해요. 들키면 마이너스예요.', en: 'Slips in very short bids right after an expensive auction — caught, it takes the minus.' },
-    win: { ko: '헤헤, 공짜!', en: 'Hehe, free!' }, minus: { ko: '앗, 들켰다…', en: 'Oops, caught…' } },
-  calc: { name: '계산기', nameEn: 'Calculator', face: 'w1-1', color: '#3ddc97',
+  // Call signs as in 스나이퍼 홀덤 where the temperament is the same (에이스 balanced, 아울 tight, 징크스 bluffing,
+  // 바이퍼 venomous, 모노 patient); the rest are this game's own.
+  steady: { name: '에이스', nameEn: 'ACE', face: 'w1-2', color: '#ff7a59',
+    blurb: { ko: '기본기가 최고의 무기.', en: 'Fundamentals win.' },
+    label: { ko: '균형형', en: 'Balanced' }, tell: { ko: '필요한 만큼만, 평소 낙찰가보다 조금 높게 들어와요. 읽히는 대신 흔들리지 않아요.', en: 'Bids only as often as it needs, a little above the usual price — readable, but steady.' },
+    win: { ko: '계획대로예요.', en: 'As planned.' }, minus: { ko: '이번엔 서둘렀네요.', en: 'I rushed that one.' } },
+  rush: { name: '블리츠', nameEn: 'BLITZ', face: 'm4096', color: '#ff5b5b',
+    blurb: { ko: '선점이 곧 승리.', en: 'First in, first ahead.' },
+    label: { ko: '초반 선점형', en: 'Early pressure' }, tell: { ko: '시간이 많은 초반에 적극적으로 따서 앞서 나가고, 후반엔 아껴 써요.', en: 'Takes pieces early while everyone is rich, then plays lean late.' },
+    win: { ko: '먼저 간다!', en: 'Off first!' }, minus: { ko: '너무 앞서갔나.', en: 'Too far ahead of myself.' } },
+  snipe: { name: '모노', nameEn: 'MONO', face: 'hc', color: '#5fb8ff',
+    blurb: { ko: '기다림도 실력이에요.', en: 'Patience is a skill.' },
+    label: { ko: '후반 집중형', en: 'Patient' }, tell: { ko: '1점짜리는 웬만하면 넘기고, 2·3점 바둑알과 막판을 위해 시간을 모아요.', en: 'Lets most 1-pointers go and saves its time for 2- and 3-pointers and the end.' },
+    win: { ko: '기다린 보람이 있네요.', en: 'Worth the wait.' }, minus: { ko: '…타이밍이 빗나갔어요.', en: '…timing was off.' } },
+  calc: { name: '오라클', nameEn: 'ORACLE', face: 'w1-1', color: '#3ddc97',
     blurb: { ko: '숫자는 거짓말을 안 해요.', en: 'Numbers never lie.' },
     label: { ko: '계산형', en: 'Calculator' }, tell: { ko: '낙찰 시간을 세어 상대가 가질 수 있는 시간을 넘기는 순간 확실하게 따요.', en: 'Counts winning prices and strikes when it can outlast what anyone can have left.' },
     win: { ko: '계산 끝.', en: 'Calculated.' }, minus: { ko: '오차 범위 밖이네요.', en: 'Outside my margin.' } },
-  even: { name: '저울', nameEn: 'Scales', face: 'w1-3', color: '#e0c38a',
-    blurb: { ko: '모든 경매에 공평하게.', en: 'Fair to every auction.' },
-    label: { ko: '균등 분배형', en: 'Even spender' }, tell: { ko: '남은 시간을 남은 점수로 나눈 만큼 거의 모든 경매에 꾸준히 걸어요.', en: 'Bids about (time left ÷ points left) × value in nearly every auction.' },
-    win: { ko: '예산 안이에요.', en: 'Within budget.' }, minus: { ko: '균형이 깨졌네요.', en: 'Off balance.' } },
-  bluff: { name: '포커페이스', nameEn: 'Poker Face', face: 'o-2', color: '#ff8fd6',
+  even: { name: '페이서', nameEn: 'PACER', face: 'w1-3', color: '#e0c38a',
+    blurb: { ko: '처음부터 끝까지 같은 속도로.', en: 'Same pace, start to finish.' },
+    label: { ko: '균등 분배형', en: 'Even pacer' }, tell: { ko: '남은 시간을 남은 점수에 맞춰 나눠, 여러 경매에 꾸준히 제값을 걸어요.', en: 'Splits its time by the points still to come and pays a fair price across many auctions.' },
+    win: { ko: '예산 안이에요.', en: 'Within budget.' }, minus: { ko: '페이스가 흔들렸네요.', en: 'Lost my pace.' } },
+  bluff: { name: '징크스', nameEn: 'JINX', face: 'o-2', color: '#c08bff',
     blurb: { ko: '내가 누르고 있을까, 아닐까?', en: 'Am I holding, or not?' },
-    label: { ko: '블러퍼', en: 'Bluffer' }, tell: { ko: '진짜로 원하지 않는 경매에서 적당히 버텨 남의 값을 올리고 빠져요. 가끔 진심으로 크게 걸어요.', en: 'Holds just long enough to make others overpay, then lets go — and now and then means it.' },
+    label: { ko: '미끼형', en: 'Baiter' }, tell: { ko: '1점짜리에 평소 값 근처로 자주 들어와 남들이 값을 올리게 만들고, 진짜 승부는 2·3점에서 해요.', en: 'Often in for 1-pointers near the usual price so others pay up; saves its real fights for 2s and 3s.' },
     win: { ko: '진짜였을까요?', en: 'Was I bluffing?' }, minus: { ko: '아무 일도 없었어요.', en: 'Nothing happened.' } },
-  coward: { name: '쫄보', nameEn: 'Scaredy', face: 'm32768', color: '#9cc7ff',
-    blurb: { ko: '싸움은 무서워요…', en: 'Fights are scary…' },
-    label: { ko: '겁쟁이', en: 'Coward' }, tell: { ko: '2·3점 바둑알은 피하고 1점짜리에 자주 들어오지만, 평소 낙찰가보다 낮은 한계에서 꼭 손을 떼요.', en: 'Avoids 2- and 3-pointers; often in for 1-pointers, but always lets go at a limit below the usual price.' },
-    win: { ko: '휴, 다행이다.', en: 'Phew, made it.' }, minus: { ko: '역시 무서웠어…', en: 'Knew it was scary…' } },
-  chaser: { name: '추격자', nameEn: 'Chaser', face: 'w2-2', color: '#ff9f43',
+  chaser: { name: '헌터', nameEn: 'HUNTER', face: 'w2-2', color: '#ff9f43',
     blurb: { ko: '방금 이긴 사람, 다음은 내 차례야.', en: 'Whoever just won — I’m next.' },
-    label: { ko: '끈질긴 추격자', en: 'Relentless chaser' }, tell: { ko: '직전 낙찰가보다 조금 더 걸어 방금 이긴 사람을 쫓아가요.', en: 'Bids a little over the last winning price to chase the last winner.' },
+    label: { ko: '추격형', en: 'Chaser' }, tell: { ko: '직전 낙찰가를 기준으로 조금 더 걸어 앞선 사람을 쫓아가요.', en: 'Prices off the last winning bid and goes a little over to chase the leader.' },
     win: { ko: '따라잡았다!', en: 'Caught you!' }, minus: { ko: '놓쳤네…', en: 'Lost the trail…' } },
-  fickle: { name: '카멜레온', nameEn: 'Chameleon', face: 'w2-3', color: '#21c2b5',
+  fickle: { name: '카멜레온', nameEn: 'CHAMELEON', face: 'w2-3', color: '#21c2b5',
     blurb: { ko: '오늘의 나는 어제와 달라요.', en: 'Not who I was yesterday.' },
-    label: { ko: '변덕쟁이', en: 'Fickle' }, tell: { ko: '경기 중간에 성향을 바꿔요. 초반·중반·후반의 모습이 서로 달라요.', en: 'Changes style mid-match: early, middle and late it plays differently.' },
+    label: { ko: '변신형', en: 'Shape-shifter' }, tell: { ko: '초반·중반·후반에 다른 성향으로 바꿔 둬요. 직전 몇 경매가 지금의 모습이에요.', en: 'Plays a different style early, mid and late: its last few auctions show the current one.' },
     win: { ko: '기분 좋은데요?', en: 'Feeling good!' }, minus: { ko: '기분이 바뀌었어요.', en: 'Mood changed.' } },
-  dumper: { name: '여우', nameEn: 'Fox', face: 'hm-hard', color: '#ff7a2a',
+  dumper: { name: '바이퍼', nameEn: 'VIPER', face: 'hm-hard', color: '#4fd18b',
     blurb: { ko: '마이너스는 남이 가져가야죠.', en: 'Minus stones are for others.' },
-    label: { ko: '마이너스 떠넘기기형', en: 'Minus dumper' }, tell: { ko: '1점짜리 경매에 적당한 시간으로 자주 끼어들어, 짧게 입찰한 사람에게 마이너스를 떠넘겨요.', en: 'Joins 1-point auctions with a solid bid so short bidders get stuck with the minus.' },
+    label: { ko: '마이너스 떠넘기기형', en: 'Minus dumper' }, tell: { ko: '1점짜리 경매에 제값으로 자주 끼어들어, 짧게 입찰한 사람에게 마이너스를 떠넘겨요.', en: 'Joins 1-point auctions at a fair price so short bidders get stuck with the minus.' },
     win: { ko: '덤으로 하나 챙겼네요.', en: 'Picked one up on the side.' }, minus: { ko: '…내가 받을 줄은.', en: '…didn’t see that coming.' } },
-  watcher: { name: '부엉이', nameEn: 'Owl', face: 'm65536', color: '#c9b0ff',
+  watcher: { name: '아울', nameEn: 'OWL', face: 'm65536', color: '#9aa4b8',
     blurb: { ko: '싼 건 쳐다보지도 않아요.', en: 'Cheap ones? Not even a glance.' },
-    label: { ko: '관망형', en: 'Watcher' }, tell: { ko: '1점짜리 경매는 통째로 건너뛰고 2·3점 바둑알에만 들어와요.', en: 'Skips every 1-point piece; only 2- and 3-pointers.' },
+    label: { ko: '선별형', en: 'Selective' }, tell: { ko: '1점짜리 경매는 건너뛰고, 2·3점 바둑알에서 확실하게 이겨요.', en: 'Skips 1-point pieces and wins 2- and 3-pointers decisively.' },
     win: { ko: '기다리면 오는 법.', en: 'Good things come to those who wait.' }, minus: { ko: '부엉…', en: 'Hoo…' } },
 };
 
@@ -78,7 +74,7 @@ export function rollTaMind(style: TaStyle, rand: () => number = Math.random): Ta
   return { style, aggr: 0.85 + rand() * 0.33, patience: 0.7 + rand() * 0.6, chaos: 0.03 + rand() * 0.09, seed: Math.floor(rand() * 1e9) };
 }
 
-/** Distinct personalities for `n` AI seats (the roster is bigger than the table, so a match never repeats one). */
+/** Distinct personalities for `n` AI seats (ten in the roster, five at a table: a match never repeats one). */
 export function pickTaStyles(n: number, rand: () => number = Math.random): TaStyle[] {
   const pool = [...TA_STYLES];
   for (let i = pool.length - 1; i > 0; i -= 1) { const j = Math.floor(rand() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
@@ -179,9 +175,9 @@ export function chooseTaBid(v: TaAiView, who: TaMind | TaStyle, level: TaLevel, 
   // Out of auctions: everything left goes into the ones that remain, weighted by value.
   if (need > 0 && left <= need) return cap(((felt * value) / pointsLeft) * r(0.97, 1));
 
-  // Mind game (hard, and the chaser at any level): a rival who keeps winning at the same price per point is easy to
-  // read — when they still need points, bid just over their habit.
-  if ((hard && rand() < 0.35) || style === 'chaser') {
+  // Mind game (at full strength; the hunter looks for it most): a rival who keeps winning at the same price per point is
+  // easy to read — when they still need points, bid just over their habit.
+  if (hard && rand() < (style === 'chaser' ? 0.6 : 0.35)) {
     for (let s = 0; s < v.inGame.length; s += 1) {
       if (s === v.seat || !v.inGame[s]) continue;
       const theirs = v.log.filter((x) => x.outcome === 'won' && x.winner === s).map((x) => x.price / Math.max(1, x.value));
@@ -207,51 +203,40 @@ export function chooseTaBid(v: TaAiView, who: TaMind | TaStyle, level: TaLevel, 
       bid = Math.min(typical * r(1.08, 1.3) * noise, perWin * 0.95);
       break;
     case 'rush':
-      enter = progress < 0.45 ? 0.6 * mind.aggr : pace * 1.3;
-      bid = Math.min(typical * r(1.2, 1.6) * noise * mind.aggr, perWin * 1.25, felt * 0.4);
+      enter = progress < 0.45 ? 0.45 * mind.aggr : pace * 1.1;
+      bid = Math.min(typical * r(1.05, 1.25) * noise * mind.aggr, perWin * 1.15, felt * 0.35);
       break;
     case 'snipe':
       if (value === 1 && progress < 0.75) { enter = 0.08; bid = typical * r(1.1, 1.3); break; }
-      enter = Math.min(0.95, (need / Math.max(1, bigLeft + (progress > 0.75 ? left : 0))) * 1.8 * mind.patience + 0.25);
-      bid = Math.min(perWin * r(0.85, 1.05) * noise, bank);
-      break;
-    case 'penny':
-      // Short bids right after an expensive auction, when the others are likely tired; caught, it takes the minus.
-      if (afterBig && rand() < (hard ? 0.45 : 0.6)) return cap(r(0.004, 0.03) * v.startBank);
-      enter = pace * (behind ? 1.4 : 0.8);
-      bid = Math.min(typical * r(1.15, 1.4) * noise, perWin);
+      enter = Math.min(0.95, (need / Math.max(1, bigLeft + (progress > 0.75 ? left : 0))) * 1.8 * mind.patience + 0.38);
+      bid = Math.min(Math.max(perWin * r(0.95, 1.15), typical * 1.3) * noise, bank);
       break;
     case 'calc':
-      enter = pace * (afterBig ? 2.1 : 1.0) * (behind ? 1.35 : 1);
+      enter = pace * (afterBig ? 1.6 : 1.0) * (behind ? 1.3 : 1);
       bid = Math.min(typical * r(1.15, 1.4) * noise, Math.max(((bank * value) / pointsLeft) * 2.2, typical * 1.05));
       break;
     case 'even':
       // Spreads its time by value over what is left — but never short enough to be the shortest bid.
-      enter = 0.25 + 0.25 * mind.aggr * (behind ? 1.2 : 1);
-      bid = Math.max(((felt * value) / pointsLeft) * r(1.8, 2.4) * mind.aggr, typical * r(1.0, 1.2));
+      enter = 0.3 + 0.25 * mind.aggr * (behind ? 1.2 : 1);
+      bid = Math.max(((felt * value) / pointsLeft) * r(1.9, 2.5) * mind.aggr, typical * r(1.12, 1.3));
       break;
     case 'bluff':
       // On cheap auctions it does not really want, a believable middling hold that makes the winner pay more.
-      if (value === 1 && rand() < 0.28 * mind.patience) { enter = 0.85; bid = typical * r(0.88, 1.02); break; }
+      // Baits on cheap pieces with a fair bid it is happy to win, so the others pay up; real fights on 2s and 3s.
+      if (value === 1 && rand() < 0.25 * mind.patience) { enter = 0.75; bid = Math.min(typical * r(1.12, 1.28), perWin * 1.1); break; }
       enter = pace * 1.3;
       bid = Math.min(typical * r(1.15, 1.45) * noise, perWin);
       break;
-    case 'coward':
-      // Too scared for the valuable pieces unless it is about to be last; on cheap ones it goes in with a low limit
-      // set before the countdown ends, and lets go there however close it is.
-      if (value > 1 && !(behind && progress > 0.6)) return null;
-      enter = 0.55;
-      bid = Math.min(typical * r(0.75, 0.95) * mind.patience, perWin); // its limit, set before the countdown ends
-      break;
     case 'chaser': {
       const lastUnit = last && last.outcome === 'won' && last.winner !== v.seat ? last.price / Math.max(1, last.value) : null;
-      enter = lastUnit ? 0.55 * mind.aggr + pace : pace;
-      bid = Math.min((lastUnit ?? unit) * value * r(1.05, 1.2) * noise, perWin * 1.2);
+      // Chases only a winner who paid a fair price (not one who overpaid), and never past what the piece is worth to it.
+      enter = pace * (behind ? 1.4 : 1.05) * (lastUnit && lastUnit < unit * 1.3 ? 1.25 : 1);
+      bid = Math.min(Math.max((lastUnit ?? unit) * value * r(1.03, 1.12), typical * r(1.1, 1.25)) * noise, perWin * 1.05);
       break;
     }
     case 'dumper':
       // Joins cheap auctions with a solid hold so anyone bidding short takes the minus; never bids short itself.
-      if (value === 1) { enter = 0.5 * mind.aggr; bid = Math.max(typical * r(0.95, 1.15), unit * 0.8) * noise; break; }
+      if (value === 1) { enter = 0.4 * mind.aggr; bid = Math.min(typical * r(1.12, 1.3) * noise, perWin * 1.1); break; }
       enter = pace * 1.3;
       bid = Math.min(typical * r(1.1, 1.35) * noise, perWin);
       break;
@@ -264,8 +249,9 @@ export function chooseTaBid(v: TaAiView, who: TaMind | TaStyle, level: TaLevel, 
       break;
   }
   if (rand() >= Math.min(0.95, enter)) return null;
-  // A hard AI would rather sit out than enter with a short bid (the minus stone), unless it is out of auctions.
-  if (hard && bid < typical * 0.45 && left > need) return null;
+  // Shared judgement at full strength: never enter with a bid well under the going price (the shortest of two or more
+  // bids takes −1) unless out of auctions — sitting out costs nothing.
+  if (hard && bid < typical * 0.85 && left > need) return null;
   if (hard && perWin < typical * 0.75 && left > need + 1 && style !== 'bluff' && rand() < 0.6) return null;
   // A hard AI avoids round numbers (ties void the piece) by adding a few hundredths.
   return cap(bid + (hard ? r(0, 90) : 0));

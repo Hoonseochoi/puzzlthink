@@ -110,7 +110,7 @@ export const taPeople = (state: TaRoom) => state.seats.filter((seat, i) => seat 
 function startRoom(state: TaRoom, shuffleHumans = true): TaRoom {
   let humans = state.seats.flatMap((seat, i) => (seat && !state.ai[i] ? [seat] : []));
   if (shuffleHumans) humans = humans.sort(() => Math.random() - 0.5);
-  // A random handful from the roster of twelve: no two AI at a table share a personality.
+  // A random handful from the roster of ten: no two AI at a table share a personality.
   const styles = pickTaStyles(TA_STYLES.length);
   const seats: Seat[] = [];
   const ai: boolean[] = [];
