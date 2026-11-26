@@ -8,6 +8,8 @@
 //   hard   — as normal, plus: other players are modelled as reading *its* bets and snipes too, so it weighs how a
 //            raise makes its hand easier to snipe, and it will snipe a lower hand (or pass) to hide what it holds.
 // Survival matters more than chips: chips above the safety line are given away, and reaching it ends the match.
+// On top of the level, every seat has a personality (SH_TRAITS, 10 of them, nudged by a per-match mood) and reads
+// each opponent's history from public information: hands shown down with what was bet on them, and snipes made.
 import {
   type ShAction, type ShCat, type ShEvent, type ShTarget, type SniperHoldem, SH_SEATS,
   redactSniperHoldem, shCanAct, shEvaluate, shLiveSeats, shPot, shPossibleTargets, shTimeoutAction, withSniperHoldemSecret,
@@ -16,24 +18,113 @@ import {
 export type ShLevel = 'easy' | 'normal' | 'hard';
 export const SH_LEVELS: readonly ShLevel[] = ['easy', 'normal', 'hard'];
 
-/** Personas: names and colors for the table, and a betting temperament (never shown to players). */
-export type ShStyle = 'ace' | 'viper' | 'owl' | 'jinx' | 'mono';
-export const SH_STYLES: readonly ShStyle[] = ['ace', 'viper', 'owl', 'jinx', 'mono'];
+/**
+ * Personalities. Each AI match draws a random handful of these (more than fit at a table), so the same faces and
+ * habits do not come back every game. The level (easy / normal / hard) sets how well a seat calculates; the
+ * personality sets what it likes to do with that calculation, in both halves of the game: betting and sniping.
+ * Traits (0–1 unless noted), all applied on top of the expected-value choice:
+ *   tight   folds more marginal hands (−1 = plays loose)      station  calls where it should fold
+ *   aggro   prefers raising to calling                       big      prefers big raise sizes / all-ins
+ *   bully   pushes harder when it has the biggest stack       slow     a strong hand only calls
+ *   bluff   raises without the hand                           bait     bets the scary board hand it does not hold
+ *   eager   snipes even for a small gain (−1 = saves snipes)  bigPot   only bothers sniping in big pots
+ *   obvious snipes the hand the board shouts                 self     snipes its own exposed hand for a draw
+ *   feint   snipes below its own hand to hide it              adapt    how much it reads each opponent's history
+ *   ooc     chance of an out-of-character move (so tells help but are never certain)
+ */
+export type ShStyle = 'ace' | 'viper' | 'owl' | 'jinx' | 'mono' | 'rex' | 'luna' | 'echo' | 'mint' | 'bolt';
+export const SH_STYLES: readonly ShStyle[] = ['ace', 'viper', 'owl', 'jinx', 'mono', 'rex', 'luna', 'echo', 'mint', 'bolt'];
 export const SH_PERSONA: Record<ShStyle, { name: string; nameEn: string; color: string }> = {
   ace: { name: '에이스', nameEn: 'ACE', color: '#ff7a59' },
   viper: { name: '바이퍼', nameEn: 'VIPER', color: '#4fd18b' },
   owl: { name: '아울', nameEn: 'OWL', color: '#9aa4b8' },
   jinx: { name: '징크스', nameEn: 'JINX', color: '#c08bff' },
   mono: { name: '모노', nameEn: 'MONO', color: '#5fb8ff' },
+  rex: { name: '렉스', nameEn: 'REX', color: '#e8b730' },
+  luna: { name: '루나', nameEn: 'LUNA', color: '#f05aa8' },
+  echo: { name: '에코', nameEn: 'ECHO', color: '#21c2b5' },
+  mint: { name: '민트', nameEn: 'MINT', color: '#a8f0b4' },
+  bolt: { name: '볼트', nameEn: 'BOLT', color: '#ff5b45' },
 };
-/** bluff: chance of a raise without the hand · slow: chance a strong hand only calls. */
-const STYLE: Record<ShStyle, { bluff: number; slow: number }> = {
-  ace: { bluff: 0.08, slow: 0.05 },
-  viper: { bluff: 0.12, slow: 0.15 },
-  owl: { bluff: 0.02, slow: 0.05 },
-  jinx: { bluff: 0.16, slow: 0.1 },
-  mono: { bluff: 0.05, slow: 0.25 },
+/**
+ * How much a personality may give up for its taste: a bet within BET_SLACK (relative) of the best one's survival
+ * value, a snipe within SNIPE_SLACK of the best one's share of the pot. Small enough that no style is measurably
+ * weaker (see the arena numbers in the guide), large enough that styles look different.
+ */
+const BET_SLACK = 0.02;
+const SNIPE_SLACK = 0.025;
+export type ShTraits = {
+  tight: number; station: number; aggro: number; big: number; bully: number; slow: number; bluff: number; bait: number;
+  eager: number; bigPot: number; obvious: number; self: number; feint: number; adapt: number; ooc: number;
 };
+const T = (t: Partial<ShTraits>): ShTraits => ({
+  tight: 0, station: 0, aggro: 0, big: 0, bully: 0, slow: 0.05, bluff: 0.05, bait: 0,
+  eager: 0, bigPot: 0, obvious: 0, self: 0, feint: 0, adapt: 0.5, ooc: 0.06, ...t,
+});
+export const SH_TRAITS: Record<ShStyle, ShTraits> = {
+  // 계산형: plays the numbers, snipes by value, reads the table.
+  ace: T({ adapt: 0.8, ooc: 0.04 }),
+  // 독사: slow-plays strong hands and keeps its snipe for the big pots.
+  viper: T({ slow: 0.45, bigPot: 0.9, eager: -0.4, adapt: 0.6, feint: 0.2 }),
+  // 바위: tight, rarely snipes, folds the marginal stuff.
+  owl: T({ tight: 0.8, eager: -0.8, bluff: 0.01, aggro: -0.3, adapt: 0.4 }),
+  // 사기꾼: bluff-raises, bets the hand the board suggests, feints and self-snipes to cover it.
+  jinx: T({ bluff: 0.3, bait: 0.6, feint: 0.5, self: 0.6, aggro: 0.4, ooc: 0.1 }),
+  // 콜링 스테이션: calls almost anything, snipes the obvious board hand.
+  mono: T({ station: 0.9, tight: -0.5, aggro: -0.5, obvious: 0.8, eager: 0.3, adapt: 0.2 }),
+  // 불도저: bullies with the big stack, big sizes.
+  rex: T({ bully: 1, aggro: 0.5, big: 0.6, bluff: 0.12, eager: 0.2 }),
+  // 난사꾼: loose, snipes every time it can.
+  luna: T({ tight: -0.6, eager: 1, obvious: 0.3, bluff: 0.1, aggro: 0.2, ooc: 0.1 }),
+  // 거울: adapts hardest to what each opponent has shown; quiet otherwise.
+  echo: T({ adapt: 1, feint: 0.3, self: 0.3, ooc: 0.05 }),
+  // 겁쟁이: tight-passive bettor, but a sharp sniper of the board's hand.
+  mint: T({ tight: 0.5, aggro: -0.6, obvious: 0.6, eager: 0.5, slow: 0.2, adapt: 0.4 }),
+  // 올인러: all-in or nothing.
+  bolt: T({ aggro: 0.7, big: 1, tight: 0.2, bluff: 0.15, eager: -0.2, ooc: 0.08 }),
+};
+
+/** No personality at all: the plain best-value player the personalities are measured against (arena only). */
+export const SH_PLAIN: ShTraits = T({ slow: 0, bluff: 0, adapt: 0.5, ooc: 0 });
+
+/** A per-match mood in [-1, 1] for a seat, from the match id: the same seat plays a little differently each match. */
+export function shMood(gid: string, seat: number): number {
+  let h = 2166136261;
+  for (const ch of `${gid}:${seat}`) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return ((h >>> 0) % 2001) / 1000 - 1;
+}
+/** The traits a seat plays with this match: the personality, nudged by its mood (bolder or more careful). */
+export function shTraitsFor(style: ShStyle, gid: string, seat: number): ShTraits {
+  const base = SH_TRAITS[style] ?? SH_PLAIN;
+  const m = shMood(gid, seat);
+  const k = 1 + 0.3 * m;
+  return { ...base, aggro: base.aggro + 0.25 * m, bluff: Math.max(0, base.bluff * k), tight: base.tight - 0.25 * m, eager: base.eager + 0.2 * m, bait: base.bait * k };
+}
+
+/**
+ * What a seat has learned about each opponent from earlier rounds (public: cards shown down, what they put in,
+ * what they sniped). bluffy: how often a big bet came with a weak hand · feints: how often their snipe was below
+ * their own hand · n: showdowns seen.
+ */
+type Profile = { bluffy: number; feints: number; n: number };
+function profiles(g: SniperHoldem): Map<number, Profile> {
+  const out = new Map<number, Profile>();
+  for (let s = 0; s < SH_SEATS; s += 1) {
+    let big = 0, weakBig = 0, snipes = 0, low = 0, n = 0;
+    for (const r of g.rounds) {
+      const hand = r.hand[s];
+      if (!hand || !r.hands[s]) continue;
+      n += 1;
+      const ante = r.ante ?? 1;
+      if (r.bets && r.bets[s] >= ante + 3) { big += 1; if (hand.cat <= 1 && !r.winners.includes(s)) weakBig += 1; }
+      const t = r.snipes[s];
+      if (t && t !== 'pass') { snipes += 1; if (label(t.cat, t.n) < label(hand.cat, hand.key[0])) low += 1; }
+    }
+    // Priors: one bluff in four big bets, one feint in five snipes.
+    out.set(s, { bluffy: (weakBig + 0.5) / (big + 2), feints: (low + 0.4) / (snipes + 2), n });
+  }
+  return out;
+}
 type Tuning = { read: number; sims: number; snipeSims: number; meta: boolean; noise: number; perceive?: boolean };
 /** Level settings (exported so the arena script can try variants). */
 export const SH_TUNING: Record<string, Tuning> = {
@@ -145,7 +236,7 @@ function sampleRunouts(left: number[], n: number, count: number): number[][] {
  * Weights over a player's possible holdings, from their bets this round (and, at `read` = 0, from nothing).
  * `left`: cards the viewer has not seen. A snipe already said suggests a hand just below it (hard only).
  */
-function posterior(g: SniperHoldem, seat: number, left: number[], read: number, moves: Move[], str: { s1: number[]; s2: number[] }, meta: boolean): number[] {
+function posterior(g: SniperHoldem, seat: number, left: number[], read: number, moves: Move[], str: { s1: number[]; s2: number[] }, meta: boolean, feintDiscount = 0.35): number[] {
   const w = PAIRS.map((p) => Math.max(0, combos(left, p)));
   if (read > 0) {
     for (const m of moves) {
@@ -158,7 +249,7 @@ function posterior(g: SniperHoldem, seat: number, left: number[], read: number, 
   if (meta && said && said !== 'pass' && g.shown === 4) {
     const t = label(said.cat, said.n);
     const board = g.board.slice(0, 4) as number[];
-    for (let i = 0; i < w.length; i += 1) if (w[i] && scoreOf([...board, ...PAIRS[i]]).l >= t) w[i] *= 0.35;
+    for (let i = 0; i < w.length; i += 1) if (w[i] && scoreOf([...board, ...PAIRS[i]]).l >= t) w[i] *= feintDiscount;
   }
   return w;
 }
@@ -195,9 +286,10 @@ type View = {
   g: SniperHoldem; me: number; mine: number[]; board: number[]; live: number[]; others: number[];
   moves: Move[]; leftMine: number[]; leftPublic: number[]; lv: Tuning; str: { s1: number[]; s2: number[] };
   post: Map<number, number[]>; pub: Map<number, number[]>; // my guess at each opponent; the table's guess at everyone
+  traits: ShTraits; prof: Map<number, Profile>;
 };
 
-function makeView(full: SniperHoldem, me: number, level: ShLevel): View {
+function makeView(full: SniperHoldem, me: number, level: ShLevel, traits: ShTraits = SH_TRAITS.ace): View {
   // Only what this seat could see.
   const g = withSniperHoldemSecret(redactSniperHoldem(full), full.hands[me], me);
   const mine = g.hands[me] as number[];
@@ -212,12 +304,21 @@ function makeView(full: SniperHoldem, me: number, level: ShLevel): View {
   if (lv.read <= 0) str.s1 = [];
   const post = new Map<number, number[]>();
   const pub = new Map<number, number[]>();
+  // Mind games: what each opponent has shown before. A player whose big bets came with weak hands is read less
+  // literally; one who snipes below their own hand is not assumed to hold something under their snipe.
+  const prof = profiles(g);
   for (const s of live) {
-    if (s !== me) post.set(s, posterior(g, s, leftMine, lv.read, moves, str, lv.meta));
+    if (s !== me) {
+      const pr = prof.get(s)!;
+      const k = Math.min(1, pr.n / 4) * traits.adapt;
+      const read = lv.read * Math.max(0.25, Math.min(1.6, 1 + 2.4 * k * (0.25 - pr.bluffy)));
+      const feint = 0.35 + 0.65 * Math.min(1, k * Math.max(0, pr.feints - 0.2) * 2.5);
+      post.set(s, posterior(g, s, leftMine, read, moves, str, lv.meta, feint));
+    }
     // The table reads everyone (me included) from public information only.
     pub.set(s, posterior(g, s, leftPublic, lv.meta ? 1 : lv.read, moves, str, lv.meta));
   }
-  return { g, me, mine, board, live, others: live.filter((s) => s !== me), moves, leftMine, leftPublic, lv, post, pub, str };
+  return { g, me, mine, board, live, others: live.filter((s) => s !== me), moves, leftMine, leftPublic, lv, post, pub, str, traits, prof };
 }
 
 /** One imagined deal: everyone's private cards and the full board. */
@@ -305,18 +406,30 @@ function rawEquity(v: View, sims: number): number {
 
 // ── Snipe ──────────────────────────────────────────────────────────────────────────────────────────────────────
 function chooseSnipe(v: View, level: ShLevel): ShAction {
+  const tr = v.traits;
   const options = shPossibleTargets(v.board, v.mine).map((t) => label(t.cat, t.n));
   const own = scoreOf([...v.board, ...v.mine]).l;
   const said = new Set<number>();
   for (const s of v.live) { const t = v.g.snipes[s]; if (t && t !== 'pass') said.add(label(t.cat, t.n)); }
-
-  if (level === 'easy' || v.lv.snipeSims === 0) {
-    // The likeliest hand above mine on the table's public picture; now and then a random one or none.
+  const pot = shPot(v.g);
+  const ooc = Math.random() < tr.ooc;
+  const snipe = (l: number | null | undefined): ShAction => (l === null || l === undefined ? { kind: 'pass' } : { kind: 'snipe', target: labelTarget(l) });
+  // The hand the board shouts: the likeliest label above mine on the public picture (what a plain sniper calls).
+  const obviousPick = () => {
     const labelsByPair = PAIRS.map((p) => scoreOf([...v.board, ...p]).l);
     const threat = new Float64Array(NLABEL);
-    for (const s of v.others) { const d = labelDist(PAIRS.map((p) => Math.max(0, combos(v.leftMine, p))), labelsByPair); for (let l = 0; l < NLABEL; l += 1) threat[l] += d[l]; void s; }
-    const pick = Math.random() < v.lv.noise ? options[Math.floor(Math.random() * options.length)] : naiveSnipe(threat, own, said, 0.08);
-    return pick === null || pick === undefined ? { kind: 'pass' } : { kind: 'snipe', target: labelTarget(pick) };
+    const d = labelDist(PAIRS.map((p) => Math.max(0, combos(v.leftMine, p))), labelsByPair);
+    for (let l = 0; l < NLABEL; l += 1) threat[l] = d[l] * v.others.length;
+    return naiveSnipe(threat, own, said, 0.08);
+  };
+  // "Saves snipes for big pots": a small pot is not worth giving information away.
+  const smallPot = pot < 4 * Math.max(1, v.g.ante) * v.live.length;
+
+  if (level === 'easy' || v.lv.snipeSims === 0) {
+    if (tr.eager < -0.5 && Math.random() < 0.5) return snipe(null);
+    if (tr.bigPot > 0.5 && smallPot && Math.random() < tr.bigPot) return snipe(null);
+    const pick = Math.random() < v.lv.noise || ooc ? options[Math.floor(Math.random() * options.length)] : obviousPick();
+    return snipe(pick);
   }
 
   // Try every snipe (and passing) against the same imagined deals.
@@ -333,10 +446,26 @@ function chooseSnipe(v: View, level: ShLevel): ShAction {
     }
     for (const deal of deals) value[i] += shareInDeal(v, deal, pubW, c);
   });
+  for (let i = 0; i < value.length; i += 1) value[i] /= deals.length;
   let best = 0;
   for (let i = 1; i < candidates.length; i += 1) if (value[i] > value[best] + 1e-9) best = i;
-  const c = candidates[best];
-  return c === null ? { kind: 'pass' } : { kind: 'snipe', target: labelTarget(c) };
+
+  // Personality chooses among snipes worth (almost) as much as the best: cover its own exposed hand, feint below
+  // it, call the board's obvious hand, fire freely or keep the snipe (more so in small pots).
+  const nearSet = candidates.map((c, i) => ({ c, i })).filter((x) => value[x.i] >= value[best] - SNIPE_SLACK);
+  if (ooc) return snipe(nearSet[Math.floor(Math.random() * nearSet.length)].c);
+  const obvious = obviousPick();
+  const taste = (c: number | null) => {
+    if (c === null) return -tr.eager + (smallPot ? tr.bigPot : 0);
+    let t = 0.3 * tr.eager;
+    if (c === own) t += 1.5 * tr.self;
+    if (c < own) t += 1.2 * tr.feint;
+    if (c === obvious) t += 1.2 * tr.obvious;
+    return t;
+  };
+  const chosen = nearSet.map((x) => ({ ...x, t: taste(x.c) + (Math.random() - 0.5) * 0.3 })).sort((a, b) => b.t - a.t)[0];
+  return snipe(chosen ? chosen.c : candidates[best]);
+  return snipe(candidates[best]);
 }
 
 /**
@@ -383,9 +512,10 @@ function foldChance(v: View, s: number, need: number, level: ShLevel): number {
 }
 
 // ── Bets ───────────────────────────────────────────────────────────────────────────────────────────────────────
-function chooseBet(v: View, level: ShLevel, style: ShStyle): ShAction {
+function chooseBet(v: View, level: ShLevel): ShAction {
   const g = v.g;
-  const st = STYLE[style];
+  const tr = v.traits;
+  const ooc = Math.random() < tr.ooc;
   const me = v.me;
   const canCall = shCanAct(g, me, { kind: 'call' });
   const canRaise = g.level < g.cap;
@@ -445,11 +575,26 @@ function chooseBet(v: View, level: ShLevel, style: ShStyle): ShAction {
       options.push({ action: { kind: 'raise', to }, value });
     }
   }
+  // Personality chooses only among moves worth (almost) as much as the best one, so every style plays well and
+  // differs in how: raise or call, big or small, fold the close ones or hang on. A strong hand's slow-play, a bluff
+  // or a bait (betting the scary board hand it does not hold) happens only where it is close to free.
   options.sort((a, b) => b.value - a.value);
-  let pick = options[0].action;
-  // Temperament: a strong hand sometimes just calls; a weak one sometimes raises a little.
-  if (pick.kind === 'raise' && canCall && Math.random() < st.slow) pick = { kind: 'call' };
-  else if (pick.kind !== 'raise' && canRaise && Math.random() < st.bluff * (level === 'easy' ? 0.5 : 1) && p > 0.12) pick = { kind: 'raise', to: Math.min(g.cap, g.level + Math.max(2, Math.ceil(pot / 3))) };
+  const bestValue = options[0].value;
+  const near = options.filter((o) => o.value >= bestValue - BET_SLACK * (bestValue + 0.05));
+  const otherStacks = activeOthers.map((s) => g.chips[s]);
+  const bullying = otherStacks.length > 0 && stack >= Math.max(...otherStacks) && stack >= 1.4 * Math.min(...otherStacks) ? tr.bully : 0;
+  const boardScary = v.board.length >= 2 && (() => { const b = shEvaluate(v.board); const mine = shEvaluate([...v.board, ...v.mine]); return b.cat >= 1 && mine.cat <= b.cat; })();
+  const strong = p > 1.6 / (opp + 1);
+  const taste = (a: ShAction) => {
+    if (a.kind === 'fold') return 0.6 * tr.tight - 0.8 * tr.station;
+    if (a.kind === 'call') return 0.8 * tr.station - 0.5 * tr.aggro + (strong ? tr.slow * 2 : 0);
+    if (a.kind !== 'raise') return 0;
+    const size = (a.to - g.level) / Math.max(1, g.cap - g.level);
+    return tr.aggro + bullying + tr.big * (2 * size - 1) + (!strong ? tr.bluff * 2 : 0) + (boardScary && !strong ? tr.bait * 1.5 : 0) - (strong ? tr.slow * 2 : 0);
+  };
+  let pick: ShAction;
+  if (ooc) pick = near[Math.floor(Math.random() * near.length)].action;
+  else pick = near.map((o) => ({ ...o, t: taste(o.action) + (Math.random() - 0.5) * 0.4 })).sort((a, b) => b.t - a.t)[0].action;
   // Never fold when nothing more is owed... except there is always something owed to open (no checking).
   if (pick.kind === 'fold' && !canCall && canRaise && p > 1 / (opp + 1) * 0.8) pick = { kind: 'raise', to: g.level + 1 };
   return shCanAct(g, me, pick) ? pick : shTimeoutAction(g, me);
@@ -458,7 +603,7 @@ function chooseBet(v: View, level: ShLevel, style: ShStyle): ShAction {
 /** The AI's move for `seat` at `level` with persona `style`. */
 export function chooseShAction(g: SniperHoldem, seat: number, level: ShLevel = 'normal', style: ShStyle = 'ace'): ShAction {
   if (g.turn !== seat) return shTimeoutAction(g, seat);
-  const v = makeView(g, seat, level);
+  const v = makeView(g, seat, level, shTraitsFor(style, g.gid, seat));
   if (g.phase === 'snipe') return chooseSnipe(v, level);
-  return chooseBet(v, level, style);
+  return chooseBet(v, level);
 }

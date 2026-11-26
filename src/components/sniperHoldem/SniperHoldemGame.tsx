@@ -17,6 +17,7 @@ import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL_TITLE, SHELL } from '../ui/gameUi';
 import { SH_ROOT_STYLE, type ShCopy, shCopy } from './copy';
 import { ShAvatar } from './SniperHoldemParts';
+import { personaCopy } from './personas';
 import SniperHoldemResult, { shMyPlace, useSniperHoldemReport } from './SniperHoldemResult';
 import SniperHoldemTable, { Ladder } from './SniperHoldemTable';
 
@@ -63,13 +64,13 @@ export default function SniperHoldemGame() {
         )}
       </main>
       {done && closedKey !== resultKey && state && <SniperHoldemResult room={state} mySeat={0} t={t} locale={locale} onAgain={() => { setClosedKey(null); reset(); }} onClose={() => setClosedKey(resultKey)} />}
-      {rulesOpen && <SniperHoldemRules t={t} locale={locale} players={state?.game.players ?? opts.size} start={state?.game.startChips ?? opts.chips} onClose={() => setRulesOpen(false)} />}
+      {rulesOpen && <SniperHoldemRules t={t} locale={locale} players={state?.game.players ?? opts.size} start={state?.game.startChips ?? opts.chips} rise={state?.game.anteRule !== 'fixed'} onClose={() => setRulesOpen(false)} />}
     </div>
   );
 }
 
 /** Rules at a glance, the hand ranking, ties, how this table differs from the show, and the AI players. */
-export function SniperHoldemRules({ t, locale, players, start, onClose }: { t: ShCopy; locale: string; players: number; start: number; onClose: () => void }) {
+export function SniperHoldemRules({ t, locale, players, start, rise = true, onClose }: { t: ShCopy; locale: string; players: number; start: number; rise?: boolean; onClose: () => void }) {
   const en = locale === 'en';
   return (
     <div className={MODAL_BACKDROP} onClick={onClose}>
@@ -79,9 +80,9 @@ export function SniperHoldemRules({ t, locale, players, start, onClose }: { t: S
         <ol className="mt-3 space-y-3 text-[13px] leading-relaxed text-white/75">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol>
         <div className="mt-5"><Ladder t={t} /></div>
         <p className={`${PANEL_TITLE} mt-5`}>{t.siteDiff}</p>
-        <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-white/60">{t.siteDiffs(players, shTarget(start, players), start).map((line) => <li key={line} className="break-keep">· {line}</li>)}</ul>
+        <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-white/60">{t.siteDiffs(players, shTarget(start, players), start, rise).map((line) => <li key={line} className="break-keep">· {line}</li>)}</ul>
         <p className={`${PANEL_TITLE} mt-5`}>{t.aiPersonas}</p>
-        <div className="mt-2 flex flex-wrap gap-1.5">{SH_STYLES.map((style) => { const p = SH_PERSONA[style]; return <span key={style} className="flex items-center gap-1.5 rounded-full border border-white/10 py-1 pl-1 pr-2.5 text-[11px] font-bold"><ShAvatar name={en ? p.nameEn : p.name} color={p.color} size={18} />{en ? p.nameEn : p.name}</span>; })}</div>
+        <ul className="mt-2 grid grid-cols-1 gap-1">{SH_STYLES.map((style) => { const p = SH_PERSONA[style]; return <li key={style} className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5 text-[11px]"><ShAvatar name={en ? p.nameEn : p.name} color={p.color} size={20} /><b className="w-14 shrink-0">{en ? p.nameEn : p.name}</b><span className="text-white/50">{personaCopy(style, locale).blurb}</span></li>; })}</ul>
         <p className="mt-2 text-[11px] text-white/40">{t.personaNote}</p>
       </div>
     </div>

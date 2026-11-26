@@ -11,7 +11,7 @@ import type { GameGuide } from './types';
 const guide: GameGuide = {
   game: 'sniperHoldem',
   origin: { kind: 'show', show: 'dp2' },
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   related: ['hitStay', 'indianPoker', 'twoSidedPoker', 'heavy13'],
   ko: {
     meta: {
@@ -44,7 +44,7 @@ const guide: GameGuide = {
         title: '기본 규칙',
         blocks: [
           { type: 'steps', items: [
-            { title: '기본 베팅과 개인 카드', body: '라운드마다 모두 칩 1개를 내고, 나만 보는 개인 카드 2장을 받아요. 선(먼저 행동하는 사람)은 라운드마다 한 자리씩 옮겨가요.' },
+            { title: '기본 베팅과 개인 카드', body: '라운드마다 모두 기본 베팅을 내고(방송은 늘 1칩, PUZZLTHINK는 처음 4라운드 1칩 뒤로 점점 올라요 — 아래 「방송과 다른 점」), 나만 보는 개인 카드 2장을 받아요. 선(먼저 행동하는 사람)은 라운드마다 한 자리씩 옮겨가요.' },
             { title: '공유 카드 2장 → 1차 베팅', body: '공유 카드 2장을 공개하고 선부터 베팅해요. **체크는 없어요.** 첫 사람은 최소 1칩을 걸거나 포기하고, 다음 사람들은 콜(같은 만큼)·레이즈(더 많이)·포기 중에서 골라요. 모두 같은 칩을 내면 끝나요.' },
             { title: '공유 카드 2장 더 → 2차 베팅', body: '공유 카드 2장을 더 공개하고 같은 방식으로 2차 베팅을 해요.' },
             { title: '저격', body: '개인 카드를 공개하기 전, 남은 사람들이 선부터 차례로 족보 하나를 저격하거나 넘어가요. 앞사람의 저격은 모두가 듣고 정해요.' },
@@ -90,6 +90,7 @@ const guide: GameGuide = {
           { type: 'table', head: ['', '방송', 'PUZZLTHINK'], rows: [
             ['인원', '5명', '2~5명 (AI전 5명 또는 1:1, 방은 AI로 채우기 선택)'],
             ['시작 칩', '60개', '60개 (방에서는 빠른 판 24개도 선택)'],
+            ['기본 베팅', '매 라운드 1칩', '처음 4라운드 1칩 → 5R 2 · 7R 3 · 9R 4 · 11R 6 · 13R 8 → 2라운드마다 +3 (24칩 판은 0.4배). 친구·공개방은 방송 규칙(1칩 고정)도 선택'],
             ['생존선', '75개', '시작 칩 × 인원 ÷ (인원 − 1): 5명 75 · 4명 80 · 3명 90 · 2명 120 (24칩이면 30 · 32 · 36 · 48)'],
             ['남은 칩 나누기', '생존자가 원하는 대로 (0칩에게 최소 1개)', '0칩에게 1개씩 먼저, 나머지는 칩이 적은 사람부터 고르게'],
             ['시간', '제한 없음', 'AI전은 제한 없음, 친구·공개방은 베팅·저격마다 30초 (넘기면 AI가 대신)'],
@@ -136,7 +137,7 @@ const guide: GameGuide = {
             { title: '"보드만으로 보이는 족보"는 위험해요', body: '내 족보가 공유 카드만으로 만든 족보와 같다면, 상대도 그 족보를 그대로 부를 수 있어요. 게임 화면의 "내 족보" 아래에 공유 카드에 다 보이는 족보인지 알려 줘요. 그런 패로는 크게 걸지 마세요.' },
             { title: '히든 페어는 아껴 키우세요', body: '개인 카드 2장이 같은 숫자이고 공유 카드에 그 숫자가 없으면, 상대가 저격할 단서가 거의 없어요. 열세 판에 한 번꼴로 오는 기회라, 이때는 조금씩 올리며 따라오게 만드는 것이 좋아요.' },
             { title: '저격은 "내 패보다 위에 있을 가장 그럴듯한 족보"', body: '공유 카드를 보고 상대가 가졌을 만한 족보 중, 내 패를 이기는 것 하나를 고르세요. 크게 레이즈한 사람이 있다면 그 사람이 무엇을 노렸는지가 힌트예요.' },
-            { title: '포기는 손해가 아니에요', body: '기본 베팅은 1칩뿐이에요. 패도 약하고 저격으로 뒤집을 그림도 안 보이면 1차 베팅에서 바로 접는 것이 가장 싸요. 방송에서도 대부분의 라운드가 포기로 작게 끝났어요.' },
+            { title: '포기는 손해가 아니에요', body: '초반 기본 베팅은 1칩뿐이에요. 기본 베팅이 오르는 후반에는 포기도 비싸지니, 약한 패는 초반에 정리하세요. 패도 약하고 저격으로 뒤집을 그림도 안 보이면 1차 베팅에서 바로 접는 것이 가장 싸요. 방송에서도 대부분의 라운드가 포기로 작게 끝났어요.' },
           ] },
         ],
       },
@@ -174,10 +175,28 @@ const guide: GameGuide = {
           { type: 'list', items: [
             '**AI 5인전 (보통·어려움)**과 **1:1 (어려움)**을 할 수 있어요. AI는 자기 자리에서 보이는 것(자기 카드, 공유 카드, 모두의 베팅과 저격)만 보고 판단하고, 숨겨진 카드는 보지 않아요.',
             '보통 AI는 상대의 베팅을 읽어 상대 패를 추정하고, 그 추정으로 승률과 저격을 계산해요. 어려움 AI는 여기에 더해 **자기 레이즈와 저격이 상대에게 어떻게 읽힐지**까지 따져, 강한 패를 숨기거나 낮은 족보를 저격하기도 해요.',
-            'AI끼리 대전시켜 보면 1:1에서 어려움이 보통을 약 58%, 보통이 쉬움을 약 60% 이겨요. 5인전에서 탈락할 확률은 어려움 약 8%, 보통 약 15%, 쉬움 약 31%였어요(공평하면 20%).',
+            'AI는 10가지 성향이 있고 매 판 무작위로 앉아요. 성향은 같은 계산 위에서 **거의 같은 값의 수 가운데 무엇을 고르느냐**만 바꾸기 때문에, 어떤 성향도 약하지 않아요(어려움 5인전 100판에서 성향별 탈락률 14~24%, 성향 없는 기준 AI 26%, 공평하면 20%). 난이도는 계산의 깊이만 바꿔요: 1:1에서 어려움이 보통을 약 56%, 보통이 쉬움을 약 68% 이겨요. 5인전은 운의 몫이 커서 탈락률이 어려움 20%, 보통 17%, 쉬움 23% 정도로 어려움과 보통의 차이가 거의 없어요.',
             '**친구 방·공개방**은 2~5명이 할 수 있어요. 방장이 AI로 빈자리를 채울지, 시작 칩을 60개(방송)로 할지 24개(빠른 판)로 할지, AI 난이도를 정해요. 베팅과 저격은 30초 안에 해야 하고, 마지막 10초에 경고가 뜬 뒤 시간이 지나면 AI가 그 자리를 대신해요. 돌아오면 "다시 참여"로 자리를 돌려받아요.',
             '기록: 생존하면 승, 탈락하면 패로 남아요. 어려움 AI 테이블에서 **가장 먼저 생존**하면 어려움 클리어 인증서를 받아요.',
           ] },
+        ],
+      },
+      {
+        id: 'reading-opponents',
+        level: 'intermediate',
+        title: '상대 성향 읽는 법',
+        lead: 'AI전에는 10가지 성향의 상대가 매 판 무작위로 앉고, 그날 기분에 따라 조금씩 다르게 둬요. 몇 라운드만 보면 버릇이 드러나요.',
+        blocks: [
+          { type: 'p', text: '첫 두 라운드 동안 테이블 위에 「오늘의 상대」와 한 줄 소개가 떠요. 소개는 힌트일 뿐이고, 진짜 성향은 결과 화면에서 공개돼요. 그 사이에는 **승부에서 공개된 패와 그때 걸었던 칩, 저격한 족보**를 보고 읽어야 해요. AI도 똑같이 당신을 읽어요. 크게 걸고 약한 패를 보여 준 적이 있다면, 다음부터 당신의 큰 베팅을 덜 믿어요.' },
+          { type: 'cards', items: [
+            { title: '레이즈가 잦은데 공개된 패가 약하다', body: '블러퍼(징크스 같은 사기꾼, 불도저 렉스)예요. 큰 베팅을 그대로 믿지 말고, 저격도 "가장 센 족보"보다 보드에 실제로 맞는 족보를 노리세요.' },
+            { title: '거의 접다가 갑자기 간다', body: '바위형(아울)이에요. 그때는 진짜 패일 가능성이 높아요. 피하거나, 공유 카드에 보이는 그 족보를 저격하세요.' },
+            { title: '무엇이든 따라온다', body: '콜링 스테이션(모노)은 약한 패로도 끝까지 와요. 블러프는 안 통하고, 좋은 패로 크게 받아 내는 상대예요.' },
+            { title: '저격을 매번 쏜다 / 거의 안 쏜다', body: '난사꾼(루나)은 저격이 많아 당신의 보드 족보가 자주 맞아요. 반대로 독사(바이퍼)는 큰 판에서만 저격하니, 작은 판에서는 보드 족보로도 안전한 편이에요.' },
+            { title: '자기 족보 아래를 저격한다', body: '저격한 족보 바로 아래가 그 사람 패라는 공식을 거꾸로 이용하는 페인트예요. 지난 판에 그런 저격을 보여 준 상대라면, 저격 하나만 보고 패를 단정하지 마세요.' },
+            { title: '언제나 같은 크기로 건다', body: '같은 족보에 같은 크기를 거는 상대는 금방 읽혀요. AI는 가끔 일부러 성향과 다른 수를 둬서, 버릇이 믿을 만하지만 확실하지는 않게 만들어요. 당신도 가끔 섞어 주세요.' },
+          ] },
+          { type: 'callout', tone: 'tip', title: '난이도와 성향은 따로예요', text: '쉬움·보통·어려움은 계산 실력(읽기와 시뮬레이션의 깊이)만 바꾸고, 성향은 모든 난이도에서 똑같이 나와요. 어려움의 바위형은 보통의 바위형보다 더 정확히 접고, 더 정확히 저격해요.' },
         ],
       },
       {
@@ -186,7 +205,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'glossary', items: [
             { term: '선', def: '그 라운드에 가장 먼저 베팅하고 가장 먼저 저격하는 사람. 라운드마다 한 자리씩 옮겨가요.' },
-            { term: '기본 베팅', def: '라운드마다 모두 내는 1칩.' },
+            { term: '기본 베팅', def: '라운드마다 모두 내는 칩. 방송은 늘 1칩, PUZZLTHINK는 처음 4라운드 1칩 뒤로 올라가요.' },
             { term: '공유 카드', def: '모두가 함께 쓰는 4장. 2장씩 두 번 공개돼요.' },
             { term: '개인 카드', def: '나만 보는 2장. 승부 때 공개돼요.' },
             { term: '저격', def: '"숫자 + 족보"로 족보 하나를 지목해, 그 족보를 가진 사람을 모두 꼴찌로 만드는 선언.' },
@@ -239,7 +258,7 @@ const guide: GameGuide = {
         title: 'Rules',
         blocks: [
           { type: 'steps', items: [
-            { title: 'Ante and private cards', body: 'Each round everyone antes 1 chip and gets two private cards only they see. The first player (who acts first) moves one seat every round.' },
+            { title: 'Ante and private cards', body: 'Each round everyone pays the ante (always 1 on the show; on PUZZLTHINK 1 for the first 4 rounds, then rising — see "How the PUZZLTHINK version differs") and gets two private cards only they see. The first player (who acts first) moves one seat every round.' },
             { title: 'Two shared cards → bet 1', body: 'Two shared cards go up and betting starts from the first player. **There is no checking.** The opener bets at least 1 or folds; the others call, raise or fold. It ends when everyone still in has put in the same.' },
             { title: 'Two more → bet 2', body: 'Two more shared cards go up, and a second round of betting follows the same way.' },
             { title: 'Snipes', body: 'Before private cards are shown, the players still in may each snipe one hand or pass, in turn from the first player. Everyone hears the earlier snipes.' },
@@ -285,6 +304,7 @@ const guide: GameGuide = {
           { type: 'table', head: ['', 'The show', 'PUZZLTHINK'], rows: [
             ['Players', '5', '2–5 (AI: five or 1:1; rooms can fill seats with AI)'],
             ['Starting chips', '60', '60 (rooms can pick a quick 24)'],
+            ['Ante', '1 every round', '1 for rounds 1–4 → 2 from R5 · 3 R7 · 4 R9 · 6 R11 · 8 R13 → +3 every 2 rounds (×0.4 at 24 chips). Rooms can pick show rules (fixed 1)'],
             ['Safety line', '75', 'start × players ÷ (players − 1): 5 → 75 · 4 → 80 · 3 → 90 · 2 → 120 (at 24 chips: 30 · 32 · 36 · 48)'],
             ['Surplus chips', 'As the survivor likes (at least 1 to anyone on 0)', '1 to each 0-chip player first, the rest evenly, smaller stacks first'],
             ['Time', 'No clock', 'No clock vs AI; 30 s per bet or snipe in rooms (then the AI takes over)'],
@@ -331,7 +351,7 @@ const guide: GameGuide = {
             { title: 'A hand the board shows is a target', body: 'If your hand is the same as the board’s own hand, opponents can call it straight off the board. Under "My hand" the table tells you when your hand is all on the shared cards. Don’t bet big with those.' },
             { title: 'Grow hidden pairs slowly', body: 'Two private cards of one number, with that number not on the board, leave almost no clue. It comes about once in thirteen hands: raise a little at a time and keep the others calling.' },
             { title: 'Snipe "the likeliest hand above mine"', body: 'From the board, pick the hand an opponent most plausibly holds that beats yours. A big raise is a hint at what they are playing.' },
-            { title: 'Folding is cheap', body: 'The ante is a single chip. With a weak hand and no snipe likely to save it, folding in bet 1 is the cheapest move. On the show most rounds ended small, with folds.' },
+            { title: 'Folding is cheap', body: 'Early on the ante is a single chip (later, as it rises, folding costs more — clear weak hands early). With a weak hand and no snipe likely to save it, folding in bet 1 is the cheapest move. On the show most rounds ended small, with folds.' },
           ] },
         ],
       },
@@ -369,10 +389,28 @@ const guide: GameGuide = {
           { type: 'list', items: [
             '**Five players vs AI (normal or hard)** and **1:1 (hard)**. The AI sees only what its seat would: its own cards, the shared cards, every bet and snipe. It never looks at hidden cards.',
             'Normal AI reads opponents’ bets into a guess at their cards and works out its odds and snipes from that. Hard AI also weighs **how its own raises and snipes will be read**, so it hides strong hands and sometimes snipes low.',
-            'In AI-vs-AI tests, hard beats normal about 58% of 1:1 matches and normal beats easy about 60%. At five players the chance of being the one eliminated was about 8% for hard, 15% for normal and 31% for easy (20% would be even).',
+            'The AI has 10 personalities and a random few sit down each match. A personality only changes **which of the nearly equally good moves** it picks on top of the same calculation, so none is weaker (100 hard five-player matches: 14–24% eliminated per personality, 26% for a no-personality baseline, 20% would be even). The level changes only how deep the calculation goes: in 1:1, hard beats normal about 56% of the time and normal beats easy about 68%. At five players luck weighs more: about 20% eliminated for hard, 17% for normal, 23% for easy, so hard and normal are close there.',
             '**Friend and open rooms** seat 2–5. The host chooses whether AI fills empty seats, 60 starting chips (the show) or 24 (quick), and the AI level. Bets and snipes have 30 seconds; after a warning in the last 10 the AI takes the seat until you press "rejoin".',
             'Records: reaching safety is a win, being eliminated a loss. Be **first to safety at a hard AI table** for the hard clear certificate.',
           ] },
+        ],
+      },
+      {
+        id: 'reading-opponents',
+        level: 'intermediate',
+        title: 'Reading your opponents',
+        lead: 'In AI matches a random few of 10 personalities sit down, each in a slightly different mood. A few rounds show their habits.',
+        blocks: [
+          { type: 'p', text: 'For the first two rounds "Today’s table" shows who is playing, with a one-line blurb. The blurb is a hint; the true styles are revealed on the result screen. Until then, read **the hands shown down, what was bet with them, and what each player sniped**. The AI reads you the same way: show a weak hand after a big bet and it trusts your big bets less.' },
+          { type: 'cards', items: [
+            { title: 'Raises a lot, shows weak hands', body: 'A bluffer (Jinx the trickster, Rex the bulldozer). Do not take big bets at face value, and snipe the hand the board really makes, not the strongest one.' },
+            { title: 'Folds and folds, then goes', body: 'The rock (Owl). Now it probably has it: get out of the way, or snipe the board hand it is likely on.' },
+            { title: 'Calls everything', body: 'The calling station (Mono) rides weak hands to the end. Bluffs fail; value bets get paid.' },
+            { title: 'Snipes every time / almost never', body: 'Luna fires at every chance, so your board hand is often hit. Viper snipes only in big pots, so in small pots a board hand is fairly safe.' },
+            { title: 'Snipes below its own hand', body: 'A feint that turns "their hand is just under their snipe" against you. If someone has shown that before, do not read a hand from one snipe.' },
+            { title: 'Always the same bet size', body: 'A player who bets the same way with the same hand is easy to read. The AI sometimes plays out of character on purpose, so tells are useful but never certain. Mix yours up too.' },
+          ] },
+          { type: 'callout', tone: 'tip', title: 'Level and personality are separate', text: 'Easy, normal and hard change only how well a seat calculates (how deeply it reads and simulates); every personality appears at every level. A hard rock folds and snipes more precisely than a normal one.' },
         ],
       },
       {
@@ -381,7 +419,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'glossary', items: [
             { term: 'First player (선)', def: 'Bets first and snipes first in a round; moves one seat each round.' },
-            { term: 'Ante', def: 'The 1 chip everyone puts in every round.' },
+            { term: 'Ante', def: 'What everyone puts in every round: always 1 on the show; on PUZZLTHINK 1 for the first 4 rounds, then rising.' },
             { term: 'Shared cards', def: 'The four cards everyone uses, turned up two at a time.' },
             { term: 'Private cards', def: 'Your two cards, shown at the showdown.' },
             { term: 'Snipe', def: 'Calling a hand by "number + type"; everyone holding it ranks last.' },
