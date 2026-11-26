@@ -77,6 +77,8 @@ const ko = {
   snipeFullNote: '풀하우스는 트리플 숫자로 불러요',
   sniped: '저격당함',
   hit: '명중',
+  snipedBy: (name: string) => `${name}의 저격`,
+  aimedAtMe: '내 족보가 노려졌어요!',
   miss: '빗나감',
   passed: '저격 안 함',
   // Showdown
@@ -251,6 +253,8 @@ const en: ShCopy = {
   snipeFullNote: 'A full house is named by its triple',
   sniped: 'Sniped',
   hit: 'Hit',
+  snipedBy: (name) => `${name} snipes`,
+  aimedAtMe: 'That is your hand!',
   miss: 'Miss',
   passed: 'No snipe',
   roundResult: (n) => `ROUND ${n}`,

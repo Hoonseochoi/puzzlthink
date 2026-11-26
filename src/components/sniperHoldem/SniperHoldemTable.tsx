@@ -12,7 +12,8 @@ import { SH_PERSONA } from '@/lib/sniperHoldemAi';
 import { type SniperHoldemRoom, type SniperHoldemRoomAction, SH_SHOWDOWN_MS, SH_WARN_SEC, shWaitingOn } from '@/lib/sniperHoldemRoom';
 import { DIAMOND, PANEL, PANEL_TITLE, accentVars } from '../ui/gameUi';
 import { SH_ACCENT, SH_GOLD, SH_INK, type ShCopy } from './copy';
-import { Scope, ShAvatar, ShCard, ShChip } from './SniperHoldemParts';
+import { Scope, ShAvatar, ShCard, ShChip, StonePile } from './SniperHoldemParts';
+import { useMyNickname } from '../PieceStone';
 import { playCard, playChips, playHit, playSnipe, playWin, setShSound, shSoundOn } from './sound';
 
 type Props = { room: SniperHoldemRoom; mySeat: number | null; onAction: (action: SniperHoldemRoomAction) => void; t: ShCopy; locale: string };
@@ -63,6 +64,9 @@ export default function SniperHoldemTable({ room, mySeat, onAction, t, locale }:
     return style ? (en ? SH_PERSONA[style].nameEn : SH_PERSONA[style].name) : room.seats[s]?.name ?? `P${s + 1}`;
   };
   const personaOf = (s: number) => (room.seats[s]?.id.startsWith('ai-') && room.style[s] ? SH_PERSONA[room.style[s]!] : null);
+  // People sit as their own profile stone: my nickname when signed in, otherwise the name they sit under.
+  const myNick = useMyNickname();
+  const stoneName = (s: number) => (s === mySeat && myNick) || room.seats[s]?.name || nameOf(s);
   const waiting = shWaitingOn(g);
   const myTurn = mySeat !== null && room.phase === 'playing' && waiting.includes(mySeat) && !room.ai[mySeat];
   const seconds = useCountdown(room.deadline, room.phase === 'playing' && !!room.turnSec);
@@ -104,11 +108,11 @@ export default function SniperHoldemTable({ room, mySeat, onAction, t, locale }:
         <DealerLine className="hidden sm:flex" g={g} t={t} waiting={waiting} nameOf={nameOf} seconds={seconds} />
         <div className={`grid ${othersGrid} gap-1.5 sm:gap-2`}>
           {others.map((s) => (
-            <Seat key={s} g={g} seat={s} name={nameOf(s)} persona={personaOf(s)} t={t} mySeat={mySeat}
+            <Seat key={s} g={g} seat={s} name={nameOf(s)} stoneName={stoneName(s)} persona={personaOf(s)} t={t} mySeat={mySeat}
               acting={room.phase === 'playing' && waiting.includes(s)} away={!!room.away?.[s]} stamp={stampFor(s)} />
           ))}
         </div>
-        {mySeat !== null && !g.absent?.[mySeat] && <MyHand g={g} seat={mySeat} t={t} acting={myTurn} stamp={stampFor(mySeat)} />}
+        {mySeat !== null && !g.absent?.[mySeat] && <MyHand g={g} seat={mySeat} stoneName={stoneName(mySeat)} t={t} acting={myTurn} stamp={stampFor(mySeat)} />}
         <section className={`${PANEL} lg:hidden`}><LogList g={g} t={t} nameOf={nameOf} /></section>
       </div>
       <aside className="hidden flex-col gap-3 lg:flex">
@@ -119,6 +123,7 @@ export default function SniperHoldemTable({ room, mySeat, onAction, t, locale }:
         {mySeat !== null && room.phase !== 'finished' && !g.absent?.[mySeat] && (
           <Dock g={g} room={room} seat={mySeat} myTurn={myTurn} seconds={seconds} t={t} act={onAction} waiting={waiting} nameOf={nameOf} onHistory={() => setHistoryOpen(true)} />
         )}
+        <SnipeFlash g={g} t={t} nameOf={nameOf} mySeat={mySeat} />
         <AnimatePresence>{historyOpen && <HistorySheet key="history" g={g} t={t} nameOf={nameOf} mySeat={mySeat} onClose={() => setHistoryOpen(false)} />}</AnimatePresence>
         <AnimatePresence>{g.phase === 'showdown' && g.showdown && <ShowdownSheet key={g.round} g={g} t={t} nameOf={nameOf} mySeat={mySeat} />}</AnimatePresence>
       </Layer>
@@ -155,7 +160,7 @@ function BoardPanel({ g, t, nameOf, sound, onSound, onHistory }: { g: SniperHold
         <span className="rounded bg-black/30 py-1">{t.first}<b className="block truncate px-1 text-[11px] text-white">{nameOf(g.first)}</b></span>
         <span className="rounded bg-black/30 py-1">{t.cap}<b className="block font-mono text-[12px] text-white">{g.cap}</b></span>
         <span className="rounded bg-black/30 py-1"><ShieldCheck size={10} className="mx-auto inline -mt-0.5" /> {t.safe}<b className="block font-mono text-[12px] text-[#7ef0b0]">{g.target}</b></span>
-        <span className="rounded border border-[#ffd36b]/30 bg-[#ffd36b]/[0.08] py-1 text-[#ffd36b]">{t.pot}<motion.b key={pot} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="block font-mono text-[13px]">{pot}</motion.b></span>
+        <span className="rounded border border-[#ffd36b]/30 bg-[#ffd36b]/[0.08] py-1 text-[#ffd36b]"><span className="flex items-center justify-center gap-1">{t.pot}<StonePile n={pot} size={9} /></span><motion.b key={pot} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="block font-mono text-[13px]">{pot}</motion.b></span>
       </div>
       {boardHand && <p className="mt-1.5 text-center text-[10px] font-bold text-white/40">{t.boardOnly(t.label(shTargetOf(boardHand)))}</p>}
     </section>
@@ -219,8 +224,8 @@ function SnipeBadge({ g, seat, t }: { g: SniperHoldem; seat: number; t: ShCopy }
     : <span className="flex min-w-0 items-center gap-0.5 truncate rounded bg-(--accent)/15 px-1 text-[9px] font-black text-[#ff9aa4]"><Scope size={9} className="shrink-0" />{t.label(said)}</span>;
 }
 
-function Seat({ g, seat, name, persona, t, mySeat, acting, away, stamp }: {
-  g: SniperHoldem; seat: number; name: string; persona: Persona | null; t: ShCopy; mySeat: number | null; acting: boolean; away: boolean; stamp: { seq: number; event: ShEvent } | null;
+function Seat({ g, seat, name, stoneName, persona, t, mySeat, acting, away, stamp }: {
+  g: SniperHoldem; seat: number; name: string; stoneName: string; persona: Persona | null; t: ShCopy; mySeat: number | null; acting: boolean; away: boolean; stamp: { seq: number; event: ShEvent } | null;
 }) {
   const out = g.out[seat];
   const safe = g.safe[seat];
@@ -232,7 +237,7 @@ function Seat({ g, seat, name, persona, t, mySeat, acting, away, stamp }: {
   return (
     <article className={`relative min-w-0 overflow-hidden rounded-[12px] border p-1.5 transition sm:p-2.5 ${won ? 'border-[#ffd36b]/70 bg-[#ffd36b]/[0.08]' : acting ? 'border-(--accent)/60 bg-(--accent)/[0.07] shadow-[0_0_18px_var(--accent-glow)]' : 'border-white/10 bg-[#121217]/85'} ${out ? 'opacity-35 grayscale' : safe ? 'opacity-60' : folded ? 'opacity-55' : ''}`}>
       <div className="flex items-center gap-1.5">
-        <ShAvatar name={name} color={persona?.color} size={22} active={acting} />
+        <ShAvatar name={persona ? name : stoneName} color={persona?.color} human={!persona} size={24} active={acting} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[11px] font-black leading-4 text-white sm:text-[12px]">{name}</p>
           <ShChip n={g.chips[seat]} className="text-[10px] leading-3 text-white/70" />
@@ -272,7 +277,7 @@ function readability(g: SniperHoldem, seat: number): 'board' | 'hidden' | 'part'
   return 'part';
 }
 
-function MyHand({ g, seat, t, acting, stamp }: { g: SniperHoldem; seat: number; t: ShCopy; acting: boolean; stamp: { seq: number; event: ShEvent } | null }) {
+function MyHand({ g, seat, stoneName, t, acting, stamp }: { g: SniperHoldem; seat: number; stoneName: string; t: ShCopy; acting: boolean; stamp: { seq: number; event: ShEvent } | null }) {
   const out = g.out[seat];
   const safe = g.safe[seat];
   const folded = g.folded[seat] && !out && !safe;
@@ -284,7 +289,7 @@ function MyHand({ g, seat, t, acting, stamp }: { g: SniperHoldem; seat: number; 
     <section className={`relative overflow-hidden rounded-[14px] border px-3 py-2.5 sm:p-4 ${acting ? 'border-(--accent)/60 shadow-[0_0_22px_var(--accent-glow)]' : 'border-white/10'} bg-[linear-gradient(180deg,rgba(255,79,94,.08),rgba(18,18,23,.92)_55%)]`}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="rounded-[4px] bg-(--accent) px-1.5 py-[2px] font-mono text-[9px] font-black text-(--accent-ink)">YOU</span>
+          <ShAvatar name={stoneName} human size={26} active={acting} />
           <b className="text-sm font-black text-white">{t.myHand}</b>
           {seat === g.first && !out && !safe && <span className="rounded-[3px] bg-[#ffd36b] px-1 text-[9px] font-black leading-[14px] text-[#2a1d00]">{t.first}</span>}
         </div>
@@ -428,6 +433,52 @@ function IdleWarning({ seconds, t }: { seconds: number; t: ShCopy }) {
   );
 }
 
+/* ------------------------------------------------------------------ the snipe moment */
+
+/**
+ * A snipe is said out loud: the table goes dark, a scope closes in on the called hand and it is stamped in red,
+ * with who called it. 1.5 s, never blocks a tap (the next player can already act under it).
+ */
+function SnipeFlash({ g, t, nameOf, mySeat }: { g: SniperHoldem; t: ShCopy; nameOf: (s: number) => string; mySeat: number | null }) {
+  const last = g.log[0];
+  const [shot, setShot] = useState<{ seq: number; seat: number; target: ShTarget } | null>(null);
+  const seen = useRef(g.seq);
+  useEffect(() => {
+    if (seen.current === g.seq) return;
+    seen.current = g.seq;
+    if (last?.k !== 'snipe') return;
+    const fire = { seq: g.seq, seat: last.seat, target: last.target };
+    const show = window.setTimeout(() => setShot(fire), 0);
+    const hide = window.setTimeout(() => setShot((cur) => (cur?.seq === fire.seq ? null : cur)), 1500);
+    return () => { window.clearTimeout(show); window.clearTimeout(hide); };
+  }, [g.seq, last]);
+  // Is the called hand mine? Then it is aimed at me (unless I called it myself).
+  const mine = mySeat !== null ? shHandOf(g, mySeat) : null;
+  const atMe = !!shot && !!mine && shot.seat !== mySeat && shSameTarget(shTargetOf(mine), shot.target);
+  return (
+    <AnimatePresence>
+      {shot && (
+        <motion.div key={shot.seq} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.25 } }}
+          className="pointer-events-none fixed inset-0 z-[60] grid place-items-center bg-[radial-gradient(circle_at_50%_45%,rgba(40,0,6,.55),rgba(0,0,0,.82)_70%)]">
+          <motion.div aria-hidden className="absolute inset-0 bg-(--accent)" initial={{ opacity: 0.45 }} animate={{ opacity: 0 }} transition={{ duration: 0.35, delay: 0.32 }} />
+          <div className="relative grid place-items-center">
+            <motion.div initial={{ scale: 2.6, rotate: -40, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="text-(--accent)">
+              <Scope size={220} className="drop-shadow-[0_0_24px_rgba(255,79,94,.7)]" />
+            </motion.div>
+            <motion.p initial={{ scale: 2, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.3, type: 'spring', stiffness: 520, damping: 16 }}
+              className="absolute whitespace-nowrap rounded-md bg-(--accent) px-3 py-1.5 text-[26px] font-black tracking-tight text-white shadow-[0_0_40px_rgba(255,79,94,.8)]">
+              {t.label(shot.target)}
+            </motion.p>
+          </div>
+          <motion.p initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.45 }} className="absolute bottom-[26%] text-center text-sm font-black text-white/85">
+            {t.snipedBy(nameOf(shot.seat))}{atMe && <span className="mt-1 block text-[13px] text-[#ffb3ba]">{t.aimedAtMe}</span>}
+          </motion.p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 /* ------------------------------------------------------------------ snipe picker */
 
 /**
@@ -523,7 +574,7 @@ function ShowdownSheet({ g, t, nameOf, mySeat }: { g: SniperHoldem; t: ShCopy; n
                     <span className={`w-14 shrink-0 truncate text-xs font-black ${e.seat === mySeat ? 'text-(--accent)' : 'text-white'}`}>{nameOf(e.seat)}</span>
                     <span className="flex shrink-0 gap-[2px]">{e.cards.map((c, k) => <ShCard key={k} value={c} size="xs" />)}</span>
                     <span className={`min-w-0 flex-1 truncate text-[12px] font-black ${e.sniped ? 'text-[#ff7a85] line-through' : won ? 'text-[#ffd36b]' : 'text-white/75'}`}>{t.label(shTargetOf(e.hand))}</span>
-                    {e.sniped && <span className="flex shrink-0 items-center gap-0.5 rounded bg-(--accent) px-1 text-[9px] font-black text-white"><Scope size={9} />{t.sniped}</span>}
+                    {e.sniped && <motion.span initial={{ scale: 2.4, rotate: -14, opacity: 0 }} animate={{ scale: 1, rotate: -6, opacity: 1 }} transition={{ delay: 0.35 + i * 0.14, type: 'spring', stiffness: 520, damping: 15 }} className="flex shrink-0 items-center gap-0.5 rounded bg-(--accent) px-1.5 py-0.5 text-[10px] font-black text-white shadow-[0_0_14px_var(--accent-glow)]"><Scope size={10} />{t.hit}</motion.span>}
                     {said && said !== 'pass' && <span className="hidden shrink-0 text-[9px] font-bold text-white/35 min-[400px]:inline">🎯{t.label(said)}</span>}
                     {sd.payouts[e.seat] > 0 && <span className="shrink-0 font-mono text-xs font-black text-[#ffd36b]">+{sd.payouts[e.seat]}</span>}
                   </motion.li>

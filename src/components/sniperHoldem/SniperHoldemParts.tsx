@@ -1,6 +1,8 @@
 "use client";
 
+import { useId } from 'react';
 import { motion } from 'framer-motion';
+import { Stone } from '../StoneAvatar';
 
 const SERIF = "Georgia, 'Times New Roman', serif";
 
@@ -53,21 +55,70 @@ export function Scope({ size = 16, className = '' }: { size?: number; className?
   );
 }
 
-/** A player's round badge: persona color for the AI, the accent for people. */
-export function ShAvatar({ name, color, size = 32, active = false }: { name: string; color?: string; size?: number; active?: boolean }) {
+/** Lighter / darker shade of a #rrggbb colour (t > 0 towards white, t < 0 towards black). */
+function shade(hex: string, t: number) {
+  const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const m = c.map((v) => Math.round(t > 0 ? v + (255 - v) * t : v * (1 + t)));
+  return `#${m.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
+/** The site's 바둑알 (a glossy stone with two eyes) in a persona colour: how the AI players sit at the table. */
+export function PersonaStone({ color, size = 32, label }: { color: string; size?: number; label?: string }) {
+  const id = useId().replace(/:/g, '');
   return (
-    <span className={`relative grid shrink-0 place-items-center rounded-full font-black text-[#0b0b0e] ${active ? 'ring-2 ring-(--accent) ring-offset-2 ring-offset-[#121217]' : ''}`}
-      style={{ width: size, height: size, fontSize: size * 0.42, background: `linear-gradient(150deg, ${color ?? 'var(--accent)'}, color-mix(in srgb, ${color ?? 'var(--accent)'} 55%, #000))` }}>
-      {name.slice(0, 1)}
+    <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={label}>
+      <defs>
+        <radialGradient id={`ps-${id}`} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor={shade(color, 0.45)} /><stop offset="55%" stopColor={color} /><stop offset="100%" stopColor={shade(color, -0.45)} />
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="53" r="46" fill="rgba(0,0,0,.22)" />
+      <circle cx="50" cy="50" r="46" fill={`url(#ps-${id})`} stroke={shade(color, -0.6)} strokeWidth="2" />
+      <rect x="34.8" y="33.9" width="9.2" height="17" rx="4.6" fill="#fff" />
+      <rect x="56" y="33.9" width="9.2" height="17" rx="4.6" fill="#fff" />
+    </svg>
+  );
+}
+
+/**
+ * A seat marker: people sit as their own profile stone (the colour or earned icon they picked in 기록실, looked up
+ * by name), the AI as a stone in its persona colour.
+ */
+export function ShAvatar({ name, color, size = 32, active = false, human = false }: { name: string; color?: string; size?: number; active?: boolean; human?: boolean }) {
+  return (
+    <span className={`relative inline-flex shrink-0 rounded-full ${active ? 'ring-2 ring-(--accent) ring-offset-2 ring-offset-[#121217]' : ''}`} style={{ width: size, height: size }}>
+      {human ? <Stone name={name} size={size} /> : <PersonaStone color={color ?? '#ff4f5e'} size={size} label={name} />}
     </span>
   );
 }
 
-/** A chip count. */
-export function ShChip({ n, className = '' }: { n: number; className?: string }) {
+/** One chip: a small 바둑알 (black, or white for the gold of a pot). */
+export function ChipStone({ size = 11, white = false }: { size?: number; white?: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-1 font-mono font-black ${className}`}>
-      <i className="inline-block h-2.5 w-2.5 rounded-full border-2 border-dashed border-[#ffd36b] bg-[#b3261e]" />{n}
+    <svg viewBox="0 0 20 20" width={size} height={size} className="inline-block shrink-0" aria-hidden>
+      <ellipse cx="10" cy="11.6" rx="8.6" ry="7.4" fill="rgba(0,0,0,.35)" />
+      <ellipse cx="10" cy="10" rx="8.6" ry="7.4" fill={white ? '#eceae4' : '#1d1f25'} stroke={white ? '#9b978c' : '#000'} strokeWidth="1" />
+      <ellipse cx="7.2" cy="7.3" rx="3" ry="1.5" fill="#fff" opacity={white ? 0.9 : 0.35} transform="rotate(-20 7.2 7.3)" />
+    </svg>
+  );
+}
+
+/** A chip count with its stone. */
+export function ShChip({ n, className = '', white = false }: { n: number; className?: string; white?: boolean }) {
+  return <span className={`inline-flex items-center gap-1 font-mono font-black ${className}`}><ChipStone white={white} />{n}</span>;
+}
+
+/** The pot: a little heap of black and white stones that grows with it (up to nine). */
+export function StonePile({ n, size = 13 }: { n: number; size?: number }) {
+  const count = Math.max(1, Math.min(9, Math.ceil(Math.log2(n + 1) * 1.6)));
+  return (
+    <span className="relative inline-block" style={{ width: size * 2.6, height: size * 1.5 }} aria-hidden>
+      {Array.from({ length: count }, (_, i) => {
+        const row = i < 4 ? 0 : i < 7 ? 1 : 2;
+        const col = row === 0 ? i : row === 1 ? i - 4 : i - 7;
+        const left = (col + row * 0.5) * size * 0.55;
+        return <span key={i} className="absolute" style={{ left, bottom: row * size * 0.38 }}><ChipStone size={size} white={(i * 7) % 3 === 0} /></span>;
+      })}
     </span>
   );
 }
