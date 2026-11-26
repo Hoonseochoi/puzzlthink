@@ -26,6 +26,27 @@ export async function fontsFor(text: string, hanja = '') {
   return fonts;
 }
 
+/**
+ * Drawing a preview image costs seconds of CPU on the edge, and chat apps give up on a slow image. This keeps
+ * the finished PNG in the Cloudflare cache of that location for a week; `key` must change when the picture
+ * does. Where there is no edge cache (next dev, build) it just renders.
+ */
+export async function cachedImage(key: string, render: () => Promise<Response>): Promise<Response> {
+  const cache = (globalThis as { caches?: { default?: Cache } }).caches?.default;
+  const url = `https://og-cache.puzzlthink.com/${encodeURIComponent(key)}`;
+  try {
+    const hit = await cache?.match(url);
+    if (hit) return new Response(hit.body, { headers: { 'Content-Type': 'image/png' } });
+  } catch { /* render instead */ }
+  const res = await render();
+  if (!cache || !res.ok) return res;
+  const png = await res.arrayBuffer();
+  try {
+    await cache.put(url, new Response(png, { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=604800' } }));
+  } catch { /* still serve it */ }
+  return new Response(png, { headers: { 'Content-Type': 'image/png' } });
+}
+
 export const ogLocale = (locale: string) => (locale === 'en' ? 'en' : 'ko');
 
 // ---------- mini drawings (Satori: every multi-child div needs display:flex) ----------
@@ -151,14 +172,14 @@ export function WallGoBoardArt({ size = 440, variant = 1 }: { size?: number; var
     ? [{ r: 1, c: 1, p: 0, shape: 'square' }, { r: 2, c: 0, p: 0, shape: 'circle' }, { r: 5, c: 5, p: 1, shape: 'square' }, { r: 4, c: 6, p: 1, shape: 'circle' }, { r: 3, c: 4, p: 2, shape: 'square' }, { r: 1, c: 4, p: 2, shape: 'circle' }]
     : [{ r: 1, c: 1, p: 0 }, { r: 2, c: 0, p: 0 }, { r: 5, c: 5, p: 1 }, { r: 4, c: 6, p: 1 }, { r: 3, c: 4, p: 2 }, { r: 1, c: 4, p: 2 }];
   return (
-    <div style={{ display: 'flex', padding: 14, borderRadius: 18, background: 'linear-gradient(135deg, #3a3d47, #1c1e24 55%, #33363f)', boxShadow: '0 30px 60px rgba(0,0,0,0.55)' }}>
+    <div style={{ display: 'flex', padding: 14, borderRadius: 18, background: 'linear-gradient(135deg, #3a3d47, #1c1e24 55%, #33363f)' }}>
       <div style={{ display: 'flex', position: 'relative', width: size, height: size, background: '#15161b' }}>
         {owned.map(([r, c, p]) => <div key={`o${r}${c}`} style={{ position: 'absolute', left: cell * c, top: cell * r, width: cell, height: cell, background: WG_TINT[p] }} />)}
         {Array.from({ length: n - 1 }).map((_, i) => <div key={`v${i}`} style={{ position: 'absolute', left: cell * (i + 1), top: 0, width: 1, height: size, background: 'rgba(255,255,255,0.09)' }} />)}
         {Array.from({ length: n - 1 }).map((_, i) => <div key={`h${i}`} style={{ position: 'absolute', top: cell * (i + 1), left: 0, height: 1, width: size, background: 'rgba(255,255,255,0.09)' }} />)}
-        {walls.map(([r, c, d]) => <div key={`w${r}${c}${d}`} style={{ position: 'absolute', left: d === 'v' ? cell * c - 5 : cell * c + 2, top: d === 'v' ? cell * r + 2 : cell * r - 5, width: d === 'v' ? 10 : cell - 4, height: d === 'v' ? cell - 4 : 10, borderRadius: 4, background: '#f1f3f7', boxShadow: '0 0 10px rgba(255,255,255,0.35)' }} />)}
+        {walls.map(([r, c, d]) => <div key={`w${r}${c}${d}`} style={{ position: 'absolute', left: d === 'v' ? cell * c - 5 : cell * c + 2, top: d === 'v' ? cell * r + 2 : cell * r - 5, width: d === 'v' ? 10 : cell - 4, height: d === 'v' ? cell - 4 : 10, borderRadius: 4, background: '#f1f3f7' }} />)}
         {pieces.map(({ r, c, p, shape = 'circle' }) => (
-          <div key={`p${r}${c}`} style={{ position: 'absolute', left: cell * c + cell * 0.15, top: cell * r + cell * 0.15, width: cell * 0.7, height: cell * 0.7, borderRadius: shape === 'square' ? cell * 0.14 : 999, background: WG_COLOR[p], boxShadow: '0 6px 12px rgba(0,0,0,0.45)', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: cell * 0.1 }}>
+          <div key={`p${r}${c}`} style={{ position: 'absolute', left: cell * c + cell * 0.15, top: cell * r + cell * 0.15, width: cell * 0.7, height: cell * 0.7, borderRadius: shape === 'square' ? cell * 0.14 : 999, background: WG_COLOR[p], display: 'flex', justifyContent: 'center', alignItems: 'center', gap: cell * 0.1 }}>
             <div style={{ width: cell * 0.1, height: cell * 0.22, borderRadius: 99, background: '#fff' }} />
             <div style={{ width: cell * 0.1, height: cell * 0.22, borderRadius: 99, background: '#fff' }} />
           </div>
@@ -185,12 +206,12 @@ export function SlitherBoardArt({ size = 430, drawn = 38 }: { size?: number; dra
     return a.find(([y, x]) => b.some(([y2, x2]) => y === y2 && x === x2)) ?? a[1];
   })();
   return (
-    <div style={{ display: 'flex', padding: 14, borderRadius: 18, background: 'linear-gradient(135deg, #4a4652, #2a2731 55%, #46424e)', boxShadow: '0 30px 60px rgba(0,0,0,0.55)' }}>
+    <div style={{ display: 'flex', padding: 14, borderRadius: 18, background: 'linear-gradient(135deg, #4a4652, #2a2731 55%, #46424e)' }}>
       <div style={{ display: 'flex', position: 'relative', width: size, height: size, background: '#ecebff' }}>
         {SL_CLUES.flatMap((row, r) => [...row].map((ch, c) => ch === '.' ? null : (
           <div key={`n${r}${c}`} style={{ display: 'flex', position: 'absolute', left: at(c), top: at(r), width: step, height: step, alignItems: 'center', justifyContent: 'center', fontSize: step * 0.56, fontWeight: 900, color: '#4b37b8' }}>{ch}</div>
         )))}
-        {line.map(([h, r, c], i) => <div key={`l${i}`} style={{ position: 'absolute', left: at(c) - 4, top: at(r) - 4, width: h ? step + 8 : 8, height: h ? 8 : step + 8, borderRadius: 6, background: '#ff3d7f', boxShadow: '0 0 10px rgba(255,61,127,0.55)' }} />)}
+        {line.map(([h, r, c], i) => <div key={`l${i}`} style={{ position: 'absolute', left: at(c) - 4, top: at(r) - 4, width: h ? step + 8 : 8, height: h ? 8 : step + 8, borderRadius: 6, background: '#ff3d7f' }} />)}
         {Array.from({ length: (cells + 1) ** 2 }, (_, i) => <div key={`d${i}`} style={{ position: 'absolute', left: at(i % (cells + 1)) - 5, top: at(Math.floor(i / (cells + 1))) - 5, width: 10, height: 10, borderRadius: 10, background: '#4b37b8' }} />)}
         <div style={{ position: 'absolute', left: at(tip[1]) - 13, top: at(tip[0]) - 13, width: 26, height: 26, borderRadius: 26, background: '#ffffff', border: '6px solid #ff3d7f', boxShadow: '0 0 18px rgba(255,61,127,0.9)' }} />
       </div>

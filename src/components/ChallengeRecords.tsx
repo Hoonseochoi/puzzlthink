@@ -84,7 +84,8 @@ export default function ChallengeRecords({ results, signedIn }: { results: Resul
       gyulhap5: pick('gyulhap', (d) => d.mode === 'challenge5', 'score'),
       hexagon: pick('hexagon', (d) => d.mode === 'challenge', 'score'),
       eqsignal: pick('equation_signal', (d) => d.mode === 'challenge', 'score'),
-      eqtower: pick('equation_tower', (d) => d.mode === 'challenge', 'score'),
+      // the challenge is 어려움 only; runs from before levels still count, 보통 runs from the day both existed do not
+      eqtower: pick('equation_tower', (d) => d.mode === 'challenge' && d.level !== 'normal', 'score'),
       merge2048: pick('merge2048', (d) => d.mode === 'endless', 'score'),
       // 히든 워드 ranks by average 승점 per match + 0.3 per match played (up to 20)
       hiddenWord: solo.filter((r) => r.game === 'hidden_word').reduce((sum, r) => sum + (Number.isFinite(num(r.detail.score)) ? num(r.detail.score) : 0), 0),

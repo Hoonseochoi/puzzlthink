@@ -15,7 +15,7 @@ import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, PANEL, PANEL_TITLE
 import { useEquationTowerRoom } from '@/hooks/useEquationTowerRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
-import { solvedStack } from '@/lib/equationTower';
+import { LEVELS, asLevel, solvedStack } from '@/lib/equationTower';
 import { ACT_MS, EQT_GOAL_OPTIONS, EQT_MAX_PLAYERS, EQT_MIN_PLAYERS, MAX_BID, OUTBID_MS, THINK_MS, eqtRanking, lowestBid } from '@/lib/equationTowerRoom';
 import { reportGame } from '@/lib/stats';
 import { type Held, TargetCard, TowerStacks, moveOf } from './TowerParts';
@@ -34,7 +34,7 @@ export default function EquationTowerRoomView({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
-  const [pick, setPick] = useState(3); // moves to offer
+  const [pickRaw, setPick] = useState<number | null>(null); // moves to offer (null: 3, or 5 on 어려움)
   const [held, setHeld] = useState<Held | null>(null);
   const [seenAt, setSeenAt] = useState({ key: '', at: 0 });
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
@@ -64,7 +64,7 @@ export default function EquationTowerRoomView({ code }: { code: string }) {
     const tied = ranking.filter((s) => state.scores[s] === top).length;
     const result = state.scores[mySeat] !== top ? 'loss' : tied === 1 ? 'win' : 'draw';
     reportGame(`equation_tower-friend-${state.sid}`, 'equation_tower', 'friend', result,
-      { rank: ranking.indexOf(mySeat) + 1, players: state.players.length, score: state.scores[mySeat], rounds: state.index + 1 });
+      { rank: ranking.indexOf(mySeat) + 1, players: state.players.length, score: state.scores[mySeat], rounds: state.index + 1, level: asLevel(state.level) });
   }, [state, mySeat]);
 
   const copyLink = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* blocked */ } };
@@ -81,6 +81,7 @@ export default function EquationTowerRoomView({ code }: { code: string }) {
   const myBid = state && mySeat !== null ? state.bids[mySeat] : null;
   const acting = phase === 'act' && state!.actor === mySeat;
   const maxOffer = phase === 'outbid' && low ? low - 1 : MAX_BID;
+  const pick = pickRaw ?? (asLevel(state?.level) === 'hard' ? 5 : 3);
   const offer = Math.max(1, Math.min(pick, maxOffer));
   const win = state && round && live ? solvedStack(state.stacks, state.blocks, round.target, round.floors) : -1;
   const last = phase === 'reveal' ? state!.last : null;
@@ -112,7 +113,7 @@ export default function EquationTowerRoomView({ code }: { code: string }) {
           <section className={STAGE}>
             <div className="mb-3 flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className={KICKER}>{phase === 'lobby' ? 'LOBBY' : phase === 'finished' ? 'RESULT' : c.roundKicker(state.index + 1)}</p>
+                <p className={KICKER}>{phase === 'lobby' ? 'LOBBY' : phase === 'finished' ? 'RESULT' : `${c.roundKicker(state.index + 1)} · ${c.levelName[asLevel(state.level)]}`}</p>
                 <h1 className={`mt-1 break-keep ${HEADING} ${last ? (last.ok ? 'text-[#7ee2ae]' : last.seat !== null ? 'text-[#ff9b94]' : '') : ''}`}>{heading}</h1>
                 {timed && <p className={`mt-2 flex items-center gap-1.5 font-mono text-xs font-black ${timeLeft < 10_000 ? 'text-[#ff7b71]' : 'text-white/65'}`}><Timer size={13} />{clock(timeLeft)}{phase === 'act' && <span className="ml-2 text-(--accent)">{c.movesLeft(state.movesLeft)}</span>}</p>}
               </div>
@@ -134,6 +135,9 @@ export default function EquationTowerRoomView({ code }: { code: string }) {
                 <div className={PANEL}>
                   <p className={PANEL_TITLE}>{c.goal}</p>
                   <div className="mt-2 grid grid-cols-3 gap-1.5">{EQT_GOAL_OPTIONS.map((n) => <button key={n} disabled={!me?.isHost} onClick={() => dispatch({ t: 'config', goal: n })} className={`py-2 ${seg(state.goal === n)} disabled:cursor-default`}>{c.goalN(n)}</button>)}</div>
+                  <p className={`${PANEL_TITLE} mt-4`}>{c.level}</p>
+                  <div className="mt-2 grid grid-cols-2 gap-1.5">{LEVELS.map((lv) => <button key={lv} disabled={!me?.isHost} onClick={() => dispatch({ t: 'config', level: lv })} className={`py-2 ${seg(asLevel(state.level) === lv)} disabled:cursor-default`}>{c.levelName[lv]}</button>)}</div>
+                  <p className="mt-2 text-[11px] text-white/40">{c.levelNote[asLevel(state.level)]}</p>
                   {!me?.isHost && <p className="mt-2 text-[11px] text-white/40">{c.hostSets}</p>}
                 </div>
                 <form onSubmit={(e) => { e.preventDefault(); rename(nameDraft); setNameDraft(''); }} className="flex items-center gap-2">

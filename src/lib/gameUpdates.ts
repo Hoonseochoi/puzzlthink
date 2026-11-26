@@ -72,6 +72,21 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Scale,
+        ko: { title: '난이도 보통·어려움, 챌린지는 어려움으로', desc: '연습과 친구·공개방에서 보통·어려움을 고를 수 있어요. 어려움은 최소 이동 4회 이상, × 블록 2개에 더 큰 타깃. 10분 챌린지와 랭킹은 어려움으로만 진행되고, 지금까지의 기록은 그대로 남아요.' },
+        en: { title: 'Normal and Hard; the challenge is Hard', desc: 'Pick Normal or Hard in practice and in friend or open rooms. Hard asks for 4 or more moves at best, with two × blocks and bigger targets. The 10-minute challenge and its ranking are Hard only, and records so far stay.' },
+      },
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '보통은 최소 2~3회, ×·÷ 쓰는 탑 위주', desc: '보통도 최소 이동 2회만 나오지 않고 3회 문제가 더 자주 나와요. ×나 ÷를 써야 하는 탑이 답으로 많이 나옵니다.' },
+        en: { title: 'Normal: 2–3 moves, more × and ÷', desc: 'Normal rounds now ask for 3 moves more often than 2, and more answers need × or ÷.' },
+      },
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '×·÷를 먼저 계산해요', desc: '탑의 수식을 보통 수식처럼 ×·÷부터 계산해요. 7+7+2÷2−5는 이제 3이 아니라 10입니다.' },
+        en: { title: '× and ÷ come first', desc: 'A tower is now worked out like an ordinary formula, × and ÷ before + and −: 7+7+2÷2−5 is 10, not 3.' },
+      },
+      {
+        date: '11/26', icon: Scale,
         ko: { title: '블록은 소수 2·3·5·7, 탑은 3~5층', desc: '블록의 숫자가 소수 네 가지(2, 3, 5, 7)로만 나와요. 목표 층수도 2층 없이 3~5층만 나옵니다.' },
         en: { title: 'Prime blocks (2, 3, 5, 7) and towers of 3 to 5', desc: 'Blocks now carry only the four primes 2, 3, 5 and 7, and the asked height is always 3 to 5 blocks, never 2.' },
       },

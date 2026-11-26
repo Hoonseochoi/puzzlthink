@@ -10,7 +10,7 @@ import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, seg } from '@/components/ui/gameUi';
 import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
-import { CHALLENGE_MS, type Block, type Stacks, type TowerRound, applyMove, createBlocks, dealStacks, generateRound, legalMove, roundPoints, solvedStack } from '@/lib/equationTower';
+import { CHALLENGE_MS, LEVELS, type Level, asLevel, type Block, type Stacks, type TowerRound, applyMove, createBlocks, dealStacks, generateRound, legalMove, roundPoints, solvedStack } from '@/lib/equationTower';
 import { reportGame } from '@/lib/stats';
 import { type Held, TargetCard, TowerStacks, moveOf } from './TowerParts';
 import { EQT_ROOT_STYLE, eqtCopy } from './copy';
@@ -18,15 +18,19 @@ import { EQT_ROOT_STYLE, eqtCopy } from './copy';
 type Mode = 'practice' | 'challenge';
 type Phase = 'intro' | 'play' | 'done' | 'summary';
 type Played = { round: TowerRound; moves: number; points: number };
-const BEST_KEY = 'puzzlthink_equation_tower_best'; // best 10-minute challenge score
+const BEST_KEY = 'puzzlthink_equation_tower_best'; // best 10-minute challenge score (the challenge is 어려움 only now)
 
 const readMode = (): Mode => (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'challenge' ? 'challenge' : 'practice');
-const readBest = (): number => { try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch { return 0; } };
+const readLevel = (): Level => (typeof window !== 'undefined' ? asLevel(new URLSearchParams(window.location.search).get('level')) : 'normal');
+// '_hard' held 어려움 challenge bests for the short while both levels had a challenge.
+const readBest = (): number => { try { return Math.max(Number(localStorage.getItem(BEST_KEY)) || 0, Number(localStorage.getItem(`${BEST_KEY}_hard`)) || 0); } catch { return 0; } };
 const clock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
 
 export default function EquationTowerGame() {
   const c = eqtCopy(useLocale());
   const [mode, setMode] = useState<Mode>(readMode);
+  const [level, setLevel] = useState<Level>(readLevel); // practice level; the challenge is always 어려움
+  const [building, setBuilding] = useState(false);
   const [phase, setPhase] = useState<Phase>('intro');
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [stacks, setStacks] = useState<Stacks>([[], [], [], []]);
@@ -39,31 +43,44 @@ export default function EquationTowerGame() {
   const [challengeEnd, setChallengeEnd] = useState(0);
   const [voided, setVoided] = useState(false);
   const [best, setBest] = useState(readBest);
+  const active: Level = mode === 'challenge' ? 'hard' : level;
   const [now, setNow] = useState(() => Date.now());
   const { exits: exitCount, warn: exitWarn } = useBoardExits(mode === 'challenge' && challengeEnd > 0);
   const reported = useRef('');
+  const gen = useRef(0); // bumped when the mode or level changes, so a round still being picked is dropped
 
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 250); return () => window.clearInterval(timer); }, []);
 
-  const beginRound = (b: Block[], s: Stacks, i: number) => {
-    setRound(generateRound(s, b)); setOrigin(s); setStacks(s); setIndex(i); setMoves(0); setHeld(null); setPhase('play');
+  // 어려움 searches about ten million positions (a fraction of a second): show "picking" and let the screen paint first.
+  const beginRound = (b: Block[], s: Stacks, i: number, lv: Level = active) => {
+    setBuilding(true); setHeld(null);
+    const mine = gen.current;
+    window.setTimeout(() => {
+      if (mine !== gen.current) return;
+      setRound(generateRound(s, b, Math.random, lv)); setOrigin(s); setStacks(s); setIndex(i); setMoves(0); setPhase('play'); setBuilding(false);
+    }, 30);
   };
 
   const start = (m: Mode = mode) => {
-    const b = createBlocks();
+    if (building) return;
+    const lv: Level = m === 'challenge' ? 'hard' : level;
+    const b = createBlocks(Math.random, lv);
     setBlocks(b); setPlayed([]); setVoided(false); reported.current = '';
     setChallengeEnd(m === 'challenge' ? Date.now() + CHALLENGE_MS : 0);
-    beginRound(b, dealStacks(b), 0);
+    beginRound(b, dealStacks(b), 0, lv);
   };
 
-  const switchMode = (m: Mode) => {
-    setMode(m); setPhase('intro'); setPlayed([]); setChallengeEnd(0); setRound(null); setHeld(null);
-    const url = new URL(window.location.href); url.searchParams.set('mode', m); window.history.replaceState(null, '', url);
+  const switchMode = (m: Mode, lv: Level = level) => {
+    gen.current += 1; setBuilding(false);
+    setMode(m); setLevel(lv); setPhase('intro'); setPlayed([]); setChallengeEnd(0); setRound(null); setHeld(null);
+    const url = new URL(window.location.href); url.searchParams.set('mode', m);
+    if (m === 'practice' && lv === 'hard') url.searchParams.set('level', lv); else url.searchParams.delete('level');
+    window.history.replaceState(null, '', url);
   };
 
   /** Practice counts each round as one play; the challenge is recorded once, at the end. */
   const reportPractice = (entry: Played) =>
-    reportGame(`equation_tower-practice-${Date.now()}`, 'equation_tower', 'solo', entry.points > 0 ? 'win' : 'loss', { mode: 'practice', moves: entry.moves, par: entry.round.par });
+    reportGame(`equation_tower-practice-${Date.now()}`, 'equation_tower', 'solo', entry.points > 0 ? 'win' : 'loss', { mode: 'practice', level: active, moves: entry.moves, par: entry.round.par });
 
   const finishChallenge = useCallback((list: Played[]) => {
     setPhase('summary'); setChallengeEnd(0); setHeld(null);
@@ -75,7 +92,7 @@ export default function EquationTowerGame() {
     setVoided('voided' in exits);
     if (score > best && !('voided' in exits)) { setBest(score); try { localStorage.setItem(BEST_KEY, String(score)); } catch { /* optional */ } }
     reportGame(`equation_tower-solo-${Date.now()}`, 'equation_tower', 'solo', score > 0 ? 'win' : 'loss', {
-      ...exits, mode: 'challenge', score, rounds: list.filter((p) => p.points > 0).length, perfect: list.filter((p) => p.points === 3).length, skipped: list.filter((p) => p.points === 0).length,
+      ...exits, mode: 'challenge', level: 'hard', score, rounds: list.filter((p) => p.points > 0).length, perfect: list.filter((p) => p.points === 3).length, skipped: list.filter((p) => p.points === 0).length,
     });
   }, [best, exitCount]);
 
@@ -102,7 +119,7 @@ export default function EquationTowerGame() {
   };
   const reset = () => { setStacks(origin); setMoves(0); setHeld(null); };
   const skip = () => { if (phase === 'play' && round) close({ round, moves, points: 0 }); };
-  const next = () => beginRound(blocks, stacks, index + 1);
+  const next = () => { if (!building) beginRound(blocks, stacks, index + 1); };
 
   const score = played.reduce((s, p) => s + p.points, 0);
   const last = played.at(-1);
@@ -124,14 +141,23 @@ export default function EquationTowerGame() {
               <button key={m} type="button" onClick={() => switchMode(m)} className={`flex items-center justify-center gap-1.5 py-2.5 ${seg(mode === m)}`}><Icon size={14} />{label}</button>
             ))}
           </div>
+          {mode === 'practice' && <div className="mb-4 flex items-center gap-2">
+            <span className="shrink-0 text-[11px] font-black text-white/45">{c.level}</span>
+            <div className="grid flex-1 grid-cols-2 gap-1.5">
+              {LEVELS.map((lv) => (
+                <button key={lv} type="button" onClick={() => switchMode(mode, lv)} className={`py-2 text-xs ${seg(level === lv)}`}>{c.levelName[lv]}</button>
+              ))}
+            </div>
+          </div>}
 
           {phase === 'intro' && (
             <div className="mx-auto max-w-md py-8 text-center">
               {mode === 'practice' ? <Blocks size={36} className="mx-auto text-(--accent)" /> : <Timer size={36} className="mx-auto text-(--accent)" />}
               <h1 className="mt-4 text-2xl font-black">{mode === 'practice' ? c.practiceTitle : c.challengeTitle}</h1>
               <p className="mt-2 break-keep text-sm leading-6 text-white/55">{mode === 'practice' ? c.practiceDesc : c.challengeDesc}</p>
+              <p className="mt-3 inline-flex rounded-full bg-(--accent)/15 px-3 py-1 text-[11px] font-black text-(--accent)">{c.levelName[active]} · {c.levelNote[active]}</p>
               {mode === 'challenge' && <p className="mt-4 text-xs font-bold text-white/40">{c.best(best)}</p>}
-              <button type="button" onClick={() => start()} className={`${BTN_ACCENT} mt-6 w-full py-3.5 text-sm`}>{mode === 'practice' ? c.startPractice : c.startChallenge}</button>
+              <button type="button" onClick={() => start()} disabled={building} className={`${BTN_ACCENT} mt-6 w-full py-3.5 text-sm disabled:opacity-60`}>{building ? c.building : mode === 'practice' ? c.startPractice : c.startChallenge}</button>
               {mode === 'challenge' && <BoardExitRule />}
             </div>
           )}
@@ -153,7 +179,7 @@ export default function EquationTowerGame() {
                   <span className={`w-8 text-right font-mono font-black ${p.points ? 'text-[#7ee2ae]' : 'text-white/35'}`}>{p.points ? `+${p.points}` : '0'}</span>
                 </li>
               ))}</ul>
-              <button type="button" onClick={() => start()} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{c.again}</button>
+              <button type="button" onClick={() => start()} disabled={building} className={`${BTN_ACCENT} mt-5 w-full py-3 disabled:opacity-60`}><RotateCcw size={14} />{building ? c.building : c.again}</button>
             </div>
           )}
 
@@ -161,7 +187,7 @@ export default function EquationTowerGame() {
             <div className="mx-auto max-w-[520px]">
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className={KICKER}>{c.roundKicker(index + 1)}</p>
+                  <p className={KICKER}>{c.roundKicker(index + 1)} · {c.levelName[active]}</p>
                   <p className="mt-2 flex flex-wrap items-center gap-3 font-mono text-xs text-white/60">
                     <span className="font-black text-(--accent)">{c.score(score)}</span>
                     <span>{c.moves(moves)}</span>
@@ -188,7 +214,7 @@ export default function EquationTowerGame() {
                 <div className={`mt-3 rounded-[12px] border p-4 text-center ${last.points ? 'border-[#2fbf71]/50 bg-[#2fbf71]/10' : 'border-white/15 bg-black/40'}`}>
                   <p className={`text-sm font-black ${last.points ? 'text-[#7ee2ae]' : 'text-white/60'}`}>{last.points ? `${c.solved(last.moves)} ${c.gotPoints(last.points)}` : c.skippedRound}</p>
                   <p className="mt-1 text-xs text-white/50">{c.par(last.round.par)}</p>
-                  <button type="button" onClick={next} className={`${BTN_ACCENT} mt-3 w-full py-3`}><SkipForward size={14} />{c.next}</button>
+                  <button type="button" onClick={next} disabled={building} className={`${BTN_ACCENT} mt-3 w-full py-3 disabled:opacity-60`}><SkipForward size={14} />{building ? c.building : c.next}</button>
                 </div>
               )}
             </div>
