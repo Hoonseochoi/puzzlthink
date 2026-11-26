@@ -5,8 +5,11 @@ import type { MatchKind, Show, ShowGame, ShowLocale } from './types';
 import devilsPlan3 from './dp3';
 import devilsPlan2 from './dp2';
 import bloodyGameX from './bgx';
+import deathGame2 from './dg2';
+import deathGame1 from './dg1';
+import bloodyGame3 from './bg3';
 
-const SHOW_LIST: Show[] = [devilsPlan3, devilsPlan2, bloodyGameX];
+const SHOW_LIST: Show[] = [devilsPlan3, devilsPlan2, bloodyGameX, deathGame2, deathGame1, bloodyGame3];
 
 /** Written shows, most recently released first. */
 export const SHOWS_WRITTEN: Show[] = [...SHOW_LIST].sort((a, b) => b.aired.start.localeCompare(a.aired.start));
@@ -42,6 +45,8 @@ export const KIND_LABEL: Record<MatchKind, { ko: string; en: string }> = {
   casino: { ko: '유령 카지노', en: 'Ghost casino' },
   semi: { ko: '세미파이널', en: 'Semifinal' },
   revival: { ko: '리바이벌 매치', en: 'Revival match' },
+  tournament: { ko: '토너먼트', en: 'Tournament' },
+  duel: { ko: '1:1 매치', en: 'One-on-one match' },
 };
 
 /**
@@ -49,7 +54,6 @@ export const KIND_LABEL: Record<MatchKind, { ko: string; en: string }> = {
  * a show moves to SHOW_LIST once its pages are written.
  */
 export const SHOWS_PLANNED: { name: { ko: string; en: string }; released: string; network: { ko: string; en: string } }[] = [
-  { name: { ko: '데스게임', en: 'Death Game' }, released: '2026-01', network: { ko: '넷플릭스', en: 'Netflix' } },
   { name: { ko: '데블스 플랜 (시즌 1)', en: "The Devil's Plan (season 1)" }, released: '2023-09', network: { ko: '넷플릭스', en: 'Netflix' } },
   { name: { ko: '더 타임 호텔', en: 'The Time Hotel' }, released: '2023-04', network: { ko: '티빙', en: 'TVING' } },
   { name: { ko: '소사이어티 게임 1·2', en: 'The Society Game 1–2' }, released: '2016-10', network: { ko: 'tvN', en: 'tvN' } },
