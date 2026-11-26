@@ -13,6 +13,7 @@ import aiDifficultyTuning from './ai-difficulty-tuning';
 import sysIcons from './sys-icons';
 import sysHallOfFame from './sys-hall-of-fame';
 import sysRooms from './sys-rooms';
+import sysLoungeSupport from './sys-lounge-support';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
@@ -27,6 +28,7 @@ const ARTICLES: DevlogArticle[] = [
   sysHallOfFame,
   sysIcons,
   sysRooms,
+  sysLoungeSupport,
 ];
 
 export const DEVLOG: readonly DevlogArticle[] = ARTICLES;
