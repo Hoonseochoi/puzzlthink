@@ -31,6 +31,10 @@ WARM = [(72, 86), (80, 91), (86, 94.5)]   # the score range of the AI's warm-up 
 CUT = float(OPT.get('cut', CUT)); MAX_HINTS = int(OPT.get('hints', MAX_HINTS))
 AI_NOISE = float(OPT.get('noise', AI_NOISE)); AI_GAP = float(OPT.get('gap', AI_GAP))
 if 'warm' in OPT: WARM = [tuple(float(x) for x in r.split('-')) for r in OPT['warm'].split(',')]
+CLOSE = [0, 0.5, 1]     # where each stage's closing hint sits among the 95%+ hints, most shared (0) to most specific (1) (aiClose)
+WARM_N = (1, 2)         # how many warm-up hints per stage, at least and at most (aiWarmN)
+if 'close' in OPT: CLOSE = [float(x) for x in OPT['close'].split(',')]
+if 'warmn' in OPT: WARM_N = tuple(int(x) for x in OPT['warmn'].split('-'))
 
 S = np.load(f'{GAME}/scores.npy').astype(np.float32) / 10
 E = np.load(f'{GAME}/feel.npy').astype(np.float32)     # what a guesser goes by: the model's own number
@@ -59,13 +63,13 @@ def ai_hints(t, stage, used):
     own = [(h, s) for h, s in lists[t] if h not in used and h != tcol[t]]
     top = [(h, s) for h, s in own if CUT <= s < 98] or [(h, s) for h, s in own if s >= CUT]
     top.sort(key=lambda x: -(int((S[:, x[0]] >= 85).sum()) - 1) + rng.random() * 0.9)
-    k = {1: 0, 2: len(top) // 2, 3: len(top) - 1}[stage]
+    k = int(np.floor(CLOSE[stage - 1] * (len(top) - 1) + 0.5))   # half up, as in SQL
     k = min(len(top) - 1, max(0, k + int(rng.integers(-1, 2)) * (stage == 2)))
     close = top[k]
     lo, hi = WARM[stage - 1]
     warm = [(h, s) for h, s in own if lo <= s <= hi]
     rng.shuffle(warm)
-    return warm[:int(rng.integers(1, 3))] + [close]
+    return warm[:int(rng.integers(WARM_N[0], WARM_N[1] + 1))] + [close]
 
 def ai_guess(clues, noise, banned, chance):
     """The AI's answer(s): the pool word that explains the hints best; a second one with its chance when close."""

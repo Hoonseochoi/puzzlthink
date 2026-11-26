@@ -50,7 +50,7 @@ for level, conf in levels.items():
     def blend_all(i):
         w = words[i]
         look = np.fromiter((partial_overlap(w, h) or (h != w and h in w) for h in words), bool, len(words))
-        return m.row(i, look)
+        return m.row(i, look, fallback=rules.get('no_ft_fallback', False))
 
     # rules.near_words: a word list (file in <data>) that neighbours are taken from. The 기본 build keeps its
     # first vocabulary here, so words added for 확장 do not push old neighbours out and its numbers stay put.
@@ -75,7 +75,7 @@ for level, conf in levels.items():
         ref = np.sort(np.delete(b[:m.ref], i) if i < m.ref else b[:m.ref])
         ranks = np.maximum(1, len(ref) - np.searchsorted(ref, b, side='right') + 1)
         pct = rank_pct(ranks, conf.get('curve'))
-        pct[~has_vec] = 0                               # words fastText never saw have no embedding score
+        if not rules.get('no_ft_fallback'): pct[~has_vec] = 0   # words fastText never saw have no embedding score (기본)
         feel[ti] = np.rint(pct).astype(np.uint8)        # the model's own number, before any list or floor
         listed = {h: s for (tt, h), s in assoc.items() if tt == t and h in m.idx}
         by_meaning = rules.get('compound_by_meaning')

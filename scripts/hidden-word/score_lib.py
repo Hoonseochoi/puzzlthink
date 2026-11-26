@@ -62,15 +62,20 @@ class Blend:
             self.V[name], self.mu[name], self.sd[name] = V, mu, sd
         self.has_vec = np.linalg.norm(self.V['ft'], axis=1) > 0 if 'ft' in self.V else np.ones(len(self.words), bool)
 
-    def row(self, i, look=None):
+    def row(self, i, look=None, fallback=False):
         """Blend score of every word against word i. look: words that look like word i (shared syllables):
-        for those, no meaning part may exceed the fastText part (see guarded)."""
+        for those, no meaning part may exceed the fastText part (see guarded). fallback: a word fastText never
+        saw (키큰동물) gets the meaning parts alone, reweighted, instead of no score."""
         zf = (self.V['ft'] @ self.V['ft'][i] - self.mu['ft']) / self.sd['ft'] if 'ft' in self.V else None
-        b = np.zeros(len(self.words), np.float32)
+        b = np.zeros(len(self.words), np.float32); meaning = np.zeros(len(self.words), np.float32); wm = 0.0
         for name, w in self.parts:
             z = zf if name == 'ft' else (self.V[name] @ self.V[name][i] - self.mu[name]) / self.sd[name]
-            if name != 'ft' and zf is not None and look is not None: z = np.where(look, np.minimum(z, zf), z)
+            if name != 'ft':
+                meaning += w * z; wm += w
+                if zf is not None and look is not None: z = np.where(look, np.minimum(z, zf), z)
             b += w * z
+        if fallback and zf is not None and wm > 0:
+            b = np.where(self.has_vec, b, meaning / wm)
         return b
 
 # Embedding rank among the reference nouns -> %, straight lines between these points on a log-rank axis.
