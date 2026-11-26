@@ -27,6 +27,7 @@ import solvedGames from './solved-games';
 import luckAndSkill from './luck-and-skill';
 import lengthAndPlayerCount from './length-and-player-count';
 import glossary from './glossary';
+import whatToPlay from './what-to-play';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -57,6 +58,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   luckAndSkill,
   lengthAndPlayerCount,
   glossary,
+  whatToPlay,
 ];
 
 export const WIKI_BASE = '/board-games';
