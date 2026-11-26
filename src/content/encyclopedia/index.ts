@@ -1,10 +1,12 @@
 // Registry of 보드게임 백과 articles (/[locale]/board-games/<slug>). Order here is the order on the hub within
 // each category. Server-only: never import this from a client component.
 import abstractStrategy from './abstract-strategy';
+import bluffingDeduction from './bluffing-deduction';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
   abstractStrategy,
+  bluffingDeduction,
 ];
 
 export const WIKI_BASE = '/board-games';
