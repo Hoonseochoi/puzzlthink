@@ -9,7 +9,7 @@ function CentipedeTree({ take, pass, labels }: { take: string; pass: string; lab
     { x: 370, who: labels[1], payoff: '8, 32' },
   ];
   return (
-    <svg viewBox="0 0 470 150" className="w-full" role="img" aria-label="centipede game tree">
+    <svg viewBox="0 0 515 150" className="w-full" role="img" aria-label="centipede game tree">
       {nodes.map((n, i) => (
         <g key={i}>
           <line x1={n.x} y1={40} x2={i < 3 ? nodes[i + 1].x : 440} y2={40} stroke="currentColor" strokeOpacity={0.35} strokeWidth={2} />
