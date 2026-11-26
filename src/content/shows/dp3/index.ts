@@ -24,6 +24,7 @@ const show: Show = {
   slug: 'devils-plan-3',
   seo: 'dp3',
   series: 'devils-plan',
+  short: { ko: '데블스플랜3', en: "Devil's Plan 3" },
   aired: { start: '2026-11-10', end: '2026-11-24' },
   network: { ko: '넷플릭스', en: 'Netflix' },
   episodes: 14,
