@@ -18,6 +18,7 @@ import backward from './articles/backward-induction';
 import commitment from './articles/commitment-threats';
 import signaling from './articles/signaling-cheap-talk';
 import tournaments from './articles/tournament-incentives';
+import dominantStrategy from './articles/dominant-strategy';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -41,6 +42,7 @@ export const ARTICLES: GTArticle[] = [
   commitment,
   signaling,
   tournaments,
+  dominantStrategy,
   // @gt-list
 ];
 
