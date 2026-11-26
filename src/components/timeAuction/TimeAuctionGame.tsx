@@ -9,6 +9,7 @@ import { TIME_AUCTION_ROOM } from '@/hooks/useTimeAuctionRoom';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { TA_FORMAT_IDS, type TaFormatId } from '@/lib/timeAuction';
 import { TA_PERSONA, TA_STYLES, type TaLevel } from '@/lib/timeAuctionAi';
+import { Stone } from '../StoneAvatar';
 import { type TaRoom, type TaRoomAction, createTaRoom, taNextEventAt } from '@/lib/timeAuctionRoom';
 import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -88,10 +89,10 @@ export function TimeAuctionRules({ t, locale, onClose }: { t: TaCopy; locale: st
         <p className={PANEL_TITLE}>{t.rules}</p>
         <ol className="mt-3 space-y-3 text-[13px] leading-relaxed text-white/75">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol>
         <p className={`${PANEL_TITLE} mt-6`}>{t.aiPersonas}</p>
-        <ul className="mt-3 grid grid-cols-1 gap-1.5">
+        <ul className="mt-3 grid grid-cols-1 gap-1.5 min-[420px]:grid-cols-2">
           {TA_STYLES.map((style) => {
             const p = TA_PERSONA[style];
-            return <li key={style} className="flex items-start gap-2.5 rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-2"><span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: p.color }} /><span><b className="text-sm">{en ? p.nameEn : p.name}</b><span className="block text-[11.5px] text-white/55">{en ? p.en : p.ko}</span></span></li>;
+            return <li key={style} className="flex items-center gap-2.5 rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-1.5"><Stone name={p.name} size={26} icon={p.face} cover={false} /><span className="min-w-0"><b className="text-sm">{en ? p.nameEn : p.name}</b><span className="block truncate text-[11.5px] text-white/55">{en ? p.blurb.en : p.blurb.ko}</span></span></li>;
           })}
         </ul>
         <p className="mt-2 text-[11px] text-white/40">{t.personaNote}</p>

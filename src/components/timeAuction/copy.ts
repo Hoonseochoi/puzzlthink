@@ -40,7 +40,7 @@ const ko = {
   resultTitle: '최종 결과', piece: '피스 (1위)', eliminated: '탈락', survived: '생존', place: (p: number) => `${p}위`,
   left: '남은 시간', reveal: '모든 입찰 공개', gaveUp: '포기', noPiece: '공동 1위라 피스는 없어요',
   meWin: '1위! 피스를 받았어요', meSafe: '살아남았어요', meOut: '탈락했어요',
-  aiPersonas: 'AI 플레이어', personaNote: '각 AI는 공개된 정보(낙찰자·낙찰 시간·표식 수)와 자기 시간만 보고 입찰해요.',
+  aiPersonas: 'AI 캐릭터 (12명 중 매 판 무작위)', personaNote: '매 판 다른 캐릭터가 앉고, 같은 캐릭터도 그날 기분에 따라 조금씩 달라요. 각자의 성향은 경기가 끝나면 공개돼요. AI는 공개된 정보(낙찰자·낙찰 시간·점수)와 자기 시간만 보고 입찰해요.', styleWas: '성향:',
   quick: [
     '각자 같은 시간(빠른 경매 2분, 방송 규칙 10분)을 자금으로 받아요. 기록은 0.1초 단위예요.',
     '경매마다 바둑알 하나가 올라와요. 기본 바둑알 1점, 세 번째마다 중급 아이콘(플레이 30·50시간, 대전 승리 등) 2점, 마지막에 최상급 아이콘(오픈대전 1위, 플레이 100시간 등) 3점이고 순서는 처음부터 공개돼요. 경매에 나오는 바둑알은 게임 속 점수예요. 실제 아이콘은 지급되지 않아요. 모두 버튼을 누르면 5초 카운트다운, 그 안에 손을 떼면 시간을 쓰지 않고 포기해요.',
@@ -100,7 +100,7 @@ const en: typeof ko = {
   resultTitle: 'Final result', piece: 'Piece (1st)', eliminated: 'Out', survived: 'Safe', place: (p) => `#${p}`,
   left: 'Time left', reveal: 'Every bid revealed', gaveUp: 'out', noPiece: 'Tied for 1st: no piece',
   meWin: '1st! You get the piece', meSafe: 'You survived', meOut: 'You are eliminated',
-  aiPersonas: 'AI players', personaNote: 'Each AI bids from public information only (winners, winning times, tokens) and its own time.',
+  aiPersonas: 'AI characters (5 of 12 each match)', personaNote: 'Different characters sit each match, and even the same one plays a little differently each time. Their styles are revealed after the match. The AI bids from public information only (winners, winning times, scores) and its own time.', styleWas: 'Style:',
   quick: [
     'Everyone gets the same time to spend (2:00 in Quick, 10:00 in Broadcast), recorded to 0.1 s.',
     'Each auction puts up one of PUZZLTHINK\'s icon pieces: a starter piece 1 point, every third a mid-tier icon (30/50 hours played, match wins…) 2, the last a top icon (Open match #1, 100 hours played…) 3; the order is public from the start. The pieces on auction are points in this game only; no real profile icon is granted. When everyone presses, a 5-second countdown runs; let go during it to drop out for free.',

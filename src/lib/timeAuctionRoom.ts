@@ -38,7 +38,7 @@ import { type AwayFields, clearMiss, giveBack, humansBack, noteMiss, resetAway, 
 import {
   TA_COUNTDOWN_MS, TA_MAX_PLAYERS, type TaFormatId, type TimeAuction, newTimeAuction, taAllReady, taBeginCountdown, taCanBid, taHolding, taNextRound, taPress, taRelease, taSettle,
 } from './timeAuction';
-import { TA_PERSONA, TA_STYLES, type TaLevel, type TaStyle, chooseTaBid, taAiView } from './timeAuctionAi';
+import { TA_PERSONA, TA_STYLES, type TaLevel, type TaMind, type TaStyle, chooseTaBid, pickTaStyles, rollTaMind, taAiView } from './timeAuctionAi';
 
 /** Seconds people in a room have to press before an auction (then they sit it out). Two misses in a row: the AI plays the seat. */
 export const TA_READY_SEC = 15;
@@ -55,7 +55,9 @@ export const TA_BEAT_LOST_MS = 4200;
 
 export type TaRoom = BaseRoom & AwayFields & {
   phase: 'lobby' | 'playing' | 'finished';
-  style: (TaStyle | null)[]; // AI persona per seat (kept when the AI stands in for an away player)
+  style: (TaStyle | null)[]; // AI personality per seat (kept when the AI stands in for an away player)
+  /** This match's rolled mind per seat (aggression, patience, chaos, mood seed): host only, redacted for guests. */
+  mind?: (TaMind | null)[];
   level: TaLevel;
   format: TaFormatId;
   fillAi?: boolean; // rooms: empty seats become AI (default) or stay out
@@ -108,7 +110,8 @@ export const taPeople = (state: TaRoom) => state.seats.filter((seat, i) => seat 
 function startRoom(state: TaRoom, shuffleHumans = true): TaRoom {
   let humans = state.seats.flatMap((seat, i) => (seat && !state.ai[i] ? [seat] : []));
   if (shuffleHumans) humans = humans.sort(() => Math.random() - 0.5);
-  const styles = [...TA_STYLES].sort(() => Math.random() - 0.5);
+  // A random handful from the roster of twelve: no two AI at a table share a personality.
+  const styles = pickTaStyles(TA_STYLES.length);
   const seats: Seat[] = [];
   const ai: boolean[] = [];
   const style: (TaStyle | null)[] = [];
@@ -125,7 +128,9 @@ function startRoom(state: TaRoom, shuffleHumans = true): TaRoom {
   humans.forEach((_, i) => { style[i] = spare[i % Math.max(1, spare.length)] ?? 'steady'; });
   const inGame = seats.map((seat) => !!seat);
   const game = newTimeAuction(inGame, state.format, newSid());
-  return toReady({ ...state, seats, ai, style, phase: 'playing', ...resetAway(N), game, liveAt: 0, revealUntil: 0, hidden: { plan: fill(null), beat: fill(0) } }, Date.now());
+  // Every seat gets a freshly rolled mind (people's are used only if the AI stands in for them).
+  const mind = style.map((st) => (st ? rollTaMind(st) : null));
+  return toReady({ ...state, seats, ai, style, mind, phase: 'playing', ...resetAway(N), game, liveAt: 0, revealUntil: 0, hidden: { plan: fill(null), beat: fill(0) } }, Date.now());
 }
 
 /**
@@ -143,7 +148,7 @@ function toReady(state: TaRoom, now: number): TaRoom {
 function begin(state: TaRoom, now: number): TaRoom {
   const game = taBeginCountdown(state.game);
   if (!game) return state;
-  const plan = game.joined.map((j, s) => (j && state.ai[s] ? chooseTaBid(taAiView(game, s), state.style[s] ?? 'steady', state.level) : null));
+  const plan = game.joined.map((j, s) => (j && state.ai[s] ? chooseTaBid(taAiView(game, s), state.mind?.[s] ?? state.style[s] ?? 'steady', state.level) : null));
   // An AI that sits out lets go during the countdown, like a person would.
   let g = game;
   plan.forEach((p, s) => { if (game.joined[s] && state.ai[s] && p === null) g = taRelease(g, s, -1) ?? g; });
@@ -300,7 +305,7 @@ export function redactTaRoom(state: TaRoom): TaRoom {
   if (state.phase !== 'playing') return state;
   const g = state.game;
   return {
-    ...state, hidden: { plan: [], beat: [] },
+    ...state, hidden: { plan: [], beat: [] }, mind: undefined,
     game: { ...g, bank: fill(-1), pass: fill(false), joined: fill(false), bids: fill<number | null>(0), log: g.log.map((r) => ({ ...r, bids: [] })) },
   };
 }

@@ -5,6 +5,7 @@ import { Crown, Skull, X } from 'lucide-react';
 import { taClock, taScore, taStandings } from '@/lib/timeAuction';
 import type { TaRoom } from '@/lib/timeAuctionRoom';
 import { reportGame } from '@/lib/stats';
+import { TA_PERSONA } from '@/lib/timeAuctionAi';
 import ResultActions from '../ResultActions';
 import { KICKER, MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 import type { TaCopy } from './copy';
@@ -58,6 +59,9 @@ export default function TimeAuctionResult({ room, mySeat, t, locale, onAgain, on
                 <span className="font-mono text-sm font-black text-(--accent)">{taScore(g, s)}</span>
                 <span className="w-16 text-right font-mono text-[11px] text-white/55">{taClock(g.bank[s])}</span>
                 <span className="basis-full pl-10"><Tray room={room} seat={s} size={20} en={en} /></span>
+                {room.ai[s] && room.style[s] && !room.away?.[s] && (
+                  <span className="basis-full pl-10 text-[11px] leading-4 text-white/60"><b className="text-white/85">{t.styleWas} {en ? TA_PERSONA[room.style[s]!].label.en : TA_PERSONA[room.style[s]!].label.ko}</b> · {en ? TA_PERSONA[room.style[s]!].tell.en : TA_PERSONA[room.style[s]!].tell.ko}</span>
+                )}
               </li>
             );
           })}

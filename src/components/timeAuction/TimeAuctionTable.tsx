@@ -7,7 +7,7 @@ import { TA_PERSONA } from '@/lib/timeAuctionAi';
 import { TA_BEAT_MS, TA_READY_SEC, type TaBeat, type TaRoom, type TaRoomAction, taBeat } from '@/lib/timeAuctionRoom';
 import { PANEL, PANEL_TITLE } from '../ui/gameUi';
 import type { TaCopy } from './copy';
-import { AuctionBlock, HoldRing, LotStone, MinusStone, SeatStone, Tray, lotFor, lotName, minusLot } from './TimeAuctionParts';
+import { AuctionBlock, HoldRing, LotStone, MinusStone, SeatStone, Tray, lotFor, lotName, minusLot, taTalk } from './TimeAuctionParts';
 
 type Status = number | null | 'unknown'; // let-go time (ms after the countdown), still holding, or not known (page loaded mid-auction)
 type Rec = { round: number; cdEnd: number; released: Status; pushed: boolean; sentAt: number };
@@ -303,6 +303,12 @@ export default function TimeAuctionTable({ room, mySeat, onAction, t, locale, di
                 {room.away?.[s] && <span title={t.away}><Bot size={12} className="text-[#ffb547]" /></span>}
                 <Tray room={room} seat={s} size={15} en={en} />
                 <b className="w-5 text-right font-mono text-[12px]">{taScore(g, s)}</b>
+                {(() => {
+                  const talk = taTalk(room, s, en);
+                  const style = room.ai[s] && !room.away?.[s] ? room.style[s] : null;
+                  if (talk) return <span className="basis-full pl-8 text-[11px] font-bold text-white/85">💬 {talk}</span>;
+                  return style ? <span className="basis-full truncate pl-8 text-[10.5px] text-white/40">{en ? TA_PERSONA[style].blurb.en : TA_PERSONA[style].blurb.ko}</span> : null;
+                })()}
               </li>
             ))}
           </ul>

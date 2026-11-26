@@ -4,7 +4,7 @@
 // the site's own 바둑알 style (the glossy disc with two eyes, src/components/StoneAvatar.tsx); people sit as their
 // profile stone, the AI as a stone in its persona colour, as in 스나이퍼 홀덤. Purely visual: the rules are the
 // broadcast's, a won stone is the victory token.
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { TA_COUNTDOWN_MS, taLotValue } from '@/lib/timeAuction';
 import { TA_PERSONA } from '@/lib/timeAuctionAi';
@@ -95,34 +95,28 @@ export function MinusStone({ size, label = '마이너스 바둑알', lot = HELL[
   );
 }
 
-/** Lighter / darker shade of a #rrggbb colour (t > 0 towards white, t < 0 towards black). */
-function shade(hex: string, t: number) {
-  const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-  const m = c.map((v) => Math.round(t > 0 ? v + (255 - v) * t : v * (1 + t)));
-  return `#${m.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
-}
-
-/** An AI player's stone in its persona colour. */
-function PersonaStone({ color, size, label }: { color: string; size: number; label: string }) {
-  const id = useId().replace(/:/g, '');
-  return (
-    <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={label}>
-      <defs><radialGradient id={`tp-${id}`} cx="35%" cy="30%" r="75%"><stop offset="0%" stopColor={shade(color, 0.45)} /><stop offset="55%" stopColor={color} /><stop offset="100%" stopColor={shade(color, -0.45)} /></radialGradient></defs>
-      <circle cx="50" cy="53" r="46" fill="rgba(0,0,0,.22)" />
-      <circle cx="50" cy="50" r="46" fill={`url(#tp-${id})`} stroke={shade(color, -0.6)} strokeWidth="2" />
-      <rect x="34.8" y="33.9" width="9.2" height="17" rx="4.6" fill="#fff" />
-      <rect x="56" y="33.9" width="9.2" height="17" rx="4.6" fill="#fff" />
-    </svg>
-  );
-}
-
-/** A seat: people as their own profile stone (looked up by nickname), the AI as its persona stone. */
+/** A seat: people as their own profile stone (looked up by nickname), the AI as its character's icon face. */
 export function SeatStone({ room, seat, mySeat, size, label }: { room: TaRoom; seat: number; mySeat: number | null; size: number; label: string }) {
   const myNick = useMyNickname();
   const style = room.style[seat];
-  if (room.ai[seat] && style && !room.away?.[seat]) return <PersonaStone color={TA_PERSONA[style].color} size={size} label={label} />;
+  if (room.ai[seat] && style && !room.away?.[seat]) return <Stone name={label} size={size} icon={TA_PERSONA[style].face} cover={false} />;
   const name = (seat === mySeat && myNick) || room.seats[seat]?.name || label;
   return <Stone name={name} size={size} />;
+}
+
+/**
+ * What an AI says at the table after an auction, if anything: its win or minus line, said about four times in ten
+ * (the same on every browser: decided from the match id, the auction and the seat).
+ */
+export function taTalk(room: TaRoom, seat: number, en: boolean): string | null {
+  const g = room.game;
+  const last = g.log[g.log.length - 1];
+  const style = room.style[seat];
+  if (!last || !room.ai[seat] || room.away?.[seat] || !style || (g.phase !== 'reveal' && g.phase !== 'finished')) return null;
+  const event = last.outcome === 'won' && last.winner === seat ? 'win' : last.minus === seat ? 'minus' : null;
+  if (!event || (hash(`${g.gid}:${last.round}:${seat}`) % 10) >= 4) return null;
+  const line = TA_PERSONA[style][event];
+  return en ? line.en : line.ko;
 }
 
 /** The stones a seat has won, in order, with empty dents up to the safe line. */

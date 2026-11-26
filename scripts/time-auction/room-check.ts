@@ -151,6 +151,16 @@ test('AI match: a player with no time left is passed automatically (no stall)', 
   assert.equal(s.game.joined[0], false);
 });
 
+test('AI seats: distinct personalities from the roster, a rolled mind each, hidden from guests', () => {
+  const s = createTaRoom({ id: 'me', name: 'me', at: 0 }, { solo: true });
+  const ai = s.style.filter((st, i) => st && s.ai[i]);
+  assert.equal(ai.length, 5);
+  assert.equal(new Set(ai).size, 5);
+  assert.ok(s.mind?.every((m, i) => !s.ai[i] || (m && m.style === s.style[i] && m.aggr >= 0.85 && m.chaos <= 0.12)));
+  const r = room(['a'], true);
+  assert.equal(redactTaRoom(r).mind, undefined);
+});
+
 test('stale heartbeats from another round are ignored', () => {
   const s = pressAll(room(['a']));
   const a = seatOf(s, 'a');
