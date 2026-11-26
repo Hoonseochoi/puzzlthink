@@ -1,5 +1,5 @@
 import type { WikiArticle } from './types';
-import { p, terms, tip, sec } from './blocks';
+import { terms, tip, sec } from './blocks';
 
 const article: WikiArticle = {
   slug: 'glossary',
