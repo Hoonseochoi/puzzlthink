@@ -67,6 +67,11 @@ const article: WikiArticle = {
         h3('체커가 특별한 이유'),
         p('체커의 풀이는 특히 큰 사건이었어요. 커넥트 포보다 훨씬 복잡한 게임을 18년 넘는 계산 끝에 풀어낸 거예요. 연구팀은 이를 약한 풀이라고 밝혔고, 대표적인 시작 수순들이 모두 무승부로 끝난다는 걸 보였어요.'),
       ]),
+      sec('how', '게임은 어떻게 푸는 걸까', [
+        p('게임을 푸는 기본 아이디어는 의외로 단순해요. **끝에서부터 거꾸로** 따지는 거예요. 이미 끝난 국면은 누가 이겼는지 바로 알 수 있어요. 그 한 수 전 국면은, 둘 수 있는 수 중 하나라도 “이기는 국면”으로 이어지면 이기는 국면이고, 모든 수가 “지는 국면”으로 이어지면 지는 국면이에요. 이렇게 한 단계씩 거슬러 올라가면 언젠가 처음 국면의 결과가 나와요.'),
+        p('문제는 국면의 수예요. 틱택토는 손으로도 따질 수 있지만, 체커나 오셀로는 거대한 계산이 필요해요. 그래서 실제로는 두 가지 방법을 섞어요. 하나는 끝내기 국면들의 결과를 미리 계산해 저장한 **데이터베이스**, 다른 하나는 처음 국면에서 앞으로 몇십 수를 내다보며 필요 없는 가지를 쳐 내는 **탐색**이에요. 두 방법이 중간에서 만나면 처음 국면의 값이 확정돼요. 나인 멘스 모리스와 체커가 모두 이런 방식으로 풀렸어요.'),
+        p('대칭도 큰 도움이 돼요. 판을 돌리거나 뒤집어서 같아지는 국면은 한 번만 계산하면 되니까요. 그래도 체스나 바둑은 이런 요령을 모두 써도 계산할 국면이 너무 많아서, 지금의 기술로는 끝까지 갈 수 없어요.'),
+      ]),
       sec('unsolved', '아직 풀리지 않은 게임', [
         p('체스와 바둑은 아직 풀리지 않았어요. 이유는 단순해요. **가능한 국면이 너무 많아서**예요. 컴퓨터가 사람보다 훨씬 잘 두게 된 지금도, 처음 국면에서 완벽하게 두면 결과가 무엇인지는 아무도 몰라요.'),
         p('여기서 중요한 구분이 있어요. **사람보다 잘 두는 것**과 **게임을 푸는 것**은 전혀 다른 일이에요. 알파고는 바둑에서 사람을 이겼지만 바둑을 푼 건 아니에요. 아주 강한 수를 찾았을 뿐, 그 수가 완벽하다는 증명은 없어요.'),
@@ -125,6 +130,11 @@ const article: WikiArticle = {
         ),
         h3('Why checkers stands out'),
         p('Solving checkers was a major event: a game far more complex than Connect Four, solved after more than eighteen years of computation. The team described it as a weak solution and showed that the standard opening lines all end in draws.'),
+      ]),
+      sec('how', 'How a game gets solved', [
+        p('The basic idea is surprisingly simple: **work backwards from the end**. A finished position has a known winner. One move earlier, a position is a win if any move leads to a winning position, and a loss if every move leads to a losing one. Step back like this far enough and you reach the value of the starting position.'),
+        p('The problem is the number of positions. Tic-tac-toe can be checked by hand, but checkers or Othello need enormous computation. So in practice two methods are combined: **databases** of precomputed endgame results, and **search** that looks dozens of moves ahead from the start while pruning useless branches. When the two meet in the middle, the starting value is settled. Nine men’s morris and checkers were both solved this way.'),
+        p('Symmetry helps a lot: positions that match after rotating or flipping the board need calculating only once. Even with every trick, chess and go have too many positions to finish with today’s technology.'),
       ]),
       sec('unsolved', 'Still unsolved', [
         p('Chess and go are unsolved, for a simple reason: **there are far too many positions**. Even now that computers play far better than people, nobody knows the result of perfect play from the start.'),
