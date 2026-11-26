@@ -2,8 +2,9 @@
 
 import type { ReactNode } from 'react';
 import { Check, KeyRound, LockKeyhole, X } from 'lucide-react';
-import { hwHeat } from '@/lib/hiddenWord';
-import { HW_GOLD } from './copy';
+import { type HwLevel, HW_LEVELS, hwHeat } from '@/lib/hiddenWord';
+import { PANEL_TITLE } from '../ui/gameUi';
+import { HW_GOLD, type HwCopy } from './copy';
 
 const pct = (score: number) => (score >= 100 ? '100' : score.toFixed(1));
 
@@ -111,5 +112,23 @@ export function MoraFace({ size = 28, thinking = false }: { size?: number; think
         {[0, 1].map((i) => <span key={i} className={`aspect-square flex-1 rounded-full bg-(--accent) shadow-[0_0_6px_var(--accent)] ${thinking ? '[animation:ipDot_1s_ease-in-out_infinite]' : ''}`} style={{ animationDelay: `${i * 0.18}s` }} />)}
       </span>
     </span>
+  );
+}
+
+/** 기본 / 확장: a new match of the other level replaces this one (no envelope is open yet, nothing is lost). */
+export function LevelPicker({ t, level, disabled, onPick }: { t: HwCopy; level: HwLevel; disabled?: boolean; onPick: (level: HwLevel) => void }) {
+  return (
+    <div className="mb-5" role="radiogroup" aria-label={t.levelTitle}>
+      <p className={`${PANEL_TITLE} text-center`}>{t.levelTitle}</p>
+      <div className="mx-auto mt-2 grid max-w-[420px] grid-cols-2 gap-2">
+        {HW_LEVELS.map((id) => (
+          <button key={id} type="button" role="radio" aria-checked={level === id} disabled={disabled} onClick={() => onPick(id)}
+            className={`rounded-[12px] border px-3 py-2.5 text-left transition disabled:opacity-60 ${level === id ? 'border-(--accent) bg-(--accent)/10' : 'border-white/12 bg-black/25 hover:border-white/30'}`}>
+            <b className={`block text-sm font-black ${level === id ? 'text-(--accent)' : 'text-white/80'}`}>{t.levelName[id]}</b>
+            <span className="mt-0.5 block break-keep text-[11px] leading-4 text-white/50">{t.levelDesc[id]}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

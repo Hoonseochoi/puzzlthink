@@ -44,6 +44,10 @@ const ko = {
   rankTitle: '히든 워드 랭킹', rankDesc: '한 판 평균 승점에 판수 보너스를 더해 겨뤄요. 잘할수록, 꾸준히 할수록 올라가요. 3판부터 순위에 올라요.', rankFormula: '랭킹 점수 = 평균 승점 + 판당 0.3점 (20판까지, 최대 +6)', rankEmpty: '아직 기록이 없어요. 첫 주인공이 되어 보세요.',
   rankPoints: (n: number) => `${n}점`, rankScore: (n: number) => `${Number(n).toFixed(1)}점`, rankBreak: (avg: number, bonus: number) => `평균 ${Number(avg).toFixed(1)} + 판수 ${Number(bonus).toFixed(1)}`, rankNeed: (games: number, min: number) => `순위까지 ${Math.max(0, min - games)}판`, rankGames: (n: number, w: number) => `${n}판 ${w}승`, rankBest: (n: number) => `최고 ${n}`, rankMe: '나',
   timeLeft: '남은 시간',
+  levelTitle: '단어 세트', levelName: { basic: '기본', plus: '확장' } as Record<'basic' | 'plus', string>,
+  levelDesc: { basic: '60단어 · 과일·동물·날씨처럼 익숙한 묶음, 방송 원작 단어 포함', plus: '186단어 · 감정·직업·장소·문화까지, 닮은 단어끼리 묶여 더 어려워요' } as Record<'basic' | 'plus', string>,
+  rankLevels: '기본과 확장은 랭킹을 따로 겨뤄요.',
+  levelsAbout: '단어 세트: 기본은 60단어, 확장은 186단어예요. 확장은 감정·직업·장소·음식·문화처럼 서로 닮은 단어가 한 묶음이라 힌트 하나로 좁히기 어렵고, 모라의 힌트도 덜 직접적이에요. 규칙과 승점은 같고 랭킹은 따로예요.',
   errors: {
     invalid: '한글 단어만 입력할 수 있어요 (띄어쓰기 없이 8자까지).', secret: '히든 워드 자체는 힌트로 낼 수 없어요.',
     duplicate: '이미 나온 단어예요.', unknown: '사전에 없는 단어예요. 다른 명사를 적어 주세요.',
@@ -126,6 +130,10 @@ const en: typeof ko = {
   rankTitle: 'Hidden Word ranking', rankDesc: 'Your average points per match plus a bonus for matches played: play well and keep playing. Ranked from 3 matches.', rankFormula: 'Score = average points + 0.3 per match (up to 20 matches, max +6)', rankEmpty: 'No records yet. Be the first.',
   rankPoints: (n: number) => `${n} pts`, rankScore: (n: number) => `${Number(n).toFixed(1)}`, rankBreak: (avg: number, bonus: number) => `avg ${Number(avg).toFixed(1)} + played ${Number(bonus).toFixed(1)}`, rankNeed: (games: number, min: number) => `${Math.max(0, min - games)} more to rank`, rankGames: (n: number, w: number) => `${n} played · ${w} won`, rankBest: (n: number) => `best ${n}`, rankMe: 'You',
   timeLeft: 'Time left',
+  levelTitle: 'Word set', levelName: { basic: 'Basic', plus: 'Expansion' },
+  levelDesc: { basic: '60 words · familiar groups like fruit, animals and weather, with the show’s own words', plus: '186 words · feelings, jobs, places and culture too, in look-alike groups: harder' },
+  rankLevels: 'Basic and Expansion are ranked separately.',
+  levelsAbout: 'Word sets: Basic has 60 words, Expansion 186. Expansion puts look-alike words in one group (feelings, jobs, places, food, culture), so one hint narrows it down less, and MORA’s hints are less direct. Same rules and points; separate rankings.',
   errors: {
     invalid: 'Korean words only (no spaces, up to 8 syllables).', secret: 'The hidden word itself cannot be a hint.',
     duplicate: 'That word is already on the board.', unknown: 'Not in the dictionary. Try another noun.',

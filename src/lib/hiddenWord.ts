@@ -10,8 +10,14 @@ export type HwTurn = {
 };
 export type HwCfg = { cut: number; stages: number; maxHints: number; setPoints: number[]; guessPoints: number[]; hintSecs: number; guessSecs: number };
 export type HwPhase = 'envelope' | 'pick' | 'hint' | 'guess' | 'turnEnd' | 'over';
+/** 기본 = the first 60-word pool; 확장 = the larger, harder pool. Each level has its own ranking. */
+export type HwLevel = 'basic' | 'plus';
+export const HW_LEVELS: HwLevel[] = ['basic', 'plus'];
+export const isHwLevel = (value: unknown): value is HwLevel => value === 'basic' || value === 'plus';
 export type HwView = {
-  id: string; phase: HwPhase; hand: string[]; envelope?: number; first: 'set' | 'guess';
+  id: string; phase: HwPhase; hand: string[];
+  /** Missing on a server from before levels: 기본. */
+  level?: HwLevel; envelope?: number; first: 'set' | 'guess';
   round: number; turnNo: number; me: number; ai: number; t?: HwTurn; history: HwTurn[];
   deadline: number | null; now: number; cfg: HwCfg; recorded?: boolean;
   /** My 피스 left in the running 경쟁전 week (0 when signed out): a second answer costs one. */
@@ -39,10 +45,10 @@ async function rpc<T>(name: string, args: Record<string, unknown>): Promise<T | 
   } catch { return null; }
 }
 
-export const hwStart = () => rpc<HwView>('hw_start', {});
+export const hwStart = (level: HwLevel = 'basic') => rpc<HwView>('hw_start', level === 'basic' ? {} : { p_level: level });
 export const hwState = (game: string) => rpc<HwView | null>('hw_state', { p_game: game });
 export const hwAct = (game: string, action: HwAction) => rpc<HwView>('hw_act', { p_game: game, p_action: action });
-export const hwRanking = (limit = 20) => rpc<HwRankRow[]>('hw_ranking', { p_limit: limit });
+export const hwRanking = (limit = 20, level: HwLevel = 'basic') => rpc<HwRankRow[]>('hw_ranking', level === 'basic' ? { p_limit: limit } : { p_limit: limit, p_level: level });
 
 /** Everything shown on the clue board, in the order it happened: each stage's hints, then its answer. */
 export type HwEntry = { key: string; stage: number } & ({ hint: HwHint } | { guess: HwGuess });
