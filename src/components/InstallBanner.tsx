@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Download, Share, X } from 'lucide-react';
 import { usePathname } from '@/i18n/routing';
 import { getSupabase } from '@/lib/supabase';
+import { PLAY_APP_HIDE, isPlayApp } from '@/lib/playApp';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -71,7 +72,8 @@ export default function InstallBanner() {
 
     const ua = navigator.userAgent;
     const mobile = /Android|iPhone|iPad|iPod/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
-    if (!mobile || isStandalone()) return () => window.removeEventListener('appinstalled', onAnyInstall);
+    // Inside the Google Play app the user already has the app: no install prompt.
+    if (!mobile || isStandalone() || (PLAY_APP_HIDE.install && isPlayApp())) return () => window.removeEventListener('appinstalled', onAnyInstall);
 
     const onPrompt = (e: Event) => { e.preventDefault(); setDeferred(e as BeforeInstallPromptEvent); setMode('prompt'); };
     const onInstalled = () => setMode(null);
@@ -136,7 +138,7 @@ export default function InstallBanner() {
 
   if (spot === 'game') {
     return (
-      <div className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-[18px] border border-white/10 bg-[#17201e]/95 p-3.5 text-white shadow-[0_18px_50px_rgba(0,0,0,.45)] backdrop-blur" role="dialog" aria-label={t('title')}>
+      <div data-play-hide="install" className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-[18px] border border-white/10 bg-[#17201e]/95 p-3.5 text-white shadow-[0_18px_50px_rgba(0,0,0,.45)] backdrop-blur" role="dialog" aria-label={t('title')}>
         <div className="flex items-start gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icons/icon-192.png" alt="" width={40} height={40} className="h-10 w-10 shrink-0 rounded-[11px] bg-white/10 p-1" />
@@ -165,7 +167,7 @@ export default function InstallBanner() {
   }
 
   return (
-    <div className="relative z-40 border-b border-black/[0.07] bg-[#17201e] text-white">
+    <div data-play-hide="install" className="relative z-40 border-b border-black/[0.07] bg-[#17201e] text-white">
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/icons/icon-192.png" alt="" width={36} height={36} className="h-9 w-9 shrink-0 rounded-[10px] bg-white/10 p-1" />

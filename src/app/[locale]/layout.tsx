@@ -27,6 +27,13 @@ import { routing } from '@/i18n/routing';
 import { GA_ID } from '@/lib/analytics';
 import '../globals.css';
 import { ADSENSE_CLIENT } from '@/lib/adsense';
+import { GAMES } from '@/lib/gameCatalog';
+import { hiddenGameRoutes, playAppCss, playAppHeadScript } from '@/lib/playApp';
+import PlayAppGuard from '@/components/playApp/PlayAppGuard';
+
+// Google Play app mode (src/lib/playApp.ts): decided before the first paint; the stylesheet is inert on the web.
+const PLAY_APP_SCRIPT = playAppHeadScript(ADSENSE_CLIENT);
+const PLAY_APP_CSS = playAppCss(hiddenGameRoutes(GAMES));
 
 // Search-console ownership tags. These codes are public (they sit in the page HTML); an env var overrides.
 const GOOGLE_VERIFY = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
@@ -91,10 +98,10 @@ export default async function LocaleLayout({
         {/* Runs before the app's own scripts so it sees their load errors. AdSense later inserts its own script at
             the top of <head>, which React then compares with this one: suppressHydrationWarning keeps that quiet. */}
         <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: STATIC_HEAL }} />
-        {ADSENSE_CLIENT && <>
-          <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
-          <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`} crossOrigin="anonymous" />
-        </>}
+        {/* Sets <html data-app="play"> inside the Google Play app and adds the AdSense script everywhere else. */}
+        <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: PLAY_APP_SCRIPT }} />
+        <style suppressHydrationWarning dangerouslySetInnerHTML={{ __html: PLAY_APP_CSS }} />
+        {ADSENSE_CLIENT && <meta name="google-adsense-account" content={ADSENSE_CLIENT} />}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#f3f0e8] font-sans text-[#17201e] antialiased`}>
         <NextIntlClientProvider messages={messages}>
@@ -118,6 +125,7 @@ export default async function LocaleLayout({
           <RoomChat />
           <LoungeChat />
           <RoomHostNotice />
+          <PlayAppGuard />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

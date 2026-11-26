@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useLocale } from 'next-intl';
 import { usePathname } from '@/i18n/routing';
 import { ADSENSE_CLIENT, AD_SLOTS, type AdPlacement } from '@/lib/adsense';
+import { isPlayApp } from '@/lib/playApp';
 
 declare global {
   interface Window { adsbygoogle?: unknown[] }
@@ -29,7 +30,7 @@ export default function AdSlot({ placement, tone = 'light', compact = false, cla
   useEffect(() => {
     const ins = ref.current;
     // Each <ins> may be filled only once; StrictMode re-runs effects, so skip already-claimed units.
-    if (!ins || ins.dataset.adsbygoogleStatus) return;
+    if (!ins || ins.dataset.adsbygoogleStatus || isPlayApp()) return; // no AdSense inside the Google Play app
     try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch { /* blocked by an ad blocker */ }
   }, [slot, pathname]);
 
@@ -40,7 +41,7 @@ export default function AdSlot({ placement, tone = 'light', compact = false, cla
   if (!ADSENSE_CLIENT || !slot) {
     if (process.env.NODE_ENV !== 'development') return null;
     return (
-      <div className={className}>
+      <div className={className} data-play-hide="ads">
         <p className={labelClass}>{label}</p>
         <div className={`flex ${height} items-center justify-center rounded-[12px] border border-dashed text-[10px] font-bold ${tone === 'dark' ? 'border-white/20 text-white/30' : 'border-black/20 text-black/30'}`}>
           AD · {placement}
@@ -50,7 +51,7 @@ export default function AdSlot({ placement, tone = 'light', compact = false, cla
   }
 
   return (
-    <div className={`ad-slot ${className}`}>
+    <div className={`ad-slot ${className}`} data-play-hide="ads">
       <p className={labelClass}>{label}</p>
       <ins
         key={`${slot}-${pathname}`}

@@ -32,7 +32,7 @@ export function CoffeeNudge({ tone = 'dark', className = '' }: { tone?: 'light' 
   const t = useTranslations('Common');
   const dark = tone === 'dark';
   return (
-    <div className={`rounded-[18px] border p-4 text-left ${dark ? 'border-[#ff8a65]/25 bg-[#ff6b4a]/[0.08]' : 'border-[#e8590c]/20 bg-[#fff4ec]'} ${className}`}>
+    <div data-play-hide="support" className={`rounded-[18px] border p-4 text-left ${dark ? 'border-[#ff8a65]/25 bg-[#ff6b4a]/[0.08]' : 'border-[#e8590c]/20 bg-[#fff4ec]'} ${className}`}>
       <p className={`flex items-center gap-1.5 text-[13px] font-black ${dark ? 'text-[#ffb199]' : 'text-[#c2410c]'}`}><Heart size={15} className="shrink-0" />{t('supportBannerTitle')}</p>
       <p className={`mt-1.5 break-keep text-[12px] leading-5 ${dark ? 'text-white/65' : 'text-black/60'}`}>{t('supportBannerBody')}</p>
       <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackSupportClick('result')}
@@ -80,7 +80,7 @@ export function SupportBanner() {
   if (hidden) return null;
   const close = () => { try { localStorage.setItem(BANNER_DAY_KEY, todayKst()); } catch { /* optional */ } setHidden(true); };
   return (
-    <div className="bg-[#17201e] text-white">
+    <div data-play-hide="support" className="bg-[#17201e] text-white">
       <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2">
         <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackSupportClick('banner')} className="flex min-w-0 flex-1 items-center justify-center gap-2 text-[12px] font-bold">
           <Heart size={14} className="shrink-0 text-[#ff8a65]" />

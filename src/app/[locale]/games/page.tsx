@@ -47,7 +47,7 @@ export default async function GamesPage({ params }: { params: Promise<{ locale: 
 
         <nav aria-label={t('jump')} className="mt-8 flex flex-wrap justify-center gap-2">
           {GAMES.map((game) => (
-            <a key={game.id} href={`#${game.id}`} className="flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3.5 py-2 text-xs font-extrabold transition hover:bg-white">
+            <a key={game.id} data-play-game={game.id} href={`#${game.id}`} className="flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3.5 py-2 text-xs font-extrabold transition hover:bg-white">
               <span className="h-2 w-2 rounded-full" style={{ background: game.color }} />{tc(game.id)}
             </a>
           ))}
@@ -59,7 +59,7 @@ export default async function GamesPage({ params }: { params: Promise<{ locale: 
             const rules = t.raw(`${key}.rules`) as string[];
             const solo = game.id === 'sudoku' || game.id === 'blindGomoku';
             return (
-              <article key={game.id} id={game.id} className="scroll-mt-24 overflow-hidden rounded-[24px] border border-black/10 bg-[#f9f7f1] shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px]">
+              <article key={game.id} id={game.id} data-play-game={game.id} className="scroll-mt-24 overflow-hidden rounded-[24px] border border-black/10 bg-[#f9f7f1] shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px]">
                 <div className="h-1.5" style={{ background: game.color }} />
                 <div className="p-5 sm:p-7">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

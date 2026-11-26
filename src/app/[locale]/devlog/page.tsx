@@ -76,7 +76,7 @@ export default async function DevlogHub({ params }: { params: Promise<{ locale: 
                   const game = GAMES.find((g) => g.id === a.games[0]);
                   const accent = game?.color && game.color !== '#2b2b31' ? game.color : DEVLOG_ACCENT;
                   return (
-                    <li key={a.slug} className="flex flex-col rounded-[18px] border border-white/10 bg-white/[0.035] p-5" style={{ ['--accent' as string]: accent }}>
+                    <li key={a.slug} data-play-game={a.games[0]} className="flex flex-col rounded-[18px] border border-white/10 bg-white/[0.035] p-5" style={{ ['--accent' as string]: accent }}>
                       <p className="flex flex-wrap items-center gap-2 text-[11px] font-black text-white/45">
                         <span className="h-2.5 w-2.5 rounded-full bg-(--accent)" />
                         {a.games.length ? a.games.map((g) => tc(g)).join(' · ') : cat[loc]}

@@ -47,3 +47,19 @@ next-env.d.ts
 .cloudflare/
 
 !.env.production
+
+# Google Play app (android/): build outputs and signing material never go in git.
+# The upload keystore and its password file live outside the repo, in ~/.config/puzzlthink/play/.
+/android/.gradle/
+/android/build/
+/android/app/build/
+/android/local.properties
+/android/*.aab
+/android/*.apk
+/android/*.idsig
+*.jks
+*.keystore
+*.p12
+*keystore*.txt
+*passwords*.txt
+.claude/launch.json

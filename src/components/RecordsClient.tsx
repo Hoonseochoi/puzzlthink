@@ -151,7 +151,7 @@ export default function RecordsClient() {
           const stats = byGame[game.id];
           const record = view === 'open' ? stats.open : game.id === 'sudoku' ? stats.solo : stats.ai;
           return (
-            <Link key={game.id} href={game.href} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4 transition hover:-translate-y-0.5 hover:bg-white">
+            <Link key={game.id} data-play-game={game.id} href={game.href} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4 transition hover:-translate-y-0.5 hover:bg-white">
               <div className="flex items-center justify-between"><h3 className="text-sm font-black">{tc(GAME_LABEL[game.id])}</h3><span className="h-2.5 w-2.5 rounded-full" style={{ background: game.color }} /></div>
               <p className="mt-3 text-[10px] font-bold uppercase tracking-wider text-black/40">{view === 'open' ? t('openLabel') : game.id === 'sudoku' ? t('soloLabel') : t('aiLabel')}</p>
               <p className="mt-0.5 text-xl font-black">{game.id === 'sudoku' ? t('solvedLine', { s: record.win, f: record.loss }) : line(record, game.id)}</p>
@@ -255,7 +255,7 @@ export default function RecordsClient() {
                 {byGameOrder(GAMES.filter((g) => !CHALLENGE_GAMES.has(g.id)), (g) => g.id, (g) => hall.some((e) => e.game === g.id)).map((game) => {
                   const top = hall.filter((entry) => entry.game === game.id).sort((a, b) => a.rank - b.rank);
                   return (
-                    <section key={game.id} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4">
+                    <section key={game.id} data-play-game={game.id} className="rounded-[24px] border border-black/10 bg-[#f9f7f1] p-4">
                       <div className="flex items-center justify-between"><h3 className="text-sm font-black">{tc(GAME_LABEL[game.id])}</h3><span className="h-2.5 w-2.5 rounded-full" style={{ background: game.color }} /></div>
                       <ol className="mt-3 space-y-2">
                         {[0, 1, 2].map((index) => {

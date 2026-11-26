@@ -85,7 +85,7 @@ export default async function SurvivalGamesHub({ params }: { params: Promise<{ l
                   <p className="mt-2 break-keep text-sm leading-7 text-white/60">{s.summary}</p>
                   <ol className="mt-4 flex flex-wrap gap-2">
                     {show.games.map((g) => (
-                      <li key={g.slug}><Link href={gamePath(show, g)} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold hover:text-white ${g.site ? 'border-(--accent)/50 text-white/85' : 'border-white/12 text-white/60'}`}>{g.site && <Play size={10} fill="currentColor" className="text-(--accent)" />}{g[loc].name}</Link></li>
+                      <li key={g.slug} data-play-game={g.site}><Link href={gamePath(show, g)} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold hover:text-white ${g.site ? 'border-(--accent)/50 text-white/85' : 'border-white/12 text-white/60'}`}>{g.site && <Play size={10} fill="currentColor" className="text-(--accent)" />}{g[loc].name}</Link></li>
                     ))}
                   </ol>
                   <Link href={showPath(show)} className="mt-5 inline-block text-sm font-black text-(--accent) hover:underline">{ui.gameCount(show.games.length)} · {ui.playableCount(show.games.filter((g) => g.site).length)} →</Link>
@@ -99,7 +99,7 @@ export default async function SurvivalGamesHub({ params }: { params: Promise<{ l
           <h2 className="text-2xl font-black tracking-[-0.03em]">{ui.playableAll}</h2>
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             {playable.map(({ show, game, site }) => (
-              <li key={`${show.slug}/${game.slug}`} className={`flex items-center gap-3 p-4 ${card}`}>
+              <li key={`${show.slug}/${game.slug}`} data-play-game={game.site} className={`flex items-center gap-3 p-4 ${card}`}>
                 <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: site.color }} />
                 <div className="min-w-0 flex-1">
                   <Link href={gamePath(show, game)} className="font-black hover:underline">{game[loc].name}</Link>

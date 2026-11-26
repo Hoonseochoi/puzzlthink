@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { DoorOpen, Loader2, LogIn, MessageCircle, Plus, RefreshCw, Sparkles, Swords, UsersRound, X } from 'lucide-react';
+import { useAppGames } from '@/components/playApp/usePlayApp';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { type LiveRoomRow, type OpenRoomAnyRow, listAllOpenRooms, listLiveRooms, saveTitle } from '@/lib/openRooms';
 import AuthButton from './AuthButton';
@@ -50,6 +51,8 @@ export function FitTile({ title, children, className = 'rounded-lg bg-white/[.06
  * lets a signed-in player create one (pick a game) or join one from the list.
  */
 export default function OpenMatchCard({ previews }: { previews: Partial<Record<GameId, ReactNode>> }) {
+  const appGames = useAppGames(); // without the games hidden in the Google Play app
+  const roomGames = ROOM_GAMES.filter((game) => appGames.includes(game));
   const t = useTranslations('OpenMatch');
   const tc = useTranslations('Common');
   const tg = useTranslations('GameGate');
@@ -89,7 +92,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   const open = (rooms ?? []).filter((room) => room.game in GAME_MODES && room.players < room.capacity);
   const count = rooms === null ? null : open.length;
   // 지금 열린 방 = rooms waiting for players; 지금 플레이 중 = matches under way (open and friend), per game.
-  const playingByGame = ROOM_GAMES.flatMap((game) => {
+  const playingByGame = roomGames.flatMap((game) => {
     const roomCount = (live ?? []).filter((row) => row.game === game.id).reduce((sum, row) => sum + row.open + row.friend, 0);
     return roomCount > 0 ? [{ ...game, roomCount }] : [];
   }).sort((a, b) => b.roomCount - a.roomCount);
@@ -106,7 +109,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
 
       {/* The top ten games you can open a room for (catalog order = most played), two rows of five. Every game is still in the room maker. */}
       <div className="relative mt-4 grid grid-cols-5 gap-1.5 sm:mt-6 sm:gap-2">
-        {ROOM_GAMES.slice(0, WALL_GAMES).map((game) => <FitTile key={game.id} title={tc(game.id)}>{previews[game.id]}</FitTile>)}
+        {roomGames.slice(0, WALL_GAMES).map((game) => <div key={game.id} data-play-game={game.id} className="contents"><FitTile title={tc(game.id)}>{previews[game.id]}</FitTile></div>)}
       </div>
 
       <div className="relative mt-4 flex items-end justify-between gap-3 sm:mt-6">
@@ -138,7 +141,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
           {live === null ? <span className="text-xs font-bold text-white/35">{t('playingLoading')}</span>
             : playingByGame.length === 0 ? <span className="text-xs font-bold text-white/35">{t('playingEmpty')}</span>
               : playingByGame.map((game) => (
-                <span key={game.id} className="inline-flex items-center gap-1.5 rounded-full bg-white/[.08] px-2.5 py-1 text-[11px] font-bold text-white/80">
+                <span key={game.id} data-play-game={game.id} className="inline-flex items-center gap-1.5 rounded-full bg-white/[.08] px-2.5 py-1 text-[11px] font-bold text-white/80">
                   <i className="h-1.5 w-1.5 rounded-full" style={{ background: game.color }} />
                   {tc(game.id)} <strong className="font-black text-[#ffd36e]">{t('gameCount', { n: game.roomCount })}</strong>
                 </span>
@@ -202,7 +205,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
                     const game = room.game as GameId;
                     const variants = GAME_MODES[game].rooms;
                     return (
-                      <div key={`${room.game}-${room.code}`} className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white px-3 py-2.5">
+                      <div key={`${room.game}-${room.code}`} data-play-game={room.game} className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white px-3 py-2.5">
                         <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[#17201e] ring-2" style={{ ['--tw-ring-color' as string]: colorOf(room.game) }}>
                           <span className="absolute left-0 top-0 flex h-[300px] w-[300px] origin-top-left scale-[.16] items-center justify-center">{previews[game]}</span>
                         </span>
@@ -226,7 +229,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
               </label>
               <p className="mb-1.5 mt-4 flex items-center gap-1.5 text-[11px] font-black text-black/50"><b className="flex h-4 w-4 items-center justify-center rounded-full bg-[#17201e] text-[9px] text-white">2</b>{t('stepGame')}</p>
               <div className="grid grid-cols-2 gap-2">
-                {ROOM_GAMES.flatMap((game) => GAME_MODES[game.id].rooms.map((room, variant) => {
+                {roomGames.flatMap((game) => GAME_MODES[game.id].rooms.map((room, variant) => {
                   const key = `${game.id}-${variant}`;
                   const many = GAME_MODES[game.id].rooms.length > 1;
                   return (
