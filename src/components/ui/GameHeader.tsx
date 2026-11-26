@@ -6,7 +6,8 @@ import PlayerStrip, { type StripPlayer } from './PlayerStrip';
 
 /**
  * Game-page top bar in the 벽바둑 style: back link · steel title · accent subtitle, actions on the right.
- * Under it, the player strip (PlayerStrip): `players`/`me` in a room, `ai` against the AI, neither for a solo game.
+ * The player strip (PlayerStrip) sits in the middle of the bar from 1024px and in its own row under it below that:
+ * `players`/`me` in a room, `ai` against the AI, neither for a solo game.
  */
 export default function GameHeader({ backHref, backLabel, title, titleClass = 'font-black', subtitle, children, players, me, ai }: {
   backHref: string; backLabel: string; title: ReactNode; titleClass?: string; subtitle?: ReactNode; children?: ReactNode;
@@ -23,9 +24,10 @@ export default function GameHeader({ backHref, backLabel, title, titleClass = 'f
           {subtitle && <span className={`ml-2 ${SUBTITLE}`}>{subtitle}</span>}
         </div>
       </div>
+      <PlayerStrip players={players} me={me} ai={ai} place="header" />
       {children && <div className="flex shrink-0 items-center gap-1.5">{children}</div>}
     </header>
-    <PlayerStrip players={players} me={me} ai={ai} />
+    <PlayerStrip players={players} me={me} ai={ai} place="mobile" />
     </>
   );
 }

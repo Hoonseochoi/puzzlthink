@@ -20,8 +20,12 @@ export function roomPlayers(state: { seats: ({ name: string } | null)[]; ai?: un
  * The slim bar under a game's top bar: everyone's profile icon and nickname, so players keep seeing their own
  * icon (and the supporter cover) and their opponents'. `players` for a room; `ai` (a label, or true) against the
  * AI; neither for a solo game, which shows just you.
+ * `place`: 'bar' (its own row, every width), 'mobile' (its own row below 1024px) or 'header' (inside the top bar
+ * from 1024px — GameHeader uses 'mobile' + 'header' so desktop boards keep their height).
  */
-export default function PlayerStrip({ players, me = null, ai, tone = 'dark' }: { players?: StripPlayer[]; me?: number | null; ai?: string | boolean; tone?: 'dark' | 'light' }) {
+export default function PlayerStrip({ players, me = null, ai, tone = 'dark', place = 'bar' }: {
+  players?: StripPlayer[]; me?: number | null; ai?: string | boolean; tone?: 'dark' | 'light'; place?: 'bar' | 'mobile' | 'header';
+}) {
   const light = tone === 'light';
   const t = useTranslations('PlayerStrip');
   const { nickname } = useAuth();
@@ -30,7 +34,9 @@ export default function PlayerStrip({ players, me = null, ai, tone = 'dark' }: {
     ? players.map((p) => ({ ...p, mine: p.seat === me, name: (p.seat === me && self) || p.name || t('guest') }))
     : [{ seat: 0, name: self ?? t('guest'), mine: true }, ...(ai ? [{ seat: 1, name: typeof ai === 'string' ? ai : t('ai'), ai: true, mine: false }] : [])];
   return (
-    <div className={`relative z-10 overflow-x-auto border-b px-3 py-1.5 backdrop-blur [scrollbar-width:none] ${light ? 'border-black/[.06] bg-white/60' : 'border-white/[.06] bg-black/35'}`} aria-label={t('label')}>
+    <div aria-label={t('label')} className={place === 'header'
+      ? 'hidden min-w-0 flex-1 overflow-x-auto px-2 [scrollbar-width:none] lg:block'
+      : `relative z-10 overflow-x-auto border-b px-3 py-1.5 backdrop-blur [scrollbar-width:none] ${place === 'mobile' ? 'lg:hidden' : ''} ${light ? 'border-black/[.06] bg-white/60' : 'border-white/[.06] bg-black/35'}`}>
       {/* w-max + mx-auto: centred when it fits, scrolls from the first player when it does not. */}
       <div className="mx-auto flex w-max items-center gap-1.5">
       {list.map((p, i) => (
