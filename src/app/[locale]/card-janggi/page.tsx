@@ -4,7 +4,7 @@ import GameGate from '@/components/GameGate';
 import { CjTutorialSteps } from '@/components/cardJanggi/CjTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import CardJanggiGame from '@/components/cardJanggi/CardJanggiGame';
 import CjPreview from '@/components/cardJanggi/CjPreview';
 import { CJ_ACCENT, CJ_INK } from '@/components/cardJanggi/copy';
@@ -20,8 +20,7 @@ export default async function CardJanggiPage({ params }: { params: Promise<{ loc
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'CardJanggi' });
-  const g = await getTranslations({ locale, namespace: 'CardJanggiGuide' });
-  const faq = g.raw('faq') as { q: string; a: string }[];
+  const faq = guideFaq('cardJanggi', locale)!; // the FAQ GameArticle shows below the board
   const hero = (
     <div className="grid items-center gap-8 md:grid-cols-[1fr_260px]">
       <GameIntroHero locale={locale} id="cardJanggi" />
@@ -37,7 +36,7 @@ export default async function CardJanggiPage({ params }: { params: Promise<{ loc
       faqJsonLd(faq),
       breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('metaTitle').split(' — ')[0], path: '/card-janggi' }]),
     ] }} />
-    <GameGate game="cardJanggi" accent={CJ_ACCENT} ink={CJ_INK} tutorial={<CjTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="CardJanggiGuide" />}>
+    <GameGate game="cardJanggi" accent={CJ_ACCENT} ink={CJ_INK} tutorial={<CjTutorialSteps locale={locale} />} hero={hero} guide={<GameArticle locale={locale} game="cardJanggi" />}>
       <CardJanggiGame />
     </GameGate>
   </>;

@@ -5,7 +5,7 @@ import GameIntroHero from '@/components/GameIntroHero';
 import { ACCENT } from '@/components/russianJanggi/theme';
 import RJGame from '@/components/russianJanggi/RJGame';
 import { RJTutorialSteps } from '@/components/russianJanggi/RJTutorial';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import JsonLd from '@/components/JsonLd';
 import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 
@@ -20,8 +20,7 @@ export default async function RussianJanggiPage({ params }: { params: Promise<{ 
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'RussianJanggi' });
-  const g = await getTranslations({ locale, namespace: 'RussianJanggiGuide' });
-  const faq = g.raw('faq') as { q: string; a: string }[];
+  const faq = guideFaq('russianJanggi', locale)!; // the FAQ GameArticle shows below the board
   return (
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
@@ -29,7 +28,7 @@ export default async function RussianJanggiPage({ params }: { params: Promise<{ 
       faqJsonLd(faq),
       breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('metaTitle').split(' — ')[0], path: '/russian-janggi' }]),
     ] }} />
-      <GameGate game="russianJanggi" accent={ACCENT} ink="#1a1204" hero={<GameIntroHero locale={locale} id="russianJanggi" />} tutorial={<RJTutorialSteps />} guide={<TextGuide locale={locale} namespace="RussianJanggiGuide" />}>
+      <GameGate game="russianJanggi" accent={ACCENT} ink="#1a1204" hero={<GameIntroHero locale={locale} id="russianJanggi" />} tutorial={<RJTutorialSteps />} guide={<GameArticle locale={locale} game="russianJanggi" />}>
         <RJGame />
       </GameGate>
     </>
