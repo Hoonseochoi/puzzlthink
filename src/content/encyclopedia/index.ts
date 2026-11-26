@@ -13,6 +13,7 @@ import partyGames from './party-games';
 import logicPuzzles from './logic-puzzles';
 import numberPuzzles from './number-puzzles';
 import historyOfBaduk from './history-of-baduk';
+import chessFamilyHistory from './chess-family-history';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -29,6 +30,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   logicPuzzles,
   numberPuzzles,
   historyOfBaduk,
+  chessFamilyHistory,
 ];
 
 export const WIKI_BASE = '/board-games';
