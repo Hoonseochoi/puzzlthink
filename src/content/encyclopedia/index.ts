@@ -2,11 +2,13 @@
 // each category. Server-only: never import this from a client component.
 import abstractStrategy from './abstract-strategy';
 import bluffingDeduction from './bluffing-deduction';
+import bettingAuction from './betting-auction';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
   abstractStrategy,
   bluffingDeduction,
+  bettingAuction,
 ];
 
 export const WIKI_BASE = '/board-games';
