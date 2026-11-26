@@ -21,6 +21,7 @@ import gyulhap from './gyulhap';
 import heavy13 from './heavy13';
 import hexagon from './hexagon';
 import hiddenWord from './hidden-word';
+import hiddenWordPlus from './hidden-word-plus';
 import hitStay from './hit-stay';
 import indianPoker from './indian-poker';
 import janggi from './janggi';
@@ -54,6 +55,7 @@ const REGISTRY: Partial<Record<GameId, GameGuide | null>> = {
   heavy13,
   hexagon,
   hiddenWord,
+  hiddenWordPlus,
   hitStay,
   sniperHoldem,
   indianPoker,

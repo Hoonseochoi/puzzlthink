@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { HwLevel } from '@/lib/hiddenWord';
 import { accentVars, fog } from '../ui/gameUi';
 
 /** Lime on ink: the similarity gauge's "close" colour. */
@@ -7,10 +8,22 @@ export const HW_INK = '#0e1a10';
 export const HW_GOLD = '#ffc857';
 export const HW_ROOT_STYLE: CSSProperties = { ...accentVars(HW_ACCENT, HW_INK), backgroundImage: fog('168, 239, 112') };
 
+/** 히든 워드 확장판: violet on midnight with gold foil — the premium sibling of the lime original. */
+export const HWP_ACCENT = '#b79cff';
+export const HWP_INK = '#160f2a';
+export const HWP_GOLD = '#ffd66b';
+export const HWP_ROOT_STYLE: CSSProperties = {
+  ...accentVars(HWP_ACCENT, HWP_INK),
+  backgroundImage: `radial-gradient(ellipse 80% 45% at 85% -5%, rgba(255, 122, 217, 0.16), transparent 70%), ${fog('183, 156, 255')}`,
+  backgroundColor: '#0c0a14',
+};
+export const hwRootStyle = (level: HwLevel) => (level === 'plus' ? HWP_ROOT_STYLE : HW_ROOT_STYLE);
+
 const ko = {
   title: 'HIDDEN WORD', subtitle: 'AI 승점전', back: '히든 워드', you: '나', ai: '모라',
   rules: '규칙', ranking: '랭킹', again: '새 대전', close: '닫기', retry: '다시 시도', next: '다음 턴', toResult: '결과 보기',
   loading: '딜러룸을 준비하고 있어요…', offline: '게임 서버에 연결하지 못했어요.',
+  membersTitle: '가입자 전용 게임이에요', membersDesc: '히든 워드 확장판은 로그인한 회원만 할 수 있어요. 가입은 구글 계정으로 10초면 끝나고, 대전 기록과 랭킹이 바로 쌓여요.', membersSignIn: '구글로 로그인하고 시작',
   round: (n: number) => `ROUND ${n}`, double: '승점 2배',
   turnSet: '수비 · 내가 출제', turnGuess: '공격 · 내가 추리',
   envelopeTitle: '봉투를 하나 고르세요', envelopeDesc: '봉투마다 명사 5개가 들어 있어요. 이 중 두 단어가 이번 대전의 내 히든 워드가 됩니다.',
@@ -44,6 +57,9 @@ const ko = {
   rankTitle: '히든 워드 랭킹', rankDesc: '한 판 평균 승점에 판수 보너스를 더해 겨뤄요. 잘할수록, 꾸준히 할수록 올라가요. 3판부터 순위에 올라요.', rankFormula: '랭킹 점수 = 평균 승점 + 판당 0.3점 (20판까지, 최대 +6)', rankEmpty: '아직 기록이 없어요. 첫 주인공이 되어 보세요.',
   rankPoints: (n: number) => `${n}점`, rankScore: (n: number) => `${Number(n).toFixed(1)}점`, rankBreak: (avg: number, bonus: number) => `평균 ${Number(avg).toFixed(1)} + 판수 ${Number(bonus).toFixed(1)}`, rankNeed: (games: number, min: number) => `순위까지 ${Math.max(0, min - games)}판`, rankGames: (n: number, w: number) => `${n}판 ${w}승`, rankBest: (n: number) => `최고 ${n}`, rankMe: '나',
   timeLeft: '남은 시간',
+  edition: '', rankSeparate: '히든 워드 확장판과는 랭킹을 따로 겨뤄요.',
+  about: '히든 워드는 단어 60개로 해요. 단어 186개가 서로 닮은 묶음으로 나오는 **히든 워드 확장판**도 있어요. 규칙은 같고 랭킹은 따로예요.',
+  otherGame: '확장판 하러 가기', otherGameHref: '/hidden-word-plus' as '/hidden-word-plus' | '/hidden-word',
   errors: {
     invalid: '한글 단어만 입력할 수 있어요 (띄어쓰기 없이 8자까지).', secret: '히든 워드 자체는 힌트로 낼 수 없어요.',
     duplicate: '이미 나온 단어예요.', unknown: '사전에 없는 단어예요. 다른 명사를 적어 주세요.',
@@ -93,6 +109,7 @@ const en: typeof ko = {
   subtitle: 'AI POINT MATCH', back: 'Hidden Word', you: 'You', ai: 'MORA',
   rules: 'Rules', ranking: 'Ranking', again: 'New match', close: 'Close', retry: 'Retry', next: 'Next turn', toResult: 'See result',
   loading: 'Setting up the dealer room…', offline: 'Could not reach the game server.',
+  membersTitle: 'Members only', membersDesc: 'Hidden Word: Expansion is for signed-in members. Signing up with a Google account takes ten seconds, and your matches count for the ranking right away.', membersSignIn: 'Sign in with Google to play',
   double: 'Double points',
   turnSet: 'Defense · you set', turnGuess: 'Attack · you guess',
   envelopeTitle: 'Pick an envelope', envelopeDesc: 'Each holds five Korean nouns. Two of them become your hidden words this match.',
@@ -126,6 +143,9 @@ const en: typeof ko = {
   rankTitle: 'Hidden Word ranking', rankDesc: 'Your average points per match plus a bonus for matches played: play well and keep playing. Ranked from 3 matches.', rankFormula: 'Score = average points + 0.3 per match (up to 20 matches, max +6)', rankEmpty: 'No records yet. Be the first.',
   rankPoints: (n: number) => `${n} pts`, rankScore: (n: number) => `${Number(n).toFixed(1)}`, rankBreak: (avg: number, bonus: number) => `avg ${Number(avg).toFixed(1)} + played ${Number(bonus).toFixed(1)}`, rankNeed: (games: number, min: number) => `${Math.max(0, min - games)} more to rank`, rankGames: (n: number, w: number) => `${n} played · ${w} won`, rankBest: (n: number) => `best ${n}`, rankMe: 'You',
   timeLeft: 'Time left',
+  rankSeparate: 'Hidden Word: Expansion has its own ranking.',
+  about: 'Hidden Word plays with 60 words. **Hidden Word: Expansion** deals 186 words in look-alike groups; same rules, its own ranking.',
+  otherGame: 'Play the Expansion',
   errors: {
     invalid: 'Korean words only (no spaces, up to 8 syllables).', secret: 'The hidden word itself cannot be a hint.',
     duplicate: 'That word is already on the board.', unknown: 'Not in the dictionary. Try another noun.',
@@ -171,4 +191,32 @@ const en: typeof ko = {
 };
 
 export type HwCopy = typeof ko;
-export const hwCopy = (locale: string): HwCopy => (locale === 'en' ? en : ko);
+
+/** What the 확장판 says differently (same rules, other words, its own ranking). */
+const koPlus: Partial<HwCopy> = {
+  edition: '확장판', subtitle: 'AI 승점전 · 확장판', back: '히든 워드 확장판', loading: '확장판 딜러룸을 준비하고 있어요…',
+  envelopeDesc: '봉투마다 명사 5개. 확장판은 186단어가 서로 닮은 30개 묶음으로 나와요. 이 중 두 단어가 내 히든 워드가 됩니다.',
+  rankTitle: '히든 워드 확장판 랭킹', rankSeparate: '기본 히든 워드와는 랭킹을 따로 겨뤄요.',
+  about: '확장판은 단어 186개, 30개 묶음이에요. 감정·직업·장소·음식·문화처럼 서로 닮은 단어가 한 묶음이라 95% 힌트 하나로는 무리까지만 좁혀지는 일이 많고, 모라의 힌트도 덜 직접적이에요. 규칙과 승점은 기본 히든 워드와 같아요.',
+  otherGame: '기본 히든 워드로', otherGameHref: '/hidden-word',
+  recorded: '이번 대전이 확장판 랭킹 점수에 반영됐어요.',
+};
+const enPlus: Partial<HwCopy> = {
+  edition: 'EXPANSION', subtitle: 'AI POINT MATCH · EXPANSION', back: 'Hidden Word: Expansion', loading: 'Setting up the Expansion dealer room…',
+  envelopeDesc: 'Each holds five Korean nouns. The Expansion deals 186 words in 30 look-alike groups. Two of them become your hidden words.',
+  rankTitle: 'Hidden Word: Expansion ranking', rankSeparate: 'Ranked separately from the original Hidden Word.',
+  about: 'The Expansion has 186 words in 30 groups of look-alikes (feelings, jobs, places, food, culture), so a single 95% hint often narrows it to the group and no further, and MORA’s hints are less direct. Same rules and points as Hidden Word.',
+  otherGame: 'Original Hidden Word', otherGameHref: '/hidden-word',
+  recorded: 'This match now counts in your Expansion ranking score.',
+};
+
+export const hwCopy = (locale: string, level: HwLevel = 'basic'): HwCopy => {
+  const base = locale === 'en' ? en : ko;
+  if (level !== 'plus') return base;
+  const extra = locale === 'en' ? enPlus : koPlus;
+  return { ...base, ...extra, room: { ...base.room, ...(locale === 'en' ? ROOM_PLUS.en : ROOM_PLUS.ko) } };
+};
+const ROOM_PLUS = {
+  ko: { subtitle: '친구 1:1 · 확장판', shareText: '히든 워드 확장판 1:1 한 판 하자! 186단어, 닮은 단어 사이에서 내 단어를 맞혀 봐.' },
+  en: { subtitle: 'FRIEND 1:1 · EXPANSION', shareText: 'Hidden Word: Expansion, one on one! 186 look-alike words — find mine.' },
+};

@@ -14,22 +14,25 @@ import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANE
 import { useHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
-import { HW_ENVELOPES, hwClean, isHwWord } from '@/lib/hiddenWord';
+import { HW_ENVELOPES, type HwLevel, hwClean, isHwWord } from '@/lib/hiddenWord';
 import { HWR_CFG, type HwrRoom, type HwrTurn, hwrDeal, hwrHintsLeft, hwrLock, hwrReveal, hwrScore, hwrUsed } from '@/lib/hiddenWordRoom';
 import { reportGame } from '@/lib/stats';
-import { HW_ACCENT, HW_GOLD, HW_ROOT_STYLE, type HwCopy, hwCopy } from './copy';
-import { Envelope, SecretCard, SimRow, StageTrack, TimerRing, WordCard } from './HiddenWordParts';
+import { HW_ACCENT, HW_GOLD, HWP_ACCENT, type HwCopy, hwCopy, hwRootStyle } from './copy';
+import { EditionMark, Envelope, SecretCard, SimRow, StageTrack, TimerRing, WordCard } from './HiddenWordParts';
 
 type Errors = 'invalid' | 'secret' | 'duplicate' | 'unknown' | 'server' | null;
 const PHASE_SECS = { hint: HWR_CFG.hintSecs, guess: HWR_CFG.guessSecs } as const;
 
-/** 히든 워드 with a friend, 1:1: the same four turns as against MORA, in a room. */
-export default function HiddenWordRoomView({ code }: { code: string }) {
+/** 히든 워드 with a friend, 1:1: the same four turns as against MORA, in a room. level 'plus': a 확장판 room
+ * (its own channel and link, the 확장 words). */
+export default function HiddenWordRoomView({ code, level = 'basic' }: { code: string; level?: HwLevel }) {
   const locale = useLocale();
-  const t = hwCopy(locale);
+  const t = hwCopy(locale, level);
+  const plus = level === 'plus';
+  const path = plus ? '/hidden-word-plus' : '/hidden-word';
   const r = t.room;
   const [defaultName] = useState(() => `${r.guest} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useHiddenWordRoom(code, defaultName);
+  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useHiddenWordRoom(code, defaultName, level);
   const [now, setNow] = useState(() => Date.now());
   const [shareUrl, setShareUrl] = useState('');
   const [copied, setCopied] = useState(false);
@@ -44,9 +47,9 @@ export default function HiddenWordRoomView({ code }: { code: string }) {
     const tick = window.setInterval(() => setNow(Date.now()), 500);
     const slow = window.setTimeout(() => setWaitedLong(true), 6000);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the share link needs window.location
-    setShareUrl(`${window.location.origin}/${locale}/hidden-word/room/${code}`);
+    setShareUrl(`${window.location.origin}/${locale}${path}/room/${code}`);
     return () => { window.clearInterval(tick); window.clearTimeout(slow); };
-  }, [code, locale]);
+  }, [code, locale, path]);
 
   const phase = state?.phase;
   const turn = state?.t ?? null;
@@ -72,15 +75,15 @@ export default function HiddenWordRoomView({ code }: { code: string }) {
   useEffect(() => {
     if (!state || state.phase !== 'finished' || (mySeat !== 0 && mySeat !== 1) || !state.history.length) return;
     const mine = state.scores[mySeat], theirs = state.scores[1 - mySeat];
-    reportGame(`hidden_word-friend-${state.sid}`, 'hidden_word', 'friend', mine > theirs ? 'win' : mine < theirs ? 'loss' : 'draw', { mode: 'friend', score: mine, opponent: theirs });
-  }, [state, mySeat]);
+    reportGame(`${plus ? 'hidden_word_plus' : 'hidden_word'}-friend-${state.sid}`, plus ? 'hidden_word_plus' : 'hidden_word', 'friend', mine > theirs ? 'win' : mine < theirs ? 'loss' : 'draw', { mode: 'friend', score: mine, opponent: theirs });
+  }, [state, mySeat, plus]);
 
   const copyLink = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* blocked */ } };
   const shareLink = async () => { if (navigator.share) { try { await navigator.share({ title: t.title, text: r.shareText, url: shareUrl }); return; } catch { /* cancelled */ } } void copyLink(); };
   const start = async () => {
     if (starting) return;
     setStarting(true);
-    const deal = await hwrDeal();
+    const deal = await hwrDeal(state?.level ?? level);
     setStarting(false);
     if (deal && !deal.error && Array.isArray(deal.envelopes)) dispatch({ t: 'start', deal: deal.deal, envelopes: deal.envelopes });
   };
@@ -91,11 +94,11 @@ export default function HiddenWordRoomView({ code }: { code: string }) {
   const playing = mySeat === 0 || mySeat === 1;
 
   return (
-    <div className={SHELL} style={HW_ROOT_STYLE}>
-      <RoomAlerts alerts={alerts} accent={HW_ACCENT} joinText={r.joined} leaveText={r.left} />
-      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/hidden-word" backLabel={t.back} title={t.title} titleClass="font-black !text-[13px] !tracking-[0.04em] min-[400px]:!text-[15px] sm:!text-xl sm:!tracking-[0.12em]" subtitle={`${r.subtitle} · ${code.toUpperCase()}`}>
+    <div className={SHELL} style={hwRootStyle(level)} data-hw={level}>
+      <RoomAlerts alerts={alerts} accent={plus ? HWP_ACCENT : HW_ACCENT} joinText={r.joined} leaveText={r.left} />
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref={path} backLabel={t.back} title={plus ? <>{t.title}<EditionMark label={t.edition} /></> : t.title} titleClass="font-black !text-[13px] !tracking-[0.04em] min-[400px]:!text-[15px] sm:!text-xl sm:!tracking-[0.12em]" subtitle={`${r.subtitle} · ${code.toUpperCase()}`}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
-        <span className="hidden sm:contents"><GameUpdates game="hidden_word" /><BugReport /><LanguageSwitcher compact dark /></span>
+        <span className="hidden sm:contents"><GameUpdates game={plus ? 'hidden_word_plus' : 'hidden_word'} /><BugReport /><LanguageSwitcher compact dark /></span>
       </GameHeader>
       {notice && <div className="relative z-10 mx-auto mt-3 flex max-w-[640px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}
 
@@ -138,9 +141,9 @@ export default function HiddenWordRoomView({ code }: { code: string }) {
           <>
             <Hud state={state} mySeat={mySeat} name={name} t={t} />
             <div className="mt-3">
-              {phase === 'envelope' && <EnvelopeStage state={state} mySeat={mySeat} t={t} onPick={(i) => dispatch({ t: 'envelope', i })} />}
+              {phase === 'envelope' && <EnvelopeStage state={state} mySeat={mySeat} t={t} plus={plus} onPick={(i) => dispatch({ t: 'envelope', i })} />}
               {phase === 'pick' && (state.setter === mySeat
-                ? <PickStage hand={state.hands[mySeat]} deal={state.deal} t={t} onPick={(word, lock) => dispatch({ t: 'pick', word, lock })} />
+                ? <PickStage hand={state.hands[mySeat]} deal={state.deal} t={t} plus={plus} onPick={(word, lock) => dispatch({ t: 'pick', word, lock })} />
                 : <Waiting text={r.pickWait(name(state.setter))} />)}
               {turn && (phase === 'hint' || phase === 'reveal' || phase === 'guess' || phase === 'turnEnd') && (
                 <TurnStage key={`${state.sid}-${state.round}-${state.turnNo}`} state={state} turn={turn} mySeat={mySeat} name={name} seconds={seconds} t={t}
@@ -197,7 +200,7 @@ const Waiting = ({ text }: { text: string }) => (
   </section>
 );
 
-function EnvelopeStage({ state, mySeat, t, onPick }: { state: HwrRoom; mySeat: number | null; t: HwCopy; onPick: (i: number) => void }) {
+function EnvelopeStage({ state, mySeat, t, plus, onPick }: { state: HwrRoom; mySeat: number | null; t: HwCopy; plus: boolean; onPick: (i: number) => void }) {
   const mine = mySeat === 0 || mySeat === 1 ? state.picks[mySeat] : null;
   const theirs = mySeat === 0 || mySeat === 1 ? state.picks[1 - mySeat] : null;
   const canPick = (mySeat === 0 || mySeat === 1) && mine === null;
@@ -208,7 +211,7 @@ function EnvelopeStage({ state, mySeat, t, onPick }: { state: HwrRoom; mySeat: n
       <div className="mx-auto mt-6 grid max-w-[420px] grid-cols-3 gap-3 sm:gap-4">
         {Array.from({ length: HW_ENVELOPES }, (_, i) => (
           <div key={i} className="relative">
-            <Envelope n={i + 1} label={t.envelope(i + 1)} state={mine === i ? 'opening' : canPick && theirs !== i && !state.picks.includes(i) ? 'idle' : 'dim'} onPick={() => onPick(i)} />
+            <Envelope n={i + 1} plus={plus} label={t.envelope(i + 1)} state={mine === i ? 'opening' : canPick && theirs !== i && !state.picks.includes(i) ? 'idle' : 'dim'} onPick={() => onPick(i)} />
             {mine === i && <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-(--accent) px-2 py-0.5 text-[10px] font-black text-(--accent-ink)">{t.room.envelopeMine}</span>}
           </div>
         ))}
@@ -218,7 +221,7 @@ function EnvelopeStage({ state, mySeat, t, onPick }: { state: HwrRoom; mySeat: n
   );
 }
 
-function PickStage({ hand, deal, t, onPick }: { hand: string[]; deal: string; t: HwCopy; onPick: (word: string, lock: string) => void }) {
+function PickStage({ hand, deal, t, plus, onPick }: { hand: string[]; deal: string; t: HwCopy; plus: boolean; onPick: (word: string, lock: string) => void }) {
   const [word, setWord] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -234,7 +237,7 @@ function PickStage({ hand, deal, t, onPick }: { hand: string[]; deal: string; t:
       <h2 className="text-center text-xl font-black tracking-[-0.03em] sm:text-2xl">{t.pickTitle}</h2>
       <p className="mx-auto mt-2 max-w-sm break-keep text-center text-[13px] leading-6 text-white/55">{t.room.pickDesc}</p>
       <div className="mt-5 grid grid-cols-2 gap-2.5 min-[420px]:grid-cols-3 sm:gap-3">
-        {hand.map((card, i) => <WordCard key={card} word={card} index={i} selected={word === card} onClick={() => setWord(card)} />)}
+        {hand.map((card, i) => <WordCard key={card} word={card} index={i} plus={plus} selected={word === card} onClick={() => setWord(card)} />)}
       </div>
       <button type="button" disabled={!word || busy} onClick={() => void confirm()} className={`${BTN_ACCENT} mt-5 w-full !py-3.5 !text-sm`}>
         {busy ? <Loader2 size={15} className="animate-spin" /> : <ArrowRight size={15} />}{word ? t.pickConfirm(word) : t.pickTitle}

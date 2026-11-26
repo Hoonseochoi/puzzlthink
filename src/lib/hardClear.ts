@@ -9,13 +9,14 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 /** tier 'hell' = 매우 어려움 certificate (its own numbering, id starts with 'h'). */
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number; tier: 'hard' | 'hell' };
 
-type Href = '/sniper-holdem' | '/hidden-word' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/sniper-holdem' | '/hidden-word' | '/hidden-word-plus' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
   card_janggi: { ko: '카드 장기', en: 'Card Janggi', href: '/card-janggi', color: '#b07cff' },
   color_link_duel: { ko: '컬러 링크', en: 'Color Link Duel', href: '/color-link-duel', color: '#7c6cff' },
   sniper_holdem: { ko: '스나이퍼 홀덤', en: "Sniper Hold'em", href: '/sniper-holdem', color: '#ff4f5e' },
   hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay', href: '/hit-stay', color: '#6f7dff' },
   hidden_word: { ko: '히든 워드', en: 'Hidden Word', href: '/hidden-word', color: '#a8ef70' },
+  hidden_word_plus: { ko: '히든 워드 확장판', en: 'Hidden Word: Expansion', href: '/hidden-word-plus', color: '#b79cff' },
   gradation: { ko: '그라데이션', en: 'Gradation', href: '/gradation', color: '#3fd67a' },
   equation_signal: { ko: '수식 신호등', en: 'Equation Signal', href: '/equation-signal', color: '#b6e33a' },
   equation_tower: { ko: '수식의 탑', en: 'Tower of Equations', href: '/equation-tower', color: '#f08c5a' },

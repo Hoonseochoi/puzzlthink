@@ -5,7 +5,7 @@
 // screen only hides the hidden word from the guesser.
 import { getSupabase } from './supabase';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
-import { HW_ENVELOPES, isHwWord } from './hiddenWord';
+import { HW_ENVELOPES, type HwLevel, isHwWord } from './hiddenWord';
 
 export const HWR_SEATS = 2;
 export const HWR_CFG = { cut: 95, stages: 3, maxHints: 5, setPoints: [1, 2, 3], guessPoints: [6, 3, 1], hintSecs: 120, guessSecs: 75 } as const;
@@ -22,6 +22,8 @@ export type HwrRoom = BaseRoom & {
   deal: string; envelopes: string[][]; picks: (number | null)[]; hands: string[][];
   first: number; round: number; turnNo: number; setter: number;
   t: HwrTurn | null; history: HwrTurn[]; scores: number[];
+  /** The word set: 히든 워드 rooms are 기본, 확장판 rooms 확장 (set when the room is made); missing in rooms saved before levels: 기본. */
+  level?: HwLevel;
 };
 
 export type HwrAction =
@@ -34,11 +36,11 @@ export type HwrAction =
   | { t: 'next' }
   | { t: 'timeout' };
 
-export function createHwrRoom(host: Peer): HwrRoom {
+export function createHwrRoom(host: Peer, level: HwLevel = 'basic'): HwrRoom {
   return {
     sid: newSid(), v: 1, seats: [{ id: host.id, name: host.name }, null] as Seat[], phase: 'lobby', deadline: 0,
     deal: '', envelopes: [], picks: [null, null], hands: [[], []], first: 0, round: 1, turnNo: 0, setter: 0,
-    t: null, history: [], scores: [0, 0],
+    t: null, history: [], scores: [0, 0], level,
   };
 }
 
@@ -164,7 +166,7 @@ async function rpc<T>(name: string, args: Record<string, unknown>): Promise<T | 
     return error ? null : (data as T);
   } catch { return null; }
 }
-export const hwrDeal = () => rpc<{ deal: string; envelopes: string[][]; error?: string }>('hw_room_deal', {});
+export const hwrDeal = (level: HwLevel = 'basic') => rpc<{ deal: string; envelopes: string[][]; error?: string }>('hw_room_deal', level === 'basic' ? {} : { p_level: level });
 export const hwrLock = (deal: string, word: string) => rpc<string>('hw_room_lock', { p_deal: deal, p_word: word });
 /** Similarity of each word to the locked hidden word (null: not in the dictionary). Null when the server refused. */
 export const hwrScore = (lock: string, words: string[]) => rpc<(number | null)[]>('hw_room_score', { p_lock: lock, p_words: words });

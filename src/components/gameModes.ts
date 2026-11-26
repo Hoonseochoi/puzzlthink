@@ -41,7 +41,7 @@ import { prepareGradationRoom, useGradationRoom } from '@/hooks/useGradationRoom
 import { prepareColorLinkDuelRoom, useColorLinkDuelRoom } from '@/hooks/useColorLinkDuelRoom';
 import { prepareEquationSignalRoom, useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
 import { prepareEquationTowerRoom, useEquationTowerRoom } from '@/hooks/useEquationTowerRoom';
-import { prepareHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
+import { prepareHiddenWordPlusRoom, prepareHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
 export type PlayOption = { label: string; query?: string };
@@ -66,6 +66,8 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
   // The AI match runs on the server (hw_* functions). Friend rooms only (no useRoom, so no open rooms): the host's
   // browser holds the hidden words, which is fine between friends.
   hiddenWord: { path: '/hidden-word', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordRoom }] },
+  // 확장판: the same match on the 확장 words; its rooms are its own (channel hidden-word-plus-room).
+  hiddenWordPlus: { path: '/hidden-word-plus', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordPlusRoom }] },
   pointOmok: {
     path: '/point-omok', ai: [{ label: 'poNormal', query: 'difficulty=normal' }, { label: 'poHard', query: 'difficulty=hard' }],
     rooms: [{ label: 'roomTwo', create: preparePointOmokRoom }], useRoom: usePointOmokRoom,

@@ -7,13 +7,15 @@
 // 20271126070000_piece_spends.sql (the second answer costs one 피스), 20271126050000_hidden_word_avg_ranking.sql
 // (avg + 0.3 × matches up to 20, ranked from 3), src/lib/hiddenWord.ts (1–8 Hangul letters) and the HiddenWordGuide
 // messages. The similarity numbers in the worked example were read from the live hw_score / hw_hints tables for 포도.
+// 히든 워드 확장판 (186 words, own page /hidden-word-plus and guide hidden-word-plus.ts) is a separate game since
+// 20271127100000_hidden_word_plus_game.sql; this page plays the 60 기본 words only (hw_start() = 'basic').
 import type { GameGuide } from './types';
 
 const guide: GameGuide = {
   game: 'hiddenWord',
   origin: { kind: 'show', show: 'dp3' },
   updated: '2026-11-26',
-  related: ['equationSignal', 'colorLinkDuel', 'gradation', 'equationTower'],
+  related: ['hiddenWordPlus', 'equationSignal', 'colorLinkDuel', 'gradation'],
   inlineNamespace: 'HiddenWordGuide',
   ko: {
     meta: {
@@ -165,7 +167,8 @@ const guide: GameGuide = {
         id: 'modes',
         title: '모드 메모',
         blocks: [
-          { type: 'p', text: '지금은 AI 모라와 두는 1:1 승점전만 열려 있어요. 로그인하지 않아도 둘 수 있지만, 랭킹 기록과 피스 사용은 로그인해야 해요. 로그인하지 않은 채 시작한 대전도 끝내기 전에 로그인하면 그 계정의 기록으로 남아요. 여러 명이 함께하는 방은 준비 중이에요.' },
+          { type: 'p', text: 'AI 모라와 두는 1:1 승점전과, 링크나 코드로 친구를 부르는 1:1 방이 있어요. 로그인하지 않아도 둘 수 있지만, 랭킹 기록과 피스 사용은 로그인해야 해요. 로그인하지 않은 채 시작한 대전도 끝내기 전에 로그인하면 그 계정의 기록으로 남아요. 친구 대전은 랭킹에 들어가지 않아요.' },
+          { type: 'p', text: '단어 60개로 하는 이 게임과 따로, 서로 닮은 단어 186개(30개 묶음)로 하는 **히든 워드 확장판**이 있어요. 감정·직업·장소·음식·문화처럼 한 묶음 안의 단어끼리 연상이 겹쳐서 95% 힌트 하나로는 묶음까지만 좁혀지는 일이 많고, 모라의 힌트도 덜 직접적이에요. 규칙과 승점은 같고, 화면과 랭킹, 1위 아이콘은 따로예요. 이 화면의 "확장판 하러 가기"로 넘어갈 수 있어요.' },
         ],
       },
       {
@@ -344,7 +347,8 @@ const guide: GameGuide = {
         id: 'modes',
         title: 'Mode notes',
         blocks: [
-          { type: 'p', text: 'For now only the one-on-one point match against Mora is open. You can play signed out, but rankings and pieces need an account; a match started signed out counts for you if you sign in before it ends. Rooms for several players are in the works.' },
+          { type: 'p', text: 'There is the one-on-one point match against Mora and a one-on-one room you open for a friend with a link or a code. You can play signed out, but rankings and pieces need an account; a match started signed out counts for you if you sign in before it ends. Friend matches are not ranked.' },
+          { type: 'p', text: 'Besides this 60-word game there is **Hidden Word: Expansion**, played with 186 look-alike words in 30 groups (feelings, jobs, places, food, culture). Words in a group share their associations, so one 95% hint often narrows it to the group only, and Mora hints less directly. Same rules and points; its own page, ranking and #1 icon. "Play the Expansion" on this entry screen takes you there.' },
         ],
       },
       {

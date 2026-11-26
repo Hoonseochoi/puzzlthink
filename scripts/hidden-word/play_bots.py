@@ -1,30 +1,52 @@
 """Play whole AI matches against the live hw_* functions with stand-in players, and check the server's work.
 
-Goes through PostgREST with the publishable key, exactly like the browser, so grants are tested too.
-Checks on every reply: the AI's word and seed never leak, points add up, a turn ends when it should.
-Usage: play_bots.py <data> <env file> [matches]
+Goes through PostgREST with the publishable key, exactly like the browser, so grants are tested too; or, with
+psql:<database>, straight into a scratch database in the DB container (signed in as <user id> when given), for
+testing migrations and data before they go live.
+Checks on every reply: the AI's word and seed never leak, points add up, a turn ends when it should, the level holds.
+Usage: play_bots.py <game dir> <env file | psql:<database>> [matches] [level] [user id]
+  game dir: <data>/game/<level> (build_game.py), or <data> for the old single-level layout
 """
-import json, sys, urllib.request
+import json, os, subprocess, sys, urllib.request
 import numpy as np
 
 DATA, ENV = sys.argv[1], sys.argv[2]
 N = int(sys.argv[3]) if len(sys.argv) > 3 else 20
-env = dict(line.strip().split('=', 1) for line in open(ENV) if '=' in line and not line.startswith('#'))
-URL, KEY = env['NEXT_PUBLIC_SUPABASE_URL'], env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY']
+LEVEL = sys.argv[4] if len(sys.argv) > 4 else None
+UID = sys.argv[5] if len(sys.argv) > 5 else None
+GAME = DATA if os.path.exists(f'{DATA}/feel.npy') else f'{DATA}/game'
 rng = np.random.default_rng(11)
-E = np.load(f'{DATA}/game/feel.npy').astype(np.float32)
-words = open(f'{DATA}/game/words.txt', encoding='utf-8').read().split(); idx = {w: i for i, w in enumerate(words)}
-meta = json.load(open(f'{DATA}/game/targets.json', encoding='utf-8')); pool = [x['word'] for x in meta]
+E = np.load(f'{GAME}/feel.npy').astype(np.float32)
+words = open(f'{GAME}/words.txt', encoding='utf-8').read().split(); idx = {w: i for i, w in enumerate(words)}
+meta = json.load(open(f'{GAME}/targets.json', encoding='utf-8')); pool = [x['word'] for x in meta]
 lists = {x['word']: x['list'] for x in meta}
 
-def rpc(name, body):
-    req = urllib.request.Request(f'{URL}/rest/v1/rpc/{name}', json.dumps(body).encode(),
-                                 {'apikey': KEY, 'Authorization': f'Bearer {KEY}', 'Content-Type': 'application/json', 'User-Agent': 'hw-bots'})  # the gateway refuses urllib's default agent
-    return json.load(urllib.request.urlopen(req))
+if ENV.startswith('psql:'):
+    DB = ENV[5:]
+    def rpc(name, body):
+        q = lambda v: "'" + str(v).replace("'", "''") + "'"
+        args = {'hw_start': lambda b: q(b['p_level']) if 'p_level' in b else '',
+                'hw_act': lambda b: f"{q(b['p_game'])}::uuid, {q(json.dumps(b['p_action'], ensure_ascii=False))}::jsonb"}[name](body)
+        claims = f"set request.jwt.claims = {q(json.dumps({'sub': UID}))};" if UID else ''
+        out = subprocess.run(['docker', 'exec', '-i', 'supabase-db', 'psql', '-U', 'postgres', '-d', DB, '-tAq', '-v', 'ON_ERROR_STOP=1'],
+                             input=f'{claims} select public.{name}({args});', capture_output=True, text=True, check=True).stdout
+        return json.loads(out.strip().splitlines()[-1])
+else:
+    env = dict(line.strip().split('=', 1) for line in open(ENV) if '=' in line and not line.startswith('#'))
+    URL, KEY = env['NEXT_PUBLIC_SUPABASE_URL'], env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY']
+    def rpc(name, body):
+        req = urllib.request.Request(f'{URL}/rest/v1/rpc/{name}', json.dumps(body).encode(),
+                                     {'apikey': KEY, 'Authorization': f'Bearer {KEY}', 'Content-Type': 'application/json', 'User-Agent': 'hw-bots'})  # the gateway refuses urllib's default agent
+        return json.load(urllib.request.urlopen(req))
 
 def check(v):
-    assert 'aiWords' not in v and 'seed' not in v, 'leak: AI words'
+    assert 'aiWords' not in v and 'seed' not in v and 'envelopes' not in v, 'leak: AI words'
+    assert not any(k in v['cfg'] for k in ('aiNoise', 'aiBase', 'aiGap', 'aiWarm', 'aiWarmN', 'aiClose')), 'leak: AI settings'
     if v['phase'] == 'guess': assert 'word' not in v['t'], 'leak: the word being guessed'
+    if LEVEL: assert v.get('level', 'basic') == LEVEL, f"level {v.get('level')} != {LEVEL}"
+    if v.get('t'):   # every hidden word of the match belongs to the level's pool
+        assert v['t'].get('word') is None or v['t']['word'] in pool, f"{v['t']['word']} not in the pool"
+    for w in v.get('hand', []): assert w in pool, f'{w} not in the pool'
     return v
 
 def my_hint(v, style):
@@ -40,14 +62,16 @@ def my_hint(v, style):
 def my_guess(v, noise):
     t = v['t']; score = np.zeros(len(pool)); tried = set()
     clues = [(h['w'], h['s']) for h in t['hints']]
+    tried |= {h['w'] for h in t['hints']}   # a word shown as a hint is never the answer
     for g in t['guesses']:
         for w, s in zip(g['w'], g['s']): clues.append((w, s)); tried.add(w)
     for w, s in clues: score += (s - 60) / 40 * (E[:, idx[w]] + noise[:, idx[w] % 997])
     order = [pool[i] for i in np.argsort(-score) if pool[i] not in tried]
-    return order[:2] if t['chance'] and t['stage'] >= 2 and rng.random() < 0.5 else order[:1]
+    two = t['chance'] and t['stage'] >= 2 and v.get('pieces', 0) >= 1 and rng.random() < 0.5   # a second answer costs a 피스
+    return order[:2] if two else order[:1]
 
 def match(style, sigma):
-    v = check(rpc('hw_start', {})); gid = v['id']; noise = rng.normal(0, sigma, (len(pool), 997)); calls = 1; log = []
+    v = check(rpc('hw_start', {'p_level': LEVEL} if LEVEL and LEVEL != 'basic' else {})); gid = v['id']; noise = rng.normal(0, sigma, (len(pool), 997)); calls = 1; log = []
     act = lambda a: check(rpc('hw_act', {'p_game': gid, 'p_action': a}))
     while v['phase'] != 'over':
         calls += 1; before = (v['me'], v['ai'])
@@ -65,6 +89,8 @@ def match(style, sigma):
             v = act({'t': 'next'})
         assert v['me'] >= before[0] and v['ai'] >= before[1]
     assert v['me'] == sum(x[3] for x in log) and v['ai'] == sum(x[4] for x in log) and len(log) == 4
+    if UID: assert v.get('recorded'), 'a signed-in match was not recorded'
+    for h in v['history']: assert h['word'] in pool
     return v['me'], v['ai'], log, calls
 
 if __name__ == '__main__':

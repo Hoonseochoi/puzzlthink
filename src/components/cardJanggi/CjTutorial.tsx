@@ -7,13 +7,13 @@ import { CjCardBack, CjCardFace, CjPiece } from './CjParts';
 const TEXT = {
   ko: [
     ['큰 말을 지켜라', '6×5 판에서 큰 말 1개와 작은 말 3개로 겨뤄요. 상대 큰 말을 잡거나, 내 큰 말이 상대 큰 말의 시작 칸에 들어가면 승리. 단판 승부예요.'],
-    ['행마 카드 5장', '쥐(상하좌우 1칸) · 말(나이트) · 원숭이(주변 8칸) · 코끼리(대각선 끝까지) · 기린(상하좌우 2칸 점프). 둘 다 같은 5장을 써요.'],
+    ['행마 카드 5장', '쥐(상하좌우 1칸) · 말(나이트) · 원숭이(주변 8칸) · 코끼리(대각선 1–2칸) · 기린(상하좌우 2칸 점프). 둘 다 같은 5장을 써요.'],
     ['순서를 몰래 정하기', '라운드 시작에 카드 순서를 뒤집어 정해요. 선공은 5장, 후공은 첫 묶음만 5장 중 4장. 첫 카드는 동시에 공개하고, 선공·후공은 직접 골라요.'],
     ['보이는 카드로 한 수', '번갈아 공개된 카드대로 내 말 하나를 움직이고 다음 카드를 공개해요. 상대의 다음 카드는 늘 보이니, 그 카드가 닿는 칸에서 큰 말을 빼세요.'],
   ],
   en: [
     ['Guard your king', 'On a 6×5 board you each have a king and three small pieces. Take the enemy king, or move your king onto the square it started on, to win. One round decides it.'],
-    ['Five movement cards', 'Rat (1 step orthogonally) · Horse (knight) · Monkey (any neighbour) · Elephant (bishop) · Giraffe (jump 2 orthogonally). Both sides use the same five.'],
+    ['Five movement cards', 'Rat (1 step orthogonally) · Horse (knight) · Monkey (any neighbour) · Elephant (1–2 diagonally) · Giraffe (jump 2 orthogonally). Both sides use the same five.'],
     ['Order them in secret', 'At the start you lay the cards face down in order: five for the first player, four of five for the second (first cycle only). The first cards turn up together. You pick first or second.'],
     ['Play the card you see', 'In turn, move one of your pieces as your face-up card allows, then turn up the next. Your opponent’s next card is always visible: keep your king out of its reach.'],
   ],

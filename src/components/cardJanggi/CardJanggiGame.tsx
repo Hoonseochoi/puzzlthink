@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { BookOpen, RotateCcw, Trophy, X } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import GameUpdates from '@/components/GameUpdates';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { CJ_ROOM } from '@/hooks/useCardJanggiRoom';
 import { type CjGame, type CjSeat, other, redactGame } from '@/lib/cardJanggi';
@@ -93,7 +94,7 @@ export default function CardJanggiGame() {
     <div className={SHELL} style={CJ_ROOT_STYLE}>
       <GameHeader players={roomPlayers(state, true)} me={0} backHref={CJ_PATH} backLabel={t.back} title={t.title} subtitle="AI · HARD">
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="card_janggi" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => { if (!started || finished || window.confirm(t.newGameConfirm)) again(); }} className={BTN_ACCENT} aria-label={t.newGame}><RotateCcw size={14} /><span className="hidden sm:inline">{t.newGame}</span></button>
       </GameHeader>
       <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">
