@@ -51,26 +51,48 @@ export function useSupporter(name: string, skip = false) {
 /** The share of the box the icon keeps inside the cover. */
 export const COVER_INNER = 0.64;
 
-/** One wing (the left one): a curved base and five feathers fanning out and up. */
-function Wing({ id }: { id: string }) {
+/** A pointed feather from its root (bx, by) out along `deg` (screen degrees, y down), as a path. */
+function feather(bx: number, by: number, deg: number, len: number, width: number) {
+  const a = (deg * Math.PI) / 180;
+  const dx = Math.cos(a), dy = Math.sin(a);
+  const tx = bx + len * dx, ty = by + len * dy;
+  const mx = bx + len * 0.42 * dx, my = by + len * 0.42 * dy;
+  const f = (n: number) => n.toFixed(2);
+  return {
+    d: `M${f(bx)} ${f(by)} Q${f(mx - width * dy)} ${f(my + width * dx)} ${f(tx)} ${f(ty)} Q${f(mx + width * dy)} ${f(my - width * dx)} ${f(bx)} ${f(by)}Z`,
+    vein: `M${f(bx)} ${f(by)} L${f(bx + len * 0.78 * dx)} ${f(by + len * 0.78 * dy)}`,
+  };
+}
+// The left wing: long flight feathers fanning from up-and-out to straight out, short coverts over their roots.
+const PRIMARIES = Array.from({ length: 7 }, (_, i) => feather(13 - i * 0.3, 36 + i * 3.4, 252 - i * 9.5, 22 + i * 1.6, 5 + i * 0.15));
+const COVERTS = Array.from({ length: 6 }, (_, i) => feather(12, 40 + i * 3.2, 238 - i * 8.5, 15 + i * 0.6, 4));
+
+/** One wing (the left one), flapping gently from its root at the band. */
+function Wing({ id, motion }: { id: string; motion: boolean }) {
   return (
     <g>
-      {[[-62, 12, 3.1, 6.5, 29], [-44, 13, 3.3, 3.5, 37], [-26, 13.5, 3.4, 1.5, 45.5], [-8, 12.5, 3.2, 1.8, 54], [12, 10, 2.9, 4.5, 61.5]].map(([rot, rx, ry, cx, cy], i) => (
-        <ellipse key={i} cx={cx} cy={cy} rx={rx} ry={ry} transform={`rotate(${rot} ${cx} ${cy})`} fill={`url(#cw-${id})`} stroke="#b97a12" strokeOpacity=".9" strokeWidth=".8" />
+      {motion && <animateTransform attributeName="transform" type="rotate" values="-7 12 48;10 12 48;-7 12 48" keyTimes="0;.45;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="1.9s" repeatCount="indefinite" />}
+      {[...PRIMARIES].reverse().map((p, i) => (
+        <g key={`p${i}`}>
+          <path d={p.d} fill={`url(#cw-${id})`} stroke="#b0700f" strokeWidth=".6" strokeLinejoin="round" />
+          <path d={p.vein} stroke="#ffffff" strokeOpacity=".7" strokeWidth=".55" strokeLinecap="round" />
+        </g>
       ))}
-      <path d="M14.5 31 C7 41 7 57 14.5 66 C12 56 12 42 14.5 31 Z" fill={`url(#cw-${id})`} stroke="#b97a12" strokeWidth=".8" />
+      {[...COVERTS].reverse().map((p, i) => <path key={`c${i}`} d={p.d} fill={`url(#cf-${id})`} stroke="#c98a1a" strokeWidth=".5" strokeLinejoin="round" />)}
     </g>
   );
 }
 
 /**
  * The cover, drawn over a box of `size` (the icon sits inside at COVER_INNER): a holographic band with a light
- * sweeping round it, a turning ring of gold dots, white-gold wings, a star on top and a ruby heart on a ribbon.
+ * sweeping round it, a turning ring of gold dots, feathered wings that flap (from 48px, reaching past the box), a star on top and a ruby heart on a ribbon.
  * Under 36px only the band and the heart are drawn, without motion.
  */
 export function CoverRing({ size }: { size: number }) {
   const id = useId().replace(/:/g, '');
   const big = size >= 36;
+  // The wings reach about 15% past each side of the box, so they only open where the icon has room.
+  const winged = size >= 48;
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden className="pointer-events-none absolute inset-0 overflow-visible">
       <defs>
@@ -81,10 +103,15 @@ export function CoverRing({ size }: { size: number }) {
           <stop offset="80%" stopColor="#ffd36e" />
           <stop offset="100%" stopColor="#ff6b4a" />
         </linearGradient>
-        <linearGradient id={`cw-${id}`} x1="1" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fffbe6" />
-          <stop offset="45%" stopColor="#ffcf4a" />
-          <stop offset="100%" stopColor="#ff7ab8" />
+        <linearGradient id={`cw-${id}`} x1="1" y1=".6" x2="0" y2="0">
+          <stop offset="0%" stopColor="#fff6d6" />
+          <stop offset="40%" stopColor="#ffc93c" />
+          <stop offset="78%" stopColor="#ff8fb4" />
+          <stop offset="100%" stopColor="#b48cff" />
+        </linearGradient>
+        <linearGradient id={`cf-${id}`} x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="100%" stopColor="#ffe3a0" />
         </linearGradient>
         <linearGradient id={`ch-${id}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#ff7a8a" />
@@ -98,7 +125,7 @@ export function CoverRing({ size }: { size: number }) {
       </defs>
 
       {big && <circle cx="50" cy="50" r="42" fill="none" stroke={`url(#cv-${id})`} strokeWidth="9" opacity=".55" filter={`url(#cg-${id})`} />}
-      {big && <><Wing id={id} /><g transform="matrix(-1 0 0 1 100 0)"><Wing id={id} /></g></>}
+      {winged && <><Wing id={id} motion /><g transform="matrix(-1 0 0 1 100 0)"><Wing id={id} motion /></g></>}
 
       <circle cx="50" cy="50" r="44.6" fill="none" stroke="#d9a53a" strokeWidth=".9" strokeOpacity=".9" />
       <circle cx="50" cy="50" r="40.5" fill="none" stroke={`url(#cv-${id})`} strokeWidth="6.5" />
