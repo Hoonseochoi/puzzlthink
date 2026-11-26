@@ -1,5 +1,5 @@
 import type { WikiArticle } from './types';
-import { p, table, tip, note, sec } from './blocks';
+import { p, ul, table, tip, note, sec } from './blocks';
 
 const article: WikiArticle = {
   slug: 'perfect-information',
@@ -68,6 +68,15 @@ const article: WikiArticle = {
         ),
         tip('불완전 정보 게임의 복기법', '불완전 정보 게임에서는 결과로 판단하지 말고, 그 순간 알고 있던 정보로 판단하세요. “그때 알던 것으로 다시 고른다면?”이 좋은 복기 질문이에요.'),
       ]),
+      sec('blur', '경계에 있는 게임들', [
+        p('현실의 게임은 네 칸에 딱 떨어지지 않는 경우가 많아요. 몇 가지 헷갈리는 예를 보면 이 구분을 더 정확히 쓸 수 있어요.'),
+        ul(
+          '**동시에 두는 게임**: 판 위의 정보는 모두 공개돼 있어도, 상대가 이번 차례에 무엇을 골랐는지 모른 채 내가 골라야 한다면 불완전 정보예요. 가위바위보가 가장 단순한 예예요.',
+          '**기억해야 하는 게임**: 블라인드 오목처럼 한때 공개됐던 정보가 다시 가려지는 게임은, 기억력이 완벽한 사람에게는 완전 정보지만 사람에게는 사실상 불완전 정보예요.',
+          '**혼자 하는 퍼즐**: 상대가 없지만 모든 단서가 공개돼 있고 운이 없어서, 보통 완전 정보·운 없음 칸에 넣어요.',
+        ),
+        p('그래서 이 구분은 “이 게임은 어느 칸이다”를 정하는 데보다, **“지금 내가 모르는 건 무엇이고, 그건 우연 때문인가 누군가 숨겨서인가”**를 묻는 데 더 쓸모 있어요. 이 질문에 답하면 수읽기를 할지, 확률을 따질지, 상대를 읽을지가 정해져요.'),
+      ]),
       sec('puzzlthink', 'PUZZLTHINK 게임 나눠 보기', [
         table(
           ['', '운 없음', '운 있음'],
@@ -128,6 +137,15 @@ const article: WikiArticle = {
           ],
         ),
         tip('Reviewing imperfect information games', 'Judge decisions by what you knew at the time, not by how they turned out. “Knowing only what I knew then, would I choose the same?” is a good review question.'),
+      ]),
+      sec('blur', 'Games on the border', [
+        p('Real games often do not fall neatly into one box. A few confusing cases make the distinction sharper.'),
+        ul(
+          '**Simultaneous moves**: even if the whole board is public, choosing without knowing what your opponent picked this turn is imperfect information. Rock-paper-scissors is the simplest case.',
+          '**Games of memory**: in games like Blind Gomoku, information that was once shown is hidden again. With perfect memory it would be perfect information; for humans it is effectively imperfect.',
+          '**Solo puzzles**: no opponent, but every clue is public and there is no chance, so they usually go in the perfect-information, no-chance box.',
+        ),
+        p('So the distinction is less useful for labelling a game than for asking, **“what do I not know right now, and is that because of chance or because someone is hiding it?”** The answer tells you whether to read ahead, weigh probabilities or read your opponent.'),
       ]),
       sec('puzzlthink', 'PUZZLTHINK games, sorted', [
         table(

@@ -63,6 +63,10 @@ const article: WikiArticle = {
         p('누군가 일찍 탈락하면 그 사람은 끝날 때까지 구경만 해야 해요. 탈락이 있는 게임은 판을 짧게 하거나, 탈락이 끝 무렵에 몰리도록 설계해서 이 문제를 줄여요.'),
         note('인원이 모자랄 때', '온라인 게임은 빈자리를 AI가 채울 수 있다는 장점이 있어요. 원래 6명이 해야 하는 게임도 혼자 시작해서 규칙을 익힐 수 있어요.'),
       ]),
+      sec('scale', '인원에 따라 변하는 게임', [
+        p('잘 만든 다인 게임은 인원이 바뀌어도 재미가 유지되도록 규칙 일부를 바꿔요. 벽바둑은 3인전에서는 말 2개씩, 1:1에서는 말 4개씩으로 시작해서 판 위의 밀도를 비슷하게 맞춰요. 무거운 13은 4명부터 7명까지 할 수 있지만, 인원이 많을수록 같은 받침대에 바위가 빨리 쌓여서 13을 넘기는 순간이 더 자주, 더 예측하기 어렵게 찾아와요.'),
+        p('그래서 같은 게임이라도 “몇 명일 때 가장 재미있는가”는 사람마다 달라요. 계산을 즐긴다면 인원이 적을 때, 혼란과 웃음을 즐긴다면 인원이 많을 때가 더 맞을 수 있어요. 한 게임을 여러 인원으로 해 보면 그 게임의 다른 얼굴을 볼 수 있어요.'),
+      ]),
       sec('table', 'PUZZLTHINK 게임별 인원과 시간', [
         table(
           ['게임', '인원', '한 판 길이'],
@@ -138,6 +142,10 @@ const article: WikiArticle = {
         h3('Early elimination'),
         p('A player knocked out early watches until the end. Games with elimination reduce this by keeping games short or pushing eliminations toward the end.'),
         note('When you are short of players', 'Online games have the advantage that AI can fill empty seats, so you can learn a six-player game by starting alone.'),
+      ]),
+      sec('scale', 'Games that change with the head count', [
+        p('Well-made multiplayer games adjust some rules so they stay fun at different counts. Wallgo starts with two pieces each in three-player games and four each one-on-one, keeping the board similarly crowded. Heavy 13 plays from four to seven, but the more players, the faster rocks pile onto the same stand, so crossing 13 comes more often and less predictably.'),
+        p('So “how many players is best?” differs from person to person even for one game. If you enjoy calculation, fewer players may suit you; if you enjoy chaos and laughter, more. Playing one game at several counts shows you its different faces.'),
       ]),
       sec('table', 'PUZZLTHINK games by players and time', [
         table(
