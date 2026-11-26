@@ -36,13 +36,53 @@ def guarded(m, target, hint, zf, zb):
         zb = min(zb, zf)
     return m.blend(zf, zb)
 
+class Blend:
+    """A weighted sum of z-scored cosine similarities from several embeddings: spec 'ft:0.4,bge-m3:0.6'.
+    ft = fastText (<data>/ft.npy); any other name = <data>/emb/<name>.npy (embed_models.py); bge-m3 may also be
+    <data>/bge.npy. z-scores use the mean and spread over random pairs of reference nouns; the 기본 build keeps
+    the numbers in <data>/blend.json for ft and bge-m3, so its scores do not move."""
+    def __init__(self, data, spec):
+        self.words = open(f'{data}/vocab.txt', encoding='utf-8').read().split()
+        self.idx = {w: i for i, w in enumerate(self.words)}
+        self.ref = json.load(open(f'{data}/vocab.json'))['ref']
+        self.parts = [(c.split(':')[0], float(c.split(':')[1])) for c in spec.split(',')]
+        legacy = json.load(open(f'{data}/blend.json')) if os.path.exists(f'{data}/blend.json') else {}
+        self.V, self.mu, self.sd = {}, {}, {}
+        for name, _ in self.parts:
+            path = f'{data}/ft.npy' if name == 'ft' else f'{data}/emb/{name}.npy'
+            if name == 'bge-m3' and not os.path.exists(path): path = f'{data}/bge.npy'
+            V = np.load(path).astype(np.float32)
+            if V.shape[0] != len(self.words): raise ValueError(f'{path} does not match vocab.txt: run embed_models.py again')
+            key = {'ft': 'ft', 'bge-m3': 'bge'}.get(name)
+            if key and f'mu_{key}' in legacy:
+                mu, sd = legacy[f'mu_{key}'], legacy[f'sd_{key}']
+            else:
+                rng = np.random.default_rng(0); i = rng.integers(0, self.ref, 4000); j = rng.integers(0, self.ref, 4000)
+                c = (V[i] * V[j]).sum(1); mu, sd = float(c.mean()), float(c.std())
+            self.V[name], self.mu[name], self.sd[name] = V, mu, sd
+        self.has_vec = np.linalg.norm(self.V['ft'], axis=1) > 0 if 'ft' in self.V else np.ones(len(self.words), bool)
+
+    def row(self, i, look=None):
+        """Blend score of every word against word i. look: words that look like word i (shared syllables):
+        for those, no meaning part may exceed the fastText part (see guarded)."""
+        zf = (self.V['ft'] @ self.V['ft'][i] - self.mu['ft']) / self.sd['ft'] if 'ft' in self.V else None
+        b = np.zeros(len(self.words), np.float32)
+        for name, w in self.parts:
+            z = zf if name == 'ft' else (self.V[name] @ self.V[name][i] - self.mu[name]) / self.sd[name]
+            if name != 'ft' and zf is not None and look is not None: z = np.where(look, np.minimum(z, zf), z)
+            b += w * z
+        return b
+
 # Embedding rank among the reference nouns -> %, straight lines between these points on a log-rank axis.
 # The model alone never reaches the 95% cut: that takes a list entry, a dictionary synonym, a compound or a
 # close neighbour of a listed word. The tail drops fast, so words the model finds unrelated read as unrelated.
 RANK_CURVE = [(1, 93), (3, 92), (10, 90), (30, 88), (100, 84), (300, 78), (1000, 68), (3000, 52), (10000, 30), (33000, 8)]
 
-def rank_pct(ranks):
-    xs = np.log([r for r, _ in RANK_CURVE]); ys = [p for _, p in RANK_CURVE]
+CURVES = {'v2': RANK_CURVE}
+
+def rank_pct(ranks, curve=None):
+    pts = CURVES[curve] if isinstance(curve, str) else (curve or RANK_CURVE)
+    xs = np.log([r for r, _ in pts]); ys = [p for _, p in pts]
     return np.interp(np.log(np.maximum(1, np.asarray(ranks, float))), xs, ys)
 
 COMPOUND_FLOOR = 90
@@ -67,10 +107,10 @@ def load_assoc(data):
     return out
 
 
-def load_relations(data):
+def load_relations(data, name='relations.tsv'):
     """Keep the strongest relation for each directed pair, matching the DB's key."""
     pairs = {}
-    path = f'{data}/relations.tsv'
+    path = f'{data}/{name}'
     if not os.path.exists(path):
         return pairs
     with open(path, encoding='utf-8') as records:
@@ -88,14 +128,30 @@ class Floors:
     """Bonus floors, same rules as public.hw_similarity."""
     def __init__(self, data):
         self.toks = set(open(f'{data}/tokens_top1m.txt').read().split('\n'))
+        self.data = data
         self.rel = load_relations(data)
         self.assoc = load_assoc(data)
+        self._rel = {}
 
-    def structural(self, t, h, rank):
+    def rel_for(self, name):
+        """A level may keep its own relations file (rules.relations), e.g. 기본 its first one."""
+        if not name: return self.rel
+        if name not in self._rel: self._rel[name] = load_relations(self.data, name)
+        return self._rel[name]
+
+    def structural(self, t, h, rank, rules=None):
+        """rules (a level's build rules) may lower the compound floor or ask more of it: compound_floor,
+        compound_min_len (shorter hints count only within compound_short_rank), compound_max_rank (the model must also rank the hint
+        this close, so 목+요일 or 발+신 does not read as close to 목 or 발)."""
+        r = rules or {}
         f = 0
-        if (t + h in self.toks or h + t in self.toks): f = COMPOUND_FLOOR     # 대기열, 대기층
+        rel = self.rel_for(r.get('relations'))
+        short = len(h) < r.get('compound_min_len', 1)   # a one-syllable hint counts only if the model ranks it this close
+        if (t + h in self.toks or h + t in self.toks) and rank <= r.get('compound_max_rank', 10 ** 9) \
+                and (not short or rank <= r.get('compound_short_rank', 0)):
+            f = r.get('compound_floor', COMPOUND_FLOOR)     # 대기열, 대기층
         if rank <= REL_MAX_RANK:
-            f = max(f, REL_FLOOR.get(self.rel.get((t, h)), 0), REL_FLOOR.get(self.rel.get((h, t)), 0))
+            f = max(f, REL_FLOOR.get(rel.get((t, h)), 0), REL_FLOOR.get(rel.get((h, t)), 0))
         return f
 
     def assoc_floor(self, t, h):

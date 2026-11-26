@@ -5,13 +5,18 @@ The AI's own policies (ai_hints, ai_guess) are the ones ported to SQL in the hw_
   setter  naive  gives the hint they believe scores highest
           sly    among hints they believe reach the cut, gives the one that fits the most other words
   guesser sigma  how far their feel for a similarity number is from the real one (small = sharp)
-Usage: simulate.py <data> [matches]
+Usage: simulate.py <data or game dir> [matches] [key=value ...]
+  game dir: <data>/game/<level> (build_game.py), or <data> for the old single-level layout (<data>/game)
+  key=value overrides a rule for this run: cut=95 hints=5 noise=5 gap=3 warm=72-86,80-91,86-94.5
 """
 import json, sys
 import numpy as np
 
+import os
 DATA = sys.argv[1] if len(sys.argv) > 1 else 'data'
-N = int(sys.argv[2]) if len(sys.argv) > 2 else 3000
+GAME = DATA if os.path.exists(f'{DATA}/scores.npy') else f'{DATA}/game'
+N = int(sys.argv[2]) if len(sys.argv) > 2 and '=' not in sys.argv[2] else 3000
+OPT = dict(a.split('=', 1) for a in sys.argv[2:] if '=' in a)
 rng = np.random.default_rng(7)
 
 CUT = 95            # a hint at or above this ends the hint phase
@@ -22,12 +27,16 @@ GUESS_POINTS = [6, 3, 1]  # guesser, by the stage of the correct answer
 AI_NOISE = 5.0      # the AI's feel for how related two words are is this far off (fixed per pair for a match)
 AI_BASE = 60        # shown numbers above this pull the AI towards words related to the hint, below push away
 AI_GAP = 3.0        # the AI spends its chance when its two best answers are this close
+WARM = [(72, 86), (80, 91), (86, 94.5)]   # the score range of the AI's warm-up hints, per stage (hw_level_cfg aiWarm)
+CUT = float(OPT.get('cut', CUT)); MAX_HINTS = int(OPT.get('hints', MAX_HINTS))
+AI_NOISE = float(OPT.get('noise', AI_NOISE)); AI_GAP = float(OPT.get('gap', AI_GAP))
+if 'warm' in OPT: WARM = [tuple(float(x) for x in r.split('-')) for r in OPT['warm'].split(',')]
 
-S = np.load(f'{DATA}/game/scores.npy').astype(np.float32) / 10
-E = np.load(f'{DATA}/game/feel.npy').astype(np.float32)     # what a guesser goes by: the model's own number
-words = open(f'{DATA}/game/words.txt', encoding='utf-8').read().split()
+S = np.load(f'{GAME}/scores.npy').astype(np.float32) / 10
+E = np.load(f'{GAME}/feel.npy').astype(np.float32)     # what a guesser goes by: the model's own number
+words = open(f'{GAME}/words.txt', encoding='utf-8').read().split()
 idx = {w: i for i, w in enumerate(words)}
-meta = json.load(open(f'{DATA}/game/targets.json', encoding='utf-8'))
+meta = json.load(open(f'{GAME}/targets.json', encoding='utf-8'))
 T = len(meta); tword = [x['word'] for x in meta]; tcol = np.array([idx[w] for w in tword])
 lists = [[(idx[h], s) for h, s in x['list']] for x in meta]
 
@@ -53,7 +62,7 @@ def ai_hints(t, stage, used):
     k = {1: 0, 2: len(top) // 2, 3: len(top) - 1}[stage]
     k = min(len(top) - 1, max(0, k + int(rng.integers(-1, 2)) * (stage == 2)))
     close = top[k]
-    lo, hi = {1: (72, 86), 2: (80, 91), 3: (86, 94.5)}[stage]
+    lo, hi = WARM[stage - 1]
     warm = [(h, s) for h, s in own if lo <= s <= hi]
     rng.shuffle(warm)
     return warm[:int(rng.integers(1, 3))] + [close]
