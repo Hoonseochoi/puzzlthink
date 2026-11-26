@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import AdSlot from '@/components/AdSlot';
+import FullGuideLink from '@/components/guide/FullGuideLink';
+import { guidePathForNamespace } from '@/content/guides';
 
 type Item = { title: string; body: string; tag?: string };
 type Faq = { q: string; a: string };
@@ -18,6 +20,7 @@ export default async function TextGuide({ locale, namespace, figure }: { locale:
   const strategies = t.raw('strategies') as Item[];
   const faq = t.raw('faq') as Faq[];
   const card = 'rounded-[16px] border border-white/10 bg-white/[0.03] p-4';
+  const fullGuide = guidePathForNamespace(namespace); // a dedicated /<game>/guide page, when one is written
 
   return (
     <section id="guide" className="relative z-10 border-t border-white/10 bg-[#0a0c10] px-5 py-16 text-[#eceff4]">
@@ -26,6 +29,7 @@ export default async function TextGuide({ locale, namespace, figure }: { locale:
         <span className="text-[10px] font-black tracking-[0.2em] text-(--accent)">{t('eyebrow')}</span>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">{t('title')}</h1>
         <p className="mt-5 max-w-3xl text-sm leading-7 text-white/55">{t('intro')}</p>
+        {fullGuide && <FullGuideLink locale={locale} path={fullGuide} />}
 
         <h2 className="mt-12 text-xl font-extrabold">{t('rulesTitle')}</h2>
         <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-7 text-white/55">{rules.map((rule) => <li key={rule}>{rule}</li>)}</ol>

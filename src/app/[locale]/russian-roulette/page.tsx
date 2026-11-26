@@ -6,7 +6,7 @@ import { RussianRouletteTutorialSteps } from '@/components/russianRoulette/Russi
 import { RR_ACCENT } from '@/components/russianRoulette/theme';
 import JsonLd from '@/components/JsonLd';
 import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import RussianRouletteGame from '@/components/russianRoulette/RussianRouletteGame';
 
 
@@ -20,11 +20,10 @@ export default async function RussianRoulettePage({ params }: { params: Promise<
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'RussianRoulette' });
-  const g = await getTranslations({ locale, namespace: 'RussianRouletteGuide' });
-  const faq = g.raw('faq') as { q: string; a: string }[];
+  const faq = guideFaq('russianRoulette', locale)!; // the FAQ GameArticle shows below the board
   return <><JsonLd data={{ '@context': 'https://schema.org', '@graph': [
       gameJsonLd({ locale, path: '/russian-roulette', name: t('metaTitle'), alternateName: ['러시안 룰렛', '러시안룰렛', 'Russian Roulette'], description: t('metaDescription'), genre: ['Strategy', 'Deduction', 'Party game'], players: { min: 1, max: 6 }, show: 'dp3' }),
       faqJsonLd(faq),
       breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('metaTitle').split(' — ')[0], path: '/russian-roulette' }]),
-    ] }} /><GameGate game="russianRoulette" accent={RR_ACCENT} ink="#04161c" tutorialKey="puzzlthink_russian_roulette_tutorial_seen" hero={<GameIntroHero locale={locale} id="russianRoulette" />} tutorial={<RussianRouletteTutorialSteps />} guide={<TextGuide locale={locale} namespace="RussianRouletteGuide" />}><RussianRouletteGame /></GameGate></>;
+    ] }} /><GameGate game="russianRoulette" accent={RR_ACCENT} ink="#04161c" tutorialKey="puzzlthink_russian_roulette_tutorial_seen" hero={<GameIntroHero locale={locale} id="russianRoulette" />} tutorial={<RussianRouletteTutorialSteps />} guide={<GameArticle locale={locale} game="russianRoulette" />}><RussianRouletteGame /></GameGate></>;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, Link } from '@/i18n/routing';
 import SupportLink from './SupportLink';
 
@@ -9,7 +9,10 @@ const HIDE_ON = ['/hidden-word', '/equation-signal', '/equation-tower', '/card-j
 export default function GlobalFooter() {
   const pathname = usePathname();
   const t = useTranslations('Common');
-  if (HIDE_ON.some((segment) => pathname.includes(segment))) return null;
+  const locale = useLocale();
+  // Game pages hide the footer; their guide pages (/<game>/guide) keep it.
+  // The /survival-games pages share slugs with games (…/hidden-word) but are articles, so they keep it too.
+  if (!pathname.endsWith('/guide') && !pathname.startsWith('/survival-games') && HIDE_ON.some((segment) => pathname.includes(segment))) return null;
 
   return (
     <footer className="border-t border-black/[0.07] bg-[#f3f0e8]">
@@ -22,6 +25,11 @@ export default function GlobalFooter() {
           <p className="mt-1 text-[11px] text-black/45">{t('contactPartnership')} · <a href="mailto:contact@puzzlthink.com" className="font-bold hover:text-black">contact@puzzlthink.com</a></p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
+          <Link href="/guides" className="hover:text-black">{t('guides')}</Link>
+          <Link href="/devlog" className="hover:text-black">{locale === 'en' ? 'Dev notes' : '개발 노트'}</Link>
+          <Link href="/board-games" className="hover:text-black">{locale === 'en' ? 'Board game encyclopedia' : '보드게임 백과'}</Link>
+          <Link href="/survival-games" className="hover:text-black">{locale === 'en' ? 'Show games' : '서바이벌 게임 정리'}</Link>
+          <Link href="/game-theory" className="hover:text-black">{locale === 'en' ? 'Game theory' : '게임 이론'}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>
           <SupportLink />

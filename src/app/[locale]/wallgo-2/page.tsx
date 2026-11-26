@@ -4,7 +4,7 @@ import GameGate from '@/components/GameGate';
 import GameIntroHero from '@/components/GameIntroHero';
 import { WallGoTutorialSteps } from '@/components/WallGoTutorial';
 import WallGoGame from '@/components/WallGoGame';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import JsonLd from '@/components/JsonLd';
 import WallGoSeriesLink from '@/components/WallGoSeriesLink';
 import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
@@ -20,8 +20,7 @@ export default async function WallGo2Page({ params }: { params: Promise<{ locale
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'WallGo' });
-  const g = await getTranslations({ locale, namespace: 'WallGo2Guide' });
-  const faq = g.raw('faq') as { q: string; a: string }[];
+  const faq = guideFaq('wallgo2', locale)!; // the FAQ GameArticle shows below the board
   return (
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
@@ -29,7 +28,7 @@ export default async function WallGo2Page({ params }: { params: Promise<{ locale
         faqJsonLd(faq),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('v2MetaTitle').split(' — ')[0], path: '/wallgo-2' }]),
       ] }} />
-      <GameGate game="wallgo2" accent="#e0283a" tutorialKey="puzzlthink_wallgo2_tutorial_seen" hero={<GameIntroHero locale={locale} id="wallgo2" />} tutorial={<WallGoTutorialSteps variant={2} />} guide={<TextGuide locale={locale} namespace="WallGo2Guide" figure={<WallGoSeriesLink locale={locale} to="wallgo" />} />}>
+      <GameGate game="wallgo2" accent="#e0283a" tutorialKey="puzzlthink_wallgo2_tutorial_seen" hero={<GameIntroHero locale={locale} id="wallgo2" />} tutorial={<WallGoTutorialSteps variant={2} />} guide={<GameArticle locale={locale} game="wallgo2" extra={<WallGoSeriesLink locale={locale} to="wallgo" />} />}>
         <WallGoGame variant={2} />
       </GameGate>
     </>

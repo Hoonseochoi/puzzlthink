@@ -2,6 +2,12 @@ import type { MetadataRoute } from 'next';
 import { GAMES } from '@/lib/gameCatalog';
 import { gameFromSlug } from '@/lib/rankings';
 import { HELL_LIVE } from '@/lib/hell';
+import { GUIDES, guidePath } from '@/content/guides';
+import { LEGACY_GUIDES } from '@/content/guides/legacy';
+import { DEVLOG, devlogPath } from '@/content/devlog';
+import { ARTICLES, WIKI_BASE, wikiPath } from '@/content/encyclopedia';
+import { SECTION_PATHS } from '@/content/shows';
+import { ARTICLES as GT_ARTICLES, GT_PATH, articlePath as gtArticlePath } from '@/content/game-theory';
 
 const BASE_URL = 'https://www.puzzlthink.com';
 const locales = ['ko', 'en'] as const;
@@ -15,14 +21,20 @@ const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekl
   // AI 헬모드: listed once a hell AI is live.
   ...(HELL_LIVE.length ? [{ path: '/hell', priority: 0.8, changeFrequency: 'daily' as const }] : []),
   { path: '/logic-puzzles', priority: 0.8, changeFrequency: 'weekly' },
-  { path: '/slitherlink/guide', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/masyu/guide', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/nonogram/guide', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/binairo/guide', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/one-stroke/guide', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/color-link/guide', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/magic-square/guide', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/star-battle/guide', priority: 0.7, changeFrequency: 'monthly' },
+  // Guide pages: the hub, then every guide (the 8 logic-puzzle pages and each one registered in src/content/guides).
+  { path: '/guides', priority: 0.8, changeFrequency: 'weekly' },
+  ...[...LEGACY_GUIDES.map((g) => g.path), ...GUIDES.map((g) => guidePath(g.game))].map((path) => ({ path, priority: 0.7, changeFrequency: 'monthly' as const })),
+  // 개발 노트: the hub and every article in src/content/devlog.
+  { path: '/devlog', priority: 0.6, changeFrequency: 'weekly' },
+  ...DEVLOG.map((a) => ({ path: devlogPath(a.slug), priority: 0.6, changeFrequency: 'monthly' as const })),
+  // 보드게임 백과: the hub, then every article in src/content/encyclopedia.
+  { path: WIKI_BASE, priority: 0.8, changeFrequency: 'weekly' },
+  ...ARTICLES.map((a) => ({ path: wikiPath(a.slug), priority: 0.6, changeFrequency: 'monthly' as const })),
+  // 두뇌 서바이벌 게임 정리: the hub, every show and every game page (src/content/shows).
+  ...SECTION_PATHS.map((path, i) => ({ path, priority: i === 0 ? 0.8 : 0.7, changeFrequency: 'monthly' as const })),
+  // 게임 이론 section: the hub, then every article in src/content/game-theory.
+  { path: GT_PATH, priority: 0.7, changeFrequency: 'weekly' },
+  ...GT_ARTICLES.map((a) => ({ path: gtArticlePath(a.slug), priority: 0.6, changeFrequency: 'monthly' as const })),
   { path: '/records', priority: 0.5, changeFrequency: 'daily' },
   { path: '/icons', priority: 0.4, changeFrequency: 'daily' },
   ...GAME_PATHS.map((path) => (path === '/play' ? 'sudoku' : path.slice(1))).filter((slug) => gameFromSlug(slug)).map((slug) => ({ path: `/ranking/${slug}`, priority: 0.6, changeFrequency: 'daily' as const })),

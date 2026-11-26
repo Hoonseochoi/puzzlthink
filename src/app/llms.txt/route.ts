@@ -3,21 +3,18 @@ import { GAMES } from '@/lib/gameCatalog';
 import { CERT_GAMES } from '@/lib/hardClear';
 import { SITE_URL } from '@/lib/seo';
 import { HELL_LIVE } from '@/lib/hell';
+import { guideListings } from '@/content/guides';
+import { DEVLOG, devlogPath } from '@/content/devlog';
+import { ARTICLES, WIKI_BASE, wikiPath } from '@/content/encyclopedia';
+import { SHOWS_WRITTEN, gamePath, showPath } from '@/content/shows';
+import { ARTICLES as GT_ARTICLES, GT_PATH, articlePath as gtArticlePath } from '@/content/game-theory';
 import type { GameId } from '@/lib/stats';
 
 export const dynamic = 'force-static';
 
 const STATS_ID: Record<string, GameId> = Object.fromEntries((Object.keys(CERT_GAMES) as GameId[]).map((id) => [CERT_GAMES[id].href, id]));
-const GUIDES: [string, string][] = [
-  ['/slitherlink/guide', '슬리더링크 공략 (Slitherlink guide)'],
-  ['/binairo/guide', '비나이로 공략 (Binairo guide)'],
-  ['/one-stroke/guide', '한붓길 공략 (One Stroke guide)'],
-  ['/color-link/guide', '컬러 잇기 공략 (Color Link guide)'],
-  ['/magic-square/guide', '마방진 스왑 공략 (Magic Square Swap guide)'],
-  ['/star-battle/guide', '스타배틀 공략 (Star Battle guide)'],
-  ['/masyu/guide', '마슈 공략 (Masyu guide)'],
-  ['/nonogram/guide', '노노그램 공략 (Nonogram guide)'],
-];
+// Every guide page (logic-puzzle guides and src/content/guides), Korean title with the English one.
+const GUIDES: [string, string][] = guideListings('ko').map((ko) => [ko.path, `${ko.title} (${guideListings('en').find((en) => en.game === ko.game)!.title})`]);
 
 export function GET() {
   const games = GAMES.map((g) => {
@@ -38,10 +35,24 @@ export function GET() {
     `- [게임 소개 (All games with rules)](${SITE_URL}/ko/games)`,
     `- [논리 퍼즐 (Logic puzzles)](${SITE_URL}/ko/logic-puzzles)`,
     `- [기록실·랭킹 (Records and rankings)](${SITE_URL}/ko/records)`,
+    `- [게임 공략 모음 (All game guides)](${SITE_URL}/ko/guides)`,
+    `- [두뇌 서바이벌 게임 정리 (Brain-survival show games, newest show first)](${SITE_URL}/ko/survival-games)`,
     ...(HELL_LIVE.length ? [`- [AI 헬모드 · 매우 어려움 AI (AI Hell Mode: the hardest AI in Wallgo II, Wallgo 1:1, 12 Janggi, Russian Janggi, Blind Gomoku and Color Link Duel; each win is a black piece on the 블랙피스 경쟁전 board)](${SITE_URL}/ko/hell)`] : []),
     '',
     '## Guides',
     ...GUIDES.map(([path, name]) => `- [${name}](${SITE_URL}/ko${path})`),
+    '',
+    '## Dev notes (개발 노트)',
+    `- [개발 노트 (Dev notes: how the games, their AIs and the site were built)](${SITE_URL}/ko/devlog)`,
+    ...DEVLOG.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${devlogPath(a.slug)})`),
+    '## Board game encyclopedia',
+    `- [보드게임 백과 (Board game encyclopedia: genres, history and concepts)](${SITE_URL}/ko${WIKI_BASE})`,
+    ...ARTICLES.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${wikiPath(a.slug)})`),
+    '## Brain-survival show games',
+    ...SHOWS_WRITTEN.flatMap((show) => [`- [${show.ko.name} (${show.en.name})](${SITE_URL}/ko${showPath(show)})`, ...show.games.map((g) => `  - [${g.ko.name} (${g.en.name})](${SITE_URL}/ko${gamePath(show, g)})`)]),
+    '## Game theory',
+    `- [게임 이론 (Game theory articles, with survival-show and PUZZLTHINK game examples)](${SITE_URL}/ko${GT_PATH})`,
+    ...GT_ARTICLES.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${gtArticlePath(a.slug)})`),
     '',
     '## About',
     `- [소개 (About)](${SITE_URL}/ko/about)`,

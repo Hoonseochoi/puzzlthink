@@ -4,7 +4,8 @@ import GameGate from '@/components/GameGate';
 import GameIntroHero from '@/components/GameIntroHero';
 import { WallGoTutorialSteps } from '@/components/WallGoTutorial';
 import WallGoGame from '@/components/WallGoGame';
-import WallGoGuide from '@/components/WallGoGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
+import WallGoSeriesLink from '@/components/WallGoSeriesLink';
 import JsonLd from '@/components/JsonLd';
 import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 
@@ -19,8 +20,7 @@ export default async function WallGoPage({ params }: { params: Promise<{ locale:
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'WallGo' });
-  const g = await getTranslations({ locale, namespace: 'WallGoGuide' });
-  const faq = g.raw('faq') as { q: string; a: string }[];
+  const faq = guideFaq('wallgo', locale)!; // the FAQ GameArticle shows below the board
   return (
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
@@ -28,7 +28,7 @@ export default async function WallGoPage({ params }: { params: Promise<{ locale:
       faqJsonLd(faq),
       breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: t('metaTitle').split(' — ')[0], path: '/wallgo' }]),
     ] }} />
-      <GameGate game="wallgo" accent="#e0283a" tutorialKey="puzzlthink_wallgo_tutorial_seen" hero={<GameIntroHero locale={locale} id="wallgo" />} tutorial={<WallGoTutorialSteps />} guide={<WallGoGuide locale={locale} />}>
+      <GameGate game="wallgo" accent="#e0283a" tutorialKey="puzzlthink_wallgo_tutorial_seen" hero={<GameIntroHero locale={locale} id="wallgo" />} tutorial={<WallGoTutorialSteps />} guide={<GameArticle locale={locale} game="wallgo" extra={<WallGoSeriesLink locale={locale} to="wallgo2" />} />}>
         <WallGoGame />
       </GameGate>
     </>

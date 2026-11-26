@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 import GameGate from '@/components/GameGate';
 import { CldTutorialSteps } from '@/components/colorLinkDuel/CldTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import CldGame from '@/components/colorLinkDuel/CldGame';
 import CldPreview from '@/components/colorLinkDuel/CldPreview';
 import { CLD_ACCENT, CLD_INK } from '@/components/colorLinkDuel/copy';
@@ -32,7 +32,7 @@ export default async function ColorLinkDuelPage({ params }: { params: Promise<{ 
   setRequestLocale(locale);
   const korean = locale !== 'en';
   const m = meta(korean);
-  const g = await getTranslations({ locale, namespace: 'ColorLinkDuelGuide' });
+  const faq = guideFaq('colorLinkDuel', locale)!; // the FAQ GameArticle shows below the board
   const hero = (
     <div className="grid items-center gap-8 md:grid-cols-[1fr_260px]">
       <GameIntroHero locale={locale} id="colorLinkDuel" />
@@ -42,10 +42,10 @@ export default async function ColorLinkDuelPage({ params }: { params: Promise<{ 
   return <>
     <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
       gameJsonLd({ locale, path: '/color-link-duel', name: m.title, alternateName: ['컬러 링크', '컬러링크', 'Color Link Duel'], description: m.description, genre: ['Strategy', 'Puzzle'], players: { min: 1, max: 2 }, show: 'dp3' }),
-      faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
+      faqJsonLd(faq),
       breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: korean ? '컬러 링크' : 'Color Link Duel', path: '/color-link-duel' }]),
     ] }} />
-    <GameGate game="colorLinkDuel" accent={CLD_ACCENT} ink={CLD_INK} tutorial={<CldTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="ColorLinkDuelGuide" />}>
+    <GameGate game="colorLinkDuel" accent={CLD_ACCENT} ink={CLD_INK} tutorial={<CldTutorialSteps locale={locale} />} hero={hero} guide={<GameArticle locale={locale} game="colorLinkDuel" />}>
       <CldGame />
     </GameGate>
   </>;

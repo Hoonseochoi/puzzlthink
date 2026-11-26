@@ -4,7 +4,7 @@ import GameGate from '@/components/GameGate';
 import { SignalTutorialSteps } from '@/components/equationSignal/SignalTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import EquationSignalGame from '@/components/equationSignal/EquationSignalGame';
 import { SignalPreview } from '@/components/equationSignal/SignalParts';
 import { EQS_ACCENT, EQS_INK } from '@/components/equationSignal/copy';
@@ -29,6 +29,7 @@ export default async function EquationSignalPage({ params }: { params: Promise<{
   const { locale } = await params;
   setRequestLocale(locale);
   const g = await getTranslations({ locale, namespace: 'EquationSignalGuide' });
+  const faq = guideFaq('equationSignal', locale)!; // the FAQ GameArticle shows below the board
   const korean = locale !== 'en';
   const name = korean ? '수식 신호등' : 'Equation Signal';
   const hero = (
@@ -41,10 +42,10 @@ export default async function EquationSignalPage({ params }: { params: Promise<{
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
         gameJsonLd({ locale, path: '/equation-signal', name, alternateName: ['수식 신호등', 'Equation Signal', '수식 신호등 게임', '데블스 플랜 수식 신호등'], description: g('intro'), genre: ['Puzzle', 'Deduction', 'Number game'], players: { min: 1, max: 4 }, show: 'dp3' }),
-        faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
+        faqJsonLd(faq),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name, path: '/equation-signal' }]),
       ] }} />
-      <GameGate game="equationSignal" accent={EQS_ACCENT} ink={EQS_INK} tutorial={<SignalTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="EquationSignalGuide" />}>
+      <GameGate game="equationSignal" accent={EQS_ACCENT} ink={EQS_INK} tutorial={<SignalTutorialSteps locale={locale} />} hero={hero} guide={<GameArticle locale={locale} game="equationSignal" />}>
         <EquationSignalGame />
       </GameGate>
     </>
