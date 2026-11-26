@@ -132,8 +132,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/27', icon: Sparkles,
-        ko: { title: '시간 경매가 열렸어요', desc: '데블스 플랜 2 감옥매치를 방송 규칙대로 옮겼어요. 경매마다 바둑알 하나가 올라오고, 버튼을 가장 오래 누른 사람이 가져가요. AI 5명과 6인전, 친구·공개방 2~6명으로 할 수 있어요.' },
-        en: { title: 'Time Auction is open', desc: "The Devil's Plan 2 prison match with the broadcast rules: each auction puts up one go stone, and whoever holds the button longest takes it. Six players against five AIs, or 2–6 in friend and open rooms." },
+        ko: { title: '시간 경매가 열렸어요', desc: '데블스 플랜 2 감옥매치를 방송 규칙대로 옮겼어요. 경매마다 바둑알 하나가 올라오고 버튼을 가장 오래 누른 사람이 가져가요. 사이트 추가 규칙으로 가장 먼저 손을 뗀 사람은 마이너스 바둑알(−1)을 받아요. AI 5명과 6인전, 친구·공개방 2~6명.' },
+        en: { title: 'Time Auction is open', desc: "The Devil's Plan 2 prison match with the broadcast rules: each auction puts up one go stone and whoever holds longest takes it. House rule: whoever lets go first takes a minus stone (−1). Six players vs five AIs, or 2–6 in rooms." },
       },
     ],
   },

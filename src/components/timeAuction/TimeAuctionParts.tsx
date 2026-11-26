@@ -56,6 +56,19 @@ export function LotStone({ lot, size, dim = false, label }: { lot: Lot; size: nu
   );
 }
 
+/** The minus stone: a dark stone with a red minus, for the shortest bid of an auction (house rule). */
+export function MinusStone({ size, label = '마이너스 바둑알' }: { size: number; label?: string }) {
+  const id = useId().replace(/:/g, '');
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={label}>
+      <defs><radialGradient id={`mn-${id}`} cx="35%" cy="30%" r="75%"><stop offset="0%" stopColor="#4a2326" /><stop offset="55%" stopColor="#1a0b0c" /><stop offset="100%" stopColor="#050203" /></radialGradient></defs>
+      <circle cx="50" cy="53" r="46" fill="rgba(0,0,0,.25)" />
+      <circle cx="50" cy="50" r="46" fill={`url(#mn-${id})`} stroke="#ff3b30" strokeWidth="3" />
+      <rect x="27" y="44" width="46" height="12" rx="6" fill="#ff3b30" />
+    </svg>
+  );
+}
+
 /** Lighter / darker shade of a #rrggbb colour (t > 0 towards white, t < 0 towards black). */
 function shade(hex: string, t: number) {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
@@ -89,10 +102,12 @@ export function SeatStone({ room, seat, mySeat, size, label }: { room: TaRoom; s
 /** The stones a seat has won, in order, with empty dents up to the safe line. */
 export function Tray({ room, seat, size = 18, safe = 0, en }: { room: TaRoom; seat: number; size?: number; safe?: number; en: boolean }) {
   const won = room.game.log.filter((r) => r.outcome === 'won' && r.winner === seat);
+  const minus = room.game.log.filter((r) => r.minus === seat);
   const empty = Math.max(0, safe - won.length);
   return (
     <span className="flex flex-wrap items-center gap-0.5 rounded-full bg-black/40 px-1.5 py-1 shadow-[inset_0_1px_3px_rgba(0,0,0,.6)]">
       {won.map((r) => <LotStone key={r.round} lot={lotFor(r.round, room.game.rounds)} size={size} label={lotName(lotFor(r.round, room.game.rounds), en)} />)}
+      {minus.map((r) => <MinusStone key={`m${r.round}`} size={size} label={en ? 'minus stone' : '마이너스 바둑알'} />)}
       {Array.from({ length: empty }, (_, i) => <i key={`e${i}`} className="block rounded-full border border-dashed border-white/15" style={{ width: size - 2, height: size - 2, margin: 1 }} />)}
     </span>
   );
@@ -102,8 +117,8 @@ export function Tray({ room, seat, size = 18, safe = 0, en }: { room: TaRoom; se
  * The lit auction block: this auction's stone on its pedestal. When the board stops, the winner's stone appears
  * beside it with 낙찰 (or the lot greys out for a void / no bids).
  */
-export function AuctionBlock({ room, mySeat, en, winnerLabel, outcomeLabel }: {
-  room: TaRoom; mySeat: number | null; en: boolean; winnerLabel: string | null; outcomeLabel: string;
+export function AuctionBlock({ room, mySeat, en, winnerLabel, minusLabel, outcomeLabel }: {
+  room: TaRoom; mySeat: number | null; en: boolean; winnerLabel: string | null; minusLabel: string | null; outcomeLabel: string;
 }) {
   const g = room.game;
   const reduced = useReducedMotion() ?? false;
@@ -111,6 +126,7 @@ export function AuctionBlock({ room, mySeat, en, winnerLabel, outcomeLabel }: {
   const round = shown?.round ?? g.round;
   const lot = lotFor(round, g.rounds);
   const won = shown?.outcome === 'won' ? shown.winner : null;
+  const minus = shown?.minus ?? null;
   const dim = !!shown && won === null;
   return (
     <div className="relative flex h-[118px] items-end justify-center overflow-hidden sm:h-[150px]" aria-live="polite">
@@ -128,6 +144,13 @@ export function AuctionBlock({ room, mySeat, en, winnerLabel, outcomeLabel }: {
           initial={reduced ? false : { x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: reduced ? 0 : 0.35, delay: reduced ? 0 : 0.15 }}>
           <SeatStone room={room} seat={won} mySeat={mySeat} size={34} label={winnerLabel ?? ''} />
           <span className="rounded-sm bg-(--accent) px-1.5 py-0.5 text-[11px] font-black text-white shadow-[0_0_14px_var(--accent-glow)]">{en ? 'SOLD' : '낙찰'}</span>
+        </motion.div>
+      )}
+      {minus !== null && (
+        <motion.div className="absolute bottom-2 right-1/2 mr-[46px] flex items-center gap-1.5 sm:mr-[56px]"
+          initial={reduced ? false : { x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: reduced ? 0 : 0.35, delay: reduced ? 0 : 0.25 }}>
+          <span className="rounded-sm border border-[#ff3b30]/70 bg-black/70 px-1.5 py-0.5 text-[11px] font-black text-[#ff7b72]">−1</span>
+          <span className="relative"><SeatStone room={room} seat={minus} mySeat={mySeat} size={30} label={minusLabel ?? ''} /><span className="absolute -bottom-1 -right-1"><MinusStone size={16} /></span></span>
         </motion.div>
       )}
       <p className="absolute left-3 top-2 max-w-[45%] text-left text-[11px] font-bold leading-tight text-white/55">{outcomeLabel}</p>

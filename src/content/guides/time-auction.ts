@@ -51,7 +51,8 @@ const guide: GameGuide = {
             '마지막까지 누르고 있던 사람이 손을 떼면 전광판이 멈추고, 그 사람이 **승리 표식**을 받아요. 낙찰자와 멈춘 시간만 공개돼요.',
             '진 사람도 자기가 누른 시간만큼 잃어요.',
             '남은 시간은 **본인에게도** 보이지 않아요. 쓴 시간을 기억해야 해요.',
-            '마지막 경매가 끝나면 표식이 가장 많은 사람이 1위(방송에서는 피스), 가장 적은 사람이 탈락이에요.',
+            '**마이너스 바둑알(사이트 추가 규칙)**: 두 명 이상 입찰한 경매에서는 가장 먼저 손을 뗀 1명이 −1점을 받아요. 카운트다운 안에 포기한 사람은 받지 않아요.',
+            '마지막 경매가 끝나면 점수(딴 바둑알 − 마이너스 바둑알)가 가장 높은 사람이 1위(방송에서는 표식 수로 피스), 가장 낮은 사람이 탈락이에요.',
           ] },
         ],
       },
@@ -66,6 +67,7 @@ const guide: GameGuide = {
             { title: '아무도 입찰하지 않으면', body: '모두 카운트다운 안에 손을 떼면 그 경매의 표식은 사라져요. 방송 규칙에는 없는 경우라 이 사이트에서 정한 처리예요.' },
             { title: '0.0초는 입찰이 아니에요', body: '카운트다운이 끝나고 0.1초가 지나기 전에 손을 떼면 기록되는 시간이 0.0초라, 시간이 들지 않는 포기로 처리해요. 가장 짧은 입찰은 0.1초예요.' },
             { title: '동점이면 남은 시간으로', body: '표식 수가 같으면 남은 시간이 많은 쪽이 위예요. 그래서 1위 다툼에서는 시간을 남기는 것이, 꼴찌 다툼에서는 시간을 다 써서라도 표식을 따는 것이 중요해요. 표식도 시간도 같으면 같은 순위이고, 그게 꼴찌라면 모두 탈락해요.' },
+            { title: '마이너스 바둑알은 누구에게', body: '카운트다운이 끝난 뒤까지 누르고 있던 사람이 두 명 이상일 때, 그중 가장 먼저 손을 뗀 1명이 받아요. 0.1초까지 같은 시간에 뗀 사람이 둘 이상이면 아무도 받지 않고, 혼자 입찰했다면 낙찰만 받아요. 1등이 동점으로 유찰돼도 마이너스는 따로 정해져요.' },
             { title: '이번엔 포기 버튼', body: '준비 단계에서 "이번 경매는 포기"를 누르면 버튼을 눌렀다가 카운트다운 안에 뗀 것과 똑같아요. 다른 사람에게는 누가 포기했는지 보이지 않아요.' },
           ] },
         ],
@@ -82,6 +84,7 @@ const guide: GameGuide = {
             ['표준 (5분)', '6명', '13', '3개'],
             ['방송 규칙 (10분)', '6명', '19', '4개'],
           ], caption: '안전선 = 경매 수 ÷ 인원의 몫 + 1. 표식 화면에도 같은 숫자가 나와요.' },
+          { type: 'callout', tone: 'warn', title: '마이너스 바둑알이 있으면 보장이 아니에요', text: '위의 안전선은 바둑알만 셀 때의 계산이에요. 이 사이트는 가장 먼저 손을 뗀 사람에게 −1을 주기 때문에, 바둑알을 안전선만큼 따도 마이너스를 여러 개 받으면 꼴찌가 될 수 있어요. 목표는 **점수(바둑알 − 마이너스)** 로 세세요.' },
           { type: 'p', text: '안전선보다 하나 적어도 대부분 살아남아요. 방송 형식에서 3개로 탈락하려면 나머지 다섯 명이 4·3·3·3·3처럼 모두 3개 이상이고 내 시간이 가장 적어야 하거든요. 그래서 입문 전략은 **필요한 개수만큼만, 싸게 이길 수 있는 경매를 고르는 것**이에요.' },
           { type: 'callout', tone: 'tip', title: '한 개당 예산을 정해 두세요', text: '빠른 경매에서 2개가 목표라면 1개당 쓸 수 있는 시간은 대략 1분이에요. 이 예산을 넘는 싸움이 붙은 것 같으면 미련 없이 빠지는 것이 낫습니다. 이미 누른 시간은 손을 떼든 계속 누르든 돌아오지 않으니, "지금까지 쓴 게 아까워서" 버티는 것이 가장 흔한 실수예요.' },
         ],
@@ -121,7 +124,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'cards', items: [
             { title: '비싼 경매 다음 경매', body: '누군가 큰 시간으로 낙찰받았다면 그 경매에서 진 사람도 크게 잃었을 가능성이 높아요. 바로 다음 경매는 다들 몸을 사리기 쉬워 싸게 딸 기회예요.' },
-            { title: '0.1초 입찰의 기대값', body: '아무도 입찰하지 않을 것 같은 경매에 0.1초~1초만 걸어 두면, 다른 사람이 모두 빠졌을 때 거의 공짜로 표식을 얻어요. 방송에서도 한 참가자가 10.1초를 걸었다가 진 경매가 있었어요. 다만 누군가 같은 생각을 하면 0.1초 차이로 지거나 동점 유찰이 되니, 매번 같은 시간을 쓰지 마세요.' },
+            { title: '짧은 입찰은 양날의 검', body: '아무도 입찰하지 않을 것 같은 경매에 몇 초만 걸어 두면, 다른 사람이 모두 빠졌을 때 거의 공짜로 바둑알을 얻어요. 하지만 이 사이트에서는 누군가 함께 입찰하는 순간 내가 가장 먼저 손을 뗀 사람이 되어 **마이너스 바둑알**을 받아요. 들어갈 거면 제대로 들어가고, 아니면 카운트다운 안에 빠지는 것이 기본이에요. 비싼 경매 바로 다음처럼 다들 지친 때만 노려 보세요.' },
             { title: '동점을 피하는 시간', body: '2분 00초나 1분 30초처럼 딱 떨어지는 시간은 다른 사람도 고르기 쉬워요. 동점이면 둘 다 잃고 표식은 사라지니, 노린 시간보다 조금 더 버티는 버릇을 들이세요.' },
             { title: '마지막 경매의 계산', body: '마지막 경매에서는 남길 이유가 없어요. 표식이 꼴찌 근처라면 가진 시간을 모두 쓰는 것이 맞고, 이미 안전하다면 1위를 노리는 사람만 남은 시간으로 승부해요. 표식이 같으면 남은 시간이 많은 쪽이 위라는 것도 잊지 마세요.' },
           ] },
@@ -135,6 +138,7 @@ const guide: GameGuide = {
             '**쓴 시간이 아까워서 계속 버티기.** 이미 쓴 시간은 손을 떼도 계속 눌러도 똑같이 사라져요. 판단은 "지금부터 더 쓸 시간으로 이길 수 있나"로만 하세요.',
             '**초반에 몰아 쓰기.** 앞에서 크게 이기면 표식은 늘지만, 후반에 남은 시간 상한이 낮다는 걸 모두가 알게 돼요. 그 뒤로는 싸게 이길 수가 없어요.',
             '**자기 시간을 잘못 기억하기.** 생각보다 시간이 적으면 큰 입찰 도중 버튼이 밀려나 그 시간을 모두 잃어요. 경매가 끝날 때마다 남은 시간을 속으로 한 번씩 업데이트하세요.',
+            '**어정쩡하게 들어갔다 빠지기.** 카운트다운이 끝난 뒤 몇 초 만에 손을 떼면 시간은 시간대로 쓰고 마이너스 바둑알까지 받기 쉬워요. 망설여지면 카운트다운 안에 떼세요.',
             '**전광판만 보고 따라가기.** 전광판은 누군가 아직 누르고 있다는 것만 알려 줘요. 몇 명인지, 누구인지는 끝까지 알 수 없어요.',
           ] },
         ],
@@ -143,8 +147,8 @@ const guide: GameGuide = {
         id: 'modes',
         title: 'AI와 친구 방',
         blocks: [
-          { type: 'p', text: 'AI는 다섯 성향이 있어요. **신중**은 필요한 만큼만 평소 낙찰가 근처로, **돌격**은 초반에 크게 질러 표식을 먼저 모으고, **잠복**은 초반을 거의 쉬다가 후반에 시간을 몰아 써요. **줍줍**은 0.1초 같은 짧은 입찰로 빈 경매를 노리고, **계산**은 낙찰 시간을 세어 상대의 시간 상한을 따져요. 모든 AI는 공개된 정보(낙찰자, 낙찰 시간, 표식 수)와 자기 시간만 보고 결정하고, 누가 지금 누르고 있는지는 보지 못해요.' },
-          { type: 'p', text: '**보통** AI는 자기가 쓴 시간을 대충 기억해서, 가진 것보다 큰 입찰을 계획했다가 버튼이 밀려나기도 해요. **어려움** AI는 정확히 기억하고, 상대의 시간 상한을 세어 이길 수 있는 경매를 골라요. AI끼리 3,000판을 돌려 보면 어려움 AI가 탈락하는 비율은 약 17%, 보통 AI는 약 24%였어요(빠른 경매 기준).' },
+          { type: 'p', text: 'AI는 다섯 성향이 있어요. **신중**은 필요한 만큼만 평소 낙찰가 근처로, **돌격**은 초반에 크게 질러 표식을 먼저 모으고, **잠복**은 초반을 거의 쉬다가 후반에 시간을 몰아 써요. **줍줍**은 다들 지친 틈을 타 짧은 입찰로 빈 경매를 노리고(들키면 마이너스 바둑알이에요), **계산**은 낙찰 시간을 세어 상대의 시간 상한을 따져요. 모든 AI는 공개된 정보(낙찰자, 낙찰 시간, 표식 수)와 자기 시간만 보고 결정하고, 누가 지금 누르고 있는지는 보지 못해요.' },
+          { type: 'p', text: '**보통** AI는 자기가 쓴 시간을 대충 기억해서, 가진 것보다 큰 입찰을 계획했다가 버튼이 밀려나기도 해요. **어려움** AI는 정확히 기억하고, 상대의 시간 상한을 세어 이길 수 있는 경매를 골라요. AI끼리 3,000판을 돌려 보면 어려움 AI가 탈락하는 비율은 약 12%, 보통 AI는 약 22%였어요(빠른 경매 기준).' },
           { type: 'p', text: '친구 방과 공개방은 2~6명이 할 수 있고, 빈자리를 AI로 채울지 방장이 골라요. 준비 단계에서 15초 안에 버튼을 누르지 않으면 그 경매는 포기로 처리되고, 두 번 연속이면 다시 들어올 때까지 AI가 대신해요.' },
           { type: 'callout', tone: 'note', title: '시간은 각자의 기기에서 재요', text: '버튼을 누른 시간은 내 기기에서 내 카운트다운 기준으로 재고, 방장 기기가 그 기록이 실제로 가능한 시간인지 확인해요. 인터넷이 느려도 입찰 시간은 바뀌지 않아요. 다른 앱으로 가거나 화면을 끄면 그 순간 손을 뗀 것으로 처리되니, 경매 중에는 화면을 켜 두세요.' },
         ],
@@ -156,6 +160,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['', '방송', 'PUZZLTHINK'], rows: [
             ['인원', '6명', 'AI전 6명 · 친구·공개방 2~6명'],
+            ['마이너스 바둑알', '없음', '두 명 이상 입찰하면 가장 먼저 뗀 1명이 −1 (0.1초 동점이면 없음). 순위는 점수(바둑알 − 마이너스)'],
             ['경매 물건', '승리 표식', '경매마다 바둑알 하나(마지막은 황금 바둑알). 모양만 다를 뿐 승리 표식과 똑같이 세요'],
             ['시간 × 경매 수', '10분 × 19번', '2분 × 9번(기본) · 5분 × 13번 · 10분 × 19번'],
             ['보상', '1위 피스 1개 · 꼴찌 탈락', '1위 · 꼴찌 탈락(기록에 남아요)'],
@@ -182,7 +187,8 @@ const guide: GameGuide = {
     faq: [
       { q: '시간 경매에서 진 사람도 시간을 잃나요?', a: '네. 카운트다운이 끝난 뒤 버튼을 누르고 있던 시간은 낙찰받지 못해도 모두 잃어요. 시간이 들지 않는 건 카운트다운 안에 손을 뗀 경우뿐이에요.' },
       { q: '내 남은 시간은 어디서 보나요?', a: '보이지 않아요. 방송 규칙 그대로 남은 시간은 본인에게도 공개되지 않으니 쓴 시간을 기억해야 해요. 시간을 다 쓰면 버튼이 밀려나며 진동으로 알려 주고, 경기가 끝나면 모두의 남은 시간과 입찰 기록이 공개돼요.' },
-      { q: '몇 개를 따야 탈락하지 않나요?', a: '경매 수 ÷ 인원보다 많이 따면 확실히 안전해요. 6명 기준으로 빠른 경매(9번)는 2개, 표준(13번)은 3개, 방송 규칙(19번)은 4개예요.' },
+      { q: '몇 개를 따야 탈락하지 않나요?', a: '바둑알만 보면 경매 수 ÷ 인원보다 많이 따면 안전해요(6명 기준 빠른 경매 2개, 표준 3개, 방송 규칙 4개). 다만 이 사이트는 가장 먼저 손을 뗀 사람에게 마이너스 바둑알을 주니, 순위는 점수(바둑알 − 마이너스)로 정해지고 확실한 보장은 없어요.' },
+      { q: '마이너스 바둑알은 방송 규칙인가요?', a: '아니에요. PUZZLTHINK에서 더한 규칙이에요. 두 명 이상 입찰한 경매에서 가장 먼저 손을 뗀 1명이 −1점을 받고, 카운트다운 안에 포기한 사람은 받지 않아요.' },
       { q: '0.1초까지 같은 시간에 손을 떼면 어떻게 되나요?', a: '가장 오래 버틴 사람끼리 0.1초까지 같으면 그 경매는 유찰되어 아무도 표식을 받지 못하고, 동점자들도 시간은 그대로 잃어요.' },
       { q: '방송과 같은 10분 19번 경매로 할 수 있나요?', a: '네. 게임 시작에서 "방송 규칙 10분 × 19경매"를 고르거나, 친구 방에서 방장이 경매 규모를 방송 규칙으로 바꾸면 돼요. 한 판에 40분 안팎 걸려요.' },
       { q: '인터넷이 느리면 불리한가요?', a: '아니에요. 입찰 시간은 각자의 기기에서 자기 카운트다운 기준으로 재기 때문에 지연이 시간에 더해지지 않아요. 방장 기기는 그 기록이 실제로 가능한 범위인지만 확인해요.' },
@@ -229,7 +235,8 @@ const guide: GameGuide = {
             'When the last player lets go the board stops and that player wins a **victory token**. Only the winner and the stopped time are announced.',
             'Losers lose the time they held too.',
             'Your remaining time is hidden, **even from you**. Remember what you spend.',
-            'After the last auction, most tokens is 1st (the piece on the show); fewest tokens is eliminated.',
+            '**The minus stone (house rule)**: when two or more bid in an auction, whoever let go first takes −1. Dropping out during the countdown never takes it.',
+            'After the last auction, the highest score (stones won − minus stones) is 1st (on the show: most tokens took the piece); the lowest is eliminated.',
           ] },
         ],
       },
@@ -244,6 +251,7 @@ const guide: GameGuide = {
             { title: 'Nobody bids', body: 'If everyone lets go in the countdown, the token is lost. The broadcast rules do not cover this; it is this site’s ruling.' },
             { title: '0.0 s is not a bid', body: 'Letting go less than 0.1 s after the countdown records 0.0 s, which counts as dropping out at no cost. The smallest bid is 0.1 s.' },
             { title: 'Ties on tokens go to time', body: 'Equal tokens rank by time left, more is better. So when fighting for 1st, keep time; when fighting to avoid last, spend it. Equal tokens and equal time share the place — all of them out if it is last.' },
+            { title: 'Who takes the minus stone', body: 'When two or more players held past the countdown, the first of them to let go takes it. If two or more let go at the same tenth, nobody does; a lone bidder only wins. A tie at the top (void) does not cancel the minus stone.' },
             { title: 'The sit-out button', body: '"Sit this one out" in the ready step is the same as pressing and letting go during the countdown. Nobody else can see who did it.' },
           ] },
         ],
@@ -260,6 +268,7 @@ const guide: GameGuide = {
             ['Standard (5:00)', '6', '13', '3'],
             ['Broadcast (10:00)', '6', '19', '4'],
           ], caption: 'Safe line = auctions ÷ players, rounded down, + 1. The token panel shows the same number.' },
+          { type: 'callout', tone: 'warn', title: 'With minus stones it is not a guarantee', text: 'The safe line above counts stones only. This site gives −1 to whoever lets go first, so reaching the line and then taking several minus stones can still leave you last. Count your **score (stones − minus)**.' },
           { type: 'p', text: 'One fewer usually survives too: in the broadcast format, three tokens only lose if the other five all have three or more (4·3·3·3·3) and you have the least time. So the beginner plan is to **win just the number you need, in auctions you can win cheaply**.' },
           { type: 'callout', tone: 'tip', title: 'Set a budget per token', text: 'In Quick with a target of two, you can afford about a minute per token. If an auction looks like it will cost more, let go. Time already held is gone whether you let go or not, so holding on "because I have already spent so much" is the most common mistake.' },
         ],
@@ -299,7 +308,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'cards', items: [
             { title: 'After an expensive auction', body: 'A big winning price usually means the runner-up lost big too. Everyone tends to hold back in the very next auction — a chance to win cheaply.' },
-            { title: 'The value of a 0.1 s bid', body: 'Leaving 0.1–1 s in an auction nobody seems to want wins a near-free token when everyone else drops out. On the show one player bid 10.1 s and lost such an auction. If someone has the same idea you lose by a tenth or tie into a void, so vary the time.' },
+            { title: 'Short bids cut both ways', body: 'A few seconds in an auction nobody seems to want wins a near-free stone when everyone else drops out. But here, as soon as anyone else bids, you are the first to let go and take the **minus stone**. Go in properly or drop out in the countdown; try short bids only when everyone is likely tired, such as right after an expensive auction.' },
             { title: 'Avoid round numbers', body: 'Times like 2:00 or 1:30 are easy for others to pick too. A tie loses both bids and the token, so get used to holding a little past your target.' },
             { title: 'The last auction', body: 'There is no reason to keep time in the last auction. Near the bottom, spend everything; already safe, only the race for 1st remains — and equal tokens go to more time left.' },
           ] },
@@ -313,6 +322,7 @@ const guide: GameGuide = {
             '**Holding on because of what you already spent.** Spent time is gone either way. Decide only on whether the time you are about to add can win.',
             '**Spending it all early.** Early wins add tokens, but everyone then knows your cap is low, and you can no longer win cheaply.',
             '**Misremembering your time.** With less than you think, a big bid ends with your button pushed out and all of it gone. Update your count after every auction.',
+            '**Going in half-heartedly.** Letting go a few seconds after the countdown spends time and often takes the minus stone too. If in doubt, let go during the countdown.',
             '**Reading too much into the board.** The board only says someone is still holding — never how many or who.',
           ] },
         ],
@@ -321,8 +331,8 @@ const guide: GameGuide = {
         id: 'modes',
         title: 'AI and friend rooms',
         blocks: [
-          { type: 'p', text: 'There are five AI styles. **Steady** bids only as often as it needs, near the usual price; **Rush** spends big early to bank tokens; **Lurker** sits out early and pours its time into the late auctions; **Penny** makes tiny bids hoping nobody else bothers; **Counter** counts winning prices to cap each rival’s time. Every AI decides from public information (winners, prices, tokens) and its own time; none can see who is holding.' },
-          { type: 'p', text: '**Normal** AIs keep only a rough count of their own time and sometimes plan a bid they cannot pay, so the button gets pushed out. **Hard** AIs count exactly and pick auctions they can win. Over 3,000 AI-only matches in Quick, hard AIs were eliminated about 17% of the time, normal ones about 24%.' },
+          { type: 'p', text: 'There are five AI styles. **Steady** bids only as often as it needs, near the usual price; **Rush** spends big early to bank tokens; **Lurker** sits out early and pours its time into the late auctions; **Penny** slips in short bids when everyone seems tired (and takes the minus stone if caught); **Counter** counts winning prices to cap each rival’s time. Every AI decides from public information (winners, prices, tokens) and its own time; none can see who is holding.' },
+          { type: 'p', text: '**Normal** AIs keep only a rough count of their own time and sometimes plan a bid they cannot pay, so the button gets pushed out. **Hard** AIs count exactly and pick auctions they can win. Over 3,000 AI-only matches in Quick, hard AIs were eliminated about 12% of the time, normal ones about 22%.' },
           { type: 'p', text: 'Friend and open rooms take 2–6 people; the host chooses whether AI fills the empty seats. In the ready step you have 15 seconds to press, or you sit that auction out; miss twice in a row and the AI plays your seat until you come back.' },
           { type: 'callout', tone: 'note', title: 'Your hold is timed on your device', text: 'Your hold is measured on your own device from your own countdown, and the host’s device checks that the claim is possible. A slow connection does not change your bid. Switching apps or turning the screen off counts as letting go at that moment, so keep the screen on during an auction.' },
         ],
@@ -334,6 +344,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['', 'Broadcast', 'PUZZLTHINK'], rows: [
             ['Players', '6', '6 vs AI · 2–6 in rooms'],
+            ['Minus stone', 'None', 'With two or more bids, the first to let go takes −1 (a tie to 0.1 s: nobody). Places go by score (stones − minus)'],
             ['What is sold', 'A victory token', 'One go stone per auction (gold for the last). Only the look differs: it counts exactly like a token'],
             ['Time × auctions', '10:00 × 19', '2:00 × 9 (default) · 5:00 × 13 · 10:00 × 19'],
             ['Stakes', '1st gets a piece · last is eliminated', '1st · last is eliminated (kept in your records)'],
@@ -360,7 +371,8 @@ const guide: GameGuide = {
     faq: [
       { q: 'Do losers lose time in Time Auction?', a: 'Yes. Everything you hold after the countdown is gone even if you do not win. Only letting go during the countdown is free.' },
       { q: 'Where do I see my remaining time?', a: 'You do not. As on the show, your remaining time is hidden even from you, so you must remember what you spent. When it runs out the button is pushed out and your phone vibrates; at the end everyone’s time and every bid is revealed.' },
-      { q: 'How many tokens do I need to survive?', a: 'More than auctions ÷ players makes you safe for certain. With six players: 2 in Quick (9 auctions), 3 in Standard (13), 4 in Broadcast (19).' },
+      { q: 'How many stones do I need to survive?', a: 'Counting stones only, more than auctions ÷ players is safe (with six: 2 in Quick, 3 in Standard, 4 in Broadcast). But this site gives a minus stone to whoever lets go first, so places go by score (stones − minus) and nothing is guaranteed.' },
+      { q: 'Is the minus stone a broadcast rule?', a: 'No, it is a PUZZLTHINK house rule. When two or more bid, the first to let go takes −1; dropping out in the countdown never takes it.' },
       { q: 'What if two players let go at the same tenth of a second?', a: 'If the longest holds tie to 0.1 s, the auction is void: nobody gets the token and the tied players still lose their time.' },
       { q: 'Can I play the broadcast format, 10 minutes and 19 auctions?', a: 'Yes. Pick "Broadcast rules 10:00 × 19" when you start, or set the match size to Broadcast in a friend room. A match takes about 40 minutes.' },
       { q: 'Does a slow connection hurt me?', a: 'No. Your hold is timed on your own device from your own countdown, so delay is not added to your bid. The host’s device only checks the claim is possible.' },

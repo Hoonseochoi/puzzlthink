@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { Crown, Skull, X } from 'lucide-react';
-import { taClock, taStandings } from '@/lib/timeAuction';
+import { taClock, taScore, taStandings } from '@/lib/timeAuction';
 import type { TaRoom } from '@/lib/timeAuctionRoom';
 import { reportGame } from '@/lib/stats';
 import ResultActions from '../ResultActions';
@@ -21,7 +21,7 @@ export function useTaReport(room: TaRoom | null, mySeat: number | null, mode: 'a
     const st = taStandings(g);
     const place = st.place[mySeat] ?? 0;
     reportGame(`time_auction-${mode}-${gid}-${mySeat}`, 'time_auction', mode, place === 1 ? 'win' : 'loss', {
-      place, tokens: g.tokens[mySeat], left: g.bank[mySeat], out: st.eliminated.includes(mySeat), format: g.format,
+      place, tokens: g.tokens[mySeat], minus: g.minus[mySeat], score: taScore(g, mySeat), left: g.bank[mySeat], out: st.eliminated.includes(mySeat), format: g.format,
       players: g.inGame.filter(Boolean).length, ...(room.ai.some(Boolean) ? { level: room.level } : {}),
       ...(mode === 'friend' ? { humans: room.ai.filter((ai, i) => !ai && room.seats[i]).length } : {}),
     }, { revealDelayMs: 1200 });
@@ -55,7 +55,7 @@ export default function TimeAuctionResult({ room, mySeat, t, locale, onAgain, on
                 <span className="min-w-0 flex-1 truncate text-sm font-bold">{taName(room, s, t, en, mySeat)}</span>
                 {st.piece === s && <span className="flex items-center gap-1 rounded-full bg-[#ffd36b] px-2 py-0.5 text-[10px] font-black text-black"><Crown size={11} />{t.piece}</span>}
                 {out && <span className="flex items-center gap-1 rounded-full bg-[#ff3b30] px-2 py-0.5 text-[10px] font-black text-white"><Skull size={11} />{t.eliminated}</span>}
-                <span className="font-mono text-sm font-black text-(--accent)">{g.tokens[s]}</span>
+                <span className="font-mono text-sm font-black text-(--accent)">{taScore(g, s)}</span>
                 <span className="w-16 text-right font-mono text-[11px] text-white/55">{taClock(g.bank[s])}</span>
                 <span className="basis-full pl-10"><Tray room={room} seat={s} size={20} en={en} /></span>
               </li>
@@ -77,7 +77,8 @@ export default function TimeAuctionResult({ room, mySeat, t, locale, onAgain, on
                   {seats.map((s) => {
                     const b = r.bids[s] ?? 0;
                     const win = r.outcome === 'won' && r.winner === s;
-                    return <td key={s} className={`px-1.5 py-0.5 text-right font-mono tabular-nums ${win ? 'font-black text-(--accent)' : b ? 'text-white/70' : 'text-white/20'}`}>{b ? taClock(b) : '·'}</td>;
+                    const minus = r.minus === s;
+                    return <td key={s} className={`px-1.5 py-0.5 text-right font-mono tabular-nums ${win ? 'font-black text-(--accent)' : minus ? 'text-[#ff7b72] underline decoration-dotted' : b ? 'text-white/70' : 'text-white/20'}`}>{b ? `${minus ? '−1 ' : ''}${taClock(b)}` : '·'}</td>;
                   })}
                 </tr>
               ))}

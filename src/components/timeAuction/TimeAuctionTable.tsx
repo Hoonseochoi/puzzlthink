@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Bot, Hand, History, Timer } from 'lucide-react';
-import { TA_COUNTDOWN_MS, TA_UNIT, taClock, taSafeTokens } from '@/lib/timeAuction';
+import { TA_COUNTDOWN_MS, TA_UNIT, taClock, taScore } from '@/lib/timeAuction';
 import { TA_PERSONA } from '@/lib/timeAuctionAi';
 import { TA_BEAT_MS, TA_READY_SEC, type TaBeat, type TaRoom, type TaRoomAction, taBeat } from '@/lib/timeAuctionRoom';
 import { PANEL, PANEL_TITLE } from '../ui/gameUi';
 import type { TaCopy } from './copy';
-import { AuctionBlock, HoldRing, LotStone, SeatStone, Tray, lotFor, lotName } from './TimeAuctionParts';
+import { AuctionBlock, HoldRing, LotStone, MinusStone, SeatStone, Tray, lotFor, lotName } from './TimeAuctionParts';
 
 type Status = number | null | 'unknown'; // let-go time (ms after the countdown), still holding, or not known (page loaded mid-auction)
 type Rec = { round: number; cdEnd: number; released: Status; pushed: boolean; sentAt: number };
@@ -204,10 +204,14 @@ function Board({ room, rec, t, mySeat, en }: { room: TaRoom; rec: Rec | null; t:
   return (
     <div className="relative overflow-hidden rounded-[14px] border border-white/10 bg-[#050506] px-3 pb-4 text-center shadow-[inset_0_0_40px_rgba(255,59,48,0.08)] sm:pb-6">
       <AuctionBlock room={room} mySeat={mySeat} en={en} winnerLabel={last?.outcome === 'won' && (g.phase === 'reveal' || g.phase === 'finished') ? taName(room, last.winner!, t, en, mySeat) : null}
+        minusLabel={last && last.minus !== null ? taName(room, last.minus, t, en, mySeat) : null}
         outcomeLabel={t.lot((g.phase === 'reveal' || g.phase === 'finished') && last ? last.round : g.round, lotName(lotFor((g.phase === 'reveal' || g.phase === 'finished') && last ? last.round : g.round, g.rounds), en))} />
       <p className="mt-1 font-mono text-[9px] font-black tracking-[0.35em] text-white/30">{t.board} · {t.round(g.round, g.rounds)}</p>
       <p aria-live="off" className={`mt-1 font-mono text-[56px] font-black leading-none tabular-nums tracking-tight sm:text-[84px] ${tone}`} style={{ textShadow: '0 0 24px currentColor' } as CSSProperties}>{big}</p>
       <p className="mt-2 min-h-[18px] break-keep text-[12px] font-bold text-white/60" aria-live="polite">{g.phase === 'reveal' || g.phase === 'finished' ? small : g.phase === 'live' ? t.watching : t.ready}</p>
+      {(g.phase === 'reveal' || g.phase === 'finished') && last && (
+        <p className="mt-0.5 min-h-[16px] break-keep text-[11.5px] font-bold text-[#ff7b72]">{last.minus === null ? t.noMinus : last.minus === mySeat ? t.minusMe : t.minusTo(taName(room, last.minus, t, en, mySeat))}</p>
+      )}
     </div>
   );
 }
@@ -224,7 +228,6 @@ export default function TimeAuctionTable({ room, mySeat, onAction, t, locale, di
   const g = room.game;
   const { me, isDown, rec, counting, pass, handlers } = useHold(room, mySeat, onAction, direct, rooms);
   const players = g.inGame.filter(Boolean).length;
-  const safe = taSafeTokens(g.rounds, players);
   const ready = g.inGame.filter((on, i) => on && g.pressed[i]).length;
   const myBank = me !== null ? g.bank[me] : -1;
   const noTime = me !== null && myBank >= 0 && myBank < TA_UNIT && g.phase !== 'finished';
@@ -291,15 +294,15 @@ export default function TimeAuctionTable({ room, mySeat, onAction, t, locale, di
       </section>
       <aside className="grid content-start gap-3">
         <section className={PANEL}>
-          <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t.tokens}</p><span className="text-[10px] font-bold text-white/35">{t.safe(safe)}</span></div>
+          <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t.tokens}</p><span className="text-[10px] font-bold text-white/35">{t.scoreNote}</span></div>
           <ul className="mt-2 grid gap-1">
             {g.inGame.flatMap((on, s) => (on ? [s] : [])).map((s) => (
               <li key={s} data-chat-seat={room.seats[s]?.id} className={`flex flex-wrap items-center gap-2 rounded-md px-2 py-1.5 ${s === mySeat ? 'bg-(--accent)/10 ring-1 ring-(--accent)/40' : 'bg-white/[0.03]'}`}>
                 <SeatStone room={room} seat={s} mySeat={mySeat} size={24} label={taName(room, s, t, en, mySeat)} />
                 <span className="min-w-0 flex-1 truncate text-[12.5px] font-bold">{taName(room, s, t, en, mySeat)}</span>
                 {room.away?.[s] && <span title={t.away}><Bot size={12} className="text-[#ffb547]" /></span>}
-                <Tray room={room} seat={s} size={15} safe={safe} en={en} />
-                <b className="w-4 text-right font-mono text-[12px]">{g.tokens[s]}</b>
+                <Tray room={room} seat={s} size={15} en={en} />
+                <b className="w-5 text-right font-mono text-[12px]">{taScore(g, s)}</b>
               </li>
             ))}
           </ul>
@@ -314,6 +317,7 @@ export default function TimeAuctionTable({ room, mySeat, onAction, t, locale, di
                   <LotStone lot={lotFor(r.round, g.rounds)} size={14} dim={r.outcome !== 'won'} label={lotName(lotFor(r.round, g.rounds), en)} />
                   {r.outcome === 'won' ? <><span className="min-w-0 flex-1 truncate font-bold">{taName(room, r.winner!, t, en, mySeat)}</span></>
                     : <span className="flex-1 text-white/40">{r.outcome === 'void' ? (en ? 'Void (tie)' : '유찰') : (en ? 'No bids' : '입찰 없음')}</span>}
+                  {r.minus !== null && <span className="flex items-center gap-0.5 text-[10.5px] text-[#ff7b72]" title={t.minusTo(taName(room, r.minus, t, en, mySeat))}><MinusStone size={11} />{taName(room, r.minus, t, en, mySeat)}</span>}
                   <span className="font-mono tabular-nums text-white/70">{r.outcome === 'empty' ? '' : taClock(r.price)}</span>
                 </li>
               ))}
