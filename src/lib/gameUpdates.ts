@@ -25,13 +25,23 @@ export type GameUpdateLog = {
 };
 
 export const GAME_UPDATES: Record<string, GameUpdateLog> = {
+  hidden_word_plus: {
+    name: { ko: '히든 워드 확장판', en: 'Hidden Word: Expansion' },
+    items: [
+      {
+        date: '11/27', icon: Sparkles,
+        ko: { title: '히든 워드 확장판 출시', desc: '감정·직업·장소·음식·문화까지, 서로 닮은 186단어가 30개 묶음으로 나와요. 95% 힌트로 묶음을 찾고 그 안에서 모라의 단어를 가려내세요. 모라의 힌트는 덜 직접적이고, 랭킹과 1위 아이콘은 확장판 따로예요.' },
+        en: { title: 'Hidden Word: Expansion is here', desc: '186 look-alike words in 30 groups: feelings, jobs, places, food, culture. A 95% hint finds the group; then pick MORA\'s word out of it. MORA hints less directly, and the ranking and #1 icon are the Expansion\'s own.' },
+      },
+    ],
+  },
   hidden_word: {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
       {
-        date: '11/26', icon: Sparkles,
-        ko: { title: '확장 단어 세트가 열렸어요', desc: '봉투를 고르기 전에 기본(60단어)과 확장(186단어)을 고를 수 있어요. 확장은 감정·직업·장소·음식·문화까지, 서로 닮은 단어끼리 묶여 있고 모라의 힌트도 덜 직접적이라 조금 더 어려워요. 규칙은 같고 랭킹은 따로, 친구 방에서도 고를 수 있어요.' },
-        en: { title: 'New word set: Expansion', desc: 'Before you pick an envelope, choose Basic (60 words) or Expansion (186 words): feelings, jobs, places, food and culture in look-alike groups, with less direct hints from MORA — a bit harder. Same rules, its own ranking, and friend rooms can pick it too.' },
+        date: '11/27', icon: Sparkles,
+        ko: { title: '히든 워드 확장판이 따로 나왔어요', desc: '닮은 단어 186개로 하는 확장판은 이제 자기 화면과 랭킹이 있는 게임이에요. 히든 워드는 기본 60단어로 하고, 첫 화면의 "확장판 하러 가기"로 넘어갈 수 있어요. 어젯밤 확장으로 둔 대전은 확장판 랭킹으로 옮겼어요.' },
+        en: { title: 'Hidden Word: Expansion is now its own game', desc: 'The 186-word Expansion now has its own page and ranking. Hidden Word plays its 60 words again; "Play the Expansion" on its entry screen takes you over. Expansion matches played last night moved to the Expansion ranking.' },
       },
       {
         date: '11/26', icon: Wrench,

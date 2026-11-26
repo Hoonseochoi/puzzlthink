@@ -2,9 +2,8 @@
 
 import type { ReactNode } from 'react';
 import { Check, KeyRound, LockKeyhole, X } from 'lucide-react';
-import { type HwLevel, HW_LEVELS, hwHeat } from '@/lib/hiddenWord';
-import { PANEL_TITLE } from '../ui/gameUi';
-import { HW_GOLD, type HwCopy } from './copy';
+import { hwHeat } from '@/lib/hiddenWord';
+import { HW_GOLD } from './copy';
 
 const pct = (score: number) => (score >= 100 ? '100' : score.toFixed(1));
 
@@ -31,8 +30,19 @@ export function SimRow({ word, score, cut, tag, tone = 'hint', delay = 0 }: {
   );
 }
 
-/** A sealed envelope from the dealer room. */
-export function Envelope({ n, label, onPick, state }: { n: number; label: string; onPick: () => void; state: 'idle' | 'opening' | 'dim' }) {
+/** A sealed envelope from the dealer room (확장판: midnight paper, gold foil and a gold seal). */
+export function Envelope({ n, label, onPick, state, plus = false }: { n: number; label: string; onPick: () => void; state: 'idle' | 'opening' | 'dim'; plus?: boolean }) {
+  if (plus) return (
+    <button type="button" onClick={onPick} disabled={state !== 'idle'} aria-label={label}
+      className={`group relative aspect-[4/3] w-full overflow-hidden rounded-[10px] transition duration-300 [perspective:600px] ${state === 'dim' ? 'scale-95 opacity-30' : state === 'opening' ? 'scale-105' : 'hover:-translate-y-1'}`}>
+      <span className="absolute inset-0 rounded-[10px] border border-[#ffd66b]/35 bg-[linear-gradient(160deg,#2e2358,#161030)] shadow-[0_10px_26px_rgba(0,0,0,.55),inset_0_0_0_1px_rgba(183,156,255,.12)]" />
+      <span aria-hidden className="absolute inset-x-0 bottom-0 h-[62%] rounded-b-[10px] bg-[linear-gradient(180deg,#261d4a,#120d26)] [clip-path:polygon(0_100%,0_18%,50%_62%,100%_18%,100%_100%)]" />
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-[58%] origin-top rounded-t-[10px] bg-[linear-gradient(180deg,#3a2d6b,#21183f)] [clip-path:polygon(0_0,100%_0,50%_100%)] ${state === 'opening' ? '[animation:hwFlap_.5s_ease-in_forwards]' : ''}`} />
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-[58%] origin-top bg-[linear-gradient(90deg,transparent,rgba(255,214,107,.55),transparent)] [clip-path:polygon(0_0,3%_0,50%_94%,97%_0,100%_0,50%_100%)] ${state === 'opening' ? 'opacity-0' : ''}`} />
+      {state === 'idle' && <span aria-hidden className="hwp-sheen pointer-events-none absolute inset-y-0 -left-1/2 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/15 to-transparent" style={{ animationDelay: `${n * 0.35}s` }} />}
+      <span className={`absolute left-1/2 top-[52%] grid h-[34%] aspect-square -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#fff3c4,#f0bf4c_55%,#a8721a)] font-mono text-sm font-black text-[#3a2706] shadow-[0_2px_8px_rgba(0,0,0,.5),0_0_14px_rgba(255,214,107,.35),inset_0_-2px_3px_rgba(0,0,0,.25)] transition group-hover:scale-110 sm:text-lg ${state === 'opening' ? 'opacity-0' : ''}`}>{n}</span>
+    </button>
+  );
   return (
     <button type="button" onClick={onPick} disabled={state !== 'idle'} aria-label={label}
       className={`group relative aspect-[4/3] w-full rounded-[10px] transition duration-300 [perspective:600px] ${state === 'dim' ? 'scale-95 opacity-30' : state === 'opening' ? 'scale-105' : 'hover:-translate-y-1'}`}>
@@ -44,8 +54,17 @@ export function Envelope({ n, label, onPick, state }: { n: number; label: string
   );
 }
 
-/** A word from my envelope. */
-export function WordCard({ word, selected, onClick, index = 0 }: { word: string; selected: boolean; onClick: () => void; index?: number }) {
+/** A word from my envelope (확장판: a dark foil card with a gold corner). */
+export function WordCard({ word, selected, onClick, index = 0, plus = false }: { word: string; selected: boolean; onClick: () => void; index?: number; plus?: boolean }) {
+  if (plus) return (
+    <button type="button" onClick={onClick} aria-pressed={selected}
+      className={`relative flex h-[84px] items-center justify-center overflow-hidden rounded-[12px] border px-2 text-center transition [animation:hwPop_.4s_ease-out_both] sm:h-[104px] ${selected ? 'border-(--accent) bg-(--accent)/15 shadow-[0_0_26px_var(--accent-glow)] -translate-y-1' : 'border-[#ffd66b]/25 bg-[linear-gradient(160deg,#2a2050,#140f28)] shadow-[inset_0_1px_0_rgba(255,255,255,.06)] hover:-translate-y-0.5 hover:border-[#ffd66b]/50'}`}
+      style={{ animationDelay: `${index * 0.06}s` }}>
+      <span aria-hidden className="absolute -right-3 -top-3 h-7 w-7 rotate-45 bg-[linear-gradient(180deg,#ffe9a6,#d9a13a)] opacity-80" />
+      <strong lang="ko" className={`break-keep text-xl font-black tracking-[-0.03em] sm:text-2xl ${selected ? 'text-(--accent)' : 'text-[#f1eaff]'}`}>{word}</strong>
+      {selected && <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-(--accent) text-(--accent-ink)"><Check size={12} strokeWidth={3.5} /></span>}
+    </button>
+  );
   return (
     <button type="button" onClick={onClick} aria-pressed={selected}
       className={`relative flex h-[84px] items-center justify-center rounded-[12px] border px-2 text-center transition [animation:hwPop_.4s_ease-out_both] sm:h-[104px] ${selected ? 'border-(--accent) bg-(--accent)/15 shadow-[0_0_24px_var(--accent-glow)] -translate-y-1' : 'border-[#e9dcc0]/20 bg-[linear-gradient(165deg,#f3ead6,#dfd0ae)] hover:-translate-y-0.5'}`}
@@ -115,20 +134,12 @@ export function MoraFace({ size = 28, thinking = false }: { size?: number; think
   );
 }
 
-/** 기본 / 확장: a new match of the other level replaces this one (no envelope is open yet, nothing is lost). */
-export function LevelPicker({ t, level, disabled, onPick }: { t: HwCopy; level: HwLevel; disabled?: boolean; onPick: (level: HwLevel) => void }) {
-  return (
-    <div className="mb-5" role="radiogroup" aria-label={t.levelTitle}>
-      <p className={`${PANEL_TITLE} text-center`}>{t.levelTitle}</p>
-      <div className="mx-auto mt-2 grid max-w-[420px] grid-cols-2 gap-2">
-        {HW_LEVELS.map((id) => (
-          <button key={id} type="button" role="radio" aria-checked={level === id} disabled={disabled} onClick={() => onPick(id)}
-            className={`rounded-[12px] border px-3 py-2.5 text-left transition disabled:opacity-60 ${level === id ? 'border-(--accent) bg-(--accent)/10' : 'border-white/12 bg-black/25 hover:border-white/30'}`}>
-            <b className={`block text-sm font-black ${level === id ? 'text-(--accent)' : 'text-white/80'}`}>{t.levelName[id]}</b>
-            <span className="mt-0.5 block break-keep text-[11px] leading-4 text-white/50">{t.levelDesc[id]}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+/** The gold "확장판" mark beside the game's name. */
+export function EditionMark({ label }: { label: string }) {
+  return <span className="ml-2 inline-block translate-y-[-2px] rounded-[5px] bg-[linear-gradient(135deg,#ffe9a6,#e0a83a)] px-1.5 py-0.5 align-middle font-sans text-[10px] font-black tracking-[0.06em] text-[#2a1a04] [-webkit-text-fill-color:#2a1a04] shadow-[0_0_12px_rgba(255,214,107,.35)] sm:text-[11px]">{label}</span>;
+}
+
+/** Copy with **bold** spans. */
+export function RichText({ text }: { text: string }) {
+  return <>{text.split('**').map((part, i) => (i % 2 ? <b key={i} className="font-black text-white/85">{part}</b> : part))}</>;
 }

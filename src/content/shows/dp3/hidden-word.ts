@@ -67,7 +67,7 @@ const game: ShowGame = {
         '한 차의 힌트는 **5개, 2분**까지예요(방송은 10개, 15분). 95% 이상이면 즉시 끝나고, 시간이 지나면 가장 가까운 단어가 공개되는 것은 같아요.',
         '맞히는 쪽의 점수가 다르게 매겨져요. 사이트에서는 빨리 맞힐수록 큰 점수(1차 6점, 2차 3점, 3차 1점)를 받고, 방송은 맞힌 사람이 1점을 받아요. 출제자의 1·2·3점과 2라운드 2배는 같아요.',
         '유사도는 사이트가 쓰는 연상표 기준이라, 방송의 AI가 매긴 숫자와 같지 않아요.',
-        '단어 세트를 고를 수 있어요. **기본**(60단어)은 방송에 나온 단어를 포함한 익숙한 묶음이고, **확장**(186단어)은 감정·직업·장소·문화처럼 서로 닮은 단어끼리 묶여 조금 더 어려워요. 랭킹은 세트마다 따로예요.',
+        '서로 닮은 단어 186개(30개 묶음)로 하는 **히든 워드 확장판**이 따로 있어요. 히든 워드는 방송에 나온 단어를 포함한 60단어로 하고, 확장판은 감정·직업·장소·문화처럼 닮은 단어끼리 묶여 조금 더 어려워요. 랭킹은 게임마다 따로예요.',
       ] },
     ],
     similar: [
@@ -135,7 +135,7 @@ const game: ShowGame = {
         'Each stage allows **5 hints in 2 minutes** (10 hints in 15 minutes on the show). The 95% stop and the closest-word reveal are the same.',
         'Guessing is scored differently: the faster you guess, the more you get (6, 3 or 1 point by stage), where on the show a right guess is worth 1. The setter’s 1-2-3 and the doubled round 2 are the same.',
         'Similarity comes from the site’s own association table, so its numbers are not the show’s.',
-        'You can pick a word set: **Basic** (60 words, familiar groups including the show’s own words) or **Expansion** (186 words in look-alike groups such as feelings, jobs, places and culture — a bit harder). Each set has its own ranking.',
+        'There is also **Hidden Word: Expansion**, a separate game with 186 look-alike words in 30 groups. Hidden Word plays 60 words including the show’s own; the Expansion groups look-alikes such as feelings, jobs, places and culture, and is a bit harder. Each has its own ranking.',
       ] },
     ],
     similar: [
