@@ -7,7 +7,8 @@
 //   쥐 rat      — one square up, down, left or right
 //   말 horse    — a chess knight's jump
 //   원숭이 monkey — any of the eight neighbouring squares
-//   코끼리 elephant — a chess bishop: any distance diagonally, stopped by the first piece (an enemy one can be taken)
+//   코끼리 elephant — one or two squares in one diagonal direction (the show's rulebook), stopped by the first piece
+//                    (an enemy one can be taken)
 //   기린 giraffe — exactly two squares up, down, left or right, jumping over whatever is between (as drawn on the card)
 //
 // A round: a coin decides who goes first (선); then it alternates every round. Both lay out their cards face down at
@@ -60,7 +61,7 @@ export function startBoard(): number[] {
   return board;
 }
 
-// Move tables. Jumps (every card but the elephant): target squares per square. Rays (elephant): four diagonals.
+// Move tables. Jumps (every card but the elephant): target squares per square. Rays (elephant): four diagonals, two squares long.
 const STEPS: Record<number, [number, number][]> = {
   0: [[1, 0], [-1, 0], [0, 1], [0, -1]],
   1: [[1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2]],
@@ -74,7 +75,7 @@ export const JUMPS: number[][][] = [0, 1, 2, 3, 4].map((card) => Array.from({ le
 }));
 export const RAYS: number[][][] = Array.from({ length: CJ_CELLS }, (_, cell) => [[1, 1], [1, -1], [-1, 1], [-1, -1]].map(([dx, dy]) => {
   const ray: number[] = [];
-  for (let x = xOf(cell) + dx, y = yOf(cell) + dy; inside(x, y); x += dx, y += dy) ray.push(cellOf(x, y));
+  for (let k = 1, x = xOf(cell) + dx, y = yOf(cell) + dy; k <= 2 && inside(x, y); k += 1, x += dx, y += dy) ray.push(cellOf(x, y));
   return ray;
 }));
 

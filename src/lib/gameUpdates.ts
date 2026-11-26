@@ -219,6 +219,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
       },
     ],
   },
+  card_janggi: {
+    name: { ko: '카드 장기', en: 'Card Janggi' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '코끼리는 대각선으로 2칸까지만 가요', desc: '방송 규칙서대로 코끼리가 대각선 한 방향으로 1–2칸만 움직여요. 1칸째에 말이 있으면 뛰어넘지 못해요. 전에는 비숍처럼 대각선 끝까지 갈 수 있었어요.' },
+        en: { title: 'The elephant now moves at most two squares', desc: 'As in the show’s rulebook, the elephant moves 1–2 squares in one diagonal direction and cannot jump a piece on the first square. It used to slide any distance like a bishop.' },
+      },
+    ],
+  },
   laser_janggi: {
     name: { ko: '레이저 장기', en: 'Laser Janggi' },
     items: [
