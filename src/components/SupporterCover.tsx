@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useId, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Heart } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Check, ChevronDown, Heart, Loader2, Send } from 'lucide-react';
+import { useAuth } from './AuthProvider';
 import { getSupabase } from '@/lib/supabase';
 import { SUPPORT_URL, trackSupportClick } from './SupportLink';
 import { Stone } from './StoneAvatar';
@@ -213,16 +214,93 @@ export function SupporterCoverCard({ name, stone, signedIn, place, tone = 'light
         <>
           <ol className={`relative mt-4 space-y-1.5 text-[12px] font-bold leading-5 ${dark ? 'text-white/70' : 'text-black/65'}`}>
             <li className="flex gap-2"><span className="font-mono text-[#ff6b4a]">01</span><span className="break-keep">{t('step1')}</span></li>
-            <li className="flex gap-2"><span className="font-mono text-[#ff6b4a]">02</span><span className="break-keep">{name && signedIn ? t('step2Name', { name }) : t('step2')}</span></li>
+            <li className="flex gap-2"><span className="font-mono text-[#ff6b4a]">02</span><span className="break-keep">{t('step2')}</span></li>
             <li className="flex gap-2"><span className="font-mono text-[#ff6b4a]">03</span><span className="break-keep">{t('step3')}</span></li>
           </ol>
           <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackSupportClick(place)}
             className="relative mt-4 flex items-center justify-center gap-1.5 rounded-2xl bg-[#ff6b4a] py-3 text-sm font-black text-white transition hover:bg-[#ff5530]">
             <Heart size={15} fill="currentColor" />{t('cta')}
           </a>
+          <SupportConfirm name={signedIn ? name : undefined} dark={dark} />
           <p className={`relative mt-2 text-center text-[10px] leading-4 ${dark ? 'text-white/40' : 'text-black/40'}`}>{t('note')}</p>
         </>
       )}
     </section>
+  );
+}
+
+// Web3Forms relays the form to the address the key was created for (contact@puzzlthink.com), same as BugReport.
+const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || '';
+
+/**
+ * "후원 확인 요청": a small fold-out form under the support button. After supporting on CTEE the player leaves
+ * their supporter name there and their PUZZLTHINK nickname; it is emailed to the site owner, who then grants the
+ * cover with scripts/supporter/grant.sh.
+ */
+function SupportConfirm({ name, dark }: { name?: string; dark: boolean }) {
+  const t = useTranslations('SupporterCover');
+  const locale = useLocale();
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [nickname, setNickname] = useState(name ?? '');
+  const [donor, setDonor] = useState('');
+  const [memo, setMemo] = useState('');
+  const [trap, setTrap] = useState(''); // honeypot: bots fill every field
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
+  const [error, setError] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const nick = nickname.trim(), from = donor.trim();
+    if (!nick || !from) { setError(true); return; }
+    setError(false);
+    if (trap) { setStatus('sent'); return; }
+    if (!WEB3FORMS_KEY) { setStatus('failed'); return; }
+    setStatus('sending');
+    const ok = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: `[PUZZLTHINK 후원 확인 요청] ${nick}`,
+        from_name: 'PUZZLTHINK 후원 확인',
+        닉네임: nick,
+        후원자_아이디: from,
+        메모: memo.trim() || '-',
+        로그인: user ? `로그인 사용자 (${user.id})` : '비로그인',
+        언어: locale,
+        반영_명령: `scripts/supporter/grant.sh "${nick}" "CTEE ${from}"`,
+      }),
+    }).then((r) => r.json()).then((r) => Boolean(r?.success), () => false);
+    setStatus(ok ? 'sent' : 'failed');
+  };
+
+  const field = `w-full rounded-xl border px-3 py-2 text-[13px] font-bold outline-none transition focus:border-[#ff6b4a] ${dark ? 'border-white/15 bg-white/[.06] text-white placeholder:text-white/30' : 'border-black/10 bg-white text-[#17201e] placeholder:text-black/30'}`;
+  return (
+    <div className={`relative mt-3 rounded-2xl border ${dark ? 'border-white/10 bg-white/[.04]' : 'border-black/[.07] bg-white/60'}`}>
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
+        className={`flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-[12px] font-black ${dark ? 'text-white/80' : 'text-[#17201e]/80'}`}>
+        <Send size={13} className="shrink-0 text-[#ff6b4a]" />
+        <span className="min-w-0 flex-1 break-keep">{t('confirmToggle')}</span>
+        <ChevronDown size={14} className={`shrink-0 transition ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (status === 'sent' ? (
+        <p className="flex items-start gap-2 break-keep px-3.5 pb-3.5 text-[12px] font-bold leading-5 text-[#2f9e5b]"><Check size={14} className="mt-0.5 shrink-0" />{t('confirmSent')}</p>
+      ) : (
+        <form onSubmit={submit} className="space-y-2 px-3.5 pb-3.5">
+          <p className={`break-keep text-[11px] font-bold leading-4 ${dark ? 'text-white/55' : 'text-black/50'}`}>{t('confirmDesc')}</p>
+          <input value={donor} onChange={(e) => setDonor(e.target.value)} maxLength={40} placeholder={t('confirmDonor')} aria-label={t('confirmDonor')} className={field} />
+          <input value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={16} placeholder={t('confirmNickname')} aria-label={t('confirmNickname')} className={field} />
+          <input value={memo} onChange={(e) => setMemo(e.target.value)} maxLength={120} placeholder={t('confirmMemo')} aria-label={t('confirmMemo')} className={field} />
+          <input value={trap} onChange={(e) => setTrap(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden className="hidden" name="website" />
+          {error && <p className="text-[11px] font-bold text-[#c2410c]">{t('confirmMissing')}</p>}
+          {status === 'failed' && <p className="break-keep text-[11px] font-bold text-[#c2410c]">{t('confirmFailed')}</p>}
+          <button type="submit" disabled={status === 'sending'}
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#17201e] py-2.5 text-[12px] font-black text-white transition disabled:opacity-60">
+            {status === 'sending' ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}{t('confirmSubmit')}
+          </button>
+        </form>
+      ))}
+    </div>
   );
 }

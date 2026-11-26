@@ -5739,6 +5739,15 @@
     "disclaimer": "Nine Men's Morris is a traditional board game. PUZZLTHINK rebuilt it for the web after the show's rules; it is not affiliated with the broadcaster or producers."
   },
   "SupporterCover": {
+    "confirmToggle": "Supported already? Ask us to confirm it",
+    "confirmDesc": "After supporting, leave a confirmation request here! Write your supporter name and nickname and we will add the cover once we see it.",
+    "confirmDonor": "Supporter name (as shown on CTEE)",
+    "confirmNickname": "PUZZLTHINK nickname",
+    "confirmMemo": "Message (optional)",
+    "confirmSubmit": "Send confirmation request",
+    "confirmSent": "Got it! Once we see your support, the cover goes on within a day. Thank you 💛",
+    "confirmMissing": "Please fill in both your supporter name and nickname.",
+    "confirmFailed": "Could not send. Try again shortly or write to contact@puzzlthink.com.",
     "title": "Supporter icon cover",
     "desc": "PUZZLTHINK is built and run by one developer. Chip in ₩3,000 for the servers and, as a thank-you, your icon gets a cover around it, shown everywhere: rankings, the lounge and rooms.",
     "ownedDesc": "Thank you for your support! The cover goes around whichever icon you pick.",
@@ -5746,8 +5755,7 @@
     "on": "On",
     "off": "Off",
     "step1": "Chip in ₩3,000 for the servers with the button below.",
-    "step2": "Write your PUZZLTHINK nickname in the support message.",
-    "step2Name": "Write your nickname “{name}” in the support message.",
+    "step2": "After supporting, leave your supporter name and nickname in 'Confirm my support' below.",
     "step3": "Once we see it, the cover is added within a day, and it stays.",
     "cta": "Chip in ₩3,000 and get the cover",
     "note": "Every game stays free without support. The cover is only a look and changes nothing in the games."
