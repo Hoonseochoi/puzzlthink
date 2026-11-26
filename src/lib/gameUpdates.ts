@@ -30,8 +30,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/27', icon: Sparkles,
-        ko: { title: '히든 워드 확장판 출시', desc: '감정·직업·장소·음식·문화까지, 서로 닮은 186단어가 30개 묶음으로 나와요. 95% 힌트로 묶음을 찾고 그 안에서 모라의 단어를 가려내세요. 모라의 힌트는 덜 직접적이고, 랭킹과 1위 아이콘은 확장판 따로예요.' },
-        en: { title: 'Hidden Word: Expansion is here', desc: '186 look-alike words in 30 groups: feelings, jobs, places, food, culture. A 95% hint finds the group; then pick MORA\'s word out of it. MORA hints less directly, and the ranking and #1 icon are the Expansion\'s own.' },
+        ko: { title: '히든 워드 확장판 출시', desc: '감정·직업·장소·음식·문화까지, 서로 닮은 186단어가 30개 묶음으로 나와요. 95% 힌트로 묶음을 찾고 그 안에서 모라의 단어를 가려내세요. 모라의 힌트는 덜 직접적이고, 랭킹과 1위 아이콘은 확장판 따로예요. 로그인한 회원만 할 수 있어요.' },
+        en: { title: 'Hidden Word: Expansion is here', desc: '186 look-alike words in 30 groups: feelings, jobs, places, food, culture. A 95% hint finds the group; then pick MORA\'s word out of it. MORA hints less directly, and the ranking and #1 icon are the Expansion\'s own. For signed-in members only.' },
       },
     ],
   },

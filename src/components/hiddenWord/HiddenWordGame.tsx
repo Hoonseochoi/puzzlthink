@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { ArrowRight, BookOpen, Loader2, RotateCcw, Send, Sparkles, Trophy, X } from 'lucide-react';
+import { ArrowRight, BookOpen, Loader2, LockKeyhole, RotateCcw, Send, Sparkles, Trophy, X } from 'lucide-react';
 import { Piece } from '@/components/CompetitionBoard';
 import { useAuth } from '@/components/AuthProvider';
 import AuthButton from '@/components/AuthButton';
@@ -39,7 +39,9 @@ export default function HiddenWordGame({ level = 'basic' }: { level?: HwLevel })
   const locale = useLocale();
   const t = hwCopy(locale, level);
   const plus = level === 'plus';
-  const { user } = useAuth();
+  const { user, ready, signIn } = useAuth();
+  // 확장판 is for members: a signed-out visitor sees the sign-in panel and no match is started (hw_start refuses too).
+  const locked = plus && ready && !user;
   const [view, setView] = useState<HwView | null>(null);
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -70,7 +72,7 @@ export default function HiddenWordGame({ level = 'basic' }: { level?: HwLevel })
     loading.current = false;
     if (next && !next.error) accept(next); else setFailed(true);
   }, [accept, level]);
-  useEffect(() => { void begin(false); }, [begin]);
+  useEffect(() => { if (plus && (!ready || !user)) return; void begin(false); }, [begin, plus, ready, user]);
 
   const act = useCallback(async (action: HwAction) => {
     if (!view || busy) return false;
@@ -130,7 +132,12 @@ export default function HiddenWordGame({ level = 'basic' }: { level?: HwLevel })
       <main className="relative z-10 mx-auto w-full max-w-[640px] px-3 pb-10 pt-3 sm:px-4 sm:pt-5">
         {!view ? (
           <div className={`${STAGE} flex min-h-[320px] flex-col items-center justify-center gap-3 text-center`} role="status">
-            {failed ? <>
+            {locked ? <>
+              <LockKeyhole className="text-(--accent)" size={28} />
+              <h2 className="text-lg font-black text-white">{t.membersTitle}</h2>
+              <p className="max-w-[320px] break-keep text-sm leading-6 text-white/60">{t.membersDesc}</p>
+              <button type="button" onClick={() => void signIn()} className={BTN_ACCENT}>{t.membersSignIn}</button>
+            </> : failed ? <>
               <p className="text-sm text-white/70">{t.offline}</p>
               <button type="button" onClick={() => void begin(false)} className={BTN_ACCENT}><RotateCcw size={14} />{t.retry}</button>
             </> : <><Loader2 className="animate-spin text-(--accent)" size={26} /><p className="text-sm text-white/55">{t.loading}</p></>}

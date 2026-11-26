@@ -23,7 +23,7 @@ export type HwView = {
   /** My 피스 left in the running 경쟁전 week (0 when signed out): a second answer costs one. */
   pieces?: number;
   /** Why the last word was refused (nothing changed). */
-  error?: 'invalid' | 'secret' | 'duplicate' | 'unknown' | 'missing' | 'unavailable' | 'nopiece'; word?: string;
+  error?: 'invalid' | 'secret' | 'duplicate' | 'unknown' | 'missing' | 'unavailable' | 'nopiece' | 'login'; word?: string;
 };
 export type HwAction =
   | { t: 'envelope'; i: number } | { t: 'pick'; word: string } | { t: 'hint'; word: string }
