@@ -26,6 +26,7 @@ import firstMoveAdvantage from './first-move-advantage';
 import solvedGames from './solved-games';
 import luckAndSkill from './luck-and-skill';
 import lengthAndPlayerCount from './length-and-player-count';
+import glossary from './glossary';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -55,6 +56,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   solvedGames,
   luckAndSkill,
   lengthAndPlayerCount,
+  glossary,
 ];
 
 export const WIKI_BASE = '/board-games';
