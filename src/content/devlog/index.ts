@@ -6,6 +6,7 @@ import aiTwelveJanggi from './ai-twelve-janggi';
 import aiRussianJanggi from './ai-russian-janggi';
 import aiBlindGomoku from './ai-blind-gomoku';
 import aiColorLinkDuel from './ai-color-link-duel';
+import aiHitStay from './ai-hit-stay';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
@@ -13,6 +14,7 @@ const ARTICLES: DevlogArticle[] = [
   aiRussianJanggi,
   aiBlindGomoku,
   aiColorLinkDuel,
+  aiHitStay,
 ];
 
 export const DEVLOG: readonly DevlogArticle[] = ARTICLES;
