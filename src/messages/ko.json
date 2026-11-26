@@ -3604,7 +3604,7 @@
       "라운드 승자가 다음 선. 상대 숫자는 끝나야 공개돼요."
     ],
     "leadBadge": "선",
-    "oppPlayed": "{name}이(가) 낸 타일",
+    "oppPlayed": "{name} · 낸 타일",
     "left": "남음",
     "markDraw": "무",
     "markWin": "승",
