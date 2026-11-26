@@ -4879,6 +4879,8 @@
     "allIn": "All in +{n}",
     "fold": "Fold",
     "again": "Play again",
+    "personaTitle": "AI personality",
+    "personaNote": "Each match draws one of ten personalities at random. They differ in style only and all judge equally well; easy and normal add their usual mistakes on top. The personality is revealed when the match ends.",
     "difficulty": "AI difficulty",
     "levels": {
       "easy": "Easy",

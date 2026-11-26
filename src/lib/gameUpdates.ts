@@ -414,6 +414,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '인디언 포커', en: 'Indian Poker' },
     items: [
       {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 블러퍼·신중형·추격자 등 열 명 중 한 명이 나와 베팅 크기와 블러프 빈도가 달라요. 판단력은 모두 같고, 이제 공개된 카드로 내 베팅 버릇도 읽어요. 어려움은 일부러 하는 실수 없이 둬요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each match draws one of ten (the Bluffer, the Careful One, the Chaser…) with its own bet sizes and bluff rate. All judge equally well, they now read your betting habits from the revealed cards, and hard no longer makes deliberate slips.' },
+      },
+      {
         date: '11/26', icon: Wrench,
         ko: { title: '난이도 버튼의 AI 승률을 실제 기록으로 바꿨어요', desc: '버튼에 적힌 AI 승률이 실제보다 높았어요. 지금까지의 대전 기록으로 고쳤어요.' },
         en: { title: 'AI win rates on the level buttons now match the records', desc: 'The AI win rates shown on the buttons were higher than what really happened. They now come from the matches played so far.' },

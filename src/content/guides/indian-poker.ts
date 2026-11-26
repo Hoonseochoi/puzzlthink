@@ -7,11 +7,13 @@
 // Components: IndianPokerGame (AI levels with ~25/40/55%), IndianPokerParts (PokerHistory: last 10 hands, 10F mark).
 // Inline guide: IndianPokerGuide in ko/en.json. Odds counted by hand from the 20-card deck.
 import type { GameGuide } from './types';
+import { POKER_TELLS } from '@/lib/indianPoker';
+import { personaSection } from './personaSection';
 
 const guide: GameGuide = {
   game: 'indianPoker',
   origin: { kind: 'show', show: 'genius1' },
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   related: ['twoSidedPoker', 'hitStay', 'blackWhite', 'blackWhite2'],
   inlineNamespace: 'IndianPokerGuide',
   ko: {
@@ -156,12 +158,14 @@ const guide: GameGuide = {
             ['쉬움 (약 25%)', '공개된 카드를 거의 기억하지 않고, 판단 실수가 잦아요. 낮은 카드 앞에서 접거나 높은 카드 앞에서 무리하게 거는 일이 있어요. 괄호 안 숫자는 실제 대국 기록에서 잰 AI 승률이에요.'],
             ['보통 (약 40%)', '공개된 카드를 일부 기억하고 팟 오즈를 따져요. 상대의 베팅도 조금은 읽어요.'],
             ['어려움 (약 55%)', '남은 덱을 정확히 세고, 팟 오즈·칩 압박·10 페널티 위험까지 계산해요. 상대의 큰 레이즈를 "내 카드가 낮다"는 신호로 읽지만, 사람이 허세를 섞는다는 것도 감안해요. 허세도 적당히 섞어요.'],
+            ['성향', '모든 난이도에서 열 가지 성향 중 하나가 무작위로 나와요. 어려움의 성향은 일부러 하는 실수 없이 전력으로 두고, 쉬움·보통은 같은 성향에 그 난이도의 실수가 그대로 섞여요.'],
             ['AI전 시간', '턴마다 30초예요. 시간이 지나면 자동 폴드예요.'],
             ['친구 방', '링크로 초대해 1:1로 대결해요. 방장이 턴 시간을 20·30·45초 중에서 골라요. 각자 화면에는 상대 카드만 보이고, 내 카드는 핸드가 끝날 때 공개돼요.'],
           ] },
           { type: 'callout', tone: 'note', title: '카드 운의 비중', text: '같은 실력이라도 카드에 따라 결과가 크게 달라지는 게임이에요. 어려움 AI도 승률이 55% 정도인 이유예요. 한 판보다는 여러 판의 결과로 실력을 가늠해 보세요.' },
         ],
       },
+      personaSection('ko', POKER_TELLS, ['인디언 포커에서 성향이 갈리는 곳은 **같은 승률을 두고 얼마나 크게, 얼마나 자주 거짓으로 거느냐**예요. 남은 덱을 세는 계산은 모두 같아요. 그리고 AI는 핸드가 끝날 때 공개된 카드로 **내 베팅이 AI 카드를 얼마나 정직하게 따라가는지** 재요. AI 카드가 낮을 때마다 크게 걸었다면 큰 베팅을 "내 카드가 낮다"로 더 강하게 읽고, 반대로 높을 때 크게 거는 버릇이 보이면 그 읽기를 뒤집어요.']),
       {
         id: 'glossary',
         title: '용어 정리',
@@ -333,12 +337,14 @@ const guide: GameGuide = {
             ['Easy (~25%)', 'Barely remembers shown cards and makes frequent mistakes: folding against low cards, overbetting against high ones. The figure is the AI\'s measured win rate from real matches.'],
             ['Normal (~40%)', 'Remembers some shown cards and weighs pot odds; reads your bets a little.'],
             ['Hard (~55%)', 'Counts the remaining deck exactly and weighs pot odds, stack pressure and the 10-fold risk. Reads big raises as a sign its card is low, allowing for human bluffs, and bluffs at a measured rate itself.'],
+            ['Personality', 'Every level draws one of ten personalities. On hard it plays at full strength with no deliberate slips; easy and normal play the same personality with their level’s mistakes on top.'],
             ['Clock vs AI', '30 seconds a turn; running out folds automatically.'],
             ['Friend rooms', 'One-on-one by invite link. The host picks 20, 30 or 45 seconds a turn. Each screen shows only the other player\'s card; yours is revealed when the hand ends.'],
           ] },
           { type: 'callout', tone: 'note', title: 'How much is luck', text: 'Cards swing results a lot even between equal players, which is why even Hard wins only about 55%. Judge your play over several matches, not one.' },
         ],
       },
+      personaSection('en', POKER_TELLS, ['In Indian Poker personalities split on **how big and how often they bet against the same odds**; the deck counting is identical. At the end of each hand the AI also checks, from the revealed cards, **how honestly your bets followed its card**. If you bet big whenever its card was low, it reads your big bets as "my card is low" more strongly; if you tend to bet big into its high cards, it turns that read around.']),
       {
         id: 'glossary',
         title: 'Glossary',

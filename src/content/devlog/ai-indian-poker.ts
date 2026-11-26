@@ -5,7 +5,7 @@ const article: DevlogArticle = {
   category: 'ai',
   games: ['indianPoker'],
   published: '2026-11-26',
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   ko: {
     meta: {
       title: '인디언 포커 AI 개발기 — 자기 카드를 못 보는 AI가 베팅을 읽는 법 | 개발 노트',
@@ -76,6 +76,19 @@ const article: DevlogArticle = {
             ['어려움', '45.1%', '501경기'],
           ] },
           { type: 'p', text: '어려움 AI를 이긴 플레이어에게 주는 클리어 인증은 인디언 포커가 94명으로 모든 게임 중 가장 많아요. 운의 비중이 큰 만큼 어려움을 한 번 이기는 문턱이 낮은 게임이에요. 전체 판수(로그인 여부 무관)는 3,827판이고 AI전 2,033판, 친구 대전 1,794판으로 친구 대전 비율이 높은 게임이에요.' },
+        ],
+      },
+      {
+        id: 'personas',
+        title: '11/27: 열 가지 성향과, 내 베팅을 읽는 AI',
+        blocks: [
+          { type: 'p', text: '11월 27일부터 AI전마다 열 가지 성향 중 하나가 나와요. 남은 덱을 세는 승률 계산은 모두 같고, 성향은 블러프 빈도, 레이즈 크기, 폴드 기준선 근처에서의 기울기(±0.04), 강한 패를 콜로만 받는 빈도(슬로플레이)만 바꿔요. 칩이 뒤처질 때 공격적으로 바뀌는 추격자, 처음 여섯 판에 몰아치는 초반 승부사처럼 상황에 따라 바뀌는 성향도 있어요. 판마다 세기가 시드로 조금씩 달라지고, 8%는 일부러 스타일 없이 둬요.' },
+          { type: 'list', items: [
+            '**어려움의 일부러 하는 실수를 뺐어요.** 이전 어려움은 4%의 결정을 일부러 그럴듯하게 틀렸고(quality .96) 승률 추정에 노이즈도 섞었어요. 성향이 생긴 뒤로는 어려움의 성향은 실수 없이 두고, 섞는 역할은 성향이 맡아요.',
+            '**"크게 올리면 접는다"는 틈을 막았어요.** 이전 AI는 큰 레이즈를 늘 같은 비율(어려움 60%)로 "내 카드가 낮다"고 읽어서, AI 카드가 높을 때 크게 올리면 접게 만들 수 있었어요. 이제는 핸드가 끝나고 공개된 카드로, 사람의 베팅이 AI 카드와 얼마나 반대로 움직였는지(상관관계)를 재서 읽는 강도를 정해요. 정직하게 거는 사람에게는 더 강하게 읽고, 높은 카드에 크게 거는 버릇이 보이면 읽기를 뒤집어요.',
+            '이전 어려움 AI와 1,500판씩 붙인 결과, 성향별 승률은 49.3~56.5%(같으면 50%, 오차 ±3%p)였어요. 성향끼리의 리그에서는 44.6%(블러퍼)~52.8%(신중형)로, 일방적으로 지거나 이기는 성향은 없었어요.',
+          ] },
+          { type: 'p', text: '난이도는 그대로예요. 쉬움·보통은 같은 성향 위에 원래의 기억력·판단 실수가 섞이고, 이전 어려움 AI 상대 승률이 20.6%·28.7%(이전 쉬움·보통은 21.1%·29.7%)로 순서도 그대로예요. 어려움이 실수 없이 두게 되면서 버튼에 적힌 어려움 승률(약 55%)은 조금 오를 수 있어요. 새 기록이 쌓이면 다시 맞출게요.' },
         ],
       },
       {
@@ -167,6 +180,19 @@ const article: DevlogArticle = {
             ['Hard', '45.1%', '501'],
           ] },
           { type: 'p', text: 'Indian Poker has the most Hard-AI clear certificates of any game — 94 players. With so much luck, the bar for beating Hard once is low. Counting everyone, it had been played 3,827 times: 2,033 against the AI and 1,794 between friends, an unusually high share of friend games.' },
+        ],
+      },
+      {
+        id: 'personas',
+        title: '11/27: ten personalities, and an AI that reads your bets',
+        blocks: [
+          { type: 'p', text: 'From 27 November every AI match draws one of ten personalities. The win-chance calculation (counting the remaining deck) is the same for all; a personality only changes its bluff rate, raise sizes, a lean around the fold line (±0.04) and how often it just calls with a strong hand (slow play). Some change with the situation: the Chaser turns aggressive when behind on chips, the Fast Starter storms the first six hands. Each match the strength of the style varies a little with a seed, and 8% of decisions drop the style on purpose.' },
+          { type: 'list', items: [
+            '**Hard no longer makes deliberate slips.** The old hard AI got 4% of its decisions plausibly wrong on purpose (quality .96) and added noise to its estimate. With personalities doing the mixing, hard personalities play without slips.',
+            '**The "raise big and it folds" hole is closed.** The old AI always read a big raise as "my card is low" by the same amount (60% on hard), so raising big into its high card made it fold. Now, from the cards revealed after each hand, it measures how your bets moved against its card (a correlation) and sets the read from that: stronger against honest bettors, turned around against someone who bets big into high cards.',
+            'Over 1,500 matches each against the previous hard AI the personalities scored 49.3–56.5% (50% = equal, ±3 points noise). In a league among themselves they ranged from 44.6% (the Bluffer) to 52.8% (the Careful One): none hopeless, none dominant.',
+          ] },
+          { type: 'p', text: 'Levels stay as they were. Easy and normal play the same personality with their usual memory and judgement slips on top, scoring 20.6% and 28.7% against the previous hard AI (the old easy and normal: 21.1% and 29.7%), so the order holds. With hard playing without slips, the hard win rate on its button (about 55%) may rise a little; it will be re-measured from new records.' },
         ],
       },
       {
