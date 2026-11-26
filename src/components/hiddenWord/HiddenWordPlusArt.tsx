@@ -53,13 +53,13 @@ export function PlusBadge({ label, className = '' }: { label: string; className?
 /** Entry-screen art: drifting words of the pool behind a sealed gold card and three hints. */
 export default function HiddenWordPlusPreview({ en = false }: { en?: boolean }) {
   return (
-    <div aria-hidden className="relative mx-auto flex h-[280px] w-[260px] flex-col items-center justify-center gap-3.5 overflow-hidden rounded-[20px] border border-[#ffd66b]/25 bg-[radial-gradient(ellipse_at_80%_0%,rgba(255,122,217,.28),transparent_55%),radial-gradient(ellipse_at_50%_30%,rgba(183,156,255,.38),#0c0a14_72%)] px-6 shadow-[0_20px_50px_rgba(40,20,90,.5)] md:w-full">
+    <div aria-hidden className="relative mx-auto flex h-[300px] w-[260px] flex-col items-center justify-center gap-3.5 overflow-hidden rounded-[20px] border border-[#ffd66b]/25 bg-[radial-gradient(ellipse_at_80%_0%,rgba(255,122,217,.28),transparent_55%),radial-gradient(ellipse_at_50%_30%,rgba(183,156,255,.38),#0c0a14_72%)] px-6 shadow-[0_20px_50px_rgba(40,20,90,.5)] md:w-full">
       <Drift />
       <p className="absolute left-3 top-3 font-mono text-[9px] font-black tracking-[0.25em] text-[#d9ccff]/60">HIDDEN WORD</p>
       <PlusBadge label={en ? 'EXPANSION' : '확장판'} className="absolute right-3 top-2.5" />
       <div className="mt-8"><Sealed big /></div>
       <Gauges />
-      <p className="absolute bottom-2.5 font-mono text-[9px] font-black tracking-[0.2em] text-[#ffd66b]/70">186 WORDS · 30 GROUPS</p>
+      <p className="absolute bottom-3 font-mono text-[9px] font-black tracking-[0.2em] text-[#ffd66b]/70">186 WORDS · 30 GROUPS</p>
     </div>
   );
 }
