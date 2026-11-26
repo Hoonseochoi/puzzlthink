@@ -26,7 +26,7 @@ import { FitTile } from './OpenMatchCard';
 import StoneAvatar, { Stone } from './StoneAvatar';
 
 // Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
-export const NEW: GameId[] = ['hiddenWordPlus', 'hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'gradation', 'pointOmok'];
+export const NEW: GameId[] = ['hiddenWordPlus', 'sniperHoldem', 'hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'gradation', 'pointOmok'];
 const PUZZLE: GameId[] = ['slitherlink', 'hiddenWordPlus', 'hiddenWord', 'equationSignal', 'equationTower', 'magicswap', 'colorlink', 'merge2048', 'onestroke', 'starbattle', 'nonogram', 'binairo', 'masyu', 'sudoku', 'nemoCount', 'gyulhap', 'hexagon'];
 /** 오늘의 추천 on the phone home: set by the site owner. */
 export const TODAY_PICK: GameId = 'hiddenWordPlus'; // 히든 워드 확장판, the newest release (11/27); was 'slitherlink'
