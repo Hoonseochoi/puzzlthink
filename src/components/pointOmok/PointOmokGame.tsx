@@ -8,6 +8,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ResultActions from '@/components/ResultActions';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, KICKER, MODAL_BACKDROP, PANEL, PANEL_TITLE, RESULT_PRIMARY, SHELL, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { PO_ROOM } from '@/hooks/usePointOmokRoom';
@@ -107,7 +108,7 @@ export default function PointOmokGame() {
   return (
     <div className={SHELL} style={{ ...accentVars(PO_ACCENT, PO_INK), backgroundImage: fog('255, 93, 143') }}>
       <Shards />
-      <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
+      <GameHeader players={roomPlayers(state, true)} me={0} backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
         <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
         <BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => { if (!started || state?.phase === 'finished' || window.confirm(t('newGameConfirm'))) reset(); }} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>

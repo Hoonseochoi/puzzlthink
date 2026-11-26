@@ -6,6 +6,7 @@ import { Clock3, Copy, Crown, Flag, Info, Loader2, RotateCcw, Share2, Swords, Tr
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
 import { useIndianPokerRoom } from '@/hooks/useIndianPokerRoom';
@@ -37,7 +38,7 @@ export default function IndianPokerRoomView({ code }: { code: string }) {
   const copy = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1500); } catch {} };
   const share = async () => { if (navigator.share) { try { await navigator.share({ title: tg('title'), url: shareUrl }); return; } catch {} } copy(); };
 
-  if (!state) return <div className={SHELL} style={accentVars(ACCENT, '#17120a')}><GameHeader backHref="/indian-poker" backLabel={tc('indianPoker')} title={tg('title')} subtitle={`ONLINE · ${code}`} /><main className="flex min-h-[70vh] items-center justify-center">{status === 'online' ? <Loader2 className="animate-spin" /> : <p className="flex items-center gap-2 text-sm text-white/50"><WifiOff size={15} />{t(status === 'error' ? 'connectionError' : 'connecting')}</p>}</main></div>;
+  if (!state) return <div className={SHELL} style={accentVars(ACCENT, '#17120a')}><GameHeader players={roomPlayers(state)} me={mySeat} backHref="/indian-poker" backLabel={tc('indianPoker')} title={tg('title')} subtitle={`ONLINE · ${code}`} /><main className="flex min-h-[70vh] items-center justify-center">{status === 'online' ? <Loader2 className="animate-spin" /> : <p className="flex items-center gap-2 text-sm text-white/50"><WifiOff size={15} />{t(status === 'error' ? 'connectionError' : 'connecting')}</p>}</main></div>;
   const seatName = (n: number) => state.seats[n]?.name ?? t('emptySeat');
   const me2 = (mySeat ?? 0) as 0 | 1;
   const opp = (1 - me2) as 0 | 1;
@@ -53,7 +54,7 @@ export default function IndianPokerRoomView({ code }: { code: string }) {
   const again = () => { setClosedSid(null); dispatch({ t:'start' }); };
   return <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('230,185,79') }}>
     
-    <GameHeader backHref="/indian-poker" backLabel={tc('indianPoker')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code}`}><GameUpdates game="indian_poker" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+    <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/indian-poker" backLabel={tc('indianPoker')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code}`}><GameUpdates game="indian_poker" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}><section className={STAGE}>
       {state.phase === 'lobby' ? <><div className="mb-3 px-1"><p className={KICKER}>LOBBY</p><h1 className={`mt-1 ${HEADING}`}>{t('lobbyTitle')}</h1></div><div className="mx-auto max-w-md space-y-4"><section className={PANEL}><p className={PANEL_TITLE}>{t('inviteTitle')}</p><InviteCode code={code} /><div className="mt-3 flex gap-2"><button onClick={copy} className={`${BTN} flex-1`}><Copy size={14} />{copied ? t('copied') : t('copy')}</button><button onClick={share} className={`${BTN_ACCENT} flex-1`}><Share2 size={14} />{t('share')}</button></div></section><form onSubmit={(e) => { e.preventDefault(); rename(name); setName(''); }} className="flex gap-2"><input className={INPUT} value={name} onChange={(e) => setName(e.target.value)} placeholder={me?.name ?? ''} /><button className={BTN}>{t('rename')}</button></form>{me?.isHost ? <button disabled={!full} onClick={() => dispatch({ t:'start' })} className={`${BTN_ACCENT} w-full py-3 disabled:opacity-35`}><Swords size={15} />{full ? t('start') : t('startLocked')}</button> : <p className="text-center text-sm text-white/45">{mySeat === null ? t('roomFull') : t('waitingHost')}</p>}</div></>

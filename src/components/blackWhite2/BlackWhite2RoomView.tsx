@@ -7,6 +7,7 @@ import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
 import { useBlackWhite2Room } from '@/hooks/useBlackWhite2Room';
@@ -90,7 +91,7 @@ export default function BlackWhite2RoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#ffffff'), backgroundImage: fog('150, 18, 30') }}>
       <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-      <GameHeader backHref="/black-white-2" backLabel={tc('blackWhite2')} title={tb('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/black-white-2" backLabel={tc('blackWhite2')} title={tb('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}
       {!state ? (
         <main className="relative z-10 flex min-h-[60vh] items-center justify-center px-4">{!notice && <p className="flex items-center gap-2 text-sm text-white/50"><Loader2 size={16} className="animate-spin" />{t('connecting')}</p>}{notice && <Link href="/black-white-2" className={`px-4 py-2.5 text-sm ${BTN_ACCENT}`}>{t('back')}</Link>}</main>

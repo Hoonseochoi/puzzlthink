@@ -12,6 +12,7 @@ import { type CjRoom, CJ_COIN_MS, createCjRoom, reduceCjRoom } from '@/lib/cardJ
 import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANEL_TITLE, SHELL } from '../ui/gameUi';
 import { CJ_ROOT_STYLE, type CjCopy, cjCopy } from './copy';
 import CjResult, { useCjReport } from './CjResult';
@@ -90,7 +91,7 @@ export default function CardJanggiGame() {
   const started = !!state && (state.round > 1 || state.game.ply > 0);
   return (
     <div className={SHELL} style={CJ_ROOT_STYLE}>
-      <GameHeader backHref={CJ_PATH} backLabel={t.back} title={t.title} subtitle="AI · HARD">
+      <GameHeader players={roomPlayers(state, true)} me={0} backHref={CJ_PATH} backLabel={t.back} title={t.title} subtitle="AI · HARD">
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => { if (!started || finished || window.confirm(t.newGameConfirm)) again(); }} className={BTN_ACCENT} aria-label={t.newGame}><RotateCcw size={14} /><span className="hidden sm:inline">{t.newGame}</span></button>

@@ -154,7 +154,7 @@ export default function FlipOmokGame() {
 
   return (
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
-      <GameHeader backHref="/flip-omok" backLabel={t('title')} title={t('title')} subtitle={t('subtitle')}>
+      <GameHeader ai={mode === 'ai'} backHref="/flip-omok" backLabel={t('title')} title={t('title')} subtitle={t('subtitle')}>
         <GameUpdates game="flip_omok" /><BugReport /><LanguageSwitcher compact dark />
         {!over && history.length > 0 && <button type="button" title={t('resignTip')} onClick={resign} className={`${BTN} text-white/60`}><Flag size={14} /><span className="hidden sm:inline">{t('resign')}</span></button>}
         <button type="button" title={t('undoTip')} onClick={undo} disabled={!history.length || aiTurn} className={`${BTN} disabled:opacity-35`}><Undo2 size={14} /><span className="hidden sm:inline">{t('undo')}</span></button>

@@ -165,7 +165,7 @@ export default function JanggiGame() {
     <div className={SHELL} style={{ ...accentVars(GOLD, '#1a1408'), backgroundImage: JANGGI_FOG }}>
       <WallGoShards tint="#4a3812" />
       {showTutorial && <JanggiTutorial onClose={closeTutorial} />}
-      <GameHeader backHref="/" backLabel="PUZZLTHINK" title="十二將棋" titleClass={hanjaFont.className} subtitle={t('subtitle')}>
+      <GameHeader ai backHref="/" backLabel="PUZZLTHINK" title="十二將棋" titleClass={hanjaFont.className} subtitle={t('subtitle')}>
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
         <GameUpdates game="janggi" /><BugReport /><LanguageSwitcher compact dark />
         <button onClick={() => newGame()} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>

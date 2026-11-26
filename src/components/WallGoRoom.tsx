@@ -24,6 +24,7 @@ import WallGoCharacter, { WallGoVariant } from './WallGoCharacter';
 import Shards from './WallGoShards';
 import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
 import GameUpdates from '@/components/GameUpdates';
+import PlayerStrip, { roomPlayers } from './ui/PlayerStrip';
 
 export default function WallGoRoom({ code, variant = 1 }: { code: string; variant?: Variant }) {
   const t = useTranslations('WallGoOnline');
@@ -151,6 +152,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
         </div>
         <GameUpdates game={GAME} /><BugReport /><LanguageSwitcher compact dark />
       </header>
+      <PlayerStrip players={roomPlayers(state)} me={mySeat} />
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3ba] lg:px-6"><WifiOff size={14} />{notice}</div>}
 

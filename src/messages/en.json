@@ -5738,6 +5738,7 @@
     ],
     "disclaimer": "Nine Men's Morris is a traditional board game. PUZZLTHINK rebuilt it for the web after the show's rules; it is not affiliated with the broadcaster or producers."
   },
+  "PlayerStrip": {"label": "Players", "me": "ME", "guest": "Guest", "ai": "AI"},
   "SupporterCover": {
     "confirmToggle": "Supported already? Ask us to confirm it",
     "confirmDesc": "After supporting, leave a confirmation request here! Write your supporter name and nickname and we will add the cover once we see it.",

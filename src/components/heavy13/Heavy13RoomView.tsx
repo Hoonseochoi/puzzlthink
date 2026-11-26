@@ -17,6 +17,7 @@ import { ranking } from '@/lib/heavy13';
 import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, HEADING, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, seg } from '../ui/gameUi';
 import Heavy13Result from './Heavy13Result';
 import Heavy13Table from './Heavy13Table';
@@ -81,7 +82,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
     <div className={SHELL} style={H_ROOT_STYLE}>
       <WallGoShards tint={SHARD_TINT} />
       <RoomAlerts alerts={alerts} accent={SAND} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
-      <GameHeader backHref="/heavy13" backLabel={t('title')} title={t('title')} subtitle={`ONLINE · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/heavy13" backLabel={t('title')} title={t('title')} subtitle={`ONLINE · ${code.toUpperCase()}`}>
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
         <GameUpdates game="heavy13" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>

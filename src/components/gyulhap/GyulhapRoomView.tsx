@@ -6,6 +6,7 @@ import { Clock3, Copy, Crown, Flag, Info, Loader2, RotateCcw, Share2, Swords, Us
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
 import { useGyulhapRoom } from '@/hooks/useGyulhapRoom';
@@ -39,7 +40,7 @@ export default function GyulhapRoomView({ code }: { code: string }) {
   const copy = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1500); } catch {} };
   const share = async () => { if (navigator.share) { try { await navigator.share({ title: tg('title'), url: shareUrl }); return; } catch {} } copy(); };
 
-  if (!state) return <div className={SHELL} style={accentVars(ACCENT, '#17120a')}><GameHeader backHref="/gyulhap" backLabel={tc('gyulhap')} title={tg('title')} subtitle={`ONLINE · ${code}`} /> <main className="flex min-h-[70vh] items-center justify-center">{status === 'online' ? <Loader2 className="animate-spin" /> : <p className="flex items-center gap-2 text-sm text-white/50"><WifiOff size={15} />{t(status === 'error' ? 'connectionError' : 'connecting')}</p>}</main></div>;
+  if (!state) return <div className={SHELL} style={accentVars(ACCENT, '#17120a')}><GameHeader players={roomPlayers(state)} me={mySeat} backHref="/gyulhap" backLabel={tc('gyulhap')} title={tg('title')} subtitle={`ONLINE · ${code}`} /> <main className="flex min-h-[70vh] items-center justify-center">{status === 'online' ? <Loader2 className="animate-spin" /> : <p className="flex items-center gap-2 text-sm text-white/50"><WifiOff size={15} />{t(status === 'error' ? 'connectionError' : 'connecting')}</p>}</main></div>;
   const seatName = (n: number) => state.seats[n]?.name ?? t('emptySeat');
   const activeCount = state.phase === 'lobby' ? state.seats.filter(Boolean).length : state.playerCount;
   const activeNames = Array.from({ length: state.phase === 'lobby' ? state.seats.length : state.playerCount }, (_, seat) => `${seatName(seat)}${mySeat === seat ? ` (${t('me')})` : ''}`);
@@ -57,7 +58,7 @@ export default function GyulhapRoomView({ code }: { code: string }) {
 
   return <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('255,207,63') }}>
     
-    <GameHeader backHref="/gyulhap" backLabel={tc('gyulhap')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 2–4 · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+    <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/gyulhap" backLabel={tc('gyulhap')} title={tg('title')} titleClass="font-black" subtitle={`ONLINE · 2–4 · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}>
       <section className={STAGE}>

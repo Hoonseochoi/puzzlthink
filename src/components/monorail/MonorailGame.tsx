@@ -100,7 +100,7 @@ export default function MonorailGame() {
   return (
     <div className={SHELL} style={{ ...accentVars(MONORAIL_ACCENT, MONORAIL_INK), backgroundImage: fog('116, 44, 52') }}>
       <Shards tint="#5e232d" />
-      <GameHeader backHref="/monorail" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
+      <GameHeader ai backHref="/monorail" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
         <GameUpdates game="monorail" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => restart()} className={BTN}><RotateCcw size={14} /><span className="hidden sm:inline">{t('restart')}</span></button>
       </GameHeader>

@@ -9,6 +9,7 @@ import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
 import AwayBanner from '@/components/ui/AwayBanner';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, HEADING, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { Link } from '@/i18n/routing';
@@ -67,7 +68,7 @@ export default function FourThreeRoomView({ code }: { code: string }) {
     <div className={SHELL} style={{ ...accentVars(FT_ACCENT, FT_INK), backgroundImage: fog('255, 181, 46') }}>
       <Shards />
       <RoomAlerts alerts={alerts} accent={FT_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
-      <GameHeader backHref="/four-three" backLabel={t('title')} title={t('title')} subtitle={`ONLINE · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/four-three" backLabel={t('title')} title={t('title')} subtitle={`ONLINE · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <p className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3a8] lg:px-6"><WifiOff size={14} />{notice}</p>}

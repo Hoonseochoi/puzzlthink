@@ -8,6 +8,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
 import { useNemoRoom } from '@/hooks/useNemoRoom';
@@ -103,7 +104,7 @@ export default function NemoRoomView({ code }: { code: string }) {
     <div className={SHELL} style={{ ...accentVars(NEMO_ACCENT, NEMO_INK), backgroundImage: fog('120, 130, 160') }}>
       <Shards tint="#2a2f45" />
       <RoomAlerts alerts={alerts} accent={NEMO_ACCENT} joinText={(n) => t('joined', { name: n })} leaveText={(n) => t('left', { name: n })} />
-      <GameHeader backHref="/nemo-count" backLabel={tc('nemoCount')} title={tn('title')} titleClass="font-black" subtitle={`ONLINE · ${seated}/${NEMO_MAX_PLAYERS} · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/nemo-count" backLabel={tc('nemoCount')} title={tn('title')} titleClass="font-black" subtitle={`ONLINE · ${seated}/${NEMO_MAX_PLAYERS} · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}

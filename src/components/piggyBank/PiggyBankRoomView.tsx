@@ -7,6 +7,7 @@ import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, INPUT, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { usePiggyRoom } from '@/hooks/usePiggyRoom';
@@ -62,7 +63,7 @@ export default function PiggyBankRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#2a1d00'), backgroundImage: fog('90, 110, 210') }}>
       <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => `${name} 님이 들어왔어요`} leaveText={(name) => `${name} 님이 나갔어요`} />
-      <GameHeader backHref="/piggy-bank" backLabel="돼지 저금통" title="돼지 저금통" subtitle={`ONLINE · ${code}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/piggy-bank" backLabel="돼지 저금통" title="돼지 저금통" subtitle={`ONLINE · ${code}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

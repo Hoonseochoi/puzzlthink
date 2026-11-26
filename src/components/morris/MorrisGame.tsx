@@ -82,7 +82,7 @@ export default function MorrisGame() {
   return (
     <div className={SHELL} style={{ ...accentVars(MORRIS_ACCENT, MORRIS_INK), backgroundImage: fog('62, 201, 214') }}>
       <Shards />
-      <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
+      <GameHeader ai backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
         <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
         <GameUpdates game="nine_mens_morris" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={newMatch} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newMatch')}</span></button>

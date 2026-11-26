@@ -13,6 +13,7 @@ import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, seg } from '../ui/gameUi';
 import Heavy13Result from './Heavy13Result';
 import Heavy13Table from './Heavy13Table';
@@ -53,7 +54,7 @@ export default function Heavy13Game() {
   return (
     <div className={SHELL} style={H_ROOT_STYLE}>
       <WallGoShards tint={SHARD_TINT} />
-      <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="HEAVY 13">
+      <GameHeader players={roomPlayers(state, true)} me={0} backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="HEAVY 13">
         <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
         <GameUpdates game="heavy13" /><BugReport /><LanguageSwitcher compact dark />
         <button onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>

@@ -12,6 +12,7 @@ import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
 import RoomAlerts from '../RoomAlerts';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, WELL } from '../ui/gameUi';
 import CldResult, { useCldReport } from './CldResult';
 import { CldRules, RulesPanel } from './CldRules';
@@ -59,7 +60,7 @@ export default function CldRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={CLD_ROOT_STYLE}>
       <RoomAlerts alerts={alerts} accent={CLD_ACCENT} joinText={t.joined} leaveText={t.left} />
-      <GameHeader backHref="/color-link-duel" backLabel={t.back} title={t.title} subtitle={<span className="font-mono">{t.online} · {code}</span>}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/color-link-duel" backLabel={t.back} title={t.title} subtitle={<span className="font-mono">{t.online} · {code}</span>}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <GameUpdates game="color_link_duel" /><BugReport /><LanguageSwitcher compact dark />
         {live && mySeat !== null && <button type="button" onClick={() => { if (window.confirm(t.resignConfirm)) dispatch({ t: 'resign' }); }} className={BTN} aria-label={t.resign}><Flag size={14} /><span className="hidden sm:inline">{t.resign}</span></button>}

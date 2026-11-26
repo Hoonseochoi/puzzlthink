@@ -13,6 +13,7 @@ import { type GradationRoom, GR_MAX_MISSES, GR_PLACE_SEC, GR_TURN_SEC } from '@/
 import LanguageSwitcher from '../LanguageSwitcher';
 import RoomAlerts from '../RoomAlerts';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, WELL } from '../ui/gameUi';
 import { GR_ACCENT, GR_ROOT_STYLE, type GrCopy, grCopy } from './copy';
 import { GradationRules } from './GradationGame';
@@ -55,7 +56,7 @@ export default function GradationRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={GR_ROOT_STYLE}>
       <RoomAlerts alerts={alerts} accent={GR_ACCENT} joinText={t.joined} leaveText={t.left} />
-      <GameHeader backHref="/gradation" backLabel={t.back} title={t.title} titleClass={TITLE_CLASS} subtitle={<span className="font-mono">{t.online} · {code}</span>}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/gradation" backLabel={t.back} title={t.title} titleClass={TITLE_CLASS} subtitle={<span className="font-mono">{t.online} · {code}</span>}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         {state?.phase === 'playing' && mySeat !== null && <button type="button" onClick={resign} className={BTN} aria-label={t.resign}><Flag size={14} /><span className="hidden sm:inline">{t.resign}</span></button>}
         <BugReport /><LanguageSwitcher compact dark />

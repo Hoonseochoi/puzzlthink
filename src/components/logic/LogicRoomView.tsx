@@ -6,6 +6,7 @@ import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, PaintBucket, RotateCcw,
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg } from '@/components/ui/gameUi';
 import { useUndoKey } from '@/components/slitherlink/SlitherBoard';
@@ -73,7 +74,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
 
   if (!state) {
     return <div className={SHELL} style={shell}>
-      <GameHeader backHref={spec.path} backLabel={name} title={name} subtitle={`ONLINE · ${code}`} />
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref={spec.path} backLabel={name} title={name} subtitle={`ONLINE · ${code}`} />
       <main className="flex min-h-[70vh] items-center justify-center">{status === 'online' ? <Loader2 className="animate-spin" /> : <p className="flex items-center gap-2 text-sm text-white/50"><WifiOff size={15} />{t(status === 'error' ? 'connectionError' : 'connecting')}</p>}</main>
     </div>;
   }
@@ -130,7 +131,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
 
   return <div className={SHELL} style={shell}>
     {game === 'magicswap' && <MagicSwapTutorial />}
-    <GameHeader backHref={spec.path} backLabel={name} title={name} subtitle={`ONLINE · 2–${max} · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+    <GameHeader players={roomPlayers(state)} me={mySeat} backHref={spec.path} backLabel={name} title={name} subtitle={`ONLINE · 2–${max} · ${code}`}><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}>
       <section className={STAGE}>

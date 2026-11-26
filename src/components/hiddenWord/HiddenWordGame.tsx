@@ -115,7 +115,7 @@ export default function HiddenWordGame() {
 
   return (
     <div className={SHELL} style={HW_ROOT_STYLE}>
-      <GameHeader backHref="/hidden-word" backLabel={t.back} title={t.title} titleClass="font-black !text-[13px] !tracking-[0.04em] min-[400px]:!text-[15px] sm:!text-xl sm:!tracking-[0.12em]" subtitle={t.subtitle}>
+      <GameHeader ai backHref="/hidden-word" backLabel={t.back} title={t.title} titleClass="font-black !text-[13px] !tracking-[0.04em] min-[400px]:!text-[15px] sm:!text-xl sm:!tracking-[0.12em]" subtitle={t.subtitle}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <button type="button" onClick={() => setRankOpen(true)} className={BTN} aria-label={t.ranking}><Trophy size={14} /><span className="hidden sm:inline">{t.ranking}</span></button>
         <span className="hidden sm:contents"><GameUpdates game="hidden_word" /><BugReport /><LanguageSwitcher compact dark /></span>

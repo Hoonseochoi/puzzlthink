@@ -13,6 +13,7 @@ import { createGradationRoom } from '@/lib/gradationRoom';
 import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL_TITLE, SHELL } from '../ui/gameUi';
 import { GR_ROOT_STYLE, type GrCopy, grCopy } from './copy';
 import { GradationCrown, GrAvatar } from './GradationParts';
@@ -40,7 +41,7 @@ export default function GradationGame() {
 
   return (
     <div className={SHELL} style={GR_ROOT_STYLE}>
-      <GameHeader backHref="/gradation" backLabel={t.back} title={t.title} titleClass={TITLE_CLASS} subtitle={persona ? t.vsAi(en ? persona.nameEn : persona.name) : 'VS AI'}>
+      <GameHeader players={roomPlayers(state, true)} me={0} backHref="/gradation" backLabel={t.back} title={t.title} titleClass={TITLE_CLASS} subtitle={persona ? t.vsAi(en ? persona.nameEn : persona.name) : 'VS AI'}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={again} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>

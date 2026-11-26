@@ -12,6 +12,7 @@ import { createHitStayRoom } from '@/lib/hitStayRoom';
 import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL_TITLE, SHELL } from '../ui/gameUi';
 import { HS_ROOT_STYLE, type HsCopy, hsCopy } from './copy';
 import { HsAvatar } from './HitStayParts';
@@ -36,7 +37,7 @@ export default function HitStayGame() {
 
   return (
     <div className={SHELL} style={HS_ROOT_STYLE}>
-      <GameHeader backHref="/hit-stay" backLabel={t.back} title={t.title} titleClass="font-black [font-family:Georgia,serif] !text-[14px] !tracking-[0.02em] min-[400px]:!text-lg sm:!text-xl sm:!tracking-[0.06em]" subtitle="SOLO · AI 4">
+      <GameHeader players={roomPlayers(state, true)} me={0} backHref="/hit-stay" backLabel={t.back} title={t.title} titleClass="font-black [font-family:Georgia,serif] !text-[14px] !tracking-[0.02em] min-[400px]:!text-lg sm:!text-xl sm:!tracking-[0.06em]" subtitle="SOLO · AI 4">
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <GameUpdates game="hit_stay" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => { setClosedKey(null); reset(); }} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>

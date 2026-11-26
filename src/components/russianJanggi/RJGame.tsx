@@ -141,7 +141,7 @@ export default function RJGame() {
   return (
     <div className={SHELL} style={RJ_ROOT}>
       <WallGoShards tint={RJ_SHARD} />
-      <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="NESTING 3×3">
+      <GameHeader ai backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="NESTING 3×3">
         <GameUpdates game="russian_janggi" /><BugReport /><LanguageSwitcher compact dark />
         <button onClick={() => newGame()} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>

@@ -10,6 +10,7 @@ import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
 import InviteCode from '@/components/ui/InviteCode';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
@@ -87,7 +88,7 @@ export default function MonorailRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={{ ...accentVars(MONORAIL_ACCENT, MONORAIL_INK), backgroundImage: fog('116, 44, 52') }}>
       <Shards tint="#5e232d" /><RoomAlerts alerts={alerts} accent={MONORAIL_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-      <GameHeader backHref="/monorail" backLabel={tc('monorail')} title={tm('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code}`}><GameUpdates game="monorail" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/monorail" backLabel={tc('monorail')} title={tm('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code}`}><GameUpdates game="monorail" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}
 
       {!state ? <main className="relative z-10 flex min-h-[60vh] items-center justify-center px-4">{!notice ? <p className="flex items-center gap-2 text-sm text-white/50"><Loader2 size={16} className="animate-spin" />{t('connecting')}</p> : <Link href="/monorail" className={`${BTN_ACCENT} px-4 py-2.5`}>{t('back')}</Link>}</main> : (

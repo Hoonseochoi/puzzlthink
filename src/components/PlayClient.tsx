@@ -13,6 +13,7 @@ import type { Difficulty } from '@/lib/sudoku';
 import TutorialOverlay from './TutorialOverlay';
 import LanguageSwitcher from './LanguageSwitcher';
 import AdSlot from './AdSlot';
+import PlayerStrip from './ui/PlayerStrip';
 
 const difficulties: Difficulty[] = ['easy', 'medium', 'hard'];
 
@@ -85,6 +86,7 @@ export default function PlayClient() {
   return <div className="min-h-screen bg-[#f3f0e8] text-[#17201e]">
     {showTutorial && <TutorialOverlay onComplete={finishTutorial} />}
     <header className="flex h-16 items-center justify-between border-b border-black/10 bg-[#f8f6ef]/90 px-4 backdrop-blur md:px-8"><div className="flex items-center gap-4"><Link href="/" className="flex items-center gap-2 text-sm font-bold"><ArrowLeft size={17} /><span className="hidden sm:inline">PUZZLTHINK</span></Link><span className="h-5 w-px bg-black/10" /><strong className="text-lg tracking-[-0.04em]">{tc('sudoku')}</strong></div><div className="flex items-center gap-2"><button onClick={() => setShowTutorial(true)} className="hidden items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-2 text-xs font-bold sm:flex"><BookOpen size={14} /> {t('howToPlay')}</button><BugReport dark={false} /><LanguageSwitcher compact /></div></header>
+    <PlayerStrip tone="light" />
 
     <main className="mx-auto grid max-w-[1120px] gap-4 px-3 py-3 sm:gap-6 sm:px-4 sm:py-6 lg:grid-cols-[minmax(0,650px)_320px] lg:px-6 lg:py-9">
       <section className="rounded-[28px] border border-black/10 bg-[#e8e2d5] p-3 shadow-[0_24px_70px_rgba(33,42,39,0.1)] sm:p-5">

@@ -9,6 +9,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, playerRow, seg } from '@/components/ui/gameUi';
 import { useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
@@ -102,7 +103,7 @@ export default function EquationSignalRoomView({ code }: { code: string }) {
     <div className={SHELL} style={EQS_ROOT_STYLE}>
       <Shards tint="#26301a" />
       <RoomAlerts alerts={alerts} accent={EQS_ACCENT} joinText={c.joined} leaveText={c.left} />
-      <GameHeader backHref="/equation-signal" backLabel={c.back} title={c.title} titleClass="font-black" subtitle={`ONLINE · ${seated}/${EQS_MAX_PLAYERS} · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/equation-signal" backLabel={c.back} title={c.title} titleClass="font-black" subtitle={`ONLINE · ${seated}/${EQS_MAX_PLAYERS} · ${code.toUpperCase()}`}>
         <GameUpdates game="equation_signal" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}

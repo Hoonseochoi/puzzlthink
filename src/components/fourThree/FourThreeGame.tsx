@@ -7,6 +7,7 @@ import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN_ACCENT, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { FT_ROOM } from '@/hooks/useFourThreeRoom';
@@ -38,7 +39,7 @@ export default function FourThreeGame() {
   return (
     <div className={SHELL} style={{ ...accentVars(FT_ACCENT, FT_INK), backgroundImage: fog('255, 181, 46') }}>
       <Shards />
-      <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
+      <GameHeader players={roomPlayers(state, true)} me={0} backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
         <BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>

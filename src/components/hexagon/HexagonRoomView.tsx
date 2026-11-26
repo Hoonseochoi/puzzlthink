@@ -8,6 +8,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg } from '@/components/ui/gameUi';
 import { useHexagonRoom } from '@/hooks/useHexagonRoom';
@@ -119,7 +120,7 @@ export default function HexagonRoomView({ code }: { code: string }) {
     <div className={SHELL} style={{ ...accentVars(HEX_ACCENT, HEX_INK), backgroundImage: fog('200, 150, 60') }}>
       <Shards tint="#3a2f1a" />
       <RoomAlerts alerts={alerts} accent={HEX_ACCENT} joinText={(n) => t('joined', { name: n })} leaveText={(n) => t('left', { name: n })} />
-      <GameHeader backHref="/hexagon" backLabel={tc('hexagon')} title={th('title')} titleClass="font-black" subtitle={`ONLINE · ${seated}/${HEX_MAX_PLAYERS} · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/hexagon" backLabel={tc('hexagon')} title={th('title')} titleClass="font-black" subtitle={`ONLINE · ${seated}/${HEX_MAX_PLAYERS} · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}

@@ -9,6 +9,7 @@ import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg, timer } from '@/components/ui/gameUi';
 import { useFlipOmokRoom } from '@/hooks/useFlipOmokRoom';
@@ -111,7 +112,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
       <RoomAlerts alerts={alerts} accent={FLIP_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-      <GameHeader backHref="/flip-omok" backLabel={tf('title')} title={tf('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/flip-omok" backLabel={tf('title')} title={tf('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <GameUpdates game="flip_omok" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 

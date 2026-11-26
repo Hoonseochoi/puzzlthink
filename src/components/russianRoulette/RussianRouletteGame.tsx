@@ -11,6 +11,7 @@ import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, PANEL, PANEL_TITLE, SHELL, seg } from '../ui/gameUi';
 import RussianRouletteResult from './RussianRouletteResult';
 import { russianRouletteFiringDuration } from './firing';
@@ -48,7 +49,7 @@ export default function RussianRouletteGame() {
 
   return <div className={SHELL} style={RR_ROOT_STYLE}>
     <WallGoShards tint={RR_SHARD_TINT} />
-    <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="RUSSIAN ROULETTE">
+    <GameHeader players={roomPlayers(state, true)} me={0} backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle="RUSSIAN ROULETTE">
       <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
       <GameUpdates game="russian_roulette" /><BugReport /><LanguageSwitcher compact dark />
       <button onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>

@@ -12,6 +12,7 @@ import { RR_TURN_OPTIONS, type RRLevel } from '@/lib/russianRouletteRoom';
 import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, WELL, seg } from '../ui/gameUi';
 import AwayBanner from '../ui/AwayBanner';
 import RoomAlerts from '../RoomAlerts';
@@ -64,7 +65,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
   return <div className={SHELL} style={RR_ROOT_STYLE}>
     <WallGoShards tint={RR_SHARD_TINT} />
     <RoomAlerts alerts={alerts} accent={RR_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
-    <GameHeader backHref="/russian-roulette" backLabel={t('title')} title={t('title')} subtitle={<span className="font-mono">ONLINE · {code.toUpperCase()}</span>}>
+    <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/russian-roulette" backLabel={t('title')} title={t('title')} subtitle={<span className="font-mono">ONLINE · {code.toUpperCase()}</span>}>
       <button onClick={() => setShowTutorial(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button>
       <GameUpdates game="russian_roulette" /><BugReport /><LanguageSwitcher compact dark />
     </GameHeader>

@@ -20,6 +20,7 @@ import JanggiReplay from './JanggiReplay';
 import { RESULT_DELAY_MS } from './JanggiGame';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, playerRow, seg, timer } from '../ui/gameUi';
 import { GOLD, JANGGI_FOG, SIDE_COLORS, hanjaFont } from './theme';
 import GameUpdates from '@/components/GameUpdates';
@@ -91,7 +92,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
     <div className={SHELL} style={{ ...accentVars(GOLD, '#1a1408'), backgroundImage: JANGGI_FOG }}>
       <WallGoShards tint="#4a3812" />
       <RoomAlerts alerts={alerts} accent={GOLD} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-      <GameHeader backHref="/janggi" backLabel={tc('janggi')} title="十二將棋" titleClass={hanjaFont.className} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/janggi" backLabel={tc('janggi')} title="十二將棋" titleClass={hanjaFont.className} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <GameUpdates game="janggi" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 

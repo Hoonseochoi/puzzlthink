@@ -38,7 +38,7 @@ export default function IndianPokerGame() {
 
   return (
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('230, 185, 79') }}>
-      <GameHeader backHref="/indian-poker" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}><GameUpdates game="indian_poker" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+      <GameHeader ai backHref="/indian-poker" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}><GameUpdates game="indian_poker" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
       <main className={MAIN}>
         <section className={STAGE}>
           <PokerStage

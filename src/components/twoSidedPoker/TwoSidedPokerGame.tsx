@@ -67,7 +67,7 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
 
   return (
     <div className={SHELL} style={{ ...accentVars(TSP_ACCENT, TSP_INK), backgroundImage: fog(TSP_GLOW_RGB) }}>
-      <GameHeader backHref="/two-sided-poker" backLabel={t.back} title={t.title} subtitle={t.subtitle}><GameUpdates game="two_sided_poker" /><LanguageSwitcher compact dark /></GameHeader>
+      <GameHeader ai backHref="/two-sided-poker" backLabel={t.back} title={t.title} subtitle={t.subtitle}><GameUpdates game="two_sided_poker" /><LanguageSwitcher compact dark /></GameHeader>
       <main className={MAIN}>
         <section className={STAGE}>
           {replaying && finished

@@ -9,6 +9,7 @@ import ResultActions from '@/components/ResultActions';
 import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, INPUT, MAIN, PANEL, PANEL_TITLE, RESULT_PRIMARY, SHELL, STAGE, accentVars, fog, playerRow } from '@/components/ui/gameUi';
 import { usePointOmokRoom } from '@/hooks/usePointOmokRoom';
@@ -62,7 +63,7 @@ export default function PointOmokRoomView({ code }: { code: string }) {
     <div className={SHELL} style={{ ...accentVars(PO_ACCENT, PO_INK), backgroundImage: fog('255, 93, 143') }}>
       <Shards />
       <RoomAlerts alerts={alerts} accent={PO_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-      <GameHeader backHref={PATH} backLabel={tc('pointOmok')} title={tp('title')} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref={PATH} backLabel={tc('pointOmok')} title={tp('title')} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 

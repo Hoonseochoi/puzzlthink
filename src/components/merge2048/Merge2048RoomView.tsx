@@ -8,6 +8,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, HEADING, INPUT, KICKER, MODAL, MODAL_BACKDROP, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { Link } from '@/i18n/routing';
@@ -117,7 +118,7 @@ export default function Merge2048RoomView({ code }: { code: string }) {
     <div className={SHELL} style={{ ...accentVars(M2_ACCENT, M2_INK), backgroundImage: fog('255, 143, 163') }}>
       <Shards tint="#3a2630" />
       <RoomAlerts alerts={alerts} accent={M2_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
-      <GameHeader backHref="/2048" backLabel="2048" title="2048" subtitle={`ONLINE · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/2048" backLabel="2048" title="2048" subtitle={`ONLINE · ${code.toUpperCase()}`}>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <p className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3a8] lg:px-6"><WifiOff size={14} />{notice}</p>}

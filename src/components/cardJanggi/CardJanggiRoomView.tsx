@@ -7,6 +7,7 @@ import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, INPUT, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, playerRow } from '@/components/ui/gameUi';
 import { useCardJanggiRoom } from '@/hooks/useCardJanggiRoom';
@@ -57,7 +58,7 @@ export default function CardJanggiRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={CJ_ROOT_STYLE}>
       <RoomAlerts alerts={alerts} accent={CJ_ACCENT} joinText={t.joined} leaveText={t.left} />
-      <GameHeader backHref={CJ_PATH} backLabel={t.back} title={t.title} subtitle={<span className="font-mono">{t.online} · {code}</span>}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref={CJ_PATH} backLabel={t.back} title={t.title} subtitle={<span className="font-mono">{t.online} · {code}</span>}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <BugReport /><LanguageSwitcher compact dark />
       </GameHeader>

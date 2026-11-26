@@ -45,7 +45,7 @@ export default function PiggyBankGame() {
   if (!state) {
     return (
       <div className={SHELL} style={shell}>
-        <GameHeader backHref="/piggy-bank" backLabel="돼지 저금통" title="돼지 저금통" subtitle="VS AI · 4인" />
+        <GameHeader ai="AI ×3" backHref="/piggy-bank" backLabel="돼지 저금통" title="돼지 저금통" subtitle="VS AI · 4인" />
         <main className="relative z-10 mx-auto max-w-lg px-5 py-14 text-center">
           <div className="flex justify-center gap-2">{[1, 2, 3, 4, 5].map((n) => <GoldPig key={n} label={n} size={52} />)}</div>
           <h1 className="mt-6 text-3xl font-black">돼지 저금통</h1>
@@ -62,7 +62,7 @@ export default function PiggyBankGame() {
 
   return (
     <div className={SHELL} style={shell}>
-      <GameHeader backHref="/piggy-bank" backLabel="돼지 저금통" title="돼지 저금통" subtitle="VS AI · 4인">
+      <GameHeader ai="AI ×3" backHref="/piggy-bank" backLabel="돼지 저금통" title="돼지 저금통" subtitle="VS AI · 4인">
         <button type="button" onClick={start} className={BTN_ACCENT}><RotateCcw size={14} />새 게임</button>
       </GameHeader>
       <main className={MAIN}>

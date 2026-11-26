@@ -14,6 +14,7 @@ import RoomAlerts from '../RoomAlerts';
 import LanguageSwitcher from '../LanguageSwitcher';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, SHELL, STAGE, playerRow } from '../ui/gameUi';
 import RJPiece from './RJPiece';
 import RJResult from './RJResult';
@@ -104,7 +105,7 @@ export default function RJRoomView({ code }: { code: string }) {
     <div className={SHELL} style={RJ_ROOT}>
       <WallGoShards tint={RJ_SHARD} />
       <RoomAlerts alerts={alerts} accent="#f2b84b" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-      <GameHeader backHref="/russian-janggi" backLabel={tg('title')} title={tg('title')} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/russian-janggi" backLabel={tg('title')} title={tg('title')} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
         <GameUpdates game="russian_janggi" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 

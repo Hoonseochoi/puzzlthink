@@ -12,6 +12,7 @@ import type { CldTier } from '@/lib/colorLinkDuelBoards';
 import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, SHELL } from '../ui/gameUi';
 import { CldRules, RulesPanel } from './CldRules';
 import CldResult, { useCldReport } from './CldResult';
@@ -122,7 +123,7 @@ export default function CldGame() {
 
   return (
     <div className={SHELL} style={CLD_ROOT_STYLE}>
-      <GameHeader backHref="/color-link-duel" backLabel={t.back} title={t.title} subtitle={`AI · ${level === 'hell' ? 'VERY HARD' : level.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state, true)} me={0} backHref="/color-link-duel" backLabel={t.back} title={t.title} subtitle={`AI · ${level === 'hell' ? 'VERY HARD' : level.toUpperCase()}`}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <GameUpdates game="color_link_duel" /><BugReport /><LanguageSwitcher compact dark />
         {state && isPlaying(state)

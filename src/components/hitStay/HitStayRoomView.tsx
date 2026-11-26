@@ -15,6 +15,7 @@ import LanguageSwitcher from '../LanguageSwitcher';
 import RoomAlerts from '../RoomAlerts';
 import AwayBanner from '../ui/AwayBanner';
 import GameHeader from '../ui/GameHeader';
+import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, WELL } from '../ui/gameUi';
 import { HS_ACCENT, HS_ROOT_STYLE, hsCopy } from './copy';
 import { HitStayRules } from './HitStayGame';
@@ -57,7 +58,7 @@ export default function HitStayRoomView({ code }: { code: string }) {
   return (
     <div className={SHELL} style={HS_ROOT_STYLE}>
       <RoomAlerts alerts={alerts} accent={HS_ACCENT} joinText={t.joined} leaveText={t.left} />
-      <GameHeader backHref="/hit-stay" backLabel={t.back} title={t.title} titleClass="font-black [font-family:Georgia,serif] !text-[14px] !tracking-[0.02em] min-[400px]:!text-lg sm:!text-xl sm:!tracking-[0.06em]" subtitle={<span className="font-mono">{t.online} · {code}</span>}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/hit-stay" backLabel={t.back} title={t.title} titleClass="font-black [font-family:Georgia,serif] !text-[14px] !tracking-[0.02em] min-[400px]:!text-lg sm:!text-xl sm:!tracking-[0.06em]" subtitle={<span className="font-mono">{t.online} · {code}</span>}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <GameUpdates game="hit_stay" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
