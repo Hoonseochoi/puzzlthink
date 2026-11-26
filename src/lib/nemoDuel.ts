@@ -1,6 +1,7 @@
 // 네모 세기 도전장: the same boards (seeded) for everyone who opens the link, on one leaderboard.
 import type { NemoDifficulty } from './nemoCount';
 import { getSupabase } from './supabase';
+import { serverJson } from './serverFetch';
 
 export type DuelRun = { name: string; correct: number; ms: number };
 export type Duel = {
@@ -45,11 +46,10 @@ export async function fetchDuel(id: string): Promise<Duel | null> {
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key || !validId(id)) return null;
   try {
-    const res = await fetch(`${url}/rest/v1/rpc/nemo_duel_get`, {
+    return await serverJson<Duel | null>(`${url}/rest/v1/rpc/nemo_duel_get`, {
       method: 'POST', headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_id: id }), next: { revalidate: 30 },
     });
-    return res.ok ? ((await res.json()) as Duel | null) : null;
   } catch { return null; }
 }
 
