@@ -9,12 +9,13 @@ import { type PoAction, type PoRoom, PO_SHOW_MS, budgetOf, isPlaying, knowsBudge
 import { BidRow, BudgetStrip, POINT_MARKS, PoBoardView, PoStone } from './PoParts';
 import { useBidLock } from './useBidLock';
 import { PoLossTips, PoRulesTip } from './PoTips';
+import { RoomPieces } from '../PieceStone';
 
 /**
  * The 포인트 오목 table, shared by the AI game and 1:1 rooms. It renders only public facts plus this player's own
  * points and bids: the other player's bids and points never reach the page until the match is over.
  */
-export default function PoTable({ state, mySeat, dispatch, names, resultActions, asideExtra, onResign }: {
+function PoTableInner({ state, mySeat, dispatch, names, resultActions, asideExtra, onResign }: {
   state: PoRoom;
   mySeat: 0 | 1 | null;
   dispatch: (action: PoAction) => void;
@@ -273,4 +274,9 @@ export default function PoTable({ state, mySeat, dispatch, names, resultActions,
       )}
     </main>
   );
+}
+
+/** PoTable with every player's own 바둑알 on their pieces (PieceStone). */
+export default function PoTable(props: Parameters<typeof PoTableInner>[0]) {
+  return <RoomPieces seats={props.state.seats} me={props.mySeat} ai={props.state.ai}><PoTableInner {...props} /></RoomPieces>;
 }

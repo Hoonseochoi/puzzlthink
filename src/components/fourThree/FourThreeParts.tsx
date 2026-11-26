@@ -1,6 +1,7 @@
 "use client";
 
 import { type Board, CELLS, MAX_HEIGHT, SIZE, top } from '@/lib/fourThree';
+import PieceStone from '../PieceStone';
 
 export const FT_ACCENT = '#ffb52e';
 export const FT_INK = '#2a1a00';
@@ -13,6 +14,7 @@ export const COLOR_KEYS = ['red', 'yellow', 'green', 'blue'] as const;
 /** A piece: a glossy disc in its colour with the PUZZLTHINK eyes. The guest's pieces wear a small star. */
 export function FtPiece({ color, guest = false, className = '', ghost = false }: { color: number; guest?: boolean; className?: string; ghost?: boolean }) {
   return (
+    <PieceStone seat={guest ? null : color} color={FT_COLORS[color]} className={`${ghost ? 'opacity-40' : ''} ${className}`}>
     <svg viewBox="0 0 100 100" className={`block h-full w-full overflow-visible ${ghost ? 'opacity-40' : ''} ${className}`} aria-hidden>
       <defs>
         <radialGradient id={`ftp-${color}`} cx="35%" cy="30%" r="75%">
@@ -27,6 +29,7 @@ export function FtPiece({ color, guest = false, className = '', ghost = false }:
       <rect x="56" y="33" width="9" height="17" rx="4.5" fill="#17201e" />
       {guest && <path d="M50 60 l3.2 6.6 7.2 1 -5.2 5 1.3 7.2 -6.5-3.4 -6.5 3.4 1.3-7.2 -5.2-5 7.2-1z" fill="#17201e" opacity=".8" />}
     </svg>
+    </PieceStone>
   );
 }
 

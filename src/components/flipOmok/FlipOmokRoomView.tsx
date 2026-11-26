@@ -21,6 +21,7 @@ import { FLIP_TURN_OPTIONS, colorOf, seatToMove } from '@/lib/flipOmokRoom';
 import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, MiniBoard } from './FlipOmokParts';
 import { FlipLegend, FlipTips, LossTip, SafeGapCallout } from './FlipOmokGame';
 import GameUpdates from '@/components/GameUpdates';
+import { PieceOwners, useMyNickname } from '../PieceStone';
 
 export default function FlipOmokRoomView({ code }: { code: string }) {
   const t = useTranslations('FlipOmokOnline');
@@ -31,6 +32,10 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useFlipOmokRoom(code, defaultName);
+  const nickname = useMyNickname();
+  // Stones are keyed by colour (1 red, 2 blue), which swaps between games.
+  const owners: (string | null)[] = [];
+  if (state) state.seats.forEach((seat, i) => { if (seat) owners[colorOf(state, i)] = (i === mySeat && nickname) || seat.name; });
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -110,6 +115,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
   );
 
   return (
+    <PieceOwners.Provider value={owners}>
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
       <RoomAlerts alerts={alerts} accent={FLIP_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/flip-omok" backLabel={tf('title')} title={tf('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
@@ -222,5 +228,6 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
         </main>
       )}
     </div>
+    </PieceOwners.Provider>
   );
 }

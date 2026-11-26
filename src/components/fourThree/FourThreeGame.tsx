@@ -17,6 +17,7 @@ import { reportGame } from '@/lib/stats';
 import { FT_ACCENT, FT_INK } from './FourThreeParts';
 import FourThreeResult from './FourThreeResult';
 import FourThreeTable from './FourThreeTable';
+import GameUpdates from '@/components/GameUpdates';
 
 /** You and two ally AI players against the Special Guest AI, four rounds. */
 export default function FourThreeGame() {
@@ -40,7 +41,7 @@ export default function FourThreeGame() {
     <div className={SHELL} style={{ ...accentVars(FT_ACCENT, FT_INK), backgroundImage: fog('255, 181, 46') }}>
       <Shards />
       <GameHeader players={roomPlayers(state, true)} me={0} backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="four_three" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
       <main className="relative z-10 mx-auto w-full max-w-[860px] px-3 py-3 sm:px-4 sm:py-5 lg:py-8">
