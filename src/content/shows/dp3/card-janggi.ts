@@ -69,7 +69,7 @@ const game: ShowGame = {
     siteDiff: [
       { type: 'list', items: [
         'PUZZLTHINK 카드 장기는 방송 화면대로 6×5 판과 말의 시작 칸, 다섯 장의 카드, 뒤집어 놓는 순서와 후공의 첫 4장, 승리 조건을 구현했어요.',
-        '**코끼리가 달라요.** 방송 규칙서에는 대각선으로 1–2칸이라고 적혀 있지만, PUZZLTHINK에서는 체스의 비숍처럼 대각선으로 막히기 전까지 몇 칸이든 가요(상대 말을 만나면 잡을 수 있어요).',
+        '코끼리는 방송 규칙서대로 대각선 한 방향으로 1–2칸 가요. 1칸째에 말이 있으면 뛰어넘지 못해요.',
         '기린은 사이에 있는 말을 뛰어넘어요. 움직일 수 없는 카드는 이동 없이 쓰이고, 정해진 수 안에 끝나지 않으면 말이 많이 남은 쪽이 이겨요. 이 부분은 방송이 정하지 않아 사이트가 정했어요.',
         '사이트에서는 빠른 한 판을 위해 **한 라운드로 승부**를 내요(방송은 3판 2선승).',
       ] },
@@ -141,7 +141,7 @@ const game: ShowGame = {
     siteDiff: [
       { type: 'list', items: [
         'PUZZLTHINK’s Card Janggi implements the 6×5 board and starting squares seen on screen, the five cards, the face-down order with the second player’s first four, and both ways to win.',
-        '**The elephant differs.** The show’s rulebook says 1–2 squares diagonally; on PUZZLTHINK it slides diagonally any distance until blocked, like a chess bishop (and may capture the first enemy piece it meets).',
+        'The elephant moves 1–2 squares in one diagonal direction, as in the show’s rulebook; it cannot jump a piece on the first square.',
         'The giraffe jumps over whatever is between. A card with no legal move is used without moving, and a round that runs too long goes to the side with more pieces. The show left these open, so the site decided them.',
         'For quick games the site plays **a single round** (the show was best of three).',
       ] },

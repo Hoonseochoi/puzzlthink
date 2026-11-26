@@ -1,5 +1,5 @@
 // 카드 장기 guide. Rules and numbers follow src/lib/cardJanggi.ts (startBoard, STEPS/RAYS: giraffe jumps, elephant
-// slides and stops at the first piece, layoutSize: 후 lays out 4 in its first cycle, afterCard/settle: a card with no
+// slides one or two squares and stops at the first piece, layoutSize: 후 lays out 4 in its first cycle, afterCard/settle: a card with no
 // legal move is used up, CJ_MAX_PLY 60 → more pieces wins, else draw, CJ_MAX_ROUNDS 1), src/lib/cardJanggiRoom.ts
 // (90 s layout and move clocks, the opponent makes a late player's move within 20 s, a random layout on a layout
 // timeout, 3 timeouts in a row lose, 30 s to pick 선/후, the human picks against the AI and a coin toss picks the
@@ -37,7 +37,7 @@ function CjBoard({ spec, label }: { spec: BoardSpec; label: string }) {
 }
 const fig = (spec: BoardSpec, label: string) => <CjBoard spec={spec} label={label} />;
 
-// A card's move pattern on a 5×5 window, the piece in the middle (elephant: drawn two steps, it slides on).
+// A card's move pattern on a 5×5 window, the piece in the middle (elephant: one or two steps, as drawn).
 const PATTERNS: [number, number][][] = [
   [[1, 0], [-1, 0], [0, 1], [0, -1]],
   [[1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2]],
@@ -64,7 +64,7 @@ const W1: BoardSpec = { pieces: W_POS, danger: ['b3', 'd2'], reach: ['c3', 'd3',
 const W2: BoardSpec = { pieces: W_POS, reach: ['b5', 'b1', 'd3', 'c4', 'a2', 'e2', 'd4', 'b2', 'a3', 'c1'] };
 // After b3×b5 your next card (monkey) is turned up: b5 now hits their 왕 on c5.
 const W3: BoardSpec = { pieces: [[0, true, 'c2'], [0, false, 'b5'], [0, false, 'd2'], [0, false, 'a1'], [1, true, 'c5'], [1, false, 'e4'], [1, false, 'd6']], danger: ['c5'] };
-// Elephant ray: their small on e4 slides through d5 onto … nothing; yours on e4 would hit c6 through d5.
+// Elephant ray: yours on e4 would hit c6 two steps away, through an empty d5.
 const RAY: BoardSpec = { pieces: [[0, true, 'b2'], [0, false, 'e4'], [0, false, 'a1'], [1, true, 'c6'], [1, false, 'b5'], [1, false, 'a3']], reach: ['d5'], danger: ['c6'] };
 // The goal: their 왕 has left c6; your 왕 on c4 with the giraffe jumps straight in.
 const GOAL: BoardSpec = { pieces: [[0, true, 'c4'], [0, false, 'b2'], [0, false, 'd3'], [1, true, 'e5'], [1, false, 'c5'], [1, false, 'a4']], reach: ['c6'], goal: true };
@@ -118,7 +118,7 @@ const guide: GameGuide = {
             { tag: '쥐', title: '🐭 상하좌우 1칸', body: '가장 짧은 행마. 王 바로 옆에 붙은 말을 잡거나, 한 칸만 비켜 서는 데 써요.', figure: card(0, '쥐 카드 행마') },
             { tag: '말', title: '🐴 L자로 점프', body: '체스의 나이트처럼 한 방향 2칸 + 옆으로 1칸, 사이의 말은 뛰어넘어요. 막을 수가 없어서 기습에 강해요.', figure: card(1, '말 카드 행마') },
             { tag: '원숭이', title: '🐵 주변 8칸', body: '王처럼 주변 여덟 칸 중 하나로. 어떤 판에서도 쓸모가 있는 가장 안전한 카드예요.', figure: card(2, '원숭이 카드 행마') },
-            { tag: '코끼리', title: '🐘 대각선 끝까지', body: '체스의 비숍처럼 대각선으로 원하는 만큼 미끄러지다 처음 만나는 말 앞에서 멈춰요. 그 말이 상대 말이면 잡을 수 있어요. 그림은 두 칸까지만 그렸지만 판 끝까지 갈 수 있어요.', figure: card(3, '코끼리 카드 행마') },
+            { tag: '코끼리', title: '🐘 대각선 1–2칸', body: '대각선 한 방향으로 1칸이나 2칸 가요. 1칸째에 말이 있으면 거기서 멈추고, 그 말이 상대 말이면 잡을 수 있어요(뛰어넘지는 못해요).', figure: card(3, '코끼리 카드 행마') },
             { tag: '기린', title: '🦒 상하좌우 정확히 2칸', body: '사이에 말이 있어도 뛰어넘어 정확히 두 칸 떨어진 칸에 가요. 1칸은 못 가요.', figure: card(4, '기린 카드 행마') },
           ] },
         ],
@@ -148,7 +148,7 @@ const guide: GameGuide = {
           { type: 'list', ordered: true, items: [
             '**내 카드로 지금 이길 수 있나?** 내 앞면 카드로 상대 王을 잡거나 내 王이 c6에 들어갈 수 있으면 그게 먼저예요.',
             '**상대 앞면 카드가 내 王에 닿나?** 상대 말 넷 각각에서 그 카드의 행마를 그려 보고, 내 王 칸이나 c1(내 王의 시작 칸, 상대 王이 들어오면 내가 져요)에 닿는지 확인해요.',
-            '**내가 움직인 뒤에도 안전한가?** 말을 옮기면 길이 열려요. 특히 코끼리는 대각선이 비는 순간 멀리서 날아와요.',
+            '**내가 움직인 뒤에도 안전한가?** 말을 옮기면 길이 열려요. 특히 코끼리는 대각선 한 칸이 비는 순간 두 칸 떨어진 곳까지 닿아요.',
           ] },
           { type: 'list', items: [
             '**원숭이는 뒤쪽에**: 원숭이는 어디서나 쓸모가 있어서, 묶음 뒤쪽에 두면 앞의 카드가 꼬였을 때 수습해 줘요.',
@@ -180,7 +180,7 @@ const guide: GameGuide = {
             ['🐵 원숭이', '어디서나 쓸 수 있는 만능 카드', '뒤쪽 — 꼬인 판을 수습'],
             ['🐭 쥐', '짧지만 王 옆을 정리', '王 가까이 싸움이 벌어질 때'],
             ['🐴 말', '막을 수 없는 점프 기습', '노릴 칸이 보일 때 앞쪽'],
-            ['🐘 코끼리', '대각선이 열리면 판 끝까지', '대각선이 비어 있을 때만'],
+            ['🐘 코끼리', '대각선 2칸까지 닿는 기습', '대각선 사이 칸이 비어 있을 때'],
             ['🦒 기린', '정확히 2칸, 뛰어넘기', '목표 칸까지 2칸이 보일 때'],
           ] },
           { type: 'list', items: [
@@ -189,7 +189,7 @@ const guide: GameGuide = {
             '**상대 남은 카드 세기**: 같은 묶음에서 쓴 카드는 다시 나오지 않아요. 상대가 이번 묶음에서 말과 코끼리를 이미 썼다면, 그 묶음이 끝날 때까지 그 두 행마는 걱정하지 않아도 돼요. 마지막 한두 장은 거의 확정돼요.',
           ] },
           { type: 'cards', columns: 1, items: [
-            { tag: '코끼리 경계', title: '열린 대각선은 멀리서도 닿아요', body: '내 작은 말 e4에서 d5를 지나 c6까지 대각선이 비어 있어요. 앞면 카드가 코끼리라면 e4→c6으로 상대 王을 바로 잡아요. 반대로 내 王이 상대 말과 빈 대각선으로 이어져 있으면, 상대 앞면 카드가 코끼리인 순간 위험해요. 대각선 중간에 말 하나만 있어도 코끼리는 멈춰요.', figure: fig(RAY, '코끼리가 닿는 열린 대각선') },
+            { tag: '코끼리 경계', title: '열린 대각선은 두 칸 너머까지 닿아요', body: '내 작은 말 e4에서 d5를 지나 c6까지 대각선이 비어 있어요. 앞면 카드가 코끼리라면 e4→c6으로 상대 王을 바로 잡아요. 반대로 내 王이 상대 말과 빈 대각선으로 이어져 있으면, 상대 앞면 카드가 코끼리인 순간 위험해요. 대각선 중간에 말 하나만 있어도 코끼리는 멈춰요.', figure: fig(RAY, '코끼리가 닿는 열린 대각선') },
           ] },
         ],
       },
@@ -213,7 +213,7 @@ const guide: GameGuide = {
         title: '자주 하는 실수',
         blocks: [
           { type: 'list', items: [
-            '**코끼리 대각선을 잊기**: 멀리 있는 상대 말이라도 대각선이 비어 있으면 한 번에 닿아요. 말을 옮겨 대각선을 열어 주는 수를 특히 조심하세요.',
+            '**코끼리 대각선을 잊기**: 대각선으로 두 칸 떨어진 상대 말도 사이 칸이 비어 있으면 한 번에 닿아요. 말을 옮겨 대각선을 열어 주는 수를 특히 조심하세요.',
             '**기린을 1칸으로 착각하기**: 기린은 정확히 2칸이에요. 바로 옆 칸은 못 가는 대신 사이의 말을 뛰어넘어요.',
             '**강한 카드를 다 앞에 두기**: 말·코끼리를 앞에 몰면 뒤쪽에서 쓸 카드가 쥐·기린만 남아 판이 바뀌었을 때 대응이 어려워요.',
             '**c1을 비워 두기**: 王끼리 싸우는 데 집중하다 상대 王이 c1에 들어오는 길을 놓쳐요.',
@@ -255,7 +255,7 @@ const guide: GameGuide = {
       { q: '제한 시간을 넘기면 어떻게 되나요?', a: '한 수 90초를 넘기면 내 앞면 카드의 행마로 상대(AI 대국에서는 AI)가 내 말을 대신 움직여요. 세 번 연속 시간을 넘기면 패배예요.' },
       { q: 'AI는 내 카드 순서를 보나요?', a: '아니요. 쓴 카드와 앞면 카드만 보고, 숨은 카드가 놓일 수 있는 모든 순서를 따져 평균적으로 가장 좋은 수를 둬요.' },
       { q: '무승부도 있나요?', a: '60수가 지나면 남은 말이 많은 쪽이 이기고, 같으면 무승부예요.' },
-      { q: '코끼리는 몇 칸 가나요?', a: '대각선으로 막힐 때까지 원하는 만큼 가요. 처음 만나는 말이 상대 말이면 잡을 수 있고, 내 말이면 그 앞에서 멈춰요.' },
+      { q: '코끼리는 몇 칸 가나요?', a: '대각선 한 방향으로 1칸이나 2칸 가요(방송 규칙서대로). 1칸째에 상대 말이 있으면 그 말을 잡고 멈추고, 내 말이면 지나가지 못해요.' },
     ],
     cta: { title: '카드를 짜 볼까요?', body: '첫 묶음은 원숭이를 뒤쪽에 두는 것부터 시작해 보세요. 상대 앞면 카드를 확인하는 습관이 승률을 바꿔요.', button: '카드 장기 하러 가기' },
     disclaimer: '카드 장기는 방송에 소개된 게임 방식에서 착안해 PUZZLTHINK가 웹용으로 다시 만든 비공식 팬 프로젝트로, 넷플릭스·데블스 플랜 방송사·제작사와 관련이 없어요.',
@@ -304,7 +304,7 @@ const guide: GameGuide = {
             { tag: 'RAT', title: '🐭 One square orthogonally', body: 'The shortest move: take a piece right next to your king or step one square aside.', figure: card(0, 'Rat card moves') },
             { tag: 'HORSE', title: '🐴 Knight’s jump', body: 'Like a chess knight: two squares one way and one to the side, jumping over anything in between. It cannot be blocked, which makes it the surprise card.', figure: card(1, 'Horse card moves') },
             { tag: 'MONKEY', title: '🐵 Any neighbouring square', body: 'Like a king: any of the eight surrounding squares. Useful in every position — the safest card.', figure: card(2, 'Monkey card moves') },
-            { tag: 'ELEPHANT', title: '🐘 Diagonally, any distance', body: 'Like a chess bishop: slides diagonally and stops in front of the first piece it meets, or takes it if it is an enemy. Drawn here two steps, but it goes to the edge of the board.', figure: card(3, 'Elephant card moves') },
+            { tag: 'ELEPHANT', title: '🐘 One or two squares diagonally', body: 'One or two squares in one diagonal direction. If a piece is on the first square it stops there, taking it if it is an enemy (it cannot jump).', figure: card(3, 'Elephant card moves') },
             { tag: 'GIRAFFE', title: '🦒 Exactly two orthogonally', body: 'Jumps over whatever is in between and lands exactly two squares away. It can never go just one.', figure: card(4, 'Giraffe card moves') },
           ] },
         ],
@@ -334,7 +334,7 @@ const guide: GameGuide = {
           { type: 'list', ordered: true, items: [
             '**Can my card win now?** If your face-up card takes their king or puts your king on c6, play it.',
             '**Does their card reach my king?** Trace that card’s move from each of their four pieces and check your king’s square — and c1, your king’s start square, where their king would win.',
-            '**Am I still safe after moving?** Moving a piece opens lines. The elephant in particular arrives from far away the moment a diagonal clears.',
+            '**Am I still safe after moving?** Moving a piece opens lines. The elephant in particular reaches two squares away the moment the square between clears.',
           ] },
           { type: 'list', items: [
             '**Monkey near the back**: the monkey is useful anywhere, so late in a cycle it rescues you when earlier cards went wrong.',
@@ -366,7 +366,7 @@ const guide: GameGuide = {
             ['🐵 Monkey', 'useful anywhere', 'late — cleans up a tangled board'],
             ['🐭 Rat', 'short, tidies up around the king', 'when the fight is close to the kings'],
             ['🐴 Horse', 'an unblockable jump', 'early, when you see a target'],
-            ['🐘 Elephant', 'crosses the board on an open diagonal', 'only when a diagonal is open'],
+            ['🐘 Elephant', 'a two-square diagonal strike', 'when the square between is empty'],
             ['🦒 Giraffe', 'exactly two, jumping', 'when a target is exactly two away'],
           ] },
           { type: 'list', items: [
@@ -375,7 +375,7 @@ const guide: GameGuide = {
             '**Count their cards**: a card used this cycle will not come back until the next. If they have already used the horse and the elephant, you can forget those two moves until they re-lay. The last one or two cards are nearly certain.',
           ] },
           { type: 'cards', columns: 1, items: [
-            { tag: 'ELEPHANT ALERT', title: 'An open diagonal reaches from far away', body: 'The diagonal from your small piece on e4 through d5 to c6 is empty. With the elephant face up, e4 → c6 takes their king at once. Turn it around: if your king is joined to an enemy piece by an empty diagonal, you are in danger the moment their face-up card is the elephant. A single piece in between stops it.', figure: fig(RAY, 'An open diagonal for the elephant') },
+            { tag: 'ELEPHANT ALERT', title: 'An open diagonal reaches two squares', body: 'The diagonal from your small piece on e4 through d5 to c6 is empty. With the elephant face up, e4 → c6 takes their king at once. Turn it around: if your king is joined to an enemy piece by an empty diagonal, you are in danger the moment their face-up card is the elephant. A single piece in between stops it.', figure: fig(RAY, 'An open diagonal for the elephant') },
           ] },
         ],
       },
@@ -399,7 +399,7 @@ const guide: GameGuide = {
         title: 'Common mistakes',
         blocks: [
           { type: 'list', items: [
-            '**Forgetting the elephant’s diagonal**: a distant enemy piece reaches in one move if the diagonal is open. Beware moves that open one.',
+            '**Forgetting the elephant’s diagonal**: an enemy piece two squares away diagonally reaches in one move if the square between is empty. Beware moves that open one.',
             '**Treating the giraffe as a one-step**: it moves exactly two. It cannot step next door, but it jumps over pieces.',
             '**Front-loading the strong cards**: put horse and elephant first and you are left with rat and giraffe when the board has changed.',
             '**Leaving c1 open**: busy with the kings’ fight, you miss their king’s route into c1.',
@@ -441,7 +441,7 @@ const guide: GameGuide = {
       { q: 'What happens if I run out of time?', a: 'Miss the 90-second move clock and the opponent (the AI, against the AI) moves one of your pieces with your face-up card. Three timeouts in a row lose the match.' },
       { q: 'Does the AI see my card order?', a: 'No. It sees only your used cards and face-up card, considers every order your hidden cards could be in and plays the move that is best on average.' },
       { q: 'Can the game be drawn?', a: 'After 60 moves the side with more pieces wins; equal numbers is a draw.' },
-      { q: 'How far does the elephant move?', a: 'Diagonally as far as it likes until blocked. It can take the first piece it meets if that is an enemy piece, and stops in front of it if it is yours.' },
+      { q: 'How far does the elephant move?', a: 'One or two squares in one diagonal direction, as in the show’s rulebook. An enemy piece on the first square is taken and the elephant stops there; one of your own blocks it.' },
     ],
     cta: { title: 'Ready to lay out your cards?', body: 'Start your first cycle with the monkey near the back. Checking their face-up card every move changes how often you win.', button: 'Play Card Janggi' },
     disclaimer: 'Card Janggi is an unofficial fan remake by PUZZLTHINK, inspired by the game shown on the programme; it is not affiliated with Netflix, The Devil’s Plan or its producers.',

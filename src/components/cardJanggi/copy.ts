@@ -21,7 +21,7 @@ const ko = {
   resign: '기권',
   resignConfirm: '기권하면 이 매치를 지게 돼요. 기권할까요?',
   cards: ['쥐', '말', '원숭이', '코끼리', '기린'],
-  cardMoves: ['상하좌우 1칸', '체스 나이트처럼', '주변 8칸', '대각선 끝까지', '상하좌우 2칸 점프'],
+  cardMoves: ['상하좌우 1칸', '체스 나이트처럼', '주변 8칸', '대각선 1–2칸', '상하좌우 2칸 점프'],
   first: '선',
   second: '후',
   firstFull: '선공',
@@ -146,7 +146,7 @@ const ko = {
   ],
   quick: [
     '6×5 판에서 큰 말 1개와 작은 말 3개로 싸워요. 상대 큰 말을 잡거나, 내 큰 말이 상대 큰 말의 시작 칸에 들어가면 라운드 승리.',
-    '행마 카드 5장: 쥐(상하좌우 1칸) · 말(나이트) · 원숭이(주변 8칸) · 코끼리(대각선 끝까지) · 기린(상하좌우 2칸 점프).',
+    '행마 카드 5장: 쥐(상하좌우 1칸) · 말(나이트) · 원숭이(주변 8칸) · 코끼리(대각선 1–2칸) · 기린(상하좌우 2칸 점프).',
     '라운드 시작에 둘 다 카드 순서를 몰래 정해요. 선공은 5장 모두, 후공은 첫 묶음만 5장 중 4장. 첫 카드는 동시에 공개.',
     '선공부터 번갈아, 공개된 카드대로 원하는 말 1개를 움직이고 다음 카드를 공개해요. 상대 말이 있는 칸으로 가면 잡아요.',
     '마지막 카드를 쓰면 바로 5장 순서를 다시 정하고 첫 카드만 공개해요. 그래서 상대는 내 새 첫 카드를 보고 마지막 카드를 써요.',
@@ -169,7 +169,7 @@ const en: CjCopy = {
   resign: 'Resign',
   resignConfirm: 'Resigning loses this match. Resign?',
   cards: ['Rat', 'Horse', 'Monkey', 'Elephant', 'Giraffe'],
-  cardMoves: ['1 step orthogonally', 'knight jump', 'any neighbour', 'bishop slide', 'jump 2 orthogonally'],
+  cardMoves: ['1 step orthogonally', 'knight jump', 'any neighbour', '1–2 diagonally', 'jump 2 orthogonally'],
   first: '1st',
   second: '2nd',
   firstFull: 'First',
@@ -290,13 +290,13 @@ const en: CjCopy = {
   ],
   quick: [
     'On a 6×5 board, one king and three small pieces each. Take the enemy king, or move your king onto the square it started on, to win the round.',
-    'Five movement cards: Rat (1 step orthogonally) · Horse (knight) · Monkey (any neighbour) · Elephant (bishop) · Giraffe (jump 2 orthogonally).',
+    'Five movement cards: Rat (1 step orthogonally) · Horse (knight) · Monkey (any neighbour) · Elephant (1–2 diagonally) · Giraffe (jump 2 orthogonally).',
     'At the start of a round both lay out their cards face down: first player all five, second player four of five (first cycle only). The first cards are turned up together.',
     'Turns alternate from the first player: move any one piece as the face-up card allows, then turn up your next card. Moving onto an enemy piece takes it.',
     'After your last card, lay out all five again at once and turn up only the first. So your opponent sees your new first card before using their last one.',
     '90 seconds per move; miss it and your opponent moves your piece with your card. One round decides the match. You choose first or second (in rooms a coin toss picks who chooses).',
   ],
-  notes: 'Our calls: a card with no legal move is passed · the giraffe jumps, the elephant stops at the first piece · past 60 moves in a round, more pieces left wins (equal = drawn round).',
+  notes: 'Our calls: a card with no legal move is passed · the giraffe jumps, the elephant cannot jump the first square · past 60 moves in a round, more pieces left wins (equal = drawn round).',
 };
 
 export const cjCopy = (locale: string): CjCopy => (locale === 'en' ? en : ko);
