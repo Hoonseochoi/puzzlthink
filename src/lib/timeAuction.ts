@@ -25,6 +25,9 @@
  *  8. Bidding: those still holding let go whenever they have spent what they want to bid. ✓✓ [N][R]
  *  9. Hidden information: nobody — not even you — is shown your remaining time; only the time running in the current
  *     auction is on the board. You must remember what you spent. ✓✓ [N][R]
+ *     ◇ SITE RULE (owner's request, 2026-11-27): each player's OWN remaining time is shown on their own screen
+ *       (draining live while they hold). Everyone else's stays hidden and is never sent to other browsers. A room
+ *       host can restore the broadcast rule (TaRoom.hideOwn).
  * 10. Running out: when your remaining time is used up the button is pushed out at once, so you cannot bid more than
  *     you have. ✓✓ [N][R] ([N] notes the rule card did not say it; the dealer's answer and play showed it, and a
  *     player's device vibrated when their time ran out ≈.) ◇ A player with 0:00.0 left cannot take part at all.
@@ -58,7 +61,7 @@
  *
  * ── This site's version ────────────────────────────────────────────────────────────────────────────────────────
  * Same rules, but a full broadcast match lasts well over half an hour, so a match picks a format (TA_FORMATS):
- * 빠른 경매 2:00 × 9 auctions (default), 표준 5:00 × 13, 방송 규칙 10:00 × 19. Players: 6 vs the AI (you + 5),
+ * 표준 5:00 × 13 auctions (default), 빠른 경매 2:00 × 9, 방송 규칙 10:00 × 19. Players: 6 vs the AI (you + 5),
  * 2–6 in friend and open rooms (empty seats can be AI). The ready step has a time limit in rooms, and a "이번엔 포기"
  * shortcut does the same as pressing and letting go in the countdown. Final ranking: tokens, then remaining time.
  *
@@ -118,7 +121,7 @@ const fill = <T,>(n: number, value: T) => Array<T>(n).fill(value);
 /** Truncate to the recording unit (0.1 s). */
 export const taFloor = (ms: number) => Math.max(0, Math.floor(ms / TA_UNIT) * TA_UNIT);
 
-export function newTimeAuction(inGame: boolean[], format: TaFormatId = 'quick', gid = 'g'): TimeAuction {
+export function newTimeAuction(inGame: boolean[], format: TaFormatId = 'standard', gid = 'g'): TimeAuction {
   const { bank, rounds } = TA_FORMATS[format];
   const n = inGame.length;
   return {

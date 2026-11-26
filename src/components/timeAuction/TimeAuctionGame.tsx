@@ -22,11 +22,11 @@ import TimeAuctionTable from './TimeAuctionTable';
 
 /** The match size and AI level from the start link (?format=quick|standard|broadcast&difficulty=normal|hard). */
 function linked(): { format: TaFormatId; level: TaLevel } {
-  if (typeof window === 'undefined') return { format: 'quick', level: 'hard' };
+  if (typeof window === 'undefined') return { format: 'standard', level: 'hard' };
   const q = new URLSearchParams(window.location.search);
   const format = q.get('format') as TaFormatId | null;
   const level = q.get('difficulty') as TaLevel | null;
-  return { format: format && TA_FORMAT_IDS.includes(format) ? format : 'quick', level: level === 'normal' ? 'normal' : 'hard' };
+  return { format: format && TA_FORMAT_IDS.includes(format) ? format : 'standard', level: level === 'normal' ? 'normal' : 'hard' };
 }
 
 /** 시간 경매 against five AI bidders, all in this browser. */

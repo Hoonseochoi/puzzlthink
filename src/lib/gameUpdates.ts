@@ -1,4 +1,4 @@
-import { Bot, Coins, Crown, Flame, History, MousePointerClick, PenLine, Scale, Sparkles, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { Bot, Coins, Crown, Flame, History, MousePointerClick, PenLine, Scale, Sparkles, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -151,6 +151,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   time_auction: {
     name: { ko: '시간 경매', en: 'Time Auction' },
     items: [
+      {
+        date: '11/27', icon: Timer,
+        ko: { title: '내 남은 시간이 보여요 · 기본은 표준 5분', desc: '버튼 위에 내 남은 시간이 보이고, 누르는 동안 0.1초 단위로 줄어요. 다른 사람의 시간은 그대로 비공개예요(친구 방은 방장이 방송처럼 숨길 수 있어요). 기본 경매는 표준 5분 × 13경매가 됐어요.' },
+        en: { title: 'See your own time · Standard 5:00 by default', desc: 'Your remaining time now shows above the button and drains to 0.1 s while you hold; everyone else\'s stays hidden (friend-room hosts can hide it as on the show). The default is now Standard, 5:00 × 13 auctions.' },
+      },
       {
         date: '11/27', icon: Sparkles,
         ko: { title: '시간 경매가 열렸어요', desc: '데블스 플랜 2 감옥매치를 방송 규칙대로 옮겼어요. 경매마다 바둑알 하나가 올라오고 버튼을 가장 오래 누른 사람이 가져가요. PUZZLTHINK 아이콘이 바둑알로 올라오고, 좋은 아이콘일수록 점수가 커요(중급 2점, 마지막 최상급 3점 · 실제 아이콘은 지급되지 않아요). 가장 먼저 손을 뗀 사람은 헬모드 마이너스 바둑알(−1)을 받아요. AI는 10명의 캐릭터 중 5명이 매 판 다른 기분으로 앉아요. 친구·공개방 2~6명.' },
