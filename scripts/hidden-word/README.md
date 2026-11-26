@@ -11,6 +11,9 @@ time: the game is a set of Postgres functions (`supabase/migrations/202711260000
 | `basic` 기본 | 60 words (`src/pool_basic.tsv`) | 11 familiar groups + the show's 6 words | fastText 0.4 + bge-m3 0.6 (unchanged) | hw_cfg() as before |
 | `plus` 확장 | 186 words (`src/pool_plus.tsv`) | 30 look-alike groups (감정, 직업, 장소, 음식, 문화, 과학, 때 …) | fastText 0.4 + bge-m3 0.3 + KURE-v2 0.3, compound rule by meaning | one warm-up, closes on the shared end, noise 3 |
 
+Since `20271127100000_hidden_word_plus_game.sql` the `plus` level is its own game, 히든 워드 확장판 (`/hidden-word-plus`,
+game id `hidden_word_plus`, board `hidden_word_plus`, crown `c-hidden_word_plus`); the data and build are unchanged.
+
 Both share one vocabulary (`hw_vocab`, 78,016 typable words) and are built and loaded together. `<data>/levels.json`
 says each level's pool, blend, rank curve and floor rules; build_game.py reads it (without it: one level, the old layout).
 기본 is rebuilt to the exact same numbers as before for every word it had (checked cell by cell, 4.4M cells): its

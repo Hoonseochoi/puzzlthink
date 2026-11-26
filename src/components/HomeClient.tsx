@@ -21,6 +21,7 @@ import { newMonorail } from '@/lib/monorail';
 import Merge2048Preview from './merge2048/Merge2048Preview';
 import { HitStayTile } from './hitStay/HitStayPreview';
 import { HiddenWordTile } from './hiddenWord/HiddenWordPreview';
+import { HiddenWordPlusTile } from './hiddenWord/HiddenWordPlusArt';
 import { CjTile } from './cardJanggi/CjPreview';
 import { GradationTile } from './gradation/GradationPreview';
 import { SignalTile } from './equationSignal/SignalParts';
@@ -223,6 +224,7 @@ export function GamePreview({ id }: { id: GameId }) {
     case 'equationSignal': return <SignalTile />;
     case 'equationTower': return <TowerTile />;
     case 'hiddenWord': return <HiddenWordTile />;
+    case 'hiddenWordPlus': return <HiddenWordPlusTile />;
     case 'gradation': return <GradationTile />;
     case 'cardJanggi': return <CjTile />;
     case 'colorLinkDuel': return <CldTile />;
