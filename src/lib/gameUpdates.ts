@@ -29,6 +29,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
       {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '확장 단어 세트가 열렸어요', desc: '봉투를 고르기 전에 기본(60단어)과 확장(186단어)을 고를 수 있어요. 확장은 감정·직업·장소·음식·문화까지, 서로 닮은 단어끼리 묶여 있고 모라의 힌트도 덜 직접적이라 조금 더 어려워요. 규칙은 같고 랭킹은 따로, 친구 방에서도 고를 수 있어요.' },
+        en: { title: 'New word set: Expansion', desc: 'Before you pick an envelope, choose Basic (60 words) or Expansion (186 words): feelings, jobs, places, food and culture in look-alike groups, with less direct hints from MORA — a bit harder. Same rules, its own ranking, and friend rooms can pick it too.' },
+      },
+      {
+        date: '11/26', icon: Wrench,
+        ko: { title: '모라의 단어가 고르게 나와요', desc: '단어가 적은 묶음(주말)이 모라의 단어로 유난히 자주 나오던 것을 고쳤어요. 이제 모든 단어가 같은 확률로 나와요.' },
+        en: { title: 'MORA’s words now come up evenly', desc: 'A word alone in its group (주말) used to be MORA’s word far more often than the rest. Every word is now equally likely.' },
+      },
+      {
         date: '11/26', icon: Users,
         ko: { title: '친구와 1:1 방이 열렸어요', desc: '링크나 4자리 코드로 친구를 불러 히든 워드를 1:1로 할 수 있어요. 규칙은 모라전과 같고, 답 2개는 피스 없이 단어마다 한 번. 친구 대전은 랭킹에 들어가지 않아요.' },
         en: { title: 'Friend rooms, one on one', desc: 'Invite a friend with a link or a 4-digit code and play Hidden Word 1:1. Same rules as against MORA; two answers are free once per word. Friend matches are not ranked.' },

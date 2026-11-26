@@ -7,6 +7,9 @@
 // 20271126070000_piece_spends.sql (the second answer costs one 피스), 20271126050000_hidden_word_avg_ranking.sql
 // (avg + 0.3 × matches up to 20, ranked from 3), src/lib/hiddenWord.ts (1–8 Hangul letters) and the HiddenWordGuide
 // messages. The similarity numbers in the worked example were read from the live hw_score / hw_hints tables for 포도.
+// Word sets: 20271127000000_hidden_word_levels.sql (기본 60 words as before; 확장 186 words in 30 look-alike groups,
+// hw_level_cfg: same rules and points, MORA gives one warm-up of 70–82 / 78–88 / 85–93 % and closes with hints from the
+// shared end at every stage; separate ranking; friend rooms pick a set), scripts/hidden-word/README.md for the model.
 import type { GameGuide } from './types';
 
 const guide: GameGuide = {
@@ -165,7 +168,9 @@ const guide: GameGuide = {
         id: 'modes',
         title: '모드 메모',
         blocks: [
-          { type: 'p', text: '지금은 AI 모라와 두는 1:1 승점전만 열려 있어요. 로그인하지 않아도 둘 수 있지만, 랭킹 기록과 피스 사용은 로그인해야 해요. 로그인하지 않은 채 시작한 대전도 끝내기 전에 로그인하면 그 계정의 기록으로 남아요. 여러 명이 함께하는 방은 준비 중이에요.' },
+          { type: 'p', text: 'AI 모라와 두는 1:1 승점전과, 링크나 코드로 친구를 부르는 1:1 방이 있어요. 로그인하지 않아도 둘 수 있지만, 랭킹 기록과 피스 사용은 로그인해야 해요. 로그인하지 않은 채 시작한 대전도 끝내기 전에 로그인하면 그 계정의 기록으로 남아요. 친구 대전은 랭킹에 들어가지 않아요.' },
+          { type: 'p', text: '봉투를 고르기 전에 **단어 세트**를 골라요. **기본**은 60단어로 과일·동물·날씨처럼 익숙한 묶음에 방송에 나온 단어가 들어 있어요. **확장**은 186단어로 감정(기쁨·슬픔·질투…), 직업, 장소, 음식, 문화, 과학, 계절(봄·여름·아침·새벽…)처럼 **서로 닮은 단어끼리 한 묶음**이라, 95% 힌트 하나로는 무리까지만 좁혀지는 일이 많아요. 모라도 확장에서는 데우기 힌트를 하나만 내고, 2·3차에도 무리 전체에 들어맞는 쪽의 힌트로 마무리해요. 규칙과 승점은 같고, 랭킹은 세트마다 따로예요.' },
+          { type: 'p', text: '확장에서 추리할 때는 **오답의 숫자**가 더 중요해져요. 같은 무리의 오답은 85% 이상으로 나오기 쉬우니, 1차에 무리를 확신하면 2차에 그 무리 안에서 가장 다른 단어를 골라 숫자로 갈라 보세요. 출제할 때는 내 단어만의 뜻(다의어라면 다른 뜻)으로 95%를 넘기는 힌트가 무리를 숨기기에 좋아요.' },
         ],
       },
       {
@@ -344,7 +349,9 @@ const guide: GameGuide = {
         id: 'modes',
         title: 'Mode notes',
         blocks: [
-          { type: 'p', text: 'For now only the one-on-one point match against Mora is open. You can play signed out, but rankings and pieces need an account; a match started signed out counts for you if you sign in before it ends. Rooms for several players are in the works.' },
+          { type: 'p', text: 'There is the one-on-one point match against Mora and a one-on-one room you open for a friend with a link or a code. You can play signed out, but rankings and pieces need an account; a match started signed out counts for you if you sign in before it ends. Friend matches are not ranked.' },
+          { type: 'p', text: 'Before the envelopes you pick a **word set**. **Basic** has 60 words in familiar groups (fruit, animals, weather) including the show’s own words. **Expansion** has 186 words where **look-alike words share a group**: feelings (joy, sadness, jealousy…), jobs, places, food, culture, science, seasons and times of day, so a single 95% hint often narrows it down to the group and no further. Mora also gives just one warm-up hint there and closes every stage with a hint that suits the whole group. Same rules and points; each set has its own ranking.' },
+          { type: 'p', text: 'In Expansion, **the numbers on wrong answers** matter more. A wrong answer from the right group easily scores 85% or more, so once you are sure of the group, use stage 2 on the member most unlike the others and let the number split the rest. When setting, a 95% hint that only your word has (another meaning, if it has one) hides the group best.' },
         ],
       },
       {
