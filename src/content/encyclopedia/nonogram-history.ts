@@ -17,6 +17,7 @@ const article: WikiArticle = {
     { title: 'Nonogram', site: 'Puzzles Wiki', url: 'https://www.puzzles.wiki/wiki/Nonogram' },
     { title: 'Nonograms (blog post)', site: 'The Strong National Museum of Play', url: 'https://museumofplay.org/?p=9063' },
     { title: 'Mario’s Picross', site: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Mario%27s_Picross' },
+    { title: 'Nonogram (complexity)', site: 'HandWiki', url: 'https://handwiki.org/wiki/Nonogram' },
     { title: 'Mario’s Picross', site: 'Super Mario Wiki', url: 'https://www.mariowiki.com/Mario%27s_Picross' },
   ],
   ko: {
@@ -56,6 +57,11 @@ const article: WikiArticle = {
       sec('picross', '게임기로 간 노노그램', [
         p('노노그램이 더 많은 사람에게 알려진 데에는 비디오 게임도 큰 역할을 했어요. 1995년 3월 일본에서 게임보이용으로 나온 **「마리오의 피크로스」**가 대표적이에요. 닌텐도가 발매한 이 게임은 노노그램 퍼즐을 모은 작품으로, 서양에서는 크게 흥행하지 못했지만 일본에서는 잘 팔려 여러 후속작으로 이어졌어요. 이후 “피크로스”라는 이름의 시리즈가 여러 게임기로 이어졌어요.'),
         p('화면 위의 노노그램은 종이와 다른 장점이 있어요. 드래그로 한 줄을 쭉 칠하고, 틀린 곳을 바로 지울 수 있고, 크기가 큰 퍼즐도 확대해서 볼 수 있어요. 노노그램이 디지털 퍼즐로 특히 잘 어울리는 이유예요.'),
+      ]),
+      sec('good', '좋은 노노그램, 어려운 노노그램', [
+        p('숫자를 아무렇게나 붙인다고 좋은 노노그램이 되지는 않아요. 같은 숫자를 만족하는 그림이 두 가지 이상이면, 푸는 사람은 어느 순간 찍어야 해요. 그래서 잘 만든 노노그램은 **정답이 하나뿐**이고, 가능하면 줄 단위 추론만으로 끝까지 풀리도록 다듬어요.'),
+        p('반대로 줄 하나만 봐서는 아무것도 확정되지 않고, 두 줄 이상을 함께 가정해 봐야 풀리는 노노그램도 있어요. 이런 퍼즐은 훨씬 어려워요. 실제로 크기가 제한 없는 일반적인 노노그램 풀이는 컴퓨터 과학에서 NP-완전 문제로 알려져 있어요. 판이 커질수록 일반적인 방법으로는 풀이 시간이 급격히 늘어날 수 있다는 뜻이에요.'),
+        p('그래서 노노그램 앱이나 사이트는 대부분 정답이 하나이고 논리로 풀리는지 미리 검사한 퍼즐만 내놓아요. 처음 시작한다면 10×10 정도의 작은 판에서 겹치는 칸 찾기에 익숙해진 뒤 크기를 늘려 가는 게 좋아요.'),
       ]),
       sec('solve', '노노그램 풀이의 기본 원리', [
         h3('겹치는 칸 찾기'),
@@ -105,6 +111,11 @@ const article: WikiArticle = {
       sec('picross', 'Nonograms on consoles', [
         p('Video games helped bring nonograms to many more people. A landmark is **Mario’s Picross**, released for the Game Boy in Japan in March 1995. Published by Nintendo, it collected nonogram puzzles; it did not take off in the West but sold well in Japan and led to several sequels, and a “Picross” series continued across many consoles.'),
         p('On a screen nonograms gain advantages over paper: drag to fill a line, erase mistakes instantly, zoom in on large grids. That is why the puzzle suits digital play so well.'),
+      ]),
+      sec('good', 'Good nonograms and hard ones', [
+        p('Attaching numbers to any picture does not make a good nonogram. If two pictures fit the same clues, the solver must guess at some point. So well-made nonograms have **exactly one answer** and are polished so that line-by-line reasoning carries you to the end where possible.'),
+        p('Some nonograms, though, give nothing from any single line and only yield when you reason about two or more lines together. Those are much harder. In fact, solving general nonograms of unlimited size is known in computer science to be NP-complete — meaning that as grids grow, solving time by general methods can rise steeply.'),
+        p('That is why most nonogram apps and sites only publish puzzles checked in advance to have one answer reachable by logic. If you are starting out, get comfortable finding overlaps on grids of around 10×10, then grow from there.'),
       ]),
       sec('solve', 'The basic principles of solving', [
         h3('Find the overlap'),
