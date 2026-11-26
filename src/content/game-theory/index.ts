@@ -5,6 +5,7 @@ import type { GTArticle, GTCategory, GTLocale } from './types';
 import nashEquilibrium from './articles/nash-equilibrium';
 import prisonersDilemma from './articles/prisoners-dilemma';
 import titForTat from './articles/tit-for-tat';
+import blotto from './articles/colonel-blotto';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -15,6 +16,7 @@ export const ARTICLES: GTArticle[] = [
   nashEquilibrium,
   prisonersDilemma,
   titForTat,
+  blotto,
   // @gt-list
 ];
 
