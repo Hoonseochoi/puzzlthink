@@ -6,35 +6,40 @@
 // broadcast's, a won stone is the victory token.
 import { useEffect, useId, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { TA_COUNTDOWN_MS } from '@/lib/timeAuction';
+import { TA_COUNTDOWN_MS, taLotValue } from '@/lib/timeAuction';
 import { TA_PERSONA } from '@/lib/timeAuctionAi';
 import type { TaRoom } from '@/lib/timeAuctionRoom';
 import { useMyNickname } from '../PieceStone';
+import { HellStone } from '../ProfileIcons';
 import { Stone } from '../StoneAvatar';
 
 type Tone = { hi: string; mid: string; lo: string; rim: string; eye: string };
-export type Lot = { id: string; ko: string; en: string; tone: Tone; gold?: boolean };
+export type Lot = { id: string; ko: string; en: string; tone: Tone; gold?: boolean; value: number };
 
 // The site's stone colours (StoneAvatar TONES), in the order the auctions put them up; the last auction is gold.
 const LOTS: Lot[] = [
-  { id: 'black', ko: '흑돌', en: 'black stone', tone: { hi: '#5a5d66', mid: '#1d1f25', lo: '#050507', rim: '#000000', eye: '#ffffff' } },
-  { id: 'white', ko: '백돌', en: 'white stone', tone: { hi: '#ffffff', mid: '#eceae4', lo: '#b9b5aa', rim: '#9b978c', eye: '#17201e' } },
-  { id: 'red', ko: '빨간 바둑알', en: 'red stone', tone: { hi: '#ff9a8a', mid: '#ff5b45', lo: '#b8291a', rim: '#8f1f12', eye: '#ffffff' } },
-  { id: 'blue', ko: '파란 바둑알', en: 'blue stone', tone: { hi: '#9cc7ff', mid: '#3f8cff', lo: '#1b54b8', rim: '#143f8c', eye: '#ffffff' } },
-  { id: 'yellow', ko: '노란 바둑알', en: 'yellow stone', tone: { hi: '#fff0a0', mid: '#ffd23f', lo: '#c99a08', rim: '#9c7705', eye: '#17201e' } },
-  { id: 'green', ko: '초록 바둑알', en: 'green stone', tone: { hi: '#a8f0b4', mid: '#3fcf6a', lo: '#1c8a3d', rim: '#156a2e', eye: '#ffffff' } },
-  { id: 'purple', ko: '보라 바둑알', en: 'purple stone', tone: { hi: '#c9b0ff', mid: '#8b5cf6', lo: '#5326b8', rim: '#3f1c8c', eye: '#ffffff' } },
-  { id: 'orange', ko: '주황 바둑알', en: 'orange stone', tone: { hi: '#ffc58a', mid: '#ff8a2b', lo: '#b9560c', rim: '#8e4208', eye: '#ffffff' } },
-  { id: 'teal', ko: '청록 바둑알', en: 'teal stone', tone: { hi: '#9cf2ea', mid: '#21c2b5', lo: '#0d7d74', rim: '#0a5f58', eye: '#ffffff' } },
-  { id: 'pink', ko: '분홍 바둑알', en: 'pink stone', tone: { hi: '#ffb3dc', mid: '#f05aa8', lo: '#b0216b', rim: '#861851', eye: '#ffffff' } },
-  { id: 'brown', ko: '갈색 바둑알', en: 'brown stone', tone: { hi: '#d7c2a4', mid: '#a47b4f', lo: '#64431f', rim: '#4b3116', eye: '#ffffff' } },
-  { id: 'slate', ko: '회색 바둑알', en: 'slate stone', tone: { hi: '#cfd8e3', mid: '#7f8ea3', lo: '#4a5668', rim: '#36404f', eye: '#ffffff' } },
+  { id: 'black', ko: '흑돌', en: 'black stone', value: 1, tone: { hi: '#5a5d66', mid: '#1d1f25', lo: '#050507', rim: '#000000', eye: '#ffffff' } },
+  { id: 'white', ko: '백돌', en: 'white stone', value: 1, tone: { hi: '#ffffff', mid: '#eceae4', lo: '#b9b5aa', rim: '#9b978c', eye: '#17201e' } },
+  { id: 'red', ko: '빨간 바둑알', en: 'red stone', value: 1, tone: { hi: '#ff9a8a', mid: '#ff5b45', lo: '#b8291a', rim: '#8f1f12', eye: '#ffffff' } },
+  { id: 'blue', ko: '파란 바둑알', en: 'blue stone', value: 1, tone: { hi: '#9cc7ff', mid: '#3f8cff', lo: '#1b54b8', rim: '#143f8c', eye: '#ffffff' } },
+  { id: 'yellow', ko: '노란 바둑알', en: 'yellow stone', value: 1, tone: { hi: '#fff0a0', mid: '#ffd23f', lo: '#c99a08', rim: '#9c7705', eye: '#17201e' } },
+  { id: 'green', ko: '초록 바둑알', en: 'green stone', value: 1, tone: { hi: '#a8f0b4', mid: '#3fcf6a', lo: '#1c8a3d', rim: '#156a2e', eye: '#ffffff' } },
+  { id: 'purple', ko: '보라 바둑알', en: 'purple stone', value: 1, tone: { hi: '#c9b0ff', mid: '#8b5cf6', lo: '#5326b8', rim: '#3f1c8c', eye: '#ffffff' } },
+  { id: 'orange', ko: '주황 바둑알', en: 'orange stone', value: 1, tone: { hi: '#ffc58a', mid: '#ff8a2b', lo: '#b9560c', rim: '#8e4208', eye: '#ffffff' } },
+  { id: 'teal', ko: '청록 바둑알', en: 'teal stone', value: 1, tone: { hi: '#9cf2ea', mid: '#21c2b5', lo: '#0d7d74', rim: '#0a5f58', eye: '#ffffff' } },
+  { id: 'pink', ko: '분홍 바둑알', en: 'pink stone', value: 1, tone: { hi: '#ffb3dc', mid: '#f05aa8', lo: '#b0216b', rim: '#861851', eye: '#ffffff' } },
+  { id: 'brown', ko: '갈색 바둑알', en: 'brown stone', value: 1, tone: { hi: '#d7c2a4', mid: '#a47b4f', lo: '#64431f', rim: '#4b3116', eye: '#ffffff' } },
+  { id: 'slate', ko: '회색 바둑알', en: 'slate stone', value: 1, tone: { hi: '#cfd8e3', mid: '#7f8ea3', lo: '#4a5668', rim: '#36404f', eye: '#ffffff' } },
 ];
-const GOLD: Lot = { id: 'gold', ko: '황금 바둑알', en: 'gold stone', gold: true, tone: { hi: '#fff3b8', mid: '#e8b730', lo: '#9c6c0a', rim: '#7d5306', eye: '#3b2604' } };
+const SILVER: Lot = { id: 'silver', ko: '은 바둑알', en: 'silver stone', value: 2, tone: { hi: '#ffffff', mid: '#c9ced8', lo: '#7d8594', rim: '#5d6573', eye: '#1e2430' } };
+const GOLD: Lot = { id: 'gold', ko: '황금 바둑알', en: 'gold stone', gold: true, value: 3, tone: { hi: '#fff3b8', mid: '#e8b730', lo: '#9c6c0a', rim: '#7d5306', eye: '#3b2604' } };
 
-/** The stone auction `round` puts up (1-based); the last auction of a match is always the gold one. */
-export const lotFor = (round: number, rounds: number): Lot => (round === rounds ? GOLD : LOTS[(round - 1) % LOTS.length]);
-export const lotName = (lot: Lot, en: boolean) => (en ? lot.en : lot.ko);
+/** The stone auction `round` puts up (1-based), by its value (taLotValue): gold 3 (the last), silver 2, else a colour. */
+export function lotFor(round: number, rounds: number): Lot {
+  const v = taLotValue(round, rounds);
+  return v === 3 ? GOLD : v === 2 ? SILVER : LOTS[(round - 1) % LOTS.length];
+}
+export const lotName = (lot: Lot, en: boolean) => `${en ? lot.en : lot.ko} (${lot.value}${en ? (lot.value > 1 ? ' pts' : ' pt') : '점'})`;
 
 /** One auctioned stone. `dim`: a stone nobody won (void or no bids). */
 export function LotStone({ lot, size, dim = false, label }: { lot: Lot; size: number; dim?: boolean; label?: string }) {
@@ -45,7 +50,7 @@ export function LotStone({ lot, size, dim = false, label }: { lot: Lot; size: nu
       <defs>
         <radialGradient id={`lot-${id}`} cx="35%" cy="30%" r="75%"><stop offset="0%" stopColor={t.hi} /><stop offset="55%" stopColor={t.mid} /><stop offset="100%" stopColor={t.lo} /></radialGradient>
       </defs>
-      {lot.gold && <circle cx="50" cy="50" r="51" fill="none" stroke="#f2c53d" strokeOpacity=".45" strokeWidth="4" />}
+      {lot.value > 1 && <circle cx="50" cy="50" r="51" fill="none" stroke={lot.gold ? '#f2c53d' : '#dfe3ea'} strokeOpacity=".5" strokeWidth="4" />}
       <circle cx="50" cy="53" r="46" fill="rgba(0,0,0,.25)" />
       <circle cx="50" cy="50" r="46" fill={`url(#lot-${id})`} stroke={t.rim} strokeWidth="2" />
       <ellipse cx="36" cy="28" rx="12" ry="5.5" fill="#fff" opacity=".35" transform="rotate(-28 36 28)" />
@@ -56,16 +61,17 @@ export function LotStone({ lot, size, dim = false, label }: { lot: Lot; size: nu
   );
 }
 
-/** The minus stone: a dark stone with a red minus, for the shortest bid of an auction (house rule). */
+/**
+ * The minus stone: the site's 헬모드 stone (ProfileIcons' HellStone, the 매우 어려움 weekly #1 look) with a −1 tag,
+ * for the shortest bid of an auction (house rule).
+ */
 export function MinusStone({ size, label = '마이너스 바둑알' }: { size: number; label?: string }) {
   const id = useId().replace(/:/g, '');
   return (
-    <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={label}>
-      <defs><radialGradient id={`mn-${id}`} cx="35%" cy="30%" r="75%"><stop offset="0%" stopColor="#4a2326" /><stop offset="55%" stopColor="#1a0b0c" /><stop offset="100%" stopColor="#050203" /></radialGradient></defs>
-      <circle cx="50" cy="53" r="46" fill="rgba(0,0,0,.25)" />
-      <circle cx="50" cy="50" r="46" fill={`url(#mn-${id})`} stroke="#ff3b30" strokeWidth="3" />
-      <rect x="27" y="44" width="46" height="12" rx="6" fill="#ff3b30" />
-    </svg>
+    <span className="relative inline-flex shrink-0" style={{ width: size, height: size }} title={label}>
+      <HellStone id={id} name={label} size={size} place={1} />
+      {size >= 14 && <span className="absolute -bottom-0.5 -right-1 rounded-sm bg-[#ff3b30] px-[2px] font-mono font-black leading-none text-white" style={{ fontSize: Math.max(7, size * 0.36) }}>−1</span>}
+    </span>
   );
 }
 
@@ -138,6 +144,7 @@ export function AuctionBlock({ room, mySeat, en, winnerLabel, minusLabel, outcom
         <div className={won === null && !dim ? 'drop-shadow-[0_0_22px_rgba(255,230,170,.35)]' : ''}>
           <LotStone lot={lot} size={70} dim={dim} label={lotName(lot, en)} />
         </div>
+        <span className={`absolute -right-3 -top-1 rounded-full px-1.5 py-0.5 font-mono text-[11px] font-black shadow ${lot.value === 3 ? 'bg-[#f2c53d] text-black' : lot.value === 2 ? 'bg-[#dfe3ea] text-black' : 'bg-white/15 text-white'}`}>+{lot.value}{en ? '' : '점'}</span>
       </motion.div>
       {won !== null && (
         <motion.div className="absolute bottom-2 left-1/2 ml-[46px] flex items-center gap-1.5 sm:ml-[56px]"
@@ -153,7 +160,25 @@ export function AuctionBlock({ room, mySeat, en, winnerLabel, minusLabel, outcom
           <span className="relative"><SeatStone room={room} seat={minus} mySeat={mySeat} size={30} label={minusLabel ?? ''} /><span className="absolute -bottom-1 -right-1"><MinusStone size={16} /></span></span>
         </motion.div>
       )}
+      <Schedule rounds={g.rounds} current={round} en={en} />
       <p className="absolute left-3 top-2 max-w-[45%] text-left text-[11px] font-bold leading-tight text-white/55">{outcomeLabel}</p>
+    </div>
+  );
+}
+
+/** Every auction's stone in order, public from the start: past ones dimmed, the current one ringed. */
+export function Schedule({ rounds, current, en }: { rounds: number; current: number; en: boolean }) {
+  const size = rounds > 13 ? 9 : 11;
+  return (
+    <div className="absolute right-2 top-2 flex max-w-[52%] flex-wrap justify-end gap-[3px]" aria-label={en ? 'Stones still to come' : '경매 순서'}>
+      {Array.from({ length: rounds }, (_, i) => {
+        const r = i + 1, lot = lotFor(r, rounds);
+        return (
+          <span key={r} className={`rounded-full ${r === current ? 'ring-2 ring-(--accent) ring-offset-1 ring-offset-black' : ''} ${r < current ? 'opacity-30' : ''}`}>
+            <LotStone lot={lot} size={size} label={`${r} · ${lotName(lot, en)}`} />
+          </span>
+        );
+      })}
     </div>
   );
 }
