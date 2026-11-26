@@ -10,6 +10,7 @@ import HallCelebration from '@/components/HallCelebration';
 import HardClearCelebration from '@/components/HardClearCelebration';
 import HellClearCelebration from '@/components/hell/HellClearCelebration';
 import IconUnlock from '@/components/IconUnlock';
+import CrownLost from '@/components/CrownLost';
 import PlayTimeTracker from '@/components/PlayTimeTracker';
 import OpenResultCelebration from '@/components/OpenResultCelebration';
 import NicknamePrompt from '@/components/NicknamePrompt';
@@ -106,6 +107,7 @@ export default async function LocaleLayout({
           <HardClearCelebration />
           <HellClearCelebration />
           <IconUnlock />
+          <CrownLost />
           <PlayTimeTracker />
           <OpenResultCelebration />
           <NicknamePrompt />

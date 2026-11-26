@@ -5910,6 +5910,13 @@
     "missionLocked": "로그인하면 진행도를 볼 수 있어요"
   },
   "Icons": {
+    "crownLostTitle": "{game} 1위를 {name}님께 빼앗겼어요",
+    "crownLostBody": "1위 아이콘도 함께 넘어갔어요. 복수하러 갈까요?",
+    "crownLostNewTop": "새 1위 · {name}",
+    "crownLostRevenge": "복수하러 가기",
+    "crownLostIcons": "아이콘 설정으로 가기",
+    "crownLostMore": "다른 게임 {n}개에서도 1위를 내줬어요",
+    "crownLostNext": "다음 게임 보기",
     "pieceLabel": "피스 {week}W {place}위 · {name}",
     "hellLabel": "블랙피스 {week}W {place}위 · {name}",
     "hellName1": "인페르노",
