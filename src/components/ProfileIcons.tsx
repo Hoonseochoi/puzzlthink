@@ -146,19 +146,13 @@ export const OPEN_LOOKS: Record<1 | 2 | 3, OpenLook> = {
   3: { metal: ['#ffd9b5', '#d18a52', '#8a4f24'], rim: '#5a3113', stone: ['#b79bff', '#6a3fc4', '#28135c'], eye: '#ffffff', band: '#e0a070', glow: '#e5b48a' },
 };
 
-/** The duelist: a stone with a headband over two crossed swords, a laurel around it and the place on a shield. */
+/**
+ * The open-match champion: a chubby stone in the place's colour wearing a little laurel wreath, a champion belt
+ * across the front with the place on its plate, and a glow behind.
+ */
 export function OpenStone({ id, name, size, place }: { id: string; name: string; size: number; place: 1 | 2 | 3 }) {
   const k = OPEN_LOOKS[place];
-  const sword = (flip: boolean) => (
-    <g transform={flip ? 'translate(100 0) scale(-1 1)' : undefined}>
-      <path d="M14 6 L20 6 L62 70 L55 76 Z" fill={`url(#om-${id})`} stroke={k.rim} strokeWidth="1.5" strokeLinejoin="round" />
-      <path d="M17 8 L57 70" stroke="#ffffff" strokeOpacity=".7" strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M48 80 L68 62" stroke={k.rim} strokeWidth="6.5" strokeLinecap="round" />
-      <path d="M48 80 L68 62" stroke={k.band} strokeWidth="3.6" strokeLinecap="round" />
-      <path d="M62 76 L70 87" stroke={k.rim} strokeWidth="6" strokeLinecap="round" />
-      <circle cx="71.5" cy="89" r="3.6" fill={k.band} stroke={k.rim} strokeWidth="1.4" />
-    </g>
-  );
+  const cy = 54, r = 34;
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={name}>
       <defs>
@@ -169,30 +163,44 @@ export function OpenStone({ id, name, size, place }: { id: string; name: string;
           <stop offset="0%" stopColor={k.stone[0]} /><stop offset="55%" stopColor={k.stone[1]} /><stop offset="100%" stopColor={k.stone[2]} />
         </radialGradient>
         <radialGradient id={`og-${id}`} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={k.glow} stopOpacity=".65" /><stop offset="100%" stopColor={k.glow} stopOpacity="0" />
+          <stop offset="0%" stopColor={k.glow} stopOpacity=".7" /><stop offset="100%" stopColor={k.glow} stopOpacity="0" />
         </radialGradient>
       </defs>
-      <circle cx="50" cy="52" r="50" fill={`url(#og-${id})`} />
-      {sword(false)}{sword(true)}
-      {/* laurel */}
+      <circle cx="50" cy={cy} r="50" fill={`url(#og-${id})`} />
+      {/* stars around */}
+      <path d="M12 24 l1.8 4.3 4.3 1.8 -4.3 1.8 -1.8 4.3 -1.8 -4.3 -4.3 -1.8 4.3 -1.8z" fill={k.glow} />
+      <path d="M88 30 l1.4 3.4 3.4 1.4 -3.4 1.4 -1.4 3.4 -1.4 -3.4 -3.4 -1.4 3.4 -1.4z" fill="#ffffff" />
+      <ellipse cx="50" cy={cy + r - 1} rx={r * 0.8} ry="4" fill="rgba(0,0,0,.25)" />
+      <circle cx="50" cy={cy} r={r} fill={`url(#os-${id})`} stroke={k.rim} strokeWidth="2" />
+      <ellipse cx={50 - r * 0.36} cy={cy - r * 0.5} rx={r * 0.26} ry={r * 0.12} fill="#ffffff" opacity=".5" transform={`rotate(-30 ${50 - r * 0.36} ${cy - r * 0.5})`} />
+      {/* proud eyes, blush and a grin */}
+      <rect x={50 - r * 0.34} y={cy - r * 0.3} width={r * 0.21} height={r * 0.36} rx={r * 0.105} fill={k.eye} />
+      <rect x={50 + r * 0.13} y={cy - r * 0.3} width={r * 0.21} height={r * 0.36} rx={r * 0.105} fill={k.eye} />
+      <ellipse cx={50 - r * 0.55} cy={cy + r * 0.16} rx={r * 0.14} ry={r * 0.08} fill="#ff8fb0" opacity=".55" />
+      <ellipse cx={50 + r * 0.55} cy={cy + r * 0.16} rx={r * 0.14} ry={r * 0.08} fill="#ff8fb0" opacity=".55" />
+      <path d={`M${50 - r * 0.16} ${cy + r * 0.16} Q50 ${cy + r * 0.36} ${50 + r * 0.16} ${cy + r * 0.16} Z`} fill="#ffffff" stroke={k.eye} strokeWidth="1" strokeLinejoin="round" />
+      {/* laurel wreath worn on the head */}
       <g fill={k.band} stroke={k.rim} strokeWidth=".9">
-        {[0, 1, 2, 3].map((i) => <ellipse key={`l${i}`} cx="0" cy="0" rx="4.2" ry="8" transform={`translate(${17 + i * 3.5} ${44 + i * 11}) rotate(${-28 + i * 16})`} />)}
-        {[0, 1, 2, 3].map((i) => <ellipse key={`r${i}`} cx="0" cy="0" rx="4.2" ry="8" transform={`translate(${83 - i * 3.5} ${44 + i * 11}) rotate(${28 - i * 16})`} />)}
+        {[0, 1, 2, 3, 4].map((i) => {
+          const a = Math.PI * (1.12 + i * 0.075);
+          const x = 50 + (r + 1) * Math.cos(a), y = cy + (r + 1) * Math.sin(a);
+          return <ellipse key={`l${i}`} cx={x} cy={y} rx="3.4" ry="6.4" transform={`rotate(${(a * 180) / Math.PI + 60} ${x} ${y})`} />;
+        })}
+        {[0, 1, 2, 3, 4].map((i) => {
+          const a = Math.PI * (1.88 - i * 0.075);
+          const x = 50 + (r + 1) * Math.cos(a), y = cy + (r + 1) * Math.sin(a);
+          return <ellipse key={`r${i}`} cx={x} cy={y} rx="3.4" ry="6.4" transform={`rotate(${(a * 180) / Math.PI + 120} ${x} ${y})`} />;
+        })}
       </g>
-      <circle cx="50" cy="55" r="31" fill="rgba(0,0,0,.3)" />
-      <circle cx="50" cy="52" r="31" fill={`url(#os-${id})`} stroke={k.rim} strokeWidth="2.2" />
-      <path d="M30 34 Q38 25 50 24" fill="none" stroke="#ffffff" strokeOpacity=".65" strokeWidth="3" strokeLinecap="round" />
-      {/* headband with a knot */}
-      <path d="M19.5 44 Q50 33 80.5 44 L80 51 Q50 40 20 51 Z" fill={k.band} stroke={k.rim} strokeWidth="1.3" strokeLinejoin="round" />
-      <path d="M80 46 L92 40 L89 48 L94 54 L81 51 Z" fill={k.band} stroke={k.rim} strokeWidth="1.3" strokeLinejoin="round" />
-      {/* determined eyes */}
-      <rect x="38" y="52" width="7.5" height="13" rx="3.7" fill={k.eye} />
-      <rect x="54.5" y="52" width="7.5" height="13" rx="3.7" fill={k.eye} />
-      <path d="M35 51 L47 54 M65 51 L53 54" stroke={k.stone[2]} strokeWidth="2.6" strokeLinecap="round" />
-      {/* place shield */}
-      <path d="M40 76 H60 V86 Q60 94 50 98 Q40 94 40 86 Z" fill={`url(#om-${id})`} stroke={k.rim} strokeWidth="1.6" strokeLinejoin="round" />
-      <text x="50" y="91" textAnchor="middle" fontSize="13" fontWeight="900" fontFamily="ui-rounded, system-ui, sans-serif" fill={k.rim}>{place}</text>
-      <path d="M88 20 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill={k.glow} />
+      <circle cx="50" cy={cy - r - 1} r="3" fill={k.glow} stroke={k.rim} strokeWidth="1" />
+      {/* champion belt */}
+      <path d={`M14 ${cy + 18} Q50 ${cy + 30} 86 ${cy + 18} L86 ${cy + 27} Q50 ${cy + 39} 14 ${cy + 27} Z`} fill="#2a1a3a" stroke={k.rim} strokeWidth="1.4" strokeLinejoin="round" />
+      <path d={`M14 ${cy + 21.5} Q50 ${cy + 33.5} 86 ${cy + 21.5}`} fill="none" stroke={k.band} strokeWidth="1.2" strokeDasharray="2 2.4" />
+      <rect x="35" y={cy + 18} width="30" height="22" rx="7" fill={`url(#om-${id})`} stroke={k.rim} strokeWidth="1.8" />
+      <rect x="38.5" y={cy + 21.5} width="23" height="15" rx="5" fill="none" stroke="#ffffff" strokeOpacity=".55" strokeWidth="1" />
+      <text x="50" y={cy + 34.6} textAnchor="middle" fontSize="13.5" fontWeight="900" fontFamily="ui-rounded, system-ui, sans-serif" fill={k.rim}>{place}</text>
+      <circle cx="30" cy={cy + 28} r="2.4" fill={`url(#om-${id})`} stroke={k.rim} strokeWidth=".8" />
+      <circle cx="70" cy={cy + 28} r="2.4" fill={`url(#om-${id})`} stroke={k.rim} strokeWidth=".8" />
     </svg>
   );
 }
