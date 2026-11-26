@@ -7,6 +7,7 @@ import JsonLd from '@/components/JsonLd';
 import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import HiddenWordGame from '@/components/hiddenWord/HiddenWordGame';
 import HiddenWordPreview from '@/components/hiddenWord/HiddenWordPreview';
+import { HiddenWordCrossLink } from '@/components/hiddenWord/HiddenWordPlusArt';
 import { HW_ACCENT, HW_INK } from '@/components/hiddenWord/copy';
 import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 
@@ -33,7 +34,10 @@ export default async function HiddenWordPage({ params }: { params: Promise<{ loc
   const korean = locale !== 'en';
   const hero = (
     <div className="grid items-center gap-8 md:grid-cols-[1fr_260px]">
-      <GameIntroHero locale={locale} id="hiddenWord" />
+      <div>
+        <GameIntroHero locale={locale} id="hiddenWord" />
+        <div className="mt-3"><HiddenWordCrossLink to="plus" en={!korean} /></div>
+      </div>
       <HiddenWordPreview />
     </div>
   );

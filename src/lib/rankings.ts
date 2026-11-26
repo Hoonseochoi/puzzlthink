@@ -12,7 +12,7 @@ export type MapRow = { rank: number; nickname: string; score: number; sub?: numb
 export type GameRanking = { game: GameId; hall: HallRow[]; open: OpenRow[]; nemo: Record<'hard' | 'normal' | 'easy', NemoRow[]> | null; maps: MapRow[] | null; scores: MapRow[] | null };
 /** Logic puzzles ranked by maps owned (새로운 맵 · 맵 뺏기); the value is their challenge board. */
 /** Games ranked by their best solo score (2048 챌린지 도전, 결합 10분 챌린지, 헥사곤 챌린지, 수식 신호등·수식의 탑 10분 챌린지); the value is their challenge board. */
-export const SCORE_BOARD: Partial<Record<GameId, string>> = { hidden_word: 'hidden_word', merge2048: 'merge2048', gyulhap: 'gyulhap10', hexagon: 'hexagon', equation_signal: 'eqsignal', equation_tower: 'eqtower' };
+export const SCORE_BOARD: Partial<Record<GameId, string>> = { hidden_word: 'hidden_word', hidden_word_plus: 'hidden_word_plus', merge2048: 'merge2048', gyulhap: 'gyulhap10', hexagon: 'hexagon', equation_signal: 'eqsignal', equation_tower: 'eqtower' };
 export const MAP_BOARD: Partial<Record<GameId, string>> = { slitherlink: 'slither', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', magicswap: 'magicswap', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram' };
 
 /** URL slug of a game (same as its page path; Sudoku lives at /play). */
@@ -22,9 +22,9 @@ export const gameFromSlug = (slug: string): GameId | null =>
 export const rankPath = (locale: string, game: GameId) => `/${locale}/ranking/${rankSlug(game)}`;
 export const rankImagePath = (game: GameId, locale: string) => `/api/ranking/${rankSlug(game)}?l=${locale === 'en' ? 'en' : 'ko'}`;
 /** Games ranked by wins against AI (네모 세기 and 결합 use solo challenges instead). */
-export const hasHall = (game: GameId) => game !== 'hidden_word' && game !== 'nemo_count' && game !== 'gyulhap' && game !== 'slitherlink' && game !== 'masyu' && game !== 'nonogram' && game !== 'starbattle' && game !== 'binairo' && game !== 'onestroke' && game !== 'colorlink' && game !== 'magicswap' && game !== 'merge2048' && game !== 'equation_signal' && game !== 'equation_tower';
+export const hasHall = (game: GameId) => game !== 'hidden_word' && game !== 'hidden_word_plus' && game !== 'nemo_count' && game !== 'gyulhap' && game !== 'slitherlink' && game !== 'masyu' && game !== 'nonogram' && game !== 'starbattle' && game !== 'binairo' && game !== 'onestroke' && game !== 'colorlink' && game !== 'magicswap' && game !== 'merge2048' && game !== 'equation_signal' && game !== 'equation_tower';
 /** Open-match ranking (every game but Sudoku). */
-export const hasOpen = (game: GameId) => game !== 'hidden_word' && game !== 'sudoku';
+export const hasOpen = (game: GameId) => game !== 'hidden_word' && game !== 'hidden_word_plus' && game !== 'sudoku';
 
 async function rpc<T>(name: string, body: Record<string, unknown>): Promise<T | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -57,8 +57,8 @@ export async function fetchGameRanking(game: GameId): Promise<GameRanking> {
     nemo: nemo ? { hard: nemo[0] ?? [], normal: nemo[1] ?? [], easy: nemo[2] ?? [] } : null,
     // Ties share a rank: list order places them on the podium.
     maps: board ? (maps ?? []).map((x, i) => ({ ...x, rank: i + 1 })) : null,
-    // 히든 워드's board score is its ranking score (average per match + matches bonus) x 10
-    scores: scoreBoard ? (scores ?? []).map((x, i) => ({ ...x, score: scoreBoard === 'hidden_word' ? x.score / 10 : x.score, rank: i + 1 })) : null,
+    // 히든 워드's (and the 확장판's) board score is its ranking score (average per match + matches bonus) x 10
+    scores: scoreBoard ? (scores ?? []).map((x, i) => ({ ...x, score: scoreBoard === 'hidden_word' || scoreBoard === 'hidden_word_plus' ? x.score / 10 : x.score, rank: i + 1 })) : null,
   };
 }
 

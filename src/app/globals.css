@@ -181,3 +181,11 @@ button:disabled { cursor: default; }
 @keyframes home-float { 0%, 100% { transform: rotate(4deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-5px); } }
 .home-float { animation: home-float 4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .home-feed, .home-sweep, .home-float { animation: none; } }
+/* 히든 워드 확장판: a slow foil sheen across the envelopes and the home card, and word fragments drifting up the card. */
+@keyframes hwp-sheen { 0%, 60% { transform: translateX(0) skewX(-12deg); } 100% { transform: translateX(520%) skewX(-12deg); } }
+.hwp-sheen { animation: hwp-sheen 5.5s ease-in-out infinite; }
+@keyframes hwp-drift { 0% { opacity: 0; transform: translateY(14px); } 15%, 70% { opacity: var(--hwp-o, .5); } 100% { opacity: 0; transform: translateY(-38px); } }
+.hwp-drift { animation: hwp-drift 7s ease-in-out infinite; opacity: 0; }
+@keyframes hwp-glow { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.hwp-glow { animation: hwp-glow 3.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .hwp-sheen { animation: none; opacity: 0; } .hwp-drift { animation: none; opacity: var(--hwp-o, .5); } .hwp-glow { animation: none; } }

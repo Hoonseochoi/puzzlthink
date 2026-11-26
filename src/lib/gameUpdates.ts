@@ -25,19 +25,29 @@ export type GameUpdateLog = {
 };
 
 export const GAME_UPDATES: Record<string, GameUpdateLog> = {
-  time_auction: {
-    name: { ko: '시간 경매', en: 'Time Auction' },
+  hidden_word_plus: {
+    name: { ko: '히든 워드 확장판', en: 'Hidden Word: Expansion' },
     items: [
       {
-        date: '11/26', icon: Sparkles,
-        ko: { title: '시간 경매가 열렸어요', desc: '데블스 플랜 2 감옥매치를 방송 규칙대로 옮겼어요. AI 5명과 6인전(빠른 경매·방송 규칙 10분 × 19경매), 친구·공개방 2~6명으로 할 수 있어요.' },
-        en: { title: 'Time Auction is open', desc: "The Devil's Plan 2 prison match with the broadcast rules: six players against five AIs (Quick or the full 10:00 × 19), or 2–6 in friend and open rooms." },
+        date: '11/27', icon: Sparkles,
+        ko: { title: '히든 워드 확장판 출시', desc: '감정·직업·장소·음식·문화까지, 서로 닮은 186단어가 30개 묶음으로 나와요. 95% 힌트로 묶음을 찾고 그 안에서 모라의 단어를 가려내세요. 모라의 힌트는 덜 직접적이고, 랭킹과 1위 아이콘은 확장판 따로예요. 로그인한 회원만 할 수 있어요.' },
+        en: { title: 'Hidden Word: Expansion is here', desc: '186 look-alike words in 30 groups: feelings, jobs, places, food, culture. A 95% hint finds the group; then pick MORA\'s word out of it. MORA hints less directly, and the ranking and #1 icon are the Expansion\'s own. For signed-in members only.' },
       },
     ],
   },
   hidden_word: {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
+      {
+        date: '11/27', icon: Sparkles,
+        ko: { title: '히든 워드 확장판이 따로 나왔어요', desc: '닮은 단어 186개로 하는 확장판은 이제 자기 화면과 랭킹이 있는 게임이에요. 히든 워드는 기본 60단어로 하고, 첫 화면의 "확장판 하러 가기"로 넘어갈 수 있어요. 어젯밤 확장으로 둔 대전은 확장판 랭킹으로 옮겼어요.' },
+        en: { title: 'Hidden Word: Expansion is now its own game', desc: 'The 186-word Expansion now has its own page and ranking. Hidden Word plays its 60 words again; "Play the Expansion" on its entry screen takes you over. Expansion matches played last night moved to the Expansion ranking.' },
+      },
+      {
+        date: '11/26', icon: Wrench,
+        ko: { title: '모라의 단어가 고르게 나와요', desc: '단어가 적은 묶음(주말)이 모라의 단어로 유난히 자주 나오던 것을 고쳤어요. 이제 모든 단어가 같은 확률로 나와요.' },
+        en: { title: 'MORA’s words now come up evenly', desc: 'A word alone in its group (주말) used to be MORA’s word far more often than the rest. Every word is now equally likely.' },
+      },
       {
         date: '11/26', icon: Users,
         ko: { title: '친구와 1:1 방이 열렸어요', desc: '링크나 4자리 코드로 친구를 불러 히든 워드를 1:1로 할 수 있어요. 규칙은 모라전과 같고, 답 2개는 피스 없이 단어마다 한 번. 친구 대전은 랭킹에 들어가지 않아요.' },
@@ -114,6 +124,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
         date: '11/26', icon: Sparkles,
         ko: { title: '수식의 탑이 열렸어요', desc: '데블스 플랜 3 감옥 매치 게임이에요. 연습하기, 10분 챌린지(랭킹), 친구·공개방 2~4명 버저 대결을 할 수 있어요.' },
         en: { title: 'Tower of Equations is open', desc: 'A prison match from The Devil\'s Plan 3. Practice, a ranked 10-minute challenge, and a buzzer game in friend or open rooms for 2–4.' },
+      },
+    ],
+  },
+  time_auction: {
+    name: { ko: '시간 경매', en: 'Time Auction' },
+    items: [
+      {
+        date: '11/27', icon: Sparkles,
+        ko: { title: '시간 경매가 열렸어요', desc: '데블스 플랜 2 감옥매치를 방송 규칙대로 옮겼어요. 경매마다 바둑알 하나가 올라오고, 버튼을 가장 오래 누른 사람이 가져가요. AI 5명과 6인전, 친구·공개방 2~6명으로 할 수 있어요.' },
+        en: { title: 'Time Auction is open', desc: "The Devil's Plan 2 prison match with the broadcast rules: each auction puts up one go stone, and whoever holds the button longest takes it. Six players against five AIs, or 2–6 in friend and open rooms." },
       },
     ],
   },
@@ -216,6 +236,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
         date: '11/26', icon: Scale,
         ko: { title: 'AI 난이도를 다시 맞췄어요', desc: '보통과 어려움이 너무 강해서(이긴 판 15% · 2%) 한 단계씩 낮췄어요. 예전 보통이 어려움이 되고, 보통은 한 수 앞만 보는 더 쉬운 AI가 됐어요.' },
         en: { title: 'AI levels retuned', desc: 'Normal and Hard were too strong (players won 15% and 2%), so both moved down a step: the old Normal is now Hard, and Normal is an easier AI that looks one move ahead.' },
+      },
+    ],
+  },
+  card_janggi: {
+    name: { ko: '카드 장기', en: 'Card Janggi' },
+    items: [
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '코끼리는 대각선으로 2칸까지만 가요', desc: '방송 규칙서대로 코끼리가 대각선 한 방향으로 1–2칸만 움직여요. 1칸째에 말이 있으면 뛰어넘지 못해요. 전에는 비숍처럼 대각선 끝까지 갈 수 있었어요.' },
+        en: { title: 'The elephant now moves at most two squares', desc: 'As in the show’s rulebook, the elephant moves 1–2 squares in one diagonal direction and cannot jump a piece on the first square. It used to slide any distance like a bishop.' },
       },
     ],
   },

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { BookOpen, Bot, Check, Copy, Crown, Loader2, Lock, Share2, Swords, Timer, Trophy, Users, WifiOff } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import GameUpdates from '@/components/GameUpdates';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
@@ -60,7 +61,7 @@ export default function CardJanggiRoomView({ code }: { code: string }) {
       <RoomAlerts alerts={alerts} accent={CJ_ACCENT} joinText={t.joined} leaveText={t.left} />
       <GameHeader players={roomPlayers(state)} me={mySeat} backHref={CJ_PATH} backLabel={t.back} title={t.title} subtitle={<span className="font-mono">{t.online} · {code}</span>}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="card_janggi" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-3 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}
