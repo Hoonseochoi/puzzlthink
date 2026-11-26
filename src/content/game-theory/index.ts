@@ -10,6 +10,7 @@ import bluffing from './articles/bluffing';
 import minimaxMixed from './articles/minimax-mixed-strategy';
 import chicken from './articles/chicken-game';
 import stagHunt from './articles/stag-hunt';
+import publicGoods from './articles/public-goods';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -25,6 +26,7 @@ export const ARTICLES: GTArticle[] = [
   minimaxMixed,
   chicken,
   stagHunt,
+  publicGoods,
   // @gt-list
 ];
 
