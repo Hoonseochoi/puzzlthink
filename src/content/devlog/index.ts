@@ -15,6 +15,7 @@ import sysHallOfFame from './sys-hall-of-fame';
 import sysRooms from './sys-rooms';
 import sysLoungeSupport from './sys-lounge-support';
 import sysInfra from './sys-infra';
+import sysLogicChallenges from './sys-logic-challenges';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
@@ -29,6 +30,7 @@ const ARTICLES: DevlogArticle[] = [
   sysHallOfFame,
   sysIcons,
   sysRooms,
+  sysLogicChallenges,
   sysLoungeSupport,
   sysInfra,
 ];
