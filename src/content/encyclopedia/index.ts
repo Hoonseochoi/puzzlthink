@@ -5,6 +5,7 @@ import bluffingDeduction from './bluffing-deduction';
 import bettingAuction from './betting-auction';
 import areaControlConnection from './area-control-connection';
 import nInARow from './n-in-a-row';
+import captureGames from './capture-games';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -13,6 +14,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   bettingAuction,
   areaControlConnection,
   nInARow,
+  captureGames,
 ];
 
 export const WIKI_BASE = '/board-games';
