@@ -65,6 +65,7 @@ export function clearLabel(game: GameId, locale: string) {
 export const HARD_GAMES: GameId[] = [
   'card_janggi', 'color_link_duel', 'gradation', 'point_omok', 'two_sided_poker', 'monorail', 'flip_omok', 'nine_mens_morris', 'wallgo2', 'indian_poker',
   'piggy_bank', 'black_white', 'black_white_2', 'laser_janggi', 'blind_gomoku', 'wallgo', 'russian_roulette', 'heavy13', 'janggi', 'russian_janggi', 'sudoku',
+  'time_auction',
 ];
 
 export function isHardClear(game: GameId, mode: string, result: string, detail: Record<string, unknown>) {
