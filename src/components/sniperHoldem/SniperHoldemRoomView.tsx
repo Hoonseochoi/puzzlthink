@@ -74,7 +74,7 @@ export default function SniperHoldemRoomView({ code }: { code: string }) {
         <Lobby state={state} code={code} me={me} mySeat={mySeat} online={online} humans={humans} t={t} en={en}
           copied={copied} onCopy={copyLink} onShare={shareLink} nameDraft={nameDraft} setNameDraft={setNameDraft}
           onRename={() => { rename(nameDraft); setNameDraft(''); }} onStart={() => dispatch({ t: 'start' })} onFillAi={(on) => dispatch({ t: 'fillAi', on })}
-          onChips={(chips) => dispatch({ t: 'chips', chips })} onLevel={(level) => dispatch({ t: 'level', level })} />
+          onChips={(chips) => dispatch({ t: 'chips', chips })} onLevel={(level) => dispatch({ t: 'level', level })} onAnte={(rule) => dispatch({ t: 'ante', rule })} />
       ) : (
         <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">
           <SniperHoldemTable room={state} mySeat={mySeat} onAction={dispatch} t={t} locale={locale} />
@@ -84,15 +84,15 @@ export default function SniperHoldemRoomView({ code }: { code: string }) {
         </main>
       )}
       {done && closedKey !== resultKey && state && <SniperHoldemResult room={state} mySeat={mySeat} t={t} locale={locale} onAgain={me?.isHost && finished ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t.rematchWait} onClose={() => setClosedKey(resultKey)} />}
-      {rulesOpen && <SniperHoldemRules t={t} locale={locale} players={state && state.phase !== 'lobby' ? state.game.players : SH_SEATS} start={state?.chips ?? 60} onClose={() => setRulesOpen(false)} />}
+      {rulesOpen && <SniperHoldemRules t={t} locale={locale} players={state && state.phase !== 'lobby' ? state.game.players : SH_SEATS} start={state?.chips ?? 60} rise={state && state.phase !== 'lobby' ? state.game.anteRule === 'rise' : (state?.anteRule ?? 'rise') === 'rise'} onClose={() => setRulesOpen(false)} />}
     </div>
   );
 }
 
-function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart, onFillAi, onChips, onLevel }: {
+function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy, onShare, nameDraft, setNameDraft, onRename, onStart, onFillAi, onChips, onLevel, onAnte }: {
   state: SniperHoldemRoom; code: string; me: { id: string; name: string; isHost: boolean } | null; mySeat: number | null; online: Set<string>; humans: number;
   t: ReturnType<typeof shCopy>; en: boolean; copied: boolean; onCopy: () => void; onShare: () => void;
-  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void; onFillAi: (on: boolean) => void; onChips: (chips: 60 | 24) => void; onLevel: (level: ShLevel) => void;
+  nameDraft: string; setNameDraft: (v: string) => void; onRename: () => void; onStart: () => void; onFillAi: (on: boolean) => void; onChips: (chips: 60 | 24) => void; onLevel: (level: ShLevel) => void; onAnte: (rule: 'rise' | 'fixed') => void;
 }) {
   const fill = state.fillAi !== false;
   const canStart = fill || humans >= 2;
@@ -140,6 +140,16 @@ function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy,
               ))}
             </div>
             <p className="mt-1 text-[10.5px] text-white/45">{t.safeLineLong(shTarget(state.chips, fill ? SH_SEATS : Math.max(2, humans)))}</p>
+          </div>
+          <div className="sm:col-span-2">
+            <p className="text-[12px] font-black">{t.anteTitle}</p>
+            <div className="mt-1.5 grid grid-cols-2 gap-1" role="radiogroup" aria-label={t.anteTitle}>
+              {(['rise', 'fixed'] as const).map((rule) => (
+                <button key={rule} type="button" role="radio" aria-checked={(state.anteRule ?? 'rise') === rule} disabled={!me?.isHost} onClick={() => onAnte(rule)}
+                  className={`rounded-md px-2 py-1.5 text-[11px] font-black transition disabled:cursor-default ${(state.anteRule ?? 'rise') === rule ? 'bg-(--accent) text-white' : 'border border-white/10 text-white/55 enabled:hover:bg-white/10'}`}>{rule === 'rise' ? t.anteRise : t.anteFixedOpt}</button>
+              ))}
+            </div>
+            <p className="mt-1 break-keep text-[10.5px] leading-4 text-white/45">{(state.anteRule ?? 'rise') === 'rise' ? t.anteRiseDesc : t.anteFixedDesc}</p>
           </div>
           {fill && (
             <div>

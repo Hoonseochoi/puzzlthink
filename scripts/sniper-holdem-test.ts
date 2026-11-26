@@ -3,7 +3,7 @@
 // the cap / all-in flow, the safety line and gifts, and random whole matches that check the chip arithmetic.
 import {
   type ShAction, type ShTarget, type SniperHoldem, SH_FOUR, SH_FULL, SH_HIGH, SH_PAIR, SH_SEATS, SH_STRAIGHT, SH_TRIPLE, SH_TWO_PAIR,
-  applyShAction, newSniperHoldem, redactSniperHoldem, shActiveSeats, shCanAct, shEvaluate, shGifts, shLiveSeats, shPossibleTargets,
+  applyShAction, newSniperHoldem, shAnte, shNextAnte, redactSniperHoldem, shActiveSeats, shCanAct, shEvaluate, shGifts, shLiveSeats, shPossibleTargets,
   shResolve, shSplit, shTarget, startRound,
 } from '../src/lib/sniperHoldem';
 
@@ -87,6 +87,31 @@ eq([2, 3, 4, 5].map((n) => shTarget(24, n)), [48, 36, 32, 30], 'safety lines at 
   check(t.some((x) => x.cat === SH_TWO_PAIR && x.n === 9), 'own 9 투페어 listed');
 }
 
+// ── Ante: fixed (the show) and rising (the site) ──────────────────────────────────────────────────────────────
+eq([1, 5, 30, 80].map((r) => shAnte('fixed', r)), [1, 1, 1, 1], 'fixed ante is always 1');
+eq([1, 2, 3, 4].map((r) => shAnte('rise', r)), [1, 1, 1, 1], 'rising ante starts at 1 for four rounds');
+{
+  const seq = Array.from({ length: 40 }, (_, i) => shAnte('rise', i + 1));
+  check(seq.every((a, i) => i === 0 || a >= seq[i - 1]), 'rising ante never falls', seq);
+  check(seq[39] > seq[9], 'rising ante keeps rising', seq);
+  const quick = Array.from({ length: 40 }, (_, i) => shAnte('rise', i + 1, 24));
+  check(quick.every((a, i) => a >= 1 && a <= seq[i]), '24-chip table scales the ante down', quick);
+  eq(shNextAnte('fixed', 3), null, 'no next step on a fixed ante');
+  const nx = shNextAnte('rise', 1)!;
+  check(nx.round === 5 && nx.ante === shAnte('rise', 5), 'next step from round 1', nx);
+}
+{
+  // A game saved before the rule existed (no anteRule) keeps the fixed ante; the ante never exceeds the smallest stack.
+  const legacy: SniperHoldem = { ...newSniperHoldem([true, true, true, false, false], 60, 0), anteRule: undefined };
+  let g = legacy;
+  for (let k = 0; k < 20; k += 1) g = startRound({ ...g, round: 20 + k, chips: g.chips.map((c, i) => (i < 3 ? 60 : 0)) });
+  eq(g.ante, 1, 'legacy state keeps ante 1');
+  const rising = newSniperHoldem([true, true, true, false, false], 60, 0);
+  const late = startRound({ ...rising, round: 29, chips: [60, 3, 60, 0, 0] });
+  eq([late.cap, late.ante], [3, 3], 'ante capped at the smallest stack');
+  check(late.phase === 'snipe' || late.turn >= 0, 'capped ante round still plays');
+}
+
 // ── Betting flow on a fixed deck ───────────────────────────────────────────────────────────────────────────────
 /** A deck that deals seat 0..4 the given private cards and then the board (cards are popped from the end). */
 function rigged(first: number, priv: Record<number, number[]>, board: number[], players: number[]): number[] {
@@ -153,7 +178,7 @@ let roundsTotal = 0;
 for (let m = 0; m < runs; m += 1) {
   const players = 2 + (m % 4);
   const seated = Array.from({ length: SH_SEATS }, (_, i) => i < players);
-  let g = newSniperHoldem(seated, m % 3 ? 24 : 60);
+  let g = newSniperHoldem(seated, m % 3 ? 24 : 60, undefined, m % 2 ? 'rise' : 'fixed');
   for (let step = 0; step < 200000 && g.phase !== 'finished'; step += 1) {
     if (g.phase === 'showdown') {
       // The table's chips: target·(players left − 1).

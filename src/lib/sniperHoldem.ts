@@ -15,6 +15,7 @@
 //      round ✔ [P] (each round's table starts one player later).
 // One round
 //   ✔✔ Ante (기본 베팅) of 1 chip from everyone [N]; it never rises — 68 rounds on the show, always 1 [P] ✔.
+//      (The site raises it by default — ◇ its own rule, see SH_ANTE_STEPS and "How the site's version differs".)
 //   ✔✔ Two private cards each, seen only by their owner [N][S][M].
 //   ✔✔ Two shared cards face up → betting round 1 → two more shared cards → betting round 2 [N][S][M].
 //   ✔✔ No single bet may exceed the chips of the player with the fewest chips [N][S]. ◇ Read as: what one player
@@ -68,6 +69,11 @@
 //   • A "quick table" option starts with 24 chips (safety 30 / 32 / 36 / 48) for shorter matches.
 //   • Surplus chips are not handed out by choice: they go 1 to every 0-chip player first, then evenly to the others,
 //     the smaller stacks first (the show's survivors mostly asked for an even split).
+//   • ◇ Rising ante (default since 11/27; the show kept 1 chip): 1 for rounds 1–4, then 2 / 3 / 4 / 6 / 8 from rounds
+//     5 / 7 / 9 / 11 / 13 and +3 every 2 rounds after, ×0.4 at 24 chips, never above the smallest stack. AI self-play
+//     (hard,normal,normal,easy,easy, 40 matches at 60 chips): fixed ante median 33 rounds, p90 98, longest 165;
+//     rising median 14, p90 20, longest 23. Room hosts can pick 'fixed' (show rules); the AI match always rises.
+//     A game saved before 11/27 has no anteRule and keeps the fixed ante.
 //   • Turn clocks in friend/open rooms (the show had none), and the AI plays empty seats.
 //
 // Pure functions only. src/lib/sniperHoldemAi.ts decides AI moves; src/lib/sniperHoldemRoom.ts adds seats and clocks.
@@ -78,6 +84,35 @@ export const SH_CHIPS_SHOW = 60;
 export const SH_CHIPS_QUICK = 24;
 export type ShChips = typeof SH_CHIPS_SHOW | typeof SH_CHIPS_QUICK;
 export const SH_ANTE = 1;
+/**
+ * The ante. 'fixed' = the broadcast's 1 chip every round. 'rise' (◇ the site's own rule, the default since 11/27) =
+ * 1 chip for the first rounds as on the show, then rising so a match does not drag (the show's 1:1 ran 27 rounds).
+ * A match keeps the rule it started with: a game saved before the rule existed has no `anteRule` and stays fixed.
+ */
+export type ShAnteRule = 'rise' | 'fixed';
+/**
+ * Rising schedule at 60 starting chips: [from round, ante]. After the last step it goes up by SH_ANTE_TAIL every
+ * 2 rounds. Other starting stacks scale it (24 chips → 0.4×, never below 1). Never above the smallest stack.
+ * Tuned by AI self-play (scripts/sniper-holdem-arena.ts): see the numbers in the header.
+ */
+export const SH_ANTE_STEPS: [number, number][] = [[1, 1], [5, 2], [7, 3], [9, 4], [11, 6], [13, 8]];
+/** After the last step: +add every `every` rounds. Other stacks scale the ante by (start ÷ 60)^scalePow. */
+export const SH_ANTE_TAIL = { every: 2, add: 3, scalePow: 1 };
+export function shAnte(rule: ShAnteRule | undefined, round: number, startChips: number = SH_CHIPS_SHOW): number {
+  if (rule !== 'rise') return SH_ANTE;
+  let [from, ante] = SH_ANTE_STEPS[0];
+  for (const step of SH_ANTE_STEPS) if (round >= step[0]) [from, ante] = step;
+  const last = SH_ANTE_STEPS[SH_ANTE_STEPS.length - 1];
+  if (from === last[0]) ante += Math.floor((round - last[0]) / SH_ANTE_TAIL.every) * SH_ANTE_TAIL.add;
+  return Math.max(1, Math.round(ante * Math.pow(startChips / SH_CHIPS_SHOW, SH_ANTE_TAIL.scalePow)));
+}
+/** The next round at which the ante goes up, and to what (null for the fixed ante). */
+export function shNextAnte(rule: ShAnteRule | undefined, round: number, startChips: number = SH_CHIPS_SHOW): { round: number; ante: number } | null {
+  if (rule !== 'rise') return null;
+  const now = shAnte(rule, round, startChips);
+  for (let r = round + 1; r < round + 40; r += 1) { const a = shAnte(rule, r, startChips); if (a > now) return { round: r, ante: a }; }
+  return null;
+}
 /** Safety line for a table of `players`: S·N/(N−1), so the table always holds T·(n−1) chips (75 for five at 60). */
 export const shTarget = (start: number, players: number) => (players <= 1 ? start : Math.round((start * players) / (players - 1)));
 
@@ -173,6 +208,9 @@ export type ShRoundLog = {
   snipes: (ShTarget | null | 'pass')[];
   sniped: boolean[];
   payouts: number[];
+  /** What each seat put in this round (public), so players can be read from what they showed down. */
+  bets?: number[];
+  ante?: number;
 };
 
 export type SniperHoldem = {
@@ -183,6 +221,8 @@ export type SniperHoldem = {
   target: number; // the safety line
   players: number; // seated at the start (2–5)
   ante: number;
+  /** 'rise' or 'fixed'; missing (a game saved before 11/27) = fixed. */
+  anteRule?: ShAnteRule;
   cap: number; // most one player may put in this round: the smallest stack among players still in the match
   phase: ShPhase;
   turn: number; // seat to act, -1 between rounds
@@ -230,7 +270,7 @@ export const shPot = (g: SniperHoldem) => g.bets.reduce((a, b) => a + b, 0);
 const nextActive = (g: Pick<SniperHoldem, 'safe' | 'out'>, after: number) => ring(after + 1).find((s) => shActive(g, s)) ?? after;
 
 /** `seated`: which of the five seats play (default all). `startChips`: 60 (the show) or 24 (quick). */
-export function newSniperHoldem(seated: readonly boolean[] = Array(SH_SEATS).fill(true), startChips: number = SH_CHIPS_SHOW, firstSeat?: number): SniperHoldem {
+export function newSniperHoldem(seated: readonly boolean[] = Array(SH_SEATS).fill(true), startChips: number = SH_CHIPS_SHOW, firstSeat?: number, anteRule: ShAnteRule = 'rise'): SniperHoldem {
   const absent = Array.from({ length: SH_SEATS }, (_, i) => !seated[i]);
   const filled = Array.from({ length: SH_SEATS }, (_, i) => i).filter((i) => seated[i]);
   const players = filled.length;
@@ -238,7 +278,7 @@ export function newSniperHoldem(seated: readonly boolean[] = Array(SH_SEATS).fil
   const first = firstSeat ?? filled[Math.floor(Math.random() * filled.length)] ?? 0;
   const base: SniperHoldem = {
     gid: Math.random().toString(36).slice(2, 10), round: 0, first: (first + SH_SEATS - 1) % SH_SEATS,
-    startChips, target: shTarget(startChips, players), players, ante: SH_ANTE, cap: startChips,
+    startChips, target: shTarget(startChips, players), players, ante: SH_ANTE, anteRule, cap: startChips,
     phase: 'bet1', turn: -1, chips: absent.map((a) => (a ? 0 : startChips)),
     safe: Array(SH_SEATS).fill(false), out: absent.slice(), place: Array(SH_SEATS).fill(null),
     hands: Array.from({ length: SH_SEATS }, () => []), board: [], shown: 0,
@@ -249,13 +289,13 @@ export function newSniperHoldem(seated: readonly boolean[] = Array(SH_SEATS).fil
   return startRound(base);
 }
 
-/** Next round: the 선 moves one seat on, everyone antes 1, two private cards each, two shared cards face up. */
+/** Next round: the 선 moves one seat on, everyone antes (shAnte), two private cards each, two shared cards face up. */
 export function startRound(prev: SniperHoldem, deckOrder?: readonly number[]): SniperHoldem {
   const round = prev.round + 1;
   const first = nextActive(prev, prev.first);
   const active = shActiveSeats(prev);
   const cap = Math.min(...active.map((s) => prev.chips[s]));
-  const ante = Math.min(SH_ANTE, cap);
+  const ante = Math.min(shAnte(prev.anteRule, round, prev.startChips), cap);
   const deck = deckOrder ? [...deckOrder] : shuffle(SH_DECK);
   const hands: number[][] = Array.from({ length: SH_SEATS }, () => []);
   for (let k = 0; k < 2; k += 1) for (const s of ring(first)) if (active.includes(s)) hands[s].push(deck.pop()!);
@@ -411,6 +451,7 @@ function showdown(g: SniperHoldem): SniperHoldem {
       hands: g.hands.map((h, s) => (!byFold && live.includes(s) ? [...(h as number[])] : null)),
       hand: g.hands.map((_, s) => res.entries.find((e) => e.seat === s)?.hand ?? null),
       snipes: g.snipes.slice(), sniped: Array.from({ length: SH_SEATS }, (_, s) => !!res.entries.find((e) => e.seat === s)?.sniped),
+      bets: g.bets.slice(), ante: g.ante,
     }].slice(-40),
   };
   return { ...next, log: push(next, ...events) };

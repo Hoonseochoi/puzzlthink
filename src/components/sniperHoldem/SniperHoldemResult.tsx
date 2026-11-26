@@ -11,6 +11,7 @@ import ResultActions from '../ResultActions';
 import { KICKER, MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 import type { ShCopy } from './copy';
 import { Scope, ShAvatar, ShChip } from './SniperHoldemParts';
+import { personaCopy } from './personas';
 
 /** My settled place (1 = first to safety … last = eliminated), or null while I am still at the table. */
 export const shMyPlace = (room: SniperHoldemRoom | null, mySeat: number | null) => (room && mySeat !== null && room.phase !== 'lobby' && !room.game.absent?.[mySeat] ? room.game.place[mySeat] : null);
@@ -72,7 +73,11 @@ export default function SniperHoldemResult({ room, mySeat, t, locale, onAgain, o
                 className={`flex items-center gap-3 rounded-[10px] border px-3 py-2.5 ${out ? 'border-(--accent)/40 bg-(--accent)/[0.08]' : s === mySeat ? 'border-[#7ef0b0]/40 bg-[#7ef0b0]/[0.06]' : 'border-white/10 bg-white/[0.03]'}`}>
                 <span className="w-6 font-mono text-lg font-black text-white/40">{g.place[s] ?? '–'}</span>
                 <ShAvatar name={persona ? nameOf(s) : room.seats[s]?.name ?? nameOf(s)} color={persona?.color} human={!persona} size={28} />
-                <span className="min-w-0 flex-1 truncate text-sm font-black">{nameOf(s)}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-black">{nameOf(s)}</span>
+                  {/* The reveal: what this personality was really doing all match. */}
+                  {persona && room.style[s] && <span className="block break-keep text-[10.5px] font-bold leading-4 text-white/45">{personaCopy(room.style[s]!, locale).style}</span>}
+                </span>
                 {g.safe[s] ? <span className="flex items-center gap-1 text-xs font-black text-[#7ef0b0]"><ShieldCheck size={14} />{t.safe}</span>
                   : out ? <span className="flex items-center gap-1 text-xs font-black text-[#ff9aa4]"><Scope size={13} />{t.placeOut}</span>
                     : <ShChip n={g.chips[s]} className="text-xs text-white/70" />}
