@@ -21,6 +21,7 @@ import nonogramHistory from './nonogram-history';
 import nikoliPuzzles from './nikoli-puzzles';
 import slidingNumberPuzzles from './sliding-number-puzzles';
 import perfectInformation from './perfect-information';
+import zeroSum from './zero-sum';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -45,6 +46,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   nikoliPuzzles,
   slidingNumberPuzzles,
   perfectInformation,
+  zeroSum,
 ];
 
 export const WIKI_BASE = '/board-games';
