@@ -16,6 +16,7 @@ import sysRooms from './sys-rooms';
 import sysLoungeSupport from './sys-lounge-support';
 import sysInfra from './sys-infra';
 import sysLogicChallenges from './sys-logic-challenges';
+import storyTimeline from './story-timeline';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
@@ -33,6 +34,7 @@ const ARTICLES: DevlogArticle[] = [
   sysLogicChallenges,
   sysLoungeSupport,
   sysInfra,
+  storyTimeline,
 ];
 
 export const DEVLOG: readonly DevlogArticle[] = ARTICLES;
