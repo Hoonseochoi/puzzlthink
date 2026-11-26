@@ -11,6 +11,7 @@ import hiddenInformation from './hidden-information';
 import cooperativeVsCompetitive from './cooperative-vs-competitive';
 import partyGames from './party-games';
 import logicPuzzles from './logic-puzzles';
+import numberPuzzles from './number-puzzles';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -25,6 +26,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   cooperativeVsCompetitive,
   partyGames,
   logicPuzzles,
+  numberPuzzles,
 ];
 
 export const WIKI_BASE = '/board-games';
