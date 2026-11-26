@@ -194,6 +194,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
+        ko: { title: '내 캐릭터 알도 뒤집히는 모습이 보여요', desc: '내 바둑알(아이콘)로 둘 때도 돌이 빙글 뒤집히는 모션이 제대로 나오고, 뒤집혀 넘어온 알에는 상대 색 테두리와 점이 붙어 한눈에 구분돼요.' },
+        en: { title: 'Your character pieces flip visibly', desc: 'Pieces drawn as your own stone now spin over properly, and a piece flipped over to your side wears a ring and dot of the other colour.' },
+      },
+      {
+        date: '11/26', icon: Sparkles,
         ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어요. 후원자의 말에는 얇은 무지개 테두리가 둘러져요.' },
         en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. If both players have the same stone or the colours clash, one of them is recoloured. A supporter\'s piece wears a thin rainbow rim.' },
       },

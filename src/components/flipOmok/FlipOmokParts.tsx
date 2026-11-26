@@ -27,8 +27,17 @@ function Face({ p, marked = false, dizzy = false, back = false }: { p: Player; m
   const eye = marked ? STONE_HEX[other(p)] : 'rgba(255,255,255,.95)';
   const mine = usePieceOwner(p);
   // A player's own 바둑알; a flipped-over stone keeps a dot of the other colour.
-  if (mine && !dizzy) return <span className={`absolute inset-0 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`} style={{ filter: `drop-shadow(0 0 5px ${hex}88)` }}>
-    <PieceStone seat={p} colors={FACE_COLORS} overlay={marked ? <span className="absolute bottom-[3%] right-[3%] h-[26%] w-[26%] rounded-full border border-white/90" style={{ background: STONE_HEX[other(p)] }} /> : null}>{null}</PieceStone>
+  // The glow sits on an inner span: a filter on the face itself stops backface-visibility from hiding it
+  // mid-flip on some phones, so the character would show through the whole turn.
+  // A flipped-over character keeps a ring and a dot of the other colour, top left (icons wear their own badge
+  // bottom right).
+  if (mine && !dizzy) return <span className={`absolute inset-0 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`}>
+    <span className="absolute inset-0" style={{ filter: `drop-shadow(0 0 5px ${hex}88)` }}>
+      <PieceStone seat={p} colors={FACE_COLORS} overlay={marked ? <>
+        <span className="pointer-events-none absolute -inset-[4%] rounded-full border-[2px]" style={{ borderColor: STONE_HEX[other(p)], boxShadow: `0 0 6px ${STONE_HEX[other(p)]}` }} />
+        <span className="absolute left-[2%] top-[2%] h-[28%] w-[28%] rounded-full border-[1.5px] border-white" style={{ background: STONE_HEX[other(p)] }} />
+      </> : null}>{null}</PieceStone>
+    </span>
   </span>;
   return <span className={`absolute inset-0 rounded-full border border-white/25 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`}
     style={{ background: `radial-gradient(circle at 34% 28%, color-mix(in srgb, ${hex} 55%, white) 0%, ${hex} 48%, color-mix(in srgb, ${hex} 60%, black) 100%)`, boxShadow: `0 4px 10px rgba(0,0,0,.6), 0 0 10px ${hex}88` }}>
@@ -45,8 +54,10 @@ function Face({ p, marked = false, dizzy = false, back = false }: { p: Player; m
 /** A stone; when `flip` is set it spins over from the opponent's colour to its own (after `delay` ms). */
 export function Stone({ cell, latest = false, flip = false, delay = 0, loop = false }: { cell: Cell; latest?: boolean; flip?: boolean; delay?: number; loop?: boolean }) {
   const p = owner(cell) as Player;
-  return <span className={`relative block h-full w-full [container-type:size] ${latest ? 'scale-110' : ''} transition-transform`} style={{ fontSize: '100cqw' }}>
-    <span className={`relative block h-full w-full [transform-style:preserve-3d] ${loop ? 'flip-omok-loop-turn' : flip ? 'flip-omok-turn' : ''}`} style={flip ? { animationDelay: `${delay}ms` } : undefined}>
+  // cqw must be read inside the container (an element cannot query itself: it would fall back to the screen
+  // width and blow the squinting eyes up across the board mid-flip).
+  return <span className={`relative block h-full w-full [container-type:size] ${latest ? 'scale-110' : ''} transition-transform`}>
+    <span className={`relative block h-full w-full [transform-style:preserve-3d] ${loop ? 'flip-omok-loop-turn' : flip ? 'flip-omok-turn' : ''}`} style={{ fontSize: '100cqw', ...(flip ? { animationDelay: `${delay}ms` } : {}) }}>
       <Face p={p} marked={isFlipped(cell)} />
       {(flip || loop) && <Face p={other(p)} dizzy back />}
     </span>
@@ -82,8 +93,8 @@ export function FlipOmokBoard({ board, last, flipped, flipKey, win, turn, intera
     if (seen.current === flipKey) return;
     seen.current = flipKey;
     if (!flipped.length || last === null) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- a toast per move, keyed by the move
     const isVoid = voidFive(board, last, flipped);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- a toast per move, keyed by the move
     setToast({ n: flipped.length, who: owner(board[last]) as Player, key: flipKey, void: isVoid });
     const timer = window.setTimeout(() => setToast(null), isVoid ? 2400 : 1400);
     return () => window.clearTimeout(timer);
