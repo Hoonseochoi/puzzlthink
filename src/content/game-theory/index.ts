@@ -12,6 +12,7 @@ import chicken from './articles/chicken-game';
 import stagHunt from './articles/stag-hunt';
 import publicGoods from './articles/public-goods';
 import ultimatum from './articles/ultimatum-game';
+import auctions from './articles/auctions';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -29,6 +30,7 @@ export const ARTICLES: GTArticle[] = [
   stagHunt,
   publicGoods,
   ultimatum,
+  auctions,
   // @gt-list
 ];
 
