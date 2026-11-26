@@ -14,6 +14,8 @@ import { DIAMOND, PANEL, PANEL_TITLE, accentVars } from '../ui/gameUi';
 import { SH_ACCENT, SH_GOLD, SH_INK, type ShCopy } from './copy';
 import { Scope, ShAvatar, ShCard, ShChip, StonePile } from './SniperHoldemParts';
 import { useMyNickname } from '../PieceStone';
+import { type TalkEvent, personaCopy, talkLine } from './personas';
+import type { ShStyle } from '@/lib/sniperHoldemAi';
 import { playCard, playChips, playHit, playSnipe, playWin, setShSound, shSoundOn } from './sound';
 
 type Props = { room: SniperHoldemRoom; mySeat: number | null; onAction: (action: SniperHoldemRoomAction) => void; t: ShCopy; locale: string };
@@ -100,16 +102,19 @@ export default function SniperHoldemTable({ room, mySeat, onAction, t, locale }:
   const [sound, setSound] = useState(() => (typeof window === 'undefined' ? true : shSoundOn()));
   const toggleSound = () => { setShSound(!sound); setSound(!sound); };
   const stampFor = (s: number) => (stamp && 'seat' in stamp.event && stamp.event.seat === s ? stamp : null);
+  const styleOf = (s: number) => (room.seats[s]?.id.startsWith('ai-') ? room.style[s] : null);
+  const talk = useTalk(g, styleOf, locale);
 
   return (
     <div className="mx-auto grid w-full max-w-[1180px] gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
       <div className="flex min-w-0 flex-col gap-2.5 pb-[calc(env(safe-area-inset-bottom)+104px)] sm:gap-3 lg:pb-6">
         <BoardPanel g={g} t={t} nameOf={nameOf} sound={sound} onSound={toggleSound} onHistory={() => setHistoryOpen(true)} />
         <DealerLine className="hidden sm:flex" g={g} t={t} waiting={waiting} nameOf={nameOf} seconds={seconds} />
+        {g.round <= 2 && room.phase === 'playing' && <Lineup others={others} styleOf={styleOf} nameOf={nameOf} t={t} locale={locale} />}
         <div className={`grid ${othersGrid} gap-1.5 sm:gap-2`}>
           {others.map((s) => (
             <Seat key={s} g={g} seat={s} name={nameOf(s)} stoneName={stoneName(s)} persona={personaOf(s)} t={t} mySeat={mySeat}
-              acting={room.phase === 'playing' && waiting.includes(s)} away={!!room.away?.[s]} stamp={stampFor(s)} />
+              acting={room.phase === 'playing' && waiting.includes(s)} away={!!room.away?.[s]} stamp={stampFor(s)} talk={talk[s] ?? null} />
           ))}
         </div>
         {mySeat !== null && !g.absent?.[mySeat] && <MyHand g={g} seat={mySeat} stoneName={stoneName(mySeat)} t={t} acting={myTurn} stamp={stampFor(mySeat)} />}
@@ -241,8 +246,8 @@ function SnipeBadge({ g, seat, t }: { g: SniperHoldem; seat: number; t: ShCopy }
     : <span className="flex min-w-0 items-center gap-0.5 truncate rounded bg-(--accent)/15 px-1 text-[9px] font-black text-[#ff9aa4]"><Scope size={9} className="shrink-0" />{t.label(said)}</span>;
 }
 
-function Seat({ g, seat, name, stoneName, persona, t, mySeat, acting, away, stamp }: {
-  g: SniperHoldem; seat: number; name: string; stoneName: string; persona: Persona | null; t: ShCopy; mySeat: number | null; acting: boolean; away: boolean; stamp: { seq: number; event: ShEvent } | null;
+function Seat({ g, seat, name, stoneName, persona, t, mySeat, acting, away, stamp, talk }: {
+  g: SniperHoldem; seat: number; name: string; stoneName: string; persona: Persona | null; t: ShCopy; mySeat: number | null; acting: boolean; away: boolean; stamp: { seq: number; event: ShEvent } | null; talk: { key: string; text: string } | null;
 }) {
   const out = g.out[seat];
   const safe = g.safe[seat];
@@ -278,6 +283,7 @@ function Seat({ g, seat, name, stoneName, persona, t, mySeat, acting, away, stam
       </p>
       {acting && <span className="absolute right-2 top-2 flex gap-0.5">{[0, 1, 2].map((d) => <motion.i key={d} className="h-1 w-1 rounded-full bg-(--accent)" animate={{ y: [0, -3, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: d * 0.12 }} />)}</span>}
       <AnimatePresence>{stamp && <Stamp stamp={stamp} t={t} />}</AnimatePresence>
+      <AnimatePresence>{talk && !stamp && !out && !safe && <motion.p key={talk.key} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute inset-x-1 bottom-1 z-10 rounded-md bg-white px-1.5 py-1 text-center text-[10px] font-bold leading-tight text-[#14161c] shadow-[0_4px_14px_rgba(0,0,0,.45)] sm:text-[11px]">{talk.text}</motion.p>}</AnimatePresence>
     </article>
   );
 }
@@ -450,6 +456,71 @@ function IdleWarning({ seconds, t }: { seconds: number; t: ShCopy }) {
   );
 }
 
+/* ------------------------------------------------------------------ personalities at the table */
+
+/**
+ * Table talk: an AI seat says a line that fits its character on some of its moves, when its snipe hits, when it is
+ * sniped and when it wins. Picked from the move number, so every browser shows the same line. 2.4 s each.
+ */
+function useTalk(g: SniperHoldem, styleOf: (s: number) => ShStyle | null, locale: string) {
+  const [talk, setTalk] = useState<Record<number, { key: string; text: string }>>({});
+  const seen = useRef(g.seq);
+  const last = g.log[0];
+  useEffect(() => {
+    if (seen.current === g.seq || !last) return;
+    seen.current = g.seq;
+    const said: Record<number, { key: string; text: string }> = {};
+    const say = (seat: number, ev: TalkEvent, salt = 0) => {
+      const style = styleOf(seat);
+      const text = style ? talkLine(style, locale, ev, g.seq + salt) : null;
+      if (text) said[seat] = { key: `${g.seq}-${seat}`, text };
+    };
+    if (last.k === 'raise') say(last.seat, last.to >= g.cap ? 'allin' : 'raise');
+    else if (last.k === 'fold') say(last.seat, 'fold');
+    else if (last.k === 'snipe') say(last.seat, 'snipe');
+    else if ((last.k === 'win' || last.k === 'safe' || last.k === 'out') && g.showdown && !g.showdown.byFold) {
+      const sd = g.showdown;
+      sd.entries.forEach((e, i) => { if (e.sniped) say(e.seat, 'sniped', i); });
+      for (const sniper of sd.entries) {
+        const t = g.snipes[sniper.seat];
+        if (t && t !== 'pass' && sd.entries.some((e) => e.sniped && e.seat !== sniper.seat && shSameTarget(shTargetOf(e.hand), t)) && !said[sniper.seat]) say(sniper.seat, 'hit', 7);
+      }
+      for (const w of sd.winners) if (!said[w]) say(w, sd.safe.includes(w) ? 'safe' : 'win', 3);
+    } else if (last.k === 'win' && g.showdown?.byFold) say(last.seats[0], 'win', 3);
+    if (!Object.keys(said).length) return;
+    const show = window.setTimeout(() => setTalk((cur) => ({ ...cur, ...said })), 0);
+    // Not cleared on the next move (it would leave the line up for good); it only removes its own lines.
+    window.setTimeout(() => setTalk((cur) => {
+      const next = { ...cur };
+      for (const [seat, line] of Object.entries(said)) if (next[Number(seat)]?.key === line.key) delete next[Number(seat)];
+      return next;
+    }), 2400);
+    return () => window.clearTimeout(show);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [g.seq, last]);
+  return talk;
+}
+
+/** The first two rounds: who is at the table today, each with a one-line blurb (the full style is revealed at the end). */
+function Lineup({ others, styleOf, nameOf, t, locale }: { others: number[]; styleOf: (s: number) => ShStyle | null; nameOf: (s: number) => string; t: ShCopy; locale: string }) {
+  const ai = others.filter((s) => styleOf(s));
+  if (!ai.length) return null;
+  return (
+    <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5">
+      <span className="flex shrink-0 items-center text-[10px] font-black tracking-[0.12em] text-white/40">{t.lineup}</span>
+      {ai.map((s) => {
+        const style = styleOf(s)!;
+        return (
+          <span key={s} className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] py-1 pl-1 pr-2.5 text-[11px]">
+            <ShAvatar name={nameOf(s)} color={SH_PERSONA[style].color} size={18} />
+            <b className="text-white/85">{nameOf(s)}</b><span className="text-white/45">{personaCopy(style, locale).blurb}</span>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ the snipe moment */
 
 /**
@@ -466,8 +537,9 @@ function SnipeFlash({ g, t, nameOf, mySeat }: { g: SniperHoldem; t: ShCopy; name
     if (last?.k !== 'snipe') return;
     const fire = { seq: g.seq, seat: last.seat, target: last.target };
     const show = window.setTimeout(() => setShot(fire), 0);
-    const hide = window.setTimeout(() => setShot((cur) => (cur?.seq === fire.seq ? null : cur)), 1500);
-    return () => { window.clearTimeout(show); window.clearTimeout(hide); };
+    // The hide timer must outlive the next move (which usually comes within the 1.5 s): it is not cleared on change.
+    window.setTimeout(() => setShot((cur) => (cur?.seq === fire.seq ? null : cur)), 1500);
+    return () => window.clearTimeout(show);
   }, [g.seq, last]);
   // Is the called hand mine? Then it is aimed at me (unless I called it myself).
   const mine = mySeat !== null ? shHandOf(g, mySeat) : null;

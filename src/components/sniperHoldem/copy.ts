@@ -89,6 +89,8 @@ const ko = {
   hit: '명중',
   snipedBy: (name: string) => `${name}의 저격`,
   aimedAtMe: '내 족보가 노려졌어요!',
+  lineup: '오늘의 상대',
+  styleReveal: '성향 공개',
   miss: '빗나감',
   passed: '저격 안 함',
   // Showdown
@@ -196,7 +198,7 @@ const ko = {
   left: (name: string) => `${name} 퇴장`,
   guest: '게스트',
   aiPersonas: 'AI 플레이어',
-  personaNote: 'AI는 자기 자리에서 보이는 것(내 카드, 공유 카드, 베팅과 저격)만 보고 판단해요.',
+  personaNote: 'AI는 10가지 성향 중 매 판 무작위로 앉고, 그날의 기분에 따라 조금씩 다르게 둬요. 자기 자리에서 보이는 것(내 카드, 공유 카드, 베팅과 저격, 지난 판에 공개된 패)만 보고 판단해요. 진짜 성향은 결과 화면에서 공개돼요.',
   soundOn: '소리 켜기',
   soundOff: '소리 끄기',
 };
@@ -276,6 +278,8 @@ const en: ShCopy = {
   hit: 'Hit',
   snipedBy: (name) => `${name} snipes`,
   aimedAtMe: 'That is your hand!',
+  lineup: 'Today’s table',
+  styleReveal: 'Their styles',
   miss: 'Miss',
   passed: 'No snipe',
   roundResult: (n) => `ROUND ${n}`,
@@ -374,7 +378,7 @@ const en: ShCopy = {
   left: (name) => `${name} left`,
   guest: 'Guest',
   aiPersonas: 'AI players',
-  personaNote: 'The AI sees only what its seat would: its cards, the shared cards, bets and snipes.',
+  personaNote: 'Each match seats a random few of 10 AI personalities, each in a slightly different mood. They see only what a seat would: their cards, the shared cards, bets, snipes and hands shown down before. Their true styles are revealed at the end.',
   soundOn: 'Sound on',
   soundOff: 'Sound off',
 };

@@ -208,6 +208,9 @@ export type ShRoundLog = {
   snipes: (ShTarget | null | 'pass')[];
   sniped: boolean[];
   payouts: number[];
+  /** What each seat put in this round (public), so players can be read from what they showed down. */
+  bets?: number[];
+  ante?: number;
 };
 
 export type SniperHoldem = {
@@ -448,6 +451,7 @@ function showdown(g: SniperHoldem): SniperHoldem {
       hands: g.hands.map((h, s) => (!byFold && live.includes(s) ? [...(h as number[])] : null)),
       hand: g.hands.map((_, s) => res.entries.find((e) => e.seat === s)?.hand ?? null),
       snipes: g.snipes.slice(), sniped: Array.from({ length: SH_SEATS }, (_, s) => !!res.entries.find((e) => e.seat === s)?.sniped),
+      bets: g.bets.slice(), ante: g.ante,
     }].slice(-40),
   };
   return { ...next, log: push(next, ...events) };
