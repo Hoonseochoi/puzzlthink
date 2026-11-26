@@ -41,17 +41,24 @@ export const PRIMES = [2, 3, 5, 7] as const;
 export const MIN_FLOORS = 3;
 export const MAX_FLOORS = 5;
 
+/** 보통: 2–3 moves to the fewest; 어려움: 4–6, with a second × block and bigger targets. */
+export type Level = 'normal' | 'hard';
+export const LEVELS = ['normal', 'hard'] as const;
+export const asLevel = (v: unknown): Level => (v === 'hard' ? 'hard' : 'normal');
+
 /**
  * Nine blocks, all numbered with the four primes: three plain numbers (three different primes) and six signed
- * ones (two +, two −, one ×, one ÷). The + and − blocks take one prime each, so all four kinds are always in play.
+ * ones. 보통: two +, two −, one ×, one ÷; the + and − blocks take one prime each, so all four kinds are in play.
+ * 어려움: two +, one −, two ×, one ÷, so towers climb higher.
  */
-export function createBlocks(rand: () => number = Math.random): Block[] {
+export function createBlocks(rand: () => number = Math.random, level: Level = 'normal'): Block[] {
   const plain = shuffled([...PRIMES], rand).slice(0, 3).map((n): Block => ({ n, op: '' }));
   const mix = shuffled([...PRIMES], rand);
-  const signed: Block[] = [
-    { n: mix[0], op: '+' }, { n: mix[1], op: '+' }, { n: mix[2], op: '-' }, { n: mix[3], op: '-' },
-    { n: PRIMES[Math.floor(rand() * 3)], op: '*' }, { n: PRIMES[Math.floor(rand() * 2)], op: '/' },
-  ];
+  const signed: Block[] = level === 'hard'
+    ? [{ n: mix[0], op: '+' }, { n: mix[1], op: '+' }, { n: mix[2], op: '-' },
+      { n: PRIMES[Math.floor(rand() * 4)], op: '*' }, { n: PRIMES[Math.floor(rand() * 3)], op: '*' }, { n: PRIMES[Math.floor(rand() * 2)], op: '/' }]
+    : [{ n: mix[0], op: '+' }, { n: mix[1], op: '+' }, { n: mix[2], op: '-' }, { n: mix[3], op: '-' },
+      { n: PRIMES[Math.floor(rand() * 3)], op: '*' }, { n: PRIMES[Math.floor(rand() * 2)], op: '/' }];
   return [...plain, ...signed];
 }
 
@@ -144,37 +151,125 @@ export function solve(stacks: Stacks, blocks: Block[], target: number, floors: n
 }
 
 let counter = 0;
+const roundId = () => { counter += 1; return `t-${Date.now().toString(36)}-${counter}`; };
+
+const LEVEL_SPEC = {
+  normal: { depth: 3, pars: [2, 2, 3, 3, 3], maxTarget: 99 },
+  hard: { depth: 5, pars: [4, 4, 5, 5, 6], maxTarget: 300 },
+} as const;
+
+/** Towers reachable from `stacks`: floors·1000 + target → fewest moves, and whether every tower that does it in that many uses × or ÷. */
+type Reach = Map<number, { par: number; md: boolean }>;
+const buf = new Int8Array(12);
+/** buf[0..n) bottom first: the tower's key, or -1 when it is not an asked-for tower. Sets `lastMd`. */
+let lastMd = false;
+function towerKey(n: number, blocks: Block[], maxTarget: number): number {
+  if (n < MIN_FLOORS || n > MAX_FLOORS) return -1;
+  const top = blocks[buf[n - 1]];
+  if (top.op !== '') return -1;
+  let sp = 0, sq = 1, tp = top.n, tq = 1, sign = 1, md = false;
+  for (let i = n - 2; i >= 0; i -= 1) {
+    const b = blocks[buf[i]];
+    if (b.op === '') return -1;
+    if (b.op === '*') { tp *= b.n; md = true; } else if (b.op === '/') { tq *= b.n; md = true; } else { sp = sp * tq + sign * tp * sq; sq *= tq; tp = b.n; tq = 1; sign = b.op === '+' ? 1 : -1; }
+  }
+  sp = sp * tq + sign * tp * sq; sq *= tq;
+  if (sp % sq !== 0) return -1;
+  const v = sp / sq;
+  if (v < 1 || v > maxTarget) return -1;
+  lastMd = md;
+  return n * 1000 + v;
+}
+const stackKey = (stacks: Stacks) => { let k = 0; for (let i = 0; i < stacks.length; i += 1) { for (const x of stacks[i]) k = k * 16 + x; if (i < stacks.length - 1) k = k * 16 + 15; } return k; };
 
 /**
- * The next round from where the stacks stand: wander a few moves, take a tower that came up (a whole
- * number from 1 to 99, three to five blocks high) and ask for it. `par` is the fewest moves that reach it.
- * `depth` 2 or 3 is how far to wander; rounds that are already solved or one move away are passed over.
+ * Every tower reachable within `depth` moves, breadth first: the stacks after each move are checked where they
+ * changed, and the last level is only checked, not stored. Depth 5 looks at about ten million positions.
  */
-export function generateRound(stacks: Stacks, blocks: Block[], rand: () => number = Math.random, depth = 3): TowerRound {
-  let fallback: TowerRound | null = null;
-  for (let attempt = 0; attempt < 400; attempt += 1) {
-    // Blocks stuck in a shape with no tower nearby: look one move further.
-    const reach = attempt < 200 ? depth : depth + 1;
-    let cur = stacks;
-    for (let i = 0; i < reach; i += 1) { const moves = [...movesOf(cur)]; cur = applyMove(cur, moves[Math.floor(rand() * moves.length)]); }
-    for (const stack of shuffled(cur, rand)) {
-      if (stack.length < MIN_FLOORS || stack.length > MAX_FLOORS) continue;
-      const v = towerValue(stack, blocks);
-      if (!v || v[0] % v[1] !== 0) continue;
-      const target = v[0] / v[1];
-      if (target < 1 || target > 99) continue;
-      const path = solve(stacks, blocks, target, stack.length, reach);
-      if (!path || path.length === 0) continue;
-      counter += 1;
-      const round = { id: `t-${Date.now().toString(36)}-${counter}`, target, floors: stack.length, par: path.length };
-      if (path.length >= 2) return round;
-      fallback ??= round;
+function reachable(stacks: Stacks, blocks: Block[], depth: number, maxTarget: number): Reach {
+  const reach: Reach = new Map();
+  const note = (k: number, d: number) => {
+    if (k < 0) return;
+    const had = reach.get(k);
+    if (!had) reach.set(k, { par: d, md: lastMd });
+    else if (had.par === d && !lastMd) had.md = false;
+  };
+  for (const s of stacks) { for (let i = 0; i < s.length; i += 1) buf[i] = s[i]; note(towerKey(s.length, blocks, maxTarget), 0); }
+  let frontier: Stacks[] = [stacks];
+  const seen = new Set([stackKey(stacks)]);
+  for (let d = 1; d <= depth; d += 1) {
+    const next: Stacks[] = [];
+    for (const st of frontier) {
+      for (let from = 0; from < STACKS; from += 1) {
+        const src = st[from];
+        for (let count = 1; count <= src.length; count += 1) {
+          const cut = src.length - count;
+          // what is left behind
+          for (let i = 0; i < cut; i += 1) buf[i] = src[i];
+          note(towerKey(cut, blocks, maxTarget), d);
+          for (let flip = 0; flip <= (count >= 2 ? 1 : 0); flip += 1) {
+            for (let to = 0; to < STACKS; to += 1) {
+              if (to === from && !flip) continue;
+              const dst = to === from ? src.slice(0, cut) : st[to];
+              for (let i = 0; i < dst.length; i += 1) buf[i] = dst[i];
+              for (let i = 0; i < count; i += 1) buf[dst.length + i] = flip ? src[src.length - 1 - i] : src[cut + i];
+              note(towerKey(dst.length + count, blocks, maxTarget), d);
+              if (d === depth) continue;
+              const after = applyMove(st, { from, count, flip: !!flip, to });
+              const k = stackKey(after);
+              if (seen.has(k)) continue;
+              seen.add(k);
+              next.push(after);
+            }
+          }
+        }
+      }
+    }
+    frontier = next;
+  }
+  return reach;
+}
+
+/**
+ * The next round from where the stacks stand, for the level: every tower within reach is worked out with its
+ * fewest moves (`par`), then one is picked whose par is in the level's range (보통 2–3, 어려움 4–6), favouring
+ * towers that need × or ÷. Par 6 comes from wandering six moves to a tower the search did not reach in five.
+ */
+export function generateRound(stacks: Stacks, blocks: Block[], rand: () => number = Math.random, level: Level = 'normal'): TowerRound {
+  const spec = LEVEL_SPEC[level];
+  const reach = reachable(stacks, blocks, spec.depth, spec.maxTarget);
+  const want = spec.pars[Math.floor(rand() * spec.pars.length)];
+  const pick = (list: [number, { par: number; md: boolean }][]) => {
+    // favour towers that need × or ÷, and on 어려움 targets of 12 and up
+    const big = level === 'hard' ? list.filter(([k]) => k % 1000 >= 12) : list;
+    const base = big.length && rand() < 0.85 ? big : list;
+    const md = base.filter(([, v]) => v.md);
+    const pool = md.length && rand() < 0.75 ? md : base;
+    const [k, v] = pool[Math.floor(rand() * pool.length)];
+    return { id: roundId(), target: k % 1000, floors: Math.floor(k / 1000), par: v.par };
+  };
+  if (want > spec.depth) {
+    for (let attempt = 0; attempt < 300; attempt += 1) {
+      let cur = stacks;
+      for (let i = 0; i < want; i += 1) { const moves = [...movesOf(cur)]; cur = applyMove(cur, moves[Math.floor(rand() * moves.length)]); }
+      const found: [number, { par: number; md: boolean }][] = [];
+      for (const s of cur) {
+        for (let i = 0; i < s.length; i += 1) buf[i] = s[i];
+        const k = towerKey(s.length, blocks, spec.maxTarget);
+        if (k >= 0 && !reach.has(k)) found.push([k, { par: want, md: lastMd }]);
+      }
+      if (found.length) return pick(found);
     }
   }
-  if (fallback) return fallback;
-  // Nothing reachable (not seen in 18,000 simulated rounds): a placeholder round so the game can go on.
-  counter += 1;
-  return { id: `t-${Date.now().toString(36)}-${counter}`, target: 1, floors: MIN_FLOORS, par: 1 };
+  const all = [...reach.entries()];
+  // the wanted par, else the nearest one inside the level's range, else anything at least 2 (1 at worst)
+  const lo = spec.pars[0], hi = Math.min(spec.depth, spec.pars[spec.pars.length - 1]);
+  for (const par of [Math.min(want, hi), ...[hi, hi - 1, hi - 2, hi - 3, hi - 4].filter((p) => p >= lo && p !== Math.min(want, hi)), 3, 2, 1]) {
+    const list = all.filter(([, v]) => v.par === par);
+    if (list.length) return pick(list);
+  }
+  // Nothing reachable: a placeholder round so the game can go on.
+  return { id: roundId(), target: 1, floors: MIN_FLOORS, par: 1 };
 }
 
 /** Points for a solo round: 3 in the fewest moves, 2 with one more, 1 for any finish. */

@@ -72,6 +72,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Scale,
+        ko: { title: '난이도 보통·어려움', desc: '연습, 10분 챌린지, 친구·공개방에서 난이도를 고를 수 있어요. 어려움은 최소 이동 4회 이상, × 블록 2개에 더 큰 타깃이 나오고 챌린지 랭킹도 따로예요.' },
+        en: { title: 'Normal and Hard', desc: 'Pick a difficulty in practice, the 10-minute challenge and friend or open rooms. Hard asks for 4 or more moves at best, has two × blocks and bigger targets, and ranks its challenge separately.' },
+      },
+      {
+        date: '11/26', icon: Scale,
+        ko: { title: '보통은 최소 2~3회, ×·÷ 쓰는 탑 위주', desc: '보통도 최소 이동 2회만 나오지 않고 3회 문제가 더 자주 나와요. ×나 ÷를 써야 하는 탑이 답으로 많이 나옵니다.' },
+        en: { title: 'Normal: 2–3 moves, more × and ÷', desc: 'Normal rounds now ask for 3 moves more often than 2, and more answers need × or ÷.' },
+      },
+      {
+        date: '11/26', icon: Scale,
         ko: { title: '×·÷를 먼저 계산해요', desc: '탑의 수식을 보통 수식처럼 ×·÷부터 계산해요. 7+7+2÷2−5는 이제 3이 아니라 10입니다.' },
         en: { title: '× and ÷ come first', desc: 'A tower is now worked out like an ordinary formula, × and ÷ before + and −: 7+7+2÷2−5 is 10, not 3.' },
       },

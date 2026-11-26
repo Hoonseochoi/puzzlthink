@@ -3,7 +3,7 @@
 // then get a short while to offer fewer (one offer each). The lowest offer plays it out, with that many
 // moves and a clock. The first to buzz scores +1 for a tower and −1 for a miss; someone who undercut scores
 // +2 or −2. The stacks stay as they are for the next round. First to the goal (7 on air) ends the game.
-import { type Block, type Move, type Stacks, type TowerRound, applyMove, createBlocks, dealStacks, generateRound, legalMove, solvedStack } from './equationTower';
+import { type Block, type Level, type Move, type Stacks, type TowerRound, applyMove, asLevel, createBlocks, dealStacks, generateRound, legalMove, solvedStack } from './equationTower';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 
 export const EQT_MAX_PLAYERS = 4;
@@ -21,6 +21,7 @@ export type EqtResult = { seat: number | null; ok: boolean; bid: number; delta: 
 export type EqtRoom = BaseRoom & {
   phase: 'lobby' | 'think' | 'outbid' | 'act' | 'reveal' | 'finished';
   goal: (typeof EQT_GOAL_OPTIONS)[number];
+  level?: Level; // 보통 (missing in rooms saved before levels) or 어려움
   players: number[]; // seats taking part, fixed at the start
   blocks: Block[];
   stacks: Stacks;
@@ -36,7 +37,7 @@ export type EqtRoom = BaseRoom & {
 };
 
 export type EqtRoomAction =
-  | { t: 'config'; goal?: number }
+  | { t: 'config'; goal?: number; level?: Level }
   | { t: 'start' }
   | { t: 'bid'; n: number }
   | { t: 'pass' }
@@ -47,7 +48,7 @@ export type EqtRoomAction =
 export function createEqtRoom(host: Peer): EqtRoom {
   return {
     sid: newSid(), v: 1, seats: [{ id: host.id, name: host.name }, ...Array(EQT_MAX_PLAYERS - 1).fill(null)] as Seat[],
-    phase: 'lobby', deadline: 0, goal: 5, players: [], blocks: [], stacks: [[], [], [], []], round: null, index: 0,
+    phase: 'lobby', deadline: 0, goal: 5, level: 'normal', players: [], blocks: [], stacks: [[], [], [], []], round: null, index: 0,
     bids: Array(EQT_MAX_PLAYERS).fill(null), first: null, actor: null, movesLeft: 0, phaseEnd: 0, last: null, scores: Array(EQT_MAX_PLAYERS).fill(0),
   };
 }
@@ -66,7 +67,7 @@ const at = (state: EqtRoom, phase: EqtRoom['phase'], ms: number): EqtRoom => {
 };
 
 const beginRound = (state: EqtRoom, index: number): EqtRoom =>
-  at({ ...state, index, round: generateRound(state.stacks, state.blocks), bids: Array(EQT_MAX_PLAYERS).fill(null), first: null, actor: null, movesLeft: 0, last: null }, 'think', THINK_MS);
+  at({ ...state, index, round: generateRound(state.stacks, state.blocks, Math.random, asLevel(state.level)), bids: Array(EQT_MAX_PLAYERS).fill(null), first: null, actor: null, movesLeft: 0, last: null }, 'think', THINK_MS);
 
 /** Offers are in: the lowest one (the latest, as each must beat the last) plays. */
 function toAct(state: EqtRoom): EqtRoom {
@@ -89,12 +90,15 @@ export function reduceEqtRoom(state: EqtRoom, action: EqtRoomAction, seat: numbe
   switch (action.t) {
     case 'config':
       if (!isHost || busy) break;
-      next = { ...state, goal: (EQT_GOAL_OPTIONS as readonly number[]).includes(action.goal ?? -1) ? action.goal as EqtRoom['goal'] : state.goal };
+      next = {
+        ...state, goal: (EQT_GOAL_OPTIONS as readonly number[]).includes(action.goal ?? -1) ? action.goal as EqtRoom['goal'] : state.goal,
+        level: action.level === 'hard' || action.level === 'normal' ? action.level : asLevel(state.level),
+      };
       break;
     case 'start': {
       const players = state.seats.flatMap((s, i) => (s ? [i] : []));
       if (!isHost || busy || players.length < EQT_MIN_PLAYERS) break;
-      const blocks = createBlocks();
+      const blocks = createBlocks(Math.random, asLevel(state.level));
       next = beginRound({ ...state, sid: newSid(), players, blocks, stacks: dealStacks(blocks), scores: Array(EQT_MAX_PLAYERS).fill(0) }, 0);
       break;
     }
