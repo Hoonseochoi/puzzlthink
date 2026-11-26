@@ -29,6 +29,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
       {
+        date: '11/26', icon: Users,
+        ko: { title: '친구와 1:1 방이 열렸어요', desc: '링크나 4자리 코드로 친구를 불러 히든 워드를 1:1로 할 수 있어요. 규칙은 모라전과 같고, 답 2개는 피스 없이 단어마다 한 번. 친구 대전은 랭킹에 들어가지 않아요.' },
+        en: { title: 'Friend rooms, one on one', desc: 'Invite a friend with a link or a 4-digit code and play Hidden Word 1:1. Same rules as against MORA; two answers are free once per word. Friend matches are not ranked.' },
+      },
+      {
         date: '11/26', icon: Wrench,
         ko: { title: '답 2개 제출은 이제 피스 1개를 써요', desc: '무료 찬스가 없어지고, 경쟁전 피스 1개를 쓰면 단어마다 한 번 답을 2개 낼 수 있어요. 쓴 피스는 경쟁전 개수에서 빠집니다.' },
         en: { title: 'Two answers now cost 1 piece', desc: 'The free chance is gone: once per word you can spend 1 race piece to give two answers. Spent pieces come off your race count.' },
