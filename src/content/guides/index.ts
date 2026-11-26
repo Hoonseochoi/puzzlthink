@@ -57,7 +57,6 @@ const REGISTRY: Partial<Record<GameId, GameGuide | null>> = {
   hiddenWord,
   hiddenWordPlus,
   hitStay,
-  timeAuction,
   indianPoker,
   janggi,
   laserJanggi,
@@ -72,6 +71,7 @@ const REGISTRY: Partial<Record<GameId, GameGuide | null>> = {
   twoSidedPoker,
   wallgo,
   wallgo2,
+  timeAuction,
 };
 
 /** Catalog href of a game ('/wallgo'). */

@@ -442,13 +442,14 @@ const ROOM_GAMES: Record<string, { ko: string; en: string }> = {
   blind_gomoku: { ko: '블라인드 오목', en: 'Blind Gomoku' }, card_janggi: { ko: '카드 장기', en: 'Card Janggi' }, color_link_duel: { ko: '컬러 링크', en: 'Color Link Duel' },
   colorlink: { ko: '컬러 잇기', en: 'Color Link' }, equation_signal: { ko: '수식 신호등', en: 'Equation Signal' }, equation_tower: { ko: '수식의 탑', en: 'Tower of Equations' }, flip_omok: { ko: '뒤집기 오목', en: 'Flip Omok' }, four_three: { ko: '4인 3목', en: '4 Player 3 In a Row' },
   gradation: { ko: '그라데이션', en: 'Gradation' }, gyulhap: { ko: '결합', en: 'Gyul! Hap!' }, heavy13: { ko: '무거운 13', en: 'Heavy 13' },
-  hexagon: { ko: '헥사곤', en: 'Hexagon' }, hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay' }, time_auction: { ko: '시간 경매', en: 'Time Auction' }, indian_poker: { ko: '인디언 포커', en: 'Indian Poker' },
+  hexagon: { ko: '헥사곤', en: 'Hexagon' }, hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay' }, indian_poker: { ko: '인디언 포커', en: 'Indian Poker' },
   janggi: { ko: '십이장기', en: '12 Janggi' }, laser_janggi: { ko: '레이저 장기', en: 'Laser Janggi' }, magicswap: { ko: '마방진 스왑', en: 'Magic Square Swap' },
   masyu: { ko: '마슈', en: 'Masyu' }, merge2048: { ko: '2048', en: '2048' }, monorail: { ko: '모노레일', en: 'Monorail' },
   nemo_count: { ko: '네모 세기', en: 'Nemo Count' }, nine_mens_morris: { ko: '나인 멘스 모리스', en: "Nine Men's Morris" }, nonogram: { ko: '노노그램', en: 'Nonogram' },
   onestroke: { ko: '한붓길', en: 'One Stroke' }, piggy_bank: { ko: '돼지 저금통', en: 'Piggy Bank' }, point_omok: { ko: '포인트 오목', en: 'Point Omok' },
   russian_janggi: { ko: '러시아장기', en: 'Russian Janggi' }, russian_roulette: { ko: '러시안 룰렛', en: 'Russian Roulette' }, slitherlink: { ko: '슬리더링크', en: 'Slitherlink' },
   starbattle: { ko: '스타배틀', en: 'Star Battle' }, two_sided_poker: { ko: '양면포커', en: 'Two-Sided Poker' }, wallgo: { ko: '벽바둑', en: 'Wallgo' }, wallgo2: { ko: '벽바둑 II', en: 'Wallgo II' },
+  time_auction: { ko: '시간 경매', en: 'Time Auction' },
 };
 
 for (const [key, name] of Object.entries(ROOM_GAMES)) {
