@@ -67,6 +67,14 @@ const article: WikiArticle = {
         ),
         tip('바둑의 격언이 통해요', '“큰 곳보다 급한 곳”이라는 바둑 격언은 거의 모든 영역 게임에 적용돼요. 상대가 다음 수에 크게 깰 수 있는 경계부터 막고, 그다음에 넓히세요.'),
       ]),
+      sec('mistakes', '처음 할 때 자주 하는 실수', [
+        h3('내 땅 안을 채우기'),
+        p('이미 확정된 내 영역 안에 수를 쓰는 건 가장 흔한 낭비예요. 영역 게임에서 한 수의 가치는 “이 수가 없으면 무엇을 잃는가”로 재야 해요. 상대가 들어올 수 없는 곳이라면, 거기에 둔 수는 0점짜리예요.'),
+        h3('상대의 한 수를 세지 않기'),
+        p('내 계획만 보고 경계를 넓히다 보면, 상대가 한 수로 울타리를 끊고 들어오는 자리를 놓쳐요. 경계를 그릴 때마다 “상대가 지금 둔다면 어디일까”를 한 번씩 확인하세요.'),
+        h3('연결 게임에서 일직선 고집하기'),
+        p('연결 게임에서 칸을 촘촘히 일렬로 이으면 안전해 보이지만 속도가 너무 느려요. 상대는 그사이 내 앞길을 미리 막아 버려요. 끊기지 않는 선에서 최대한 멀리 뛰는 수가 더 강해요.'),
+      ]),
       sec('who', '이런 사람에게 맞아요', [
         p('공간을 머릿속에 그리는 걸 좋아하고, 한 번의 싸움보다 판 전체의 흐름을 운영하는 걸 즐기는 사람에게 잘 맞아요. 잡고 잡히는 게임보다 분위기가 덜 날카로워서, 공격적인 게임이 부담스러운 사람에게도 좋아요. 대신 끝날 때까지 결과가 잘 보이지 않는 경우가 많으니, 형세를 어림하는 연습이 필요해요.'),
       ]),
@@ -123,6 +131,14 @@ const article: WikiArticle = {
           '**Precise endings.** Games are often decided by one or two cells, so count the last moves carefully.',
         ),
         tip('A go proverb that travels', '“Urgent before big” applies to almost every territory game. First close the border your opponent could break open next move, then expand.'),
+      ]),
+      sec('mistakes', 'Common beginner mistakes', [
+        h3('Filling in your own area'),
+        p('Spending moves inside territory that is already yours is the most common waste. Measure a move by what you would lose without it. If your opponent cannot get in, a move there is worth zero.'),
+        h3('Not counting their next move'),
+        p('Expanding your borders while looking only at your own plan, you miss the spot where one opposing move cuts the fence. Every time you draw a border, check where your opponent would play right now.'),
+        h3('Insisting on straight lines'),
+        p('Laying cells in a tight line looks safe in a connection game but is far too slow; your opponent blocks the road ahead meanwhile. The longest jump that still cannot be cut is stronger.'),
       ]),
       sec('who', 'Who it suits', [
         p('People who like picturing space and prefer managing the flow of the whole board over single fights. These games feel less sharp than capture games, which suits players who find aggressive games stressful. On the other hand the result often stays unclear until the end, so practise estimating the position.'),
