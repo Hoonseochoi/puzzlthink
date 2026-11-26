@@ -2,13 +2,13 @@ import { Globe } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 const COPY = {
-  ko: { title: '이 게임은 웹에서 이용할 수 있어요', body: '앱에서는 이 게임을 제공하지 않아요. 다른 게임을 즐겨 보세요.', home: '다른 게임 보러 가기' },
-  en: { title: 'This game is available on the web', body: 'This game is not offered in the app. Try one of the other games.', home: 'See other games' },
+  ko: { title: '웹에서 이용할 수 있어요', body: '이 화면은 앱에서는 제공하지 않아요. 앱에서는 다른 게임을 즐겨 보세요.', home: '게임 보러 가기' },
+  en: { title: 'Available on the web', body: 'This page is not offered in the app. Try one of the games instead.', home: 'See the games' },
 } as const;
 
 /**
- * Neutral screen shown inside the Google Play app in place of a game the app does not offer (see src/lib/playApp.ts).
- * No play button and no link to the game. `fixed` covers the page (used by the client-side guard).
+ * Neutral screen shown inside the Google Play app in place of a page the app does not offer (an article section, or a
+ * game on the hidden list in src/lib/playApp.ts). No play button and no link to the page. `fixed` covers the page (used by the client-side guard).
  */
 export default function WebOnlyNotice({ locale, fixed = false, className = '' }: { locale: string; fixed?: boolean; className?: string }) {
   const c = COPY[locale === 'en' ? 'en' : 'ko'];

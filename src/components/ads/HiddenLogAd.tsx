@@ -6,6 +6,7 @@ import localFont from 'next/font/local';
 import { getSupabase } from '@/lib/supabase';
 import { usePathname } from '@/i18n/routing';
 import { PLAY_APP_HIDE, isPlayApp } from '@/lib/playApp';
+import { usePlayApp } from '@/components/playApp/usePlayApp';
 import { CoffeeNudge, SupportBanner } from '../SupportLink';
 
 /**
@@ -92,6 +93,8 @@ function HiddenLogTopBanner() {
 /** Top strip above the header: the campaign while it runs (no close button, per the deal), otherwise the support banner. */
 export function TopBannerSlot() {
   const live = useCampaignLive();
+  // Google Play app (src/lib/playApp.ts): neither the campaign nor the support banner. CSS hides them before this runs.
+  if (usePlayApp() && (live ? PLAY_APP_HIDE.hiddenlog : PLAY_APP_HIDE.support)) return null;
   return live ? <HiddenLogTopBanner /> : <SupportBanner />;
 }
 
@@ -140,6 +143,7 @@ function HiddenLogResultCard({ won, className }: { won?: boolean; className: str
 /** Post-game card under the result buttons: the campaign while it runs, otherwise the support card. */
 export function ResultBannerSlot({ won, className = '' }: { won?: boolean; className?: string }) {
   const live = useCampaignLive();
+  if (usePlayApp() && (live ? PLAY_APP_HIDE.hiddenlog : PLAY_APP_HIDE.support)) return null; // Google Play app
   if (!live) return <CoffeeNudge className={className} />;
   return <HiddenLogResultCard won={won} className={className} />;
 }

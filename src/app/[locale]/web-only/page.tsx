@@ -8,5 +8,5 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 export default async function WebOnlyPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <main><WebOnlyNotice locale={locale} /></main>;
+  return <main data-ptk-rewritten=""><WebOnlyNotice locale={locale} /></main>;
 }
