@@ -30,6 +30,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Wrench,
+        ko: { title: '답 2개 제출은 이제 피스 1개를 써요', desc: '무료 찬스가 없어지고, 경쟁전 피스 1개를 쓰면 단어마다 한 번 답을 2개 낼 수 있어요. 쓴 피스는 경쟁전 개수에서 빠집니다.' },
+        en: { title: 'Two answers now cost 1 piece', desc: 'The free chance is gone: once per word you can spend 1 race piece to give two answers. Spent pieces come off your race count.' },
+      },
+      {
+        date: '11/26', icon: Wrench,
         ko: { title: '모라가 힌트로 나온 단어를 답으로 내던 문제를 고쳤어요', desc: '힌트로 나온 단어는 정답이 될 수 없어요. 이제 모라는 앞 차에 나온 힌트를 답으로 내지 않고, 내가 힌트 단어를 답으로 적으면 횟수를 쓰지 않고 다시 적게 해 줘요.' },
         en: { title: 'Fixed: MORA answering with a word that was already a hint', desc: 'A hint can never be the hidden word. MORA no longer answers with a hint from an earlier stage, and if you write a hint as your answer it is refused without using up the guess.' },
       },
