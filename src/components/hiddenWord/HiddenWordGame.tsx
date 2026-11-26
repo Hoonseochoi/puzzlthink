@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useLocale } from 'next-intl';
-import { ArrowRight, BookOpen, Loader2, Plus, RotateCcw, Send, Sparkles, Trophy, X } from 'lucide-react';
+import { ArrowRight, BookOpen, Loader2, RotateCcw, Send, Sparkles, Trophy, X } from 'lucide-react';
+import { Piece } from '@/components/CompetitionBoard';
 import { useAuth } from '@/components/AuthProvider';
 import AuthButton from '@/components/AuthButton';
 import BugReport from '@/components/BugReport';
@@ -257,7 +258,7 @@ function TurnStage({ view, turn, visible, pending, seconds, busy, error, t, act,
       {ended ? <TurnEnd view={view} turn={turn} t={t} busy={busy} onNext={() => void act({ t: 'next' })} />
         : pending ? null
         : view.phase === 'hint' ? <HintDock key={turn.stage} t={t} cut={cfg.cut} left={cfg.maxHints - myHints} busy={busy} error={error} clearError={clearError} onSend={(word) => act({ t: 'hint', word })} />
-        : view.phase === 'guess' ? <GuessDock key={turn.stage} t={t} chance={turn.chance} busy={busy} error={error} clearError={clearError} onSend={(words) => act({ t: 'guess', words })} />
+        : view.phase === 'guess' ? <GuessDock key={turn.stage} t={t} chance={turn.chance} pieces={view.pieces ?? 0} busy={busy} error={error} clearError={clearError} onSend={(words) => act({ t: 'guess', words })} />
         : null}
     </section>
   );
@@ -319,8 +320,8 @@ function HintDock({ t, cut, left, busy, error, clearError, onSend }: {
   );
 }
 
-function GuessDock({ t, chance, busy, error, clearError, onSend }: {
-  t: HwCopy; chance: boolean; busy: boolean; error: string | null; clearError: () => void; onSend: (words: string[]) => Promise<boolean>;
+function GuessDock({ t, chance, pieces, busy, error, clearError, onSend }: {
+  t: HwCopy; chance: boolean; /** my 피스 left: a second answer costs one */ pieces: number; busy: boolean; error: string | null; clearError: () => void; onSend: (words: string[]) => Promise<boolean>;
 }) {
   const [word, setWord] = useState('');
   const [second, setSecond] = useState('');
@@ -348,10 +349,10 @@ function GuessDock({ t, chance, busy, error, clearError, onSend }: {
           placeholder={t.secondPlaceholder} aria-label={t.secondPlaceholder} onChange={change(setSecond)} />}
       </div>
       <div className="mt-2 flex items-center justify-between gap-3 px-0.5">
-        <p key={message ?? 'ok'} role={message ? 'alert' : undefined} className={`break-keep text-[11.5px] leading-5 ${message ? 'font-bold text-[#ff8a9a] [animation:hwShake_.35s]' : 'text-white/45'}`}>{message ?? (useChance ? t.chanceHelp : t.guessHelp)}</p>
-        <button type="button" disabled={!chance} onClick={() => setUseChance((on) => !on)} aria-pressed={useChance}
-          className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1.5 text-[11px] font-black transition ${!chance ? 'border-white/10 text-white/25' : useChance ? 'border-[#ffc857] bg-[#ffc857]/20 text-[#ffc857]' : 'border-[#ffc857]/50 text-[#ffc857] hover:bg-[#ffc857]/10'}`}>
-          <Plus size={12} strokeWidth={3} />{!chance ? t.chanceUsed : useChance ? t.chanceOn : t.chance}
+        <p key={message ?? 'ok'} role={message ? 'alert' : undefined} className={`break-keep text-[11.5px] leading-5 ${message ? 'font-bold text-[#ff8a9a] [animation:hwShake_.35s]' : 'text-white/45'}`}>{message ?? (useChance ? t.chanceHelp(pieces) : chance && pieces < 1 ? t.chanceNeed : t.guessHelp)}</p>
+        <button type="button" disabled={!chance || pieces < 1} onClick={() => setUseChance((on) => !on)} aria-pressed={useChance}
+          className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1.5 text-[11px] font-black transition ${!chance || pieces < 1 ? 'border-white/10 text-white/25' : useChance ? 'border-[#ffc857] bg-[#ffc857]/20 text-[#ffc857]' : 'border-[#ffc857]/50 text-[#ffc857] hover:bg-[#ffc857]/10'}`}>
+          <span className={!chance || pieces < 1 ? 'opacity-40 grayscale' : ''}><Piece size={11} /></span>{!chance ? t.chanceUsed : pieces < 1 ? t.chanceNoPiece : useChance ? t.chanceOn : t.chance}
         </button>
       </div>
     </form>

@@ -9,13 +9,13 @@ const TEXT = {
   ko: [
     ['봉투 고르기', '봉투 6개 중 하나를 고르면 명사 5개를 받아요. 라운드마다 그중 하나가 내 히든 워드가 됩니다.'],
     ['수비: 힌트 내기', '히든 워드와 관련된 단어를 힌트로 내요. 힌트마다 유사도가 공개되고, 95% 이상이 나오면 힌트가 끝나요. 너무 가까운 힌트는 모라에게 답을 알려 주는 셈이에요.'],
-    ['공격: 모라의 단어 맞히기', '모라의 힌트와 유사도를 보고 히든 워드를 맞혀요. 찬스는 단어마다 한 번, 답을 하나 더 적을 수 있어요. 오답은 그 단어의 유사도가 공개돼요.'],
+    ['공격: 모라의 단어 맞히기', '모라의 힌트와 유사도를 보고 히든 워드를 맞혀요. 단어마다 한 번, 피스 1개를 쓰면 답을 2개 낼 수 있어요. 오답은 그 단어의 유사도가 공개돼요.'],
     ['승점과 랭킹', '공격은 1차 6점 · 2차 3점 · 3차 1점, 수비는 모라가 틀릴 때마다 +1 · +2 · +3. 2라운드는 모든 승점이 2배이고, 합계로 랭킹을 겨뤄요.'],
   ],
   en: [
     ['Pick an envelope', 'Choose one of six envelopes to get five Korean nouns. Each round one of them is your hidden word.'],
     ['Defense: give hints', 'Give words related to your hidden word. Each hint shows its similarity, and one at 95% or more ends the hints. A hint that is too close all but hands MORA the answer.'],
-    ['Attack: find MORA’s word', 'Read MORA’s hints and their similarity, then guess its hidden word. Once per word your chance lets you write a second answer. A wrong answer shows its similarity.'],
+    ['Attack: find MORA’s word', 'Read MORA’s hints and their similarity, then guess its hidden word. Once per word you can spend 1 piece to give two answers. A wrong answer shows its similarity.'],
     ['Points and ranking', 'Attack scores 6, 3 or 1 by stage; defense scores +1, +2, +3 each time MORA misses. Round 2 doubles every point, and your total makes the ranking.'],
   ],
 } as const;

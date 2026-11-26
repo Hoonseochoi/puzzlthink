@@ -30,6 +30,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Wrench,
+        ko: { title: '답 2개 제출은 이제 피스 1개를 써요', desc: '무료 찬스가 없어지고, 경쟁전 피스 1개를 쓰면 단어마다 한 번 답을 2개 낼 수 있어요. 쓴 피스는 경쟁전 개수에서 빠집니다.' },
+        en: { title: 'Two answers now cost 1 piece', desc: 'The free chance is gone: once per word you can spend 1 race piece to give two answers. Spent pieces come off your race count.' },
+      },
+      {
+        date: '11/26', icon: Wrench,
         ko: { title: '모라가 힌트로 나온 단어를 답으로 내던 문제를 고쳤어요', desc: '힌트로 나온 단어는 정답이 될 수 없어요. 이제 모라는 앞 차에 나온 힌트를 답으로 내지 않고, 내가 힌트 단어를 답으로 적으면 횟수를 쓰지 않고 다시 적게 해 줘요.' },
         en: { title: 'Fixed: MORA answering with a word that was already a hint', desc: 'A hint can never be the hidden word. MORA no longer answers with a hint from an earlier stage, and if you write a hint as your answer it is refused without using up the guess.' },
       },
@@ -117,6 +122,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '슬리더링크', en: 'Slitherlink' },
     note: { ko: '플레이어분이 보내주신 의견을 반영했어요. 고맙습니다!', en: "Made from players' feedback. Thank you!" },
     items: [
+      {
+        date: '11/26', icon: Wrench,
+        ko: { title: '챌린지 힌트는 이제 피스 1개를 써요', desc: '새로운 맵·맵 뺏기의 힌트(판마다 1번)는 경쟁전 피스 1개를 쓰고, 쓴 피스는 경쟁전 개수에서 빠져요. 연습 모드 힌트는 그대로 무료예요.' },
+        en: { title: 'A challenge hint now costs 1 piece', desc: 'The one hint in New map and Take a map spends 1 race piece, which comes off your race count. Practice hints stay free.' },
+      },
       {
         date: '11/25', icon: History,
         ko: { title: '내 풀이 복기에서 정답길을 같이 볼 수 있어요', desc: "정답을 본 뒤 '내 풀이 복기'를 열면 정답길이 연한 초록 띠로 깔리고, 정답과 다른 내 선과 ✕는 빨간색으로 보여요. 어디서 길이 꼬였는지 한눈에 볼 수 있어요. 보드 위 버튼으로 끄고 켤 수 있어요." },

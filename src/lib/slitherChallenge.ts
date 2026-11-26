@@ -22,6 +22,10 @@ async function call<T>(name: string, args: Record<string, unknown> = {}): Promis
 
 export const startNew = () => call<SlitherRun>('slither_start_new');
 export const startBeat = (id: string) => call<SlitherRun>('slither_start_beat', { p_challenge: id });
+/** A challenge hint costs one 경쟁전 piece, once per run: the server takes it before the hint is drawn. */
+export const payHint = (run: string) => call<{ ok: boolean; error?: 'nopiece' | 'used'; pieces: number }>('slither_hint', { p_run: run });
+/** My 피스 left in the running 경쟁전 week. */
+export const fetchPieces = () => call<number>('my_pieces');
 /** Ends a run without a clear (give up, time up, leaving). */
 export const finishRun = (run: string, cleared: boolean, hints: number) => call<FinishResult>('slither_finish', { p_run: run, p_cleared: cleared, p_hints: hints });
 /** A clear: the server replays every move on its own copy of the board before it counts. */

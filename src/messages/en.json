@@ -5172,6 +5172,10 @@
     "viewRanking": "🏆 {game} ranking"
   },
   "Slitherlink": {
+    "hintPaid": "Hint · 1 piece",
+    "hintHelpPaid": "Tap a spot: 1 piece is spent and the 3×3 area around it is filled in. (You have {n})",
+    "hintNoPiece": "A challenge hint costs 1 piece. Beat a hard AI to earn pieces.",
+    "hintPayError": "The hint could not be used. Try again in a moment.",
     "metaTitle": "Slitherlink — draw the loop the numbers ask for",
     "metaDescription": "Join the dots into one loop that matches every number. Endless boards from 9×9 to 11×11 with hints, answer reveal and replay. Free.",
     "keywords": [
@@ -8274,7 +8278,7 @@
       "Hints: the setter gives Korean nouns. Each hint shows its similarity to the hidden word, and a hint at 95% or more ends the hint phase at once.",
       "A stage allows five hints and two minutes. If none reaches 95%, the word closest to the hidden word is revealed instead.",
       "Answers: when the hints end the other side answers. A miss pays the setter and starts the next stage, up to three: 1, 2, then 3 points.",
-      "The guesser earns more the earlier the answer: 6, 3, then 1. Once per word a chance lets you write a second answer.",
+      "The guesser earns more the earlier the answer: 6, 3, then 1. Once per word you can spend 1 race piece to give two answers.",
       "Round 2 doubles every point. The ranking score is your average points per match plus 0.3 per match played (up to 20)."
     ],
     "specialTitle": "Easy to miss",
@@ -8316,8 +8320,8 @@
       },
       {
         "tag": "ATTACK",
-        "title": "Spend the chance in stage 2",
-        "body": "Stage 1 has too many candidates and stage 3 pays 1. With two candidates left in stage 2 the chance is worth the most."
+        "title": "Spend the piece in stage 2",
+        "body": "Stage 1 has too many candidates and stage 3 pays 1. With two candidates left in stage 2, spending a piece on two answers is worth the most."
       }
     ],
     "faqTitle": "FAQ",
