@@ -60,7 +60,7 @@ const ko = {
   quick: [
     '블록 9개에는 소수 2·3·5·7만 적혀 있어요. 숫자만 있는 것 3개와 기호가 붙은 것 6개(+, −, ×, ÷)입니다.',
     '한 번의 이동: 한 자리의 위에서부터 원하는 개수를 들어 다른 자리에 놓습니다. 묶음을 위아래로 뒤집어 놓을 수 있고, 제자리에서 뒤집기만 해도 1회입니다.',
-    '탑의 맨 위는 기호 없는 숫자, 그 아래는 모두 기호 블록이어야 합니다. 위에서 아래로 차례대로 계산합니다 (5, ×2, +3 → 5×2+3 = 13).',
+    '탑의 맨 위는 기호 없는 숫자, 그 아래는 모두 기호 블록이어야 합니다. 수식은 위에서 아래로 읽고, 보통 수식처럼 ×·÷를 +·−보다 먼저 계산합니다 (5, +3, ×2 → 5+3×2 = 11).',
     '목표 층수(3~5층)와 정확히 같은 높이의 탑이 타깃 넘버가 되면 완성. 탑 상태는 다음 라운드로 이어집니다.',
   ],
   // Rooms
@@ -175,7 +175,7 @@ const en: Copy = {
   quick: [
     'All nine blocks carry a prime: 2, 3, 5 or 7. Three are plain numbers; six carry a sign (+, −, ×, ÷).',
     'One move: lift any number of blocks off the top of a stack and set them on a stack. You may turn the bundle upside down; flipping in place is a move too.',
-    'A tower has a plain number on top and signed blocks under it, worked out from the top down (5, ×2, +3 → 5×2+3 = 13).',
+    'A tower has a plain number on top and signed blocks under it, read from the top down as an ordinary formula, × and ÷ before + and − (5, +3, ×2 → 5+3×2 = 11).',
     'A tower of exactly the asked height (3 to 5 blocks) worth the target finishes the round. The stacks carry over to the next one.',
   ],
   guest: 'Guest',

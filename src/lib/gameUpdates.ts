@@ -72,6 +72,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Scale,
+        ko: { title: '×·÷를 먼저 계산해요', desc: '탑의 수식을 보통 수식처럼 ×·÷부터 계산해요. 7+7+2÷2−5는 이제 3이 아니라 10입니다.' },
+        en: { title: '× and ÷ come first', desc: 'A tower is now worked out like an ordinary formula, × and ÷ before + and −: 7+7+2÷2−5 is 10, not 3.' },
+      },
+      {
+        date: '11/26', icon: Scale,
         ko: { title: '블록은 소수 2·3·5·7, 탑은 3~5층', desc: '블록의 숫자가 소수 네 가지(2, 3, 5, 7)로만 나와요. 목표 층수도 2층 없이 3~5층만 나옵니다.' },
         en: { title: 'Prime blocks (2, 3, 5, 7) and towers of 3 to 5', desc: 'Blocks now carry only the four primes 2, 3, 5 and 7, and the asked height is always 3 to 5 blocks, never 2.' },
       },

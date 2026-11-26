@@ -4,8 +4,8 @@
 // and sets it down on any stack (turning it over in place is a move too). Each round names a target
 // number and a height: build a tower of exactly that height that reads, from the top down, as a sum
 // worth the target. The top block must be a plain number and every block under it a signed one; the
-// tower is worked out in order from the top (5, ×2, +3 → 5×2+3 = 13). The stacks carry over to the next round.
-// The show did not publish its block set or how signs chain, so those two are this site's own choice.
+// tower reads as an ordinary formula from the top, × and ÷ before + and − (5, +3, ×2 → 5+3×2 = 11).
+// The stacks carry over to the next round. The show did not publish its block set, so that is this site's own choice.
 
 export const STACKS = 4;
 export const CHALLENGE_MS = 10 * 60 * 1000;
@@ -74,20 +74,27 @@ export function applyMove(stacks: Stacks, m: Move): Stacks {
 
 /**
  * What a stack is worth as a tower, as a fraction [p, q]: a plain number on top, signed blocks under it,
- * worked out from the top down. Null when it is not a tower (one block, a signed block on top, a plain
- * number lower down).
+ * read from the top down as an ordinary formula — × and ÷ before + and − (7+7+2÷2−5 = 10). Null when it is
+ * not a tower (one block, a signed block on top, a plain number lower down).
  */
+const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : Math.abs(a) || 1);
 export function towerValue(stack: number[], blocks: Block[]): [number, number] | null {
   if (stack.length < 2) return null;
   const top = blocks[stack[stack.length - 1]];
   if (top.op !== '') return null;
-  let p = top.n, q = 1;
+  // sum sp/sq of the finished terms; the current term is sign · tp/tq
+  let sp = 0, sq = 1, tp = top.n, tq = 1, sign = 1;
+  const close = () => { sp = sp * tq + sign * tp * sq; sq *= tq; };
   for (let i = stack.length - 2; i >= 0; i -= 1) {
     const b = blocks[stack[i]];
     if (b.op === '') return null;
-    if (b.op === '+') p += b.n * q; else if (b.op === '-') p -= b.n * q; else if (b.op === '*') p *= b.n; else q *= b.n;
+    if (b.op === '*') tp *= b.n;
+    else if (b.op === '/') tq *= b.n;
+    else { close(); tp = b.n; tq = 1; sign = b.op === '+' ? 1 : -1; }
   }
-  return [p, q];
+  close();
+  const g = gcd(sp, sq);
+  return [sp / g, sq / g];
 }
 /** The tower's formula from the top down, e.g. "5×2+3". */
 export const towerText = (stack: number[], blocks: Block[]) => [...stack].reverse().map((id) => blockText(blocks[id])).join('');
