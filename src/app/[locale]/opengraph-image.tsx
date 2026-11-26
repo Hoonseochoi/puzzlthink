@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { OG_SIZE, SlitherBoardArt, WallGoBoardArt, fontsFor, ogLocale } from '@/lib/og';
+import { OG_SIZE, SlitherBoardArt, WallGoBoardArt, cachedImage, fontsFor, ogLocale } from '@/lib/og';
 import { GAMES } from '@/lib/gameCatalog';
 
 export const size = OG_SIZE;
@@ -15,7 +15,13 @@ const COPY = {
 };
 
 export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
-  const c = COPY[ogLocale((await params).locale)];
+  const locale = ogLocale((await params).locale);
+  // The key carries the game count (it is printed on the picture); bump the number after it when the drawing changes.
+  return cachedImage(`home-${locale}-${N}-2`, () => render(locale));
+}
+
+async function render(locale: 'ko' | 'en') {
+  const c = COPY[locale];
   const fonts = await fontsFor(`PUZZLTHINK puzzlthink.com0123456789${c.tag}${c.line1}${c.line2}${c.sub}${c.chips.join('')}`);
   return new ImageResponse(
     (
