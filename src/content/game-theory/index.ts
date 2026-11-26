@@ -7,6 +7,7 @@ import prisonersDilemma from './articles/prisoners-dilemma';
 import titForTat from './articles/tit-for-tat';
 import blotto from './articles/colonel-blotto';
 import bluffing from './articles/bluffing';
+import minimaxMixed from './articles/minimax-mixed-strategy';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -19,6 +20,7 @@ export const ARTICLES: GTArticle[] = [
   titForTat,
   blotto,
   bluffing,
+  minimaxMixed,
   // @gt-list
 ];
 
