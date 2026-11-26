@@ -4,6 +4,7 @@ import { CERT_GAMES } from '@/lib/hardClear';
 import { SITE_URL } from '@/lib/seo';
 import { HELL_LIVE } from '@/lib/hell';
 import { guideListings } from '@/content/guides';
+import { ARTICLES, GT_PATH, articlePath } from '@/content/game-theory';
 import type { GameId } from '@/lib/stats';
 
 export const dynamic = 'force-static';
@@ -36,6 +37,10 @@ export function GET() {
     '',
     '## Guides',
     ...GUIDES.map(([path, name]) => `- [${name}](${SITE_URL}/ko${path})`),
+    '',
+    '## Game theory',
+    `- [게임 이론 (Game theory articles, with survival-show and PUZZLTHINK game examples)](${SITE_URL}/ko${GT_PATH})`,
+    ...ARTICLES.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${articlePath(a.slug)})`),
     '',
     '## About',
     `- [소개 (About)](${SITE_URL}/ko/about)`,
