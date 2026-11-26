@@ -4,7 +4,7 @@ import GameGate from '@/components/GameGate';
 import { TowerTutorialSteps } from '@/components/equationTower/TowerTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import EquationTowerGame from '@/components/equationTower/EquationTowerGame';
 import { TowerPreview } from '@/components/equationTower/TowerParts';
 import { EQT_ACCENT, EQT_INK } from '@/components/equationTower/copy';
@@ -29,6 +29,7 @@ export default async function EquationTowerPage({ params }: { params: Promise<{ 
   const { locale } = await params;
   setRequestLocale(locale);
   const g = await getTranslations({ locale, namespace: 'EquationTowerGuide' });
+  const faq = guideFaq('equationTower', locale)!; // the FAQ GameArticle shows below the board
   const korean = locale !== 'en';
   const name = korean ? '수식의 탑' : 'Tower of Equations';
   const hero = (
@@ -41,10 +42,10 @@ export default async function EquationTowerPage({ params }: { params: Promise<{ 
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
         gameJsonLd({ locale, path: '/equation-tower', name, alternateName: ['수식의 탑', 'Tower of Equations', '수식의 탑 게임', '데블스 플랜 수식의 탑'], description: g('intro'), genre: ['Puzzle', 'Number game', 'Strategy'], players: { min: 1, max: 4 }, show: 'dp3' }),
-        faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
+        faqJsonLd(faq),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name, path: '/equation-tower' }]),
       ] }} />
-      <GameGate game="equationTower" accent={EQT_ACCENT} ink={EQT_INK} tutorial={<TowerTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="EquationTowerGuide" />}>
+      <GameGate game="equationTower" accent={EQT_ACCENT} ink={EQT_INK} tutorial={<TowerTutorialSteps locale={locale} />} hero={hero} guide={<GameArticle locale={locale} game="equationTower" />}>
         <EquationTowerGame />
       </GameGate>
     </>

@@ -4,7 +4,7 @@ import GameGate from '@/components/GameGate';
 import { HiddenWordTutorialSteps } from '@/components/hiddenWord/HiddenWordTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import HiddenWordGame from '@/components/hiddenWord/HiddenWordGame';
 import HiddenWordPreview from '@/components/hiddenWord/HiddenWordPreview';
 import { HW_ACCENT, HW_INK } from '@/components/hiddenWord/copy';
@@ -29,6 +29,7 @@ export default async function HiddenWordPage({ params }: { params: Promise<{ loc
   const { locale } = await params;
   setRequestLocale(locale);
   const g = await getTranslations({ locale, namespace: 'HiddenWordGuide' });
+  const faq = guideFaq('hiddenWord', locale)!; // the FAQ GameArticle shows below the board
   const korean = locale !== 'en';
   const hero = (
     <div className="grid items-center gap-8 md:grid-cols-[1fr_260px]">
@@ -40,10 +41,10 @@ export default async function HiddenWordPage({ params }: { params: Promise<{ loc
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
         gameJsonLd({ locale, path: '/hidden-word', name: korean ? '히든 워드' : 'Hidden Word', alternateName: ['히든 워드', '히든워드', 'Hidden Word'], description: g('intro'), genre: ['Word game', 'Deduction', 'Party game'], players: { min: 1, max: 1 }, show: 'dp3' }),
-        faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
+        faqJsonLd(faq),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: korean ? '히든 워드' : 'Hidden Word', path: '/hidden-word' }]),
       ] }} />
-      <GameGate game="hiddenWord" accent={HW_ACCENT} ink={HW_INK} tutorial={<HiddenWordTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="HiddenWordGuide" />}>
+      <GameGate game="hiddenWord" accent={HW_ACCENT} ink={HW_INK} tutorial={<HiddenWordTutorialSteps locale={locale} />} hero={hero} guide={<GameArticle locale={locale} game="hiddenWord" />}>
         <HiddenWordGame />
       </GameGate>
     </>

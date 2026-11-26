@@ -4,7 +4,7 @@ import GameGate from '@/components/GameGate';
 import { GradationTutorialSteps } from '@/components/gradation/GradationTutorial';
 import GameIntroHero from '@/components/GameIntroHero';
 import JsonLd from '@/components/JsonLd';
-import TextGuide from '@/components/TextGuide';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
 import GradationGame from '@/components/gradation/GradationGame';
 import GradationPreview from '@/components/gradation/GradationPreview';
 import { GR_ACCENT, GR_INK } from '@/components/gradation/copy';
@@ -29,6 +29,7 @@ export default async function GradationPage({ params }: { params: Promise<{ loca
   const { locale } = await params;
   setRequestLocale(locale);
   const g = await getTranslations({ locale, namespace: 'GradationGuide' });
+  const faq = guideFaq('gradation', locale)!; // the FAQ GameArticle shows below the board
   const korean = locale !== 'en';
   const hero = (
     <div className="grid items-center gap-8 md:grid-cols-[1fr_280px]">
@@ -40,10 +41,10 @@ export default async function GradationPage({ params }: { params: Promise<{ loca
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
         gameJsonLd({ locale, path: '/gradation', name: korean ? '그라데이션' : 'Gradation', alternateName: ['그라데이션', 'Gradation', '그라데이션 게임', '데블스 플랜 그라데이션'], description: g('intro'), genre: ['Strategy', 'Mind game', 'Number game'], players: { min: 1, max: 2 }, show: 'dp3' }),
-        faqJsonLd(g.raw('faq') as { q: string; a: string }[]),
+        faqJsonLd(faq),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: korean ? '그라데이션' : 'Gradation', path: '/gradation' }]),
       ] }} />
-      <GameGate game="gradation" accent={GR_ACCENT} ink={GR_INK} tutorial={<GradationTutorialSteps locale={locale} />} hero={hero} guide={<TextGuide locale={locale} namespace="GradationGuide" />}>
+      <GameGate game="gradation" accent={GR_ACCENT} ink={GR_INK} tutorial={<GradationTutorialSteps locale={locale} />} hero={hero} guide={<GameArticle locale={locale} game="gradation" />}>
         <GradationGame />
       </GameGate>
     </>
