@@ -9,6 +9,7 @@ import ResultActions from '../ResultActions';
 import { KICKER, MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 import type { TaCopy } from './copy';
 import { taColor, taName } from './TimeAuctionTable';
+import { SeatStone, Tray } from './TimeAuctionParts';
 
 /** Records my result when the match ends: 1st place is a win, anything else a loss (survival kept in the detail). */
 export function useTaReport(room: TaRoom | null, mySeat: number | null, mode: 'ai' | 'friend') {
@@ -48,14 +49,15 @@ export default function TimeAuctionResult({ room, mySeat, t, locale, onAgain, on
           {seats.map((s) => {
             const out = st.eliminated.includes(s);
             return (
-              <li key={s} className={`flex items-center gap-2.5 rounded-[10px] border px-3 py-2 ${s === mine ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-white/10 bg-white/[0.03]'}`}>
+              <li key={s} className={`flex flex-wrap items-center gap-2.5 rounded-[10px] border px-3 py-2 ${s === mine ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-white/10 bg-white/[0.03]'}`}>
                 <b className="w-8 font-mono text-sm text-white/60">{t.place(st.place[s]!)}</b>
-                <span className="h-2.5 w-2.5 rounded-full" style={{ background: taColor(room, s) }} />
+                <SeatStone room={room} seat={s} mySeat={mySeat} size={28} label={taName(room, s, t, en, mySeat)} />
                 <span className="min-w-0 flex-1 truncate text-sm font-bold">{taName(room, s, t, en, mySeat)}</span>
                 {st.piece === s && <span className="flex items-center gap-1 rounded-full bg-[#ffd36b] px-2 py-0.5 text-[10px] font-black text-black"><Crown size={11} />{t.piece}</span>}
                 {out && <span className="flex items-center gap-1 rounded-full bg-[#ff3b30] px-2 py-0.5 text-[10px] font-black text-white"><Skull size={11} />{t.eliminated}</span>}
                 <span className="font-mono text-sm font-black text-(--accent)">{g.tokens[s]}</span>
                 <span className="w-16 text-right font-mono text-[11px] text-white/55">{taClock(g.bank[s])}</span>
+                <span className="basis-full pl-10"><Tray room={room} seat={s} size={20} en={en} /></span>
               </li>
             );
           })}

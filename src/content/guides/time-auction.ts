@@ -156,6 +156,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['', '방송', 'PUZZLTHINK'], rows: [
             ['인원', '6명', 'AI전 6명 · 친구·공개방 2~6명'],
+            ['경매 물건', '승리 표식', '경매마다 바둑알 하나(마지막은 황금 바둑알). 모양만 다를 뿐 승리 표식과 똑같이 세요'],
             ['시간 × 경매 수', '10분 × 19번', '2분 × 9번(기본) · 5분 × 13번 · 10분 × 19번'],
             ['보상', '1위 피스 1개 · 꼴찌 탈락', '1위 · 꼴찌 탈락(기록에 남아요)'],
             ['포기', '카운트다운 안에 손 떼기', '같음 + "이번 경매는 포기" 버튼'],
@@ -333,6 +334,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['', 'Broadcast', 'PUZZLTHINK'], rows: [
             ['Players', '6', '6 vs AI · 2–6 in rooms'],
+            ['What is sold', 'A victory token', 'One go stone per auction (gold for the last). Only the look differs: it counts exactly like a token'],
             ['Time × auctions', '10:00 × 19', '2:00 × 9 (default) · 5:00 × 13 · 10:00 × 19'],
             ['Stakes', '1st gets a piece · last is eliminated', '1st · last is eliminated (kept in your records)'],
             ['Dropping out', 'Let go in the countdown', 'Same, plus a "sit this one out" button'],
