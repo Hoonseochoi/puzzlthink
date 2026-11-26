@@ -9,7 +9,8 @@ const HIDE_ON = ['/hidden-word', '/equation-signal', '/equation-tower', '/card-j
 export default function GlobalFooter() {
   const pathname = usePathname();
   const t = useTranslations('Common');
-  if (HIDE_ON.some((segment) => pathname.includes(segment))) return null;
+  // Game pages hide the footer; their guide pages (/<game>/guide) keep it.
+  if (!pathname.endsWith('/guide') && HIDE_ON.some((segment) => pathname.includes(segment))) return null;
 
   return (
     <footer className="border-t border-black/[0.07] bg-[#f3f0e8]">
@@ -22,6 +23,7 @@ export default function GlobalFooter() {
           <p className="mt-1 text-[11px] text-black/45">{t('contactPartnership')} · <a href="mailto:contact@puzzlthink.com" className="font-bold hover:text-black">contact@puzzlthink.com</a></p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold text-black/45">
+          <Link href="/guides" className="hover:text-black">{t('guides')}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>
           <SupportLink />

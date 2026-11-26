@@ -4,6 +4,8 @@ import JanggiDiagram, { JanggiMoveChart, type JanggiDiagramSpec } from './Janggi
 import JanggiPiece from './JanggiPiece';
 import { hanjaFont } from './theme';
 import AdSlot from '@/components/AdSlot';
+import FullGuideLink from '@/components/guide/FullGuideLink';
+import { anyGuidePath } from '@/content/guides';
 
 type Item = { title: string; body: string; tag?: string };
 type Faq = { q: string; a: string };
@@ -40,6 +42,7 @@ export default async function JanggiGuide({ locale }: { locale: string }) {
         <span className="text-[10px] font-black tracking-[0.2em] text-[#e8c170]">{t('eyebrow')}</span>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">{t('title')}</h1>
         <p className="mt-5 max-w-3xl text-sm leading-7 text-white/55">{t('intro')}</p>
+        {anyGuidePath('janggi') && <FullGuideLink locale={locale} path={anyGuidePath('janggi')!} />}
 
         <h2 className="mt-12 text-xl font-extrabold">{t('rulesTitle')}</h2>
         <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-7 text-white/55">{rules.map((rule) => <li key={rule}>{rule}</li>)}</ol>

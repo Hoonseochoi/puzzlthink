@@ -8,9 +8,7 @@ import GameRankCard from '@/components/GameRankCard';
 import { GameUpdatesSection } from '@/components/GameUpdates';
 import { hasGameUpdates } from '@/lib/gameUpdates';
 import { hasRankCard } from '@/lib/rankings';
-
-/** Games with a 공략 page: a "처음이라면?" button sits beside the title (슬리더링크 · 마슈 · 노노그램). */
-const STRATEGY: Partial<Record<GameId, '/slitherlink/guide' | '/masyu/guide' | '/nonogram/guide' | '/star-battle/guide' | '/binairo/guide' | '/one-stroke/guide' | '/color-link/guide' | '/magic-square/guide'>> = { magicswap: '/magic-square/guide', slitherlink: '/slitherlink/guide', binairo: '/binairo/guide', onestroke: '/one-stroke/guide', colorlink: '/color-link/guide', starbattle: '/star-battle/guide', masyu: '/masyu/guide', nonogram: '/nonogram/guide' };
+import { anyGuidePath } from '@/content/guides';
 
 /** Games with a solve replay: a "플레이 영상으로 배우기" button sits beside the guide button. */
 const REPLAY: Partial<Record<GameId, ReplayGame>> = { magicswap: 'magicswap', slitherlink: 'slitherlink', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram' };
@@ -26,6 +24,7 @@ export default async function GameIntroHero({ locale, id, tone = 'dark', Title =
   const key = `games.${id}` as const;
   const rules = t.raw(`${key}.rules`) as string[];
   const dark = tone === 'dark';
+  const guide = anyGuidePath(id); // a 공략 page: a "처음이라면?" button sits beside the title
   const card = dark ? 'border-white/10 bg-white/[0.035]' : 'border-black/[0.07] bg-white/60';
   const line = dark ? 'divide-white/10' : 'divide-black/[0.07]';
   const facts: [LucideIcon, string, string][] = [
@@ -39,10 +38,10 @@ export default async function GameIntroHero({ locale, id, tone = 'dark', Title =
       <p className="font-mono text-[10px] font-bold tracking-[0.2em] text-(--accent)">PUZZLTHINK · GAME</p>
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <Title className="whitespace-nowrap text-[2.6rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-6xl">{tc(id)}</Title>
-        {(STRATEGY[id] || REPLAY[id]) && <div className="flex shrink-0 flex-wrap justify-end gap-2">
+        {(guide || REPLAY[id]) && <div className="flex shrink-0 flex-wrap justify-end gap-2">
         {REPLAY[id] && <LogicReplayButton game={REPLAY[id]} variant="learn" />}
-        {STRATEGY[id] && (
-          <Link href={STRATEGY[id]} className="group mt-1 flex shrink-0 flex-col items-end rounded-[14px] border border-(--accent)/50 bg-(--accent)/15 px-3.5 py-2 text-right shadow-[0_0_24px_color-mix(in_srgb,var(--accent)_25%,transparent)] transition hover:bg-(--accent)/25">
+        {guide && (
+          <Link href={guide} className="group mt-1 flex shrink-0 flex-col items-end rounded-[14px] border border-(--accent)/50 bg-(--accent)/15 px-3.5 py-2 text-right shadow-[0_0_24px_color-mix(in_srgb,var(--accent)_25%,transparent)] transition hover:bg-(--accent)/25">
             <span className={`text-[11px] font-bold ${dark ? 'text-white/60' : 'text-black/55'}`}>{t('firstTime', { game: tc(id) })}</span>
             <span className="text-sm font-black text-(--accent)">{t('firstTimeCta')} <span className="inline-block transition group-hover:translate-x-0.5">→</span></span>
           </Link>

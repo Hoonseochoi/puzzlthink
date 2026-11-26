@@ -3,21 +3,14 @@ import { GAMES } from '@/lib/gameCatalog';
 import { CERT_GAMES } from '@/lib/hardClear';
 import { SITE_URL } from '@/lib/seo';
 import { HELL_LIVE } from '@/lib/hell';
+import { guideListings } from '@/content/guides';
 import type { GameId } from '@/lib/stats';
 
 export const dynamic = 'force-static';
 
 const STATS_ID: Record<string, GameId> = Object.fromEntries((Object.keys(CERT_GAMES) as GameId[]).map((id) => [CERT_GAMES[id].href, id]));
-const GUIDES: [string, string][] = [
-  ['/slitherlink/guide', '슬리더링크 공략 (Slitherlink guide)'],
-  ['/binairo/guide', '비나이로 공략 (Binairo guide)'],
-  ['/one-stroke/guide', '한붓길 공략 (One Stroke guide)'],
-  ['/color-link/guide', '컬러 잇기 공략 (Color Link guide)'],
-  ['/magic-square/guide', '마방진 스왑 공략 (Magic Square Swap guide)'],
-  ['/star-battle/guide', '스타배틀 공략 (Star Battle guide)'],
-  ['/masyu/guide', '마슈 공략 (Masyu guide)'],
-  ['/nonogram/guide', '노노그램 공략 (Nonogram guide)'],
-];
+// Every guide page (logic-puzzle guides and src/content/guides), Korean title with the English one.
+const GUIDES: [string, string][] = guideListings('ko').map((ko) => [ko.path, `${ko.title} (${guideListings('en').find((en) => en.game === ko.game)!.title})`]);
 
 export function GET() {
   const games = GAMES.map((g) => {
@@ -38,6 +31,7 @@ export function GET() {
     `- [게임 소개 (All games with rules)](${SITE_URL}/ko/games)`,
     `- [논리 퍼즐 (Logic puzzles)](${SITE_URL}/ko/logic-puzzles)`,
     `- [기록실·랭킹 (Records and rankings)](${SITE_URL}/ko/records)`,
+    `- [게임 공략 모음 (All game guides)](${SITE_URL}/ko/guides)`,
     ...(HELL_LIVE.length ? [`- [AI 헬모드 · 매우 어려움 AI (AI Hell Mode: the hardest AI in Wallgo II, Wallgo 1:1, 12 Janggi, Russian Janggi, Blind Gomoku and Color Link Duel; each win is a black piece on the 블랙피스 경쟁전 board)](${SITE_URL}/ko/hell)`] : []),
     '',
     '## Guides',

@@ -1,5 +1,7 @@
 {
   "Common": {
+    "guides": "Game guides",
+    "fullGuide": "Read the full guide",
     "cardJanggi": "Card Janggi",
     "colorLinkDuel": "Color Link Duel",
     "hiddenWord": "Hidden Word",

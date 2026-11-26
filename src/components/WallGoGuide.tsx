@@ -1,6 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import WallGoDiagram, { type DiagramSpec } from './WallGoDiagram';
 import AdSlot from '@/components/AdSlot';
+import FullGuideLink from '@/components/guide/FullGuideLink';
+import { anyGuidePath } from '@/content/guides';
 import WallGoSeriesLink from './WallGoSeriesLink';
 
 type Strategy = { title: string; body: string; tag: string };
@@ -72,6 +74,7 @@ export default async function WallGoGuide({ locale }: { locale: string }) {
         <span className="text-[10px] font-black tracking-[0.2em] text-[#ff4d5e]">{t('eyebrow')}</span>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">{t('title')}</h1>
         <p className="mt-5 max-w-3xl text-sm leading-7 text-white/55">{t('intro')}</p>
+        {anyGuidePath('wallgo') && <FullGuideLink locale={locale} path={anyGuidePath('wallgo')!} />}
         <WallGoSeriesLink locale={locale} to="wallgo2" />
 
         <div className="mt-12 grid gap-8 md:grid-cols-2">
