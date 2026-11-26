@@ -434,6 +434,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '양면 포커', en: 'Two-Sided Poker' },
     items: [
       {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 블러퍼·함정 설치형·막판 승부사 등 열 명 중 한 명이 나와 베팅 크기와 뒷면 블러프 빈도가 달라요. 판단력은 모두 같고, 쇼다운에서 공개된 카드로 내 뒷면 베팅이 정직했는지도 읽어요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each match draws one of ten (the Bluffer, the Trapper, the Closer…) with its own bet sizes and back-bluff rate. All judge equally well, and they read from showdowns whether your hidden-back bets were honest.' },
+      },
+      {
         date: '11/26', icon: Wrench,
         ko: { title: '난이도 버튼의 AI 승률을 실제 기록으로 바꿨어요', desc: '버튼에 적힌 AI 승률이 실제보다 높았어요. 지금까지의 대전 기록으로 고쳤어요.' },
         en: { title: 'AI win rates on the level buttons now match the records', desc: 'The AI win rates shown on the buttons were higher than what really happened. They now come from the matches played so far.' },

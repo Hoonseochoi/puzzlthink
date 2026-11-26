@@ -8,11 +8,13 @@
 // TwoSidedPokerGame.tsx: the AI game has no clock and offers a replay. Inline guide: TwoSidedPokerGuide.
 // Back odds were counted from TSP_KINDS (each front has five possible backs, four copies each in a fresh shoe).
 import type { GameGuide } from './types';
+import { TSP_TELLS } from '@/lib/twoSidedPoker';
+import { personaSection } from './personaSection';
 
 const guide: GameGuide = {
   game: 'twoSidedPoker',
   origin: { kind: 'show', show: 'genius3' },
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   related: ['indianPoker', 'hitStay', 'blackWhite2', 'blackWhite'],
   inlineNamespace: 'TwoSidedPokerGuide',
   ko: {
@@ -169,11 +171,13 @@ const guide: GameGuide = {
             ['쉬움 (약 30%)', '슈를 기억하지 않고, 내 면 선택과 베팅 크기도 읽지 않아요. 콜이 많고 허세도 자주 해요.'],
             ['보통 (약 40%)', '슈를 일부 기억하고, 내 선택을 조금 읽어요. 아주 약한 패가 아니면 포기하지 않아요.'],
             ['어려움 (약 50%)', '슈를 정확히 세고, 내가 뒷면이나 양면을 고른 것과 베팅 크기를 읽어요. 약한 패는 선에서 바로 포기하고, 강한 패는 크게 올리고, 양면베팅도 노려요.'],
+            ['성향', '모든 난이도에서 열 가지 성향 중 하나가 무작위로 나와요. 어려움은 성향 그대로 전력으로 두고, 쉬움·보통은 같은 성향에 그 난이도의 카운팅·판단 오차가 섞여요.'],
             ['AI전 시간', 'AI전에는 시간 제한이 없어요. 판이 끝난 뒤 복기로 한 판씩 다시 볼 수 있어요.'],
             ['친구 방·오픈 대전', '링크나 4자리 코드로 1:1 대결해요. 방장이 턴 시간을 20·30·45초 중에서 골라요. 시간이 지나면 자동 포기이고(상대가 양면이면 10칩도 내요), 연속 세 번 놓치면 시간패예요. 내 뒷면은 공개된 판에서만 상대 화면에 보여요.'],
           ] },
         ],
       },
+      personaSection('ko', TSP_TELLS, ['양면 포커에서 성향이 갈리는 곳은 **같은 승률을 두고 얼마나 크게 걸고, 얼마나 자주 보이지 않는 뒷면으로 거짓 베팅을 하느냐**예요. 슈를 세는 계산은 모두 같아요. 그리고 AI는 쇼다운에서 공개된 카드로 **내가 뒷면이나 양면에 건 판이 실제로 강했는지** 세요. 뒷면 베팅이 늘 진짜였다면 내 뒷면 베팅을 강하게 믿고, 거짓 베팅이 잦았다면 덜 믿어요.']),
       {
         id: 'glossary',
         title: '용어 정리',
@@ -356,11 +360,13 @@ const guide: GameGuide = {
             ['Easy (~30%)', 'Remembers nothing of the shoe and does not read your face choice or bet size. Calls a lot and bluffs often.'],
             ['Normal (~40%)', 'Remembers part of the shoe and reads your choice a little. Rarely folds anything but very weak hands.'],
             ['Hard (~50%)', 'Counts the shoe exactly and reads your choice of back or both and your bet size. Folds weak hands as first player, raises strong ones big and goes for double bets.'],
+            ['Personality', 'Every level draws one of ten personalities. Hard plays it at full strength; easy and normal play the same personality with their level’s counting and judgement errors on top.'],
             ['Clock vs AI', 'No time limit. After the match you can replay it hand by hand.'],
             ['Friend rooms and open matches', 'One-on-one by link or 4-digit code. The host picks 20, 30 or 45 seconds a turn. Running out folds automatically (paying 10 against a double bet), and three missed turns in a row lose the match. Your back appears on their screen only in hands that reach a showdown.'],
           ] },
         ],
       },
+      personaSection('en', TSP_TELLS, ['In Two-Sided Poker personalities split on **how big they bet against the same odds and how often they bluff with a back you cannot see**; the shoe counting is identical. From the cards shown at each showdown the AI also counts **whether your back or 양면 bets were really strong**: if they always were, it believes your hidden bets more; if you bluff often, less.']),
       {
         id: 'glossary',
         title: 'Glossary',
