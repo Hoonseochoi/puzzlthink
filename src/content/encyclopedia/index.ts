@@ -3,12 +3,14 @@
 import abstractStrategy from './abstract-strategy';
 import bluffingDeduction from './bluffing-deduction';
 import bettingAuction from './betting-auction';
+import areaControlConnection from './area-control-connection';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
   abstractStrategy,
   bluffingDeduction,
   bettingAuction,
+  areaControlConnection,
 ];
 
 export const WIKI_BASE = '/board-games';
