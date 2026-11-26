@@ -194,8 +194,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/26', icon: Sparkles,
-        ko: { title: '내 캐릭터 알도 뒤집히는 모습이 보여요', desc: '내 바둑알(아이콘)로 둘 때도 돌이 빙글 뒤집히는 모션이 제대로 나오고, 뒤집혀 넘어온 알에는 상대 색 테두리와 점이 붙어 한눈에 구분돼요.' },
-        en: { title: 'Your character pieces flip visibly', desc: 'Pieces drawn as your own stone now spin over properly, and a piece flipped over to your side wears a ring and dot of the other colour.' },
+        ko: { title: '내 캐릭터 알도 뒤집히는 모습이 보여요', desc: '내 바둑알(아이콘)로 둘 때도 빙글 뒤집히는 모션이 나오고, 뒤집혀 넘어온 알에는 상대 색 테두리와 점이 붙어요. 캐릭터 알 크기도 일반 알과 같아졌어요.' },
+        en: { title: 'Your character pieces flip visibly', desc: 'Pieces drawn as your own stone now spin over, a piece flipped over to your side wears a ring and dot of the other colour, and character pieces are the size of plain ones.' },
       },
       {
         date: '11/26', icon: Sparkles,

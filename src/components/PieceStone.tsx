@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
 import { Stone, useStoneChoice, useStoneChoiceMap } from './StoneAvatar';
+import { parseIcon, type IconRef } from './ProfileIcons';
 import { useSupporter } from './SupporterCover';
 
 /**
@@ -43,6 +44,24 @@ export function RoomPieces({ seats, me = null, ai, children }: { seats: readonly
 /** The signed-in player's nickname, for a game that maps seats to pieces itself (pieces keyed by colour). */
 export function useMyNickname() {
   return useAuth().nickname || null;
+}
+
+/**
+ * Where each icon's round body sits in its 100×100 drawing (centre height, radius). Icons leave room for hats,
+ * horns and badges, so their body is only about two thirds of the box; on a board the body is scaled to the
+ * size of a plain stone (radius BODY_R) and centred on the point. The hat may reach past the piece.
+ */
+const ICON_BODY: Record<IconRef['kind'], [number, number] | null> = {
+  piece: [58, 40], hell: [58, 39], open: [54, 34], m2048: null, crown: [56, 38], hard: [61, 33], friendWin: [60, 32],
+  openWin: [54, 34], hellClear: [58, 34], play: [58, 33], mission: [56, 36],
+};
+const BODY_R = 48;
+function bodyFit(choice: string | null | undefined) {
+  const ref = parseIcon(choice);
+  const body = ref ? ICON_BODY[ref.kind] : null;
+  if (!body) return undefined;
+  const [cy, r] = body, k = BODY_R / r;
+  return `translateY(${(-(cy - 50) * k).toFixed(1)}%) scale(${k.toFixed(3)})`;
 }
 
 const PLAIN: Record<string, string> = { black: '#1d1f25', white: '#eceae4', red: '#ff5b45', blue: '#3f8cff' };
@@ -156,6 +175,7 @@ export default function PieceStone({ seat, colors, square = false, className = '
   const tiles = useBestTiles(square);
   const piece = usePiece(seat, colors);
   const own = seat != null ? colors[seat] : undefined;
+  const fit = bodyFit(useStoneChoice(piece?.name ?? ''));
 
   let body: ReactNode = null;
   if (square) {
@@ -165,7 +185,7 @@ export default function PieceStone({ seat, colors, square = false, className = '
       body = <span className="pointer-events-none absolute inset-0 [&>svg]:h-full [&>svg]:w-full" style={{ filter: same && own ? recolour(own) : undefined }}><Stone name={name} size={64} icon={`m${tier}`} cover={false} /></span>;
     }
   } else if (piece) {
-    body = <span className="pointer-events-none absolute inset-0 [&>svg]:h-full [&>svg]:w-full" style={{ filter: piece.filter ?? undefined }}>{piece.tint ? <TintStone color={piece.tint} /> : <Stone name={piece.name} size={64} cover={false} />}</span>;
+    body = <span className="pointer-events-none absolute inset-0 [&>svg]:h-full [&>svg]:w-full" style={{ filter: piece.filter ?? undefined, transform: piece.tint ? undefined : fit }}>{piece.tint ? <TintStone color={piece.tint} /> : <Stone name={piece.name} size={64} cover={false} />}</span>;
   }
   if (!body && !supporter) return <>{children}</>;
   return (
