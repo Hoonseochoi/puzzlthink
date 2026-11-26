@@ -3562,7 +3562,7 @@
     ],
     "newGame": "새 게임",
     "resultKicker": "REVEAL · 복기",
-    "vsAi": "VS LUNA · {level}",
+    "vsAi": "VS {name} · {level}",
     "levels": {
       "easy": "쉬움",
       "normal": "보통",
@@ -3574,6 +3574,8 @@
       "hard": "가능한 모든 경우를 따져 수백 번 시뮬레이션한 뒤 둡니다. 쉽게 읽히지 않게 섞어 내요."
     },
     "difficulty": "AI 난이도",
+    "personaTitle": "AI 성향",
+    "personaNote": "매 판 열 가지 성향 중 하나가 무작위로 나와요. 성향은 스타일만 다르고 판단력은 같습니다. 쉬움·보통은 그 위에 난이도만큼 실수가 섞여요. 어떤 성향이었는지는 게임이 끝나면 공개돼요.",
     "you": "나",
     "finishedDraw": "무승부",
     "roundDraw": "무승부",
@@ -3583,8 +3585,8 @@
     "roundLossLong": "이번 라운드는 상대가 가져갔어요",
     "followYou": "상대가 {color} 타일을 냈어요. 맞받을 타일을 고르세요",
     "leadYou": "내가 선이에요. 먼저 낼 타일을 고르세요",
-    "aiAnswering": "LUNA가 맞받을 타일을 고르는 중…",
-    "aiLeading": "LUNA가 먼저 낼 타일을 고르는 중…",
+    "aiAnswering": "{name} · 맞받을 타일을 고르는 중…",
+    "aiLeading": "{name} · 먼저 낼 타일을 고르는 중…",
     "thinking": "고민 중…",
     "color": {
       "black": "흑",
@@ -3661,8 +3663,8 @@
     "statEdge": "한 끗 승",
     "statEdgeHint": "정확히 1 차이로 이긴 라운드",
     "unplayed": "끝까지 쓰지 않은 타일",
-    "finishedWin": "LUNA를 이겼어요!",
-    "finishedLoss": "LUNA에게 졌어요"
+    "finishedWin": "{name}에게 이겼어요!",
+    "finishedLoss": "{name}에게 졌어요"
   },
   "BlackWhiteOnline": {
     "metaTitle": "흑과 백 한판 할래? 🀫 초대장이 왔어요",

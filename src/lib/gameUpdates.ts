@@ -314,6 +314,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '흑과 백', en: 'Black & White' },
     items: [
       {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI 상대가 열 가지 성향으로 나와요', desc: '판마다 공격형·신중형·블러퍼·막판 승부사 등 열 명 중 한 명이 무작위로 나와요. 판단력은 모두 같고 큰 숫자를 쓰는 타이밍이 달라요. 이번 판의 내 버릇도 색과 승패로 읽고, 누구였는지는 끝나면 공개돼요.' },
+        en: { title: 'The AI now comes in ten personalities', desc: 'Each game draws one of ten (the Attacker, the Careful One, the Bluffer, the Closer…). All judge equally well but spend their big tiles at different times; they read your habits from colours and results, and the personality is revealed at the end.' },
+      },
+      {
         date: '11/26', icon: Scale,
         ko: { title: '어려움 AI가 덜 읽히게 됐어요', desc: '어려움이 보통보다 쉽다는 기록이 나와서 조정했어요. 어려움은 패를 더 섞어 내서 읽기 어렵고, 보통은 네 번에 한 번 감으로 내요.' },
         en: { title: 'Hard AI is harder to read', desc: 'Records showed Hard was easier than Normal. Hard now mixes its tiles more, and Normal plays one tile in four by feel.' },

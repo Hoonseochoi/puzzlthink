@@ -5,6 +5,8 @@
 // The round winner leads the next round (after a draw the same leader leads again).
 // The game ends after 9 rounds, or as soon as one player's lead can no longer be caught.
 
+import { type PersonaId, type PersonaMatch } from './aiPersona';
+
 export const TILES: readonly number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const ROUNDS = TILES.length;
 export type Side = 0 | 1;
@@ -100,14 +102,15 @@ export function holdChances(rounds: BWRound[], me: Side): number[] {
 const pick = <T,>(list: T[], rand: Rand) => list[Math.floor(rand() * list.length)];
 
 /** Quick answer used inside play-outs: knows the leader's colour and roughly what they hold. */
-function quickFollow(hand: number[], candidates: number[], rand: Rand): number {
+function quickFollow(hand: number[], candidates: number[], rand: Rand, eager = 0): number {
   if (!candidates.length) return pick(hand, rand);
   let best = hand[0], bestScore = -Infinity;
   for (const t of hand) {
     const win = candidates.filter((c) => c < t).length / candidates.length;
     const lose = candidates.filter((c) => c > t).length / candidates.length;
-    // Winning is worth a point; spending a big tile costs future rounds.
-    const score = win - lose * 0.15 - t * 0.07 + rand() * 0.12;
+    // Winning is worth a point; spending a big tile costs future rounds. `eager` (−1..1): this player has been
+    // shown to answer harder (or softer) than that.
+    const score = win * (1 + 0.6 * eager) - lose * 0.15 - t * 0.07 + rand() * 0.12;
     if (score > bestScore) { bestScore = score; best = t; }
   }
   // When winning is unlikely, throw away the smallest tile instead.
@@ -143,7 +146,7 @@ function playOut(rounds: BWRound[], first: Side, me: Side, hands: [number[], num
  * The AI's tile for this round. `leadColor` is the colour the other side just laid when they lead;
  * null when the AI leads. `first` is who led round 1 (needed to play the game out).
  */
-export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor: BWColor | null, level: BWDifficulty, rand: Rand = Math.random): number {
+export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor: BWColor | null, level: BWDifficulty, rand: Rand = Math.random, persona?: PersonaMatch): number {
   const myHand = handOf(rounds, me);
   if (myHand.length === 1) return myHand[0];
   const opp = other(me);
@@ -160,7 +163,11 @@ export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor
   // Play data, twice over: the sharper the estimate, the more people won (700 samples: 47% wins and 24% draws for
   // people; 60 samples: 41% and 20%; for people who played both, 51% vs 46%). A precise estimate repeats itself and
   // gets read; a rough one mixes its tiles. So every level now uses the rough estimate.
-  const samples = 60;
+  // A persona plays from a sharper estimate (its style, not a fixed choice, is what keeps it from being read).
+  const samples = persona ? BW_PERSONA_TUNING.samples : 60;
+  // What this player has shown this match (colours and results only): leads that keep winning are high leads,
+  // answers that keep winning are hard answers. Without a persona the AI plays as before (no read).
+  const habit = persona ? readBwHabits(rounds, me) : { leadTilt: 0, eager: 0 };
   const scores = new Map<number, number>(myHand.map((t) => [t, 0]));
   for (let s = 0; s < samples; s += 1) {
     const history = histories.length ? pick(histories, rand) : [];
@@ -170,14 +177,14 @@ export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor
     if (leadColor) {
       const options = oppHand.filter((n) => colorOf(n) === leadColor);
       if (!options.length) continue;
-      lead = pick(options, rand);
+      lead = habit.leadTilt ? pickTilted(options, habit.leadTilt, rand) : pick(options, rand);
     }
     for (const t of myHand) {
       let round: BWRound;
       let oh = oppHand;
       if (lead !== null) { round = resolveRound(opp, lead, t); oh = oppHand.filter((n) => n !== lead); }
       else {
-        const reply = quickFollow(oppHand, myHand.filter((n) => colorOf(n) === colorOf(t)), rand);
+        const reply = quickFollow(oppHand, myHand.filter((n) => colorOf(n) === colorOf(t)), rand, habit.eager);
         round = resolveRound(me, t, reply);
         oh = oppHand.filter((n) => n !== reply);
       }
@@ -187,8 +194,10 @@ export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor
     }
   }
   // Softmax over win rates, so the AI is hard to read: a near-fixed choice gets learned and exploited.
-  const temp = 0.11;
-  const entries = [...scores.entries()].map(([t, v]) => [t, v / samples] as const);
+  // A persona adds its small style preference (a few points of win rate at most) and its own temperature.
+  const style = persona ? bwStyle(persona, rounds, me, myHand, !leadColor, rand) : null;
+  const temp = style?.temp ?? 0.11;
+  const entries = [...scores.entries()].map(([t, v]) => [t, v / samples + (style?.bonus(t, v / samples) ?? 0)] as const);
   const top = Math.max(...entries.map(([, v]) => v));
   const weights = entries.map(([t, v]) => [t, Math.exp((v - top) / temp)] as const);
   const sum = weights.reduce((a, [, w]) => a + w, 0);
@@ -196,6 +205,81 @@ export function chooseAiTile(rounds: BWRound[], me: Side, first: Side, leadColor
   for (const [t, w] of weights) { r -= w; if (r <= 0) return t; }
   return entries[0][0];
 }
+
+// ---------------------------------------------------------------------------------------------
+// Personas. Same estimate as above for all of them; a persona only leans between tiles the estimate rates close.
+
+/** A tile from `options`, leaning toward high ones (tilt > 0) or low ones (tilt < 0). */
+function pickTilted(options: number[], tilt: number, rand: Rand) {
+  const w = options.map((n) => Math.exp(tilt * (n - 4) / 4));
+  let r = rand() * w.reduce((a, x) => a + x, 0);
+  for (let i = 0; i < options.length; i += 1) { r -= w[i]; if (r <= 0) return options[i]; }
+  return options[options.length - 1];
+}
+
+/**
+ * The other side's habits from visible information: how often its leads win (high leads) and how often its answers
+ * win (hard answers), each against the evens a tile-blind player would get. Smoothed, so a few rounds say little.
+ */
+export function readBwHabits(rounds: BWRound[], me: Side) {
+  const opp = other(me);
+  let leads = 0, leadWins = 0, answers = 0, answerWins = 0;
+  for (const r of rounds) {
+    if (r.winner === null) continue;
+    if (r.leader === opp) { leads += 1; if (r.winner === opp) leadWins += 1; } else { answers += 1; if (r.winner === opp) answerWins += 1; }
+  }
+  const lean = (hits: number, n: number) => ((hits + 1.5) / (n + 3) - 0.5) * 2; // −1..1, 0 with no data
+  return { leadTilt: Math.max(-1.2, Math.min(1.2, lean(leadWins, leads) * 1.6)), eager: Math.max(-1, Math.min(1, lean(answerWins, answers))) };
+}
+
+/**
+ * How each persona leans, as a bonus in win-rate units (at most ~0.05) on a tile's rank in the hand (0 = lowest,
+ * 1 = highest), plus its softmax temperature. Now and then (8%) it drops the lean altogether, so a style is a
+ * tendency to read, never a certainty.
+ */
+/** Tuning knobs (exported for the arena script). */
+export const BW_PERSONA_TUNING = { samples: 160, lean: 0.11 };
+
+function bwStyle(p: PersonaMatch, rounds: BWRound[], me: Side, hand: number[], leading: boolean, rand: Rand) {
+  const sorted = [...hand].sort((a, b) => a - b);
+  const q = (t: number) => (sorted.length > 1 ? sorted.indexOf(t) / (sorted.length - 1) : 0.5);
+  const round = rounds.length;
+  const [a, b] = scoresOf(rounds);
+  const diff = me === 0 ? a - b : b - a;
+  const size = BW_PERSONA_TUNING.lean * p.vary('bwLean', 0.3) * (1 + 0.25 * p.mood);
+  const base = 0.11 * (1 + 0.1 * p.mood);
+  if (rand() < 0.08) return { temp: 0.13, bonus: () => 0 };
+  const noise = new Map(hand.map((t) => [t, rand() * 2 - 1]));
+  const lean: Record<PersonaId, { temp: number; f: (x: number, t: number, v: number) => number }> = {
+    calc: { temp: 0.08, f: () => 0 },
+    aggro: { temp: base, f: (x, _t, v) => (leading ? 0.7 * x : v > 0.5 ? 0.75 * x : -0.25 * x) },
+    careful: { temp: base, f: (x) => -0.8 * x },
+    bluffer: { temp: base * 1.1, f: (x) => (leading ? 0.8 * Math.abs(2 * x - 1) : 0) },
+    trap: { temp: base, f: (x) => (leading ? 1 - x : 0) },
+    // Behind, it takes its risk as variance (any close tile may come), not as overspending; ahead, it saves.
+    chaser: { temp: diff < 0 ? base * 1.5 : base, f: (x) => (diff < 0 ? 0 : diff > 0 ? -0.8 * x : -0.2 * x) },
+    whim: { temp: base * 1.3, f: (_x, t) => noise.get(t)! },
+    grinder: { temp: base, f: (x) => 0.8 * (1 - Math.abs(2 * x - 1)) },
+    opener: { temp: base, f: (x) => (round < 4 ? 0.75 * x : -0.5 * x) },
+    closer: { temp: base, f: (x) => (round < 5 ? -x : x) },
+  };
+  const l = lean[p.id];
+  return { temp: l.temp, bonus: (t: number, v: number) => size * l.f(q(t), t, v) };
+}
+
+/** How to read each persona in 흑과 백 (for the result screen and the guide). */
+export const BW_TELLS: Record<PersonaId, { ko: string; en: string }> = {
+  calc: { ko: '가장 승률 높은 타일만 냅니다. 흔들림이 적은 대신 교과서적인 수가 많아요.', en: 'Plays the best-rated tile; few surprises, many textbook moves.' },
+  aggro: { ko: '이길 수 있는 판이면 큰 숫자로 확실히 가져갑니다. 초반에 큰 수가 빠지면 후반이 비어요.', en: 'Takes winnable rounds with big tiles; after an early spree its late hand is thin.' },
+  careful: { ko: '큰 숫자를 끝까지 아낍니다. 작은 수로 진 판이 많다면 아직 큰 수가 남아 있다는 뜻이에요.', en: 'Hoards big tiles; many cheap losses mean the big ones are still there.' },
+  bluffer: { ko: '선공에서 아주 크거나 아주 작은 숫자를 섞습니다. 색만 보고는 크기를 짐작하기 어려워요.', en: 'Leads either very high or very low; the colour says little about size.' },
+  trap: { ko: '선공에서 작은 숫자로 큰 수를 끌어냅니다. 선공 판을 쉽게 내준다면 함정을 의심하세요.', en: 'Leads low to draw out your big tiles; cheap lead losses are bait.' },
+  chaser: { ko: '앞서면 큰 숫자를 꽁꽁 아끼고, 뒤처지면 수가 갑자기 예측하기 어려워집니다.', en: 'Hoards big tiles when ahead; when behind its play suddenly gets hard to predict.' },
+  whim: { ko: '비슷한 수 사이에서 매번 다르게 고릅니다. 패턴 대신 남은 타일 수를 세는 게 답이에요.', en: 'Picks differently each time between close tiles; count tiles, not patterns.' },
+  grinder: { ko: '중간 숫자로 작은 차이를 노립니다. 무승부와 1점 차 판이 많아요.', en: 'Plays middle tiles for small edges: many draws and one-point rounds.' },
+  opener: { ko: '첫 네 판에 큰 숫자를 씁니다. 초반을 버티면 후반엔 작은 수만 남아요.', en: 'Spends big in the first four rounds; survive them and its late hand is small.' },
+  closer: { ko: '초반엔 작은 숫자로 흘려보내고 5라운드부터 큰 수를 꺼냅니다.', en: 'Lets early rounds go cheaply and brings the big tiles from round 5.' },
+};
 
 // ---------------------------------------------------------------------------------------------
 // Post-game reading: what each round looked like once the numbers are revealed.

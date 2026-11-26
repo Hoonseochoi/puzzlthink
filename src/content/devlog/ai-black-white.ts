@@ -5,7 +5,7 @@ const article: DevlogArticle = {
   category: 'ai',
   games: ['blackWhite', 'blackWhite2'],
   published: '2026-11-26',
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   ko: {
     meta: {
       title: '흑과 백 AI 개발기 — 계산을 정확하게 할수록 사람이 더 이겼어요 | 개발 노트',
@@ -77,6 +77,19 @@ const article: DevlogArticle = {
             ['흑과 백 II · 어려움', '38.4%', '2.3%', '341판'],
           ] },
           { type: 'p', text: '흑과 백 어려움 AI를 이겨 클리어 인증을 받은 사람은 85명으로, 인디언 포커 다음으로 많아요. 흑과 백 II는 42명이에요. 전체 판수(로그인 여부 무관)는 흑과 백 2,996판(AI전 2,236판), 흑과 백 II 1,201판(AI전 950판)이에요.' },
+        ],
+      },
+      {
+        id: 'personas',
+        title: '11/27: 열 가지 성향 — 실력은 같고 스타일만 달라요',
+        blocks: [
+          { type: 'p', text: '"정확할수록 읽힌다"는 문제를 이번엔 다른 방법으로 풀었어요. 계산은 그대로(오히려 샘플 160개로 더 정확하게) 두고, 판마다 **성향**을 하나 뽑아요. 성향은 비슷하게 좋은 타일 사이에서 어느 쪽으로 기우는지만 정해요. 승률 추정치에 최대 0.07 정도의 작은 보너스를 얹는 방식이라, 확실히 더 좋은 수를 버리지는 않아요.' },
+          { type: 'list', items: [
+            '공격형은 선에서 큰 수, 신중형은 큰 수를 아끼기, 초반 승부사는 1~4라운드에 힘 쓰기, 막판 승부사는 5라운드부터 힘 쓰기처럼 **큰 숫자를 쓰는 타이밍**이 성향마다 달라요.',
+            '판마다 성향의 세기와 기분(조금 더 과감하거나 차분한 날)이 시드로 조금씩 달라지고, 8%는 일부러 스타일을 벗어나요.',
+            '버릇 읽기: 내 선공이 얼마나 자주 이겼는지(큰 수로 선을 잡는 사람인지), 응수가 얼마나 자주 이겼는지를 색과 승패로만 세서, 시뮬레이션 속 내 수를 그쪽으로 기울여요. 숫자는 여전히 보지 않아요.',
+          ] },
+          { type: 'p', text: '성향마다 이전 어려움 AI와 300판씩 붙여 본 결과는 46.8~57.3%(같으면 50%, 오차 ±6%p)였고, 1~4라운드에 쓴 숫자 합은 막판 승부사 12.3에서 초반 승부사 15.9까지 벌어졌어요. 난이도는 그대로예요. 쉬움·보통은 같은 성향 위에 원래의 무작위·감 수가 섞여요.' },
         ],
       },
       {
@@ -170,6 +183,19 @@ const article: DevlogArticle = {
             ['B&W II · Hard', '38.4%', '2.3%', '341'],
           ] },
           { type: 'p', text: 'Eighty-five players hold a Black & White Hard-AI clear certificate, second only to Indian Poker; Black & White II has 42. Counting everyone, Black & White had been played 2,996 times (2,236 against the AI) and Black & White II 1,201 times (950).' },
+        ],
+      },
+      {
+        id: 'personas',
+        title: '11/27: ten personalities — same skill, different style',
+        blocks: [
+          { type: 'p', text: 'This time the "precise means readable" problem got a different fix. The calculation stays (a little sharper, 160 samples) and each game draws a **personality**, which only decides which way to lean between tiles the estimate rates about equal: a bonus of at most about 0.07 on the win-rate estimate, so it never throws away a clearly better tile.' },
+          { type: 'list', items: [
+            'The Attacker leads high, the Careful One hoards big tiles, the Fast Starter spends in rounds 1–4, the Closer from round 5: personalities differ in **when the big tiles come out**.',
+            'Every game the lean’s strength and a mood (a little bolder or calmer) vary with a seed, and 8% of moves drop the style on purpose.',
+            'Reading you: it counts, from colours and results only, how often your leads win (do you lead high?) and how often your answers win, and leans its picture of your play that way. It still never sees your numbers.',
+          ] },
+          { type: 'p', text: 'Against the previous Hard AI each personality scored 46.8–57.3% over 300 games (50% = equal, ±6 points of noise), and the sum of tiles spent in rounds 1–4 ranged from 12.3 (the Closer) to 15.9 (the Fast Starter). Levels stay: easy and normal play the same personality with their usual random or by-feel tiles on top.' },
         ],
       },
       {

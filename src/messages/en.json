@@ -3486,7 +3486,7 @@
     ],
     "newGame": "New game",
     "resultKicker": "REVEAL",
-    "vsAi": "VS LUNA · {level}",
+    "vsAi": "VS {name} · {level}",
     "levels": {
       "easy": "Easy",
       "normal": "Normal",
@@ -3498,6 +3498,8 @@
       "hard": "Weighs every possible history and simulates hundreds of games, mixing its choices so it is hard to read."
     },
     "difficulty": "AI level",
+    "personaTitle": "AI personality",
+    "personaNote": "Each game draws one of ten personalities at random. They differ in style only and all judge equally well; easy and normal add their usual mistakes on top. The personality is revealed when the game ends.",
     "you": "You",
     "finishedDraw": "Draw",
     "roundDraw": "Draw",
@@ -3507,8 +3509,8 @@
     "roundLossLong": "Your rival took this round",
     "followYou": "Your rival laid a {color} tile. Pick your answer",
     "leadYou": "You lead. Pick a tile to lay first",
-    "aiAnswering": "LUNA is picking an answer…",
-    "aiLeading": "LUNA is picking a tile to lead…",
+    "aiAnswering": "{name} is picking an answer…",
+    "aiLeading": "{name} is picking a tile to lead…",
     "thinking": "Thinking…",
     "color": {
       "black": "black",
@@ -3585,8 +3587,8 @@
     "statEdge": "Wins by one",
     "statEdgeHint": "Rounds won by exactly one",
     "unplayed": "Tiles never played",
-    "finishedWin": "You beat LUNA!",
-    "finishedLoss": "LUNA wins this one"
+    "finishedWin": "You beat {name}!",
+    "finishedLoss": "{name} wins this one"
   },
   "BlackWhiteOnline": {
     "metaTitle": "Black & White with a friend",
