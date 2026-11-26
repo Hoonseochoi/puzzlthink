@@ -11,6 +11,7 @@ import aiIndianPoker from './ai-indian-poker';
 import aiBlackWhite from './ai-black-white';
 import aiDifficultyTuning from './ai-difficulty-tuning';
 import sysIcons from './sys-icons';
+import sysHallOfFame from './sys-hall-of-fame';
 
 const ARTICLES: DevlogArticle[] = [
   aiWallgo,
@@ -22,6 +23,7 @@ const ARTICLES: DevlogArticle[] = [
   aiIndianPoker,
   aiBlackWhite,
   aiDifficultyTuning,
+  sysHallOfFame,
   sysIcons,
 ];
 
