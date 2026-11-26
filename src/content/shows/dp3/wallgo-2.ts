@@ -67,7 +67,7 @@ const game: ShowGame = {
       { type: 'list', items: [
         'PUZZLTHINK 벽바둑 II는 방송 규칙대로 사각 말·원형 말, 이동 뒤 벽 세우기, 1라운드 3인전(벽 부수기 1회)과 2라운드 1:1(말 4개, 원형 말 2개 고정 시작, 벽 부수기 없음), 동점 시 가장 넓은 영역 비교를 구현했어요. 판은 7×7이에요.',
         '3인전과 1:1을 따로 골라 AI나 친구와 할 수 있고, 끝난 뒤 복기할 수 있어요.',
-        'PUZZLTHINK에는 말 종류가 하나뿐인 앞선 버전 **벽바둑**도 있어요. 말이 0–2칸 움직이고 제자리에 머물 수도 있다는 점이 다르고, 시즌 3의 생활동에 놓여 있던 보드게임도 벽바둑 2였어요.',
+        'PUZZLTHINK에는 말 종류가 하나뿐인 앞선 버전 **벽바둑**도 있어요. 벽바둑은 시즌 2(데스룸) 5일차 감옥 매치로 나왔고, 말이 1–2칸 움직이되 지나온 칸으로 되돌아올 수 있다는 점이 달라요. 시즌 3의 거주동에 놓여 있던 보드게임이 바로 이 벽바둑 2였어요.',
       ] },
     ],
     similar: [
@@ -135,7 +135,7 @@ const game: ShowGame = {
       { type: 'list', items: [
         'PUZZLTHINK’s Wallgo II implements the broadcast rules: square and round pieces, a wall after every move, the three-player round 1 (one wall break) and the 1:1 round 2 (four pieces, both round pieces on fixed squares, no wall break), and the largest-area tie-break. The board is 7×7.',
         'Choose the three-player game or the 1:1, against AIs or friends, and review the game afterwards.',
-        'The site also has the earlier **Wallgo** with a single kind of piece that moves 0–2 cells and may stay put. The board game set out in season 3’s living quarters was Wallgo II.',
+        'The site also has the earlier **Wallgo**, with a single kind of piece. It was the day-5 prison match of season 2 (Death Room); its pieces move 1–2 cells and may double back to where they started. The board game set out in season 3’s living quarters was this Wallgo II.',
       ] },
     ],
     similar: [
