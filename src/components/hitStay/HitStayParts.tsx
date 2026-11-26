@@ -1,5 +1,7 @@
 "use client";
 
+import { type PersonaId } from '@/lib/aiPersona';
+import { PersonaFace } from '@/components/ui/AiPersona';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { HS_DIE } from '@/lib/hitStay';
@@ -81,7 +83,9 @@ export function HsDie({ value, rollKey, size = 64, still = false }: { value: num
 }
 
 /** A player's round badge: persona color for the AI, the accent for people. */
-export function HsAvatar({ name, color, size = 32, active = false }: { name: string; color?: string; size?: number; active?: boolean }) {
+export function HsAvatar({ name, color, size = 32, active = false, persona }: { name: string; color?: string; size?: number; active?: boolean; persona?: PersonaId }) {
+  // AI players sit as the site's 바둑알 in their persona colour (the same faces as the other betting games).
+  if (persona) return <span className={`relative inline-flex shrink-0 rounded-full ${active ? 'ring-2 ring-(--accent) ring-offset-2 ring-offset-[#121217]' : ''}`}><PersonaFace id={persona} size={size} label={name} /></span>;
   return (
     <span
       className={`relative grid shrink-0 place-items-center rounded-full font-black text-[#0b0b0e] ${active ? 'ring-2 ring-(--accent) ring-offset-2 ring-offset-[#121217]' : ''}`}

@@ -143,6 +143,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
     items: [
       {
+        date: '11/27', icon: Users,
+        ko: { title: 'AI가 열 명이 됐어요', desc: '빈자리 넷에 열 명 중 서로 다른 AI가 무작위로 앉아요. 모두 같은 계산으로 최선을 찾고 위험을 대하는 성향만 달라요. 이번 판에서 누가 허세로 레이즈했는지도 기억하고, 결과 화면에서 각자의 성향이 공개돼요.' },
+        en: { title: 'Ten AI players now', desc: 'The four empty seats get four different AIs out of ten. All find the best move with the same calculation and differ only in how they treat risk; they remember who raised on air this match, and the result screen reveals each style.' },
+      },
+      {
         date: '11/25', icon: Coins,
         ko: { title: '한 판이 더 빨리 끝나요 (기본 베팅 변경)', desc: '기본 베팅이 2라운드마다 1칩씩 오르다가, 17라운드부터는 2라운드마다 5칩씩 올라요. 칩이 가장 적은 사람이 낼 수 있는 만큼까지만 걸어요. 한 판이 보통 24라운드 안팎이에요.' },
         en: { title: 'Shorter matches (new ante schedule)', desc: 'The ante goes up by 1 every 2 rounds, then by 5 every 2 rounds from round 17, never above the smallest stack. A match now runs about 24 rounds.' },

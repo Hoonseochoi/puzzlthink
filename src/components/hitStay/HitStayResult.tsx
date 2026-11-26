@@ -3,7 +3,8 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Crown, X } from 'lucide-react';
-import { HS_PERSONA, HS_PLAYERS } from '@/lib/hitStay';
+import { HS_PERSONA, HS_PLAYERS, HS_TELLS, hsStyle } from '@/lib/hitStay';
+import { PERSONAS } from '@/lib/aiPersona';
 import type { HitStayRoom } from '@/lib/hitStayRoom';
 import { reportGame } from '@/lib/stats';
 import ResultActions from '../ResultActions';
@@ -40,7 +41,7 @@ export default function HitStayResult({ room, mySeat, t, locale, onAgain, onClos
   const nameOf = (s: number) => {
     if (s === mySeat) return t.you;
     const style = room.seats[s]?.id.startsWith('ai-') ? room.style[s] : null;
-    return style ? (en ? HS_PERSONA[style].nameEn : HS_PERSONA[style].name) : room.seats[s]?.name ?? `P${s + 1}`;
+    return style ? (en ? HS_PERSONA[hsStyle(style)].nameEn : HS_PERSONA[hsStyle(style)].name) : room.seats[s]?.name ?? `P${s + 1}`;
   };
   const order = Array.from({ length: HS_PLAYERS }, (_, s) => s).filter((s) => !g.absent?.[s]).sort((a, b) => (g.place[a] ?? 9) - (g.place[b] ?? 9) || g.chips[b] - g.chips[a]);
   const winner = order[0];
@@ -56,13 +57,17 @@ export default function HitStayResult({ room, mySeat, t, locale, onAgain, onClos
         {g.phase !== 'finished' && <p className="mt-2 text-xs font-bold text-white/45">{t.othersPlaying}</p>}
         <ol className="mt-5 space-y-1.5 text-left">
           {order.map((s, i) => {
-            const persona = room.seats[s]?.id.startsWith('ai-') && room.style[s] ? HS_PERSONA[room.style[s]!] : null;
+            const persona = room.seats[s]?.id.startsWith('ai-') && room.style[s] ? HS_PERSONA[hsStyle(room.style[s])] : null;
             return (
               <motion.li key={s} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.08 }}
                 className={`flex items-center gap-3 rounded-[10px] border px-3 py-2.5 ${i === 0 ? 'border-[#ffd36b]/50 bg-[#ffd36b]/10' : s === mySeat ? 'border-(--accent)/40 bg-(--accent)/[0.07]' : 'border-white/10 bg-white/[0.03]'}`}>
                 <span className={`w-6 font-mono text-lg font-black ${i === 0 ? 'text-[#ffd36b]' : 'text-white/40'}`}>{g.place[s] ?? '–'}</span>
-                <HsAvatar name={nameOf(s)} color={persona?.color} size={28} />
-                <span className="min-w-0 flex-1 truncate text-sm font-black">{nameOf(s)}</span>
+                <HsAvatar name={nameOf(s)} color={persona?.color} persona={persona?.id} size={28} />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-black">{nameOf(s)}</span>
+                  {/* The reveal: each AI's style and how to read it. */}
+                  {persona && <span className="block text-[10px] leading-4 text-white/50"><b className="text-white/70">{en ? PERSONAS[persona.id].style.en : PERSONAS[persona.id].style.ko}</b> · {en ? HS_TELLS[persona.id].en : HS_TELLS[persona.id].ko}</span>}
+                </span>
                 {i === 0 && <Crown size={16} className="text-[#ffd36b]" />}
                 <HsChip n={g.chips[s]} className="text-xs text-white/70" />
               </motion.li>

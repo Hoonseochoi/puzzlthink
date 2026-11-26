@@ -10,6 +10,8 @@
 //
 // Pure functions only. The room (src/lib/hitStayRoom.ts) adds seats, clocks and AI turns.
 
+import { type PersonaId, type PersonaMatch, PERSONAS, PERSONA_IDS, isPersonaId, smoothedShare } from './aiPersona';
+
 export const HS_PLAYERS = 5;
 export const HS_START_CHIPS = 30;
 /** 7×1, 6×2, 5×3, 4×4, 3×5, 2×6, 1×7 and -1×7: 35 cards. */
@@ -25,17 +27,31 @@ export const hsAnte = (round: number) => (round <= 16 ? 1 + Math.floor((round - 
 
 /**
  * Every AI plays at full strength (a Monte Carlo look at every decision) and picks the best move for its own
- * situation; each has its own betting temperament, which is never shown to players.
+ * situation; each has its own betting temperament (the shared persona cast, src/lib/aiPersona.ts), revealed only
+ * on the result screen.
  */
-export type HsStyle = 'calc' | 'shark' | 'rock' | 'gambler' | 'fox';
-export const HS_STYLES: readonly HsStyle[] = ['calc', 'shark', 'rock', 'gambler', 'fox'];
-export const HS_PERSONA: Record<HsStyle, { name: string; nameEn: string; color: string }> = {
-  calc: { name: '제로', nameEn: 'ZERO', color: '#7fb4ff' },
-  shark: { name: '레오', nameEn: 'LEO', color: '#ff6b6b' },
-  rock: { name: '모아', nameEn: 'MOA', color: '#9aa4b8' },
-  gambler: { name: '루나', nameEn: 'LUNA', color: '#ffc04d' },
-  fox: { name: '카이', nameEn: 'KAI', color: '#c08bff' },
+export type HsStyle = PersonaId;
+export const HS_STYLES: readonly HsStyle[] = PERSONA_IDS;
+export const HS_PERSONA: Record<HsStyle, { id: HsStyle; name: string; nameEn: string; color: string }> = Object.fromEntries(
+  PERSONA_IDS.map((id) => [id, { id, name: PERSONAS[id].name, nameEn: PERSONAS[id].nameEn, color: PERSONAS[id].color }]),
+) as Record<HsStyle, { id: HsStyle; name: string; nameEn: string; color: string }>;
+
+/** How to read each persona in Hit,Stay (result screen and guide). */
+export const HS_TELLS: Record<HsStyle, { ko: string; en: string }> = {
+  calc: { ko: '확률대로만 움직여요. 레이즈가 드물고, 레이즈하면 대개 진짜예요.', en: 'Moves by the odds; raises rarely, and its raises are usually real.' },
+  aggro: { ko: '공개 카드로 가장 높은 카드를 보여 주고 레이즈가 잦아요. 공개 카드가 높다고 손패가 높은 건 아니에요.', en: 'Shows its highest card and raises often; a high open card does not mean a high hand.' },
+  careful: { ko: '칩을 잃는 걸 가장 싫어해요. 이 성향이 끝까지 따라오면 손이 좋아요.', en: 'Hates losing chips; when it stays to the end, its hand is good.' },
+  bluffer: { ko: '어떤 카드를 공개할지도, 작은 레이즈도 섞어요. 한계 근처에서 한 장 더 받는 일이 많아요.', en: 'Mixes which card it shows and throws small raises; draws one more near the limit.' },
+  trap: { ko: '가장 높거나 가장 낮은 카드를 공개하고, 강한 손으로 콜만 하기를 즐겨요. 조용한 콜이 가장 무서워요.', en: 'Shows its highest or lowest card and loves to just call with strong hands; its quiet calls are the danger.' },
+  chaser: { ko: '칩 순위가 아래쪽이면 과감해지고, 1등이면 조여요. 판의 칩 순위를 보세요.', en: 'Bold when low on the chip ranking, tight when leading: watch the ranking.' },
+  whim: { ko: '결정마다 성향이 바뀌어요. 패턴 대신 남은 카드와 팟을 보세요.', en: 'Changes temperament every decision; read the deck and the pot, not the pattern.' },
+  grinder: { ko: '작은 손실을 피하고 오래 살아남아요. 큰 판에서는 잘 물러나요.', en: 'Avoids losses and survives long; backs off big pots.' },
+  opener: { ko: '10라운드까지 과감하고, 기본 베팅이 커지면 조심스러워져요.', en: 'Bold until round 10, careful once the antes grow.' },
+  closer: { ko: '12라운드까지 조용히 버티다가, 기본 베팅이 커지는 후반에 몰아쳐요.', en: 'Quiet until round 12, then pushes hard when the antes grow.' },
 };
+/** Rooms saved before the shared cast used five ids of their own (same names and colours). */
+const LEGACY_STYLE: Record<string, HsStyle> = { shark: 'aggro', rock: 'careful', gambler: 'bluffer', fox: 'trap' };
+export const hsStyle = (v: unknown): HsStyle => (isPersonaId(v) ? v : typeof v === 'string' && LEGACY_STYLE[v] ? LEGACY_STYLE[v] : 'calc');
 export type HsPhase = 'pick' | 'bet1' | 'hit' | 'bet2' | 'showdown' | 'finished';
 
 export type HsAction =
@@ -73,6 +89,7 @@ export type HsRoundLog = {
   hands?: (number | null)[][]; // what everyone could see at the end (hidden cards of folded hands stay null)
   folded?: boolean[]; // out of this round (folded, or already knocked out)
   payouts?: number[];
+  raised?: boolean[]; // who raised this round (public): with the shown hands, how honest each player's raises are
 };
 
 export type HitStay = {
@@ -231,11 +248,18 @@ function showdown(g: HitStay): HitStay {
     ...g, phase: left.length <= 1 ? 'finished' : 'showdown', turn: -1, chips, out, place,
     showdown: { entries, winners, payouts, pot, byFold, out: busted },
     rounds: [...g.rounds, {
-      round: g.round, limit: g.limit, first: g.first, winners, pot, chips, payouts, folded: g.folded.slice(),
+      round: g.round, limit: g.limit, first: g.first, winners, pot, chips, payouts, folded: g.folded.slice(), raised: raisersThisRound(g),
       hands: g.hands.map((hand, s) => hand.map((c, i) => (i >= 3 || g.openIdx[s] === i || (!byFold && live.includes(s)) ? c : null))),
     }],
   };
   return { ...next, log: push(next, ...events) };
+}
+
+/** Seats that raised in the current round, from the log (newest first, back to this round's start). */
+function raisersThisRound(g: HitStay): boolean[] {
+  const out = Array(HS_PLAYERS).fill(false);
+  for (const e of g.log) { if (e.k === 'round') break; if (e.k === 'raise') out[e.seat] = true; }
+  return out;
 }
 
 /** Whether `seat` may take `action` now. */
@@ -368,7 +392,8 @@ function winChance(g: HitStay, seat: number, sims: number, forceFirst?: 'hit' | 
   return wins / sims;
 }
 
-const SIMS = 360;
+/** Monte Carlo deals per estimate (exported so the arena script can run faster). */
+export const HS_SIMS = { n: 360 };
 /** How much a bet near the cap is read as strength (0 = ignored, 1 = a cap bet means a sure win). */
 const READ = 0.4;
 
@@ -379,29 +404,93 @@ const READ = 0.4;
  * raise: weight on the win chance when weighing a raise · bluff: chance of a small raise without the hand
  * slow: chance a strong hand only calls · hitBias: added to the HIT side of the HIT/STAY comparison.
  */
-const STYLE: Record<HsStyle, { risk: number; raise: number; bluff: number; slow: number; hitBias: number }> = {
+type HsTemper = { risk: number; raise: number; bluff: number; slow: number; hitBias: number };
+const STYLE: Record<HsStyle, HsTemper> = {
   calc: { risk: 0.64, raise: 1, bluff: 0.03, slow: 0.1, hitBias: 0 },
-  shark: { risk: 0.68, raise: 1.06, bluff: 0.1, slow: 0, hitBias: 0 },
-  rock: { risk: 0.56, raise: 0.94, bluff: 0, slow: 0.05, hitBias: -0.03 },
-  gambler: { risk: 0.7, raise: 1.03, bluff: 0.07, slow: 0, hitBias: 0.04 },
-  fox: { risk: 0.64, raise: 1, bluff: 0.09, slow: 0.4, hitBias: 0 },
+  aggro: { risk: 0.68, raise: 1.06, bluff: 0.1, slow: 0, hitBias: 0 },
+  careful: { risk: 0.59, raise: 0.95, bluff: 0, slow: 0.05, hitBias: 0 },
+  bluffer: { risk: 0.66, raise: 1.02, bluff: 0.07, slow: 0, hitBias: 0.015 },
+  trap: { risk: 0.64, raise: 1, bluff: 0.09, slow: 0.4, hitBias: 0 },
+  // The five below change with the match (see temperOf); these are their middle settings.
+  chaser: { risk: 0.64, raise: 1, bluff: 0.05, slow: 0.05, hitBias: 0 },
+  whim: { risk: 0.64, raise: 1, bluff: 0.06, slow: 0.15, hitBias: 0 },
+  grinder: { risk: 0.645, raise: 0.99, bluff: 0.02, slow: 0.1, hitBias: 0.01 },
+  opener: { risk: 0.64, raise: 1, bluff: 0.05, slow: 0.05, hitBias: 0 },
+  closer: { risk: 0.64, raise: 1, bluff: 0.05, slow: 0.05, hitBias: 0 },
 };
 
-export function chooseHsAction(g: HitStay, seat: number, style: HsStyle): HsAction {
-  const st = STYLE[style];
+/**
+ * The temperament for this decision: the style's base, tuned a little for this match (±4% risk, ±20% bluff) and,
+ * for the situational styles, by the table: the Chaser by its chip rank, the Fast Starter and the Closer by the
+ * round (bets grow fast after round 16), the Wildcard anew every decision. 8% of decisions drop to the plain base.
+ */
+/** The five temperaments as they were before the shared cast (11/26), for callers without a match seed. */
+const PREVIOUS: Partial<Record<HsStyle, HsTemper>> = {
+  calc: { risk: 0.64, raise: 1, bluff: 0.03, slow: 0.1, hitBias: 0 },
+  aggro: { risk: 0.68, raise: 1.06, bluff: 0.1, slow: 0, hitBias: 0 },
+  careful: { risk: 0.56, raise: 0.94, bluff: 0, slow: 0.05, hitBias: -0.03 },
+  bluffer: { risk: 0.7, raise: 1.03, bluff: 0.07, slow: 0, hitBias: 0.04 },
+  trap: { risk: 0.64, raise: 1, bluff: 0.09, slow: 0.4, hitBias: 0 },
+};
+
+function temperOf(style: HsStyle, g: HitStay, seat: number, m?: PersonaMatch): HsTemper {
+  const base = STYLE[style];
+  if (!m) return PREVIOUS[style] ?? base;
+  if (Math.random() < 0.08) return STYLE.calc;
+  const t = { ...base, risk: base.risk * m.vary('risk', 0.04) * (1 + 0.02 * m.mood), bluff: base.bluff * m.vary('bluff', 0.2) };
+  const bold = { risk: 0.68, raise: 1.05, bluff: 0.09, slow: 0, hitBias: 0.015 };
+  const calm = { risk: 0.59, raise: 0.95, bluff: 0.01, slow: 0.1, hitBias: 0 };
+  const alive = hsAlive(g).map((s) => g.chips[s] + g.bets[s]);
+  const mine = g.chips[seat] + g.bets[seat];
+  const rank = alive.filter((c) => c > mine).length / Math.max(1, alive.length - 1); // 0 = chip leader, 1 = last
+  switch (style) {
+    case 'chaser': return rank >= 0.5 ? { ...t, ...bold } : rank === 0 ? { ...t, ...calm } : t;
+    case 'opener': return g.round <= 10 ? { ...t, ...bold } : { ...t, ...calm };
+    case 'closer': return g.round <= 12 ? { ...t, ...calm } : { ...t, ...bold };
+    case 'whim': return { risk: 0.58 + Math.random() * 0.1, raise: 0.96 + Math.random() * 0.08, bluff: Math.random() * 0.1, slow: Math.random() * 0.3, hitBias: Math.random() * 0.03 };
+    default: return t;
+  }
+}
+
+/**
+ * How much the current bet's climb should be read as strength: by the habits of whoever raised last this round,
+ * from the rounds shown down this match (did their raises come with winning hands?). 1 = the usual READ.
+ */
+function raiseHonesty(g: HitStay, viewer: number): number {
+  let raiser = -1;
+  for (const e of g.log) { if (e.k === 'round') break; if (e.k === 'raise' && e.seat !== viewer) { raiser = e.seat; break; } }
+  if (raiser < 0) return 1;
+  let n = 0, won = 0;
+  for (const r of g.rounds) {
+    if (!r.raised?.[raiser] || r.folded?.[raiser]) continue;
+    const shown = r.hands?.[raiser]?.every((c) => c !== null);
+    if (!shown && !r.winners.includes(raiser)) continue; // folded out by others: nothing learned
+    n += 1; if (r.winners.includes(raiser)) won += 1;
+  }
+  return Math.max(0.4, Math.min(1.6, 0.4 + 1.2 * smoothedShare(won, n, 0.5, 3)));
+}
+
+/**
+ * `match`: this match's persona seed (rooms pass it). Without one the AI plays exactly as before personas
+ * (no per-match tuning, no reading of raises).
+ */
+export function chooseHsAction(g: HitStay, seat: number, style: HsStyle, match?: PersonaMatch): HsAction {
+  const st = temperOf(style, g, seat, match);
   const hand = g.hands[seat] as number[];
 
   if (g.phase === 'pick') {
     const sorted = hand.slice(0, 3).map((c, i) => ({ c, i })).sort((a, b) => a.c - b.c);
-    // The trickster shows its highest card to look heavy (or its lowest to look light); the rest show a middling one.
-    if (style === 'fox') return { kind: 'open', index: Math.random() < 0.5 ? sorted[2].i : sorted[0].i };
-    if (style === 'shark') return { kind: 'open', index: sorted[2].i };
+    // The trickster shows its highest card to look heavy (or its lowest to look light); the attacker its highest;
+    // the bluffer and the wildcard any of the three; the rest a middling one.
+    if (style === 'trap') return { kind: 'open', index: Math.random() < 0.5 ? sorted[2].i : sorted[0].i };
+    if (style === 'aggro') return { kind: 'open', index: sorted[2].i };
+    if (match && (style === 'bluffer' || style === 'whim')) return { kind: 'open', index: sorted[Math.floor(Math.random() * 3)].i };
     return { kind: 'open', index: sorted[1].i };
   }
 
   if (g.phase === 'hit') {
-    const hit = winChance(g, seat, SIMS, 'hit');
-    const stay = winChance(g, seat, SIMS, 'stay');
+    const hit = winChance(g, seat, HS_SIMS.n, 'hit');
+    const stay = winChance(g, seat, HS_SIMS.n, 'stay');
     // The lean only tips a close call: it shrinks to nothing when the round is already lost (both ~0) or won
     // (STAY ~1), so a hopeless hand stays instead of drawing until the deck runs out.
     const lean = st.hitBias * 2 * Math.min(hit, stay, 1 - stay);
@@ -411,9 +500,10 @@ export function chooseHsAction(g: HitStay, seat: number, style: HsStyle): HsActi
   // Betting: expected utility of each move with the estimated chance to win the pot.
   // The estimate treats the others' hidden cards as random; a bet already raised high says otherwise,
   // so the chance is marked down by how far the bet has climbed toward the cap.
-  const raw = winChance(g, seat, SIMS);
+  const raw = winChance(g, seat, HS_SIMS.n);
   const climbed = g.cap > g.ante ? (g.level - g.ante) / (g.cap - g.ante) : 0;
-  const p = raw * (1 - READ * climbed);
+  const read = match ? Math.min(0.6, READ * raiseHonesty(g, seat)) : READ;
+  const p = raw * (1 - read * climbed);
   const stack = g.chips[seat]; // what is left after this round's bets so far
   const owe = g.level - g.bets[seat];
   const pot = hsPot(g);

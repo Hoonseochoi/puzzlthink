@@ -1,7 +1,8 @@
+import { newPersonaSeed, personaMatch } from './aiPersona';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 import { type AwayFields, clearMiss, giveBack, humansBack, resetAway, seatDueForAway, takeOver, trackPresence } from './roomAway';
 import {
-  type HitStay, type HsAction, type HsStyle, HS_PERSONA, HS_PLAYERS, HS_STYLES,
+  type HitStay, type HsAction, type HsStyle, HS_PERSONA, HS_PLAYERS, HS_STYLES, hsStyle,
   applyHsAction, chooseHsAction, hitStaySecret, hsPicking, hsTimeoutAction, newHitStay, redactHitStay, startRound, withHitStaySecret,
 } from './hitStay';
 
@@ -23,6 +24,7 @@ export type HitStayRoom = BaseRoom & AwayFields & {
   phase: 'lobby' | 'playing' | 'finished';
   ai: boolean[];
   style: (HsStyle | null)[]; // persona of each AI seat (kept when the AI takes over an away player's seat)
+  personaSeed?: number; // per-match variation of the personas (absent in rooms saved before it)
   turnSec: HsTurnSec;
   game: HitStay;
   holdUntil: number; // no AI move or next round before this (host clock)
@@ -71,12 +73,14 @@ function startRoom(state: HitStayRoom, shuffleHumans = true): HitStayRoom {
   return withGame({
     ...state, seats: filled.map((entry) => entry.seat), ai: filled.map((entry) => entry.ai),
     style: filled.map((entry) => entry.style ?? spare.find((st) => !filled.some((f) => f.style === st)) ?? 'calc'),
-    phase: 'playing', ...resetAway(HS_PLAYERS),
+    phase: 'playing', personaSeed: newPersonaSeed(), ...resetAway(HS_PLAYERS),
   }, newHitStay(filled.map((entry, i) => i < people || entry.ai)), HOLD_MS.round);
 }
 
 const shuffleStyles = () => [...HS_STYLES].sort(() => Math.random() - 0.5);
-const styleOf = (state: HitStayRoom, seat: number): HsStyle => state.style?.[seat] ?? 'calc';
+const styleOf = (state: HitStayRoom, seat: number): HsStyle => hsStyle(state.style?.[seat]);
+/** The persona as it plays this match: same style, its own seed per seat. */
+const matchOf = (state: HitStayRoom, seat: number) => personaMatch(styleOf(state, seat), (state.personaSeed ?? 1) * 7 + seat);
 
 /**
  * Puts a new game state in and resets the clocks. Picking the face-up card always has HS_PICK_SEC;
@@ -138,7 +142,7 @@ export function reduceHitStayRoom(state: HitStayRoom, action: HitStayRoomAction,
       if (!isHost || state.phase !== 'playing' || Date.now() < state.holdUntil) break;
       const actor = hsWaitingOn(g).find((s) => state.ai[s]);
       if (actor === undefined) break;
-      const move = chooseHsAction(g, actor, styleOf(state, actor));
+      const move = chooseHsAction(g, actor, styleOf(state, actor), matchOf(state, actor));
       const game = applyHsAction(g, actor, move);
       if (game) {
         next = withGame(state, game, holdFor(move, g, game));
@@ -161,7 +165,7 @@ export function reduceHitStayRoom(state: HitStayRoom, action: HitStayRoomAction,
         // to the AI (the player gets it back with "rejoin"), so one idle player cannot stall the table.
         const idle = g.phase !== 'pick' && !!state.turnSec;
         if (idle) counted = takeOver(counted, s);
-        const move: HsAction = idle ? chooseHsAction(game, s, styleOf(state, s)) : hsTimeoutAction(game, s);
+        const move: HsAction = idle ? chooseHsAction(game, s, styleOf(state, s), matchOf(state, s)) : hsTimeoutAction(game, s);
         game = applyHsAction(game, s, move) ?? game;
       }
       if (game !== g) next = withGame(counted, game, HOLD_MS.bet);

@@ -5,11 +5,13 @@
 // the AI taking an idle seat until "rejoin", fillAi for 2–5 people). Inline guide: HitStayGuide in ko/en.json.
 // Probabilities were computed from the 35-card deck (3-card sums over all C(35,3) hands; draw odds by counting).
 import type { GameGuide } from './types';
+import { HS_TELLS } from '@/lib/hitStay';
+import { personaSection } from './personaSection';
 
 const guide: GameGuide = {
   game: 'hitStay',
   origin: { kind: 'show', show: 'dp3' },
-  updated: '2026-11-26',
+  updated: '2026-11-27',
   related: ['heavy13', 'russianRoulette', 'piggyBank', 'indianPoker'],
   inlineNamespace: 'HitStayGuide',
   ko: {
@@ -158,7 +160,7 @@ const guide: GameGuide = {
         title: '모드별 메모 — AI, 친구 방, 공개방',
         blocks: [
           { type: 'table', head: ['모드', '알아 둘 점'], rows: [
-            ['AI 4명과 5인전', 'AI는 모두 같은 최강 실력이에요. 매 결정마다 자기가 볼 수 있는 카드만으로 남은 카드를 수백 번 시뮬레이션해서 이길 확률을 계산하고, 베팅이 상한 가까이 올라가면 상대가 강하다고 읽어요. 다만 AI마다 베팅 성향이 달라서 누구는 조심스럽고 누구는 가끔 허세를 부려요. 혼자 할 때는 베팅과 HIT/STAY에 시간 제한이 없어요.'],
+            ['AI 4명과 5인전', 'AI는 모두 같은 최강 실력이에요. 매 결정마다 자기가 볼 수 있는 카드만으로 남은 카드를 수백 번 시뮬레이션해서 이길 확률을 계산하고, 베팅이 상한 가까이 올라가면 상대가 강하다고 읽어요. 다만 AI마다 베팅 성향이 달라서 누구는 조심스럽고 누구는 가끔 허세를 부려요. 열 명 중 넷이 매 판 무작위로 앉고, 누가 어떤 성향이었는지는 결과 화면에 나와요. 혼자 할 때는 베팅과 HIT/STAY에 시간 제한이 없어요.'],
             ['공개할 카드 고르기', '모든 모드에서 10초 안에 골라야 해요. 시간이 지나면 3장 중 아무 카드나 공개돼요. 모두 동시에 고르기 때문에 다른 사람이 먼저 골라도 내 시간은 계속 흘러요.'],
             ['친구 방', '초대 링크와 4자리 코드로 2~5명이 함께해요. 방장이 빈자리를 AI로 채울지 고르고, AI 없이 하면 최소 2명이 필요해요. 베팅과 HIT/STAY는 30초이고 마지막 10초에 경고가 떠요.'],
             ['자리를 비우면', '친구 방·공개방에서 시간을 넘기면 AI가 그 자리를 이어받아 대신 둬요. 돌아와서 복귀하면 다시 내가 해요. 한 사람 때문에 판 전체가 멈추지 않게 하는 장치예요.'],
@@ -167,6 +169,7 @@ const guide: GameGuide = {
           ] },
         ],
       },
+      personaSection('ko', HS_TELLS, ['Hit,Stay의 AI는 원래 다섯 명이었고 11월 27일에 열 명이 됐어요. 빈자리 네 곳에 서로 다른 넷이 무작위로 앉아요. 남은 카드를 수백 번 시뮬레이션하는 계산은 모두 같고, **칩을 잃는 걸 얼마나 싫어하는지, 얼마나 자주 허세로 올리는지, 어떤 카드를 공개하는지**가 달라요. 추격자·초반 승부사·막판 승부사는 칩 순위와 라운드에 따라 성향이 바뀌어요.', '그리고 AI는 이번 판에서 **누가 레이즈를 정직하게 했는지** 기억해요. 레이즈한 뒤 쇼다운에서 진 적이 많은 사람의 레이즈는 덜 무섭게 보고, 레이즈할 때마다 이긴 사람의 레이즈는 더 무섭게 봐요. 허세가 잦으면 콜이 늘고, 정직하게만 올리면 AI가 잘 접어요.']),
       {
         id: 'glossary',
         title: '용어 정리',
@@ -343,7 +346,7 @@ const guide: GameGuide = {
         title: 'Mode notes — AI, friend rooms, open rooms',
         blocks: [
           { type: 'table', head: ['Mode', 'What to know'], rows: [
-            ['Against four AIs', 'All AIs play at the same full strength. At every decision they simulate the cards they cannot see hundreds of times from what their seat can see, and they read bets climbing toward the cap as strength. Each has its own betting temperament: some are careful, some bluff now and then. Solo play has no clock for bets or HIT/STAY.'],
+            ['Against four AIs', 'All AIs play at the same full strength. At every decision they simulate the cards they cannot see hundreds of times from what their seat can see, and they read bets climbing toward the cap as strength. Each has its own betting temperament: some are careful, some bluff now and then. Solo play has no clock for bets or HIT/STAY. Four of ten AIs sit down at random every match; the result screen shows who played which style.'],
             ['Choosing the face-up card', 'Ten seconds in every mode, or a random card of the three is shown. Everyone picks at once, so your clock keeps running when others are done.'],
             ['Friend rooms', '2–5 players join with an invite link or 4-digit code. The host chooses whether AIs fill the empty seats; without AIs at least two people are needed. Bets and HIT/STAY have 30 seconds, with a warning for the last 10.'],
             ['Stepping away', 'If you run out of time in a friend or open room, an AI takes your seat and plays for you until you rejoin, so one idle player cannot stall the table.'],
@@ -352,6 +355,7 @@ const guide: GameGuide = {
           ] },
         ],
       },
+      personaSection('en', HS_TELLS, ['Hit,Stay started with five AIs and has ten since 27 November; the four empty seats get four different ones at random. The simulation of the unseen cards is the same for all of them; they differ in **how much they hate losing chips, how often they raise on air and which card they show**. The Chaser, the Fast Starter and the Closer change with their chip ranking and the round.', 'The AI also remembers **whose raises were honest** this match. A player whose raises often lost at the showdown gets called more; one whose raises always won gets respect (and folds).']),
       {
         id: 'glossary',
         title: 'Glossary',

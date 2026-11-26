@@ -140,7 +140,7 @@ function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy,
             <li className="flex gap-2"><Bot size={14} className="mt-0.5 shrink-0 text-[#ffb547]" /><span className="break-keep">{t.idleRule(HS_TURN_SEC)}</span></li>
           </ul>
           <p className={`${PANEL_TITLE} mt-5`}>{t.aiPersonas}</p>
-          <div className="mt-3 flex flex-wrap gap-1.5">{HS_STYLES.map((style) => { const p = HS_PERSONA[style]; return <span key={style} className="flex items-center gap-1.5 rounded-full border border-white/10 py-1 pl-1 pr-2.5 text-[11px] font-bold"><HsAvatar name={en ? p.nameEn : p.name} color={p.color} size={18} />{en ? p.nameEn : p.name}</span>; })}</div>
+          <div className="mt-3 flex flex-wrap gap-1.5">{HS_STYLES.map((style) => { const p = HS_PERSONA[style]; return <span key={style} className="flex items-center gap-1.5 rounded-full border border-white/10 py-1 pl-1 pr-2.5 text-[11px] font-bold"><HsAvatar name={en ? p.nameEn : p.name} color={p.color} persona={style} size={18} />{en ? p.nameEn : p.name}</span>; })}</div>
           <p className="mt-2 text-[10px] leading-4 text-white/35">{t.personaNote}</p>
         </section>
         <section className={NOTE}><p className={PANEL_TITLE}>{t.rules}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol></section>
