@@ -37,12 +37,12 @@ export type OpenRoomAnyRow = OpenRoomRow & { game: string };
 
 /** Room channel prefix → game. */
 export const CHANNEL_GAME: Record<string, CatalogId> = {
+  'time-auction-room': 'timeAuction',
   'binairo-room': 'binairo', 'onestroke-room': 'onestroke', 'colorlink-room': 'colorlink', 'magicswap-room': 'magicswap', 'merge2048-room': 'merge2048', 'starbattle-room': 'starbattle', 'masyu-room': 'masyu', 'nonogram-room': 'nonogram', 'two-sided-poker-room': 'twoSidedPoker', 'monorail-room': 'monorail',
   'wallgo-room': 'wallgo', 'wallgo2-room': 'wallgo2', 'slither-room': 'slitherlink', 'gyulhap-room': 'gyulhap', 'indian-poker-room': 'indianPoker',
   'hexagon-room': 'hexagon', 'piggy-bank-room': 'piggyBank', 'nemo-count-room': 'nemoCount', 'black-white-room': 'blackWhite', 'black-white-2-room': 'blackWhite2',
   'laser-janggi-room': 'laserJanggi', 'blind-gomoku-room': 'blindGomoku', 'morris-room': 'nineMensMorris', 'flip-omok-room': 'flipOmok', 'four-three-room': 'fourThree', 'point-omok-room': 'pointOmok', 'russian-roulette-room': 'russianRoulette', 'heavy13-room': 'heavy13',
   'janggi-room': 'janggi', 'russian-janggi-room': 'russianJanggi', 'hit-stay-room': 'hitStay', 'card-janggi-room': 'cardJanggi', 'color-link-duel-room': 'colorLinkDuel', 'gradation-room': 'gradation', 'equation-signal-room': 'equationSignal', 'equation-tower-room': 'equationTower', 'hidden-word-room': 'hiddenWord', 'hidden-word-plus-room': 'hiddenWordPlus',
-  'time-auction-room': 'timeAuction',
 };
 export type LiveRoomRow = { game: CatalogId; open: number; friend: number };
 
