@@ -8,6 +8,7 @@ import titForTat from './articles/tit-for-tat';
 import blotto from './articles/colonel-blotto';
 import bluffing from './articles/bluffing';
 import minimaxMixed from './articles/minimax-mixed-strategy';
+import chicken from './articles/chicken-game';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -21,6 +22,7 @@ export const ARTICLES: GTArticle[] = [
   blotto,
   bluffing,
   minimaxMixed,
+  chicken,
   // @gt-list
 ];
 
