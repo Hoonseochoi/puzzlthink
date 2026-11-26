@@ -17,6 +17,7 @@ import voting from './articles/voting-coalitions';
 import backward from './articles/backward-induction';
 import commitment from './articles/commitment-threats';
 import signaling from './articles/signaling-cheap-talk';
+import tournaments from './articles/tournament-incentives';
 // @gt-imports
 
 export const GT_PATH = '/game-theory';
@@ -39,6 +40,7 @@ export const ARTICLES: GTArticle[] = [
   backward,
   commitment,
   signaling,
+  tournaments,
   // @gt-list
 ];
 
