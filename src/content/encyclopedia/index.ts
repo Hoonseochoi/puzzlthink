@@ -14,6 +14,7 @@ import logicPuzzles from './logic-puzzles';
 import numberPuzzles from './number-puzzles';
 import historyOfBaduk from './history-of-baduk';
 import chessFamilyHistory from './chess-family-history';
+import gomokuRenju from './gomoku-renju';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -31,6 +32,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   numberPuzzles,
   historyOfBaduk,
   chessFamilyHistory,
+  gomokuRenju,
 ];
 
 export const WIKI_BASE = '/board-games';
