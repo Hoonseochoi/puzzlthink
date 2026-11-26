@@ -17,6 +17,7 @@ import chessFamilyHistory from './chess-family-history';
 import gomokuRenju from './gomoku-renju';
 import morrisFamily from './morris-family';
 import sudokuHistory from './sudoku-history';
+import nonogramHistory from './nonogram-history';
 import type { WikiArticle, WikiCategory, WikiLocale } from './types';
 
 const ARTICLES_IN_ORDER: WikiArticle[] = [
@@ -37,6 +38,7 @@ const ARTICLES_IN_ORDER: WikiArticle[] = [
   gomokuRenju,
   morrisFamily,
   sudokuHistory,
+  nonogramHistory,
 ];
 
 export const WIKI_BASE = '/board-games';
