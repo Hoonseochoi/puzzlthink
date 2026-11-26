@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useLocale } from 'next-intl';
 import { Loader2, LockKeyhole } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
+import { markSignupSource } from '@/lib/signupSource';
 import { Link } from '@/i18n/routing';
 import { BTN, BTN_ACCENT, SHELL, STAGE } from '../ui/gameUi';
 import { hwCopy, hwRootStyle } from './copy';
@@ -22,7 +23,7 @@ export default function MembersGate({ children }: { children: ReactNode }) {
             <LockKeyhole className="text-(--accent)" size={28} />
             <h1 className="text-lg font-black text-white">{t.membersTitle}</h1>
             <p className="max-w-[320px] break-keep text-sm leading-6 text-white/60">{t.membersDesc}</p>
-            <button type="button" onClick={() => void signIn()} className={BTN_ACCENT}>{t.membersSignIn}</button>
+            <button type="button" onClick={() => { markSignupSource('hidden_word_plus'); void signIn(); }} className={BTN_ACCENT}>{t.membersSignIn}</button>
             <Link href="/hidden-word-plus" className={BTN}>{t.back}</Link>
           </>}
         </div>
