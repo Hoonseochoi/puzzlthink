@@ -11,7 +11,8 @@ export default function GlobalFooter() {
   const t = useTranslations('Common');
   const locale = useLocale();
   // Game pages hide the footer; their guide pages (/<game>/guide) keep it.
-  if (!pathname.endsWith('/guide') && HIDE_ON.some((segment) => pathname.includes(segment))) return null;
+  // The /survival-games pages share slugs with games (…/hidden-word) but are articles, so they keep it too.
+  if (!pathname.endsWith('/guide') && !pathname.startsWith('/survival-games') && HIDE_ON.some((segment) => pathname.includes(segment))) return null;
 
   return (
     <footer className="border-t border-black/[0.07] bg-[#f3f0e8]">
@@ -27,6 +28,7 @@ export default function GlobalFooter() {
           <Link href="/guides" className="hover:text-black">{t('guides')}</Link>
           <Link href="/devlog" className="hover:text-black">{locale === 'en' ? 'Dev notes' : '개발 노트'}</Link>
           <Link href="/board-games" className="hover:text-black">{locale === 'en' ? 'Board game encyclopedia' : '보드게임 백과'}</Link>
+          <Link href="/survival-games" className="hover:text-black">{locale === 'en' ? 'Show games' : '서바이벌 게임 정리'}</Link>
           <Link href="/about" className="hover:text-black">{t('about')}</Link>
           <Link href="/contact" className="hover:text-black">{t('contact')}</Link>
           <SupportLink />

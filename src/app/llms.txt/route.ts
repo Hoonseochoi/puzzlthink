@@ -6,6 +6,7 @@ import { HELL_LIVE } from '@/lib/hell';
 import { guideListings } from '@/content/guides';
 import { DEVLOG, devlogPath } from '@/content/devlog';
 import { ARTICLES, WIKI_BASE, wikiPath } from '@/content/encyclopedia';
+import { SHOWS_WRITTEN, gamePath, showPath } from '@/content/shows';
 import type { GameId } from '@/lib/stats';
 
 export const dynamic = 'force-static';
@@ -34,6 +35,7 @@ export function GET() {
     `- [논리 퍼즐 (Logic puzzles)](${SITE_URL}/ko/logic-puzzles)`,
     `- [기록실·랭킹 (Records and rankings)](${SITE_URL}/ko/records)`,
     `- [게임 공략 모음 (All game guides)](${SITE_URL}/ko/guides)`,
+    `- [두뇌 서바이벌 게임 정리 (Brain-survival show games, newest show first)](${SITE_URL}/ko/survival-games)`,
     ...(HELL_LIVE.length ? [`- [AI 헬모드 · 매우 어려움 AI (AI Hell Mode: the hardest AI in Wallgo II, Wallgo 1:1, 12 Janggi, Russian Janggi, Blind Gomoku and Color Link Duel; each win is a black piece on the 블랙피스 경쟁전 board)](${SITE_URL}/ko/hell)`] : []),
     '',
     '## Guides',
@@ -45,6 +47,8 @@ export function GET() {
     '## Board game encyclopedia',
     `- [보드게임 백과 (Board game encyclopedia: genres, history and concepts)](${SITE_URL}/ko${WIKI_BASE})`,
     ...ARTICLES.map((a) => `- [${a.ko.title} (${a.en.title})](${SITE_URL}/ko${wikiPath(a.slug)})`),
+    '## Brain-survival show games',
+    ...SHOWS_WRITTEN.flatMap((show) => [`- [${show.ko.name} (${show.en.name})](${SITE_URL}/ko${showPath(show)})`, ...show.games.map((g) => `  - [${g.ko.name} (${g.en.name})](${SITE_URL}/ko${gamePath(show, g)})`)]),
     '',
     '## About',
     `- [소개 (About)](${SITE_URL}/ko/about)`,
