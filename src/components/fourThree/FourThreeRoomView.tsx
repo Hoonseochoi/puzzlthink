@@ -20,6 +20,7 @@ import { reportGame } from '@/lib/stats';
 import { FT_ACCENT, FT_INK } from './FourThreeParts';
 import FourThreeResult from './FourThreeResult';
 import FourThreeTable from './FourThreeTable';
+import GameUpdates from '@/components/GameUpdates';
 
 /** Friend / open room: two or three people (an ally AI fills the third seat) against the Special Guest AI. */
 export default function FourThreeRoomView({ code }: { code: string }) {
@@ -69,7 +70,7 @@ export default function FourThreeRoomView({ code }: { code: string }) {
       <Shards />
       <RoomAlerts alerts={alerts} accent={FT_ACCENT} joinText={(name) => to('joined', { name })} leaveText={(name) => to('left', { name })} />
       <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/four-three" backLabel={t('title')} title={t('title')} subtitle={`ONLINE · ${code.toUpperCase()}`}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="four_three" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
       {notice && <p className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffb3a8] lg:px-6"><WifiOff size={14} />{notice}</p>}
       {state?.phase === 'playing' && <AwayBanner seats={state.seats} away={state.away} mySeat={mySeat} onRejoin={() => dispatch({ t: 'rejoin' })} />}

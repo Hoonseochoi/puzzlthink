@@ -173,6 +173,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '뒤집기 오목', en: 'Flip Omok' },
     items: [
       {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+      },
+      {
         date: '11/26', icon: Scale,
         ko: { title: 'AI 난이도를 다시 맞췄어요', desc: '보통과 어려움이 너무 강해서(이긴 판 15% · 2%) 한 단계씩 낮췄어요. 예전 보통이 어려움이 되고, 보통은 한 수 앞만 보는 더 쉬운 AI가 됐어요.' },
         en: { title: 'AI levels retuned', desc: 'Normal and Hard were too strong (players won 15% and 2%), so both moved down a step: the old Normal is now Hard, and Normal is an easier AI that looks one move ahead.' },
@@ -202,6 +207,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   nine_mens_morris: {
     name: { ko: '나인 멘스 모리스', en: "Nine Men's Morris" },
     items: [
+      {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+      },
       {
         date: '11/26', icon: Scale,
         ko: { title: '어려움 AI가 매번 다르게 두고 한 수 더 읽어요', desc: '같은 수순으로 계속 이길 수 있던 문제를 고쳤어요. 어려움은 한 수 더 깊이 읽고, 질 것 같은 판에서도 끝까지 버텨요.' },
@@ -254,9 +264,34 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
       },
     ],
   },
+  point_omok: {
+    name: { ko: '포인트 오목', en: 'Point Omok' },
+    items: [
+      {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+      },
+    ],
+  },
+  four_three: {
+    name: { ko: '4인 3목', en: '4 Player 3 In a Row' },
+    items: [
+      {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+      },
+    ],
+  },
   wallgo: {
     name: { ko: '벽바둑', en: 'Wallgo' },
     items: [
+      {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+      },
       {
         date: '11/26', icon: Scale,
         ko: { title: '1:1:1 어려움 AI가 강해졌어요', desc: '3인전에서 어려움과 보통의 차이가 없었어요. 어려움 AI는 이제 두 상대의 다음 수를 모두 읽어요. 1:1은 그대로예요.' },
@@ -268,6 +303,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '벽바둑 II', en: 'Wallgo II' },
     items: [
       {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 테두리 색으로 편을 구분하고, 바둑알을 고르지 않았으면 원래 말 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. The ring colour shows the side; without a pick the pieces look as before.' },
+      },
+      {
         date: '11/26', icon: Scale,
         ko: { title: '1:1:1 어려움 AI가 강해졌어요', desc: '3인전에서 어려움과 보통의 차이가 없었어요. 어려움 AI는 이제 두 상대의 다음 수를 모두 읽어요. 1:1은 그대로예요.' },
         en: { title: 'Hard AI is stronger in 1:1:1', desc: 'In three-player games Hard was no harder than Normal. The Hard AI now reads the next move of both rivals. 1:1 is unchanged.' },
@@ -277,6 +317,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   blind_gomoku: {
     name: { ko: '블라인드 오목', en: 'Blind Gomoku' },
     items: [
+      {
+        date: '11/26', icon: Sparkles,
+        ko: { title: '내 바둑알로 둬요', desc: '돌을 뒤집어 공개할 때 각자의 내 바둑알(기록실에서 고른 색·아이콘)로 보여요. 가려진 동안에는 주인이 드러나지 않게 색 돌 그대로예요.' },
+        en: { title: 'Play with your own stone', desc: 'When the stones are turned face up, each shows its player\'s own stone (the colour or icon picked in Records). Face down they stay plain colours, so the owner stays hidden.' },
+      },
       {
         date: '11/26', icon: Scale,
         ko: { title: '어려움 AI의 기억이 최근 36수로 늘었어요', desc: '최근 24수만 기억해서 오래 끌면 쉽게 이길 수 있었어요. 이제 36수까지 기억해요.' },

@@ -18,6 +18,7 @@ import { PO_LEVELS, chooseBets, chooseTriple, type PoAiView, type PoLevel } from
 import { type PoRoom, PO_SHOW_MS, budgetOf, createPoRoom, reducePoRoom } from '@/lib/pointOmokRoom';
 import PoTable from './PoTable';
 import { PO_ACCENT, PO_INK } from './PoParts';
+import GameUpdates from '@/components/GameUpdates';
 
 const AI = 1 as const;
 const linkedLevel = (): PoLevel => {
@@ -110,7 +111,7 @@ export default function PointOmokGame() {
       <Shards />
       <GameHeader players={roomPlayers(state, true)} me={0} backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
         <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="point_omok" /><BugReport /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => { if (!started || state?.phase === 'finished' || window.confirm(t('newGameConfirm'))) reset(); }} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 

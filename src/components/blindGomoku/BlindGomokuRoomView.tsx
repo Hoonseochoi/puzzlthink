@@ -21,6 +21,7 @@ import BlindGomokuBoard from './BlindGomokuBoard';
 import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
 import GameUpdates from '@/components/GameUpdates';
+import { PieceOwners, useMyNickname } from '../PieceStone';
 
 const ACCENT = '#ffd166';
 
@@ -31,6 +32,10 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useBlindGomokuRoom(code, defaultName);
+  const nickname = useMyNickname();
+  // Revealed stones are keyed by side: 0 black (the seat in `first`), 1 white.
+  const owners: (string | null)[] = [];
+  if (state) state.seats.forEach((seat, i) => { if (seat) owners[i === state.first ? 0 : 1] = (i === mySeat && nickname) || seat.name; });
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -117,6 +122,7 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
   );
 
   return (
+    <PieceOwners.Provider value={owners}>
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('190, 132, 35') }}>
       <Shards />
       <RoomAlerts alerts={alerts} accent={ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
@@ -244,5 +250,6 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
         </main>
       )}
     </div>
+    </PieceOwners.Provider>
   );
 }

@@ -6,9 +6,10 @@ import { Link } from '@/i18n/routing';
 import { BTN, BTN_ACCENT, KICKER, MODAL_BACKDROP } from '@/components/ui/gameUi';
 import { type FtRoom, finalists, missionSucceeded, outcomeFor, playerRanking } from '@/lib/fourThreeRoom';
 import { FtPiece } from './FourThreeParts';
+import { RoomPieces } from '../PieceStone';
 
 /** End of the four rounds: did the mission hold, the players' pieces and who goes through. */
-export default function FourThreeResult({ room, mySeat, onAgain, waitingLabel, exitPath }: {
+function FourThreeResultInner({ room, mySeat, onAgain, waitingLabel, exitPath }: {
   room: FtRoom; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; exitPath: '/' | '/four-three';
 }) {
   const t = useTranslations('FourThree');
@@ -43,4 +44,9 @@ export default function FourThreeResult({ room, mySeat, onAgain, waitingLabel, e
       </section>
     </div>
   );
+}
+
+/** FourThreeResult with every player's own 바둑알 on their pieces (PieceStone). */
+export default function FourThreeResult(props: Parameters<typeof FourThreeResultInner>[0]) {
+  return <RoomPieces seats={props.room.seats} me={props.mySeat} ai={props.room.ai}><FourThreeResultInner {...props} /></RoomPieces>;
 }

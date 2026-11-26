@@ -13,6 +13,7 @@ import { reportGame } from '@/lib/stats';
 import { chooseMove, coordinateLabel, emptyBoard, forbiddenPoints, isFull, other, owner, play, type Board, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
 import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard } from './FlipOmokParts';
 import GameUpdates from '@/components/GameUpdates';
+import { MyPieces } from '../PieceStone';
 
 type Mode = 'ai' | 'local';
 interface Snapshot { board: Board; turn: Player; last: number | null; flipped: number[] }
@@ -153,6 +154,7 @@ export default function FlipOmokGame() {
   </div>;
 
   return (
+    <MyPieces seat={1}>
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
       <GameHeader ai={mode === 'ai'} backHref="/flip-omok" backLabel={t('title')} title={t('title')} subtitle={t('subtitle')}>
         <GameUpdates game="flip_omok" /><BugReport /><LanguageSwitcher compact dark />
@@ -214,5 +216,6 @@ export default function FlipOmokGame() {
         </aside>
       </main>
     </div>
+    </MyPieces>
   );
 }

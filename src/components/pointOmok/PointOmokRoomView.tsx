@@ -18,6 +18,7 @@ import { Link } from '@/i18n/routing';
 import { reportGame } from '@/lib/stats';
 import PoTable from './PoTable';
 import { PO_ACCENT, PO_INK, PoStone } from './PoParts';
+import GameUpdates from '@/components/GameUpdates';
 
 const PATH = '/point-omok';
 
@@ -64,7 +65,7 @@ export default function PointOmokRoomView({ code }: { code: string }) {
       <Shards />
       <RoomAlerts alerts={alerts} accent={PO_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader players={roomPlayers(state)} me={mySeat} backHref={PATH} backLabel={tc('pointOmok')} title={tp('title')} subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
-        <BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="point_omok" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

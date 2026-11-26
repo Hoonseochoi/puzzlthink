@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Sparkles } from 'lucide-react';
 import { SIZE, coordinateLabel, isFlipped, isGap, other, owner, play, type Board, type Cell, type Line, type Player, voidFive } from '@/lib/flipOmok';
+import PieceStone, { usePieceOwner } from '../PieceStone';
 
 export const FLIP_ACCENT = '#67e8ff';
 export const FLIP_INK = '#06202a';
@@ -21,6 +22,11 @@ const STARS = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
 function Face({ p, marked = false, dizzy = false, back = false }: { p: Player; marked?: boolean; dizzy?: boolean; back?: boolean }) {
   const hex = STONE_HEX[p];
   const eye = marked ? STONE_HEX[other(p)] : 'rgba(255,255,255,.95)';
+  const mine = usePieceOwner(p);
+  // A player's own 바둑알 inside a ring of their colour; a flipped-over stone keeps a dot of the other colour.
+  if (mine && !dizzy) return <span className={`absolute inset-0 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`} style={{ filter: `drop-shadow(0 0 5px ${hex}88)` }}>
+    <PieceStone seat={p} color={hex} overlay={marked ? <span className="absolute bottom-[3%] right-[3%] h-[26%] w-[26%] rounded-full border border-white/90" style={{ background: STONE_HEX[other(p)] }} /> : null}>{null}</PieceStone>
+  </span>;
   return <span className={`absolute inset-0 rounded-full border border-white/25 [backface-visibility:hidden] ${back ? '[transform:rotateY(180deg)]' : ''}`}
     style={{ background: `radial-gradient(circle at 34% 28%, color-mix(in srgb, ${hex} 55%, white) 0%, ${hex} 48%, color-mix(in srgb, ${hex} 60%, black) 100%)`, boxShadow: `0 4px 10px rgba(0,0,0,.6), 0 0 10px ${hex}88` }}>
     {dizzy ? <>

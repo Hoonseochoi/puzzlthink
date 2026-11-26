@@ -15,6 +15,7 @@ import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
 import { askHellMove, hellThinkMs } from './hellAi';
 import GameUpdates from '@/components/GameUpdates';
+import { MyPieces } from '../PieceStone';
 
 type Phase = 'human' | 'ai' | 'finished';
 const ACCENT = '#ffd166';
@@ -134,6 +135,7 @@ export default function BlindGomokuGame() {
       : phase === 'ai' ? t('aiThinking') : t('yourTurn');
 
   return (
+    <MyPieces seat={0}>
     <div className={SHELL} style={{ ...accentVars(ACCENT, '#17120a'), backgroundImage: fog('190, 132, 35') }}>
       <Shards />
       <GameHeader ai backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
@@ -228,5 +230,6 @@ export default function BlindGomokuGame() {
         </section>
       </div>}
     </div>
+    </MyPieces>
   );
 }

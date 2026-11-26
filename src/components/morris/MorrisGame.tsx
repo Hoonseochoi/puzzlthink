@@ -13,6 +13,7 @@ import { type Move, type MorrisLevel, type MorrisState, type Player, chooseMorri
 import { MORRIS_MAX_ROUNDS, MORRIS_WINS } from '@/lib/morrisRoom';
 import { HandRow, MORRIS_ACCENT, MORRIS_INK, MorrisBoard, MorrisStone, useMorrisPicker } from './MorrisParts';
 import GameUpdates from '@/components/GameUpdates';
+import { PieceOwners, useMyNickname } from '../PieceStone';
 
 type Round = { human: Player; winner: 'you' | 'ai' | 'draw' };
 const LEVELS: MorrisLevel[] = ['easy', 'normal', 'hard'];
@@ -23,6 +24,7 @@ export default function MorrisGame() {
   const [level, setLevel] = useState<MorrisLevel>('normal');
   const [game, setGame] = useState<MorrisState>(newMorris);
   const [human, setHuman] = useState<Player>(0);
+  const nickname = useMyNickname();
   const [rounds, setRounds] = useState<Round[]>([]);
   const [matchNo, setMatchNo] = useState(0);
   const [showRules, setShowRules] = useState(false);
@@ -79,7 +81,11 @@ export default function MorrisGame() {
 
   const players: { color: Player; name: string; you: boolean }[] = [{ color: human, name: t('you'), you: true }, { color: aiColor, name: 'OTTO', you: false }];
 
+  const owners: (string | null)[] = [null, null];
+  owners[human] = nickname;
+
   return (
+    <PieceOwners.Provider value={owners}>
     <div className={SHELL} style={{ ...accentVars(MORRIS_ACCENT, MORRIS_INK), backgroundImage: fog('62, 201, 214') }}>
       <Shards />
       <GameHeader ai backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
@@ -172,6 +178,7 @@ export default function MorrisGame() {
         </section>
       </div>}
     </div>
+    </PieceOwners.Provider>
   );
 }
 

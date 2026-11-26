@@ -39,6 +39,7 @@ import WallGoBoard from './WallGoBoard';
 import ResultActions from './ResultActions';
 import WallGoScoreStrip from './WallGoScoreStrip';
 import WallGoCharacter, { WallGoVariant } from './WallGoCharacter';
+import { MyPieces } from './PieceStone';
 import WallGoTutorial from './WallGoTutorial';
 import Shards from './WallGoShards';
 import { ReplayButton, ReplayControls, ReplayHeader } from './ui/ReplayBar';
@@ -349,7 +350,7 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
 
   const closeTutorial = () => { localStorage.setItem(TUTORIAL_KEY, '1'); setShowTutorial(false); };
 
-  return <WallGoVariant.Provider value={variant}><div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ ...accentVars('#e0283a'), backgroundImage: FOG }}>
+  return <WallGoVariant.Provider value={variant}><MyPieces seat={0}><div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ ...accentVars('#e0283a'), backgroundImage: FOG }}>
     <Shards />
     {showTutorial && <WallGoTutorial onClose={closeTutorial} variant={variant} />}
     <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/50 px-4 py-2 backdrop-blur md:px-8"><div className="flex min-w-0 items-center gap-3"><Link href="/" className="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">PUZZLTHINK</span></Link><span className="h-5 w-px bg-white/15" /><div className="min-w-0"><strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc(GAME) : v2 ? 'WALLGO II' : 'WALLGO'}</strong><span className="ml-2 hidden text-[9px] font-bold tracking-[0.16em] text-[#ff4d5e]/70 sm:inline">{t(modeId === 'two' ? 'roundDuel' : 'roundSolo')}</span></div></div><div className="flex items-center gap-1.5"><button onClick={() => setShowTutorial(true)} className="flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white/80 hover:bg-white/10"><BookOpen size={14} /><span className="hidden sm:inline">{t('howToPlay')}</span></button><GameUpdates game={v2 ? 'wallgo2' : 'wallgo'} /><BugReport /><LanguageSwitcher compact dark /><button onClick={() => resetGame()} className="flex items-center gap-2 rounded-md bg-[#e0283a] px-3 py-2 text-xs font-bold text-white shadow-[0_0_18px_rgba(224,40,58,.35)] hover:bg-[#f0354a]"><RotateCcw size={14} /><span className="hidden sm:inline">{t('playAgain')}</span></button></div></header>
@@ -387,7 +388,7 @@ export default function WallGoGame({ variant = 1 }: { variant?: Variant }) {
     </main>
 
     {phase === 'finished' && winner !== null && !replaying && <div className={MODAL_BACKDROP}><div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]"><div className="flex justify-center gap-2">{(winners.length ? winners : [winner]).map((p) => <WallGoCharacter key={p} player={p} className="h-20" />)}</div><p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{t('gameOver')}</p><h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winners.length > 1 ? t('coWin', { players: winners.map((p) => playerNames[p]).join(' · ') }) : winner === 0 ? t('youWin') : t('playerWins', { player: playerNames[winner] })}</h2><p className="mt-2 text-sm text-white/50">{t('finalScore', { score: territory.scores[winner], largest: territory.largest[winner] })}</p>{v2 && winners.length === 1 && mode.players.filter((p) => p !== winner && territory.scores[p] === territory.scores[winner]).length > 0 && <p className="mt-1 text-[11px] font-bold text-[#ff4d5e]">{t('v2TieBreak')}</p>}<ResultActions replay={frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} />} won={winners.length ? winners.includes(0) : winner === 0} onAgain={() => resetGame()} gamePath={PATH} exitPath="/" primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" /></div></div>}
-  </div></WallGoVariant.Provider>;
+  </div></MyPieces></WallGoVariant.Provider>;
 }
 
 /** 벽바둑 II placement: which piece goes on the board next (square or round), while both are still in hand. */

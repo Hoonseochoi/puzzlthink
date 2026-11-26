@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { MILLS, POINTS, POS, type Cell, type Move, type MorrisState, type Player, closesMill, legalMoves, placing, removable, targets } from '@/lib/morris';
+import PieceStone from '../PieceStone';
 
 export const MORRIS_ACCENT = '#3ec9d6';
 export const MORRIS_INK = '#06191c';
@@ -13,7 +14,15 @@ export const BOARD_TEAL = '#2fa7b5';
  */
 export function MorrisStone({ color, className = '', ghost = false, doomed = false, selected = false }: { color: Player; className?: string; ghost?: boolean; doomed?: boolean; selected?: boolean }) {
   const black = color === 0;
+  // Over a player's own 바둑알: the same selection ring and removal cross.
+  const overlay = (selected || doomed) ? (
+    <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" aria-hidden>
+      {selected && <circle cx="50" cy="50" r="57" fill="none" stroke={MORRIS_ACCENT} strokeWidth="7" className="animate-pulse" />}
+      {doomed && <g stroke="#ff4d5e" strokeWidth="9" strokeLinecap="round"><line x1="22" y1="22" x2="78" y2="78" /><line x1="78" y1="22" x2="22" y2="78" /></g>}
+    </svg>
+  ) : null;
   return (
+    <PieceStone seat={color} color={black ? '#22252d' : '#eceae4'} className={`transition ${ghost ? 'opacity-45' : ''} ${className}`} overlay={overlay}>
     <svg viewBox="0 0 100 100" className={`block h-full w-full overflow-visible transition ${ghost ? 'opacity-45' : ''} ${className}`} aria-hidden>
       <defs>
         <radialGradient id={`ms-${color}`} cx="35%" cy="30%" r="75%">
@@ -29,6 +38,7 @@ export function MorrisStone({ color, className = '', ghost = false, doomed = fal
       <rect x="56" y="34" width="9" height="17" rx="4.5" fill={black ? '#ffffff' : '#17201e'} />
       {doomed && <g stroke="#ff4d5e" strokeWidth="9" strokeLinecap="round"><line x1="22" y1="22" x2="78" y2="78" /><line x1="78" y1="22" x2="22" y2="78" /></g>}
     </svg>
+    </PieceStone>
   );
 }
 

@@ -20,6 +20,7 @@ import { MORRIS_TURN_OPTIONS, colorOf, matchWinner, seatToMove } from '@/lib/mor
 import { HandRow, MORRIS_ACCENT, MORRIS_INK, MorrisBoard, MorrisStone, useMorrisPicker } from './MorrisParts';
 import { ScoreDots } from './MorrisGame';
 import GameUpdates from '@/components/GameUpdates';
+import { PieceOwners, useMyNickname } from '../PieceStone';
 
 export default function MorrisRoomView({ code }: { code: string }) {
   const t = useTranslations('MorrisOnline');
@@ -28,6 +29,7 @@ export default function MorrisRoomView({ code }: { code: string }) {
   const locale = useLocale();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useMorrisRoom(code, defaultName);
+  const nickname = useMyNickname();
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -96,7 +98,12 @@ export default function MorrisRoomView({ code }: { code: string }) {
   const phaseOf = (p: Player) => (placing(game, p) ? tm('phasePlace') : flying(game, p) ? tm('phaseFly') : tm('phaseMove'));
   const roundNo = state ? state.rounds.length + (state.phase === 'playing' ? 1 : 0) : 1;
 
+  // Pieces are keyed by colour, and the colours swap each round: seat → colour for this round.
+  const owners: (string | null)[] = [null, null];
+  if (state) state.seats.forEach((seat, i) => { if (seat) owners[colorOf(state, i)] = (i === mySeat && nickname) || seat.name; });
+
   return (
+    <PieceOwners.Provider value={owners}>
     <div className={SHELL} style={{ ...accentVars(MORRIS_ACCENT, MORRIS_INK), backgroundImage: fog('62, 201, 214') }}>
       <Shards />
       <RoomAlerts alerts={alerts} accent={MORRIS_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
@@ -230,5 +237,6 @@ export default function MorrisRoomView({ code }: { code: string }) {
         </main>
       )}
     </div>
+    </PieceOwners.Provider>
   );
 }

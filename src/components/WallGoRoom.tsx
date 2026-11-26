@@ -21,6 +21,7 @@ import WallGoBoard from './WallGoBoard';
 import ResultActions from './ResultActions';
 import WallGoScoreStrip from './WallGoScoreStrip';
 import WallGoCharacter, { WallGoVariant } from './WallGoCharacter';
+import { RoomPieces } from './PieceStone';
 import Shards from './WallGoShards';
 import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
 import GameUpdates from '@/components/GameUpdates';
@@ -139,6 +140,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
 
   return (
     <WallGoVariant.Provider value={variant}>
+    <RoomPieces seats={state?.seats} me={mySeat}>
     <div className="relative min-h-screen overflow-hidden bg-[#0b0b0e] text-[#e6e9f0]" style={{ ...accentVars('#e0283a'), backgroundImage: FOG }}>
       <Shards />
       <RoomAlerts alerts={alerts} accent="#ff4d5e" joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
@@ -276,6 +278,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
         </div>
       )}
     </div>
+    </RoomPieces>
     </WallGoVariant.Provider>
   );
 }

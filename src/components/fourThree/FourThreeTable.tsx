@@ -8,9 +8,10 @@ import { type Move, CELLS, CELL_NAME, MAX_HEIGHT, NEIGHBORS, ROUNDS, top } from 
 import { type FtAction, type FtRoom, playersWonRound } from '@/lib/fourThreeRoom';
 import { type CellMark, COLOR_KEYS, FT_COLORS, FtBoard, FtPiece, HandRow } from './FourThreeParts';
 import FourThreeRulesTip from './FourThreeRulesTip';
+import { RoomPieces } from '../PieceStone';
 
 /** The play area shared by the AI game and online rooms: status, board, players and the mission track. */
-export default function FourThreeTable({ room, mySeat, onAction }: { room: FtRoom; mySeat: number | null; onAction: (a: FtAction) => void }) {
+function FourThreeTableInner({ room, mySeat, onAction }: { room: FtRoom; mySeat: number | null; onAction: (a: FtAction) => void }) {
   const t = useTranslations('FourThree');
   const game = room.game;
   const [now, setNow] = useState(() => Date.now());
@@ -156,4 +157,9 @@ export default function FourThreeTable({ room, mySeat, onAction }: { room: FtRoo
       </section>
     </div>
   );
+}
+
+/** FourThreeTable with every player's own 바둑알 on their pieces (PieceStone). */
+export default function FourThreeTable(props: Parameters<typeof FourThreeTableInner>[0]) {
+  return <RoomPieces seats={props.room.seats} me={props.mySeat} ai={props.room.ai}><FourThreeTableInner {...props} /></RoomPieces>;
 }
