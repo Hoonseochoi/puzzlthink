@@ -1,13 +1,15 @@
 /**
  * Earned profile icons beyond the 피스 경쟁전 champion stones (those live in StoneAvatar):
  * - h{week}-{place}: 블랙피스 경쟁전 weekly top three — obsidian stones with horns and a hellfire halo.
- * - m{block}: made that block in 2048 (m2048, m4096 … m131072) — the block's tile with our two eyes; each tier has its own look.
+ * - m{block}: made that block in 2048 (m2048, m4096 … m131072) — the block's tile with our two eyes; each tier adds finery.
  * - o-{place}: 오픈 대전 total-wins top three — a duelist stone over crossed swords with a laurel; held while in that place.
- * - c-{game}: a game's ranking #1 — a stone in the game's colour, a gold crown and the game's emblem.
+ * - c-{game}: a game's ranking #1 — drawn in CrownIcons: the game built into the stone's body, set in a crowned bezel.
  * All drawn in a 100×100 box like the stones, so they swap in anywhere a stone is shown.
  */
 import type { GameId } from '@/lib/stats';
 import { CERT_GAMES } from '@/lib/hardClear';
+
+export { CrownStone } from './CrownIcons';
 
 export type IconRef =
   | { kind: 'piece'; week: number; place: 1 | 2 | 3 }
@@ -111,9 +113,22 @@ const TILE_LOOKS: Record<number, TileLook> = {
   131072: { tile: ['#fff3a8', '#ff6b4a', '#6a1bd1'], rim: '#2a0a5c', glow: '#ff9d5c', eye: '#ffffff', text: '#ffffff', crown: ['#ffffff', '#b8860b'], gem: '#3ee6c1', spark: '#ffffff', stars: true },
 };
 
+/**
+ * A 2048 block tile. Each step up the ladder adds one more piece of finery, so a bigger block always looks
+ * grander: 2048 is the plain gold tile; 4096 gains a crown; 8192 a jewel; 16384 a sunburst; 32768 a metal
+ * frame; 65536 a fuller sunburst; 131072 all of it at full size. (The ranking #1 sits above all of them.)
+ */
 export function Tile2048({ id, name, size, tier = 2048 }: { id: string; name: string; size: number; tier?: number }) {
   const k = TILE_LOOKS[tier] ?? TILE_LOOKS[2048];
+  const lv = Math.max(0, (M2048_TIERS as readonly number[]).indexOf(tier));
   const digits = String(tier).length;
+  const cs = 0.78 + lv * 0.07; // crown scale
+  const rays = lv >= 3 ? [0, 0, 0, 8, 10, 12, 16][lv] : 0;
+  const rayPath = Array.from({ length: rays }, (_, i) => {
+    const a = (i * 2 * Math.PI) / rays + Math.PI / rays, w = 0.11, L = 49;
+    return `M50 55L${(50 + L * Math.cos(a - w)).toFixed(1)} ${(55 + L * Math.sin(a - w)).toFixed(1)}L${(50 + L * Math.cos(a + w)).toFixed(1)} ${(55 + L * Math.sin(a + w)).toFixed(1)}Z`;
+  }).join('');
+  const stars = [[24, 46, 1.4], [77, 42, 1.7], [71, 60, 1.1], [29, 62, 1.2], [62, 30, 1], [36, 30, 1.1]].slice(0, lv >= 1 ? 2 + lv : 0);
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={name}>
       <defs>
@@ -121,21 +136,34 @@ export function Tile2048({ id, name, size, tier = 2048 }: { id: string; name: st
           <stop offset="0%" stopColor={k.tile[0]} /><stop offset="45%" stopColor={k.tile[1]} /><stop offset="100%" stopColor={k.tile[2]} />
         </linearGradient>
         <radialGradient id={`tl-${id}`} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={k.glow} stopOpacity=".7" /><stop offset="100%" stopColor={k.glow} stopOpacity="0" />
+          <stop offset="0%" stopColor={k.glow} stopOpacity={0.35 + lv * 0.07} /><stop offset="100%" stopColor={k.glow} stopOpacity="0" />
         </radialGradient>
+        {lv >= 1 && (
+          <linearGradient id={`tc-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ffffff" /><stop offset="45%" stopColor={k.crown[0]} /><stop offset="100%" stopColor={k.crown[1]} />
+          </linearGradient>
+        )}
       </defs>
-      <circle cx="50" cy="56" r="50" fill={`url(#tl-${id})`} />
+      <circle cx="50" cy="55" r={38 + lv * 2} fill={`url(#tl-${id})`} />
+      {rays > 0 && <path d={rayPath} fill={k.glow} opacity={0.22 + lv * 0.05} />}
+      {lv >= 4 && <rect x="7" y="13" width="86" height="86" rx="22" fill="none" stroke={`url(#tc-${id})`} strokeWidth={lv >= 6 ? 3.2 : 2.4} />}
       <rect x="12" y="21" width="76" height="76" rx="18" fill="rgba(0,0,0,.2)" />
       <rect x="12" y="18" width="76" height="76" rx="18" fill={`url(#tg-${id})`} stroke={k.rim} strokeWidth="2.2" />
       <path d="M22 30 Q24 24 32 23 L52 23" fill="none" stroke="#ffffff" strokeOpacity=".7" strokeWidth="3" strokeLinecap="round" />
-      {k.stars && <g fill={k.spark} opacity=".85"><circle cx="24" cy="46" r="1.4" /><circle cx="77" cy="42" r="1.7" /><circle cx="71" cy="60" r="1.1" /><circle cx="29" cy="62" r="1.2" /></g>}
+      {stars.length > 0 && <g fill={k.spark} opacity=".85">{stars.map(([x, y, r]) => <circle key={`${x}-${y}`} cx={x} cy={y} r={r} />)}</g>}
       <rect x="37" y="36" width="8" height="15" rx="4" fill={k.eye} />
       <rect x="55" y="36" width="8" height="15" rx="4" fill={k.eye} />
       <text x="50" y={digits > 5 ? 80 : digits > 4 ? 81 : 82} textAnchor="middle" fontSize={digits > 5 ? 14.5 : digits > 4 ? 17.5 : 21} fontWeight="900" fontFamily="ui-rounded, system-ui, sans-serif" fill={k.text} stroke={k.text === '#ffffff' ? k.rim : '#ffffff'} strokeWidth="1.2" paintOrder="stroke" letterSpacing="-0.5">{tier}</text>
-      <path d="M28 2 L32 10 L39 6 L37 14 H19 L17 6 L24 10 Z" fill={k.crown[0]} stroke={k.crown[1]} strokeWidth="1.6" strokeLinejoin="round" />
-      {k.gem && <circle cx="28" cy="11" r="1.8" fill={k.gem} />}
+      {lv >= 1 && (
+        <g transform={`translate(50 19) scale(${cs.toFixed(2)}) translate(-50 -19)`}>
+          <path d="M36 19 L33 6 L42 12 L50 2 L58 12 L67 6 L64 19 Z" fill={`url(#tc-${id})`} stroke={k.crown[1]} strokeWidth="1.5" strokeLinejoin="round" />
+          {lv >= 2 && <circle cx="50" cy="13" r="2.4" fill={k.gem ?? '#ffffff'} stroke={k.crown[1]} strokeWidth=".8" />}
+          {lv >= 5 && <><circle cx="33" cy="6" r="1.6" fill={k.gem ?? '#ffffff'} /><circle cx="67" cy="6" r="1.6" fill={k.gem ?? '#ffffff'} /></>}
+        </g>
+      )}
       <path d="M87 24 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill={k.spark} />
-      <path d="M8 60 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5z" fill={k.spark} />
+      {lv >= 1 && <path d="M8 60 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5z" fill={k.spark} />}
+      {lv >= 5 && <path d="M90 76 l1.2 2.8 2.8 1.2 -2.8 1.2 -1.2 2.8 -1.2 -2.8 -2.8 -1.2 2.8 -1.2z" fill={k.spark} />}
     </svg>
   );
 }
@@ -210,16 +238,6 @@ export function OpenStone({ id, name, size, place }: { id: string; name: string;
 
 // ─── Per-game #1 ───────────────────────────────────────────────────────────────────────────────────────────────
 
-const mix = (hex: string, to: string, t: number) => {
-  const a = parseInt(hex.slice(1), 16), b = parseInt(to.slice(1), 16);
-  const ch = (s: number) => Math.round(((a >> s) & 255) * (1 - t) + ((b >> s) & 255) * t);
-  return `#${((ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).padStart(6, '0')}`;
-};
-const light = (hex: string) => {
-  const n = parseInt(hex.slice(1), 16);
-  return 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255) > 175;
-};
-
 const K = '#17201e';
 const W = '#ffffff';
 const txt = (x: number, y: number, s: string, size: number, fill: string) => (
@@ -277,84 +295,4 @@ export const EMBLEMS: Record<GameId, (c: string) => React.ReactNode> = {
 /** The emblem alone (used by the ranking page's #1 card too). */
 export function GameEmblem({ game, size = 24 }: { game: GameId; size?: number }) {
   return <svg viewBox="0 0 24 24" width={size} height={size} className="block shrink-0" aria-hidden>{EMBLEMS[game](CERT_GAMES[game].color)}</svg>;
-}
-
-export function CrownStone({ id, name, size, game }: { id: string; name: string; size: number; game: GameId }) {
-  if (game === 'gradation') return <GradationCrownStone id={id} name={name} size={size} />;
-  const base = CERT_GAMES[game].color;
-  const hi = mix(base, '#ffffff', 0.55), lo = mix(base, '#000000', 0.42), rim = mix(base, '#000000', 0.62);
-  const eye = light(base) ? '#2a1d05' : '#ffffff';
-  const cy = 56, r = 38;
-  return (
-    <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={name}>
-      <defs>
-        <radialGradient id={`cs-${id}`} cx="35%" cy="28%" r="78%">
-          <stop offset="0%" stopColor={hi} /><stop offset="52%" stopColor={base} /><stop offset="100%" stopColor={lo} />
-        </radialGradient>
-        <linearGradient id={`cc-${id}`} x1="0" y1="0" x2="0.3" y2="1">
-          <stop offset="0%" stopColor="#fff6c4" /><stop offset="50%" stopColor="#f5c53a" /><stop offset="100%" stopColor="#b07d12" />
-        </linearGradient>
-      </defs>
-      <circle cx="50" cy={cy} r={r + 6} fill="none" stroke="#f5c53a" strokeOpacity=".55" strokeWidth="3.5" />
-      <circle cx="50" cy={cy + 3} r={r} fill="rgba(0,0,0,.22)" />
-      <circle cx="50" cy={cy} r={r} fill={`url(#cs-${id})`} stroke={rim} strokeWidth="2" />
-      <ellipse cx="38" cy={cy - 19} rx="10" ry="4.5" fill="#ffffff" opacity=".45" transform={`rotate(-28 38 ${cy - 19})`} />
-      <rect x={50 - r * 0.33} y={cy - r * 0.38} width={r * 0.2} height={r * 0.37} rx={r * 0.1} fill={eye} />
-      <rect x={50 + r * 0.13} y={cy - r * 0.38} width={r * 0.2} height={r * 0.37} rx={r * 0.1} fill={eye} />
-      {/* gold crown with a 1 */}
-      <path d="M27 25 L31 4 L41 15 L50 0 L59 15 L69 4 L73 25 Z" fill={`url(#cc-${id})`} stroke="#7d5306" strokeWidth="2" strokeLinejoin="round" />
-      <rect x="27" y="22" width="46" height="7" rx="2.5" fill={`url(#cc-${id})`} stroke="#7d5306" strokeWidth="1.8" />
-      <circle cx="50" cy="13" r="5.4" fill={base} stroke="#7d5306" strokeWidth="1.4" />
-      {txt(50, 16, '1', 8, eye)}
-      {/* the game's emblem on a badge */}
-      <circle cx="74" cy="78" r="22" fill="#ffffff" stroke={rim} strokeWidth="2.2" />
-      <g transform="translate(58.4 62.4) scale(1.3)">{EMBLEMS[game](base)}</g>
-    </svg>
-  );
-}
-
-/**
- * 그라데이션's #1 (the AI Hall of Fame champion) gets its own piece: a stone shaded like the cup rack
- * (dark · grey · white · grey · dark), two green number cubes for eyes, the gold crown with a 1, and a
- * badge with the rack's dark / white / dark cups.
- */
-function GradationCrownStone({ id, name, size }: { id: string; name: string; size: number }) {
-  const cy = 56, r = 38;
-  const eye = (x: number) => (
-    <g>
-      <rect x={x} y={cy - 15} width="13" height="15" rx="3" fill="#33c158" stroke="#0f5a25" strokeWidth="1.4" />
-      <rect x={x} y={cy - 15} width="13" height="6" rx="3" fill="#ffffff" opacity=".28" />
-      <path d={`M${x + 1.5} ${cy - 15} l3 -3.6 h11 l-1.5 3.6 z`} fill="#7be897" stroke="#0f5a25" strokeWidth="1" strokeLinejoin="round" />
-    </g>
-  );
-  return (
-    <svg viewBox="0 0 100 100" width={size} height={size} className="block shrink-0 overflow-visible" role="img" aria-label={name}>
-      <defs>
-        <linearGradient id={`gr-${id}`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#0d0d11" /><stop offset="22%" stopColor="#6f727a" /><stop offset="50%" stopColor="#f6f7f9" /><stop offset="78%" stopColor="#6f727a" /><stop offset="100%" stopColor="#0d0d11" />
-        </linearGradient>
-        <radialGradient id={`gs-${id}`} cx="40%" cy="25%" r="75%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity=".35" /><stop offset="60%" stopColor="#ffffff" stopOpacity="0" /><stop offset="100%" stopColor="#000000" stopOpacity=".35" />
-        </radialGradient>
-        <linearGradient id={`gc-${id}`} x1="0" y1="0" x2="0.3" y2="1">
-          <stop offset="0%" stopColor="#fff6c4" /><stop offset="50%" stopColor="#f5c53a" /><stop offset="100%" stopColor="#b07d12" />
-        </linearGradient>
-      </defs>
-      <circle cx="50" cy={cy} r={r + 6.5} fill="none" stroke="#3fd67a" strokeOpacity=".6" strokeWidth="3.5" />
-      <circle cx="50" cy={cy} r={r + 6.5} fill="none" stroke="#f5c53a" strokeOpacity=".7" strokeWidth="1.4" strokeDasharray="3 5" />
-      <circle cx="50" cy={cy + 3} r={r} fill="rgba(0,0,0,.25)" />
-      <circle cx="50" cy={cy} r={r} fill={`url(#gr-${id})`} stroke="#0f5a25" strokeWidth="2.2" />
-      <circle cx="50" cy={cy} r={r} fill={`url(#gs-${id})`} />
-      {eye(33)}{eye(54)}
-      {/* gold crown with a 1 */}
-      <path d="M27 25 L31 4 L41 15 L50 0 L59 15 L69 4 L73 25 Z" fill={`url(#gc-${id})`} stroke="#7d5306" strokeWidth="2" strokeLinejoin="round" />
-      <rect x="27" y="22" width="46" height="7" rx="2.5" fill={`url(#gc-${id})`} stroke="#7d5306" strokeWidth="1.8" />
-      <rect x="44.6" y="7.6" width="10.8" height="10.8" rx="2.2" fill="#33c158" stroke="#7d5306" strokeWidth="1.3" />
-      {txt(50, 16.2, '1', 8.5, W)}
-      {/* the rack on a badge */}
-      <circle cx="74" cy="78" r="22" fill="#ffffff" stroke="#0f5a25" strokeWidth="2.2" />
-      <g transform="translate(58.4 62.4) scale(1.3)">{EMBLEMS.gradation('#33c158')}</g>
-      <path d="M90 30 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="#7be897" />
-    </svg>
-  );
 }
