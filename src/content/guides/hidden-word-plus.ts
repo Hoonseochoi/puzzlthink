@@ -139,6 +139,7 @@ const guide: GameGuide = {
         id: 'modes',
         title: '모드 메모',
         blocks: [
+          { type: 'p', text: '**파티 방(2~5명)**에서는 방송 메인매치 방식으로 해요. 라운드마다 모두가 한 번씩 출제자가 되고(순서는 추첨), 출제자가 힌트를 내면 나머지가 75초 안에 동시에 답해요. 맞힌 사람마다 +1점이고 그 단어는 끝나요. 아무도 못 맞히면 출제자가 1차 +1, 2차 +2, 3차 +3점을 얻고, 2라운드는 모두 2배예요. 봉투 단어는 서버에서 나눠 주어 내 봉투는 나만 보고, 방장은 2~5명 중 인원을 정해요. 여럿이 할 때는 "한 명만 맞혀도 끝난다"는 점이 중요해요. 출제자는 한 명이라도 알아챌 힌트를 피해야 하고, 맞히는 쪽은 남보다 먼저가 아니라 함께 막는다는 생각으로 답해도 좋아요.' },
           { type: 'p', text: 'AI 모라와 1:1 승점전, 링크나 4자리 코드로 여는 친구 1:1 방이 있어요. 확장판에서 만든 방은 확장판 단어로 해요. 친구 대전은 랭킹에 들어가지 않아요. 로그인하지 않아도 둘 수 있지만, 랭킹과 피스는 로그인해야 해요. 기본 60단어로 하고 싶다면 히든 워드로 가세요. 랭킹은 서로 따로예요.' },
         ],
       },
@@ -279,6 +280,7 @@ const guide: GameGuide = {
         id: 'modes',
         title: 'Mode notes',
         blocks: [
+          { type: 'p', text: 'A **party room (2–5 players)** plays the show\'s main-match rules: each round everyone sets once (order drawn), and while the setter gives hints the others answer together within 75 seconds. Each right answer scores +1 and ends the word; if nobody gets it the setter scores +1, +2, +3 by stage, and round 2 doubles everything. Envelopes are dealt by the server, so only you see your words; the host picks two to five seats. With several players one right answer ends the word, so the setter must avoid any hint that even one player would read, and the guessers are blocking the setter together as much as racing each other.' },
           { type: 'p', text: 'There is the one-on-one point match against Mora and a one-on-one friend room opened by link or 4-digit code; rooms made here use the Expansion words. Friend matches are not ranked. You can play signed out, but the ranking and pieces need an account. For the original 60 words, go to Hidden Word; the rankings are separate.' },
         ],
       },

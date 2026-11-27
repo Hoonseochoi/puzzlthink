@@ -13,7 +13,9 @@ import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANEL_TITLE, SHELL, STAGE } from '@/components/ui/gameUi';
 import { useHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
-import { Link } from '@/i18n/routing';
+import { Link, useRouter } from '@/i18n/routing';
+import { roomIsBusy } from '@/hooks/useRealtimeRoom';
+import { HWP_CHANNEL } from '@/hooks/useHiddenWordParty';
 import { HW_ENVELOPES, type HwLevel, hwClean, isHwWord } from '@/lib/hiddenWord';
 import { HWR_CFG, type HwrRoom, type HwrTurn, hwrDeal, hwrHintsLeft, hwrLock, hwrReveal, hwrScore, hwrUsed } from '@/lib/hiddenWordRoom';
 import { reportGame } from '@/lib/stats';
@@ -87,6 +89,15 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
     setStarting(false);
     if (deal && !deal.error && Array.isArray(deal.envelopes)) dispatch({ t: 'start', deal: deal.deal, envelopes: deal.envelopes });
   };
+
+  // A code typed on the 확장판 entry screen comes here; if it is a party room, go there instead.
+  const router = useRouter();
+  useEffect(() => {
+    if (!plus || state || !waitedLong) return;
+    let live = true;
+    void roomIsBusy(HWP_CHANNEL, code).then((busy) => { if (busy && live) router.replace(`/hidden-word-plus/party/${code}`); });
+    return () => { live = false; };
+  }, [plus, state, waitedLong, code, router]);
 
   const notice = status === 'unconfigured' ? r.unconfigured : status === 'error' ? r.connectionError : !state && waitedLong ? r.roomNotFound : state && !me?.isHost && !hostOnline ? r.hostOffline : null;
   const name = (seat: number) => state?.seats[seat]?.name ?? r.guest;
@@ -330,7 +341,7 @@ function HintDock({ turn, t, onSend }: { turn: HwrTurn; t: HwCopy; onSend: (word
     if (clean === turn.word) { setError('secret'); return; }
     if (hwrUsed(turn).includes(clean)) { setError('duplicate'); return; }
     setBusy(true); setError(null);
-    const scores = await hwrScore(turn.lock, [clean]);
+    const scores = await hwrScore(turn.lock, [clean], 'hint');
     if (!scores) { setBusy(false); setError('server'); return; }
     const s = scores[0];
     if (s === null || s === undefined) { setBusy(false); setError('unknown'); return; }
@@ -367,7 +378,7 @@ function GuessDock({ turn, t, onSend }: { turn: HwrTurn; t: HwCopy; onSend: (wor
     if (!words.every(isHwWord)) { setError('invalid'); return; }
     if (new Set(words).size !== words.length || words.some((w) => hwrUsed(turn).includes(w))) { setError('duplicate'); return; }
     setBusy(true); setError(null);
-    const scores = await hwrScore(turn.lock, words);
+    const scores = await hwrScore(turn.lock, words, 'answer');
     setBusy(false);
     if (!scores) { setError('server'); return; }
     if (scores.some((s) => s === null || s === undefined)) { setError('unknown'); return; }

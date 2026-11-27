@@ -119,3 +119,42 @@ Comparing models: `embed_models.py <data> <name> ...` then `eval_models.py <data
 second assoc dir to include its lists). After editing a list only `make_assoc.py`, `build_game.py` and `load_game.sh`
 need to run again, unless the list adds a word the vocabulary does not have yet (then from `build_vocab.py`).
 Size: hw_targets 58 MB in Postgres (13 MB before), hw_vocab 6.6 MB, hw_hints 2.5 MB; the build takes ~5 minutes.
+
+## Play log (from 11/28; backfilled to launch)
+
+`20271128200000_hidden_word_log.sql` keeps every hint and answer of both games for good, without any account data:
+`hw_log_hints`, `hw_log_answers`, `hw_log_refused` (words the game refused, e.g. not in the vocabulary). Rows of one
+match share a keyed hash of the match id, not the id itself. Written by a trigger on `hw_games`, by `hw_act` (refused
+words) and by the friend-room scoring functions.
+
+```bash
+S=~/wallgo/scripts/hidden-word
+$S/backfill_log.sh ~/puzzlthink-supabase/hidden-word/backup/hw_games_snapshot_20261127_0924.sql.gz   # idempotent; prints the reconciliation
+python3 $S/analyze_log.py missing --top 50        # hints players type that are not on the word's list → list candidates
+python3 $S/analyze_log.py misscored --min 8       # numbers that look wrong against play
+python3 $S/analyze_log.py words                   # per word / group: found at stage 1 / ever, by MORA and by players
+python3 $S/analyze_log.py unknown                 # words the game lacks: vocabulary and new hidden-word candidates
+python3 $S/analyze_log.py weekly                  # one line for the status report
+python3 $S/analyze_log.py live-pairs --n 300 > /tmp/pairs.tsv   # fresh pairs to grade for eval/live_pairs.tsv
+```
+In 'misscored', "found" is the opponent's success in that stage; in AI matches that opponent is MORA, so a low rate
+can mean MORA cannot read the hint (one-syllable hints like 열 for 대기) rather than a wrong number. Friend rooms,
+where both sides are people, give the cleaner signal as they accumulate.
+
+## Data update from play (lv2, 11/28)
+
+`~/puzzlthink-supabase/hidden-word/lv2` = `levels` + `src/human_patch.txt`: hints players typed in at least 4 matches
+(기본) / 2 matches (확장) that the word's list lacked, graded by hand on the list scale (1,220 added), and 66 listed
+scores corrected from play (e.g. 과일 96.5 → 93 for each fruit: a closer that fits the whole group is a 1-in-5 guess;
+목–나무 71 → 91). 기본 also takes 확장's compound rule (`compound_by_meaning`, `compound_min_len` 2): a one-syllable
+piece gets what the whole word means (목+요일 no longer reads 90). MORA's feel tables are unchanged.
+`eval/human_pairs.tsv` holds the graded pairs as an evaluation set (eval_shown.py reports it as `human`).
+
+```bash
+H=~/puzzlthink-supabase/hidden-word; S=~/wallgo/scripts/hidden-word
+python3 $S/apply_patch.py $H/levels/assoc $H/lv2/src/human_patch.txt $H/lv2/assoc
+$H/.venv/bin/python $S/build_vocab.py $H/lv2 40000 41100
+$H/.venv/bin/python $S/embed_models.py $H/lv2 --reuse $H/levels bge-m3 kure-v2
+$H/.venv/bin/python $S/build_game.py $H/lv2
+$S/load_game.sh $H/lv2/game          # rollback: $S/load_game.sh $H/levels/game
+```

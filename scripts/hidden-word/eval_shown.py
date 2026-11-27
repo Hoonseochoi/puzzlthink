@@ -26,7 +26,7 @@ def conc(rows):
 
 DATA = sys.argv[1]
 levels = sys.argv[2:] or sorted(os.listdir(f'{DATA}/game'))
-pairs = {'live': load(f'{HERE}/eval/live_pairs.tsv'), 'design': load(f'{HERE}/eval/design_pairs.tsv')}
+pairs = {'live': load(f'{HERE}/eval/live_pairs.tsv'), 'design': load(f'{HERE}/eval/design_pairs.tsv'), 'human': load(f'{HERE}/eval/human_pairs.tsv')}
 show = json.load(open(f'{HERE}/show_scores.json', encoding='utf-8')); show.pop('_note')
 pairs['show'] = [(t, h, float(p)) for t, hs in show.items() for h, p in hs.items()]
 rows_all = {k: [] for k in pairs}

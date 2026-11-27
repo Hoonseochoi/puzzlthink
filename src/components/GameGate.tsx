@@ -99,9 +99,9 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     window.scrollTo({ top: 0 });
   };
 
-  const createRoom = async (label: string, create: () => Promise<string>) => {
+  const createRoom = async (label: string, create: () => Promise<string>, path?: string) => {
     setCreating(label);
-    try { router.push(`${modes.path}/room/${await create()}`); } catch { setCreating(null); }
+    try { router.push(`${path ?? `${modes.path}/room`}/${await create()}`); } catch { setCreating(null); }
   };
 
   const join = (event: React.FormEvent) => {
@@ -166,7 +166,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                 <p className={`mt-1 text-xs leading-5 ${muted}`}>{t('friendDesc')}</p>
                 <div className="mt-4 flex flex-col gap-2">
                   {modes.rooms.map((room) => (
-                    <button key={room.label} type="button" disabled={creating !== null} onClick={() => createRoom(room.label, room.create)} className={secondary}>
+                    <button key={room.label} type="button" disabled={creating !== null} onClick={() => createRoom(room.label, room.create, room.path)} className={secondary}>
                       {creating === room.label ? <Loader2 size={15} className="animate-spin" /> : <Link2 size={15} />}{creating === room.label ? t('creating') : t(room.label)}
                     </button>
                   ))}
@@ -292,7 +292,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                     {hasRooms && <>
                       <p className={`mt-2 flex items-center gap-1.5 border-t px-2 pb-1 pt-3 text-[10px] font-black tracking-[0.14em] ${dark ? 'border-white/10' : 'border-black/10'} ${muted}`}><UsersRound size={12} />{t('friendTitle')}</p>
                       {modes.rooms.map((room) => (
-                        <button key={room.label} type="button" role="menuitem" disabled={creating !== null} onClick={() => createRoom(room.label, room.create)}
+                        <button key={room.label} type="button" role="menuitem" disabled={creating !== null} onClick={() => createRoom(room.label, room.create, room.path)}
                           className={`flex w-full items-center gap-2 rounded-[10px] px-3 py-3 text-left text-sm font-black transition disabled:opacity-50 ${dark ? 'text-white/85 hover:bg-white/8' : 'text-black/75 hover:bg-black/5'}`}>
                           {creating === room.label ? <Loader2 size={14} className="shrink-0 animate-spin" /> : <Link2 size={14} className="shrink-0" />}{creating === room.label ? t('creating') : t(room.label)}
                         </button>
