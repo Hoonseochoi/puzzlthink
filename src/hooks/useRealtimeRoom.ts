@@ -77,6 +77,13 @@ const randomCode = () => String(1000 + (crypto.getRandomValues(new Uint32Array(1
  * invisible to others) and gives up after a short wait, treating an unreachable server as free.
  */
 function roomIsFree(channelPrefix: string, code: string): Promise<boolean> {
+  return probeRoom(channelPrefix, code);
+}
+
+/** Whether someone is in that room channel right now (e.g. to send a typed code to the right kind of room). */
+export const roomIsBusy = async (channelPrefix: string, code: string) => !(await probeRoom(channelPrefix, code));
+
+function probeRoom(channelPrefix: string, code: string): Promise<boolean> {
   const supabase = getSupabase();
   if (!supabase) return Promise.resolve(true);
   return new Promise((resolve) => {
