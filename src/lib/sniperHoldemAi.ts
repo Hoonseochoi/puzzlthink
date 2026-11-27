@@ -8,6 +8,10 @@
 //   hard   — as normal, plus: other players are modelled as reading *its* bets and snipes too, so it weighs how a
 //            raise makes its hand easier to snipe, and it will snipe a lower hand (or pass) to hide what it holds.
 // Survival matters more than chips: chips above the safety line are given away, and reaching it ends the match.
+// Bet sizes follow the hand (since 11/27): a raise is priced by how many opponents it folds and how strong the
+// callers are, a clearly strong hand prefers half the pot, the pot or all in, a re-raise is never +1, and a seat
+// raises again in the same betting round only with a strong hand and a big size (so no 1-chip raise chains).
+// scripts/sniper-holdem-betting.ts measures it.
 // On top of the level, every seat has a personality (SH_TRAITS, 10 of them, nudged by a per-match mood) and reads
 // each opponent's history from public information: hands shown down with what was bet on them, and snipes made.
 import {
@@ -130,7 +134,7 @@ type Tuning = { read: number; sims: number; snipeSims: number; meta: boolean; no
 export const SH_TUNING: Record<string, Tuning> = {
   easy: { read: 0, sims: 0, snipeSims: 0, meta: false, noise: 0.12 },
   normal: { read: 0.7, sims: 140, snipeSims: 180, meta: false, noise: 0.03 },
-  hard: { read: 1, sims: 220, snipeSims: 300, meta: true, noise: 0, perceive: true },
+  hard: { read: 1.4, sims: 220, snipeSims: 300, meta: true, noise: 0, perceive: true },
 };
 const LEVEL = SH_TUNING as Record<ShLevel, Tuning>;
 
@@ -556,22 +560,47 @@ function chooseBet(v: View, level: ShLevel): ShAction {
   };
   const options: { action: ShAction; value: number }[] = [{ action: { kind: 'fold' }, value: u(stack, pot) }];
   if (canCall) options.push({ action: { kind: 'call' }, value: p * u(stack + pot, 0) + (1 - p) * u(stack - owe, pot + owe) });
+
+  // How strong my hand is against each opponent (p is my share against all of them; q is the chance I beat one,
+  // so 0.5 = average at any table size), and how many times this betting round I and the table have raised
+  // already: an AI that has been re-raised calls, folds or makes one decisive raise, it does not answer every
+  // raise with another +1.
+  const q = Math.min(0.99, Math.pow(Math.max(1e-3, p), 1 / Math.max(1, opp)));
+  const street = g.shown === 4 ? 2 : 1;
+  const myRaises = v.moves.filter((m) => m.seat === me && m.kind === 'raise' && m.street === street).length;
+  const tableRaises = v.moves.filter((m) => m.kind === 'raise' && m.street === street).length;
+  const open = g.level === g.base;
+  // Personality moves the bar for "my hand is clearly strong": tight seats want more, loose and aggressive less.
+  const strongBar = 0.75 + 0.06 * tr.tight - 0.05 * tr.aggro;
+  const nutsBar = Math.max(strongBar + 0.08, 0.88 + 0.04 * tr.tight - 0.05 * tr.big);
+  const raiseAllowed = (to: number) => {
+    if (myRaises === 0 && tableRaises < 3) return true;
+    // Raising again (or into a third raise): only with a clearly strong hand, and only big.
+    const big = to === g.cap || to - g.level >= Math.max(3, pot);
+    if (myRaises >= 2 || tableRaises >= 4) return to === g.cap && q >= nutsBar;
+    return big && q >= strongBar;
+  };
   if (canRaise) {
-    const sizes = new Set<number>([g.level + 1, g.level + Math.max(2, Math.ceil(pot / 2)), g.level + Math.max(3, pot), g.cap]);
+    // Sizes: an opening bet may be the minimum (there is no checking); a re-raise is at least half the pot.
+    const half = Math.max(2, Math.ceil(pot / 2));
+    const sizes = new Set<number>([...(open ? [g.level + 1] : []), g.level + half, g.level + Math.max(3, pot), g.level + Math.max(4, 2 * pot), g.cap]);
     for (const raw of sizes) {
       const to = Math.min(g.cap, raw);
-      if (to <= g.level) continue;
+      if (to <= g.level || !raiseAllowed(to)) continue;
       const pay = to - g.bets[me];
       const extra = to - g.level;
-      // Chance everyone folds to it (each opponent folds the part of my guess at their cards too weak for the price);
-      // whoever calls a big raise is stronger than my reads say.
-      // An opponent calls when their own share beats the price; shares bunch near 1/players because strong hands
-      // get sniped, so only clearly weak holdings fold.
+      // Each opponent folds the part of my guess at their cards too weak for the price; an opponent calls when their
+      // own share beats it. Shares bunch near 1/players because strong hands get sniped, so only clearly weak
+      // holdings fold. Whoever calls is stronger than my reads say, but fewer of them are left to beat.
       const price = extra / (pot + 2 * extra);
-      const need = 0.5 + (price - 1 / (others.length + 1)) / 0.6;
-      const fe = others.reduce((acc, s) => acc * FOLD_SCALE * foldChance(v, s, need, level), 1);
-      const pc = Math.max(0, pRaise * (1 - 0.3 * Math.min(1, extra / Math.max(4, pot))));
-      const value = fe * u(stack + pot, 0) + (1 - fe) * (pc * u(stack + pot + extra, 0) + (1 - pc) * u(stack - pay, pot + pay));
+      const need = Math.min(0.95, Math.max(0, 0.5 + (price - 1 / (others.length + 1)) / 0.6));
+      const folds = others.map((s) => Math.min(0.95, FOLD_SCALE * foldChance(v, s, need, level)));
+      const fe = folds.reduce((acc, f) => acc * f, 1);
+      const callers = Math.max(1, folds.reduce((acc, f) => acc + (1 - f), 0) / Math.max(0.05, 1 - fe));
+      const bar = 0.6 * need;
+      const qc = Math.min(1, Math.max(0.02, (q * (pRaise / Math.max(1e-3, p)) - bar) / (1 - bar)));
+      const pc = Math.pow(qc, callers);
+      const value = fe * u(stack + pot, 0) + (1 - fe) * (pc * u(stack + pot + extra * callers, 0) + (1 - pc) * u(stack - pay, pot + pay));
       options.push({ action: { kind: 'raise', to }, value });
     }
   }
@@ -580,17 +609,25 @@ function chooseBet(v: View, level: ShLevel): ShAction {
   // or a bait (betting the scary board hand it does not hold) happens only where it is close to free.
   options.sort((a, b) => b.value - a.value);
   const bestValue = options[0].value;
-  const near = options.filter((o) => o.value >= bestValue - BET_SLACK * (bestValue + 0.05));
+  // A seat that likes big sizes gives up a little more for one when its hand is clearly strong (the all-in lover
+  // shoves it), so the size habit shows; everything else stays within BET_SLACK.
+  const slackOf = (o: { action: ShAction }) => BET_SLACK * (o.action.kind === 'raise' && q >= strongBar ? 1 + 2 * Math.max(0, tr.big) : 1);
+  const near = options.filter((o) => o.value >= bestValue - slackOf(o) * (bestValue + 0.05));
   const otherStacks = activeOthers.map((s) => g.chips[s]);
   const bullying = otherStacks.length > 0 && stack >= Math.max(...otherStacks) && stack >= 1.4 * Math.min(...otherStacks) ? tr.bully : 0;
   const boardScary = v.board.length >= 2 && (() => { const b = shEvaluate(v.board); const mine = shEvaluate([...v.board, ...v.mine]); return b.cat >= 1 && mine.cat <= b.cat; })();
-  const strong = p > 1.6 / (opp + 1);
+  const strong = q >= strongBar;
+  // Conviction: the stronger the hand, the more a raise should be sized like it (a clear hand bets big, sometimes
+  // all in); a bluff, when it comes, is sized like a real bet rather than a 1-chip poke.
+  const conviction = Math.max(0, Math.min(2, (q - 0.5) / Math.max(0.1, strongBar - 0.5)));
   const taste = (a: ShAction) => {
     if (a.kind === 'fold') return 0.6 * tr.tight - 0.8 * tr.station;
-    if (a.kind === 'call') return 0.8 * tr.station - 0.5 * tr.aggro + (strong ? tr.slow * 2 : 0);
+    if (a.kind === 'call') return 0.8 * tr.station - 0.5 * tr.aggro + (strong ? tr.slow * 2 : 0) + (myRaises > 0 ? 0.4 : 0);
     if (a.kind !== 'raise') return 0;
     const size = (a.to - g.level) / Math.max(1, g.cap - g.level);
-    return tr.aggro + bullying + tr.big * (2 * size - 1) + (!strong ? tr.bluff * 2 : 0) + (boardScary && !strong ? tr.bait * 1.5 : 0) - (strong ? tr.slow * 2 : 0);
+    const potSize = Math.min(2, (a.to - g.level) / Math.max(1, pot));
+    return tr.aggro + bullying + tr.big * (2 * size - 1) + (!strong ? tr.bluff * (1.5 + potSize) : 0) + (boardScary && !strong ? tr.bait * 1.5 : 0)
+      - (strong ? tr.slow * 2 : 0) + conviction * (0.6 * potSize + 0.5 * size) * (1 - tr.slow);
   };
   let pick: ShAction;
   if (ooc) pick = near[Math.floor(Math.random() * near.length)].action;

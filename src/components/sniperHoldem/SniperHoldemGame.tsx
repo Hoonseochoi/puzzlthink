@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { BookOpen, RotateCcw, Trophy, X } from 'lucide-react';
+import { BookOpen, History, RotateCcw, Trophy, X } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import GameUpdates from '@/components/GameUpdates';
 import { SNIPER_HOLDEM_ROOM } from '@/hooks/useSniperHoldemRoom';
@@ -18,7 +18,8 @@ import { BTN, BTN_ACCENT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL_TITLE, SHELL
 import { SH_ROOT_STYLE, type ShCopy, shCopy } from './copy';
 import { ShAvatar } from './SniperHoldemParts';
 import { personaCopy } from './personas';
-import SniperHoldemResult, { shMyPlace, useSniperHoldemReport } from './SniperHoldemResult';
+import SniperHoldemResult, { shMyPlace, shNamer, useResultDelay, useSniperHoldemReport } from './SniperHoldemResult';
+import { SniperHoldemReplay, useShReplayRecorder } from './SniperHoldemReplay';
 import SniperHoldemTable, { Ladder } from './SniperHoldemTable';
 
 /** Reads ?difficulty=normal|hard, ?players=2..5 and ?chips=24 from the entry screen's buttons. */
@@ -43,6 +44,11 @@ export default function SniperHoldemGame() {
   const finished = state?.phase === 'finished';
   const done = !!state && (finished || shMyPlace(state, 0) !== null);
   const resultKey = state ? `${state.game.gid}-${finished}` : '';
+  const resultReady = useResultDelay(done, resultKey);
+  const [replaying, setReplaying] = useState(false);
+  // Only AIs sit with me, and every card is in this browser already: the 복기 shows everyone's private cards.
+  const seen = useShReplayRecorder(state?.game, 0, true);
+  const again = () => { setClosedKey(null); setReplaying(false); reset(); };
   useSniperHoldemReport(state, 0, 'ai');
   useEffect(() => { setRoomPlaying(true); return () => setRoomPlaying(false); }, []);
   const subtitle = `AI ${opts.size - 1} · ${t.levelName[opts.level]}${opts.chips === SH_CHIPS_QUICK ? ` · ${opts.chips}` : ''}`;
@@ -52,18 +58,21 @@ export default function SniperHoldemGame() {
       <GameHeader players={roomPlayers(state, true)} me={0} backHref="/sniper-holdem" backLabel={t.back} title={t.title} titleClass="font-black !text-[15px] !tracking-[0.02em] min-[400px]:!text-lg sm:!text-xl" subtitle={subtitle}>
         <button type="button" onClick={() => setRulesOpen(true)} className={BTN} aria-label={t.rules}><BookOpen size={14} /><span className="hidden sm:inline">{t.rules}</span></button>
         <GameUpdates game="sniper_holdem" /><BugReport /><LanguageSwitcher compact dark />
-        <button type="button" onClick={() => { setClosedKey(null); reset(); }} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>
+        <button type="button" onClick={again} className={BTN_ACCENT} aria-label={t.again}><RotateCcw size={14} /><span className="hidden sm:inline">{t.again}</span></button>
       </GameHeader>
       <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">
-        {state && <SniperHoldemTable room={state} mySeat={0} onAction={dispatch} t={t} locale={locale} />}
-        {done && closedKey === resultKey && (
-          <div className="mx-auto mt-2 grid max-w-[760px] grid-cols-2 gap-2">
+        {state && replaying && done
+          ? <SniperHoldemReplay g={state.game} seen={seen} t={t} nameOf={shNamer(state, 0, t, locale)} mySeat={0} onClose={() => { setReplaying(false); setClosedKey(resultKey); }} onShowResult={() => { setReplaying(false); setClosedKey(null); }} />
+          : state && <SniperHoldemTable room={state} mySeat={0} onAction={dispatch} t={t} locale={locale} finalSheet={!resultReady} />}
+        {done && resultReady && closedKey === resultKey && !replaying && (
+          <div className="mx-auto mt-2 grid max-w-[760px] grid-cols-3 gap-2">
             <button type="button" onClick={() => setClosedKey(null)} className={`${BTN} py-3`}><Trophy size={14} />{t.showResult}</button>
-            <button type="button" onClick={() => { setClosedKey(null); reset(); }} className={`${BTN_ACCENT} py-3`}><RotateCcw size={14} />{t.again}</button>
+            <button type="button" onClick={() => setReplaying(true)} disabled={!state?.game.rounds.length} className={`${BTN} py-3 disabled:opacity-30`}><History size={14} />{t.replay}</button>
+            <button type="button" onClick={again} className={`${BTN_ACCENT} py-3`}><RotateCcw size={14} />{t.again}</button>
           </div>
         )}
       </main>
-      {done && closedKey !== resultKey && state && <SniperHoldemResult room={state} mySeat={0} t={t} locale={locale} onAgain={() => { setClosedKey(null); reset(); }} onClose={() => setClosedKey(resultKey)} />}
+      {done && resultReady && closedKey !== resultKey && !replaying && state && <SniperHoldemResult room={state} mySeat={0} t={t} locale={locale} onAgain={again} onClose={() => setClosedKey(resultKey)} onReplay={() => setReplaying(true)} />}
       {rulesOpen && <SniperHoldemRules t={t} locale={locale} players={state?.game.players ?? opts.size} start={state?.game.startChips ?? opts.chips} rise={state?.game.anteRule !== 'fixed'} onClose={() => setRulesOpen(false)} />}
     </div>
   );
