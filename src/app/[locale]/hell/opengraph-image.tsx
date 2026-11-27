@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { OG_SIZE, fontsFor, ogLocale } from '@/lib/og';
+import { OG_SIZE, fontsFor, ogLocale, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -13,7 +13,7 @@ const COPY = {
 };
 
 /** Link preview: a black screen, neon red title over faint scanlines, the five games and the black-piece rule. */
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(`${c.kicker}${c.title}${c.sub}${c.games.join('')}${c.rule}PUZZLTHINKpuzzlthink.com·=1`);
   return new ImageResponse(
@@ -33,4 +33,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     </div>,
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('hell', props, render);
 }

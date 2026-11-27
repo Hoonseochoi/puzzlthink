@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { OG_SIZE, fontsFor, ogLocale } from '@/lib/og';
+import { OG_SIZE, fontsFor, ogLocale, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -13,7 +13,7 @@ const COPY = {
 };
 const STANDS: [string, number[]][] = [['#f0524f', [6, 5]], ['#34c47c', [4, 3, 2]], ['#4f7cf0', [5, 6]]];
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(`PUZZLTHINK${c.title}${c.kicker}${c.sub}${c.modes.join('')}0123456789/`);
   return new ImageResponse(
@@ -45,4 +45,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     ),
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('heavy13', props, render);
 }

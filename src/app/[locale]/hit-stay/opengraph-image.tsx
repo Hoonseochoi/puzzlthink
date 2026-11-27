@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText } from '@/lib/og';
+import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -15,7 +15,7 @@ const COPY = {
 // Three cards that land right on the limit 9: 4 + 6 + (-1).
 const CARDS = [{ v: '4', dark: false, r: -10 }, { v: '6', dark: false, r: 0 }, { v: '-1', dark: true, r: 10 }];
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(ogText(c, '0123456789-·HITSTAY'));
   return new ImageResponse(
@@ -36,4 +36,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     } />,
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('hit-stay', props, render);
 }

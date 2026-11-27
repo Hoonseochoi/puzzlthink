@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { JanggiTile, OG_SIZE, fontsFor, ogLocale } from '@/lib/og';
+import { JanggiTile, OG_SIZE, fontsFor, ogLocale, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -19,7 +19,7 @@ const BOARD: [string, string, boolean][][] = [
   [['相', RED, false], ['王', RED, false], ['將', RED, false]],
 ];
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(`PUZZLTHINK${c.title}${c.kicker}${c.sub}${c.modes.join('')}`, '將王相子十二棋');
   return new ImageResponse(
@@ -50,4 +50,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     ),
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('janggi', props, render);
 }

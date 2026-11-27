@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText } from '@/lib/og';
+import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -16,7 +16,7 @@ const COPY = {
 const ROW = [0, 1, 3, 4, 5, 8, 9];
 const SHADE = ['#26262d', '#9a9ca3', '#cfd1d5', '#f1f2f4', '#cfd1d5', '#9a9ca3', '#26262d'];
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(ogText(c, '0123456789SUM≤'));
   return new ImageResponse(
@@ -34,4 +34,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     } />,
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('gradation', props, render);
 }

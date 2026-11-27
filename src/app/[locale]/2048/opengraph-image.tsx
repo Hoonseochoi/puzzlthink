@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText } from '@/lib/og';
+import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -20,7 +20,7 @@ const LOOK: Record<number, [string, string, boolean]> = {
 };
 const CELLS = [2, 0, 4, 2, 8, 16, 0, 4, 32, 64, 128, 0, 2048, 512, 256, 8];
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(ogText(c, '0123456789'));
   const cell = 92;
@@ -44,4 +44,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     } />,
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('2048', props, render);
 }

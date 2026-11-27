@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText } from '@/lib/og';
+import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -17,7 +17,7 @@ const PTS = [[0, 0], [3, 0], [6, 0], [1, 1], [3, 1], [5, 1], [2, 2], [3, 2], [4,
 const PIECES: Record<number, 0 | 1> = { 0: 0, 1: 0, 2: 0, 4: 1, 10: 1, 13: 0, 16: 1, 19: 1, 23: 0 };
 const at = (n: number) => 30 + n * 53;
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(ogText(c, ''));
   return new ImageResponse(
@@ -37,4 +37,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     } />,
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('nine-mens-morris', props, render);
 }

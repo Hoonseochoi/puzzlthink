@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText } from '@/lib/og';
+import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE; export const contentType = 'image/png'; export const dynamic = 'force-static';
 export const generateStaticParams = () => [{ locale: 'ko' }, { locale: 'en' }]; export const alt = 'PUZZLTHINK Two-Sided Poker';
@@ -14,8 +14,12 @@ const face = (back: boolean, label: string, tilt: number) => (
     {label}
   </div>
 );
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(ogText(c, '?9FRONTBACKBOTH+10'));
   return new ImageResponse(<GameOgCard {...c} accent="#9b87ff" glow="rgba(155,135,255,.26)" art={<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{face(false, '9', -7)}<div style={{ display: 'flex', width: 8, height: 110, borderRadius: 8, background: '#9b87ff' }} />{face(true, '?', 7)}</div><div style={{ display: 'flex', alignItems: 'flex-end', gap: 22 }}>{chips('#f2c14e', 4)}<div style={{ display: 'flex', padding: '8px 16px', borderRadius: 999, background: '#9b87ff', color: '#120d26', fontSize: 24, fontWeight: 900 }}>BOTH +10</div>{chips('#9b87ff', 3)}</div></div>} />, { ...size, fonts });
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('two-sided-poker', props, render);
 }

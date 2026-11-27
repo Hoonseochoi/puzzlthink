@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { OG_SIZE, SudokuMini, fontsFor, ogLocale } from '@/lib/og';
+import { OG_SIZE, SudokuMini, fontsFor, ogLocale, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -12,7 +12,7 @@ const COPY = {
   en: { title: 'Sudoku', kicker: 'Free online Sudoku', sub: 'Easy · Medium · Hard — with a solving guide' },
 };
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(`PUZZLTHINK${c.title}${c.kicker}${c.sub}0123456789`);
   return new ImageResponse(
@@ -29,4 +29,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     ),
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('play', props, render);
 }

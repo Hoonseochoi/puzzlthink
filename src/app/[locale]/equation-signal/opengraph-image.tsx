@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText } from '@/lib/og';
+import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -16,7 +16,7 @@ const COPY = {
 const ROWS: [string, string][] = [['1+2×3^4=5', 'yryyyrryr'], ['30−6×2=18', 'yyyyyggyr'], ['6×7−12=30', 'ggggggggg']];
 const LAMP: Record<string, string> = { g: '#2fbf71', y: '#f2c230', r: '#e5484d' };
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(ogText(c, '0123456789+−×÷^='));
   return new ImageResponse(
@@ -33,4 +33,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     } />,
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('equation-signal', props, render);
 }
