@@ -68,11 +68,13 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
   const t = useTranslations('BugReport');
   const tc = useTranslations('Common');
   const locale = useLocale();
-  const { user } = useAuth();
+  const { user, nickname } = useAuth();
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('bug');
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
+  // Signed-in members: send the nickname and the account email with the report (their choice, on by default).
+  const [withAccount, setWithAccount] = useState(true);
   const [trap, setTrap] = useState(''); // honeypot: bots fill every field
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
@@ -89,7 +91,9 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
     const page = window.location.href;
     const ua = navigator.userAgent;
     const screen = `${window.innerWidth}x${window.innerHeight}@${window.devicePixelRatio || 1}`;
-    const contact = email.trim();
+    const account = user && withAccount ? { nickname: nickname?.trim() || '', email: user.email || '' } : null;
+    // The reply address: the one typed in, or (with consent) the account email.
+    const contact = email.trim() || account?.email || '';
 
     const stored = getSupabase()?.rpc('submit_bug_report', {
       p_game: game.id, p_category: category, p_message: message.trim(), p_contact_email: contact || null,
@@ -113,6 +117,7 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
           화면: screen,
           언어: locale,
           로그인: user ? `로그인 사용자 (${user.id})` : '비로그인',
+          ...(account ? { 닉네임: account.nickname || '(없음)', '계정 이메일': account.email || '(없음)' } : {}),
         }),
       }).then((r) => r.json()).then((r) => Boolean(r?.success), () => false)
       : Promise.resolve(false);
@@ -170,6 +175,16 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
                     className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#17201e]" />
                   <span className="mt-1 block text-[11px] text-black/40">{t('emailHint')}</span>
                 </label>
+                {user && (
+                  <label className="flex cursor-pointer items-start gap-2 rounded-xl border border-black/10 bg-white px-3 py-2.5">
+                    <input type="checkbox" checked={withAccount} onChange={(e) => setWithAccount(e.target.checked)} className="mt-0.5 accent-[#17201e]" />
+                    <span className="min-w-0 text-xs font-bold leading-5 text-black/70">
+                      {t('withAccount')}
+                      <span className="block break-all text-[11px] font-normal text-black/45">{[nickname?.trim(), user.email].filter(Boolean).join(' · ')}</span>
+                      <span className="block text-[11px] font-normal text-black/45">{t('withAccountHint')}</span>
+                    </span>
+                  </label>
+                )}
                 <input type="text" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} className="hidden" aria-hidden />
                 <p className="text-[11px] text-black/40">{t('attached')}</p>
                 {(error || status === 'failed') && <p className="rounded-xl bg-[#fff0eb] px-3 py-2 text-xs font-bold text-[#c2410c]">{error || t('failed')}</p>}
