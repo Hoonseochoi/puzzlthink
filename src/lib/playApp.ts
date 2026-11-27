@@ -49,7 +49,7 @@ export const PLAY_APP_FINGERPRINTS = {
  * visit until "이미 설치했어요" (Android; elsewhere one "Android only" line). Testers are invited by email; list them
  * with scripts/play/testers.sh.
  */
-export const PLAY_TESTER_OPT_IN_URL = '';
+export const PLAY_TESTER_OPT_IN_URL = 'https://play.google.com/apps/testing/com.puzzlthink.app';
 
 /** Query parameter on the app's start URL: /?app=play */
 export const PLAY_APP_PARAM = 'app';
