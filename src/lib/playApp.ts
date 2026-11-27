@@ -41,6 +41,14 @@ export const PLAY_APP_FINGERPRINTS = {
   playAppSigning: '43:33:23:43:6A:89:50:BE:55:C5:06:D4:5D:6E:0E:71:6E:6D:E2:C8:BE:8F:4F:B3:40:20:36:1D:AE:50:14:C4', // Play App Signing key (Play Console → App signing, 2026-11-27)
 } as const;
 
+/**
+ * The closed test's opt-in link (Play Console → Test and release → Closed testing → Testers → "Join on the web" /
+ * "Copy link", https://play.google.com/apps/testing/com.puzzlthink.app). Empty: members who signed up as testers
+ * (src/components/AppTesterInvite.tsx) are told the install link will appear once the test opens. Set: they get an
+ * "앱 받기" button to it. Testers are invited by email; list them with scripts/play/testers.sh.
+ */
+export const PLAY_TESTER_OPT_IN_URL = '';
+
 /** Query parameter on the app's start URL: /?app=play */
 export const PLAY_APP_PARAM = 'app';
 export const PLAY_APP_VALUE = 'play';

@@ -26,6 +26,7 @@ import IconCollectionLink from './IconCollectionLink';
 import RankBlock from './merge2048/RankBlock';
 import { FitTile } from './OpenMatchCard';
 import StoneAvatar, { Stone } from './StoneAvatar';
+import { AppTesterStrip } from './AppTesterInvite';
 
 // Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
 export const NEW: GameId[] = ['hiddenWordPlus', 'sniperHoldem', 'hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'timeAuction', 'gradation', 'pointOmok'];
@@ -364,6 +365,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
         </div>
         <div className="mt-2 flex justify-center gap-1.5">{events.map((e, i) => <i key={e.key} className={`h-1.5 rounded-full transition-all ${i === ev ? 'w-4 bg-[#17201e]' : 'w-1.5 bg-black/20'}`} />)}</div>
         <LiveFeed items={feed} />
+        <AppTesterStrip className="mx-4 mt-3" />
       </section>
 
       {/* category chips (stick while scrolling) */}

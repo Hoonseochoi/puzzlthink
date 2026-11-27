@@ -18,6 +18,7 @@ import CompetitionBoard from './CompetitionBoard';
 import BlackPieceBoard from './hell/BlackPieceBoard';
 import { hellLabel } from '@/lib/hell';
 import { byGameOrder } from './recordOrder';
+import { AppTesterSettings } from './AppTesterInvite';
 
 const GAMES: { id: GameId; href: string; color: string }[] = [
   { id: 'gyulhap', href: '/gyulhap', color: '#ffcf3f' },
@@ -216,6 +217,8 @@ export default function RecordsClient() {
                   <section className="rounded-[24px] border border-black/10 bg-white p-4"><p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-black/40"><Gamepad2 size={12} />{t('gamesPlayed')}</p><p className="mt-1 text-2xl font-black">{results.length}</p></section>
                 </div>
               </div>
+
+              <AppTesterSettings className="mt-3" />
 
               <section className="mt-3 rounded-[24px] border border-[#d9b25f]/40 bg-[#fbf5e6] p-5">
                 <h3 className="flex items-center gap-1.5 text-sm font-black"><Award size={16} className="text-[#b8892e]" />{tc('myCerts')}</h3>
