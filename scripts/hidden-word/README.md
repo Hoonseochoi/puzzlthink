@@ -140,3 +140,21 @@ python3 $S/analyze_log.py live-pairs --n 300 > /tmp/pairs.tsv   # fresh pairs to
 In 'misscored', "found" is the opponent's success in that stage; in AI matches that opponent is MORA, so a low rate
 can mean MORA cannot read the hint (one-syllable hints like 열 for 대기) rather than a wrong number. Friend rooms,
 where both sides are people, give the cleaner signal as they accumulate.
+
+## Data update from play (lv2, 11/28)
+
+`~/puzzlthink-supabase/hidden-word/lv2` = `levels` + `src/human_patch.txt`: hints players typed in at least 4 matches
+(기본) / 2 matches (확장) that the word's list lacked, graded by hand on the list scale (1,220 added), and 66 listed
+scores corrected from play (e.g. 과일 96.5 → 93 for each fruit: a closer that fits the whole group is a 1-in-5 guess;
+목–나무 71 → 91). 기본 also takes 확장's compound rule (`compound_by_meaning`, `compound_min_len` 2): a one-syllable
+piece gets what the whole word means (목+요일 no longer reads 90). MORA's feel tables are unchanged.
+`eval/human_pairs.tsv` holds the graded pairs as an evaluation set (eval_shown.py reports it as `human`).
+
+```bash
+H=~/puzzlthink-supabase/hidden-word; S=~/wallgo/scripts/hidden-word
+python3 $S/apply_patch.py $H/levels/assoc $H/lv2/src/human_patch.txt $H/lv2/assoc
+$H/.venv/bin/python $S/build_vocab.py $H/lv2 40000 41100
+$H/.venv/bin/python $S/embed_models.py $H/lv2 --reuse $H/levels bge-m3 kure-v2
+$H/.venv/bin/python $S/build_game.py $H/lv2
+$S/load_game.sh $H/lv2/game          # rollback: $S/load_game.sh $H/levels/game
+```
