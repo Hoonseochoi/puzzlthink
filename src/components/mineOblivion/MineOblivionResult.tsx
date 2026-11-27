@@ -75,7 +75,7 @@ export default function MineOblivionResult({ room, mySeat, t, onAgain, onClose, 
         </div>
         <p className="mt-3 break-keep text-[11px] leading-4 text-white/45">{t.replayAll}</p>
         <div className="mt-4">
-          <ResultActions won={me === null || g.winner === null ? undefined : g.winner === me} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/mine-of-oblivion" exitPath="/mine-of-oblivion" primaryClass={RESULT_PRIMARY}
+          <ResultActions won={me === null || g.winner === null ? undefined : g.winner === me} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/mine-of-oblivion" primaryClass={RESULT_PRIMARY}
             replay={onReplay ? <button type="button" onClick={onReplay} className={`${BTN} w-full py-3`}><History size={14} />{t.replay}</button> : undefined} />
         </div>
       </div>
