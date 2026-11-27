@@ -90,7 +90,7 @@ export default function TimeAuctionResult({ room, mySeat, t, locale, onAgain, on
           </table>
         </div>
         <div className="mt-5">
-          <ResultActions won={mine === null ? undefined : st.place[mine] === 1} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/time-auction" exitPath="/time-auction" primaryClass={RESULT_PRIMARY} />
+          <ResultActions won={mine === null ? undefined : st.place[mine] === 1} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/time-auction" primaryClass={RESULT_PRIMARY} />
         </div>
       </div>
     </div>

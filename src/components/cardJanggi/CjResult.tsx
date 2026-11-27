@@ -74,7 +74,7 @@ function CjResultCard({ room, mySeat, names, t, onAgain, waitingLabel, onClose, 
           })}
         </ol>
         {canTip && <TipsButton label={t.tipsButton} onOpen={() => setTipsOpen(true)} />}
-        <div className="mt-5"><ResultActions won={mySeat === null ? undefined : won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath={path} exitPath={path} primaryClass={RESULT_PRIMARY} /></div>
+        <div className="mt-5"><ResultActions won={mySeat === null ? undefined : won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath={path} primaryClass={RESULT_PRIMARY} /></div>
       </motion.div>
       {tipsOpen && mySeat !== null && <CjTips results={room.results} seat={mySeat} t={t} onClose={() => setTipsOpen(false)} />}
     </div>

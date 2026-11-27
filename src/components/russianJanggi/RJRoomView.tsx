@@ -205,7 +205,7 @@ export default function RJRoomView({ code }: { code: string }) {
       <EndRevealBanner show={!!game && reveal.revealing && !showReplay} text={game ? rjEndText(tg, game, mySeat, names) : ''} color={game?.winner != null ? SIDE_COLORS[game.winner] : undefined} onSkip={reveal.skip} />
       {state?.phase === 'finished' && game && reveal.showResult && closedFor !== finishedKey && !showReplay && (
         <RJResult game={game} viewer={mySeat} names={state.seats.map((seat) => seat?.name ?? '')}
-          onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} exitPath="/russian-janggi"
+          onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')}
           onReplay={() => { setClosedFor(finishedKey); setReplayFor(finishedKey); }} onClose={() => setClosedFor(finishedKey)} />
       )}
     </div>

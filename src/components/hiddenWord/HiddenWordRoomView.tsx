@@ -8,6 +8,8 @@ import GameUpdates from '@/components/GameUpdates';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
+import HomeButton from '@/components/ui/HomeButton';
+import { useBackClose } from '@/hooks/useBackClose';
 import InviteCode from '@/components/ui/InviteCode';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANEL_TITLE, SHELL, STAGE } from '@/components/ui/gameUi';
@@ -42,6 +44,7 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
   const [nameDraft, setNameDraft] = useState('');
   const [starting, setStarting] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
+  useBackClose(rulesOpen, () => setRulesOpen(false));
   const [seenAt, setSeenAt] = useState({ key: '', at: 0 });
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
@@ -116,7 +119,7 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
       <main className="relative z-10 mx-auto w-full max-w-[640px] px-3 pb-10 pt-3 sm:px-4 sm:pt-5">
         {!state ? (
           <div className={`${STAGE} flex min-h-[320px] flex-col items-center justify-center gap-3 text-center`}>
-            {!notice ? <p className="flex items-center gap-2 text-sm text-white/50"><Loader2 size={16} className="animate-spin" />{r.connecting}</p> : <Link href="/hidden-word" className={`px-4 py-2.5 text-sm ${BTN_ACCENT}`}>{r.backToGame}</Link>}
+            {!notice ? <p className="flex items-center gap-2 text-sm text-white/50"><Loader2 size={16} className="animate-spin" />{r.connecting}</p> : <Link href={path} className={`px-4 py-2.5 text-sm ${BTN_ACCENT}`}>{r.backToGame}</Link>}
           </div>
         ) : phase === 'lobby' ? (
           <div className="space-y-4">
@@ -449,9 +452,11 @@ function OverStage({ state, mySeat, name, t, isHost, starting, onAgain }: { stat
           </li>
         ))}
       </ul>
-      {isHost
-        ? <button type="button" disabled={starting} onClick={onAgain} className={`${BTN_ACCENT} mt-5 w-full !py-3.5 !text-sm`}>{starting ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} />}{r.rematch}</button>
-        : <p className="mt-5 text-xs text-white/45">{r.rematchWait}</p>}
+      {!isHost && <p className="mt-5 text-xs text-white/45">{r.rematchWait}</p>}
+      <div className={`grid gap-2 ${isHost ? 'mt-5 grid-cols-[1fr_2fr]' : 'mt-3'}`}>
+        <HomeButton block className="!rounded-md !text-sm" />
+        {isHost && <button type="button" disabled={starting} onClick={onAgain} className={`${BTN_ACCENT} w-full !py-3.5 !text-sm`}>{starting ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} />}{r.rematch}</button>}
+      </div>
     </section>
   );
 }

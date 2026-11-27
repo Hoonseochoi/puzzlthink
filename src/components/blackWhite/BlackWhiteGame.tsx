@@ -127,7 +127,7 @@ export default function BlackWhiteGame() {
             <Replay key={gameNo} rounds={rounds} me={0} names={names}>
               <PersonaReveal id={persona.id} en={en} tell={BW_TELLS[persona.id]} className="mb-3"
                 lines={[en ? `Its tiles in rounds 1–4 added up to ${rounds.slice(0, 4).reduce((a, r) => a + r.tiles[1], 0)} (an even spread is about 16).` : `1~4라운드에 낸 숫자 합: ${rounds.slice(0, 4).reduce((a, r) => a + r.tiles[1], 0)} (고르게 쓰면 16 안팎)`]} />
-              <ResultActions onAgain={reset} gamePath="/black-white" exitPath="/black-white" primaryClass={RESULT_PRIMARY} />
+              <ResultActions onAgain={reset} gamePath="/black-white" primaryClass={RESULT_PRIMARY} />
             </Replay>
           ) : (
             <div className="space-y-3 sm:space-y-4">

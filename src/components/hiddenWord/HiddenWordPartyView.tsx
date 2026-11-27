@@ -8,6 +8,8 @@ import GameUpdates from '@/components/GameUpdates';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
+import HomeButton from '@/components/ui/HomeButton';
+import { useBackClose } from '@/hooks/useBackClose';
 import InviteCode from '@/components/ui/InviteCode';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANEL_TITLE, SHELL, STAGE } from '@/components/ui/gameUi';
@@ -37,6 +39,7 @@ export default function HiddenWordPartyView({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [starting, setStarting] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
+  useBackClose(rulesOpen, () => setRulesOpen(false));
   const [error, setError] = useState('');
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
@@ -401,8 +404,11 @@ function FinalStage({ state, mySeat, name, t, p, isHost, starting, onAgain }: { 
           </li>
         ))}
       </ul>
-      {isHost ? <button type="button" disabled={starting} onClick={onAgain} className={`${BTN_ACCENT} mt-5 w-full !py-3.5 !text-sm`}>{starting ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} />}{t.room.rematch}</button>
-        : <p className="mt-5 text-xs text-white/45">{t.room.rematchWait}</p>}
+      {!isHost && <p className="mt-5 text-xs text-white/45">{t.room.rematchWait}</p>}
+      <div className={`grid gap-2 ${isHost ? 'mt-5 grid-cols-[1fr_2fr]' : 'mt-3'}`}>
+        <HomeButton block className="!rounded-md !text-sm" />
+        {isHost && <button type="button" disabled={starting} onClick={onAgain} className={`${BTN_ACCENT} w-full !py-3.5 !text-sm`}>{starting ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} />}{t.room.rematch}</button>}
+      </div>
     </section>
   );
 }

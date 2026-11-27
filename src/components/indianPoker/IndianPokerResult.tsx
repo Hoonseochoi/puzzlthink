@@ -78,7 +78,7 @@ export function IndianPokerResultModal({ winner, chips, reason, rounds, names, o
             <p className="flex items-center gap-1.5 text-xs font-black text-[#ffd36e]"><Trophy size={13} />{t('end.rankingTitle')}</p>
             <Link href="/ranking/indian-poker" className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#ffd36e]/40 bg-[#ffd36e]/10 px-3 py-1.5 text-xs font-black text-[#ffd36e] hover:bg-[#ffd36e]/20">🏆 {t('end.rankingButton')}</Link>
           </div>
-        } won={won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/indian-poker" exitPath="/indian-poker" primaryClass={RESULT_PRIMARY} />
+        } won={won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/indian-poker" primaryClass={RESULT_PRIMARY} />
       </div>
     </div>
   );

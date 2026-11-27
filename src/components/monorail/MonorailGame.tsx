@@ -10,6 +10,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg } from '@/components/ui/gameUi';
+import HomeButton from '@/components/ui/HomeButton';
 import { reportGame } from '@/lib/stats';
 import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
 import { EndRevealBanner } from '@/components/ui/EndReveal';
@@ -128,7 +129,7 @@ export default function MonorailGame() {
                   <Trophy size={32} className="mx-auto text-[#f3b64a]" /><p className={`${KICKER} mt-3`}>{t('resultKicker')}</p>
                   <h2 className="mt-1 text-2xl font-black">{result}</h2><p className="mt-2 break-keep text-sm leading-6 text-white/60">{reason}</p>
                   {game.reason === 'gave-up' && game.proof && <p className="mt-3 rounded-md bg-[#f3b64a]/10 px-3 py-2 text-xs font-bold text-[#f6d58f]">{t('proofShown')}</p>}
-                  <button type="button" onClick={() => restart()} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={15} />{t('rematch')}</button>
+                  <div className="mt-5 grid grid-cols-[1fr_2fr] gap-2"><HomeButton block className="!rounded-md" /><button type="button" onClick={() => restart()} className={`${BTN_ACCENT} w-full py-3`}><RotateCcw size={15} />{t('rematch')}</button></div>
                   <ResultExtras canReplay={frames.length > 1} onReplay={() => setReplaying(true)} onViewBoard={() => setShowResult(false)} />
                 </div>
               </div>

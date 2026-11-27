@@ -39,6 +39,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드 확장판', en: 'Hidden Word: Expansion' },
     items: [
       {
+        date: '11/28', icon: Undo2,
+        ko: { title: '뒤로가기를 고치고, 끝난 판에 홈으로 버튼을 달았어요', desc: '대전 중 왼쪽 위 ← 가 먹히지 않던 문제를 고쳤고, 규칙·랭킹 창은 휴대폰 뒤로가기로 닫혀요. 대전 중 Google 로그인을 하면 하던 대전으로 돌아오고, 결과 화면에 홈으로 버튼이 생겼어요.' },
+        en: { title: 'Back fixed, and a Home button after the match', desc: 'The ← at the top left now leaves a match, and the phone\'s back closes the rules and ranking popups. Signing in with Google mid-match brings you back to the match, and results now have a Home button.' },
+      },
+      {
         date: '11/27', icon: Wrench,
         ko: { title: 'MORA가 이미 나온 단어를 힌트로 다시 내던 문제를 고쳤어요', desc: '내가 답으로 냈다가 틀린 단어를 MORA가 다음 단계 힌트로 다시 내는 일이 있었어요. 이제 판에 나온 단어는 다시 나오지 않고, 친구 파티 방에서도 앞 단계에 나온 답은 다시 낼 수 없어요.' },
         en: { title: 'Fixed: MORA repeated a word already on the board', desc: 'MORA sometimes gave your wrong answer back to you as a hint in the next stage. Words already on the board no longer come back, and in party rooms an answer from an earlier stage cannot be given again.' },
@@ -94,6 +99,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   hidden_word: {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
+      {
+        date: '11/28', icon: Undo2,
+        ko: { title: '뒤로가기를 고치고, 끝난 판에 홈으로 버튼을 달았어요', desc: '대전 중 왼쪽 위 ← 가 먹히지 않던 문제를 고쳤고, 규칙·랭킹 창은 휴대폰 뒤로가기로 닫혀요. 대전 중 Google 로그인을 하면 하던 대전으로 돌아오고, 결과 화면에 홈으로 버튼이 생겼어요.' },
+        en: { title: 'Back fixed, and a Home button after the match', desc: 'The ← at the top left now leaves a match, and the phone\'s back closes the rules and ranking popups. Signing in with Google mid-match brings you back to the match, and results now have a Home button.' },
+      },
       {
         date: '11/27', icon: Wrench,
         ko: { title: 'MORA가 이미 나온 단어를 힌트로 다시 내던 문제를 고쳤어요', desc: '내가 답으로 냈다가 틀린 단어를 MORA가 다음 단계 힌트로 다시 내는 일이 있었어요. 이제 판에 이미 나온 단어는 힌트로도, 마지막에 공개되는 가장 가까운 단어로도 다시 나오지 않아요.' },

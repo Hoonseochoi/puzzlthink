@@ -1,17 +1,17 @@
 "use client";
 
 import { useTranslations } from 'next-intl';
-import { Crown, Gem, LogOut, RotateCcw, ShieldAlert, ShieldCheck } from 'lucide-react';
-import { Link } from '@/i18n/routing';
-import { BTN, BTN_ACCENT, KICKER, MODAL_BACKDROP } from '@/components/ui/gameUi';
+import { Crown, Gem, RotateCcw, ShieldAlert, ShieldCheck } from 'lucide-react';
+import HomeButton from '@/components/ui/HomeButton';
+import { BTN_ACCENT, KICKER, MODAL_BACKDROP } from '@/components/ui/gameUi';
 import { type FtRoom, finalists, missionSucceeded, outcomeFor, playerRanking } from '@/lib/fourThreeRoom';
 import { FtPiece } from './FourThreeParts';
 import { RoomPieces } from '../PieceStone';
 import { EndRevealGate } from '@/components/ui/EndReveal';
 
 /** End of the four rounds: did the mission hold, the players' pieces and who goes through. */
-function FourThreeResultInner({ room, mySeat, onAgain, waitingLabel, exitPath }: {
-  room: FtRoom; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; exitPath: '/' | '/four-three';
+function FourThreeResultInner({ room, mySeat, onAgain, waitingLabel }: {
+  room: FtRoom; mySeat: number | null; onAgain?: () => void; waitingLabel?: string;
 }) {
   const t = useTranslations('FourThree');
   const ok = missionSucceeded(room);
@@ -38,7 +38,7 @@ function FourThreeResultInner({ room, mySeat, onAgain, waitingLabel, exitPath }:
         {through.length > 2 && <p className="mt-2 text-[10px] text-white/40">{t('tieNote')}</p>}
         {mine && <p className={`mt-4 rounded-lg px-3 py-2 text-sm font-black ${mine === 'win' ? 'bg-(--accent) text-(--accent-ink)' : 'bg-white/10 text-white/70'}`}>{mine === 'win' ? t('youWin') : ok ? t('youMissed') : t('youLose')}</p>}
         <div className="mt-5 grid grid-cols-2 gap-2">
-          <Link href={exitPath} className={`py-3 ${BTN}`}><LogOut size={14} />{t('exit')}</Link>
+          <HomeButton block className="!rounded-md" />
           {onAgain ? <button type="button" onClick={onAgain} className={`py-3 ${BTN_ACCENT}`}><RotateCcw size={14} />{t('again')}</button>
             : <span className="flex items-center justify-center text-[11px] text-white/45">{waitingLabel}</span>}
         </div>

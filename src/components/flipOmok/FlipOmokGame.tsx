@@ -11,6 +11,7 @@ import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
+import HomeButton from '@/components/ui/HomeButton';
 import { reportGame } from '@/lib/stats';
 import { chooseMove, coordinateLabel, emptyBoard, forbiddenPoints, isFull, other, owner, play, type Board, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
 import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, STONE_HEX } from './FlipOmokParts';
@@ -151,7 +152,7 @@ export default function FlipOmokGame() {
       <h2 className="mt-1 text-2xl font-black">{status}</h2>
       <p className="mt-2 text-xs text-white/50">{t('movesPlayed', { n: history.length })}</p>
       {lost && <LossTip />}
-      <button type="button" onClick={() => reset()} className={`${BTN_ACCENT} mt-4 w-full py-3`}><RotateCcw size={14} />{t('again')}</button>
+      <div className="mt-4 grid grid-cols-[1fr_2fr] gap-2"><HomeButton block className="!rounded-md" /><button type="button" onClick={() => reset()} className={`${BTN_ACCENT} w-full py-3`}><RotateCcw size={14} />{t('again')}</button></div>
       {frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} className="!mt-2" />}
       <button type="button" onClick={() => setShowResult(false)} className={`${BTN} mt-2 w-full py-2.5`}><Eye size={14} />{t('viewBoard')}</button>
     </div>

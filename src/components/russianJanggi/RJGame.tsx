@@ -193,7 +193,7 @@ export default function RJGame() {
 
       <EndRevealBanner show={reveal.revealing && !replaying} text={rjEndText(t, game, 0, names)} color={game.winner !== null ? SIDE_COLORS[game.winner] : undefined} onSkip={reveal.skip} />
       {over && reveal.showResult && !resultClosed && !replaying && (
-        <RJResult game={game} viewer={0} names={names} onAgain={() => newGame()} exitPath="/"
+        <RJResult game={game} viewer={0} names={names} onAgain={() => newGame()}
           onReplay={() => { setResultClosed(true); setReplaying(true); }} onClose={() => setResultClosed(true)} />
       )}
     </div>

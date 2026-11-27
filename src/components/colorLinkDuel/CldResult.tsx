@@ -66,7 +66,7 @@ function CldResultCard({ room, mySeat, names, t, onAgain, onClose, waitingLabel 
             </motion.li>
           ))}
         </ol>
-        <ResultActions won={mySeat === null ? undefined : won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/color-link-duel" exitPath="/color-link-duel" primaryClass={RESULT_PRIMARY} />
+        <ResultActions won={mySeat === null ? undefined : won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/color-link-duel" primaryClass={RESULT_PRIMARY} />
       </motion.div>
     </div>
   );

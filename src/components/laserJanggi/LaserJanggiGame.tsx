@@ -12,6 +12,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
+import HomeButton from '@/components/ui/HomeButton';
 import { applyLaserAction, chooseLaserAiAction, initialLaserPieces, legalActions, type LaserAction, type LaserDifficulty, type LaserOwner, type LaserPiece as Piece, type LaserPieceType, type LaserShot } from '@/lib/laserJanggi';
 import LaserBoard from './LaserBoard';
 import LaserPiece from './LaserPiece';
@@ -108,7 +109,7 @@ export default function LaserJanggiGame() {
         {frame && <ReplayHeader player={replay} caption={replay.at === 0 ? tc('replayStart') : shotCaption(frame.shot)} onClose={() => setReplaying(false)} />}
         {frame ? <LaserBoard key={`replay-${replay.at}`} pieces={frame.pieces} current={0} interactive={false} selectedId={null} shot={frame.shot} onSelect={() => {}} onMove={() => {}} /> : <LaserBoard pieces={pieces} current={current} interactive={current === 0 && !busy && winner === null && !draw} selectedId={selectedId} shot={shot} onSelect={(id) => setSelectedId((value) => value === id ? null : id)} onMove={(action) => commit(action, 0)} />}
         {frame && <ReplayControls player={replay} onShowResult={() => setReplaying(false)} />}
-        {over && !frame && <div className="mx-auto mt-4 flex max-w-[440px] flex-col items-center gap-2">{frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} className="!mt-0" />}<button type="button" onClick={reset} className={`${BTN_ACCENT} px-6 py-2.5`}><RotateCcw size={14} />{t('newGame')}</button></div>}
+        {over && !frame && <div className="mx-auto mt-4 flex max-w-[440px] flex-col items-center gap-2">{frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} className="!mt-0" />}<div className="flex gap-2"><HomeButton className="!py-2.5" /><button type="button" onClick={reset} className={`${BTN_ACCENT} px-6 py-2.5`}><RotateCcw size={14} />{t('newGame')}</button></div></div>}
         {selected && current === 0 && !busy && winner === null && <div className="mx-auto mt-3 flex max-w-[700px] items-center justify-between rounded-[10px] border border-[#59e6ff]/20 bg-black/50 px-3 py-2">
           <div className="flex items-center gap-2"><div className="h-9 w-9"><LaserPiece piece={selected} /></div><span className="min-w-0"><span className="block text-xs font-bold text-white/70">{t(`pieces.${selected.type}.name`)}</span><span className="block text-[10px] leading-4 text-white/45">{t(`pieces.${selected.type}.tip`)}</span></span></div>
           <div className="flex gap-2"><button type="button" onClick={() => rotate(-1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === -1)} className={BTN}><ChevronLeft size={15} />{t('rotateLeft')}</button><button type="button" onClick={() => rotate(1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === 1)} className={BTN}>{t('rotateRight')}<ChevronRight size={15} /></button></div>

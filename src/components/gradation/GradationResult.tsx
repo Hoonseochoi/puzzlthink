@@ -84,7 +84,7 @@ export default function GradationResult({ room, mySeat, t, locale, onAgain, onCl
             {row(opp)}
           </div>
         )}
-        <ResultActions won={mySeat === null || g.winner === -1 ? undefined : won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/gradation" exitPath="/gradation" primaryClass={RESULT_PRIMARY} />
+        <ResultActions won={mySeat === null || g.winner === -1 ? undefined : won} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/gradation" primaryClass={RESULT_PRIMARY} />
       </motion.div>
     </div>
   );

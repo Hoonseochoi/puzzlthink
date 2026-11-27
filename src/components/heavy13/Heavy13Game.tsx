@@ -79,7 +79,7 @@ export default function Heavy13Game() {
           </section>
         </aside>
       </main>
-      {state?.phase === 'finished' && !replay.frame && <Heavy13Result room={state} mySeat={0} onAgain={reset} exitPath="/" onReplay={replay.canReplay ? replay.open : undefined} />}
+      {state?.phase === 'finished' && !replay.frame && <Heavy13Result room={state} mySeat={0} onAgain={reset} onReplay={replay.canReplay ? replay.open : undefined} />}
       {showTutorial && <Heavy13Tutorial onClose={closeTutorial} />}
     </div>
   );
