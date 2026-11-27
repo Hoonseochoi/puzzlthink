@@ -199,3 +199,88 @@ export function Footprint({ seat, size = 12 }: { seat: 0 | 1; size?: number }) {
     </svg>
   );
 }
+
+/*
+ * Item stones (AI matches): the same glossy 바둑알 with two eyes, each wearing its tool.
+ * - ProbeStone (탐지기): a teal stone with a little radar dish on top sending out two waves.
+ * - RecallStone (기억 되살리기): a violet stone, eyes wide, a dormant mine floating above it in a thought bubble.
+ * - SuitStone (방폭복): an orange stone in a blast helmet: a thick visor across the eyes, a padded collar.
+ */
+type ItemStoneProps = { size?: number; title?: string; className?: string; dim?: boolean };
+function stoneBody(id: string, hi: string, mid: string, lo: string, rim: string, cy = 60, r = 32) {
+  return (
+    <>
+      <defs>
+        <radialGradient id={`is${id}`} cx="35%" cy="30%" r="78%"><stop offset="0%" stopColor={hi} /><stop offset="55%" stopColor={mid} /><stop offset="100%" stopColor={lo} /></radialGradient>
+      </defs>
+      <circle cx="50" cy={cy + 3} r={r} fill="rgba(0,0,0,.3)" />
+      <circle cx="50" cy={cy} r={r} fill={`url(#is${id})`} stroke={rim} strokeWidth="2.4" />
+      <ellipse cx="39" cy={cy - 15} rx="8" ry="3.6" fill="#fff" opacity=".45" transform={`rotate(-30 39 ${cy - 15})`} />
+    </>
+  );
+}
+const svgProps = (size: number, title: string | undefined, className: string | undefined, dim: boolean | undefined) => ({
+  viewBox: '0 0 100 100', width: size, height: size, className: `block shrink-0 overflow-visible ${className ?? ''}`, style: { overflow: 'visible' as const },
+  opacity: dim ? 0.45 : 1, role: title ? 'img' : undefined, 'aria-label': title, 'aria-hidden': title ? undefined : true,
+});
+
+export function ProbeStone({ size = 32, title, className, dim }: ItemStoneProps) {
+  const id = useId().replace(/:/g, '');
+  return (
+    <svg {...svgProps(size, title, className, dim)}>
+      <path d="M50 30 V16" stroke="#0b2e2b" strokeWidth="4" strokeLinecap="round" />
+      <path d="M34 20 Q50 2 66 20 Z" fill="#bff7ee" stroke="#0b2e2b" strokeWidth="2.6" strokeLinejoin="round" />
+      <circle cx="50" cy="16" r="3" fill="#0b2e2b" />
+      <path d="M70 10 q7 6 6 15 M77 4 q11 10 9 24" stroke="#5ee0c8" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+      {stoneBody(id, '#d9fff8', '#2fbfa8', '#0d5a50', '#0b2e2b')}
+      <rect x="37" y="55" width="7" height="12" rx="3.5" fill="#0b2e2b" />
+      <rect x="55" y="55" width="7" height="12" rx="3.5" fill="#0b2e2b" />
+      <circle cx="58.5" cy="58" r="1.6" fill="#fff" />
+    </svg>
+  );
+}
+
+export function RecallStone({ size = 32, title, className, dim }: ItemStoneProps) {
+  const id = useId().replace(/:/g, '');
+  return (
+    <svg {...svgProps(size, title, className, dim)}>
+      <circle cx="68" cy="18" r="15" fill="#f3e8ff" stroke="#3b1d5e" strokeWidth="2.4" />
+      <circle cx="54" cy="36" r="3.4" fill="#f3e8ff" stroke="#3b1d5e" strokeWidth="1.8" />
+      <g transform="translate(68 19)">
+        {[0, 72, 144, 216, 288].map((a) => <line key={a} x1="0" y1="0" x2={Math.round(Math.cos((a * Math.PI) / 180) * 100) / 10} y2={Math.round(Math.sin((a * Math.PI) / 180) * 100) / 10} stroke="#3b1d5e" strokeWidth="3.2" strokeLinecap="round" />)}
+        <circle r="6.5" fill="#6b4a8e" stroke="#3b1d5e" strokeWidth="1.6" />
+      </g>
+      {stoneBody(id, '#f2e6ff', '#9b6cf0', '#3e1f78', '#25104a', 64, 30)}
+      <circle cx="40" cy="62" r="5.6" fill="#fff" /><circle cx="60" cy="62" r="5.6" fill="#fff" />
+      <circle cx="41.5" cy="62.5" r="2.8" fill="#25104a" /><circle cx="61.5" cy="62.5" r="2.8" fill="#25104a" />
+    </svg>
+  );
+}
+
+export function SuitStone({ size = 32, title, className, dim }: ItemStoneProps) {
+  const id = useId().replace(/:/g, '');
+  return (
+    <svg {...svgProps(size, title, className, dim)}>
+      {stoneBody(id, '#ffe2b8', '#f07c1e', '#7a3005', '#3b1702', 56, 34)}
+      {/* helmet dome and padded collar */}
+      <path d="M20 48 C20 16 80 16 80 48" fill="none" stroke="#3b1702" strokeWidth="5" strokeLinecap="round" />
+      <rect x="24" y="80" width="52" height="11" rx="5.5" fill="#3d4450" stroke="#16191d" strokeWidth="2.2" />
+      <path d="M32 85.5 h6 M47 85.5 h6 M62 85.5 h6" stroke="#ffd23f" strokeWidth="3" strokeLinecap="round" />
+      {/* visor */}
+      <rect x="25" y="43" width="50" height="20" rx="10" fill="#10303a" stroke="#16191d" strokeWidth="2.6" />
+      <path d="M31 47 h14" stroke="#9ef3ff" strokeWidth="3" strokeLinecap="round" opacity=".7" />
+      <rect x="38" y="49" width="6" height="9" rx="3" fill="#ffffff" opacity=".9" />
+      <rect x="56" y="49" width="6" height="9" rx="3" fill="#ffffff" opacity=".9" />
+    </svg>
+  );
+}
+
+/** The 방폭복 bubble drawn around a walker while it is armed (on the board), or the burst when it saves you. */
+export function ShieldRing({ burst = false, className }: { burst?: boolean; className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" className={`block overflow-visible ${className ?? ''}`} style={{ overflow: 'visible' }} aria-hidden>
+      <path d="M50 4 L88 20 V50 C88 74 70 90 50 97 C30 90 12 74 12 50 V20 Z" fill={burst ? 'rgba(94,224,255,.28)' : 'rgba(94,224,255,.12)'} stroke="#5ee0ff" strokeWidth={burst ? 5 : 3.5} strokeLinejoin="round" />
+      <path d="M50 12 L80 25 V50 C80 69 66 82 50 88" fill="none" stroke="#dffbff" strokeOpacity=".6" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
+  );
+}

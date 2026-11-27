@@ -35,6 +35,10 @@
  *  9. [site] Resigning loses. In rooms a player has 120 s to bury and 30 s per move; a missed move is played by the
  *     AI for that seat (as in the site's other rooms) until the player comes back.
  *
+ * Items (AI matches only; src/lib/mineOblivionItems.ts): 탐지기 shows the number of a cell next to you without moving,
+ * 기억 되살리기 shows your own mines again for a moment, 방폭복 makes the next mine you step on cost nothing and not
+ * send you back (the mine still goes off: crater, count down by one, the turn passes). Rooms never use them.
+ *
  * Left out on purpose: season 2's time bombs (one tight mode instead of two half-explained ones) and the 9×9 practice
  * game. See siteDiff on the two show pages.
  */
@@ -67,7 +71,13 @@ export type MoStep = {
   respawn?: number;
   /** Mines removed by the explosion (1 or 2 on a double cell); not shown to players before the end. */
   removed?: number;
+  /** A mine stepped on while wearing 방폭복 (AI matches only): no −5, no walk back; the player stays on the crater. */
+  shielded?: true;
 };
+
+export type MoItem = 'probe' | 'recall' | 'suit';
+/** One item used (AI matches only). `n` = moves played when it was used (it came before move n + 1). */
+export type MoItemUse = { item: MoItem; seat: MoSeat; n: number; cell?: number; number?: number };
 
 export type MoTreasure = { cell: number; by: MoSeat | null; value: number; n: number };
 
@@ -96,6 +106,9 @@ export type MineOblivion = {
   ending: MoEnding | null;
   winner: MoSeat | null; // null with an ending = draw
   resigned?: MoSeat;
+  /** AI matches only (never set in rooms): items used, oldest first, and whose 방폭복 is on now. */
+  items?: MoItemUse[];
+  suit?: [boolean, boolean];
 };
 
 // ── Geometry ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -208,6 +221,13 @@ export function moveTo(g: MineOblivion, seat: MoSeat, to: number): MineOblivion 
   pos[seat] = to;
   const score = [...g.score] as [number, number];
   const n = g.log.length + 1;
+  if (map[to] > 0 && g.suit?.[seat]) {
+    // 방폭복: the mine goes off (crater, one mined cell fewer) but costs nothing and nobody walks back.
+    const step: MoStep = { n, seat, from, to, kind: 'mine', number: null, gain: 0, removed: map[to], shielded: true };
+    const suit = [...g.suit] as [boolean, boolean];
+    suit[seat] = false;
+    return settle({ ...g, pos, craters: [...g.craters, to], log: [...g.log, step], suit, turn: other(seat), minedCells: g.minedCells - 1 });
+  }
   if (map[to] > 0) {
     score[seat] -= MO_PENALTY;
     const step: MoStep = { n, seat, from, to, kind: 'mine', number: null, gain: -MO_PENALTY, removed: map[to] };

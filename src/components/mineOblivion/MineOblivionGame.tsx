@@ -6,11 +6,12 @@ import { BookOpen, History, RotateCcw, Trophy, X } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import GameUpdates from '@/components/GameUpdates';
 import { MINE_OBLIVION_ROOM } from '@/hooks/useMineOblivionRoom';
-import { useLocalRoom } from '@/hooks/useRealtimeRoom';
+import { type RoomEngine, useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { useEndReveal } from '@/hooks/useEndReveal';
 import { type MoLevel } from '@/lib/mineOblivionAi';
 import { MO_MOVE_LIMIT } from '@/lib/mineOblivion';
 import { type MoRoom, createMoRoom } from '@/lib/mineOblivionRoom';
+import { type MoSoloAction, reduceMoSolo } from '@/lib/mineOblivionSolo';
 import { setRoomPlaying } from '@/lib/roomChat';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
@@ -23,6 +24,11 @@ import MineOblivionResult, { useMoReport } from './MineOblivionResult';
 import MineOblivionReplay from './MineOblivionReplay';
 import MineOblivionTutorial, { useMoTutorial } from './MineOblivionTutorial';
 import { MineStone, TreasureStone, WalkerStone } from './MineStones';
+import { ITEM_ICON, useMoItems } from './MineOblivionItems';
+import { MO_ITEM_ORDER } from '@/lib/mineOblivionItems';
+
+/** The AI match: the room engine plus the `item` action (rooms keep MINE_OBLIVION_ROOM as it is). */
+const MINE_OBLIVION_SOLO: RoomEngine<MoRoom, MoSoloAction> = { ...MINE_OBLIVION_ROOM, reduce: reduceMoSolo, sealed: (a) => a.t === 'bury' };
 
 function readLevel(): MoLevel {
   if (typeof window === 'undefined') return 'normal';
@@ -42,7 +48,8 @@ export default function MineOblivionGame() {
   const t = moCopy(locale);
   const [level] = useState(readLevel);
   const create = useCallback(() => createMoRoom({ id: 'me', name: t.you, at: 0 }, { solo: true, level }), [t.you, level]);
-  const { state, dispatch, reset } = useLocalRoom(MINE_OBLIVION_ROOM, create);
+  const { state, dispatch, reset } = useLocalRoom(MINE_OBLIVION_SOLO, create);
+  const items = useMoItems(state, dispatch, t);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [closedKey, setClosedKey] = useState<string | null>(null);
   const [replaying, setReplaying] = useState(false);
@@ -64,7 +71,7 @@ export default function MineOblivionGame() {
       <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">
         {state && replaying && finished
           ? <MineOblivionReplay room={state} mySeat={0} t={t} onClose={() => { setReplaying(false); setClosedKey(resultKey); }} onShowResult={() => { setReplaying(false); setClosedKey(null); }} />
-          : state && <MineOblivionTable room={state} mySeat={0} onAction={dispatch} t={t} reveal={finished} />}
+          : state && <MineOblivionTable room={state} mySeat={0} onAction={dispatch} t={t} reveal={finished} items={items} />}
         {finished && reveal.showResult && closedKey === resultKey && !replaying && (
           <div className="mx-auto mt-3 grid max-w-[560px] grid-cols-3 gap-2">
             <button type="button" onClick={() => setClosedKey(null)} className={`${BTN} py-3`}><Trophy size={14} />{t.showResult}</button>
@@ -77,14 +84,14 @@ export default function MineOblivionGame() {
       {state && finished && reveal.showResult && closedKey !== resultKey && !replaying && (
         <MineOblivionResult room={state} mySeat={0} t={t} onAgain={again} onClose={() => setClosedKey(resultKey)} onReplay={() => setReplaying(true)} />
       )}
-      {rulesOpen && <MineOblivionRules t={t} onClose={() => setRulesOpen(false)} />}
-      {tutorial.open && <MineOblivionTutorial t={t} onDone={tutorial.close} />}
+      {rulesOpen && <MineOblivionRules t={t} onClose={() => setRulesOpen(false)} withItems />}
+      {tutorial.open && <MineOblivionTutorial t={t} onDone={tutorial.close} withItems />}
     </div>
   );
 }
 
 /** Rules at a glance, what you see vs remember, how this differs from the show, and the AI levels. */
-export function MineOblivionRules({ t, onClose }: { t: MoCopy; onClose: () => void }) {
+export function MineOblivionRules({ t, onClose, withItems = false }: { t: MoCopy; onClose: () => void; withItems?: boolean }) {
   return (
     <div className={MODAL_BACKDROP} onClick={onClose}>
       <div className={`${MODAL} max-h-[85vh] max-w-md overflow-y-auto text-left text-white`} onClick={(event) => event.stopPropagation()}>
@@ -97,6 +104,15 @@ export function MineOblivionRules({ t, onClose }: { t: MoCopy; onClose: () => vo
           <ul>{t.see.map((l) => <li key={l} className="break-keep">· {l}</li>)}</ul>
           <ul className="text-(--accent)/85">{t.remember.map((l) => <li key={l} className="break-keep">· {l}</li>)}</ul>
         </div>
+        {withItems && (
+          <>
+            <p className={`${PANEL_TITLE} mt-5`}>{t.items.rulesTitle}</p>
+            <ul className="mt-2 space-y-2 text-[12px] leading-relaxed text-white/65">
+              {t.items.rules.map((line, i) => <li key={line} className="flex gap-2"><span className="mt-0.5">{ITEM_ICON[MO_ITEM_ORDER[i]]({ size: 22 })}</span><span className="break-keep">{line}</span></li>)}
+            </ul>
+            <p className="mt-2 break-keep text-[11px] leading-4 text-white/45">{t.items.excluded}</p>
+          </>
+        )}
         <p className={`${PANEL_TITLE} mt-5`}>{t.siteDiff}</p>
         <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-white/60">{t.siteDiffs.map((line) => <li key={line} className="break-keep">· {line}</li>)}</ul>
         <p className="mt-4 break-keep text-[11px] leading-4 text-white/45">{t.aiNote}</p>
