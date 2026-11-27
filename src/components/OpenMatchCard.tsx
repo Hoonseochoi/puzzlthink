@@ -92,7 +92,8 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   const open = (rooms ?? []).filter((room) => room.game in GAME_MODES && room.players < room.capacity);
   const count = rooms === null ? null : open.length;
   // 지금 열린 방 = rooms waiting for players; 지금 플레이 중 = matches under way (open and friend), per game.
-  const playingByGame = roomGames.flatMap((game) => {
+  // Every game with rooms counts here, not only the ones that have open rooms: 히든 워드 is friend-room only.
+  const playingByGame = appGames.flatMap((game) => {
     const roomCount = (live ?? []).filter((row) => row.game === game.id).reduce((sum, row) => sum + row.open + row.friend, 0);
     return roomCount > 0 ? [{ ...game, roomCount }] : [];
   }).sort((a, b) => b.roomCount - a.roomCount);
