@@ -210,8 +210,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/27', icon: Sparkles,
-        ko: { title: '크리스마스 테마가 나왔어요 (기본 적용)', desc: "사탕 지팡이 숫자와 꼬마전구 선, 눈 내리는 밤으로 바뀌었어요. 숫자를 채우면 초록색과 별이, 넘치면 점선 고리가 보이고, 클리어하면 고리를 따라 불이 켜져요. 위쪽 '테마' 버튼에서 예전 '기본' 보드로 돌아가거나 효과를 끌 수 있어요." },
-        en: { title: 'New Christmas theme (on by default)', desc: "Candy-cane numbers, fairy-light lines and a snowy night. A number turns green with a star once it is met and gets a dashed ring if passed, and on a clear the lights switch on around the loop. The 'Theme' button at the top brings back the Classic board or turns the effects off." },
+        ko: { title: '크리스마스 테마가 나왔어요 (기본 적용)', desc: "사탕 지팡이 숫자와 꼬마전구 선, 눈 내리는 밤으로 바뀌었어요. 클리어하면 고리를 따라 불이 켜져요. 위쪽 '테마' 버튼에서 예전 '기본' 보드로 돌아가거나 효과를 끌 수 있어요." },
+        en: { title: 'New Christmas theme (on by default)', desc: "Candy-cane numbers, fairy-light lines and a snowy night. On a clear the lights switch on around the loop. The 'Theme' button at the top brings back the Classic board or turns the effects off." },
       },
       {
         date: '11/27', icon: Share2,

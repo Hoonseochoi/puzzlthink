@@ -48,7 +48,7 @@ export const SLITHER_THEMES: SlitherTheme[] = [
       numDone: '#23935c', numOver: '#3d2b2b',
       bulbs: ['#ff4d5e', '#ffc23d', '#46b4ff', '#ff86c8', '#7be07f'],
     },
-    numerals: 'cute', line: 'garland', clueStates: true,
+    numerals: 'cute', line: 'garland', clueStates: false, // off: showing met/over clues would give Christmas players an edge in ranked challenges
     effects: { snow: true, celebrate: true },
     card: { bg: ['#123528', '#0a1512'], glow: 'rgba(226,60,82,0.38)', accent: '#ffc23d', text: '#fffaf0', sub: 'rgba(255,250,240,0.66)' },
   },
