@@ -6,7 +6,8 @@ const game: ShowGame = {
   kind: 'tournament',
   when: { ko: '6강 2차', en: 'Last six, match 2' },
   episode: { ko: '6화', en: 'Episode 6' },
-  related: ['blindGomoku', 'russianRoulette', 'wallgo'],
+  site: 'mineOblivion',
+  related: ['mineOblivion', 'blindGomoku', 'russianRoulette'],
   updated: '2026-11-26',
   sources: [namuResults, broadcast2],
   ko: {
@@ -62,6 +63,14 @@ const game: ShowGame = {
       { name: '지뢰 찾기 (Minesweeper)', players: '1명', alike: '칸을 열 때마다 둘레의 지뢰 수가 나오고, 그 숫자로 지뢰 위치를 추리하는 바탕이 같아요.', differs: '지뢰 찾기는 혼자 하는 컴퓨터 퍼즐이고, 지뢰를 직접 묻거나 기억할 필요가 없어요.' },
       { name: '배틀십 (Battleship)', players: '2명', alike: '서로 몰래 배치한 것을 상대가 찾아내는 숨겨진 배치 게임이에요.', differs: '배틀십은 상대 판을 맞히는 게임이고, 같은 판을 함께 걸어 다니지 않아요.' },
     ],
+    siteDiff: [
+      { type: 'list', items: [
+        'PUZZLTHINK 망각의 지뢰는 **시즌 1 규칙**이 바탕이에요: 지뢰 15개씩(시즌 2는 지뢰 12개 + 시한폭탄 3개), 보물 +10·+15·+20(시즌 2는 +15·+20·+25).',
+        '**시한폭탄은 없어요.** 한 가지 규칙을 제대로 다듬기 위해 시즌 2의 폭탄 발동 규칙은 넣지 않았어요.',
+        '시즌 2에서 **70턴 제한**을 가져왔어요(양쪽 합쳐 70수). 같은 점수는 무승부예요.',
+        '숫자는 화면에 잠깐 보였다 사라지고, 발자국과 터진 자리는 판에 남아요. 돌아갈 칸은 직접 골라요.',
+      ] },
+    ],
     sourceNote: ONE_SOURCE_KO + ' 시즌 1의 「망각의 지뢰」를 바꾼 버전이에요.',
   },
   en: {
@@ -116,6 +125,14 @@ const game: ShowGame = {
     similar: [
       { name: 'Minesweeper', players: '1', alike: 'Opening a cell shows how many mines surround it, and you deduce positions from the numbers.', differs: 'A solo computer puzzle: you never bury mines or have to remember them.' },
       { name: 'Battleship', players: '2', alike: 'Each side hides an arrangement the other must find.', differs: 'You target the other’s grid instead of walking a shared board.' },
+    ],
+    siteDiff: [
+      { type: 'list', items: [
+        'PUZZLTHINK’s Mine of Oblivion is built on the **season 1 rules**: 15 mines each (season 2: 12 mines and 3 time bombs) and treasure +10 +15 +20 (season 2: +15 +20 +25).',
+        '**No time bombs.** One mode done properly instead of two; season 2’s bomb rules are left out.',
+        'From season 2 it keeps the **70-turn limit** (70 moves in all). Equal scores draw.',
+        'Numbers show for a moment and fade; footprints and craters stay on the board. You pick your respawn cell.',
+      ] },
     ],
     sourceNote: ONE_SOURCE_EN + ' A revised version of season 1’s Mine of Oblivion.',
   },

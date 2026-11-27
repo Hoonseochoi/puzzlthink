@@ -9,13 +9,14 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 /** tier 'hell' = 매우 어려움 certificate (its own numbering, id starts with 'h'). */
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number; tier: 'hard' | 'hell' };
 
-type Href = '/sniper-holdem' | '/hidden-word' | '/hidden-word-plus' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/time-auction' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/sniper-holdem' | '/hidden-word' | '/hidden-word-plus' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/time-auction' | '/mine-of-oblivion' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
   card_janggi: { ko: '카드 장기', en: 'Card Janggi', href: '/card-janggi', color: '#b07cff' },
   color_link_duel: { ko: '컬러 링크', en: 'Color Link Duel', href: '/color-link-duel', color: '#7c6cff' },
   sniper_holdem: { ko: '스나이퍼 홀덤', en: "Sniper Hold'em", href: '/sniper-holdem', color: '#ff4f5e' },
   hit_stay: { ko: 'Hit,Stay', en: 'Hit,Stay', href: '/hit-stay', color: '#6f7dff' },
   time_auction: { ko: '시간 경매', en: 'Time Auction', href: '/time-auction', color: '#ff3b30' },
+  mine_oblivion: { ko: '망각의 지뢰', en: 'Mine of Oblivion', href: '/mine-of-oblivion', color: '#ffb020' },
   hidden_word: { ko: '히든 워드', en: 'Hidden Word', href: '/hidden-word', color: '#a8ef70' },
   hidden_word_plus: { ko: '히든 워드 확장판', en: 'Hidden Word: Expansion', href: '/hidden-word-plus', color: '#b79cff' },
   gradation: { ko: '그라데이션', en: 'Gradation', href: '/gradation', color: '#3fd67a' },
@@ -66,7 +67,7 @@ export function clearLabel(game: GameId, locale: string) {
 export const HARD_GAMES: GameId[] = [
   'sniper_holdem', 'card_janggi', 'color_link_duel', 'gradation', 'point_omok', 'two_sided_poker', 'monorail', 'flip_omok', 'nine_mens_morris', 'wallgo2', 'indian_poker',
   'piggy_bank', 'black_white', 'black_white_2', 'laser_janggi', 'blind_gomoku', 'wallgo', 'russian_roulette', 'heavy13', 'janggi', 'russian_janggi', 'sudoku',
-  'time_auction',
+  'time_auction', 'mine_oblivion',
 ];
 
 export function isHardClear(game: GameId, mode: string, result: string, detail: Record<string, unknown>) {
