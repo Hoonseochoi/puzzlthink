@@ -126,13 +126,16 @@ export default function SlitherRoomView({ code }: { code: string }) {
 
   return <div className={SHELL} style={themeShellStyle(theme)}>
     {theme.effects.snow && motion && <SlitherSnow />}
-    <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · 2–4 · ${code}`}><SlitherThemePicker /><GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+    <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · 2–4 · ${code}`}><SlitherThemePicker className="hidden sm:block" /><GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}>
       <section className={STAGE}>
         <div className="mb-3 flex items-end justify-between gap-3 px-1">
           <div><p className={KICKER}>{state.phase === 'lobby' ? 'LOBBY' : `${state.dots}×${state.dots}`}</p><h1 className={`mt-1 ${HEADING}`}>{heading}</h1></div>
-          {playing && <p className="flex items-center gap-1 font-mono text-sm font-bold text-white/70"><Clock3 size={14} />{formatClock(elapsed)}</p>}
+          <div className="flex items-center gap-2">
+            {playing && <p className="flex items-center gap-1 font-mono text-sm font-bold text-white/70"><Clock3 size={14} />{formatClock(elapsed)}</p>}
+            <SlitherThemePicker className="sm:hidden" withLabel />
+          </div>
           {state.phase === 'finished' && winner !== null && state.solvedMs[winner] !== null && <p className="font-mono text-sm font-black text-(--accent)">{formatClock(state.solvedMs[winner]!)}</p>}
         </div>
 

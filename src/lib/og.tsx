@@ -1,3 +1,5 @@
+import { CUTE_DIGITS, DIGIT_PEN, bulbIndex, starPath } from './slitherGlyphs';
+
 // Shared pieces for generated link-preview (Open Graph) images.
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -143,6 +145,36 @@ export function TrendOgCard({ kicker, hot, title, sub, modes, accent, glow, art 
         <div style={{ display: 'flex', fontSize: 22, fontWeight: 400, color: 'rgba(242,244,248,0.45)', marginTop: 30 }}>PUZZLTHINK · puzzlthink.com</div>
       </div>
       <div style={{ display: 'flex' }}>{art}</div>
+    </div>
+  );
+}
+
+/**
+ * The Christmas-theme board (the game's default look): cream board, the game's own rounded numerals, the finished
+ * loop as a lit fairy-light garland and a star on top. One inline SVG.
+ */
+export function SlitherXmasBoardArt({ size = 430 }: { size?: number }) {
+  const bulbs = ['#ff4d5e', '#ffc23d', '#46b4ff', '#ff86c8', '#7be07f'];
+  const mids = SL_LOOP.map(([h, r, c]) => ({ x: h ? c + 1 : c + 0.5, y: h ? r + 0.5 : r + 1, k: bulbIndex(!!h, r, c, bulbs.length) }));
+  return (
+    <div style={{ display: 'flex', padding: 14, borderRadius: 22, background: 'linear-gradient(135deg, #1e6b47, #123528 55%, #1e6b47)', boxShadow: '0 0 60px rgba(255,194,61,0.25)' }}>
+      <svg width={size} height={size} viewBox="0 0 8 8">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fffaf0" /><stop offset="0.5" stopColor="#fffaf0" /><stop offset="1" stopColor="#eef5f3" /></linearGradient>
+          {bulbs.map((c, i) => <radialGradient key={c} id={`g${i}`}><stop offset="0" stopColor={c} stopOpacity={0.75} /><stop offset="0.45" stopColor={c} stopOpacity={0.28} /><stop offset="1" stopColor={c} stopOpacity={0} /></radialGradient>)}
+          <radialGradient id="star"><stop offset="0" stopColor="#ffe27a" stopOpacity={0.85} /><stop offset="1" stopColor="#ffe27a" stopOpacity={0} /></radialGradient>
+        </defs>
+        <rect width={8} height={8} fill="url(#bg)" />
+        {SL_CLUES.flatMap((row, r) => [...row].map((ch, c) => ch === '.' ? null : (
+          <path key={`n${r}${c}`} d={CUTE_DIGITS[Number(ch)]} transform={`translate(${c + 1} ${r + 1})`} fill="none" stroke="#23935c" strokeWidth={DIGIT_PEN} strokeLinecap="round" strokeLinejoin="round" />
+        )))}
+        {SL_LOOP.map(([h, r, c], i) => <line key={`l${i}`} x1={c + 0.5} y1={r + 0.5} x2={h ? c + 1.5 : c + 0.5} y2={h ? r + 0.5 : r + 1.5} stroke="#1e6b47" strokeWidth={0.1} strokeLinecap="round" />)}
+        {mids.map((m, i) => <circle key={`h${i}`} cx={m.x} cy={m.y} r={0.3} fill={`url(#g${m.k})`} />)}
+        {mids.map((m, i) => <circle key={`b${i}`} cx={m.x} cy={m.y} r={0.08} fill={bulbs[m.k]} stroke="#ffffff" strokeWidth={0.018} />)}
+        {Array.from({ length: 64 }, (_, i) => <circle key={`d${i}`} cx={(i % 8) + 0.5} cy={Math.floor(i / 8) + 0.5} r={0.07} fill="#2c5747" />)}
+        <circle cx={2} cy={0.5} r={0.6} fill="url(#star)" />
+        <path d={starPath(0.38, 0.46)} transform="translate(2 0.5)" fill="#ffd34d" stroke="#c98a00" strokeWidth={0.03} strokeLinejoin="round" />
+      </svg>
     </div>
   );
 }

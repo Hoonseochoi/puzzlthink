@@ -217,7 +217,8 @@ function FestiveBoard({ puzzle, shown, locked, answerTrack, dimLines, solutionSe
       {puzzle.clues.map((v, cell) => {
         if (v < 0) return null;
         const r = Math.floor(cell / puzzle.cols), c = cell % puzzle.cols;
-        const state = theme.clueStates ? clueState(v, cellCount(g, shown, cell)) : 'normal';
+        // On a clear every clue is met, a 0 included.
+        const state = !theme.clueStates ? 'normal' : celebrate ? 'done' : clueState(v, cellCount(g, shown, cell));
         return <CuteClue key={`n${cell}-${state}`} x={c + 1} y={r + 1} value={v} state={state} theme={theme} pop={pop} />;
       })}
       {answerTrack && puzzle.solution.map((on, edge) => on ? lineFor(edge, b.track, 0.26, `t${edge}`, 0.32) : null)}

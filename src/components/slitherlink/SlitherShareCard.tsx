@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Download, ImageIcon, Link2, Loader2 } from 'lucide-react';
-import type { Puzzle } from '@/lib/slitherlink';
+import { type Puzzle, formatClock } from '@/lib/slitherlink';
 import type { SlitherTheme } from '@/lib/slitherTheme';
 import { type ShareCardText, renderShareCard } from '@/lib/slitherShareImage';
 
@@ -21,8 +21,7 @@ export default function SlitherShareCard({ puzzle, theme, ms, detail, extra, pat
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const fileName = `puzzlthink-slitherlink-${puzzle.dots}x${puzzle.dots}.png`;
-  const s = Math.round(ms / 1000);
-  const clock = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  const clock = formatClock(ms); // the same clock the game shows
 
   useEffect(() => {
     let alive = true, made: string | null = null;

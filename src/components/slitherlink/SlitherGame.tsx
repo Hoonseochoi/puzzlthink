@@ -352,7 +352,7 @@ export default function SlitherGame() {
       <Shards tint="#2a2450" />
       {theme.effects.snow && motion && <SlitherSnow />}
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
-        <SlitherThemePicker /><GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark />
+        <SlitherThemePicker className="hidden sm:block" /><GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark />
         {mode === 'practice' && <button type="button" onClick={() => startPractice(size)} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newBoard')}</span></button>}
       </GameHeader>
 
@@ -434,9 +434,10 @@ export default function SlitherGame() {
                     <span className="flex items-center gap-1"><Lightbulb size={13} />{mode === 'practice' ? t('hintsUsed', { n: hints }) : t('hintsLeft', { n: Math.max(0, hintsLeft) })}</span>
                   </p>
                 </div>
-                {mode === 'practice' && <div className="flex gap-1">
-                  {SLITHER_SIZES.map((s) => <button key={s} type="button" onClick={() => startPractice(s)} className={`px-2.5 py-1.5 ${seg(size === s)}`}>{s}×{s}</button>)}
-                </div>}
+                <div className="flex items-center gap-1">
+                  {mode === 'practice' && SLITHER_SIZES.map((s) => <button key={s} type="button" onClick={() => startPractice(s)} className={`px-2.5 py-1.5 ${seg(size === s)}`}>{s}×{s}</button>)}
+                  <SlitherThemePicker className="sm:hidden" withLabel />
+                </div>
               </div>
 
               {replaying && <ReplayHeader player={player} caption={t('replayCaption')} onClose={() => setReplaying(false)} />}

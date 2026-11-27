@@ -5288,7 +5288,7 @@
     "quick1": "Draw one closed loop through the dots. No branches, no loose ends.",
     "quick2": "Number = how many of the cell’s four sides the loop uses.",
     "quick3": "A 0 has no line around it; a 3 has lines on three sides.",
-    "quick4": "You are not told what is right or wrong while solving; the board is checked the moment the loop is complete.",
+    "quick4": "You are not told whether your path is right; the board is checked the moment the loop is complete. The Christmas theme only shows each number's line count (green once met, a dashed ring if passed); Classic shows nothing, like the show.",
     "mode_challenge": "New challenge",
     "mode_beat": "Beat a board",
     "mode_practice": "Practice",
