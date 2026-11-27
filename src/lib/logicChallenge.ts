@@ -2,6 +2,7 @@
 // time to take it over). The server hands out the board, times the run and replays the move log before a clear counts.
 import type { LogicGameId } from './logicPuzzles';
 import { getSupabase } from './supabase';
+import type { LogicTrace } from './logicTrace';
 
 export type LogicRun = { run: string; board: string; seed: number; size: number; limit_ms?: number; holder?: string };
 export type LogicFinish = { ok: boolean; ms: number; rank: number | null; total: number | null; maps: number | null; flagged?: boolean; flag?: string | null; rival?: string | null; board?: string };
@@ -19,8 +20,18 @@ async function call<T>(name: string, args: Record<string, unknown>): Promise<{ d
 
 export const startNewMap = (game: LogicGameId) => call<LogicRun>('logic_start_new', { p_game: game });
 export const startBeatMap = (board: string) => call<LogicRun>('logic_start_beat', { p_board: board });
-/** `steps` null = gave up, time up or left. `away`: [from, to] ms for each time the player left the board. */
-export const finishMap = (run: string, steps: LogicStep[] | null, away: [number, number][] = []) => call<LogicFinish>('logic_finish', { p_run: run, p_steps: steps, p_away: away });
+/**
+ * `steps` null = gave up, time up or left. `away`: [from, to] ms for each time the player left the board.
+ * `trace`: the input trace kept with the run for review (see logicTrace.ts). If the call with it fails for any reason
+ * but the run being gone (a server without the trace parameters yet, a payload refused), the run is sent again without it.
+ */
+export async function finishMap(run: string, steps: LogicStep[] | null, away: [number, number][] = [], trace?: LogicTrace | null) {
+  const base = { p_run: run, p_steps: steps, p_away: away };
+  if (!trace) return call<LogicFinish>('logic_finish', base);
+  const res = await call<LogicFinish>('logic_finish', { ...base, p_trace: trace.steps, p_signals: trace.signals });
+  if (!res.error || res.error === 'offline' || res.error.includes('not_found')) return res;
+  return call<LogicFinish>('logic_finish', base);
+}
 export const fetchLogicRanking = (game: LogicGameId, limit = 10) => call<LogicRankRow[]>('logic_ranking', { p_game: game, p_limit: limit });
 export const fetchLogicMe = async (game: LogicGameId) => {
   const res = await call<{ rank: number; maps: number; total: number }[]>('logic_me', { p_game: game });

@@ -14,6 +14,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import { type LogicBoard, type LogicGameId, LOGIC, buildBoard, emptyMarks, formatClock, newSeed, solved, startSteps } from '@/lib/logicPuzzles';
 import { type LogicBoardRow, type LogicFinish, type LogicRankRow, type LogicRun, type LogicStep, fetchLogicBoard, fetchLogicBoards, fetchLogicMe, fetchLogicRanking, finishMap, startBeatMap, startNewMap } from '@/lib/logicChallenge';
+import { type LogicTraceRecorder, startLogicTrace } from '@/lib/logicTrace';
 import { reportGame } from '@/lib/stats';
 import MasyuBoard from './MasyuBoard';
 import NonogramBoard, { type NonoTool } from './NonogramBoard';
@@ -87,6 +88,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
   const awayRef = useRef<{ spans: [number, number][]; since: number | null }>({ spans: [], since: null });
   const timers = useRef<number[]>([]);
   const boardRef = useRef<LogicBoard | null>(null);
+  const traceRef = useRef<LogicTraceRecorder | null>(null); // the input trace of a challenge run (not practice)
 
   const setPhaseNow = (p: Phase) => { phaseRef.current = p; setPhase(p); };
   const setWork = (next: number[]) => { marksRef.current = next; setMarks(next); };
@@ -100,6 +102,8 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
     awayRef.current = { spans: [], since: null };
     setTool('fill'); setConfirmClear(false); setResult(null); setError(null);
     const at = Date.now(); startedRef.current = at; setStartedAt(at); setNow(at); setEndMs(0);
+    traceRef.current?.stop(); traceRef.current = null;
+    if (runRef.current) { try { traceRef.current = startLogicTrace(b, at); } catch { /* the run goes on without a trace */ } }
     setPhaseNow('play');
   };
 
@@ -112,6 +116,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
   const abandon = () => {
     const r = runRef.current;
     if (r && phaseRef.current === 'play') finishMap(r.run, null);
+    traceRef.current?.stop(); traceRef.current = null;
     runRef.current = null; setRun(null);
   };
 
@@ -129,7 +134,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
     if (id && /^[0-9a-f]{10}$/.test(id)) fetchLogicBoard(game, id).then(({ data }) => setFocus(data));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- once, on mount
   useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 250); return () => window.clearInterval(id); }, []);
-  useEffect(() => () => clearTimers(), []);
+  useEffect(() => () => { clearTimers(); traceRef.current?.stop(); }, []);
   // Leaving the board (another tab or app) during a challenge is counted; 3 exits of 2 s+ before 20 minutes void a clear.
   useEffect(() => {
     const away = () => { if (runRef.current && phaseRef.current === 'play' && awayRef.current.since === null) awayRef.current.since = Date.now(); };
@@ -189,7 +194,10 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
     const r = runRef.current;
     if (!r) return;
     runRef.current = null;
-    const { data } = await finishMap(r.run, cleared ? stepsRef.current : null, awayRef.current.spans);
+    let trace = null;
+    try { trace = traceRef.current?.finish(cleared, awayRef.current.spans) ?? null; } catch { trace = null; } // never in the way of finishing
+    traceRef.current = null;
+    const { data } = await finishMap(r.run, cleared ? stepsRef.current : null, awayRef.current.spans, trace);
     setResult(data ?? { ok: false, ms: Date.now() - startedRef.current, rank: null, total: null, maps: null });
     if (data) reportGame(`${game}-${r.run}`, game, 'solo', data.ok ? 'win' : 'loss', { kind: mode === 'beat' ? 'beat' : 'new', ms: data.ms });
     setListTick((n) => n + 1);
@@ -204,6 +212,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
     const next = [...prev];
     const at = Date.now() - startedRef.current;
     for (const [i, v] of real) { next[i] = v; stepsRef.current.push([i, v, at]); }
+    try { traceRef.current?.input(real, gesture, undoing ? 'undo' : gesture === -2 ? 'wipe' : 'play'); } catch { /* recording only */ }
     if (!undoing) {
       const last = movesRef.current[movesRef.current.length - 1];
       const inverse = real.map(([i]) => [i, prev[i]] as [number, number]);
