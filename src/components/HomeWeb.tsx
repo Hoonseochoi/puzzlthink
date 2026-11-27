@@ -24,7 +24,7 @@ import { Piece } from './CompetitionBoard';
 import { BlackPiece } from './hell/BlackPiece';
 import { useHallPodiums } from './HallPodium';
 import {
-  CATS, type Cat, FEED_STYLE, type FeedItem, LiveFeed, MEDAL, MyRank, NEW, PODIUM_STAT, TODAY_PICK, TopOne,
+  CATS, type Cat, FEED_STYLE, type FeedItem, LiveFeed, MEDAL, MyRank, NEW, PODIUM_STAT, TODAY_PICK, TopOne, XMAS_CARD,
   inCat, pushRecent, shade, tint, useFeed, useHomeEvents, useMe, useRaces,
 } from './HomeApp';
 import IconCollectionLink from './IconCollectionLink';
@@ -224,9 +224,10 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
                 return (
                   <li key={g.id}>
                     <Link href={g.href} onClick={() => pushRecent(g.href)} className={`group block h-full p-2 transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-[0_20px_44px_rgba(30,38,36,.13)] active:scale-[.98] md:p-2.5 ${CARD}`}>
-                      <span className="relative block aspect-square overflow-hidden rounded-[18px]" style={{ background: `linear-gradient(160deg, ${tint(g.color, 0.32)} 0%, ${tint(g.color, 0.12)} 100%)`, boxShadow: `inset 0 0 0 1px ${tint(g.color, 0.28)}` }}>
+                      <span className="relative block aspect-square overflow-hidden rounded-[18px]" style={g.id === 'slitherlink' ? XMAS_CARD : { background: `linear-gradient(160deg, ${tint(g.color, 0.32)} 0%, ${tint(g.color, 0.12)} 100%)`, boxShadow: `inset 0 0 0 1px ${tint(g.color, 0.28)}` }}>
                         <span className="absolute inset-[9%] overflow-hidden rounded-[13px] bg-[#17201e]/90 transition duration-300 group-hover:scale-[1.05]"><FitTile title={tc(g.id)} className="h-full w-full"><Preview id={g.id} /></FitTile></span>
                         {g.id === 'hiddenWordPlus' ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[linear-gradient(135deg,#ffe9a6,#e0a83a)] px-1.5 py-0.5 text-[9px] font-black tracking-[0.04em] text-[#2a1a04] shadow-[0_0_10px_rgba(255,214,107,.5)]">NEW+</span>
+                          : g.id === 'slitherlink' ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[#e23b4e] px-1.5 py-0.5 text-[9px] font-black tracking-[0.04em] text-white shadow-[0_0_10px_rgba(226,59,78,.5)]">🎄 X-MAS</span>
                           : NEW.includes(g.id) && <span className="absolute left-1.5 top-1.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[9px] font-black tracking-[0.08em] text-white">NEW</span>}
                         {g.id === 'hiddenWordPlus' && <span className="absolute bottom-1.5 left-1.5 max-w-[calc(100%-12px)] truncate rounded-full bg-[#7c5cff] px-1.5 py-0.5 text-[9px] font-black tracking-[0.02em] text-white shadow-[0_0_10px_rgba(124,92,255,.55)]">{t('partyOpenTag')}</span>}
                         {g.hell?.live && <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#07060a] text-[#ff3355] ring-1 ring-[#ff3355]/60" title={t('hellTag')}><Skull size={11} /></span>}

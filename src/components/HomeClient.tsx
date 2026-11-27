@@ -13,7 +13,7 @@ import { Heavy13Art, IndianPokerArt, PiggyBankArt } from './GameArt';
 import type { GameId } from '@/lib/gameCatalog';
 import TwoSidedPokerPreview from './twoSidedPoker/TwoSidedPokerPreview';
 import { BinairoPreview, ColorLinkPreview, MagicSwapPreview, MasyuPreview, NonogramPreview, OneStrokePreview, StarBattlePreview } from './logic/LogicPreview';
-import { SHOW_BOARD } from '@/lib/slitherShowBoard';
+import { CUTE_DIGITS, DIGIT_PEN, DIGIT_STRIPE, DIGIT_STRIPE_DASH, starPath } from '@/lib/slitherDigits';
 import { MonorailBoard } from './monorail/MonorailParts';
 import { FtBoard } from './fourThree/FourThreeParts';
 import type { Board } from '@/lib/fourThree';
@@ -140,13 +140,32 @@ function HexagonPreview() {
   </div>;
 }
 
+// 슬리더링크's card for the Christmas season: the Christmas theme's board (cream paper in a pine frame, candy-cane
+// numbers, a fairy-light loop with a star on top). The loop is a real one and the numbers are counted from it.
+const XMAS_LOOP: [number, number][] = [[1, 0], [4, 0], [4, 1], [5, 1], [5, 4], [3, 4], [3, 5], [1, 5], [1, 3], [0, 3], [0, 1], [1, 1]];
+const XMAS_SHOWN = new Set(['0,0', '2,0', '4,0', '1,1', '3,1', '0,2', '2,2', '4,2', '1,3', '3,3', '0,4', '2,4', '4,4']);
+const XMAS_BULBS = ['#ff4d5e', '#ffc23d', '#46b4ff', '#ff86c8', '#7be07f'];
+const XMAS_EDGES = XMAS_LOOP.flatMap(([x, y], i) => {
+  const [nx, ny] = XMAS_LOOP[(i + 1) % XMAS_LOOP.length], steps = Math.abs(nx - x) + Math.abs(ny - y), dx = Math.sign(nx - x), dy = Math.sign(ny - y);
+  return Array.from({ length: steps }, (_, k) => ({ x1: x + dx * k, y1: y + dy * k, x2: x + dx * (k + 1), y2: y + dy * (k + 1) }));
+});
+const xmasClue = (c: number, r: number) => XMAS_EDGES.filter((e) => (e.y1 === e.y2 ? (e.y1 === r || e.y1 === r + 1) && Math.min(e.x1, e.x2) === c : (e.x1 === c || e.x1 === c + 1) && Math.min(e.y1, e.y2) === r)).length;
+const XMAS_SNOW = [[8, 10, 1.6], [26, 4, 1.1], [52, 9, 1.4], [78, 5, 1.2], [93, 14, 1.6], [4, 46, 1.2], [96, 52, 1.3], [7, 86, 1.5], [90, 90, 1.2], [60, 96, 1.1], [34, 93, 1.4]];
+
 function SlitherPreview() {
-  // The board from the show: lilac screen in a dark stone frame, violet dots and serif numbers.
-  const n = 11;
-  return <div className="w-full rounded-xl bg-gradient-to-br from-[#4a4652] via-[#2f2c36] to-[#46424e] p-1.5 shadow-xl sm:w-[66%] sm:rounded-2xl sm:p-3 sm:shadow-2xl">
-    <svg viewBox={`0 0 ${n} ${n}`} className="block w-full rounded-[3px] bg-[#e9ebff] shadow-[inset_0_0_12px_rgba(91,69,201,.25)]">
-      {SHOW_BOARD.flatMap((row, r) => [...row].map((ch, c) => ch === '.' ? null : <text key={`${r}-${c}`} x={c + 1} y={r + 1.06} textAnchor="middle" dominantBaseline="middle" fontSize={0.62} fontFamily="Georgia, 'Times New Roman', serif" fill="#5b45c9">{ch}</text>))}
-      {Array.from({ length: n * n }, (_, i) => <circle key={i} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.085} fill="#5b45c9" />)}
+  const n = 5, pad = 0.55, size = n + pad * 2;
+  return <div className="relative w-full overflow-hidden rounded-xl bg-gradient-to-br from-[#1f6b47] via-[#124a31] to-[#0c3524] p-1.5 shadow-xl ring-1 ring-[#ffd66b]/40 sm:w-[66%] sm:rounded-2xl sm:p-3 sm:shadow-2xl">
+    <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">{XMAS_SNOW.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} fill="#fff" opacity={0.75} />)}</svg>
+    <svg viewBox={`${-pad} ${-pad} ${size} ${size}`} className="relative block w-full rounded-[4px] bg-gradient-to-b from-[#fffaf0] to-[#f3f7f2] shadow-[inset_0_0_10px_rgba(31,107,71,.22)]">
+      <path d={`M${XMAS_LOOP.map(([x, y]) => `${x} ${y}`).join('L')}Z`} fill="none" stroke="#1f6b47" strokeWidth={0.13} strokeLinejoin="round" />
+      {XMAS_EDGES.map((e, i) => <circle key={i} cx={(e.x1 + e.x2) / 2} cy={(e.y1 + e.y2) / 2} r={0.13} fill={XMAS_BULBS[i % XMAS_BULBS.length]} stroke="#fff" strokeWidth={0.03} />)}
+      {Array.from({ length: (n + 1) * (n + 1) }, (_, i) => <circle key={i} cx={i % (n + 1)} cy={Math.floor(i / (n + 1))} r={0.075} fill="#1f5b3f" />)}
+      {Array.from({ length: n * n }, (_, i) => { const c = i % n, r = Math.floor(i / n); return XMAS_SHOWN.has(`${c},${r}`) ? (
+        <g key={i} transform={`translate(${c + 0.5} ${r + 0.5}) scale(1.75)`} fill="none" strokeLinecap="round" strokeLinejoin="round">
+          <path d={CUTE_DIGITS[xmasClue(c, r)]} stroke="#e23b4e" strokeWidth={DIGIT_PEN} />
+          <path d={CUTE_DIGITS[xmasClue(c, r)]} stroke="#fff" strokeWidth={DIGIT_STRIPE} strokeDasharray={DIGIT_STRIPE_DASH} />
+        </g>) : null; })}
+      <path d={starPath(0.3)} transform="translate(2.5 0)" fill="#ffc23d" stroke="#fff" strokeWidth={0.04} strokeLinejoin="round" />
     </svg>
   </div>;
 }

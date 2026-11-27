@@ -31,6 +31,8 @@ import StoneAvatar, { Stone } from './StoneAvatar';
 export const NEW: GameId[] = ['hiddenWordPlus', 'sniperHoldem', 'hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'timeAuction', 'gradation', 'pointOmok'];
 const PUZZLE: GameId[] = ['slitherlink', 'hiddenWordPlus', 'hiddenWord', 'equationSignal', 'equationTower', 'magicswap', 'colorlink', 'merge2048', 'onestroke', 'starbattle', 'nonogram', 'binairo', 'masyu', 'sudoku', 'nemoCount', 'gyulhap', 'hexagon'];
 /** 오늘의 추천 on the phone home: set by the site owner. */
+/** 슬리더링크's card while its Christmas theme is the default: candy-cane stripes instead of the game's tint. */
+export const XMAS_CARD = { background: 'repeating-linear-gradient(135deg, #e23b4e 0 9px, #fff7f2 9px 18px)', boxShadow: 'inset 0 0 0 1px rgba(226,59,78,.45)' };
 export const TODAY_PICK: GameId = 'hiddenWordPlus'; // 히든 워드 확장판, the newest release (11/27); was 'slitherlink'
 export const CATS = ['all', 'new', 'versus', 'puzzle', 'hell'] as const;
 export type Cat = (typeof CATS)[number];
@@ -416,10 +418,11 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
           {rest.map((g) => (
             <li key={g.id}>
               <Link href={g.href} onClick={() => pushRecent(g.href)} className="block active:scale-95">
-                <span className="relative block aspect-square overflow-hidden rounded-[20px]" style={{ background: `linear-gradient(160deg, ${tint(g.color, 0.3)} 0%, ${tint(g.color, 0.12)} 100%)`, boxShadow: `inset 0 0 0 1px ${tint(g.color, 0.28)}` }}>
+                <span className="relative block aspect-square overflow-hidden rounded-[20px]" style={g.id === 'slitherlink' ? XMAS_CARD : { background: `linear-gradient(160deg, ${tint(g.color, 0.3)} 0%, ${tint(g.color, 0.12)} 100%)`, boxShadow: `inset 0 0 0 1px ${tint(g.color, 0.28)}` }}>
                   <span className="absolute inset-[9%] overflow-hidden rounded-[14px] bg-[#17201e]/90"><FitTile title={tc(g.id)} className="h-full w-full"><Preview id={g.id} /></FitTile></span>
                   {g.id === 'hiddenWordPlus' ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[linear-gradient(135deg,#ffe9a6,#e0a83a)] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.04em] text-[#2a1a04]">NEW+</span>
-                    : NEW.includes(g.id) && <span className="absolute left-1.5 top-1.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.08em] text-white">NEW</span>}
+                    : g.id === 'slitherlink' ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[#e23b4e] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.04em] text-white shadow-[0_0_10px_rgba(226,59,78,.5)]">🎄 X-MAS</span>
+                          : NEW.includes(g.id) && <span className="absolute left-1.5 top-1.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.08em] text-white">NEW</span>}
                   {g.id === 'hiddenWordPlus' && <span className="absolute bottom-1.5 left-1.5 max-w-[calc(100%-12px)] truncate rounded-full bg-[#7c5cff] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.02em] text-white shadow-[0_0_10px_rgba(124,92,255,.55)]">{t('partyOpenTag')}</span>}
                   {g.hell?.live && <span className="absolute right-1.5 top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#07060a] text-[#ff3355] ring-1 ring-[#ff3355]/60"><Skull size={10} /></span>}
                   {name && <MyRank rank={me.ranks.get(g.href)} name={name} />}
