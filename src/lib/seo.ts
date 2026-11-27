@@ -38,6 +38,7 @@ export const SHOWS = {
   genius3: { ko: '더 지니어스: 블랙가넷', en: 'The Genius: Black Garnet' },
   genius34: { ko: '더 지니어스', en: 'The Genius' },
   society2: { ko: '소사이어티 게임 2', en: 'The Society Game 2' },
+  dg1: { ko: '데스게임: 천만원을 걸어라', en: 'Death Game (The Risk Takers)' },
 } as const;
 export type ShowId = keyof typeof SHOWS;
 

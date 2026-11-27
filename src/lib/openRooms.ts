@@ -10,7 +10,7 @@ export const STATS_ID: Record<CatalogId, StatsId> = {
   fourThree: 'four_three', flipOmok: 'flip_omok', nineMensMorris: 'nine_mens_morris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indianPoker: 'indian_poker',
   hexagon: 'hexagon', piggyBank: 'piggy_bank', nemoCount: 'nemo_count', blackWhite: 'black_white', blackWhite2: 'black_white_2', laserJanggi: 'laser_janggi', blindGomoku: 'blind_gomoku',
   wallgo: 'wallgo', russianRoulette: 'russian_roulette', heavy13: 'heavy13', janggi: 'janggi', russianJanggi: 'russian_janggi', sudoku: 'sudoku',
-  timeAuction: 'time_auction',
+  timeAuction: 'time_auction', mineOblivion: 'mine_oblivion',
 };
 
 export type OpenRoomRow = { code: string; variant: number; host: string; players: number; capacity: number; title?: string };
@@ -37,7 +37,7 @@ export type OpenRoomAnyRow = OpenRoomRow & { game: string };
 
 /** Room channel prefix → game. */
 export const CHANNEL_GAME: Record<string, CatalogId> = {
-  'time-auction-room': 'timeAuction',
+  'time-auction-room': 'timeAuction', 'mine-oblivion-room': 'mineOblivion',
   'binairo-room': 'binairo', 'onestroke-room': 'onestroke', 'colorlink-room': 'colorlink', 'magicswap-room': 'magicswap', 'merge2048-room': 'merge2048', 'starbattle-room': 'starbattle', 'masyu-room': 'masyu', 'nonogram-room': 'nonogram', 'two-sided-poker-room': 'twoSidedPoker', 'monorail-room': 'monorail',
   'wallgo-room': 'wallgo', 'wallgo2-room': 'wallgo2', 'slither-room': 'slitherlink', 'gyulhap-room': 'gyulhap', 'indian-poker-room': 'indianPoker',
   'hexagon-room': 'hexagon', 'piggy-bank-room': 'piggyBank', 'nemo-count-room': 'nemoCount', 'black-white-room': 'blackWhite', 'black-white-2-room': 'blackWhite2',

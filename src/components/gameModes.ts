@@ -44,6 +44,7 @@ import { prepareEquationTowerRoom, useEquationTowerRoom } from '@/hooks/useEquat
 import { prepareHiddenWordPlusRoom, prepareHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
 import { prepareHiddenWordPartyRoom } from '@/hooks/useHiddenWordParty';
 import { prepareTimeAuctionRoom, useTimeAuctionRoom } from '@/hooks/useTimeAuctionRoom';
+import { prepareMineOblivionRoom, useMineOblivionRoom } from '@/hooks/useMineOblivionRoom';
 
 /** One way to start against the AI (or alone). `label` is a GameGate message key; `query` goes on the URL. */
 export type PlayOption = { label: string; query?: string };
@@ -94,6 +95,10 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
     rooms: [{ label: 'shRoom', create: prepareSniperHoldemRoom, openMin: 2 }], useRoom: useSniperHoldemRoom,
   },
   hitStay: { path: '/hit-stay', ai: [{ label: 'hsAi' }], rooms: [{ label: 'hsRoom', create: prepareHitStayRoom, openMin: 2 }], useRoom: useHitStayRoom },
+  mineOblivion: {
+    path: '/mine-of-oblivion', ai: [{ label: 'moNormal', query: 'difficulty=normal' }, { label: 'moHard', query: 'difficulty=hard' }],
+    rooms: [{ label: 'roomTwo', create: prepareMineOblivionRoom }], useRoom: useMineOblivionRoom,
+  },
   timeAuction: {
     path: '/time-auction',
     ai: [{ label: 'taStandard', query: 'format=standard&difficulty=hard' }, { label: 'taStandardNormal', query: 'format=standard&difficulty=normal' }, { label: 'taQuick', query: 'format=quick&difficulty=hard' }, { label: 'taBroadcast', query: 'format=broadcast&difficulty=hard' }],

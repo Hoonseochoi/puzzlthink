@@ -25,6 +25,16 @@ export type GameUpdateLog = {
 };
 
 export const GAME_UPDATES: Record<string, GameUpdateLog> = {
+  mine_oblivion: {
+    name: { ko: '망각의 지뢰', en: 'Mine of Oblivion' },
+    items: [
+      {
+        date: '11/28', icon: Sparkles,
+        ko: { title: '망각의 지뢰가 열렸어요', desc: '데스게임 6회차 1:1 게임을 방송 규칙대로 옮겼어요. 지뢰 15개를 몰래 묻고, 내 지뢰마저 사라진 판을 걸으며 숫자를 기억해 보물을 찾아요. AI 보통·어려움과 친구·공개방 1:1.' },
+        en: { title: 'Mine of Oblivion is here', desc: 'The 1:1 match from Death Game, with the broadcast rules: bury 15 secret mines, then walk a board that hides even yours, remembering the numbers to find treasure. Normal and hard AI, friend and open rooms.' },
+      },
+    ],
+  },
   hidden_word_plus: {
     name: { ko: '히든 워드 확장판', en: 'Hidden Word: Expansion' },
     items: [
@@ -605,7 +615,7 @@ const ROOM_GAMES: Record<string, { ko: string; en: string }> = {
   onestroke: { ko: '한붓길', en: 'One Stroke' }, piggy_bank: { ko: '돼지 저금통', en: 'Piggy Bank' }, point_omok: { ko: '포인트 오목', en: 'Point Omok' },
   russian_janggi: { ko: '러시아장기', en: 'Russian Janggi' }, russian_roulette: { ko: '러시안 룰렛', en: 'Russian Roulette' }, slitherlink: { ko: '슬리더링크', en: 'Slitherlink' },
   starbattle: { ko: '스타배틀', en: 'Star Battle' }, two_sided_poker: { ko: '양면포커', en: 'Two-Sided Poker' }, wallgo: { ko: '벽바둑', en: 'Wallgo' }, wallgo2: { ko: '벽바둑 II', en: 'Wallgo II' },
-  time_auction: { ko: '시간 경매', en: 'Time Auction' },
+  time_auction: { ko: '시간 경매', en: 'Time Auction' }, mine_oblivion: { ko: '망각의 지뢰', en: 'Mine of Oblivion' },
 };
 
 for (const [key, name] of Object.entries(ROOM_GAMES)) {

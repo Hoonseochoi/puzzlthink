@@ -43,6 +43,7 @@ const GAMES: { path: string; id: string; label: string }[] = [
   { path: '/sniper-holdem', id: 'sniper_holdem', label: 'sniperHoldem' },
   { path: '/hit-stay', id: 'hit_stay', label: 'hitStay' },
   { path: '/time-auction', id: 'time_auction', label: 'timeAuction' },
+  { path: '/mine-of-oblivion', id: 'mine_oblivion', label: 'mineOblivion' },
   { path: '/color-link-duel', id: 'color_link_duel', label: 'colorLinkDuel' },
   { path: '/star-battle', id: 'starbattle', label: 'starbattle' },
   { path: '/masyu', id: 'masyu', label: 'masyu' },

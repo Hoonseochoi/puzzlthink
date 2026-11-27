@@ -1,4 +1,5 @@
 // 데스게임 season 1, matches 5–8: 쇼 미 더 코인, 망각의 지뢰, 말 달리자, 진실의 고개.
+import type { ShowGame } from '../types';
 import { dg1Game } from './make';
 
 export const showMeTheCoin = dg1Game('show-me-the-coin', 5, ['blackWhite2', 'indianPoker', 'twoSidedPoker'], {
@@ -103,7 +104,7 @@ export const showMeTheCoin = dg1Game('show-me-the-coin', 5, ['blackWhite2', 'ind
   ],
 });
 
-export const mineOfOblivion = dg1Game('mine-of-oblivion', 6, ['blindGomoku', 'russianRoulette', 'wallgo'], {
+export const mineOfOblivion: ShowGame = { ...dg1Game('mine-of-oblivion', 6, ['mineOblivion', 'blindGomoku', 'russianRoulette'], {
   meta: {
     title: '망각의 지뢰 규칙 — 데스게임 6회차, 외워 둔 지뢰밭에서 보물 찾기',
     description: '넷플릭스 데스게임 6회차 망각의 지뢰의 규칙을 정리했어요. 11×11 판과 보물 3곳, 지뢰 15개 비밀 설치와 금지 구역, 표시되지 않는 지뢰, 8방향 이동과 주변 지뢰 수만큼의 점수, 지뢰 −5점, 보물 +10·+15·+20, 연습 게임까지.',
@@ -149,6 +150,16 @@ export const mineOfOblivion = dg1Game('mine-of-oblivion', 6, ['blindGomoku', 'ru
   similar: [
     { name: '지뢰 찾기 (Minesweeper)', players: '1명', alike: '둘레 지뢰 수를 보고 지뢰 위치를 추리하는 바탕이 같아요.', differs: '혼자 하는 컴퓨터 퍼즐이고, 지뢰를 묻거나 외울 필요가 없어요.' },
     { name: '배틀십 (Battleship)', players: '2명', alike: '서로 몰래 배치한 것을 찾아내는 게임이에요.', differs: '배틀십은 상대 판을 맞히고, 함께 걸어 다니는 판이 없어요.' },
+  ],
+  siteDiff: [
+    { type: 'list', items: [
+      'PUZZLTHINK 망각의 지뢰는 시즌 1 규칙(11×11, 보물 3곳, 지뢰 15개씩, 출발지 근처·보물 칸 금지, 겹친 칸, 둘레 8칸 점수, 이미 점수 받은 칸 0점, 지뢰 −5점과 출발지 옆 복귀, 보물 +10·+15·+20, 보물 3개로 종료)을 그대로 따라요.',
+      '**숫자는 잠깐만**: 방송처럼 말로 공지하는 대신, 밟은 칸 위에 3초 크게 보였다가 사라지고 다음 수까지 판 아래에 남아요. 기록은 남지 않아요.',
+      '**판에 남는 것**: 두 말과 점수, 발자국(이미 점수를 받은 칸)과 터진 자리. "이미 점수 받은 칸은 0점" 규칙을 화면에서 할 수 있게 하려고 사이트에서 정했어요. 내 지뢰는 걷기 시작 4초 뒤 사라져요.',
+      '방송에서 다루지 않은 경우는 사이트에서 정했어요: 돌아갈 칸은 직접 고르고, 겹친 칸을 밟아도 −5점은 한 번, 보물 칸도 처음 밟으면 둘레 숫자만큼 점수, 누구 지뢰였는지는 알리지 않아요.',
+      '**끝과 시간**: 시즌 2처럼 양쪽 합쳐 70수 제한을 두고, 같은 점수는 무승부예요. 친구 방은 묻기 120초·한 수 30초, AI 대전은 시간 제한이 없어요.',
+      '시즌 2의 시한폭탄과 9×9 연습 게임은 넣지 않았어요(첫 판에 짧은 튜토리얼이 있어요).',
+    ] },
   ],
 }, {
   meta: {
@@ -197,7 +208,17 @@ export const mineOfOblivion = dg1Game('mine-of-oblivion', 6, ['blindGomoku', 'ru
     { name: 'Minesweeper', players: '1', alike: 'Deduce mines from the counts around cells.', differs: 'A solo computer puzzle with nothing to bury or remember.' },
     { name: 'Battleship', players: '2', alike: 'Find what the other side secretly placed.', differs: 'You target the other’s grid rather than walking a shared board.' },
   ],
-});
+  siteDiff: [
+    { type: 'list', items: [
+      'PUZZLTHINK’s Mine of Oblivion follows the season 1 rules: 11×11, three treasures, 15 mines each, no mines near the starts or on treasure, shared cells, scoring the eight cells around, 0 for an already-scored cell, −5 and back by your start for a mine, treasure +10 +15 +20, and the end with the third treasure.',
+      '**Numbers for a moment**: instead of being announced aloud, each number shows large on the cell for three seconds and stays under the board until the next move. No record is kept.',
+      '**What the board keeps**: both pieces and scores, footprints (cells already scored) and craters — so the "already scored" rule can be played on screen. Your own mines vanish four seconds into the walk.',
+      'Cases the show did not cover were decided here: you pick the respawn cell, a shared cell costs 5 once, a treasure cell’s first visitor also scores its number, and nobody is told whose mine it was.',
+      '**End and time**: a 70-move limit as in season 2, and equal scores draw. Friend rooms give 120 s to bury and 30 s a move; AI matches have no clock.',
+      'Season 2’s time bombs and the 9×9 practice game are left out (a short tutorial opens your first game).',
+    ] },
+  ],
+}), site: 'mineOblivion' };
 
 export const runHorse = dg1Game('run-horse', 7, ['wallgo', 'cardJanggi', 'janggi'], {
   meta: {
