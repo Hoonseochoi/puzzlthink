@@ -47,7 +47,7 @@ export const PLAY_APP_FINGERPRINTS = {
  * (src/components/AppTesterInvite.tsx) are told the install link will appear once the test opens. Set: they get an
  * "앱 받기" button to it. Testers are invited by email; list them with scripts/play/testers.sh.
  */
-export const PLAY_TESTER_OPT_IN_URL = '';
+export const PLAY_TESTER_OPT_IN_URL = 'https://play.google.com/apps/testing/com.puzzlthink.app';
 
 /** Query parameter on the app's start URL: /?app=play */
 export const PLAY_APP_PARAM = 'app';
