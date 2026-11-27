@@ -637,7 +637,7 @@
       },
       {
         "title": "3. When you send a bug report",
-        "body": "A report sent with the in-game 'Report a bug' button includes the category, what you wrote, a reply email (only if you enter one), the game and page address, your browser details (User-Agent), screen size, language, and your account ID if you are signed in. It is used only to look into the problem and reply."
+        "body": "A report sent with the in-game 'Report a bug' button includes the category, what you wrote, your nickname, sign-in email and account ID, the game and page address, your browser details (User-Agent), screen size and language. Only signed-in members can send a report, and the form shows the nickname and email that go with it. It is used only to look into the problem and reply."
       },
       {
         "title": "4. When you email us",
@@ -2507,7 +2507,10 @@
     "failed": "Couldn't send it. Please try again shortly or email contact@puzzlthink.com.",
     "tooShort": "Please write at least 5 characters.",
     "close": "Close",
-    "attached": "Sent along: the game, page address, browser and screen size"
+    "attached": "Sent along: the game, page address, browser and screen size",
+    "withAccount": "Your nickname and sign-in email are sent with the report",
+    "withAccountHint": "Only used to check the problem and reply.",
+    "signInFirst": "Please sign in to send a bug report. Your nickname and sign-in email go with the report so we can check it and reply."
   },
   "GameGate": {
     "cjAi": "AI 1:1 · Hard",

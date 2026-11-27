@@ -7,6 +7,7 @@ import { Bug, Check, Loader2, X } from 'lucide-react';
 import { usePathname } from '@/i18n/routing';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
+import AuthButton from './AuthButton';
 
 /** Game pages that get the floating "오류 제보" button, with the Common message key for the game's name. */
 const GAMES: { path: string; id: string; label: string }[] = [
@@ -68,11 +69,10 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
   const t = useTranslations('BugReport');
   const tc = useTranslations('Common');
   const locale = useLocale();
-  const { user } = useAuth();
+  const { user, nickname } = useAuth();
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('bug');
   const [message, setMessage] = useState('');
-  const [email, setEmail] = useState('');
   const [trap, setTrap] = useState(''); // honeypot: bots fill every field
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
@@ -89,7 +89,10 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
     const page = window.location.href;
     const ua = navigator.userAgent;
     const screen = `${window.innerWidth}x${window.innerHeight}@${window.devicePixelRatio || 1}`;
-    const contact = email.trim();
+    // Reports are for signed-in members: the nickname and the account email go with it (the form says so).
+    if (!user) return;
+    const account = { nickname: nickname?.trim() || '', email: user.email || '' };
+    const contact = account.email;
 
     const stored = getSupabase()?.rpc('submit_bug_report', {
       p_game: game.id, p_category: category, p_message: message.trim(), p_contact_email: contact || null,
@@ -112,7 +115,9 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
           브라우저: ua,
           화면: screen,
           언어: locale,
-          로그인: user ? `로그인 사용자 (${user.id})` : '비로그인',
+          닉네임: account.nickname || '(없음)',
+          '계정 이메일': account.email || '(없음)',
+          로그인: `로그인 사용자 (${user.id})`,
         }),
       }).then((r) => r.json()).then((r) => Boolean(r?.success), () => false)
       : Promise.resolve(false);
@@ -140,7 +145,12 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
               <button type="button" onClick={close} aria-label={t('close')} className="text-black/40 hover:text-black"><X size={18} /></button>
             </div>
 
-            {status === 'sent' ? (
+            {!user ? (
+              <div className="mt-5 space-y-3">
+                <p className="break-keep text-sm font-bold leading-6 text-black/70">{t('signInFirst')}</p>
+                <AuthButton full source="other" />
+              </div>
+            ) : status === 'sent' ? (
               <div className="mt-6 flex flex-col items-center gap-3 py-6 text-center">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#12a594] text-white"><Check size={22} /></span>
                 <p className="text-sm font-bold">{t('sent')}</p>
@@ -164,12 +174,11 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
                   <textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={4000} rows={4} required placeholder={t('messagePlaceholder')}
                     className="mt-2 w-full resize-y rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#17201e]" />
                 </label>
-                <label className="block">
-                  <span className="text-xs font-bold text-black/60">{t('email')}</span>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={200} placeholder="you@example.com"
-                    className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#17201e]" />
-                  <span className="mt-1 block text-[11px] text-black/40">{t('emailHint')}</span>
-                </label>
+                <p className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-xs font-bold leading-5 text-black/70">
+                  {t('withAccount')}
+                  <span className="block break-all text-[11px] font-normal text-black/45">{[nickname?.trim(), user?.email].filter(Boolean).join(' · ')}</span>
+                  <span className="block text-[11px] font-normal text-black/45">{t('withAccountHint')}</span>
+                </p>
                 <input type="text" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} className="hidden" aria-hidden />
                 <p className="text-[11px] text-black/40">{t('attached')}</p>
                 {(error || status === 'failed') && <p className="rounded-xl bg-[#fff0eb] px-3 py-2 text-xs font-bold text-[#c2410c]">{error || t('failed')}</p>}
