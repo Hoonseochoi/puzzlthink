@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { BookOpen, Bot, ChevronUp, DoorOpen, House, KeyRound, Link2, Loader2, Play, RefreshCw, UserRound, UsersRound } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
@@ -13,6 +13,7 @@ import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import { GAME_MODES } from './gameModes';
 import { accentVars } from './ui/gameUi';
+import { GameExitContext } from './ui/GameBackLink';
 
 const PLAY_HASH = '#play';
 
@@ -60,8 +61,11 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     return () => { alive = false; window.clearInterval(timer); };
   }, [started, game, modes.useRoom, listTick]);
 
+  // True while the #play entry on top of the history is one this page pushed, so leaving the game can pop it.
+  const pushed = useRef(false);
   useEffect(() => {
     const sync = () => {
+      if (window.location.hash !== PLAY_HASH) pushed.current = false;
       setStarted(window.location.hash === PLAY_HASH);
       const params = new URLSearchParams(window.location.search);
       const code = params.get('open');
@@ -69,7 +73,24 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     };
     sync();
     window.addEventListener('popstate', sync);
-    return () => window.removeEventListener('popstate', sync);
+    // The Google sign-in round trip puts #play back once it has landed (AuthProvider).
+    window.addEventListener('puzzlthink:url', sync);
+    return () => { window.removeEventListener('popstate', sync); window.removeEventListener('puzzlthink:url', sync); };
+  }, []);
+
+  /**
+   * Leave the game for this entry screen (the header's back arrow). Started here: pop the #play entry, as the system back does.
+   * Opened straight into #play (a reload, a shared or saved link, the app resuming): there is nothing to pop, so swap the
+   * entry for the entry screen instead of pushing another one.
+   */
+  const exit = useCallback(() => {
+    if (pushed.current) { window.history.back(); return; }
+    const params = new URLSearchParams(window.location.search);
+    params.delete('open'); params.delete('v');
+    const query = params.toString();
+    window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+    setStarted(false); setOpenRoom(null);
+    window.scrollTo({ top: 0 });
   }, []);
 
   /** Solo play query for an open room's variant (e.g. WallGo 1:1 vs 1:1:1). */
@@ -95,6 +116,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     if (tutorialKey) { try { localStorage.setItem(tutorialKey, '1'); } catch { /* Optional. */ } }
     const search = query ? `?${query}` : window.location.search;
     window.history.pushState(null, '', `${window.location.pathname}${search}${PLAY_HASH}`);
+    pushed.current = true;
     setStarted(true);
     window.scrollTo({ top: 0 });
   };
@@ -122,8 +144,8 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   }, [menuOpen]);
 
   if (started) {
-    if (!openRoom) return <>{children}</>;
-    return <div style={accentVars(accent, ink)}><div className="lg:pl-[272px]"><OpenPracticeShell game={game}>{children}</OpenPracticeShell></div><OpenRoomPanel game={game} code={openRoom.code} variant={openRoom.variant} /></div>;
+    if (!openRoom) return <GameExitContext.Provider value={exit}>{children}</GameExitContext.Provider>;
+    return <GameExitContext.Provider value={exit}><div style={accentVars(accent, ink)}><div className="lg:pl-[272px]"><OpenPracticeShell game={game}>{children}</OpenPracticeShell></div><OpenRoomPanel game={game} code={openRoom.code} variant={openRoom.variant} /></div></GameExitContext.Provider>;
   }
 
   const dark = tone === 'dark';

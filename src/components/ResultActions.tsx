@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, Hourglass, LogOut, RotateCcw, Share2, Trophy } from 'lucide-react';
+import { Check, Hourglass, RotateCcw, Share2, Trophy } from 'lucide-react';
 import { usePractice } from './OpenPractice';
-import { useRouter } from '@/i18n/routing';
+import HomeButton from './ui/HomeButton';
 import { displayName, useAuth } from './AuthProvider';
 import AuthButton from './AuthButton';
 import { clearPendingGame } from '@/lib/stats';
@@ -51,15 +51,14 @@ function RecordPrompt() {
  * Order: sponsor card, then `replay` (the screen's 복기 button and anything tied to it), then sign-in and the buttons,
  * so the card sits in the middle and players scroll past it to 복기 / 다시 하기.
  * `won` picks the sponsor card's copy (unknown → the winning line).
- * `gamePath` is the game page (e.g. "/heavy13"); `exitPath` is where 끝내기 goes.
+ * `gamePath` is the game page (e.g. "/heavy13"); 홈으로 (HomeButton) leaves for the home page.
  */
-export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPath, primaryClass, won, replay }: {
-  onAgain?: () => void; waitingLabel?: string; gamePath: string; exitPath: string; primaryClass: string; won?: boolean; replay?: React.ReactNode;
+export default function ResultActions({ onAgain, waitingLabel, gamePath, primaryClass, won, replay }: {
+  onAgain?: () => void; waitingLabel?: string; gamePath: string; primaryClass: string; won?: boolean; replay?: React.ReactNode;
 }) {
   const t = useTranslations('Common');
   const tp = useTranslations('OpenPractice');
   const locale = useLocale();
-  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const practice = usePractice();
 
@@ -100,7 +99,7 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
       <div className="mt-4 space-y-2">
         {!onAgain && waitingLabel && <p className="pb-1 text-center text-xs text-white/45">{waitingLabel}</p>}
         <div className={`grid gap-2 ${onAgain ? 'grid-cols-3' : 'grid-cols-2'}`}>
-          <button onClick={() => { clearPendingGame(); router.push(exitPath); }} className={secondary}><LogOut size={14} />{t('quit')}</button>
+          <HomeButton block onClick={clearPendingGame} />
           {onAgain && <button onClick={() => { clearPendingGame(); onAgain(); }} className={`flex items-center justify-center gap-1.5 py-3 text-xs font-black ${primaryClass}`}><RotateCcw size={14} />{t('playAgainShort')}</button>}
           <button onClick={share} className={copied ? `${secondary} !border-[#3ddc97]/60 !bg-[#3ddc97]/15 !text-[#7ff0bf]` : secondary}>
             {copied ? <Check size={14} /> : <Share2 size={14} />}{copied ? t('linkCopied') : t('share')}

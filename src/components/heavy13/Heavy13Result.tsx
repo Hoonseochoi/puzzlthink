@@ -8,7 +8,7 @@ import ResultActions from '../ResultActions';
 import { ReplayButton } from '../ui/ReplayBar';
 import { KICKER, MODAL, MODAL_BACKDROP, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 
-export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel, exitPath, onReplay }: { room: H13Room; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; exitPath: string; onReplay?: () => void }) {
+export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel, onReplay }: { room: H13Room; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; onReplay?: () => void }) {
   const t = useTranslations('Heavy13');
   const order = ranking(room.game);
   const players = room.game.players;
@@ -31,7 +31,7 @@ export default function Heavy13Result({ room, mySeat, onAgain, waitingLabel, exi
             </li>
           ))}
         </ol>
-        <ResultActions replay={onReplay && <ReplayButton onClick={onReplay} />} won={mySeat === null ? undefined : rankOf(mySeat) === 1} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/heavy13" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
+        <ResultActions replay={onReplay && <ReplayButton onClick={onReplay} />} won={mySeat === null ? undefined : rankOf(mySeat) === 1} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/heavy13" primaryClass={RESULT_PRIMARY} />
       </div>
     </div>
   );

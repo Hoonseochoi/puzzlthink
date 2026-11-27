@@ -8,6 +8,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
+import HomeButton from '@/components/ui/HomeButton';
 import { CHALLENGE_MS, IDLE_MS, MEMORIZE_MS, ROUNDS, type HexRound, broadcastRounds, generateRound, lineOf } from '@/lib/hexagon';
 import { reportGame } from '@/lib/stats';
 import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
@@ -195,7 +196,7 @@ export default function HexagonGame() {
                   <span className={`w-10 text-right font-mono font-black ${p.found.length - p.wrong > 0 ? 'text-[#7ee2ae]' : p.found.length - p.wrong < 0 ? 'text-[#ff9b94]' : 'text-white/40'}`}>{p.found.length - p.wrong > 0 ? '+' : ''}{p.found.length - p.wrong}</span>
                 </li>
               ))}</ul>
-              <button type="button" onClick={() => start()} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{t('again')}</button>
+              <div className="mt-5 grid grid-cols-[1fr_2fr] gap-2"><HomeButton block className="!rounded-md" /><button type="button" onClick={() => start()} className={`${BTN_ACCENT} w-full py-3`}><RotateCcw size={14} />{t('again')}</button></div>
             </div>
           )}
 

@@ -133,7 +133,7 @@ export default function FourThreeRoomView({ code }: { code: string }) {
           <section className={STAGE}><FourThreeTable room={state} mySeat={mySeat} onAction={dispatch} /></section>
         </main>
       )}
-      {state?.phase === 'finished' && <FourThreeResult room={state} mySeat={mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={to('rematchWait')} exitPath="/four-three" />}
+      {state?.phase === 'finished' && <FourThreeResult room={state} mySeat={mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={to('rematchWait')} />}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, timer } from '@/components/ui/gameUi';
+import HomeButton from '@/components/ui/HomeButton';
 import { type GyulCard, type Hap, allHaps, dealGyulCards, hapKey, isHap, remainingHaps } from '@/lib/gyulhap';
 import { reportGame } from '@/lib/stats';
 import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
@@ -124,7 +125,7 @@ export default function GyulhapGame() {
               <button type="button" title={t('tooltips.hap')} disabled={selected.length !== 3} onClick={callHap} className={`${BTN_ACCENT} py-3 text-sm disabled:opacity-35`}>{t('hap')}</button>
               <button type="button" title={t('tooltips.gyeol')} onClick={callGyeol} className={`${BTN} py-3 text-sm`}>{t('gyeol')}</button>
               {mode === 'practice' ? <button type="button" onClick={() => revealAnswers(false)} className={`${BTN} py-3 text-sm`}><Eye size={14} />{t('answerCheck')}</button> : <button type="button" onClick={() => revealAnswers(true)} className={`${BTN} py-3 text-sm text-[#ffb2aa]`}><Flag size={14} />{t('giveUp')}</button>}
-            </div> : finished ? <button type="button" onClick={restart} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{t('again')}</button> : null}
+            </div> : finished ? <div className="grid grid-cols-[1fr_2fr] gap-2"><HomeButton block className="!rounded-md" /><button type="button" onClick={restart} className={`${BTN_ACCENT} w-full py-3 text-sm`}><RotateCcw size={14} />{t('again')}</button></div> : null}
             {mode !== 'practice' && (finished ? voided && <BoardExitRule voided /> : <BoardExitRule />)}
           </div>
         </section>

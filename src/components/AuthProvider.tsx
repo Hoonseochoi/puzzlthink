@@ -31,6 +31,8 @@ const AuthContext = createContext<AuthState>({
 });
 
 const NAME_KEY = 'puzzlthink_nickname';
+/** The URL hash (e.g. #play) to restore after the Google sign-in redirect. */
+const AUTH_HASH_KEY = 'puzzlthink_auth_hash';
 /** When nickname choice launched: members who joined before keep their current name as the default. */
 const NICKNAMES_LAUNCHED = Date.parse('2026-11-17T10:44:09Z');
 
@@ -67,7 +69,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Drop the one-time OAuth parameters from the address bar.
       if (url.searchParams.has('code') || oauthError) {
         ['code', 'error', 'error_code', 'error_description', 'state'].forEach((k) => url.searchParams.delete(k));
-        window.history.replaceState(null, '', `${url.pathname}${url.search}`);
+        // The redirect cannot carry the hash (Supabase appends ?code=), so put back the one saved at sign-in:
+        // a player who signed in from inside a game (#play) lands in the game again, not on its entry screen.
+        let hash = '';
+        try { hash = sessionStorage.getItem(AUTH_HASH_KEY) ?? ''; sessionStorage.removeItem(AUTH_HASH_KEY); } catch { /* no storage */ }
+        window.history.replaceState(null, '', `${url.pathname}${url.search}${hash}`);
+        if (hash) window.dispatchEvent(new Event('puzzlthink:url'));
       }
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
@@ -129,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = getSupabase();
     if (!supabase) return;
     const back = window.location.href.split('#')[0];
+    try { if (window.location.hash) sessionStorage.setItem(AUTH_HASH_KEY, window.location.hash); else sessionStorage.removeItem(AUTH_HASH_KEY); } catch { /* no storage */ }
     const { error: e } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: back, queryParams: { prompt: 'select_account' } } });
     if (e) setError(e.message);
   }, []);

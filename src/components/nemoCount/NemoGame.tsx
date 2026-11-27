@@ -10,6 +10,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
+import HomeButton from '@/components/ui/HomeButton';
 import { CHALLENGE_MS, NEMO_DIFFICULTIES, type NemoDifficulty, type NemoProblem, formatMs, generateProblem, rng, tutorialProblems } from '@/lib/nemoCount';
 import { type Duel, QUICK_DUEL_COUNT, beats, createDuel, duelImagePath, duelPath, duelTime, getDuel, newSeed, submitDuel } from '@/lib/nemoDuel';
 import { reportGame } from '@/lib/stats';
@@ -298,7 +299,7 @@ export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | n
                   )}
                 </section>
               )}
-              <button type="button" onClick={() => startChallenge(duel ? null : limit)} className={`${BTN} mt-4 w-full py-3`}><RotateCcw size={14} />{duel ? t('duelRetry') : t('again')}</button>
+              <div className="mt-4 grid grid-cols-[1fr_2fr] gap-2"><HomeButton block className="!rounded-md" /><button type="button" onClick={() => startChallenge(duel ? null : limit)} className={`${BTN} w-full py-3`}><RotateCcw size={14} />{duel ? t('duelRetry') : t('again')}</button></div>
             </div>
           )}
 

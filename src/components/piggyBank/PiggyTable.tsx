@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Crown, Hand, RotateCcw, Send } from 'lucide-react';
 import { BTN, BTN_ACCENT, HEADING, KICKER, PANEL, PANEL_TITLE, STAGE } from '@/components/ui/gameUi';
+import HomeButton from '@/components/ui/HomeButton';
 import {
   type Color, type PbAction, type PbEvent, type PbState, ANSWER_MS, DOUBT_MS, PB_MAX_PUT, PUT_MS, PB_WIN, RESET_VOTES, ranking,
 } from '@/lib/piggyBank';
@@ -146,7 +147,7 @@ export function PiggyTable({ s, me: seat, onAct, onAgain, seatIds }: { s: PbStat
                     <span className="font-mono">{s.players[seat].score}점</span>
                   </li>))}
                 </ol>
-                <button type="button" onClick={onAgain} className={`${BTN_ACCENT} mt-4 w-full py-3`}>다시 하기</button>
+                <div className="mt-4 grid grid-cols-[1fr_2fr] gap-2"><HomeButton block className="!rounded-md" />{onAgain && <button type="button" onClick={onAgain} className={`${BTN_ACCENT} w-full py-3`}>다시 하기</button>}</div>
               </div>
             ) : myPut ? (
               <div className="space-y-3">
@@ -320,7 +321,8 @@ export function PiggyTable({ s, me: seat, onAct, onAgain, seatIds }: { s: PbStat
               </li>))}
             </ol>
             <button type="button" onClick={() => setReplay(true)} className={`${BTN} mt-5 w-full py-3`}>저금통 복기 보기</button>
-            {onAgain ? <button type="button" onClick={onAgain} className={`${BTN_ACCENT} mt-2 w-full py-3`}>다시 하기</button> : <p className="mt-2 text-[11px] text-white/40">방장이 다시 시작하면 새 판이 열려요</p>}
+            {!onAgain && <p className="mt-2 text-[11px] text-white/40">방장이 다시 시작하면 새 판이 열려요</p>}
+            <div className={`mt-2 grid gap-2 ${onAgain ? 'grid-cols-[1fr_2fr]' : ''}`}><HomeButton block className="!rounded-md" />{onAgain && <button type="button" onClick={onAgain} className={`${BTN_ACCENT} w-full py-3`}>다시 하기</button>}</div>
           </div>
         </div>
       )}

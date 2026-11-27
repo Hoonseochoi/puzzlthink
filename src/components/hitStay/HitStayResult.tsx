@@ -74,7 +74,7 @@ export default function HitStayResult({ room, mySeat, t, locale, onAgain, onClos
             );
           })}
         </ol>
-        <ResultActions won={myPlace === null ? undefined : myPlace === 1} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/hit-stay" exitPath="/hit-stay" primaryClass={RESULT_PRIMARY} />
+        <ResultActions won={myPlace === null ? undefined : myPlace === 1} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/hit-stay" primaryClass={RESULT_PRIMARY} />
       </motion.div>
     </div>
   );
