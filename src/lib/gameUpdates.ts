@@ -264,6 +264,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '2048', en: '2048' },
     items: [
       {
+        date: '11/27', icon: Crown,
+        ko: { title: '블록 아이콘이 단계마다 더 화려해지고, 1위 아이콘이 새로 바뀌었어요', desc: '큰 블록일수록 왕관·보석·빛살·테두리가 하나씩 더해져요. 랭킹 1위 아이콘은 모든 블록 색이 담긴 프리즘 왕관으로 사다리 맨 위에 섭니다.' },
+        en: { title: 'Block icons grow grander each tier, and a new #1 icon', desc: 'Each bigger block adds a crown, jewel, sunburst or frame. The ranking #1 icon is now a prism-crowned stone in every tier colour, above the whole ladder.' },
+      },
+      {
         date: '11/26', icon: Crown,
         ko: { title: '블록 단계마다 아이콘을 받아요 (2048 ~ 131072)', desc: '2048뿐 아니라 4096, 8192 … 131072까지, 만든 가장 큰 블록에 맞는 프로필 아이콘을 얻어요. 이미 세운 기록에도 지급됐어요.' },
         en: { title: 'An icon for every block tier (2048 to 131072)', desc: 'Not only 2048: 4096, 8192 … up to 131072 each give a profile icon for the biggest block you made. Earlier records got theirs too.' },
