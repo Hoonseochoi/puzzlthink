@@ -226,7 +226,7 @@ export default function JanggiGame() {
 
       <EndRevealBanner show={reveal.revealing && !replaying} text={janggiEndText(t, game, 0, names)} color={game.winner !== null ? SIDE_COLORS[game.winner] : undefined} onSkip={reveal.skip} />
       {over && reveal.showResult && !resultClosed && !replaying && (
-        <JanggiResult game={game} viewer={0} names={names} onAgain={() => newGame()} exitPath="/"
+        <JanggiResult game={game} viewer={0} names={names} onAgain={() => newGame()}
           onReplay={() => { setResultClosed(true); setReplaying(true); }} onClose={() => setResultClosed(true)} />
       )}
     </div>

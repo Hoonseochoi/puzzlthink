@@ -12,8 +12,8 @@ import { russianRouletteFiringDuration } from './firing';
 import { KICKER, MODAL_BACKDROP, RESULT_PRIMARY, STEEL_TEXT, WELL } from '../ui/gameUi';
 import { RR_MODAL } from './theme';
 
-export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLabel, exitPath = '/', onReplay, hidden = false }: {
-  room: RussianRouletteRoom; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; exitPath?: string; onReplay?: () => void;
+export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLabel, onReplay, hidden = false }: {
+  room: RussianRouletteRoom; mySeat: number | null; onAgain?: () => void; waitingLabel?: string; onReplay?: () => void;
   hidden?: boolean; // stays mounted behind the replay, so the firing wait doesn't start again
 }) {
   const t = useTranslations('RussianRoulette');
@@ -59,7 +59,7 @@ export default function RussianRouletteResult({ room, mySeat, onAgain, waitingLa
             </li>)}
           </ol>}
         </div>
-        <ResultActions replay={onReplay && <ReplayButton onClick={onReplay} className="!mt-4" />} won={mySeat === null ? undefined : !hit} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-roulette" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
+        <ResultActions replay={onReplay && <ReplayButton onClick={onReplay} className="!mt-4" />} won={mySeat === null ? undefined : !hit} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/russian-roulette" primaryClass={RESULT_PRIMARY} />
       </div>
     </div>
   );

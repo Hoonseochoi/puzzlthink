@@ -275,7 +275,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
             <p className={`${cinzel.className} mt-5 text-xs font-bold tracking-[0.3em] text-[#ff4d5e]`}>{tw('gameOver')}</p>
             <h2 className={`mt-1 text-3xl font-black tracking-tight ${STEEL_TEXT}`}>{winners.length > 1 ? tw('coWin', { players: winners.map((p) => plainName(p)).join(' · ') }) : state.winner === mySeat ? tw('youWin') : t('winnerTitle', { player: plainName(state.winner) })}</h2>
             <p className="mt-2 text-sm text-white/50">{tw('finalScore', { score: territory.scores[state.winner], largest: territory.largest[state.winner] })}</p>
-            <ResultActions replay={frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} />} won={mySeat === null ? undefined : winners.length ? winners.includes(mySeat) : state.winner === mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath={PATH} exitPath={PATH} primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
+            <ResultActions replay={frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} />} won={mySeat === null ? undefined : winners.length ? winners.includes(mySeat) : state.winner === mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath={PATH} primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
           </div>
         </div>
         </EndRevealGate>

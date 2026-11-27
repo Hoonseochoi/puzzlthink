@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, Copy, Crown, Loader2, LogOut, RotateCcw, Share2, Timer, UserRound, WifiOff } from 'lucide-react';
+import { Check, Copy, Crown, Loader2, RotateCcw, Share2, Timer, UserRound, WifiOff } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
+import HomeButton from '@/components/ui/HomeButton';
 import GameHeader from '@/components/ui/GameHeader';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
@@ -217,7 +218,7 @@ export default function Merge2048RoomView({ code }: { code: string }) {
               })}
             </ol>
             <div className="mt-5 grid grid-cols-2 gap-2">
-              <Link href="/2048" className={`${BTN} py-3`}><LogOut size={14} />{to('leave')}</Link>
+              <HomeButton block className="!rounded-md" />
               {me?.isHost
                 ? <button type="button" onClick={() => dispatch({ t: 'start' })} disabled={seated < M2_MIN_PLAYERS} className={`${BTN_ACCENT} py-3`}><RotateCcw size={14} />{to('rematch')}</button>
                 : <button type="button" onClick={() => setResultOpen(false)} className={`${BTN} py-3`}>{to('rematchWait')}</button>}

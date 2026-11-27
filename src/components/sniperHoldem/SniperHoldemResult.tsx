@@ -107,7 +107,7 @@ export default function SniperHoldemResult({ room, mySeat, t, locale, onAgain, o
             <button type="button" onClick={onClose} className="flex items-center justify-center gap-2 rounded-md border border-white/15 bg-white/5 py-3 text-sm font-extrabold text-white/80 hover:bg-white/10"><Eye size={15} />{t.viewGame}</button>
             {onReplay && g.rounds.length > 0 && <button type="button" onClick={onReplay} className="flex items-center justify-center gap-2 rounded-md border border-(--accent)/40 bg-(--accent)/10 py-3 text-sm font-extrabold text-(--accent) hover:bg-(--accent)/20"><History size={15} />{t.replay}</button>}
           </div>
-        } won={myPlace === null ? undefined : !iOut} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/sniper-holdem" exitPath="/sniper-holdem" primaryClass={RESULT_PRIMARY} />
+        } won={myPlace === null ? undefined : !iOut} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/sniper-holdem" primaryClass={RESULT_PRIMARY} />
       </motion.div>
     </div>
   );

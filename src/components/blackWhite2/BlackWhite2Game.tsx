@@ -152,7 +152,7 @@ export default function BlackWhite2Game() {
         <section className={STAGE}>
           <div className="mb-3 px-1 sm:mb-4 sm:px-2"><p className={KICKER}>{finished ? t('resultKicker') : stage === 'overtime' ? t('overtimeKicker') : t('vsAi', { name: AI_NAME, level: t(`levels.${difficulty}`) })}</p><h1 className={`mt-1 ${HEADING}`}>{status}</h1></div>
           {finished ? (
-            <BW2Replay key={gameNo} rounds={rounds} me={0} names={names}><PersonaReveal id={persona.id} en={en} tell={BW2_TELLS[persona.id]} className="mb-3" lines={[en ? `Points it bid in rounds 1–4: ${rounds.slice(0, 4).reduce((a, r) => a + r.bids[1], 0)} of 99.` : `1~4라운드에 쓴 포인트: 99 중 ${rounds.slice(0, 4).reduce((a, r) => a + r.bids[1], 0)}`]} /><ResultActions onAgain={reset} gamePath="/black-white-2" exitPath="/black-white-2" primaryClass={RESULT_PRIMARY} /></BW2Replay>
+            <BW2Replay key={gameNo} rounds={rounds} me={0} names={names}><PersonaReveal id={persona.id} en={en} tell={BW2_TELLS[persona.id]} className="mb-3" lines={[en ? `Points it bid in rounds 1–4: ${rounds.slice(0, 4).reduce((a, r) => a + r.bids[1], 0)} of 99.` : `1~4라운드에 쓴 포인트: 99 중 ${rounds.slice(0, 4).reduce((a, r) => a + r.bids[1], 0)}`]} /><ResultActions onAgain={reset} gamePath="/black-white-2" primaryClass={RESULT_PRIMARY} /></BW2Replay>
           ) : (
             <div className="space-y-3 sm:space-y-4">
               <PersonaTag id={persona.id} en={en} say={say} className="px-1" />

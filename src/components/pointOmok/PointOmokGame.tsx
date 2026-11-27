@@ -120,7 +120,7 @@ export default function PointOmokGame() {
         <PoTable
           state={state} mySeat={0} dispatch={dispatch} names={[t('you'), state.seats[AI]?.name ?? 'AI']}
           onResign={() => { if (window.confirm(t('resignConfirm'))) dispatch({ t: 'resign' }); }}
-          resultActions={<ResultActions onAgain={reset} gamePath="/point-omok" exitPath="/point-omok" primaryClass={RESULT_PRIMARY} won={state.winner === 0} />}
+          resultActions={<ResultActions onAgain={reset} gamePath="/point-omok" primaryClass={RESULT_PRIMARY} won={state.winner === 0} />}
           asideExtra={(
             <section className={PANEL}>
               <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('difficulty')}</p><span className="text-[10px] font-bold text-white/35">{t(`levelNotes.${level}`)}</span></div>

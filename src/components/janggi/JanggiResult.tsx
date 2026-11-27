@@ -18,8 +18,8 @@ export function janggiEndText(t: (key: string, values?: Record<string, string>) 
   return `${title} · ${t(`reason_${game.reason}`)}`;
 }
 
-export default function JanggiResult({ game, viewer, names, onAgain, waitingLabel, exitPath, onReplay, onClose }: {
-  game: JanggiState; viewer: Side | null; names: string[]; onAgain?: () => void; againLabel?: string; waitingLabel?: string; exitPath: string;
+export default function JanggiResult({ game, viewer, names, onAgain, waitingLabel, onReplay, onClose }: {
+  game: JanggiState; viewer: Side | null; names: string[]; onAgain?: () => void; againLabel?: string; waitingLabel?: string;
   onReplay?: () => void; onClose?: () => void;
 }) {
   const t = useTranslations('Janggi');
@@ -41,7 +41,7 @@ export default function JanggiResult({ game, viewer, names, onAgain, waitingLabe
             <button onClick={onReplay} className="mt-5 flex w-full items-center justify-center gap-2 rounded-md border border-(--accent)/40 bg-(--accent)/10 py-3 text-sm font-extrabold text-(--accent) hover:bg-(--accent)/20"><History size={15} />{t('replay')}</button>
           )}
           {lost && <TipsButton label={t('tipsButton')} onOpen={() => setTipsOpen(true)} />}
-        </>} won={draw || viewer === null ? undefined : game.winner === viewer} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/janggi" exitPath={exitPath} primaryClass={RESULT_PRIMARY} />
+        </>} won={draw || viewer === null ? undefined : game.winner === viewer} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/janggi" primaryClass={RESULT_PRIMARY} />
         {tipsOpen && lost && <JanggiTips game={game} viewer={viewer!} onClose={() => setTipsOpen(false)} />}
       </div>
     </div>

@@ -138,7 +138,7 @@ export default function PointOmokRoomView({ code }: { code: string }) {
         <PoTable
           state={state} mySeat={mySeat} dispatch={dispatch} names={[seatName(0), seatName(1)]}
           onResign={() => { if (window.confirm(tp('resignConfirm'))) dispatch({ t: 'resign' }); }}
-          resultActions={<ResultActions won={mySeat === null ? undefined : state.winner === mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath={PATH} exitPath={PATH} primaryClass={RESULT_PRIMARY} />}
+          resultActions={<ResultActions won={mySeat === null ? undefined : state.winner === mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath={PATH} primaryClass={RESULT_PRIMARY} />}
           asideExtra={(
             <section className={PANEL}>
               <div className="flex items-center justify-between"><h2 className={PANEL_TITLE}>{t('players')}</h2><span className={CHIP}>{code.toUpperCase()}</span></div>

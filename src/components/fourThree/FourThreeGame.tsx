@@ -48,7 +48,7 @@ export default function FourThreeGame() {
       <main className="relative z-10 mx-auto w-full max-w-[860px] px-3 py-3 sm:px-4 sm:py-5 lg:py-8">
         <section className={STAGE}>{state && <FourThreeTable room={state} mySeat={mySeat} onAction={dispatch} />}</section>
       </main>
-      {state?.phase === 'finished' && <FourThreeResult room={state} mySeat={mySeat} onAgain={reset} exitPath="/" />}
+      {state?.phase === 'finished' && <FourThreeResult room={state} mySeat={mySeat} onAgain={reset} />}
     </div>
   );
 }

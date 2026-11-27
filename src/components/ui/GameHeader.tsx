@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { Link } from '@/i18n/routing';
+import GameBackLink from './GameBackLink';
 import { HEADER, STEEL_TEXT, SUBTITLE } from './gameUi';
 import PlayerStrip, { type StripPlayer } from './PlayerStrip';
 
@@ -17,7 +17,7 @@ export default function GameHeader({ backHref, backLabel, title, titleClass = 'f
     <>
     <header className={HEADER}>
       <div className="flex min-w-0 items-center gap-3">
-        <Link href={backHref} className="flex shrink-0 items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">{backLabel}</span></Link>
+        <GameBackLink href={backHref} className="flex shrink-0 items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">{backLabel}</span></GameBackLink>
         <span className="h-5 w-px shrink-0 bg-white/15" />
         <div className="min-w-0 truncate">
           <strong className={`${titleClass} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{title}</strong>

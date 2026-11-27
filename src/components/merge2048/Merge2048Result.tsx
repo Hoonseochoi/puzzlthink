@@ -64,7 +64,7 @@ export default function Merge2048Result({ mode, score, max, moves, newBest, plac
           ))}
         </dl>
 
-        <ResultActions won={podium || newBest} onAgain={onAgain} gamePath="/2048" exitPath="/2048" primaryClass={RESULT_PRIMARY} replay={ranked ? (
+        <ResultActions won={podium || newBest} onAgain={onAgain} gamePath="/2048" primaryClass={RESULT_PRIMARY} replay={ranked ? (
           <div className="mt-3 rounded-[14px] border border-[#ffd36e]/30 bg-[#ffd36e]/[0.07] px-4 py-3 text-left">
             <p className="flex items-center gap-1.5 text-xs font-black text-[#ffd36e]"><Medal size={13} />{t('rankTitle')}</p>
             {place === 'loading' ? <p className="mt-2 text-sm text-white/45">{t('rankLoading')}</p>

@@ -11,9 +11,11 @@ import AuthButton from '@/components/AuthButton';
 import BugReport from '@/components/BugReport';
 import GameUpdates from '@/components/GameUpdates';
 import { setRoomPlaying } from '@/lib/roomChat';
+import { useBackClose } from '@/hooks/useBackClose';
 import { type HwAction, type HwEntry, type HwLevel, type HwRankRow, type HwTurn, type HwView, hwAct, hwClean, hwRanking, hwStart, hwState, hwTimeline, isHwWord, HW_ENVELOPES, HW_RANK_MIN } from '@/lib/hiddenWord';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GameHeader from '../ui/GameHeader';
+import HomeButton from '../ui/HomeButton';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL_TITLE, SHELL, STAGE } from '../ui/gameUi';
 import { HW_GOLD, HWP_GOLD, type HwCopy, hwCopy, hwRootStyle } from './copy';
 import { EditionMark, Envelope, MoraFace, RichText, SecretCard, SimRow, StageTrack, TimerRing, WordCard } from './HiddenWordParts';
@@ -423,7 +425,8 @@ function OverStage({ view, level, t, signedIn, onAgain, onRank }: { view: HwView
           );
         })}
       </ul>
-      <div className="mt-5 grid grid-cols-2 gap-2">
+      <div className="mt-5 grid grid-cols-3 gap-2">
+        <HomeButton block className="!rounded-md !text-sm" />
         <button type="button" onClick={onRank} className={`${BTN} !py-3 !text-sm`}><Trophy size={15} />{t.ranking}</button>
         <button type="button" onClick={onAgain} className={`${BTN_ACCENT} !py-3 !text-sm`}><RotateCcw size={15} />{t.again}</button>
       </div>
@@ -432,6 +435,7 @@ function OverStage({ view, level, t, signedIn, onAgain, onRank }: { view: HwView
 }
 
 function RulesModal({ t, onClose }: { t: HwCopy; onClose: () => void }) {
+  useBackClose(true, onClose);
   return (
     <div className={MODAL_BACKDROP} onClick={onClose}>
       <div className={`${MODAL} max-w-md !p-6 text-left text-white`} onClick={(event) => event.stopPropagation()}>
@@ -448,6 +452,7 @@ function RulesModal({ t, onClose }: { t: HwCopy; onClose: () => void }) {
 function RankModal({ t, level, onClose }: { t: HwCopy; level: HwLevel; onClose: () => void }) {
   const [rows, setRows] = useState<HwRankRow[] | null | undefined>(undefined);
   useEffect(() => { hwRanking(20, level).then(setRows); }, [level]);
+  useBackClose(true, onClose);
   return (
     <div className={MODAL_BACKDROP} onClick={onClose}>
       <div className={`${MODAL} max-w-md !p-6 text-left text-white`} onClick={(event) => event.stopPropagation()}>
