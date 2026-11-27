@@ -115,26 +115,26 @@ function MineOblivionBoard(p: MoBoardProps) {
         })}
         {/* footprints and craters */}
         {(p.scored ?? []).filter((s) => !starts.includes(s.cell)).map((s) => (
-          <span key={`f${s.cell}`} className="pointer-events-none absolute flex items-end justify-end p-[5%]" style={{ ...place(s.cell), background: 'rgba(255,236,190,.075)', boxShadow: `inset 0 0 0 1px ${WALKER[s.seat].color}30` }}><Footprint seat={s.seat} size={15} /></span>
+          <span key={`f${s.cell}`} className="pointer-events-none absolute z-[1] flex items-end justify-end p-[5%]" style={{ ...place(s.cell), background: 'rgba(255,236,190,.075)', boxShadow: `inset 0 0 0 1px ${WALKER[s.seat].color}30` }}><Footprint seat={s.seat} size={15} /></span>
         ))}
-        {[...craters].map((c) => <span key={`c${c}`} className="pointer-events-none absolute flex items-center justify-center" style={place(c)}><Crater size={26} className="h-[86%] w-[86%]" /></span>)}
+        {[...craters].map((c) => <span key={`c${c}`} className="pointer-events-none absolute z-[1] flex items-center justify-center" style={place(c)}><Crater size={26} className="h-[86%] w-[86%]" /></span>)}
         {/* treasure */}
         {p.treasures.map((t) => (
-          <span key={`t${t.cell}`} className="pointer-events-none absolute flex items-center justify-center" style={place(t.cell)}>
+          <span key={`t${t.cell}`} className="pointer-events-none absolute z-[2] flex items-center justify-center" style={place(t.cell)}>
             <TreasureStone dim={t.found} className="h-[88%] w-[88%]" />
           </span>
         ))}
         {/* trails (end reveal, 복기) */}
         {p.trails && (
-          <svg viewBox={`0 0 ${n} ${n}`} className="pointer-events-none absolute inset-0 h-full w-full">
+          <svg viewBox={`0 0 ${n} ${n}`} className="pointer-events-none absolute inset-0 z-[1] h-full w-full">
             {p.trails.map((trail, s) => trail.length > 1 && (
               <polyline key={s} points={trail.map((c) => centre(c).join(',')).join(' ')} fill="none" stroke={WALKER[s].color} strokeOpacity=".75" strokeWidth=".09" strokeLinecap="round" strokeLinejoin="round" strokeDasharray={s ? '.22 .14' : undefined} />
             ))}
           </svg>
         )}
-        {/* mines (burying, the memorize moment, the reveal, 복기) */}
+        {/* mines (burying, the memorize moment, the reveal, 복기): above the tappable cells (z-1), which are opaque */}
         {[...minesAt.values()].map((m) => (
-          <span key={`m${m.cell}${m.recall ? 'r' : ''}`} className={`pointer-events-none absolute flex items-center justify-center ${m.fading ? 'mo-vanish' : m.recall ? 'mo-recall' : ''}`} style={{ ...place(m.cell), animationDelay: m.fading ? '3.1s' : undefined }}>
+          <span key={`m${m.cell}${m.recall ? 'r' : ''}`} className={`pointer-events-none absolute z-[2] flex items-center justify-center ${m.fading ? 'mo-vanish' : m.recall ? 'mo-recall' : ''}`} style={{ ...place(m.cell), animationDelay: m.fading ? '3.1s' : undefined }}>
             {m.recall && <span className="absolute inset-[4%] rounded-full" style={{ boxShadow: '0 0 0 2px #c4a3ff, 0 0 14px 2px #9b6cf0', background: 'rgba(155,108,240,.22)' }} />}
             {p.ownerRings && <span className="absolute inset-[6%] rounded-full" style={{ boxShadow: `0 0 0 2px ${m.owner === 2 ? '#c084fc' : WALKER[m.owner].color}`, background: `${m.owner === 2 ? '#c084fc' : WALKER[m.owner].color}22` }} />}
             <MineStone state={m.state} mark={m.owner === 2 ? '#c084fc' : WALKER[m.owner].color} className={m.state === 'blast' ? 'relative h-[96%] w-[96%]' : 'relative h-[80%] w-[80%]'} />
