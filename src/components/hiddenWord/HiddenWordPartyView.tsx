@@ -16,7 +16,7 @@ import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
 import { hwClean, isHwWord } from '@/lib/hiddenWord';
 import { hwrReveal, hwrScore } from '@/lib/hiddenWordRoom';
-import { HWP_CFG, type HwpRoom, type HwpTurn, hwpAnswered, hwpClaim, hwpDeal, hwpGuessers, hwpHintsThisStage, hwpLock, hwpMine, hwpSaveMine, hwpUsed } from '@/lib/hiddenWordParty';
+import { HWP_CFG, type HwpRoom, type HwpTurn, hwpAnswered, hwpClaim, hwpDeal, hwpGuessers, hwpHintsThisStage, hwpLock, hwpMine, hwpSaveMine, hwpTaken, hwpUsed } from '@/lib/hiddenWordParty';
 import { reportGame } from '@/lib/stats';
 import { HWP_ACCENT, HWP_GOLD, type HwCopy, hwCopy, hwRootStyle } from './copy';
 import { EditionMark, Envelope, SimRow, WordCard } from './HiddenWordParts';
@@ -358,7 +358,7 @@ function AnswerDock({ turn, mySeat, t, p, onAnswer }: { turn: HwpTurn; mySeat: n
     const words = [word, two ? second : ''].map(hwClean).filter(Boolean);
     if (busy || !words.length) return;
     if (!words.every(isHwWord)) { setError(t.errors.invalid); return; }
-    if (new Set(words).size !== words.length || words.some((w) => turn.hints.some((h) => h.w === w))) { setError(t.errors.duplicate); return; }
+    if (new Set(words).size !== words.length || words.some((w) => hwpTaken(turn).includes(w))) { setError(t.errors.duplicate); return; }
     setBusy(true); setError('');
     const scores = await hwrScore(turn.lock, words, 'answer');
     setBusy(false);

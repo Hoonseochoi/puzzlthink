@@ -74,6 +74,8 @@ export function syncHwpSeats(state: HwpRoom, peers: Peer[]): HwpRoom {
 
 const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 100 ? Math.round(v * 10) / 10 : null);
 export const hwpUsed = (t: HwpTurn) => [...t.hints.map((h) => h.w), ...t.answers.flatMap((a) => a.w)];
+/** Words an answer may not use: the hints, and answers of earlier stages (answers of this stage are sent blind, so two players may say the same word). */
+export const hwpTaken = (t: HwpTurn) => [...t.hints.map((h) => h.w), ...t.answers.filter((a) => a.stage < t.stage).flatMap((a) => a.w)];
 export const hwpHintsThisStage = (t: HwpTurn) => t.hints.filter((h) => h.stage === t.stage && h.by === 'set').length;
 export const hwpGuessers = (state: HwpRoom, t: HwpTurn) => state.players.filter((p) => p !== t.setter);
 export const hwpAnswered = (t: HwpTurn) => t.answers.filter((a) => a.stage === t.stage).map((a) => a.seat);
@@ -165,7 +167,7 @@ export function reduceHwpRoom(state: HwpRoom, action: HwpAction, seat: number | 
       if (state.phase !== 'answer' || !t || !playing || seat === t.setter || hwpAnswered(t).includes(seat!)) break;
       const words = action.words;
       if (!Array.isArray(words) || words.length < 1 || words.length > 2 || (words.length === 2 && (t.chance.includes(seat!) || words[0] === words[1]))) break;
-      if (!words.every(isHwWord) || words.some((w) => t.hints.some((h) => h.w === w)) || !Array.isArray(action.s) || action.s.length !== words.length) break;
+      if (!words.every(isHwWord) || words.some((w) => hwpTaken(t).includes(w)) || !Array.isArray(action.s) || action.s.length !== words.length) break;
       const s = action.s.map(num);
       if (s.some((x) => x === null)) break;
       const answer: HwpAnswer = { seat: seat!, w: words, s: s as number[], stage: t.stage, ok: (s as number[]).some((x) => x >= 100) };
