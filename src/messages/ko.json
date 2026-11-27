@@ -8980,6 +8980,19 @@
     "withdrawAsk": "테스터 신청 철회",
     "withdrawConfirm": "철회하면 저장된 이메일이 바로 지워지고 TESTER 아이콘도 사라져요.",
     "withdraw": "철회하기",
-    "withdrawn": "테스터 신청을 철회했어요. 저장된 이메일을 지웠어요."
+    "withdrawn": "테스터 신청을 철회했어요. 저장된 이메일을 지웠어요.",
+    "headerInstall": "테스트 앱 설치",
+    "installEyebrow": "PLAY TESTER",
+    "installTitle": "테스트 앱이 열렸어요",
+    "installLead": "테스터로 신청해 주셔서 고마워요. 두 단계면 앱을 받을 수 있어요.",
+    "installStep1": "초대 수락",
+    "installStep1Desc": "아래 버튼을 누르고, 열린 Google Play 페이지에서 '테스터 되기'를 눌러요.",
+    "installStep2": "Google Play에서 설치",
+    "installStep2Desc": "같은 페이지의 'Google Play에서 다운로드'로 앱을 설치해요.",
+    "installKeep": "정식 출시를 하려면 테스터가 14일 동안 앱을 설치해 두어야 해요. 14일 동안은 지우지 말아 주세요.",
+    "installGo": "앱 설치하러 가기",
+    "installLater": "나중에",
+    "installDone": "이미 설치했어요",
+    "installAndroidOnly": "테스트 앱은 안드로이드 휴대폰용이에요. 안드로이드 휴대폰에서 PUZZLTHINK에 로그인하면 설치할 수 있어요."
   }
 }

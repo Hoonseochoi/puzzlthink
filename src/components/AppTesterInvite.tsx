@@ -14,8 +14,9 @@ import { GAMES } from '@/lib/gameCatalog';
 import { PLAY_TESTER_OPT_IN_URL } from '@/lib/playApp';
 import { type SignupSource, markSignupSource } from '@/lib/signupSource';
 import {
-  EMAIL_RE, type TesterStatus, dismissPopup, inviteEmail, joinTester, leaveTester, loadTester, markPending, maskEmail,
-  popupDue, subscribeTester, takePending, testerSnapshot,
+  EMAIL_RE, TESTER_INSTALL_OPEN_EVENT, type TesterStatus, dismissPopup, installPopupDue, inviteEmail, isAndroid,
+  joinTester, leaveTester, loadTester, markInstalled, markInstallShown, markPending, maskEmail, popupDue,
+  subscribeTester, takePending, testerSnapshot,
 } from '@/lib/appTester';
 
 /**
@@ -24,6 +25,9 @@ import {
  *  - <AppTesterCard />     the result screen (ResultActions): one tap, or "로그인하고 참여" when signed out.
  *  - <AppTesterStrip />    the home page.
  *  - <AppTesterSettings /> the records page: the joined state and the withdraw control.
+ * Once the closed test is open (PLAY_TESTER_OPT_IN_URL set), members who joined are pushed to install the app:
+ *  - <HeaderTesterButton /> takes the header's 자율 후원 place (GlobalHeader; 후원 stays in the phone menu and footer).
+ *  - <AppTesterInstallPopup /> on every visit until "이미 설치했어요" (Android), or a one-line note elsewhere.
  * Members who already joined see none of the invitations, and inside the Play app nothing is shown but the
  * records row of a member who joined (so they can still withdraw).
  */
@@ -137,7 +141,10 @@ function Joined({ tone, email }: { tone: Tone; email: string }) {
     <div>
       <p className="flex items-center gap-1.5 text-sm font-black"><BadgeCheck size={16} className="text-[#3ddc97]" />{t('doneTitle')}</p>
       <p className={`mt-1 break-keep text-[12px] leading-5 ${muted}`}>{t('doneEmail', { email })}</p>
-      {PLAY_TESTER_OPT_IN_URL ? (
+      {PLAY_TESTER_OPT_IN_URL && !isAndroid() ? (
+        // The test app is Android only: no install button on iPhone/iPad or a computer.
+        <p className={`mt-1 break-keep text-[12px] leading-5 ${muted}`}>{t('installAndroidOnly')}</p>
+      ) : PLAY_TESTER_OPT_IN_URL ? (
         <>
           <a href={PLAY_TESTER_OPT_IN_URL} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#3ddc97] px-4 py-2.5 text-[13px] font-black text-[#06231a]"><Download size={14} />{t('getApp')}</a>
           <p className={`mt-2 break-keep text-[11px] leading-4 ${muted}`}>{t('keepInstalled')}</p>
@@ -224,10 +231,12 @@ export function AppTesterPopup() {
     return () => window.clearTimeout(timer);
   }, [eligible, open]);
   if (!open || (status.kind !== 'not' && status.kind !== 'joined')) return null;
+  // Joined here while the test is open: <AppTesterInstallPopup /> takes over with the install steps.
+  if (status.kind === 'joined' && PLAY_TESTER_OPT_IN_URL) return null;
 
   const later = () => { dismissPopup(); setOpen(false); };
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label={t('title')} className="fixed inset-0 z-[65] flex items-end justify-center bg-black/55 backdrop-blur-sm sm:items-center sm:p-4">
+    <div role="dialog" aria-modal="true" aria-label={t('title')} data-tester-recruit className="fixed inset-0 z-[65] flex items-end justify-center bg-black/55 backdrop-blur-sm sm:items-center sm:p-4">
       <section className="w-full max-w-md rounded-t-[24px] bg-[#f9f7f1] p-5 text-[#17201e] shadow-2xl sm:rounded-[24px] sm:p-6">
         {status.kind === 'joined' ? (
           <>
@@ -290,5 +299,117 @@ export function AppTesterSettings({ className = '' }: { className?: string }) {
         {failed && <p className="mt-1.5 text-[11px] font-bold text-[#e5484d]">{t('failed')}</p>}
       </div>
     </div>
+  );
+}
+
+// ── Install (members who joined, once the closed test is open) ───────────────────────────────────────────────────
+
+/** True for a member who joined as a tester while the closed test is open, outside the Play app. */
+export function useTesterInstall() {
+  const { status } = useTester();
+  const app = usePlayApp();
+  return !!PLAY_TESTER_OPT_IN_URL && !app && status.kind === 'joined';
+}
+
+const openInstall = () => window.dispatchEvent(new Event(TESTER_INSTALL_OPEN_EVENT));
+
+/**
+ * The header's 자율 후원 place for testers: "테스트 앱 설치". On Android it opens the Play opt-in page; elsewhere it
+ * explains that the test app is for Android phones. `full` is the phone menu's wide button.
+ */
+export function HeaderTesterButton({ full = false }: { full?: boolean }) {
+  const t = useTranslations('AppTester');
+  const [android] = useState(isAndroid);
+  const cls = full
+    ? 'flex w-full shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#5b45c9] px-4 py-3 text-sm font-extrabold text-white transition hover:bg-[#4a39a8]'
+    : 'group relative flex h-10 shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-xl bg-[#17113a] pl-1.5 pr-3 text-white shadow-[0_0_14px_rgba(124,92,255,.45),inset_0_0_10px_rgba(198,255,61,.12)] ring-1 ring-[#9b85ff]/70 transition hover:shadow-[0_0_22px_rgba(124,92,255,.75)]';
+  const body = full ? <><Download size={15} />{t('headerInstall')}</> : <>
+    <span className="shrink-0 transition group-hover:scale-110"><TesterIcon size={30} /></span>
+    <span className="flex flex-col items-start leading-none">
+      <span className="font-mono text-[9px] font-black tracking-[0.08em] text-[#c6ff3d]">PLAY TESTER</span>
+      <span className="mt-[3px] text-[12px] font-black tracking-[-0.02em]">{t('headerInstall')}</span>
+    </span>
+  </>;
+  return android
+    ? <a href={PLAY_TESTER_OPT_IN_URL} target="_blank" rel="noopener noreferrer" className={cls}>{body}</a>
+    : <button type="button" onClick={openInstall} className={cls}>{body}</button>;
+}
+
+/** Another dialog is up (the nickname prompt, the "새 아이콘" celebration, the recruitment popup): wait for it. */
+const otherDialogOpen = () => !!document.querySelector('[aria-labelledby="nickname-title"],[aria-labelledby="icon-unlock-title"],[data-tester-recruit]');
+
+/**
+ * Members who joined: on Android, the install steps on every visit (once per tab session, never over a game or
+ * another dialog) until "이미 설치했어요"; elsewhere one line that the test app is for Android phones, once.
+ * The header button opens it on demand.
+ */
+export function AppTesterInstallPopup() {
+  const t = useTranslations('AppTester');
+  const { nicknameSet } = useTester();
+  const ready = useTesterInstall();
+  const path = usePathname();
+  const [open, setOpen] = useState(false);
+  const [android] = useState(isAndroid);
+  const [retry, setRetry] = useState(0);
+
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(TESTER_INSTALL_OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(TESTER_INSTALL_OPEN_EVENT, onOpen);
+  }, []);
+  const eligible = ready && !open && nicknameSet !== false && !onGamePage(path) && installPopupDue(android);
+  useEffect(() => {
+    if (!eligible) return;
+    const timer = window.setTimeout(() => {
+      if (otherDialogOpen()) { setRetry((n) => n + 1); return; }
+      markInstallShown(android);
+      setOpen(true);
+    }, retry ? 1500 : 1800);
+    return () => window.clearTimeout(timer);
+  }, [eligible, retry, android]);
+  if (!open || !ready) return null;
+
+  const close = () => setOpen(false);
+  const sheet = 'w-full max-w-md rounded-t-[24px] bg-[#f9f7f1] p-5 text-[#17201e] shadow-2xl sm:rounded-[24px] sm:p-6';
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-label={t('installTitle')} className="fixed inset-0 z-[65] flex items-end justify-center bg-black/55 backdrop-blur-sm sm:items-center sm:p-4">
+      {android ? (
+        <section className={sheet}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="flex items-center gap-1 text-[10px] font-black tracking-[0.14em] text-[#5b45c9]"><Smartphone size={12} />{t('installEyebrow')}</p>
+              <h3 className="mt-1.5 break-keep text-xl font-black leading-7 tracking-[-0.03em]">{t('installTitle')}</h3>
+              <p className="mt-1 break-keep text-[13px] leading-5 text-black/55">{t('installLead')}</p>
+            </div>
+            <div className="flex shrink-0 items-start">
+              <span className="mt-1 drop-shadow-[0_6px_14px_rgba(91,69,201,.35)]"><TesterIcon size={68} /></span>
+              <button type="button" onClick={close} className="-mr-2 -mt-1 rounded-md p-2 text-black/35 hover:text-black" aria-label={t('installLater')}><X size={16} /></button>
+            </div>
+          </div>
+          <ol className="mt-4 space-y-2.5">
+            {([['installStep1', 'installStep1Desc'], ['installStep2', 'installStep2Desc']] as const).map(([title, desc], i) => (
+              <li key={title} className="flex gap-3 rounded-2xl border border-black/[0.07] bg-white p-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#5b45c9] text-[13px] font-black text-white">{i + 1}</span>
+                <span className="min-w-0"><b className="block text-sm font-black">{t(title)}</b><span className="mt-0.5 block break-keep text-[12px] leading-[18px] text-black/55">{t(desc)}</span></span>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-3 flex gap-2 rounded-2xl bg-[#fff6dc] px-3 py-2.5 text-[12px] font-bold leading-[18px] text-[#7a5200]"><BadgeCheck size={15} className="mt-px shrink-0" /><span className="break-keep">{t('installKeep')}</span></p>
+          <div className="mt-4 flex gap-2">
+            <a href={PLAY_TESTER_OPT_IN_URL} target="_blank" rel="noopener noreferrer" onClick={close}
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#5b45c9] px-4 py-3 text-[14px] font-black text-white shadow-[0_6px_18px_rgba(91,69,201,.35)] transition active:scale-[.98]"><Download size={15} />{t('installGo')}</a>
+            <button type="button" onClick={close} className="shrink-0 rounded-full px-4 py-3 text-[13px] font-bold text-black/45 hover:text-black">{t('installLater')}</button>
+          </div>
+          <button type="button" onClick={() => { markInstalled(); close(); }} className="mx-auto mt-2 block text-[11.5px] font-bold text-black/40 underline underline-offset-2 hover:text-black">{t('installDone')}</button>
+        </section>
+      ) : (
+        <section className={`${sheet} flex items-center gap-3`}>
+          <span className="shrink-0"><TesterIcon size={44} /></span>
+          <p className="min-w-0 flex-1 break-keep text-[13px] font-bold leading-5 text-black/70">{t('installAndroidOnly')}</p>
+          <button type="button" onClick={close} className="shrink-0 rounded-full bg-[#17201e] px-4 py-2.5 text-[13px] font-black text-white">{t('ok')}</button>
+        </section>
+      )}
+    </div>,
+    document.body,
   );
 }

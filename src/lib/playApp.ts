@@ -45,7 +45,9 @@ export const PLAY_APP_FINGERPRINTS = {
  * The closed test's opt-in link (Play Console → Test and release → Closed testing → Testers → "Join on the web" /
  * "Copy link", https://play.google.com/apps/testing/com.puzzlthink.app). Empty: members who signed up as testers
  * (src/components/AppTesterInvite.tsx) are told the install link will appear once the test opens. Set: they get an
- * "앱 받기" button to it. Testers are invited by email; list them with scripts/play/testers.sh.
+ * "앱 받기" button to it, "테스트 앱 설치" takes 자율 후원's place in the header, and an install popup opens on every
+ * visit until "이미 설치했어요" (Android; elsewhere one "Android only" line). Testers are invited by email; list them
+ * with scripts/play/testers.sh.
  */
 export const PLAY_TESTER_OPT_IN_URL = '';
 
