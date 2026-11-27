@@ -8799,6 +8799,7 @@
     "doneEmail": "Signed up with {email}. The TESTER icon is now on your profile.",
     "doneWait": "Once the test opens, a 'Get the app' button appears on the home and Records pages. We will email you the guide too.",
     "getApp": "Get the app",
+    "doneSoon": "We are adding you to the tester list. The install button usually appears here within an hour.",
     "keepInstalled": "Please keep the app installed for 14 days during the test.",
     "withdrawAsk": "Withdraw from the tester program",
     "withdrawConfirm": "Withdrawing deletes the stored email at once and removes the TESTER icon.",

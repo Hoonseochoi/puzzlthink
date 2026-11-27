@@ -134,14 +134,17 @@ function Consent({ tone, source, onJoined, later, head }: {
 }
 
 /** "신청 완료": the install link once the test is open, otherwise where it will appear. */
-function Joined({ tone, email }: { tone: Tone; email: string }) {
+function Joined({ tone, email, listed = true }: { tone: Tone; email: string; listed?: boolean }) {
   const t = useTranslations('AppTester');
   const muted = tone === 'dark' ? 'text-white/60' : 'text-black/55';
   return (
     <div>
       <p className="flex items-center gap-1.5 text-sm font-black"><BadgeCheck size={16} className="text-[#3ddc97]" />{t('doneTitle')}</p>
       <p className={`mt-1 break-keep text-[12px] leading-5 ${muted}`}>{t('doneEmail', { email })}</p>
-      {PLAY_TESTER_OPT_IN_URL && !isAndroid() ? (
+      {PLAY_TESTER_OPT_IN_URL && !listed ? (
+        // Not on the Play tester list yet (it is updated about once an hour): the Play page would not open.
+        <p className={`mt-1 break-keep text-[12px] leading-5 ${muted}`}>{t('doneSoon')}</p>
+      ) : PLAY_TESTER_OPT_IN_URL && !isAndroid() ? (
         // The test app is Android only: no install button on iPhone/iPad or a computer.
         <p className={`mt-1 break-keep text-[12px] leading-5 ${muted}`}>{t('installAndroidOnly')}</p>
       ) : PLAY_TESTER_OPT_IN_URL ? (
@@ -176,7 +179,7 @@ function Compact({ tone, source, slim, className = '' }: { tone: Tone; source: S
   if (status.kind === 'joined') {
     // Joined just now here, or joined before and the test is open: the "신청 완료" state with its link.
     if (!justJoined && !(PLAY_TESTER_OPT_IN_URL && source !== 'result')) return null;
-    return <div className={`${box(tone)} ${className}`}><Joined tone={tone} email={status.email} /></div>;
+    return <div className={`${box(tone)} ${className}`}><Joined tone={tone} email={status.email} listed={status.listed} /></div>;
   }
   if (user && status.kind !== 'not') return null; // loading, or the feature is not live yet
   if (slim) {
@@ -232,7 +235,7 @@ export function AppTesterPopup() {
   }, [eligible, open]);
   if (!open || (status.kind !== 'not' && status.kind !== 'joined')) return null;
   // Joined here while the test is open: <AppTesterInstallPopup /> takes over with the install steps.
-  if (status.kind === 'joined' && PLAY_TESTER_OPT_IN_URL) return null;
+  if (status.kind === 'joined' && status.listed && PLAY_TESTER_OPT_IN_URL) return null;
 
   const later = () => { dismissPopup(); setOpen(false); };
   return createPortal(
@@ -240,7 +243,7 @@ export function AppTesterPopup() {
       <section className="w-full max-w-md rounded-t-[24px] bg-[#f9f7f1] p-5 text-[#17201e] shadow-2xl sm:rounded-[24px] sm:p-6">
         {status.kind === 'joined' ? (
           <>
-            <Joined tone="light" email={status.email} />
+            <Joined tone="light" email={status.email} listed={status.listed} />
             <button type="button" onClick={() => setOpen(false)} className="mt-4 flex w-full items-center justify-center rounded-full bg-[#17201e] py-3 text-sm font-black text-white">{t('ok')}</button>
           </>
         ) : (
@@ -287,7 +290,7 @@ export function AppTesterSettings({ className = '' }: { className?: string }) {
   return (
     <div className={`${box('light')} ${className}`}>
       <Eyebrow tone="light" />
-      <div className="mt-1.5"><Joined tone="light" email={status.email} /></div>
+      <div className="mt-1.5"><Joined tone="light" email={status.email} listed={status.listed} /></div>
       <div className="mt-3 border-t border-black/[0.07] pt-3">
         {confirm ? (
           <div className="flex flex-wrap items-center gap-2">
@@ -308,7 +311,7 @@ export function AppTesterSettings({ className = '' }: { className?: string }) {
 export function useTesterInstall() {
   const { status } = useTester();
   const app = usePlayApp();
-  return !!PLAY_TESTER_OPT_IN_URL && !app && status.kind === 'joined';
+  return !!PLAY_TESTER_OPT_IN_URL && !app && status.kind === 'joined' && status.listed;
 }
 
 const openInstall = () => window.dispatchEvent(new Event(TESTER_INSTALL_OPEN_EVENT));
