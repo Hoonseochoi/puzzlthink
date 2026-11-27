@@ -40,7 +40,7 @@ button:disabled { cursor: default; }
 .icon-chip { animation: iconChip .45s ease-out both; }
 @media (prefers-reduced-motion: reduce) { .icon-rays, .icon-ring, .icon-rise, .icon-chip { animation: none; } }
 @keyframes blindWinLine { from { stroke-dashoffset: 140; } to { stroke-dashoffset: 0; } }
-.blind-gomoku-win-line { stroke-dasharray: 140; animation: blindWinLine 1.15s .55s cubic-bezier(.2,.8,.2,1) both; filter: drop-shadow(0 0 3px rgba(255,51,77,.9)); }
+.blind-gomoku-win-line { stroke-dasharray: 140; animation: blindWinLine .8s .15s cubic-bezier(.2,.8,.2,1) both; filter: drop-shadow(0 0 3px rgba(255,51,77,.9)); }
 /* 포인트 오목: stones of a round drop together, a flash ring marks each point, the chosen points breathe. */
 @keyframes poDrop { 0% { opacity: 0; transform: translateY(-40%) scale(1.5); } 60% { opacity: 1; transform: translateY(3%) scale(.96); } 100% { transform: none; } }
 @keyframes poFlash { 0% { opacity: .95; transform: scale(.6); } 100% { opacity: 0; transform: scale(2.3); } }
@@ -110,7 +110,7 @@ button:disabled { cursor: default; }
 @keyframes flip-omok-toast { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.8); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -70%) scale(1); } }
 .flip-omok-toast { animation: flip-omok-toast 1.4s ease-out forwards; }
 @keyframes flip-omok-win { from { stroke-dashoffset: 140; } to { stroke-dashoffset: 0; } }
-.flip-omok-win line { stroke-dasharray: 140; animation: flip-omok-win 1s .4s cubic-bezier(.2,.8,.2,1) both; }
+.flip-omok-win line { stroke-dasharray: 140; animation: flip-omok-win .8s .15s cubic-bezier(.2,.8,.2,1) both; }
 /* Home card: one stone keeps flipping. */
 @keyframes flip-omok-loop { 0%, 55% { transform: rotateY(0deg); } 75%, 100% { transform: rotateY(180deg); } }
 .flip-omok-loop { animation: flip-omok-loop 2.4s ease-in-out infinite alternate; }
@@ -211,3 +211,15 @@ button:disabled { cursor: default; }
   .slx-glow { animation: none; opacity: 1; }
   .slx-burst, .slx-ring { display: none; }
 }
+
+/* End reveal (useEndReveal): the final position stays up a moment before the result popup. */
+@keyframes endRevealStroke { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+.end-reveal-stroke line { stroke-dasharray: 100; animation: endRevealStroke .75s .1s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes endRevealIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.end-reveal-banner { animation: endRevealIn .3s ease-out both; }
+@keyframes endRevealPulse { 0%, 100% { box-shadow: 0 0 0 2px var(--reveal, #ffd76b), 0 0 8px var(--reveal, #ffd76b); } 50% { box-shadow: 0 0 0 4px var(--reveal, #ffd76b), 0 0 22px var(--reveal, #ffd76b); } }
+.end-reveal-pulse { animation: endRevealPulse 1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .end-reveal-stroke line, .end-reveal-banner, .end-reveal-pulse { animation: none; stroke-dashoffset: 0; } }
+@keyframes endRevealTaken { 0% { opacity: 0; transform: scale(1.8) rotate(-20deg); } 60% { opacity: 1; transform: scale(.95) rotate(6deg); } 100% { opacity: .9; transform: none; } }
+.end-reveal-taken { animation: endRevealTaken .6s .15s cubic-bezier(.2,.8,.2,1) both; }
+@media (prefers-reduced-motion: reduce) { .end-reveal-taken { animation: none; } }

@@ -11,6 +11,13 @@ import { TipsButton } from '../ui/TipsModal';
 import { MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT, accentVars } from '../ui/gameUi';
 import { GOLD, hanjaFont } from './theme';
 
+/** One line on how the game ended (the end-reveal banner): who won and why. */
+export function janggiEndText(t: (key: string, values?: Record<string, string>) => string, game: JanggiState, viewer: Side | null, names: string[]) {
+  if (!game.reason) return '';
+  const title = game.winner === null ? t('resultDraw') : game.winner === viewer ? t('resultWin') : t('resultWinner', { player: names[game.winner] });
+  return `${title} · ${t(`reason_${game.reason}`)}`;
+}
+
 export default function JanggiResult({ game, viewer, names, onAgain, waitingLabel, exitPath, onReplay, onClose }: {
   game: JanggiState; viewer: Side | null; names: string[]; onAgain?: () => void; againLabel?: string; waitingLabel?: string; exitPath: string;
   onReplay?: () => void; onClose?: () => void;

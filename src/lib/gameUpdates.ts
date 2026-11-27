@@ -294,6 +294,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '컬러 링크', en: 'Color Link Duel' },
     items: [
       {
+        date: '11/27', icon: Trophy,
+        ko: { title: '마지막 판을 본 뒤 결과가 떠요', desc: '게임이 끝나면 마지막으로 이은 판이 잠깐 보인 뒤 결과가 떠요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'See the final board before the result', desc: 'When the game ends the last links stay on screen for a moment before the result. Wait a moment or tap anywhere to open the result.' },
+      },
+      {
         date: '11/26', icon: Flame,
         ko: { title: 'AI 난이도가 보통 · 어려움 · 매우 어려움으로 나뉘었어요', desc: '지금까지의 AI는 매우 어려움이 되어 AI 헬모드에 들어갔어요. 이기면 블랙피스와 매우 어려움 인증서를 받아요. 어려움과 보통은 새로 생긴 AI로, 사람처럼 가끔 수를 놓쳐요.' },
         en: { title: 'AI levels: Normal, Hard and Very Hard', desc: 'The AI you knew is now Very Hard and part of AI Hell Mode: a win earns a black piece and a Very Hard certificate. Hard and Normal are new AIs that, like people, sometimes miss a move.' },
@@ -303,6 +308,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   flip_omok: {
     name: { ko: '뒤집기 오목', en: 'Flip Omok' },
     items: [
+      {
+        date: '11/27', icon: Trophy,
+        ko: { title: '이긴 다섯 알에 선이 그어진 뒤 결과가 떠요', desc: '게임이 끝나면 판이 그대로 남고, 이긴 다섯 알에 선이 그어지며 빛나요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'The winning five are lined through before the result', desc: 'When the game ends the board stays up and the winning five light up with a line through them. Wait a moment or tap anywhere to open the result.' },
+      },
       {
         date: '11/26', icon: Sparkles,
         ko: { title: '내 캐릭터 알도 뒤집히는 모습이 보여요', desc: '내 바둑알(아이콘)로 둘 때도 빙글 뒤집히는 모션이 나오고, 뒤집혀 넘어온 알에는 상대 색 테두리와 점이 붙어요. 캐릭터 알 크기도 일반 알과 같아졌어요.' },
@@ -324,6 +334,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '카드 장기', en: 'Card Janggi' },
     items: [
       {
+        date: '11/27', icon: Trophy,
+        ko: { title: '마지막 판을 본 뒤 결과가 떠요', desc: '승부가 난 마지막 라운드의 판이 잠깐 보인 뒤 결과가 떠요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'See the final board before the result', desc: 'The deciding round\'s final board stays up for a moment before the match result. Wait a moment or tap anywhere to open the result.' },
+      },
+      {
         date: '11/26', icon: Scale,
         ko: { title: '코끼리는 대각선으로 2칸까지만 가요', desc: '방송 규칙서대로 코끼리가 대각선 한 방향으로 1–2칸만 움직여요. 1칸째에 말이 있으면 뛰어넘지 못해요. 전에는 비숍처럼 대각선 끝까지 갈 수 있었어요.' },
         en: { title: 'The elephant now moves at most two squares', desc: 'As in the show’s rulebook, the elephant moves 1–2 squares in one diagonal direction and cannot jump a piece on the first square. It used to slide any distance like a bishop.' },
@@ -343,6 +358,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   monorail: {
     name: { ko: '모노레일', en: 'Monorail' },
     items: [
+      {
+        date: '11/27', icon: Trophy,
+        ko: { title: '마지막 판을 본 뒤 결과가 떠요', desc: '게임이 끝나면 마지막 선로가 놓인 판이 잠깐 보인 뒤 결과가 떠요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'See the final board before the result', desc: 'When the game ends the board with its last rails stays up for a moment before the result. Wait a moment or tap anywhere to open the result.' },
+      },
       {
         date: '11/26', icon: Scale,
         ko: { title: '어려움 AI가 매번 다르게 두고, 보통은 쉬워졌어요', desc: '어려움 AI는 같은 상황에서 늘 같은 수를 둬서 한 번 이긴 수순으로 계속 이길 수 있었어요. 이제 비슷하게 좋은 수 중에서 골라 둬요. 보통은 너무 강해서(이긴 판 29%) 느슨하게 조정했어요.' },
@@ -369,6 +389,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '러시아장기', en: 'Russian Janggi' },
     items: [
       {
+        date: '11/27', icon: Trophy,
+        ko: { title: '이긴 세 줄에 선이 그어진 뒤 결과가 떠요', desc: '대국이 끝나면 이긴 한 줄에 그 색의 선이 그어진 판이 잠깐 보여요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'The winning three are lined through before the result', desc: 'When the game ends the winning row gets a line in the winner\'s colour for a moment. Wait a moment or tap anywhere to open the result.' },
+      },
+      {
         date: '11/26', icon: Scale,
         ko: { title: '매우 어려움: 블랙피스는 한 주에 30개까지', desc: '블랙피스 경쟁전에서 러시아장기 승리는 한 주에 30승까지만 집계돼요. 이미 30승을 넘긴 기록은 그대로 유지돼요.' },
         en: { title: 'Very Hard: up to 30 black pieces a week', desc: 'In the black piece contest, Russian Janggi wins count up to 30 a week. Totals already past 30 stay as they are.' },
@@ -383,6 +408,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   janggi: {
     name: { ko: '십이장기', en: '12 Janggi' },
     items: [
+      {
+        date: '11/27', icon: Trophy,
+        ko: { title: '王을 잡은 수가 표시된 뒤 결과가 떠요', desc: '대국이 끝나면 王을 잡은 말에 테두리가, 잡힌 王과 마지막 이동에 표시가 나타나요. 적진에 들어가 이긴 王도 빛나요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'The move that took the 王 is shown before the result', desc: 'When the game ends the piece that took the 王 is ringed, with the taken 王 and the last move marked. A 王 that won by entering the camp lights up too. Wait a moment or tap anywhere to open the result.' },
+      },
       {
         date: '11/26', icon: Scale,
         ko: { title: '보통 AI가 조금 쉬워졌어요', desc: '보통에서 이긴 판이 34%로 목표(절반)보다 낮아서, 보통 AI가 가끔 덜 깊이 읽도록 조정했어요. 어려움과 매우 어려움은 그대로예요.' },
@@ -429,6 +459,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '포인트 오목', en: 'Point Omok' },
     items: [
       {
+        date: '11/27', icon: Trophy,
+        ko: { title: '마지막 수와 오목 선을 본 뒤 결과가 떠요', desc: '마지막 라운드의 돌이 떨어지고 오목에 선이 그어질 때까지 결과 창이 기다려요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'See the last stones and the five before the result', desc: 'The result waits until the last round\'s stones have dropped and the five is lined through. Wait a moment or tap anywhere to open the result.' },
+      },
+      {
         date: '11/26', icon: Sparkles,
         ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어요. 후원자의 말에는 얇은 무지개 테두리가 둘러져요.' },
         en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. If both players have the same stone or the colours clash, one of them is recoloured. A supporter\'s piece wears a thin rainbow rim.' },
@@ -439,6 +474,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '4인 3목', en: '4 Player 3 In a Row' },
     items: [
       {
+        date: '11/27', icon: Trophy,
+        ko: { title: '마지막 판을 본 뒤 결과가 떠요', desc: '4라운드가 끝나면 마지막 판과 3목 선이 잠깐 보인 뒤 결과가 떠요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'See the final board before the result', desc: 'After round 4 the last board and its three-in-a-row stay up for a moment before the result. Wait a moment or tap anywhere to open the result.' },
+      },
+      {
         date: '11/26', icon: Sparkles,
         ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어요. 후원자의 말에는 얇은 무지개 테두리가 둘러져요.' },
         en: { title: 'Play with your own stone', desc: 'The stone you picked in Records (a colour or an earned icon) is now your piece on the board. If both players have the same stone or the colours clash, one of them is recoloured. A supporter\'s piece wears a thin rainbow rim.' },
@@ -448,6 +488,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   wallgo: {
     name: { ko: '벽바둑', en: 'Wallgo' },
     items: [
+      {
+        date: '11/27', icon: Trophy,
+        ko: { title: '마지막 판을 본 뒤 결과가 떠요', desc: '게임이 끝나면 마지막 벽이 세워진 판이 잠깐 보인 뒤 결과가 떠요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'See the final board before the result', desc: 'When the game ends the board with its last walls stays up for a moment before the result. Wait a moment or tap anywhere to open the result.' },
+      },
       {
         date: '11/26', icon: Sparkles,
         ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 상대와 같은 바둑알이거나 색이 겹치면 한쪽은 색만 바뀌어요. 후원자의 말에는 얇은 무지개 테두리가 둘러져요.' },
@@ -463,6 +508,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   wallgo2: {
     name: { ko: '벽바둑 II', en: 'Wallgo II' },
     items: [
+      {
+        date: '11/27', icon: Trophy,
+        ko: { title: '마지막 판을 본 뒤 결과가 떠요', desc: '게임이 끝나면 마지막 벽이 세워진 판이 잠깐 보인 뒤 결과가 떠요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },
+        en: { title: 'See the final board before the result', desc: 'When the game ends the board with its last walls stays up for a moment before the result. Wait a moment or tap anywhere to open the result.' },
+      },
       {
         date: '11/26', icon: Sparkles,
         ko: { title: '내 바둑알로 둬요', desc: '기록실에서 고른 내 바둑알(색·획득 아이콘)이 판 위의 내 말로 나와요. 네모 말은 내가 만든 가장 높은 2048 블록 캐릭터로 나오고(없으면 기본 네모), 후원자의 말에는 얇은 무지개 테두리가 둘러져요.' },

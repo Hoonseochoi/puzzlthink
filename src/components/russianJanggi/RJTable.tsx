@@ -46,7 +46,7 @@ export default function RJTable({ game, viewer, canAct, onAction, names }: {
       <div className="relative mx-auto w-full max-w-[440px] rounded-[12px] bg-gradient-to-br from-[#f2b84b]/50 via-white/10 to-[#f2b84b]/40 p-[1.5px] shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
         {['-left-1.5 -top-1.5', '-right-1.5 -top-1.5', '-bottom-1.5 -left-1.5', '-bottom-1.5 -right-1.5'].map((corner) => <span key={corner} aria-hidden className={`absolute z-30 h-3 w-3 rotate-45 border border-[#b9c1d3] bg-[#0b0b0e] ${corner}`} />)}
         <div className="rounded-[10.5px] bg-[linear-gradient(135deg,#2a1d14,#1a120c)] p-3 sm:p-4">
-          <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+          <div className="relative grid grid-cols-3 gap-2 sm:gap-2.5">
             {Array.from({ length: 9 }, (_, i) => (viewer === 0 ? i : 8 - i)).map((cell) => {
               const stack = game.board[cell];
               const piece = top(game, cell);
@@ -85,6 +85,15 @@ export default function RJTable({ game, viewer, canAct, onAction, names }: {
                 </button>
               );
             })}
+            {/* Game over by a line: the three are lined through in the winner's colour (both players, derived from the final state). */}
+            {game.line && game.winner !== null && (() => {
+              const ends = [game.line[0], game.line[game.line.length - 1]].map((c) => (viewer === 0 ? c : 8 - c));
+              return <svg viewBox="0 0 3 3" preserveAspectRatio="none" className="end-reveal-stroke pointer-events-none absolute inset-0 z-20 h-full w-full" aria-hidden>
+                <line x1={(ends[0] % 3) + 0.5} y1={Math.floor(ends[0] / 3) + 0.5} x2={(ends[1] % 3) + 0.5} y2={Math.floor(ends[1] / 3) + 0.5} stroke="#000" strokeOpacity=".5" strokeWidth="12" strokeLinecap="round" vectorEffect="non-scaling-stroke" pathLength={100} />
+                <line x1={(ends[0] % 3) + 0.5} y1={Math.floor(ends[0] / 3) + 0.5} x2={(ends[1] % 3) + 0.5} y2={Math.floor(ends[1] / 3) + 0.5} stroke={SIDE_COLORS[game.winner]} strokeWidth="8" strokeLinecap="round" vectorEffect="non-scaling-stroke" pathLength={100} />
+                <line x1={(ends[0] % 3) + 0.5} y1={Math.floor(ends[0] / 3) + 0.5} x2={(ends[1] % 3) + 0.5} y2={Math.floor(ends[1] / 3) + 0.5} stroke="#fff" strokeWidth="2.5" strokeLinecap="round" vectorEffect="non-scaling-stroke" pathLength={100} />
+              </svg>;
+            })()}
           </div>
         </div>
       </div>

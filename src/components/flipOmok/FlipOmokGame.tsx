@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Bot, Eye, Flag, Info, Lightbulb, RotateCcw, ShieldCheck, Trophy, Undo2, Users, X } from 'lucide-react';
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
+import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
+import { EndRevealBanner } from '@/components/ui/EndReveal';
 import { ReplayButton, ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -11,7 +13,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
 import { reportGame } from '@/lib/stats';
 import { chooseMove, coordinateLabel, emptyBoard, forbiddenPoints, isFull, other, owner, play, type Board, type FlipDifficulty, type Line, type Player } from '@/lib/flipOmok';
-import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard } from './FlipOmokParts';
+import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, STONE_HEX } from './FlipOmokParts';
 import GameUpdates from '@/components/GameUpdates';
 import { MyPieces } from '../PieceStone';
 
@@ -90,7 +92,7 @@ export default function FlipOmokGame() {
     else setTurn(other(p));
     if ((res.win || isFull(res.board)) && mode === 'ai') {
       reportGame(`flip_omok-ai-${gameNo}-${history.length + 1}`, 'flip_omok', 'ai', !res.win ? 'draw' : res.win.owner === 1 ? 'win' : 'loss',
-        { difficulty, moves: history.length + 1 });
+        { difficulty, moves: history.length + 1 }, { revealDelayMs: REVEAL_MS + 300 });
     }
   };
 
@@ -123,7 +125,7 @@ export default function FlipOmokGame() {
   const resign = () => {
     if (over || !history.length || !window.confirm(t('resignConfirm'))) return;
     setResigned(true);
-    if (mode === 'ai') reportGame(`flip_omok-ai-${gameNo}-${history.length}-resign`, 'flip_omok', 'ai', 'loss', { difficulty, moves: history.length, resign: true });
+    if (mode === 'ai') reportGame(`flip_omok-ai-${gameNo}-${history.length}-resign`, 'flip_omok', 'ai', 'loss', { difficulty, moves: history.length, resign: true }, { revealDelayMs: REVEAL_MS + 300 });
   };
 
   // 복기: every position of this game, from the empty board to the last move.
@@ -139,7 +141,9 @@ export default function FlipOmokGame() {
 
   // AI game: the human lost; two players on one device: someone lost.
   const lost = mode === 'ai' ? (win?.owner === 2 || resigned) : !!win || resigned;
-  const result = over && showResult && !frame && <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/50 p-4 backdrop-blur-[1px]">
+  // The final board (and the line through the five) stays up a moment before the popup.
+  const reveal = useEndReveal(over && `${gameNo}-${history.length}-${win ? 'w' : draw ? 'd' : 'r'}`);
+  const result = over && showResult && reveal.showResult && !frame && <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/50 p-4 backdrop-blur-[1px]">
     <div className="relative w-full max-w-[300px] rounded-[16px] border border-(--accent)/40 bg-[#0e1316]/95 p-5 text-center shadow-[0_0_60px_rgba(103,232,255,.25)]">
       <button type="button" onClick={() => setShowResult(false)} aria-label={t('viewBoard')} title={t('viewBoard')} className="absolute right-2 top-2 rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white"><X size={15} /></button>
       <Trophy className="mx-auto text-(--accent)" size={30} />
@@ -181,6 +185,7 @@ export default function FlipOmokGame() {
             : <FlipOmokBoard board={board} last={last} flipped={flipped} flipKey={history.length} win={win} turn={turn}
               interactive={!over && !aiTurn} banned={banned} onPlace={place} overlay={result} />}
           {frame && <ReplayControls player={replay} onShowResult={() => { setReplaying(false); setShowResult(true); }} />}
+          <EndRevealBanner show={reveal.revealing && !frame} text={status} color={win ? STONE_HEX[win.owner] : undefined} onSkip={reveal.skip} />
           {over && !frame && !showResult && <div className="mx-auto mt-2 flex max-w-[440px] flex-wrap items-center justify-center gap-2">
             <button type="button" onClick={() => setShowResult(true)} className={`${BTN} py-2.5`}><Trophy size={14} />{tc('replayShowResult')}</button>
             {frames.length > 1 && <button type="button" onClick={() => setReplaying(true)} className={`${BTN} py-2.5`}>{tc('replayOpen')}</button>}

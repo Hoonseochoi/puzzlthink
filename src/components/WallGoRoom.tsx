@@ -19,6 +19,7 @@ import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from './LanguageSwitcher';
 import WallGoBoard from './WallGoBoard';
 import ResultActions from './ResultActions';
+import { EndRevealGate } from './ui/EndReveal';
 import WallGoScoreStrip from './WallGoScoreStrip';
 import WallGoCharacter, { WallGoVariant } from './WallGoCharacter';
 import { RoomPieces } from './PieceStone';
@@ -267,6 +268,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
       )}
 
       {state?.phase === 'finished' && state.winner !== null && !showReplay && (
+        <EndRevealGate endKey={`${state.sid}-${gameNo}`} text={winners.length > 1 ? tw('coWin', { players: winners.map((p) => plainName(p)).join(' · ') }) : state.winner === mySeat ? tw('youWin') : t('winnerTitle', { player: plainName(state.winner) })}>
         <div className={MODAL_BACKDROP}>
           <div className="w-full max-w-sm rounded-[16px] border border-white/10 bg-[#121217] p-7 text-center shadow-[0_0_80px_rgba(224,40,58,.25)]">
             <div className="flex justify-center gap-2">{winners.map((p) => <WallGoCharacter key={p} player={p} className="h-20" />)}</div>
@@ -276,6 +278,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
             <ResultActions replay={frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} />} won={mySeat === null ? undefined : winners.length ? winners.includes(mySeat) : state.winner === mySeat} onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} gamePath={PATH} exitPath={PATH} primaryClass="rounded-md bg-[#e0283a] text-white shadow-[0_0_20px_rgba(224,40,58,.45)] hover:bg-[#f0354a]" />
           </div>
         </div>
+        </EndRevealGate>
       )}
     </div>
     </RoomPieces>

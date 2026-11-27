@@ -14,6 +14,7 @@ import { FT_ROOM } from '@/hooks/useFourThreeRoom';
 import { createFtRoom, finalists, missionSucceeded, outcomeFor } from '@/lib/fourThreeRoom';
 import { seatOf } from '@/lib/room';
 import { reportGame } from '@/lib/stats';
+import { REVEAL_MS } from '@/hooks/useEndReveal';
 import { FT_ACCENT, FT_INK } from './FourThreeParts';
 import FourThreeResult from './FourThreeResult';
 import FourThreeTable from './FourThreeTable';
@@ -34,7 +35,7 @@ export default function FourThreeGame() {
     const through = finalists(state);
     reportGame(`four-three-ai-${state.sid}`, 'four_three', 'ai', outcomeFor(state, mySeat), {
       mission: missionSucceeded(state) ? 'ok' : 'fail', pieces: state.pieces[mySeat], through: through.includes(mySeat),
-    });
+    }, { revealDelayMs: REVEAL_MS + 300 });
   }, [state, mySeat]);
 
   return (

@@ -10,6 +10,13 @@ import RJTips from './RJTips';
 import { TipsButton } from '../ui/TipsModal';
 import { MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 
+/** One line on how the game ended (the end-reveal banner): who won and why. */
+export function rjEndText(t: (key: string, values?: Record<string, string>) => string, game: RJState, viewer: Side | null, names: string[]) {
+  if (!game.reason) return '';
+  const title = game.winner === null ? t('resultDraw') : game.winner === viewer ? t('resultWin') : viewer === null ? t('resultWinner', { player: names[game.winner] }) : t('resultLose');
+  return `${title} · ${t(`reason_${game.reason}`)}`;
+}
+
 export default function RJResult({ game, viewer, names, onAgain, waitingLabel, exitPath, onReplay, onClose }: {
   game: RJState; viewer: Side | null; names: string[]; onAgain?: () => void; waitingLabel?: string; exitPath: string;
   onReplay?: () => void; onClose?: () => void;

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Clock3, Crosshair, Eye, Flag, Hourglass, Loader2, Lock, RotateCcw, ShieldCheck, Trophy, X } from 'lucide-react';
 import { KICKER, HEADING, MAIN, MODAL, MODAL_BACKDROP, MODAL_CLOSE, NOTE, PANEL, PANEL_TITLE, STAGE, BTN, BTN_ACCENT, STEEL_TEXT } from '@/components/ui/gameUi';
+import { useEndReveal, REVEAL_MS } from '@/hooks/useEndReveal';
+import { EndRevealBanner } from '@/components/ui/EndReveal';
 import { PO_SECONDS, carryOf, extensions, fiveLines, isLegalTriple, lineOrder, sum } from '@/lib/pointOmok';
 import { type PoAction, type PoRoom, PO_SHOW_MS, budgetOf, isPlaying, knowsBudget, poBidsCheck } from '@/lib/pointOmokRoom';
 import { BidRow, BudgetStrip, POINT_MARKS, PoBoardView, PoStone } from './PoParts';
@@ -46,6 +48,8 @@ function PoTableInner({ state, mySeat, dispatch, names, resultActions, asideExtr
   const showing = !!last && now - state.shownAt < PO_SHOW_MS && state.shownAt > 0;
   const seconds = Math.max(0, Math.min(PO_SECONDS, Math.ceil((state.deadline - now) / 1000)));
   const lines = useMemo(() => (finished ? fiveLines(state.board) : null), [finished, state.board]);
+  // The last round's stones drop and the five is lined through before the popup opens (both players, every client).
+  const reveal = useEndReveal(finished && `${state.sid}-${state.rounds.length}`, REVEAL_MS, state.shownAt > 0 && state.reason !== 'resign' && state.reason !== 'timeout' ? state.shownAt + 2600 : 0);
   const verified = finished && mySeat !== null && !!state.secret?.salts ? poBidsCheck(state, opp) : null;
   const myName = (seat: number) => (seat === mySeat ? t('you') : names[seat]);
   const bidding = state.phase === 'bid' && mySeat !== null; // phones: compact table, smaller board
@@ -257,7 +261,9 @@ function PoTableInner({ state, mySeat, dispatch, names, resultActions, asideExtr
         {playing && mySeat !== null && onResign && <button type="button" onClick={onResign} className={`py-2.5 ${BTN} text-white/45`}><Flag size={13} />{t('resign')}</button>}
       </aside>
 
-      {finished && closedFor !== `${state.sid}-${state.rounds.length}` && (
+      <EndRevealBanner show={finished && reveal.revealing} text={`${heading} · ${state.reason === 'resign' ? t('byResign') : state.reason === 'timeout' ? t('byTimeout') : state.reason === 'full' ? t('byFull') : t('fivesScore', { a: state.fives[viewer], b: state.fives[opp] })}`}
+        color={typeof state.winner === 'number' ? (state.winner === 0 ? '#ff5d8f' : '#5b8cff') : undefined} onSkip={reveal.skip} />
+      {finished && reveal.showResult && closedFor !== `${state.sid}-${state.rounds.length}` && (
         <div className={MODAL_BACKDROP} role="dialog" aria-modal="true" aria-labelledby="po-result-title">
           <div className={MODAL}>
             <button type="button" onClick={() => setClosedFor(`${state.sid}-${state.rounds.length}`)} className={MODAL_CLOSE} aria-label={t('close')}><X size={18} /></button>

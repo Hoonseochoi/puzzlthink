@@ -12,7 +12,9 @@ import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
 import { BTN, BTN_ACCENT, CHIP, DIAMOND, HEADING, KICKER, MAIN, NOTE, SHELL, STAGE, WELL, seg } from '../ui/gameUi';
 import RJTable from './RJTable';
-import RJResult from './RJResult';
+import RJResult, { rjEndText } from './RJResult';
+import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
+import { EndRevealBanner } from '@/components/ui/EndReveal';
 import RJReplay from './RJReplay';
 import RJPiece from './RJPiece';
 import TurnClock from './TurnClock';
@@ -23,7 +25,6 @@ import GameUpdates from '@/components/GameUpdates';
 
 const RECORD_KEY = 'puzzlthink_rjanggi_records';
 const TIMED_KEY = 'puzzlthink_rjanggi_timed';
-export const RESULT_DELAY_MS = 2000;
 const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard']; // 'hell' gets its own row below
 type FirstChoice = 'me' | 'ai' | 'random';
 /** A level named in the link (e.g. `?difficulty=hell#play` from the 헬모드 page), if it is one of ours. */
@@ -46,7 +47,8 @@ export default function RJGame() {
   const [records, setRecords] = useState<MatchRecord[]>([]);
   const [saved, setSaved] = useState(false);
   const [timed, setTimed] = useState(true); // AI games can turn the 10-second clock off
-  const [resultOpen, setResultOpen] = useState(false);
+  const [resultClosed, setResultClosed] = useState(false);
+  const [gameNo, setGameNo] = useState(0);
   const [replaying, setReplaying] = useState(false);
   const names: [string, string] = [t('you'), 'AI'];
   const over = isOver(game);
@@ -54,7 +56,7 @@ export default function RJGame() {
   const newGame = (choice: FirstChoice = firstChoice, level: Difficulty = difficulty) => {
     const first: Side = choice === 'me' ? 0 : choice === 'ai' ? 1 : Math.random() < 0.5 ? 0 : 1;
     setFirstChoice(choice); setDifficulty(level); setGame(initialState(first)); setSaved(false);
-    setResultOpen(false); setReplaying(false);
+    setResultClosed(false); setGameNo((n) => n + 1); setReplaying(false);
     setDeadline(Date.now() + TURN_SECONDS * 1000);
     setLog([t(first === 0 ? 'logYouFirst' : 'logAiFirst')]);
   };
@@ -77,12 +79,8 @@ export default function RJGame() {
     try { localStorage.setItem(TIMED_KEY, on ? '1' : '0'); } catch { /* Optional. */ }
   };
 
-  // Leave the final board up for a moment before the result pops up.
-  useEffect(() => {
-    if (!over) return;
-    const timer = window.setTimeout(() => setResultOpen(true), RESULT_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [over, game]);
+  // Leave the final board up (the three lined through) for a moment before the result pops up; a tap skips it.
+  const reveal = useEndReveal(over && `${gameNo}-${game.ply}-${game.reason}`);
 
   useEffect(() => {
     const boot = window.setTimeout(() => {
@@ -125,7 +123,7 @@ export default function RJGame() {
     const record: MatchRecord = { won: game.winner === 0, draw: game.winner === null, difficulty, date: new Date().toISOString() };
     const timer = window.setTimeout(() => {
       setSaved(true);
-      reportGame(`russian_janggi-ai-${record.date}`, 'russian_janggi', 'ai', record.draw ? 'draw' : record.won ? 'win' : 'loss', { difficulty, reason: game.reason, moves: game.ply, replay: { first: game.first, moves: game.moves ?? [] } });
+      reportGame(`russian_janggi-ai-${record.date}`, 'russian_janggi', 'ai', record.draw ? 'draw' : record.won ? 'win' : 'loss', { difficulty, reason: game.reason, moves: game.ply, replay: { first: game.first, moves: game.moves ?? [] } }, { revealDelayMs: REVEAL_MS + 300 });
       setRecords((current) => {
         const next = [record, ...current].slice(0, 50);
         try { localStorage.setItem(RECORD_KEY, JSON.stringify(next)); } catch { /* Optional. */ }
@@ -160,7 +158,7 @@ export default function RJGame() {
             {!over && !timed && <span className={CHIP}><Infinity size={13} />{t('timeLimit_off')}</span>}
           </div>
           {replaying
-            ? <RJReplay game={game} viewer={0} names={names} onShowResult={() => { setReplaying(false); setResultOpen(true); }} onClose={() => setReplaying(false)} />
+            ? <RJReplay game={game} viewer={0} names={names} onShowResult={() => { setReplaying(false); setResultClosed(false); }} onClose={() => setReplaying(false)} />
             : <RJTable game={game} viewer={0} canAct={!over && game.turn === 0} onAction={play} names={names} />}
         </section>
 
@@ -193,9 +191,10 @@ export default function RJGame() {
         </aside>
       </main>
 
-      {over && resultOpen && !replaying && (
+      <EndRevealBanner show={reveal.revealing && !replaying} text={rjEndText(t, game, 0, names)} color={game.winner !== null ? SIDE_COLORS[game.winner] : undefined} onSkip={reveal.skip} />
+      {over && reveal.showResult && !resultClosed && !replaying && (
         <RJResult game={game} viewer={0} names={names} onAgain={() => newGame()} exitPath="/"
-          onReplay={() => { setResultOpen(false); setReplaying(true); }} onClose={() => setResultOpen(false)} />
+          onReplay={() => { setResultClosed(true); setReplaying(true); }} onClose={() => setResultClosed(true)} />
       )}
     </div>
   );

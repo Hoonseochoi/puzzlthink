@@ -17,6 +17,7 @@ import { useFourThreeRoom } from '@/hooks/useFourThreeRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { FT_HUMANS, FT_TURN_OPTIONS, missionSucceeded, outcomeFor } from '@/lib/fourThreeRoom';
 import { reportGame } from '@/lib/stats';
+import { REVEAL_MS } from '@/hooks/useEndReveal';
 import { FT_ACCENT, FT_INK } from './FourThreeParts';
 import FourThreeResult from './FourThreeResult';
 import FourThreeTable from './FourThreeTable';
@@ -42,7 +43,7 @@ export default function FourThreeRoomView({ code }: { code: string }) {
     if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state && !state.ai[mySeat]) {
       reportGame(`four-three-friend-${state.sid}-${mySeat}`, 'four_three', 'friend', outcomeFor(state, mySeat), {
         mission: missionSucceeded(state) ? 'ok' : 'fail', pieces: state.pieces[mySeat], humans: state.seats.filter((s, i) => s && !state.ai[i]).length,
-      });
+      }, { revealDelayMs: REVEAL_MS + 300 });
     }
     prevPhase.current = phase;
   });

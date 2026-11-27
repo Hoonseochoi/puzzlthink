@@ -6,6 +6,8 @@ import { X } from 'lucide-react';
 import type { CldRoom, CldSeat } from '@/lib/colorLinkDuelRoom';
 import { other } from '@/lib/colorLinkDuelRoom';
 import { reportGame } from '@/lib/stats';
+import { REVEAL_MS } from '@/hooks/useEndReveal';
+import { EndRevealGate } from '../ui/EndReveal';
 import ResultActions from '../ResultActions';
 import { KICKER, MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 import type { CldCopy } from './copy';
@@ -25,14 +27,25 @@ export function useCldReport(room: CldRoom | null, mySeat: CldSeat | null, mode:
     if (!finished || !sid || mySeat === null || winner === null || winner === undefined) return;
     reportGame(`color_link_duel-${mode}-${sid}-${mySeat}`, 'color_link_duel', mode, winner === mySeat ? 'win' : 'loss',
       // The AI game's difficulty is the AI's level: 'hell' (매우 어려움) is the full AI, the one that earns black pieces.
-      { score, rounds, reason, board: layout, ...(mode === 'ai' ? { difficulty } : {}) }, { revealDelayMs: 900 });
+      { score, rounds, reason, board: layout, ...(mode === 'ai' ? { difficulty } : {}) }, { revealDelayMs: REVEAL_MS + 300 });
   }, [finished, sid, mySeat, winner, mode, score, rounds, reason, difficulty, layout]);
 }
 
 /** The final score, round by round, and play again. */
-export default function CldResult({ room, mySeat, names, t, onAgain, onClose, waitingLabel }: {
+type CldResultProps = {
   room: CldRoom; mySeat: CldSeat | null; names: [string, string]; t: CldCopy; onAgain?: () => void; onClose: () => void; waitingLabel?: string;
-}) {
+};
+
+/** The final board (its last link) stays up a moment before the result card. */
+export default function CldResult(props: CldResultProps) {
+  const { room, mySeat, names, t } = props;
+  const won = mySeat !== null && room.winner === mySeat;
+  return <EndRevealGate endKey={`${room.sid}-${room.log.length}`} text={`${mySeat === null ? names[room.winner ?? 0] : won ? t.youWin : t.youLose} · ${room.score[mySeat ?? 0]}:${room.score[other(mySeat ?? 0)]}`}>
+    <CldResultCard {...props} />
+  </EndRevealGate>;
+}
+
+function CldResultCard({ room, mySeat, names, t, onAgain, onClose, waitingLabel }: CldResultProps) {
   const me = mySeat ?? 0;
   const won = mySeat !== null && room.winner === mySeat;
   return (
