@@ -57,7 +57,7 @@ export default async function GamesPage({ params }: { params: Promise<{ locale: 
           {GAMES.map((game) => {
             const key = `games.${game.id}` as const;
             const rules = t.raw(`${key}.rules`) as string[];
-            const solo = game.id === 'sudoku' || game.id === 'blindGomoku';
+            const solo = game.id === 'sudoku' || game.id === 'blindGomoku' || game.id === 'propositionGo';
             return (
               <article key={game.id} id={game.id} data-play-game={game.id} className="scroll-mt-24 overflow-hidden rounded-[24px] border border-black/10 bg-[#f9f7f1] shadow-[0_18px_50px_rgba(30,38,36,0.08)] sm:rounded-[32px]">
                 <div className="h-1.5" style={{ background: game.color }} />

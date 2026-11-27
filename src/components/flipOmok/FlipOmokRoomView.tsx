@@ -23,6 +23,7 @@ import { FLIP_TURN_OPTIONS, colorOf, seatToMove } from '@/lib/flipOmokRoom';
 import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, MiniBoard, STONE_HEX } from './FlipOmokParts';
 import { FlipLegend, FlipTips, LossTip, SafeGapCallout } from './FlipOmokGame';
 import GameUpdates from '@/components/GameUpdates';
+import { OriginalMark } from '@/components/propositionGo/PropParts';
 import { PieceOwners, useMyNickname } from '../PieceStone';
 
 export default function FlipOmokRoomView({ code }: { code: string }) {
@@ -122,7 +123,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
     <PieceOwners.Provider value={owners}>
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
       <RoomAlerts alerts={alerts} accent={FLIP_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
-      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/flip-omok" backLabel={tf('title')} title={tf('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
+      <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/flip-omok" backLabel={tf('title')} title={tf('title')} titleClass="font-black" subtitle={<><OriginalMark size="xs" className="mr-1.5 align-middle" />{`ONLINE · 1:1 · ${code.toUpperCase()}`}</>}>
         <GameUpdates game="flip_omok" /><BugReport /><LanguageSwitcher compact dark />
       </GameHeader>
 

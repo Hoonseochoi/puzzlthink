@@ -18,6 +18,7 @@ const PAGES: { path: string; priority: number; changeFrequency: 'daily' | 'weekl
   ...GAME_PATHS.map((path) => ({ path, priority: 0.9, changeFrequency: 'weekly' as const })),
   { path: '/games', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/game-list', priority: 0.7, changeFrequency: 'weekly' },
+  { path: '/originals', priority: 0.7, changeFrequency: 'weekly' },
   // AI 헬모드: listed once a hell AI is live.
   ...(HELL_LIVE.length ? [{ path: '/hell', priority: 0.8, changeFrequency: 'daily' as const }] : []),
   { path: '/logic-puzzles', priority: 0.8, changeFrequency: 'weekly' },

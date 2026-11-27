@@ -29,6 +29,7 @@ import { CjTile } from './cardJanggi/CjPreview';
 import { GradationTile } from './gradation/GradationPreview';
 import { SignalTile } from './equationSignal/SignalParts';
 import { TowerTile } from './equationTower/TowerParts';
+import { PropTile } from './propositionGo/PropParts';
 import { CldTile } from './colorLinkDuel/CldPreview';
 
 function MiniFace({ color, shape = 'circle' }: { color: string; shape?: 'circle' | 'square' | 'hex' }) {
@@ -243,6 +244,7 @@ function GyulhapPreview() {
 /** A game's home-card picture, by catalog id (also used by the game list page). */
 export function GamePreview({ id }: { id: GameId }) {
   switch (id) {
+    case 'propositionGo': return <PropTile />;
     case 'equationSignal': return <SignalTile />;
     case 'equationTower': return <TowerTile />;
     case 'hiddenWord': return <HiddenWordTile />;
@@ -298,7 +300,7 @@ export default function HomeClient() {
     return () => mq.removeEventListener('change', on);
   }, []);
   const openCard = <OpenMatchCard previews={{
-      equationSignal: <SignalTile />, equationTower: <TowerTile />, gradation: <GradationTile />, cardJanggi: <CjTile />, colorLinkDuel: <CldTile />, hitStay: <HitStayTile />, sniperHoldem: <SniperHoldemTile />, pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
+      propositionGo: <PropTile />, equationSignal: <SignalTile />, equationTower: <TowerTile />, gradation: <GradationTile />, cardJanggi: <CjTile />, colorLinkDuel: <CldTile />, hitStay: <HitStayTile />, sniperHoldem: <SniperHoldemTile />, pointOmok: <PointOmokPreview />, merge2048: <Merge2048Preview />, magicswap: <MagicSwapPreview />, fourThree: <FourThreePreview />, binairo: <BinairoPreview />, onestroke: <OneStrokePreview />, colorlink: <ColorLinkPreview />, starbattle: <StarBattlePreview />, masyu: <MasyuPreview />, nonogram: <NonogramPreview />, twoSidedPoker: <TwoSidedPokerPreview />, monorail: <MonorailPreview />, slitherlink: <SlitherPreview />, gyulhap: <GyulhapPreview />, indianPoker: <IndianPokerArt />, hexagon: <HexagonPreview />, piggyBank: <PiggyBankArt />, nemoCount: <NemoCountPreview />, blackWhite: <BlackWhitePreview />, blackWhite2: <BlackWhite2Preview />, laserJanggi: <LaserJanggiPreview />,
       blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
       timeAuction: <TimeAuctionTile />, mineOblivion: <MineOblivionTile />,

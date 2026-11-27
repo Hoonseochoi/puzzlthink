@@ -60,8 +60,8 @@ const W4: Spec = { red: ['F8', 'G8', 'D9', 'H8', 'J8', 'E8'], blue: ['E9', 'K8']
 const guide: GameGuide = {
   game: 'flipOmok',
   origin: { kind: 'original' },
-  updated: '2026-11-26',
-  related: ['blindGomoku', 'pointOmok', 'fourThree', 'blackWhite'],
+  updated: '2026-11-28',
+  related: ['propositionGo', 'blindGomoku', 'pointOmok', 'fourThree', 'blackWhite'],
   ko: {
     meta: {
       title: '뒤집기 오목 공략 — 끼우기·뒤집기 규칙, 무효 5목, 쌍삼 금지까지 | PUZZLTHINK',
@@ -71,7 +71,7 @@ const guide: GameGuide = {
     title: '뒤집기 오목 공략',
     lead: '막았다고 생각한 돌이, 한 수 뒤엔 상대 돌이 돼요.',
     intro: [
-      '뒤집기 오목은 15×15 판에서 딱 5목을 만드는 오목에 **오셀로의 뒤집기**를 더한 PUZZLTHINK 창작 게임이에요. 돌을 두었을 때 그 돌과 내 다른 돌 사이에 상대 돌이 한 줄로 끼이면, 끼인 돌이 모두 내 색으로 바뀌어요. 그래서 줄을 막는 돌이 다음 수에 상대 줄의 일부가 되기도 하고, 끝난 줄이 되살아나기도 해요.',
+      '뒤집기 오목은 15×15 판에서 딱 5목을 만드는 오목에 **오셀로의 뒤집기**를 더한 PUZZLTHINK 창작 게임으로, 명제 바둑과 함께 **PUZZLTHINK ORIGINAL** 시리즈예요. 돌을 두었을 때 그 돌과 내 다른 돌 사이에 상대 돌이 한 줄로 끼이면, 끼인 돌이 모두 내 색으로 바뀌어요. 그래서 줄을 막는 돌이 다음 수에 상대 줄의 일부가 되기도 하고, 끝난 줄이 되살아나기도 해요.',
       '이 공략은 뒤집기가 오목 규칙과 만나는 지점을 정확히 정리하는 데서 시작해요. 무엇이 뒤집히고 무엇이 안 뒤집히는지, 왜 어떤 5목은 무효인지, 쌍삼과 장목은 어떻게 되는지를 판 그림으로 보고, 막힌 줄을 되살려 이기는 수순을 따라 둔 뒤 단계별 전략과 AI의 특징을 다뤄요. 좌표는 가로 A~P(I 없음), 세로 1~15(아래부터)예요. 그림의 안쪽 점(눈)은 한 번이라도 뒤집힌 돌의 원래 색이에요.',
     ],
     gamePageTitle: '뒤집기 오목 — 끼우고, 뒤집고, 딱 5목',
@@ -245,7 +245,7 @@ const guide: GameGuide = {
     title: 'Flip Omok strategy guide',
     lead: 'The stone you blocked with can be theirs one move later.',
     intro: [
-      'Flip Omok is a PUZZLTHINK original: exactly-five gomoku on a 15×15 board plus **Othello’s flip**. When your new stone and another of yours trap a straight run of enemy stones, every trapped stone turns your colour. So a blocking stone can become part of the opponent’s line next move, and a dead line can come back to life.',
+      'Flip Omok is a PUZZLTHINK original (the **PUZZLTHINK ORIGINAL** series, with Proposition Go): exactly-five gomoku on a 15×15 board plus **Othello’s flip**. When your new stone and another of yours trap a straight run of enemy stones, every trapped stone turns your colour. So a blocking stone can become part of the opponent’s line next move, and a dead line can come back to life.',
       'This guide starts by pinning down exactly where flipping meets the gomoku rules: what flips and what does not, why some fives do not count, and how double-threes and overlines work — all with diagrams. Then it plays out a win that revives a blocked line, followed by strategy by level and notes on the AI. Coordinates are columns A–P (no I) and rows 1–15 from the bottom. The inner dot (“eye”) on a stone shows its original colour if it has ever been flipped.',
     ],
     gamePageTitle: 'Flip Omok — trap, flip, exactly five',

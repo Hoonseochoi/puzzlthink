@@ -9,6 +9,8 @@ import { GameUpdatesSection } from '@/components/GameUpdates';
 import { hasGameUpdates } from '@/lib/gameUpdates';
 import { hasRankCard } from '@/lib/rankings';
 import { anyGuidePath } from '@/content/guides';
+import { isOriginal } from '@/lib/gameCatalog';
+import { OriginalMark } from '@/components/propositionGo/PropParts';
 
 /** Games with a solve replay: a "플레이 영상으로 배우기" button sits beside the guide button. */
 const REPLAY: Partial<Record<GameId, ReplayGame>> = { magicswap: 'magicswap', slitherlink: 'slitherlink', binairo: 'binairo', onestroke: 'onestroke', colorlink: 'colorlink', starbattle: 'starbattle', masyu: 'masyu', nonogram: 'nonogram' };
@@ -35,7 +37,7 @@ export default async function GameIntroHero({ locale, id, tone = 'dark', Title =
 
   return (
     <div className="@container">
-      <p className="font-mono text-[10px] font-bold tracking-[0.2em] text-(--accent)">PUZZLTHINK · GAME</p>
+      {isOriginal(id) ? <OriginalMark size="sm" /> : <p className="font-mono text-[10px] font-bold tracking-[0.2em] text-(--accent)">PUZZLTHINK · GAME</p>}
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <Title className="whitespace-nowrap text-[2.6rem] font-black leading-[1.05] tracking-[-0.05em] sm:text-6xl">{tc(id)}</Title>
         {(guide || REPLAY[id]) && <div className="flex shrink-0 flex-wrap justify-end gap-2">

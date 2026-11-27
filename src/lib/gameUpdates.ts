@@ -25,6 +25,16 @@ export type GameUpdateLog = {
 };
 
 export const GAME_UPDATES: Record<string, GameUpdateLog> = {
+  proposition_go: {
+    name: { ko: '명제 바둑', en: 'Proposition Go' },
+    items: [
+      {
+        date: '11/28', icon: Sparkles,
+        ko: { title: '명제 바둑이 나왔어요 — PUZZLTHINK ORIGINAL 첫 퍼즐', desc: '색 바둑알을 놓아 모든 명제를 참으로 만드는 논리 퍼즐이에요. 매일 모두 같은 3문제를 시계 하나로 풀고(세 번째는 거짓말 찾기), 막히면 피스로 명제를 하나 더(+30초), 블랙피스로 돌 하나의 자리를(+40초) 받을 수 있어요. 힌트는 한 판에 3개까지예요.' },
+        en: { title: 'Proposition Go is here — the first PUZZLTHINK ORIGINAL puzzle', desc: 'Place coloured stones so every proposition is true. Everyone plays the same three puzzles each day on one clock (the third hides a lie); stuck, a piece buys one more proposition (+30 s) and a black piece shows one stone (+40 s), up to 3 hints per run.' },
+      },
+    ],
+  },
   mine_oblivion: {
     name: { ko: '망각의 지뢰', en: 'Mine of Oblivion' },
     items: [
@@ -348,6 +358,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   flip_omok: {
     name: { ko: '뒤집기 오목', en: 'Flip Omok' },
     items: [
+      {
+        date: '11/28', icon: Sparkles,
+        ko: { title: '뒤집기 오목이 PUZZLTHINK ORIGINAL 시리즈가 됐어요', desc: 'PUZZLTHINK가 직접 만든 게임들을 ORIGINAL 시리즈로 묶었어요. 규칙은 그대로이고, 홈의 ORIGINAL 줄에서 새 오리지널 퍼즐 명제 바둑과 함께 찾을 수 있어요.' },
+        en: { title: 'Flip Omok joins the PUZZLTHINK ORIGINAL series', desc: 'The games PUZZLTHINK made itself now form the ORIGINAL series. The rules are unchanged; find it in the ORIGINAL row on the home page, next to the new original puzzle Proposition Go.' },
+      },
       {
         date: '11/27', icon: Trophy,
         ko: { title: '이긴 다섯 알에 선이 그어진 뒤 결과가 떠요', desc: '게임이 끝나면 판이 그대로 남고, 이긴 다섯 알에 선이 그어지며 빛나요. 잠깐 기다리거나 화면을 누르면 결과 창이 열려요.' },

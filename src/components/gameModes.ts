@@ -71,6 +71,11 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  propositionGo: {
+    path: '/proposition-go', solo: true,
+    ai: [{ label: 'pgDaily', query: 'mode=daily' }, { label: 'pgPractice', query: 'mode=practice' }, { label: 'pgTutorial', query: 'mode=tutorial' }],
+    rooms: [],
+  },
   // The AI match runs on the server (hw_* functions). In a friend room the host's browser holds the hidden words,
   // which is fine between friends. Open rooms are a different match: the server deals and keeps every word
   // (hw_open_*, src/lib/hiddenWordRoom.ts). They are opened (hosted) only inside the Google Play app (APP_ONLY_OPEN
