@@ -31,6 +31,7 @@ import IconCollectionLink from './IconCollectionLink';
 import RankBlock from './merge2048/RankBlock';
 import { FitTile } from './OpenMatchCard';
 import StoneAvatar, { Stone } from './StoneAvatar';
+import { AppTesterStrip } from './AppTesterInvite';
 
 // Home description keys that do not follow `${id}Description`.
 const DESC_KEY: Partial<Record<GameId, string>> = { russianJanggi: 'rjanggiDescription', russianRoulette: 'rouletteDescription' };
@@ -201,6 +202,7 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
           </div>
         </section>
         <LiveFeed items={feed} className="mt-3 lg:hidden" />
+        <AppTesterStrip className="mt-3 lg:mt-5" />
 
         <div className="mt-6 grid gap-6 lg:mt-9 lg:grid-cols-[minmax(0,1fr)_316px] lg:gap-7">
           <div className="min-w-0">

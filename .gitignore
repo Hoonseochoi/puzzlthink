@@ -63,3 +63,6 @@ next-env.d.ts
 *keystore*.txt
 *passwords*.txt
 .claude/launch.json
+
+# Google Play tester emails written by scripts/play/testers.sh (personal data, never in git).
+/scripts/play/out/

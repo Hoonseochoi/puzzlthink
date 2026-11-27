@@ -17,6 +17,8 @@ import { MY_ICON_ANCHOR } from './StonePicker';
 import { M2048_TIERS } from './ProfileIcons';
 import { PLAY_HOURS } from './BadgeIcons';
 import { MISSIONS, type Mission } from './MissionIcons';
+import { TESTER_TIERS, type TesterTier } from './TesterIcons';
+import { AppTesterStrip } from './AppTesterInvite';
 import { SupporterCoverCard } from './SupporterCover';
 
 const CROWN_GAMES = (Object.keys(CERT_GAMES) as GameId[]).filter((g) => gameFromSlug(rankSlug(g)));
@@ -170,6 +172,32 @@ export default function IconCollection() {
               );
             })}
           </ul>
+        </section>
+
+        {/* PLAY TESTER: Google Play app testers only (src/components/AppTesterInvite.tsx) */}
+        <section className="relative mt-6 overflow-hidden rounded-[26px] border border-[#b8ff3a]/35 bg-[radial-gradient(ellipse_at_50%_0%,#2a1670,#0b0626_72%)] p-5 text-white sm:p-6">
+          <span className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#b8ff3a]/15 blur-3xl" />
+          <h2 className="relative flex items-center gap-2 font-mono text-lg font-black tracking-[0.18em]"><Sparkles size={18} className="text-[#b8ff3a]" />{t('testerTitle')}</h2>
+          <p className="relative mt-1.5 inline-flex break-keep rounded-full bg-white/10 px-3 py-1 text-[11px] font-black text-[#d8ff7a]">{t('testerRule')}</p>
+          <ul className="relative mt-5 grid gap-3 sm:grid-cols-3">
+            {TESTER_TIERS.map((tier: TesterTier) => {
+              const icon = `pt-${tier}`;
+              const mine = owned.has(icon);
+              const key = tier === 'tester' ? 'Tester' : tier === '14d' ? '14d' : 'Founder';
+              const open = () => setDetail({ key: icon, icon, name: t(`tester${key}`), dark: true });
+              return (
+                <li key={tier} role="button" tabIndex={0} onClick={open} onKeyDown={(e) => { if (e.key === 'Enter') open(); }}
+                  className={`relative flex cursor-pointer flex-col items-center rounded-2xl border px-3 pb-4 pt-5 text-center transition hover:border-white/30 ${mine ? 'border-[#b8ff3a]/70 bg-[#b8ff3a]/10' : 'border-white/10 bg-white/[0.04]'}`}>
+                  {mine && <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#b8ff3a] text-[#12063a]" title={t('owned')}><Check size={12} strokeWidth={3} /></span>}
+                  <Stone name={t(`tester${key}`)} size={96} icon={icon} />
+                  <span className="mt-3 font-mono text-sm font-black tracking-[0.12em] text-[#d8ff7a]">{t(`tester${key}`)}</span>
+                  <span className="mt-1 break-keep text-[11px] font-bold leading-4 text-white/60">{t(`tester${key}Desc`)}</span>
+                  {holderLine(icon) && <span className="mt-1.5 flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-black text-[#d8ff7a]"><Users size={10} />{holderLine(icon)}</span>}
+                </li>
+              );
+            })}
+          </ul>
+          <AppTesterStrip className="relative mt-4" />
         </section>
 
         {section('colors', <Palette size={18} className="text-[#3f8cff]" />, t('colorsTitle'), t('colorsRule'),

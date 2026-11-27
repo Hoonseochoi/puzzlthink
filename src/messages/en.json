@@ -629,7 +629,7 @@
     "privacySections": [
       {
         "title": "1. Overview",
-        "body": "PUZZLTHINK (the 'Service') can be played without an account. We only handle the information below when you choose to sign in with Google, send a bug report, or email us. Otherwise we do not receive personal information such as your name, email or phone number. The PUZZLTHINK Android app on Google Play opens this website as it is, so this policy applies to it in the same way; the app shows no ads."
+        "body": "PUZZLTHINK (the 'Service') can be played without an account. We only handle the information below when you choose to sign in with Google, send a bug report, email us, or sign up as a Google Play app tester. Otherwise we do not receive personal information such as your name, email or phone number. The PUZZLTHINK Android app on Google Play opens this website as it is, so this policy applies to it in the same way; the app shows no ads."
       },
       {
         "title": "2. When you sign in with Google",
@@ -644,55 +644,59 @@
         "body": "Mail sent to contact@puzzlthink.com is forwarded to the operator's inbox with your email address and message. It is used only to reply and to review partnership proposals."
       },
       {
-        "title": "5. Statistics that cannot identify you",
+        "title": "5. When you sign up as a Google Play app tester",
+        "body": "Only for signed-in users who choose to join the Google Play app's closed test, we handle the following.\n• What: the email address to register as a tester (your Google sign-in email, or a Google account email you enter), and when you agreed\n• Why: registering you as a tester of the Google Play closed test (adding the email to the tester list in Google Play Console) and emailing you the install guide\n• How long: until the closed test ends or you withdraw. Withdrawing deletes the email at once, and it is destroyed without delay when the test ends.\n• Withdrawing: any time under 'Google Play app tester' on the Records page; deleting your account removes it as well.\nTo register you, this email is given to Google (Google Play Console). You can use the website and every game without agreeing."
+      },
+      {
+        "title": "6. Statistics that cannot identify you",
         "body": "For everyone, we count visitors per day and plays per game and mode as plain numbers. These counts contain no name, email, IP address or anything else that identifies you. To avoid counting the same visit twice in a day, the date of your visit is stored in your browser. To show how many people are online right now, a randomly generated device identifier and the time of your last visit are recorded in our database (Supabase) about every 45 seconds while a page is open. It cannot identify you and is deleted automatically 10 minutes after you leave. In Hidden Word, the words you type as hints and answers, with their similarity scores, are kept without any account information, grouped only by match, to improve the word data."
       },
       {
-        "title": "6. Playing with friends (real-time)",
+        "title": "7. Playing with friends (real-time)",
         "body": "When you play with friends, the room code, the nickname you choose, a randomly generated device ID and your moves are relayed to the other players in the room through a real-time service (Supabase Realtime). This is used only for live relay and is not stored in our database. The host's browser may keep the game state so the match can continue."
       },
       {
-        "title": "7. Information stored in your browser",
+        "title": "8. Information stored in your browser",
         "body": "Local game records, tutorial status, nickname, last game settings, sign-in state and visit date are stored in your browser's local storage. You can delete them at any time by clearing site data in your browser settings; this resets local records and settings and signs you out."
       },
       {
-        "title": "8. Retention and deletion",
-        "body": "• Account information, profile, game results and play time: kept until you ask us to delete them, then deleted without delay.\n• Bug reports: kept as long as needed to investigate and reply, and deleted without delay on request.\n• Emails: kept as long as needed to reply or review a proposal, and deleted without delay on request.\nElectronic records are deleted so that they cannot be restored."
+        "title": "9. Retention and deletion",
+        "body": "• Account information, profile, game results and play time: kept until you ask us to delete them, then deleted without delay.\n• Bug reports: kept as long as needed to investigate and reply, and deleted without delay on request.\n• Google Play app tester email: kept until the closed test ends or you withdraw; deleted at once when you withdraw.\n• Emails: kept as long as needed to reply or review a proposal, and deleted without delay on request.\nElectronic records are deleted so that they cannot be restored."
       },
       {
-        "title": "9. What is public, and sharing with third parties",
+        "title": "10. What is public, and sharing with third parties",
         "body": "If you are signed in, have the Hall of Fame option on and make the top ranks, your nickname, profile photo, wins and games played are visible to anyone on the Records page. Your email is never shown, and turning the option off on the Records page removes you immediately. Otherwise we do not sell or share personal information with third parties, except when legally required through due process."
       },
       {
-        "title": "10. Service providers and international transfer",
-        "body": "We rely on the providers below, whose servers are outside Korea (Supabase in the Asia-Pacific region, the others mainly in the United States). Information is sent over the network when you use the Service, and each provider uses it only for the work we give them.\n• Supabase (Asia-Pacific region servers): sign-in, database (profiles, game results, bug reports, statistics) and real-time play\n• Vercel: website hosting and delivery (including access logs)\n• Google: Google sign-in, Google AdSense ads, Google Analytics visit statistics and the operator's inbox (Gmail)\n• Web3Forms: relays bug reports to the operator's email\n• Forward Email: forwards mail sent to contact@puzzlthink.com to the operator's inbox\nIf you do not want your information transferred abroad, you can play without signing in or sending reports, or ask us to delete it. All games remain available either way."
+        "title": "11. Service providers and international transfer",
+        "body": "We rely on the providers below, whose servers are outside Korea (Supabase in the Asia-Pacific region, the others mainly in the United States). Information is sent over the network when you use the Service, and each provider uses it only for the work we give them.\n• Supabase (Asia-Pacific region servers): sign-in, database (profiles, game results, bug reports, statistics, app tester sign-ups) and real-time play\n• Vercel: website hosting and delivery (including access logs)\n• Google: Google sign-in, Google AdSense ads, Google Analytics visit statistics and the operator's inbox (Gmail) and Google Play Console (registering app testers)\n• Web3Forms: relays bug reports to the operator's email\n• Forward Email: forwards mail sent to contact@puzzlthink.com to the operator's inbox\nIf you do not want your information transferred abroad, you can play without signing in or sending reports, or ask us to delete it. All games remain available either way."
       },
       {
-        "title": "11. Your rights",
+        "title": "12. Your rights",
         "body": "You can ask at any time to see, correct, delete or stop the processing of your personal information. You can change your nickname and Hall of Fame visibility yourself on the Records page; for anything else, email contact@puzzlthink.com and we will act without delay once we confirm it is you. Legal guardians of children under 14 have the same rights. You can delete your account yourself while signed in at https://www.puzzlthink.com/en/account-deletion (in the app: account menu → Delete account); the account, game records and Lounge messages are deleted at once."
       },
       {
-        "title": "12. Ads and cookies",
+        "title": "13. Ads and cookies",
         "body": "The Service may show ads through Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it to serve ads based on your visits to this and other sites.\nWe also use Google Analytics to collect visit statistics (pages viewed, time on page, referring site, device and browser type, approximate location). It tells browsers apart with a cookie but is not linked to your name or email, and we use it only to improve the Service. To opt out, install the browser add-on at https://tools.google.com/dlpage/gaoptout or block cookies in your browser."
       },
       {
-        "title": "13. Opting out of personalized ads",
+        "title": "14. Opting out of personalized ads",
         "body": "You can turn off personalized ads in Google Ads Settings (https://adssettings.google.com) and opt out of third-party vendors' cookies for personalized advertising at www.aboutads.info. To learn how Google uses data, see https://policies.google.com/technologies/partner-sites. Users in the EEA, the UK and Switzerland are asked for consent before cookies are used."
       },
       {
-        "title": "14. Security",
+        "title": "15. Security",
         "body": "All traffic is encrypted with HTTPS. The database uses row-level access control so you can see only your own records; bug reports and statistics can only be written through fixed functions and cannot be read by other users. Only the operator can access the admin tools."
       },
       {
-        "title": "15. Children's privacy",
+        "title": "16. Children's privacy",
         "body": "The Service does not knowingly collect personal information from children under 14. If we learn that a child under 14 has sent personal information through Google sign-in or a bug report, we delete it without delay."
       },
       {
-        "title": "16. Privacy officer and contact",
+        "title": "17. Privacy officer and contact",
         "body": "Privacy officer: the PUZZLTHINK operator\nContact: contact@puzzlthink.com\nFor help with a privacy complaint in Korea you can also contact the Personal Information Infringement Report Center (privacy.kisa.or.kr, 118) or the Personal Information Dispute Mediation Committee (www.kopico.go.kr, 1833-6972)."
       },
       {
-        "title": "17. Changes to this policy",
+        "title": "18. Changes to this policy",
         "body": "When this policy changes, we update the last updated date on this page."
       }
     ],
@@ -5887,7 +5891,16 @@
     "missionCount": "{n} / {total}",
     "missionAvg": "{n} / {total} · avg #{avg}",
     "missionDone": "Done",
-    "missionLocked": "Sign in to see your progress"
+    "missionLocked": "Sign in to see your progress",
+    "testerTitle": "PLAY TESTER",
+    "testerRule": "Google Play app testers only",
+    "testerTester": "TESTER",
+    "testerTesterDesc": "Yours the moment you join as an app tester. Withdrawing removes it.",
+    "tester14d": "14 DAYS",
+    "tester14dDesc": "Given by the operator to testers who stay through the closed test.",
+    "testerFounder": "FOUNDER",
+    "testerFounderDesc": "Given by the operator to the founding group of testers.",
+    "testerJoin": "Join to get it"
   },
   "Icons": {
     "crownLostTitle": "{name} took your #1 in {game}",
@@ -5932,7 +5945,11 @@
     "mission_hell": "HIDDEN MISSION · ALL HELL",
     "mission_rank": "HIDDEN MISSION · TOP 10",
     "popupEquipped": "Now on your profile",
-    "popupTitleMission": "Hidden mission cleared!"
+    "popupTitleMission": "Hidden mission cleared!",
+    "tester_tester": "PLAY TESTER · TESTER",
+    "tester_14d": "PLAY TESTER · 14 DAYS",
+    "tester_founder": "PLAY TESTER · FOUNDER",
+    "popupTitleTester": "A testers-only icon!"
   },
   "PieceRace": {
     "shortTitle": "Piece race · Week 2",
@@ -8752,5 +8769,36 @@
       "online": "{n} online",
       "records": "Records",
       "icons": "Icons"
+  },
+  "AppTester": {
+    "eyebrow": "GOOGLE PLAY APP TESTERS WANTED",
+    "title": "Be a tester before the app launches",
+    "stripTitle": "App testers wanted before launch",
+    "stripSub": "New games, no ads · exclusive icon",
+    "lead": "PUZZLTHINK is coming to Google Play. We are looking for testers to try the app before its public release.",
+    "benefit1": "Play new games with no ads",
+    "benefit2": "Get the testers-only TESTER icon right away",
+    "benefit3": "Get the app before everyone else, free",
+    "join": "Agree and join",
+    "later": "Not now",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "consent": "We store {email} and use it only to register you as a Google Play tester and to email you the install guide. It is kept until the test ends or you withdraw, and you can withdraw any time on the Records page.",
+    "typedEmail": "the email you enter",
+    "loginJoin": "Sign in to join",
+    "loginNote": "Joining needs a Google sign-in. The sign-up opens right after you sign in.",
+    "emailLabel": "Google account email",
+    "emailNote": "Google Play can only invite testers by their Google account email.",
+    "invalid": "Please check the email address.",
+    "failed": "That did not work. Please try again in a moment.",
+    "doneTitle": "You are signed up",
+    "doneEmail": "Signed up with {email}. The TESTER icon is now on your profile.",
+    "doneWait": "Once the test opens, a 'Get the app' button appears on the home and Records pages. We will email you the guide too.",
+    "getApp": "Get the app",
+    "keepInstalled": "Please keep the app installed for 14 days during the test.",
+    "withdrawAsk": "Withdraw from the tester program",
+    "withdrawConfirm": "Withdrawing deletes the stored email at once and removes the TESTER icon.",
+    "withdraw": "Withdraw",
+    "withdrawn": "You have withdrawn. The stored email was deleted."
   }
 }

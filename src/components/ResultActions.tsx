@@ -10,6 +10,7 @@ import AuthButton from './AuthButton';
 import { clearPendingGame } from '@/lib/stats';
 import { ResultBannerSlot } from './ads/HiddenLogAd';
 import AdSlot from './AdSlot';
+import { AppTesterCard } from './AppTesterInvite';
 
 /** "Keep this on record?" card with Google sign-in, shown on result screens to signed-out players. */
 function RecordPrompt() {
@@ -106,6 +107,8 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, exitPat
           </button>
         </div>
       </div>
+      {/* Below the buttons (it loads the member's status first), so it never shifts them under the player's finger. */}
+      <AppTesterCard className="mt-5" />
       {/* Below the buttons so a late-loading ad never shifts them under the player's finger. */}
       <AdSlot placement="result" tone="dark" compact className="mt-5 border-t border-white/10 pt-4" />
     </>
