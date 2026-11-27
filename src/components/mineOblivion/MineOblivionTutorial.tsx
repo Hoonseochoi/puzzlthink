@@ -109,6 +109,11 @@ export default function MineOblivionTutorial({ t, onDone, withItems = false }: {
             mines={mines} zones={step === 0 ? 'bury' : 'walk'} targets={stage.targets.filter((c) => step !== 0 || !buried.includes(c))} targetTone={stage.tone}
             onCell={tap} flash={flash} shakeKey={step === 5 ? 'x' : null} me={0} label={t.tutorial} />
         </div>
+        {step === 7 && (
+          <ul className="mt-2 space-y-1 rounded-[10px] border border-(--accent)/45 bg-(--accent)/10 px-2.5 py-1.5 text-[11.5px] font-bold leading-4 text-white" data-testid="mo-tutorial-points">
+            {t.pointsTip.map((line) => <li key={line} className="break-keep">★ {line}</li>)}
+          </ul>
+        )}
         {withItems && step === 7 && (
           <div className="mt-2 rounded-[10px] border border-white/12 bg-black/35 px-2.5 py-2" data-testid="mo-tutorial-items">
             <p className="text-[10px] font-black tracking-[.16em] text-(--accent)">{t.items.rulesTitle}</p>
@@ -136,14 +141,14 @@ const STEPS = {
     ['지뢰 15개를 몰래 묻어요', '11×11 판에 각자 지뢰 15개. 출발지 근처(노란 줄무늬)와 보물 칸은 안 돼요. 두 사람이 같은 칸에 묻으면 겹친 칸(2개)이 돼요.'],
     ['그리고 잊혀져요', '걷기가 시작되면 내 지뢰도 판에서 사라져요. 판에 남는 건 두 말, 발자국, 터진 자리뿐. 지뢰 위치는 기억으로만!'],
     ['숫자 = 둘레 8칸의 지뢰 수', '번갈아 둘레 8칸 중 한 칸으로 옮겨요. 지뢰가 없으면 둘레 지뢰 수만큼 점수. 숫자는 잠깐 보였다가 사라져요. 이미 누가 점수를 받은 칸은 0점.'],
-    ['지뢰 −5, 보물 +10·+15·+20', '누구 지뢰든 밟으면 −5점, 출발지 옆으로 돌아가요. 보물은 찾은 순서대로 +10, +15, +20. 세 개를 다 찾으면(또는 70수) 점수 높은 쪽이 이겨요.'],
+    ['지뢰 −5, 보물 +10·+15·+20', '누구 지뢰든 밟으면 −5점, 출발지 옆으로 돌아가요. 보물은 늦게 찾을수록 커요(+10, +15, +20): 마지막 보물이 가장 값져요. 승부는 대개 숫자 점수에서 갈려요. 세 개를 다 찾으면(또는 70수) 점수 높은 쪽이 이겨요.'],
     ['아이템 (AI 대전)', '회원은 피스로 탐지기(옆 칸 하나의 둘레 지뢰 수)와 기억 되살리기(내 지뢰 2초), 블랙피스로 방폭복(다음 지뢰 무효)을 쓸 수 있어요. 아이템을 쓴 판은 어려움 인증에서 빠져요.'],
   ],
   en: [
     ['Bury 15 mines in secret', '15 mines each on an 11×11 board, never near the starts (striped) or on treasure. If both bury on one cell, it holds two.'],
     ['Then they are forgotten', 'When the walk starts even your own mines vanish. The board keeps only the pieces, footprints and craters. Mines live in your memory.'],
     ['Number = mines around you', 'Take turns moving to one of the eight cells around you. On a clear cell you score the mines around it. The number shows for a moment. A cell someone already scored gives 0.'],
-    ['Mine −5, treasure +10 +15 +20', 'Any mine costs 5 and sends you back by your start. Treasure is worth 10, 15, 20 in order found. All three found (or 70 moves): higher score wins.'],
+    ['Mine −5, treasure +10 +15 +20', 'Any mine costs 5 and sends you back by your start. Treasure is worth more the later it is found (10, 15, 20): the last one matters most. Games are usually decided by the numbers you collect. All three found (or 70 moves): higher score wins.'],
     ['Items (AI matches)', 'Members can spend pieces on Detector (the number of a cell next to you) and Recall (your mines for 2 s), and a black piece on the Blast suit (your next mine costs nothing). Item games do not count for the Hard certificate.'],
   ],
 } as const;

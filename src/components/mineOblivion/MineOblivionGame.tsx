@@ -99,6 +99,7 @@ export function MineOblivionRules({ t, onClose, withItems = false }: { t: MoCopy
         <p className={PANEL_TITLE}>{t.rules}</p>
         <div className="mt-3 flex items-center justify-center gap-3"><WalkerStone seat={0} size={40} /><MineStone size={44} state="armed" /><TreasureStone size={40} /><WalkerStone seat={1} size={40} /></div>
         <ol className="mt-3 space-y-3 text-[13px] leading-relaxed text-white/75">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol>
+        <ul className="mt-3 space-y-1.5 rounded-[10px] border border-(--accent)/45 bg-(--accent)/10 px-3 py-2 text-[12.5px] font-bold leading-snug text-white" data-testid="mo-points-tip">{t.pointsTip.map((line) => <li key={line} className="break-keep">★ {line}</li>)}</ul>
         <p className={`${PANEL_TITLE} mt-5`}>{t.seeTitle}</p>
         <div className="mt-2 grid grid-cols-2 gap-3 text-[12px] leading-5 text-white/60">
           <ul>{t.see.map((l) => <li key={l} className="break-keep">· {l}</li>)}</ul>

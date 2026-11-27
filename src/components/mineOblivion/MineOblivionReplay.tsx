@@ -10,6 +10,7 @@ import MineOblivionBoard from './MineOblivionBoard';
 import { allMines, moName, stepFlash, stepLine } from './MineOblivionTable';
 import { MineStone, WALKER, WalkerStone } from './MineStones';
 import { ITEM_ICON } from './MineOblivionItems';
+import MineOblivionBreakdown from './MineOblivionBreakdown';
 
 /** 복기: every move of the finished game with every mine shown. Rebuilt from the game record (moFrames). */
 export default function MineOblivionReplay({ room, mySeat, t, onClose, onShowResult }: { room: MoRoom; mySeat: number | null; t: MoCopy; onClose: () => void; onShowResult?: () => void }) {
@@ -64,6 +65,9 @@ export default function MineOblivionReplay({ room, mySeat, t, onClose, onShowRes
         ))}
       </p>
       <ReplayControls player={player} onShowResult={onShowResult} />
+      {player.at >= frames.length - 1 && (
+        <div className="mt-3"><MineOblivionBreakdown g={g} seats={[view, view === 0 ? 1 : 0]} names={[moName(room, view, mySeat, t), moName(room, view === 0 ? 1 : 0, mySeat, t)]} t={t} /></div>
+      )}
     </div>
   );
 }

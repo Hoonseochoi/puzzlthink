@@ -315,3 +315,41 @@ export function moFrames(g: MineOblivion): MoFrame[] {
   }
   return frames;
 }
+
+// ── Score breakdown (result screen, 복기) ───────────────────────────────────────────────────────────────────────
+export type MoBreakdown = {
+  /** Treasure points, one entry per treasure found, in the order the game found them (1st +10, 2nd +15, 3rd +20). */
+  treasures: { value: number; order: number }[];
+  treasure: number;
+  /** Mines that cost points (−5 each); mines a 방폭복 took are counted apart and cost nothing. */
+  mines: number;
+  minePoints: number;
+  shielded: number;
+  /** Numbers scored on cells (treasure cells included: their first visitor scores the number too). */
+  numbers: number;
+  /** Cells that scored a number. */
+  numberCells: number;
+  total: number;
+};
+
+/** Where a seat's score came from, rebuilt from the step log: always adds up to the score (scripts/mine-oblivion/check.ts). */
+export function moBreakdown(g: MineOblivion, seat: MoSeat, upTo = g.log.length): MoBreakdown {
+  const out: MoBreakdown = { treasures: [], treasure: 0, mines: 0, minePoints: 0, shielded: 0, numbers: 0, numberCells: 0, total: 0 };
+  let found = 0;
+  for (const s of g.log.slice(0, upTo)) {
+    if (s.kind === 'treasure') found += 1;
+    if (s.seat !== seat) continue;
+    if (s.kind === 'mine') { if (s.shielded) out.shielded += 1; else { out.mines += 1; out.minePoints += s.gain; } continue; }
+    if (s.number !== null) { out.numbers += s.number; out.numberCells += 1; }
+    if (s.kind === 'treasure' && s.treasure) { out.treasures.push({ value: s.treasure, order: found }); out.treasure += s.treasure; }
+  }
+  out.total = out.treasure + out.minePoints + out.numbers;
+  return out;
+}
+
+export type MoBreakdownLine = 'treasure' | 'mines' | 'numbers';
+/** The line that decided the game: the biggest gap between the two seats (ties go numbers → treasure → mines). */
+export function decidingLine(a: MoBreakdown, b: MoBreakdown): MoBreakdownLine {
+  const gaps: [MoBreakdownLine, number][] = [['numbers', a.numbers - b.numbers], ['treasure', a.treasure - b.treasure], ['mines', a.minePoints - b.minePoints]];
+  return gaps.reduce((best, x) => (Math.abs(x[1]) > Math.abs(best[1]) ? x : best))[0];
+}

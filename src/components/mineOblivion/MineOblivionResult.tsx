@@ -10,9 +10,10 @@ import { REVEAL_MS } from '@/hooks/useEndReveal';
 import ResultActions from '../ResultActions';
 import { BTN, KICKER, MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 import { type MoCopy, endingText } from './copy';
-import { MineStone, TreasureStone, WALKER, WalkerStone } from './MineStones';
+import { WALKER, WalkerStone } from './MineStones';
 import { moName } from './MineOblivionTable';
 import { ITEM_ICON } from './MineOblivionItems';
+import MineOblivionBreakdown from './MineOblivionBreakdown';
 import { playWin } from './sound';
 
 /** Mines each seat stepped on, and how many of them were its own (known once the game is over). */
@@ -63,20 +64,18 @@ export default function MineOblivionResult({ room, mySeat, t, onAgain, onClose, 
             const b = blastStats(room, s);
             const won = g.winner === s;
             return (
-              <div key={s} className={`flex items-center gap-3 rounded-[12px] border px-3 py-2.5 ${won ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-white/10 bg-white/[0.03]'}`}>
+              <div key={s} className={`flex items-center gap-3 rounded-[12px] border px-3 py-2 ${won ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-white/10 bg-white/[0.03]'}`}>
                 <WalkerStone seat={s} size={40} glow={won} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold">{moName(room, s, mySeat, t)}</p>
-                  <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-white/55">
-                    <span className="flex items-center gap-1"><TreasureStone size={14} />{t.stats.treasures} {treasuresBy(g, s)}</span>
-                    <span className="flex items-center gap-1"><MineStone size={14} state="blast" />{t.stats.blasts} {b.hits}{b.own ? ` (${t.stats.own} ${b.own})` : ''}</span>
-                  </p>
+                  {b.own > 0 && <p className="mt-0.5 text-[11px] text-white/50">{t.stats.blasts} {b.hits} ({t.stats.own} {b.own})</p>}
                 </div>
                 <b className="font-mono text-3xl font-black tabular-nums" style={{ color: WALKER[s].color }}>{g.score[s]}</b>
               </div>
             );
           })}
         </div>
+        <div className="mt-2"><MineOblivionBreakdown g={g} seats={[order[0], order[1]]} names={[moName(room, order[0], mySeat, t), moName(room, order[1], mySeat, t)]} t={t} /></div>
         {me !== null && usedItems(g, me) && <ItemsUsed counts={itemCounts(g, me)} t={t} />}
         <p className="mt-3 break-keep text-[11px] leading-4 text-white/45">{t.replayAll}</p>
         <div className="mt-4">

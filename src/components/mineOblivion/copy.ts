@@ -75,6 +75,15 @@ const ko = {
     '보물 칸도 처음 밟은 사람은 둘레 숫자만큼 점수를 더 받아요.',
     '시즌 2처럼 70수 제한을 두고, 같은 점수면 무승부예요. 시한폭탄(시즌 2)과 연습판은 없어요.',
   ],
+  breakdown: {
+    title: '점수 내역', numbers: '숫자', treasure: '보물', mines: '지뢰', total: '합계', decided: '승부처', none: '없음',
+    order: (n: number) => `${n}번째`, mineCalc: (n: number) => `${n}번 × −5`, shielded: (n: number) => `방폭복 ${n}`, cells: (n: number) => `${n}칸에서`,
+    note: '보물은 찾은 순서대로 +10, +15, +20. 승부처 = 두 사람 차이가 가장 큰 줄.',
+  },
+  pointsTip: [
+    '승부는 대개 숫자 점수에서 갈려요. 보물 하나보다 지뢰 옆 칸에서 모은 숫자가 더 클 때가 많아요.',
+    '보물은 늦게 찾을수록 커요(+10, +15, +20). 마지막 보물이 가장 값지고, 찾는 순간 게임이 끝나요.',
+  ],
   // Items (AI matches only)
   items: {
     title: 'ITEMS', aiOnly: 'AI 대전 전용', piece: '피스', black: '블랙피스', walletLabel: '내 피스와 블랙피스', membersOnly: '회원 전용',
@@ -161,6 +170,15 @@ const en: MoCopy = {
     'After a mine you pick which of the three cells to go back to. A shared cell still costs 5 once.',
     'The first visitor to a treasure also scores its number.',
     'A 70-move limit as in season 2, and equal scores are a draw. No time bombs (season 2) and no practice board.',
+  ],
+  breakdown: {
+    title: 'SCORE', numbers: 'Numbers', treasure: 'Treasure', mines: 'Mines', total: 'Total', decided: 'Decider', none: 'none',
+    order: (n) => (n === 1 ? '1st' : n === 2 ? '2nd' : '3rd'), mineCalc: (n) => `${n} × −5`, shielded: (n) => `suit ${n}`, cells: (n) => `${n} cell${n === 1 ? '' : 's'}`,
+    note: 'Treasure is +10, +15, +20 in the order found. Decider = the line with the biggest gap.',
+  },
+  pointsTip: [
+    'Games are usually decided by the numbers you collect: the cells next to mines often add up to more than a treasure.',
+    'Treasure is worth more the later it is found (+10, +15, +20). The last one is worth most, and finding it ends the game.',
   ],
   items: {
     title: 'ITEMS', aiOnly: 'AI matches only', piece: 'Pieces', black: 'Black', walletLabel: 'Your pieces and black pieces', membersOnly: 'Members only',
