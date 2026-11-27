@@ -29,6 +29,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드 확장판', en: 'Hidden Word: Expansion' },
     items: [
       {
+        date: '11/27', icon: Wrench,
+        ko: { title: 'MORA가 이미 나온 단어를 힌트로 다시 내던 문제를 고쳤어요', desc: '내가 답으로 냈다가 틀린 단어를 MORA가 다음 단계 힌트로 다시 내는 일이 있었어요. 이제 판에 나온 단어는 다시 나오지 않고, 친구 파티 방에서도 앞 단계에 나온 답은 다시 낼 수 없어요.' },
+        en: { title: 'Fixed: MORA repeated a word already on the board', desc: 'MORA sometimes gave your wrong answer back to you as a hint in the next stage. Words already on the board no longer come back, and in party rooms an answer from an earlier stage cannot be given again.' },
+      },
+      {
         date: '11/28', icon: Users,
         ko: { title: '친구 2~5명 파티 방이 열렸어요', desc: '방송 메인매치처럼 모두가 한 번씩 출제하고 나머지가 동시에 답해요. 맞힌 사람마다 +1, 아무도 못 맞히면 출제자 +1·+2·+3, 2라운드는 2배. 내 봉투 단어는 나만 봐요.' },
         en: { title: 'Party rooms for 2–5 friends', desc: 'Like the show\'s main match: everyone sets once a round and the rest answer together. +1 for each right answer, +1/+2/+3 for the setter if nobody gets it, round 2 doubled. Only you see your envelope.' },
@@ -64,6 +69,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   hidden_word: {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
+      {
+        date: '11/27', icon: Wrench,
+        ko: { title: 'MORA가 이미 나온 단어를 힌트로 다시 내던 문제를 고쳤어요', desc: '내가 답으로 냈다가 틀린 단어를 MORA가 다음 단계 힌트로 다시 내는 일이 있었어요. 이제 판에 이미 나온 단어는 힌트로도, 마지막에 공개되는 가장 가까운 단어로도 다시 나오지 않아요.' },
+        en: { title: 'Fixed: MORA repeated a word already on the board', desc: 'MORA sometimes gave your wrong answer back to you as a hint in the next stage. Words already on the board no longer come back as hints or as the revealed closest word.' },
+      },
       {
         date: '11/27', icon: Sparkles,
         ko: { title: '히든 워드 확장판이 따로 나왔어요', desc: '닮은 단어 186개로 하는 확장판은 이제 자기 화면과 랭킹이 있는 게임이에요. 히든 워드는 기본 60단어로 하고, 첫 화면의 "확장판 하러 가기"로 넘어갈 수 있어요. 어젯밤 확장으로 둔 대전은 확장판 랭킹으로 옮겼어요.' },
