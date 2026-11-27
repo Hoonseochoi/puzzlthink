@@ -4,7 +4,7 @@
 // In parts (the 심화 / 거짓말 generators take seconds per puzzle, so run several at once and merge):
 //   ... pool.ts part <daily|practice> <tier> <from> <to> [batch=1] > part.jsonl      one JSON row per puzzle, seeds from..to-1
 //   ... pool.ts merge <batch> part1.jsonl part2.jsonl ... > pool.sql                 SQL in tier/seed order + practice.json
-// Then apply pool.sql to the database after 20271201100000_proposition_go.sql (rows already there are kept).
+// Then apply pool.sql to the database after 20271202100000_proposition_go.sql (rows already there are kept).
 // Each day takes the lowest unused id of each tier, so rows are written tier by tier in seed order. A new batch number
 // gives new seeds (run it before the pool runs out: select tier, count(*) from prop_pool where used_on is null group by 1).
 // Practice puzzles come from a separate seed range, so practising never shows a daily puzzle.

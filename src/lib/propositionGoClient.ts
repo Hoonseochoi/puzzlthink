@@ -1,4 +1,4 @@
-// 명제 바둑: the daily challenge's server calls (supabase/migrations/20271201100000_proposition_go.sql) and the practice set.
+// 명제 바둑: the daily challenge's server calls (supabase/migrations/20271202100000_proposition_go.sql) and the practice set.
 import { getSupabase } from './supabase';
 import type { Prop, PublicPuzzle, Tier } from './propositionGo';
 

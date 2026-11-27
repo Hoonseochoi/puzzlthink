@@ -1,5 +1,5 @@
 #!/bin/bash
-# 명제 바둑: how members use hints in 오늘의 명제, per day and per difficulty (20271201100000_proposition_go.sql:
+# 명제 바둑: how members use hints in 오늘의 명제, per day and per difficulty (20271202100000_proposition_go.sql:
 # prop_runs + prop_hints). Read-only (the session runs with default_transaction_read_only): it prints, it changes nothing.
 # No names, e-mails or addresses are read: only counts per day / tier.
 #

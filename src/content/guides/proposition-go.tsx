@@ -1,6 +1,6 @@
 // 명제 바둑 guide. Rules and numbers follow src/lib/propositionGo.ts (4×4 points, 4 stones on 기본 and 5 on 심화 and
 // 거짓말, the proposition grammar, liveTruth: a card lights once the stones it names are down; isSolved: every card
-// true, or on 거짓말 exactly one false), the daily run in supabase/migrations/20271201100000_proposition_go.sql
+// true, or on 거짓말 exactly one false), the daily run in supabase/migrations/20271202100000_proposition_go.sql
 // (one ranked attempt a day, 10-minute clock, 피스 hint = 1 piece, at most one per puzzle, +30 s each) and the
 // PropositionGo messages. The example boards are the tutorial's (PropositionGoGame.tsx TUTORIAL), checked by hand:
 // each has exactly one answer.

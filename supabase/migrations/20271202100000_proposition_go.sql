@@ -10,16 +10,24 @@
 -- RPCs: prop_today (anyone), prop_start / prop_solve / prop_hint / prop_giveup / prop_ranking (members).
 -- Hints (the owner's caps: 피스 hint at most once per puzzle; both kinds together at most 3 per run):
 --   피스 hint   1 piece (piece_balance / piece_spends, as 히든 워드): one more true proposition. +30 s on the ranked time.
---   블랙피스 hint 1 black piece (new: black_piece_spends / black_piece_balance): one stone, chosen at random among the
+--   블랙피스 hint 1 black piece (black_piece_balance): one stone, chosen at random among the
 --               stones not yet on their answer point, is shown on its point and locked. +40 s on the ranked time.
 --   Every hint is logged in prop_hints (run, puzzle, kind, currency, cost, ms into the run, stone and point); the
---   owner's report is scripts/proposition-go/hints.sh. 블랙피스 spent this week come off the week's 블랙피스 ranking
---   (black_piece_rows), as spent 피스 come off the 피스 race: the owner accepted that spending can lower a rank.
+--   owner's report is scripts/proposition-go/hints.sh. Both hints are paid through spend_currency (the shared wallet of
+--   20271202000000_item_spends.sql: per-member lock, never below zero, writes piece_spends / black_piece_spends with
+--   reason 'proposition_go:prop' / 'proposition_go:stone' and the hint row's id as ref). Spent 블랙피스 come off the week's
+--   블랙피스 ranking there already (black_piece_rows); the owner accepted that spending can lower a rank.
+--   Note: piece_balance on live counts the 11/25–12/02 피스 week only; after that every 피스 balance is 0 until the owner
+--   extends it, and the 피스 hint button simply shows 보유 0 (the 블랙피스 hint and play without hints are unaffected).
+--
+-- REQUIRES 20271202000000_item_spends.sql (spend_currency, black_piece_balance, black_piece_spends). Creates or replaces
+-- none of piece_balance, competition_ranking, finalize_piece_weeks, lounge_pieces, hall_ranking, is_hard_clear,
+-- black_piece_rows.
 -- The #1 of today's ranking wears the game's crown icon (c-proposition_go): game_crowns / crown_losses as for every game,
 -- moved here at each finish (refresh_game_crowns does not list this game, so it never undoes it).
 --
--- Rollout: apply this file, then scripts/proposition-go/pool-batch1.sql (400 days per tier; built by
--- scripts/proposition-go/pool.ts 400 1, which a later batch number extends).
+-- Rollout: 20271202000000_item_spends.sql (already live) → this file → scripts/proposition-go/pool-batch1.sql (200 days
+-- per tier; scripts/proposition-go/pool.ts with batch 2 extends it) → deploy.
 -- Another new game's migration may land before or after this one: the game-id CHECK lists and count_play are
 -- extended from their live definitions (whatever they hold by then), not rewritten from a fixed list.
 
@@ -72,18 +80,6 @@ create table if not exists public.prop_days (
 );
 alter table public.prop_days enable row level security;
 
--- 블랙피스 spends, the way piece_spends works for 피스 (written by definer functions only).
-create table if not exists public.black_piece_spends (
-  id bigint generated always as identity primary key,
-  user_id uuid not null references auth.users (id) on delete cascade,
-  amount integer not null default 1 check (amount > 0),
-  reason text not null,
-  ref uuid,
-  spent_at timestamptz not null default now()
-);
-create index if not exists black_piece_spends_user_idx on public.black_piece_spends (user_id, spent_at);
-alter table public.black_piece_spends enable row level security;
-
 create table if not exists public.prop_runs (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -104,7 +100,7 @@ create table if not exists public.prop_runs (
 );
 -- One row per hint used: what, what it cost, when in the run. No names or addresses: the run's user id only.
 create table if not exists public.prop_hints (
-  id bigint generated always as identity primary key,
+  id uuid primary key default gen_random_uuid(),           -- also the ref of the spend row
   run_id uuid not null references public.prop_runs (id) on delete cascade,
   user_id uuid not null references auth.users (id) on delete cascade,
   day date not null,
@@ -131,32 +127,6 @@ create or replace function public.prop_limit_ms() returns integer language sql i
 create or replace function public.prop_hint_ms() returns integer language sql immutable as $$ select 30000 $$;
 create or replace function public.prop_stone_hint_ms() returns integer language sql immutable as $$ select 40000 $$;
 create or replace function public.prop_hint_cap() returns integer language sql immutable as $$ select 3 $$;
-
--- The week's 블랙피스 ranking counts what is left after spends (earned − spent), like the 피스 race. Patched into the
--- live black_piece_rows so whatever else it holds by now stays; the migration stops if its shape is not the expected one.
-do $$
-declare def text; a1 text; a2 text;
-begin
-  select pg_get_functiondef('public.black_piece_rows(integer)'::regprocedure) into def;
-  if position('black_piece_spends' in def) > 0 then return; end if;
-  a1 := 'select w.user_id, sum(w.n)::bigint as pieces,';
-  a2 := 'select c.user_id, count(*)::bigint as pieces, max(c.played_at) as last_win
-      from counted c, cutoff x where c.played_at < x.t group by c.user_id';
-  if position(a1 in def) = 0 or position(a2 in def) = 0 then raise exception 'black_piece_rows changed: update this patch'; end if;
-  def := replace(def, a1, 'select w.user_id, (sum(w.n) - coalesce((select sum(s.amount) from public.black_piece_spends s, b where s.user_id = w.user_id and s.spent_at >= b.starts and s.spent_at < b.ends), 0))::bigint as pieces,');
-  def := replace(def, a2, 'select c.user_id, (count(*) - coalesce((select sum(s.amount) from public.black_piece_spends s, b where s.user_id = c.user_id and s.spent_at >= b.starts and s.spent_at < least(b.ends, x.t)), 0))::bigint as pieces, max(c.played_at) as last_win
-      from counted c, cutoff x where c.played_at < x.t group by c.user_id, x.t');
-  execute def;
-end $$;
-
--- A member's 블랙피스 left this week (their row in this week's ranking; members hidden from the hall have none to spend,
--- which is also what the home strip shows them).
-create or replace function public.black_piece_balance(p_user uuid)
- returns integer language sql stable security definer set search_path to 'public'
-as $$
-  select case when p_user is null then 0 else greatest(0, coalesce((select k.pieces from public.black_piece_rows(public.hell_week_of(now())) k where k.user_id = p_user), 0))::int end;
-$$;
-revoke all on function public.black_piece_balance(uuid) from public, anon, authenticated;
 
 -- The day's three puzzles (one per tier), chosen once: the lowest unused pool row of each tier.
 create or replace function public.prop_day_puzzles(p_day date)
@@ -251,7 +221,7 @@ as $$
     'limit', public.prop_limit_ms(), 'splits', to_jsonb(r.splits), 'hints', to_jsonb(r.hints),
     'puzzle', p.puzzle, 'hint', case when r.hints[r.stage + 1] > 0 then p.hint end,
     'stoneHints', to_jsonb(r.stone_hints),
-    'givens', coalesce((select jsonb_agg(jsonb_build_array(h.stone, h.cell) order by h.id) from public.prop_hints h where h.run_id = r.id and h.stage = r.stage and h.kind = 'stone'), '[]'::jsonb),
+    'givens', coalesce((select jsonb_agg(jsonb_build_array(h.stone, h.cell) order by h.created_at, h.id) from public.prop_hints h where h.run_id = r.id and h.stage = r.stage and h.kind = 'stone'), '[]'::jsonb),
     'hintsLeft', public.prop_hint_cap() - (select coalesce(sum(x), 0)::int from unnest(r.hints || r.stone_hints) x),
     'pieces', public.piece_balance(r.user_id), 'blackPieces', public.black_piece_balance(r.user_id))
   from public.prop_pool p where p.id = (public.prop_day_puzzles(r.day))[r.stage + 1];
@@ -352,19 +322,19 @@ grant execute on function public.prop_solve(uuid, integer, text, jsonb, jsonb) t
 create or replace function public.prop_hint(p_run uuid)
  returns jsonb language plpgsql security definer set search_path to 'public'
 as $$
-declare r public.prop_runs; tier smallint;
+declare r public.prop_runs; tier smallint; v_id uuid := gen_random_uuid();
 begin
   select * into r from public.prop_runs where id = p_run and user_id = auth.uid() for update;
   if not found then raise exception 'not_found'; end if;
   if public.prop_expire(r.id) or r.finished_at is not null then return public.prop_result(r.id); end if;
   if r.hints[r.stage + 1] > 0 then return public.prop_view(r); end if;
   if (select coalesce(sum(x), 0) from unnest(r.hints || r.stone_hints) x) >= public.prop_hint_cap() then return public.prop_view(r) || jsonb_build_object('error', 'cap'); end if;
-  perform pg_advisory_xact_lock(hashtext('piece_spend:' || r.user_id::text));   -- one spend at a time per member
-  if public.piece_balance(r.user_id) < 1 then return public.prop_view(r) || jsonb_build_object('error', 'no_pieces'); end if;
-  insert into public.piece_spends (user_id, amount, reason, ref) values (r.user_id, 1, 'proposition_go', r.id);
+  if public.spend_currency(r.user_id, 'piece', 1, 'proposition_go', 'prop', v_id) < 0 then
+    return public.prop_view(r) || jsonb_build_object('error', 'no_pieces');
+  end if;
   select p.tier into tier from public.prop_pool p where p.id = (public.prop_day_puzzles(r.day))[r.stage + 1];
-  insert into public.prop_hints (run_id, user_id, day, stage, tier, kind, currency, cost, at_ms)
-  values (r.id, r.user_id, r.day, r.stage, tier, 'prop', 'piece', 1, (extract(epoch from clock_timestamp() - r.started_at) * 1000)::int);
+  insert into public.prop_hints (id, run_id, user_id, day, stage, tier, kind, currency, cost, at_ms)
+  values (v_id, r.id, r.user_id, r.day, r.stage, tier, 'prop', 'piece', 1, (extract(epoch from clock_timestamp() - r.started_at) * 1000)::int);
   r.hints[r.stage + 1] := 1;
   update public.prop_runs set hints = r.hints where id = r.id returning * into r;
   return public.prop_view(r);
@@ -378,7 +348,7 @@ grant execute on function public.prop_hint(uuid) to authenticated;
 create or replace function public.prop_stone_hint(p_run uuid, p_cells text)
  returns jsonb language plpgsql security definer set search_path to 'public'
 as $$
-declare r public.prop_runs; want text; tier smallint; k integer; pick integer; n integer;
+declare r public.prop_runs; want text; tier smallint; pick integer; n integer; v_id uuid := gen_random_uuid();
 begin
   select * into r from public.prop_runs where id = p_run and user_id = auth.uid() for update;
   if not found then raise exception 'not_found'; end if;
@@ -393,11 +363,11 @@ begin
      and not exists (select 1 from public.prop_hints h where h.run_id = r.id and h.stage = r.stage and h.kind = 'stone' and h.stone = s.k - 1)
    order by random() limit 1;
   if pick is null then return public.prop_view(r) || jsonb_build_object('error', 'nothing_left'); end if;
-  perform pg_advisory_xact_lock(hashtext('black_piece_spend:' || r.user_id::text));
-  if public.black_piece_balance(r.user_id) < 1 then return public.prop_view(r) || jsonb_build_object('error', 'no_black_pieces'); end if;
-  insert into public.black_piece_spends (user_id, amount, reason, ref) values (r.user_id, 1, 'proposition_go', r.id);
-  insert into public.prop_hints (run_id, user_id, day, stage, tier, kind, currency, cost, at_ms, stone, cell)
-  values (r.id, r.user_id, r.day, r.stage, tier, 'stone', 'black_piece', 1, (extract(epoch from clock_timestamp() - r.started_at) * 1000)::int,
+  if public.spend_currency(r.user_id, 'black_piece', 1, 'proposition_go', 'stone', v_id) < 0 then
+    return public.prop_view(r) || jsonb_build_object('error', 'no_black_pieces');
+  end if;
+  insert into public.prop_hints (id, run_id, user_id, day, stage, tier, kind, currency, cost, at_ms, stone, cell)
+  values (v_id, r.id, r.user_id, r.day, r.stage, tier, 'stone', 'black_piece', 1, (extract(epoch from clock_timestamp() - r.started_at) * 1000)::int,
           pick, ('x' || lpad(substr(want, pick + 1, 1), 8, '0'))::bit(32)::int);
   r.stone_hints[r.stage + 1] := r.stone_hints[r.stage + 1] + 1;
   update public.prop_runs set stone_hints = r.stone_hints where id = r.id returning * into r;
