@@ -32,6 +32,7 @@ import RankBlock from './merge2048/RankBlock';
 import { FitTile } from './OpenMatchCard';
 import StoneAvatar, { Stone } from './StoneAvatar';
 import { AppTesterStrip } from './AppTesterInvite';
+import OriginalsRow from './OriginalsRow';
 
 // Home description keys that do not follow `${id}Description`.
 const DESC_KEY: Partial<Record<GameId, string>> = { russianJanggi: 'rjanggiDescription', russianRoulette: 'rouletteDescription' };
@@ -206,6 +207,8 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
 
         <div className="mt-6 grid gap-6 lg:mt-9 lg:grid-cols-[minmax(0,1fr)_316px] lg:gap-7">
           <div className="min-w-0">
+            {/* PUZZLTHINK ORIGINAL: the site's own games */}
+            <OriginalsRow Preview={Preview} isNew={(id) => NEW.includes(id)} onOpen={pushRecent} className="mb-6" />
             {/* categories */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-[20px] font-black tracking-[-0.04em] lg:text-[24px]">{th('gamesTitle')}</h2>
@@ -232,6 +235,7 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
                           : g.id === 'slitherlink' ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[#e23b4e] px-1.5 py-0.5 text-[9px] font-black tracking-[0.04em] text-white shadow-[0_0_10px_rgba(226,59,78,.5)]">🎄 X-MAS</span>
                           : NEW.includes(g.id) && <span className="absolute left-1.5 top-1.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[9px] font-black tracking-[0.08em] text-white">NEW</span>}
                         {g.id === 'hiddenWordPlus' && <span className="absolute bottom-1.5 left-1.5 max-w-[calc(100%-12px)] truncate rounded-full bg-[#7c5cff] px-1.5 py-0.5 text-[9px] font-black tracking-[0.02em] text-white shadow-[0_0_10px_rgba(124,92,255,.55)]">{t('partyOpenTag')}</span>}
+                        {g.original && <span className="absolute bottom-1.5 left-1.5 rounded-full bg-[linear-gradient(135deg,#2c1470,#5b37c9)] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.1em] text-white ring-1 ring-[#c9b6ff]/60">{tc('originalTag')}</span>}
                         {g.hell?.live && <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#07060a] text-[#ff3355] ring-1 ring-[#ff3355]/60" title={t('hellTag')}><Skull size={11} /></span>}
                         {rate && <span title={t('clearRateTitle', { c: rate.clears, n: rate.attempts })} className={`absolute bottom-1.5 right-1.5 rounded-full px-1.5 py-0.5 text-[9px] font-black max-md:hidden ${RATE_TONE[rate.level]}`}>{rate.pct}%</span>}
                         {name && <MyRank rank={me.ranks.get(g.href)} name={name} />}

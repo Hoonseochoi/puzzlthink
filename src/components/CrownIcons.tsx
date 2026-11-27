@@ -328,6 +328,11 @@ const LOOKS: Record<GameId, Look> = {
       return <><g opacity=".3">{s.map((c, i) => <g key={i}>{T(22 + (i % 4) * 19, 32 + Math.floor(i / 4) * 17, c, 11, '#243404')}</g>)}</g><rect x="27" y="71" width="46" height="16" rx="8" fill="#17201e" stroke="#ecffb0" strokeWidth="1.2" /><circle cx="38" cy="79" r="4.6" fill="#2fbf71" /><circle cx="50" cy="79" r="4.6" fill="#f2c230" /><circle cx="62" cy="79" r="4.6" fill="#e5484d" /><circle cx="37" cy="77.5" r="1.4" fill="#ffffff" opacity=".7" /></>;
     },
   },
+  // 명제 바둑 (PUZZLTHINK ORIGINAL): a 4×4 board in the stone, four coloured stones on it, and a ✓ proposition chip.
+  proposition_go: {
+    body: ['#e2d6ff', '#9b7bff', '#2c1470'], metal: 'platinum', gem: '#ffc23d', glow: '#a98cff',
+    pat: () => <><path d={grid(22, 50, 78, 106, 4, 4, true)} stroke="#ffffff" strokeOpacity=".42" strokeWidth="1.1" />{[[29, 57, '#ff4d5e'], [57, 71, '#3f8cff'], [43, 85, '#34c463'], [71, 99, '#ffc23d']].map(([x, y, c]) => <circle key={String(c)} cx={x as number} cy={y as number} r="5.2" fill={c as string} stroke="#17201e" strokeWidth=".9" />)}<rect x="56" y="24" width="27" height="13" rx="4" fill="#17201e" opacity=".8" /><path d="M62 30.5l3.2 3.2 6.4-6.6" fill="none" stroke="#3fd67a" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /><circle cx="76.5" cy="30.5" r="2.6" fill="#ff4d5e" /></>,
+  },
   // Tower of equations: bricks behind, the three-block tower in front.
   equation_tower: {
     body: ['#ffd4b8', '#f08c5a', '#7a2c08'], metal: 'gold', gem: '#f08c5a', glow: '#f59d6e',

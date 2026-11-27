@@ -52,10 +52,13 @@ const cvOf = (xs: number[]) => {
   return round(sd / mean);
 };
 
-/** Starts recording one run (call when the board appears; `stop` removes the listeners). */
-export function startLogicTrace(board: LogicBoard, startedAt: number) {
+/**
+ * Starts recording one run (call when the board appears; `stop` removes the listeners). `board`: a logic-challenge
+ * board, or another game's { kind, answer? } (명제 바둑 keeps its answers on the server, so its `wrong` is null).
+ */
+export function startLogicTrace(board: LogicBoard | { kind: string; answer?: number[] | null }, startedAt: number) {
   // 마방진 스왑 has many magic squares, so a move cannot be called wrong; 비나이로 answers keep both colours.
-  const answer = board.kind === 'magicswap' ? null : board.answer;
+  const answer = board.kind === 'magicswap' ? null : board.answer ?? null;
   const twoColours = !!answer && answer.includes(2);
   const steps: LogicTraceStep[] = [];
   let total = 0, changes = 0, inputs = 0, adds = 0, wrong = 0, erases = 0, undos = 0, wipes = 0, noEvent = 0;

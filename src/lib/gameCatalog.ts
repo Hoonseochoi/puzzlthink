@@ -1,12 +1,12 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
 // Order: by plays on 2026-11-23 (KST), most played first; 카드 장기 (new) is pinned 2nd, 컬러 링크 (new) 3rd, 수식 신호등 (new) 4th, 수식의 탑 (new) 5th, Hit,Stay 6th, 그라데이션 7th, 포인트 오목 8th, 마방진 스왑 9th and 2048 10th.
-export type GameId = 'sniperHoldem' | 'hiddenWord' | 'hiddenWordPlus' | 'equationSignal' | 'equationTower' | 'gradation' | 'cardJanggi' | 'colorLinkDuel' | 'hitStay' | 'timeAuction' | 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
+export type GameId = 'propositionGo' | 'sniperHoldem' | 'hiddenWord' | 'hiddenWordPlus' | 'equationSignal' | 'equationTower' | 'gradation' | 'cardJanggi' | 'colorLinkDuel' | 'hitStay' | 'timeAuction' | 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 // Order: by plays on 2026-11-23 (KST), most played first; 컬러 링크 (new) is pinned 2nd, Hit,Stay (new) 3rd, 포인트 오목 (new) 3rd, 마방진 스왑 5th and 2048 (new) 7th.
 
 export interface CatalogGame {
   id: GameId;
   /** Route of the playable page. */
-  href: '/sniper-holdem' | '/hidden-word' | '/hidden-word-plus' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/time-auction' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+  href: '/proposition-go' | '/sniper-holdem' | '/hidden-word' | '/hidden-word-plus' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/time-auction' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
   /** Accent color, matching the home page cards. */
   color: string;
   /** Whether the game page renders a long-form guide below the board (anchored at #guide). */
@@ -16,9 +16,13 @@ export interface CatalogGame {
    * (벽바둑 counts 1:1 only). `live` = the hell AI is on main (all five since #173–#175); while false the game shows as 준비 중 and no link points at it.
    */
   hell?: { query?: string; live: boolean };
+  /** PUZZLTHINK ORIGINAL: a game the site made up itself (not from a TV show or a classic). Badge on cards and headers, its own home row and /originals. */
+  original?: boolean;
 }
 
 export const GAMES: readonly CatalogGame[] = [
+  // 명제 바둑 (new, 11/28): the first game of the PUZZLTHINK ORIGINAL series, pinned first while it is the newest release.
+  { id: 'propositionGo', href: '/proposition-go', color: '#9b7bff', hasGuide: true, original: true },
   // 히든 워드 확장판 (new, 11/27): pinned first while it is the newest release.
   { id: 'hiddenWordPlus', href: '/hidden-word-plus', color: '#b79cff', hasGuide: true },
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
@@ -47,7 +51,7 @@ export const GAMES: readonly CatalogGame[] = [
   { id: 'indianPoker', href: '/indian-poker', color: '#e6b94f', hasGuide: true },
   { id: 'blackWhite', href: '/black-white', color: '#2b2b31', hasGuide: true },
   { id: 'nonogram', href: '/nonogram', color: '#3fcf6a', hasGuide: true },
-  { id: 'flipOmok', href: '/flip-omok', color: '#3fb8ff', hasGuide: true },
+  { id: 'flipOmok', href: '/flip-omok', color: '#3fb8ff', hasGuide: true, original: true },
   { id: 'binairo', href: '/binairo', color: '#3f8cff', hasGuide: true },
   { id: 'blackWhite2', href: '/black-white-2', color: '#ef3340', hasGuide: true },
   { id: 'blindGomoku', href: '/blind-gomoku', color: '#d39b2f', hasGuide: true, hell: { live: true } },
@@ -62,3 +66,7 @@ export const GAMES: readonly CatalogGame[] = [
   { id: 'piggyBank', href: '/piggy-bank', color: '#e0a91c', hasGuide: true },
   { id: 'hexagon', href: '/hexagon', color: '#e8b04a', hasGuide: true },
 ];
+
+/** PUZZLTHINK ORIGINAL: the site's own games, newest first. */
+export const ORIGINALS: readonly CatalogGame[] = GAMES.filter((g) => g.original);
+export const isOriginal = (id: GameId) => GAMES.some((g) => g.id === id && g.original);

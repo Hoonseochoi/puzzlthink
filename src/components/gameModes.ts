@@ -68,6 +68,11 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
   // The AI match runs on the server (hw_* functions). Friend rooms only (no useRoom, so no open rooms): the host's
   // browser holds the hidden words, which is fine between friends.
+  propositionGo: {
+    path: '/proposition-go', solo: true,
+    ai: [{ label: 'pgDaily', query: 'mode=daily' }, { label: 'pgPractice', query: 'mode=practice' }, { label: 'pgTutorial', query: 'mode=tutorial' }],
+    rooms: [],
+  },
   hiddenWord: { path: '/hidden-word', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordRoom }] },
   // 확장판: the same match on the 확장 words; its rooms are its own (channel hidden-word-plus-room).
   hiddenWordPlus: { path: '/hidden-word-plus', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordPlusRoom }, { label: 'hwParty', create: prepareHiddenWordPartyRoom, path: '/hidden-word-plus/party' }] },

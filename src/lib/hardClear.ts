@@ -9,8 +9,9 @@ export type HardClearDetail = { game: GameId; id?: string; no?: number; delayMs:
 /** tier 'hell' = 매우 어려움 certificate (its own numbering, id starts with 'h'). */
 export type Cert = { game: GameId; clear_no: number; nickname: string; cleared_at: string; total: number; tier: 'hard' | 'hell' };
 
-type Href = '/sniper-holdem' | '/hidden-word' | '/hidden-word-plus' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/time-auction' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+type Href = '/proposition-go' | '/sniper-holdem' | '/hidden-word' | '/hidden-word-plus' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/time-auction' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
 export const CERT_GAMES: Record<GameId, { ko: string; en: string; href: Href; color: string }> = {
+  proposition_go: { ko: '명제 바둑', en: 'Proposition Go', href: '/proposition-go', color: '#9b7bff' },
   card_janggi: { ko: '카드 장기', en: 'Card Janggi', href: '/card-janggi', color: '#b07cff' },
   color_link_duel: { ko: '컬러 링크', en: 'Color Link Duel', href: '/color-link-duel', color: '#7c6cff' },
   sniper_holdem: { ko: '스나이퍼 홀덤', en: "Sniper Hold'em", href: '/sniper-holdem', color: '#ff4f5e' },

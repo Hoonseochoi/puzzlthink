@@ -32,6 +32,7 @@ import nemoCount from './nemo-count';
 import nineMensMorris from './nine-mens-morris';
 import piggyBank from './piggy-bank';
 import play from './play';
+import propositionGo from './proposition-go';
 import pointOmok from './point-omok';
 import russianJanggi from './russian-janggi';
 import russianRoulette from './russian-roulette';
@@ -68,6 +69,7 @@ const REGISTRY: Partial<Record<GameId, GameGuide | null>> = {
   piggyBank,
   sudoku: play,
   pointOmok,
+  propositionGo,
   russianJanggi,
   russianRoulette,
   twoSidedPoker,
