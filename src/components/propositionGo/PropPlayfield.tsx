@@ -6,17 +6,19 @@
 // down; the stones a card is about hop when it turns true and wince when it turns false.
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Eraser, Undo2, VenetianMask } from 'lucide-react';
+import { Eraser, Lock, Undo2, VenetianMask } from 'lucide-react';
 import { type Prop, type PublicPuzzle, REGION_MASK, type Truth, isSolved, liveTruth, propStones } from '@/lib/propositionGo';
 import { stoneName } from '@/lib/propositionGoText';
 import { BOARD_BG, type CardState, type Mood, NeonGrid, PgStone, PropCard, Sparks } from './PropParts';
 
 type Board = { cells: number[]; history: number[][] };
-type Action = { t: 'place'; stone: number; cell: number } | { t: 'remove'; stone: number } | { t: 'undo' } | { t: 'clear' };
+/** `base`: the board as shown (with the 블랙피스 givens applied), which the move starts from. */
+type Action = ({ t: 'place'; stone: number; cell: number } | { t: 'remove'; stone: number } | { t: 'undo' } | { t: 'clear' }) & { base?: number[] };
 
 function reduce(b: Board, a: Action): Board {
   if (a.t === 'undo') return b.history.length ? { cells: b.history[b.history.length - 1], history: b.history.slice(0, -1) } : b;
-  const next = b.cells.slice();
+  const cur = a.base ?? b.cells;
+  const next = cur.slice();
   if (a.t === 'clear') { if (next.every((c) => c < 0)) return b; next.fill(-1); }
   else if (a.t === 'remove') { if (next[a.stone] < 0) return b; next[a.stone] = -1; }
   else {
@@ -26,7 +28,19 @@ function reduce(b: Board, a: Action): Board {
     if (other >= 0) next[other] = from; // swap (back to the tray when the moving stone came from it)
     next[a.stone] = a.cell;
   }
-  return { cells: next, history: [...b.history.slice(-80), b.cells] };
+  return { cells: next, history: [...b.history.slice(-80), cur] };
+}
+
+/** The 블랙피스 givens (stone, point) on top of the player's board: a stone that sat on a given point goes back to the tray. */
+function withGivens(cells: number[], givens: [number, number][] | undefined) {
+  if (!givens?.length) return cells;
+  const out = cells.slice();
+  for (const [s, c] of givens) {
+    const there = out.indexOf(c);
+    if (there >= 0 && there !== s) out[there] = -1;
+    out[s] = c;
+  }
+  return out;
 }
 
 /** Values per point (stone + 1, 0 = empty), the trace's view of the board. */
@@ -45,7 +59,7 @@ const focusMask = (p: Prop) => (p.t === 'in' || p.t === 'out' || p.t === 'count'
 
 export type Finish = { kind: 'solved' } | { kind: 'lie'; lie: number } | null;
 
-export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, trace, initial, answer }: {
+export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, trace, initial, answer, givens, cellsRef }: {
   puzzle: PublicPuzzle;
   /** The 피스 hint card once bought (always true). */
   hint?: Prop | null;
@@ -57,6 +71,10 @@ export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, 
   /** Practice "show answer": put the stones there. */
   initial?: number[] | null;
   answer?: number[] | null;
+  /** 블랙피스 hints: stones shown on their answer point, locked. */
+  givens?: [number, number][];
+  /** The board as shown, for the parent (the 블랙피스 hint sends it so the server picks a stone not yet right). */
+  cellsRef?: { current: number[] };
 }) {
   const t = useTranslations('PropositionGo');
   const locale = useLocale() === 'en' ? 'en' : 'ko';
@@ -70,20 +88,22 @@ export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, 
   const prevStates = useRef<Truth[] | null>(null);
   const solvedRef = useRef(false);
   const gesture = useRef(0);
-  const cells = board.cells;
+  const cells = useMemo(() => withGivens(board.cells, givens), [board.cells, givens]);
+  const given = useMemo(() => new Set((givens ?? []).map(([g]) => g)), [givens]);
+  useEffect(() => { if (cellsRef) cellsRef.current = cells; }, [cells, cellsRef]);
 
   const apply = useCallback((a: Action, kind: 'play' | 'undo' | 'wipe' = 'play') => {
     if (locked) return;
     const before = pointValues(cells);
-    const after = pointValues(a.t === 'undo' ? board.history[board.history.length - 1] ?? cells : reduce({ cells, history: [] }, a).cells);
+    const after = pointValues(withGivens(a.t === 'undo' ? board.history[board.history.length - 1] ?? cells : reduce({ cells, history: [] }, a).cells, givens));
     const changes: [number, number][] = [];
     after.forEach((v, i) => { if (v !== before[i]) changes.push([i, v]); });
     if (a.t !== 'undo' && !changes.length) return;
     if (a.t === 'undo' && !board.history.length) return;
     gesture.current++;
     trace?.(changes, kind === 'play' ? gesture.current : kind === 'undo' ? -1 : -2, kind);
-    dispatch(a);
-  }, [cells, board.history, locked, trace]);
+    dispatch({ ...a, base: cells });
+  }, [cells, board.history, locked, trace, givens]);
 
   const states: Truth[] = useMemo(() => puzzle.props.map((p) => liveTruth(p, cells)), [puzzle.props, cells]);
 
@@ -124,6 +144,7 @@ export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, 
   const tapPoint = (cell: number) => {
     if (locked) return;
     const there = cells.indexOf(cell);
+    if (there >= 0 && given.has(there)) return; // a given stone stays put
     if (selected === null) { if (there >= 0) setSelected(there); return; }
     if (there === selected) { setSelected(null); return; }
     const preview = reduce({ cells, history: [] }, { t: 'place', stone: selected, cell }).cells;
@@ -131,7 +152,7 @@ export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, 
     setSelected(cells[selected] < 0 ? nextFree(preview, selected) : null);
   };
   const tapStone = (s: number) => {
-    if (locked) return;
+    if (locked || given.has(s)) return;
     if (selected !== null && selected !== s && cells[s] >= 0) { tapPoint(cells[s]); return; } // swap onto it
     setSelected(selected === s ? null : s);
   };
@@ -144,7 +165,7 @@ export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, 
   const [drag, setDrag] = useState<{ s: number; x: number; y: number } | null>(null);
   const press = useRef<{ s: number; x: number; y: number; id: number; moved: boolean } | null>(null);
   const onDown = (s: number) => (e: React.PointerEvent) => {
-    if (locked || e.button > 0) return;
+    if (locked || e.button > 0 || given.has(s)) return;
     press.current = { s, x: e.clientX, y: e.clientY, id: e.pointerId, moved: false };
     (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
   };
@@ -164,6 +185,7 @@ export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, 
     const el = document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-pg-cell],[data-pg-tray]') as HTMLElement | null;
     if (el?.dataset.pgCell !== undefined) {
       const cell = Number(el.dataset.pgCell);
+      if (given.has(cells.indexOf(cell))) return;
       const wasFree = cells[p.s] < 0;
       const preview = reduce({ cells, history: [] }, { t: 'place', stone: p.s, cell }).cells;
       apply({ t: 'place', stone: p.s, cell });
@@ -217,15 +239,20 @@ export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, 
               if (c < 0) return null;
               const m = moodOf(s);
               const isSel = selected === s;
+              const isGiven = given.has(s);
               return (
                 <span key={s} className="pg-move pointer-events-none absolute flex h-[25%] w-[25%] items-center justify-center transition-[left,top] duration-150 ease-out"
                   style={{ left: `${(c & 3) * 25}%`, top: `${(c >> 2) * 25}%`, opacity: drag?.s === s ? 0.35 : 1, transitionDelay: '0ms' }}>
                   <span onPointerDown={onDown(s)} role="button" tabIndex={-1} aria-label={stoneName(puzzle.stones[s], locale)}
-                    className={`pointer-events-auto relative block h-[86%] w-[86%] cursor-grab touch-none transition-transform duration-150 ${isSel ? '-translate-y-[6%] scale-[1.08]' : ''} ${litStones?.has(s) ? 'rounded-full shadow-[0_0_0_3px_#9b7bff]' : ''}`}>
+                    className={`pointer-events-auto relative block h-[86%] w-[86%] touch-none transition-transform duration-150 ${isGiven ? 'cursor-default' : 'cursor-grab'} ${isSel ? '-translate-y-[6%] scale-[1.08]' : ''} ${litStones?.has(s) ? 'rounded-full shadow-[0_0_0_3px_#9b7bff]' : ''}`}>
                     <span key={String(m.key)} className={`block h-full w-full ${m.anim ? `pg-${m.anim}` : ''}`} style={finish ? { animationDelay: `${s * 70}ms` } : undefined}>
                       <PgStone colour={puzzle.stones[s]} size={100} mood={m.mood} blinkDelay={s * 0.9} className="h-full w-full" />
                     </span>
                     {isSel && <span className="pg-glow absolute -inset-[6%] rounded-full ring-2 ring-white/80" />}
+                    {isGiven && <>
+                      <span className="pg-glow absolute -inset-[9%] rounded-full border-2 border-dashed border-[#ff5c77]" />
+                      <span className="absolute -right-[6%] -top-[6%] flex h-[38%] w-[38%] items-center justify-center rounded-full bg-[#1a0610] text-[#ff8ea0] ring-2 ring-[#ff5c77]"><Lock size={11} strokeWidth={3} /></span>
+                    </>}
                   </span>
                 </span>
               );
@@ -251,7 +278,7 @@ export default function PropPlayfield({ puzzle, hint, finish, locked, onSolved, 
           <div className="flex gap-1">
           <button type="button" onClick={() => apply({ t: 'undo' }, 'undo')} disabled={locked || !board.history.length} title={t('undo')} aria-label={t('undo')}
             className="flex h-9 flex-1 items-center justify-center rounded-[10px] sm:h-10 sm:w-10 sm:flex-none bg-white/[0.07] text-white/75 transition active:scale-95 disabled:opacity-30"><Undo2 size={17} /></button>
-          <button type="button" onClick={() => { apply({ t: 'clear' }, 'wipe'); setSelected(0); }} disabled={locked || cells.every((c) => c < 0)} title={t('clear')} aria-label={t('clear')}
+          <button type="button" onClick={() => { apply({ t: 'clear' }, 'wipe'); setSelected(0); }} disabled={locked || cells.every((c, s) => c < 0 || given.has(s))} title={t('clear')} aria-label={t('clear')}
             className="flex h-9 flex-1 items-center justify-center rounded-[10px] sm:h-10 sm:w-10 sm:flex-none bg-white/[0.07] text-white/75 transition active:scale-95 disabled:opacity-30"><Eraser size={16} /></button>
           </div>
         </div>

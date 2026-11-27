@@ -14,12 +14,13 @@ import BugReport from '@/components/BugReport';
 import GameUpdates from '@/components/GameUpdates';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Piece } from '@/components/CompetitionBoard';
+import { BlackPiece } from '@/components/hell/BlackPiece';
 import StoneAvatar from '@/components/StoneAvatar';
 import { ResultBannerSlot } from '@/components/ads/HiddenLogAd';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
-import { type Prop, type PublicPuzzle, type Tier, HINT_PENALTY_MS, encodeCells, evalProp } from '@/lib/propositionGo';
-import { type PgRankRow, type PgResult, type PgToday, type PgView, type PracticePuzzle, buyHint, clock, fetchRanking, fetchToday, giveUp, loadPractice, msToNextDay, solveStage, startRun } from '@/lib/propositionGoClient';
+import { type Prop, type PublicPuzzle, type Tier, HINT_CAP, HINT_PENALTY_MS, STONE_HINT_PENALTY_MS, encodeCells, evalProp } from '@/lib/propositionGo';
+import { type PgRankRow, type PgResult, type PgToday, type PgView, type PracticePuzzle, buyHint, buyStoneHint, clock, fetchRanking, fetchToday, giveUp, loadPractice, msToNextDay, solveStage, startRun } from '@/lib/propositionGoClient';
 import { type LogicTraceRecorder, startLogicTrace } from '@/lib/logicTrace';
 import { reportGame } from '@/lib/stats';
 import PropPlayfield, { type Finish, type TraceInput } from './PropPlayfield';
@@ -166,10 +167,19 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
   const trace: TraceInput = useCallback((c, g, k) => recorder.current?.input(c, g, k), []);
   const hint = async () => {
     if (!view || busy) return;
-    setBusy(true);
+    setBusy(true); setError(null);
     const { data } = await buyHint(view.run);
     setBusy(false);
-    if (data && !data.done && data.error === 'no_pieces') { setError(t('noPieces')); }
+    if (data && !data.done && data.error) setError(data.error === 'cap' ? t('hintCapped') : t('noPieces'));
+    take(data);
+  };
+  const boardNow = useRef<number[]>([]);
+  const stoneHint = async () => {
+    if (!view || busy) return;
+    setBusy(true); setError(null);
+    const { data } = await buyStoneHint(view.run, boardNow.current.map((c) => (c < 0 ? '-' : c.toString(16))).join(''));
+    setBusy(false);
+    if (data && !data.done && data.error) setError(data.error === 'cap' ? t('hintCapped') : data.error === 'nothing_left' ? t('stoneHintNone') : t('noBlackPieces'));
     take(data);
   };
   const quit = async () => {
@@ -190,17 +200,10 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
     const hinted = view.hints[view.stage] > 0;
     return (
       <div className={`${STAGE} flex flex-col gap-2.5`}>
-        <RunBar stage={view.stage} splits={view.splits} hints={view.hints} elapsed={elapsed} left={left} />
-        <PropPlayfield key={`${view.run}-${view.stage}`} puzzle={view.puzzle} hint={view.hint} finish={finish} locked={!!finish || busy} onSolved={onSolved} trace={trace} />
-        <div className="flex items-center gap-2">
-          <button type="button" onClick={hint} disabled={hinted || busy || !!finish || (view.pieces ?? 0) < 1}
-            className="flex min-h-[44px] flex-1 items-center gap-2 rounded-[12px] border border-[#ffd36e]/40 bg-[#ffd36e]/10 px-3 text-left text-[12px] font-black text-[#ffe7a8] transition active:scale-[.98] disabled:opacity-45">
-            <Lightbulb size={16} className="shrink-0" />
-            <span className="min-w-0 flex-1 leading-4">{hinted ? t('hintUsed') : t('hintBuy')}<span className="block text-[10.5px] font-bold text-[#ffe7a8]/60">{hinted ? t('hintUsedSub') : t('hintSub', { s: HINT_PENALTY_MS / 1000, n: view.pieces ?? 0 })}</span></span>
-            <span className="flex shrink-0 items-center gap-1"><Piece size={12} />1</span>
-          </button>
-          <button type="button" onClick={() => setConfirmQuit(true)} disabled={busy || !!finish} className={`${BTN} min-h-[44px]`} title={t('giveUp')}><Flag size={14} /><span className="hidden sm:inline">{t('giveUp')}</span></button>
-        </div>
+        <RunBar stage={view.stage} splits={view.splits} hints={view.hints.map((h, i) => h + (view.stoneHints?.[i] ?? 0))} elapsed={elapsed} left={left} />
+        <PropPlayfield key={`${view.run}-${view.stage}`} puzzle={view.puzzle} hint={view.hint} finish={finish} locked={!!finish || busy} onSolved={onSolved} trace={trace} givens={view.givens} cellsRef={boardNow} />
+        <HintBar left={view.hintsLeft ?? 0} propUsed={hinted} busy={busy || !!finish} pieces={view.pieces ?? 0} black={view.blackPieces ?? 0} onProp={hint} onStone={stoneHint}
+          extra={<button type="button" onClick={() => setConfirmQuit(true)} disabled={busy || !!finish} className="flex items-center gap-1 text-[11px] font-bold text-white/45 hover:text-white disabled:opacity-40"><Flag size={12} />{t('giveUp')}</button>} />
         {error && <p className="text-center text-[12px] font-bold text-[#ff9aa5]">{error}</p>}
         <p className="text-center text-[10.5px] font-bold text-white/35">{t(`${TIER_KEY[tier]}Sub`)}</p>
         {confirmQuit && (
@@ -278,6 +281,39 @@ function TodayCard({ today }: { today: PgToday | null }) {
   );
 }
 
+/**
+ * The two hints. 피스: one more true proposition (once per puzzle, +30 s). 블랙피스: one stone shown on its point and
+ * locked (+40 s). Both together at most 3 per run (the server checks it too). Practice: both free, no cap.
+ */
+function HintBar({ left, propUsed, busy, pieces, black, onProp, onStone, extra, free = false }: {
+  left: number | null; propUsed: boolean; busy: boolean; pieces?: number; black?: number; onProp: () => void; onStone: () => void; extra?: React.ReactNode; free?: boolean;
+}) {
+  const t = useTranslations('PropositionGo');
+  const out = left !== null && left <= 0;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between gap-2 px-0.5">
+        <span className="text-[11px] font-black text-white/60">{left === null ? t('hintsFree') : t('hintsLeft', { n: Math.max(0, left), max: HINT_CAP })}</span>
+        {extra}
+      </div>
+      <div className="grid grid-cols-2 gap-1.5">
+        <button type="button" onClick={onProp} disabled={busy || propUsed || out || (!free && (pieces ?? 0) < 1)}
+          className="flex min-h-[48px] items-center gap-2 rounded-[12px] border border-[#ffd36e]/40 bg-[#ffd36e]/10 px-2.5 text-left text-[#ffe7a8] transition active:scale-[.98] disabled:opacity-40">
+          <Lightbulb size={17} className="shrink-0" />
+          <span className="min-w-0 flex-1 leading-[15px]"><b className="block text-[12px] font-black">{propUsed ? t('hintUsed') : t('hintProp')}</b>
+            <span className="flex items-center gap-1 text-[10px] font-bold text-[#ffe7a8]/65">{free ? t('free') : <><Piece size={9} />{t('costPiece', { s: HINT_PENALTY_MS / 1000, n: pieces ?? 0 })}</>}</span></span>
+        </button>
+        <button type="button" onClick={onStone} disabled={busy || out || (!free && (black ?? 0) < 1)}
+          className="flex min-h-[48px] items-center gap-2 rounded-[12px] border border-[#ff5c77]/45 bg-[linear-gradient(135deg,rgba(255,51,85,.16),rgba(7,6,10,.6))] px-2.5 text-left text-[#ffc2cc] transition active:scale-[.98] disabled:opacity-40">
+          <span className="shrink-0"><BlackPiece size={15} glow={false} /></span>
+          <span className="min-w-0 flex-1 leading-[15px]"><b className="block text-[12px] font-black">{t('hintStone')}</b>
+            <span className="block text-[10px] font-bold text-[#ffc2cc]/65">{free ? t('free') : t('costBlack', { s: STONE_HINT_PENALTY_MS / 1000, n: black ?? 0 })}</span></span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function RunBar({ stage, splits, hints, elapsed, left }: { stage: number; splits: number[]; hints: number[]; elapsed: number; left: number }) {
   const t = useTranslations('PropositionGo');
   const urgent = left < 60_000;
@@ -310,9 +346,9 @@ function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult
   useEffect(() => { const id = window.setInterval(() => setLeft(msToNextDay()), 1000); return () => window.clearInterval(id); }, []);
   const clear = result.result === 'clear';
   const day = result.day.slice(5).replace('-', '/');
-  const tiles = ([1, 2, 3] as Tier[]).map((tier, i) => ({ tier, solved: i < result.solved, ms: i < result.solved ? result.splits[i] - (result.splits[i - 1] ?? 0) : null, hint: result.hints[i] > 0 }));
+  const tiles = ([1, 2, 3] as Tier[]).map((tier, i) => ({ tier, solved: i < result.solved, ms: i < result.solved ? result.splits[i] - (result.splits[i - 1] ?? 0) : null, hint: result.hints[i] > 0, stone: (result.stoneHints?.[i] ?? 0) }));
   const shareText = useMemo(() => {
-    const marks = tiles.map((x) => (x.solved ? (x.hint ? '💡' : x.tier === 3 ? '🎭' : '🟣') : '⬛')).join('');
+    const marks = tiles.map((x) => (x.solved ? (x.stone ? '🖤' : x.hint ? '💡' : x.tier === 3 ? '🎭' : '🟣') : '⬛')).join('');
     const lines = [
       `${t('shareHead', { day })} ${marks}`,
       clear ? `⏱ ${clock(result.total ?? 0, true)}${result.rank ? ` · ${t('shareRank', { n: result.rank, total: result.players })}` : ''}` : t('shareFail', { n: result.solved }),
@@ -342,7 +378,7 @@ function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult
           <div>
             <p className="text-[11px] font-black tracking-[0.12em] text-[#c9b6ff]">{clear ? t('resultClear') : result.result === 'timeout' ? t('resultTimeout') : t('resultGiveup')}</p>
             <p className="font-mono text-[40px] font-black leading-none tracking-[-0.03em]">{clear ? clock(result.total ?? 0, true) : `${result.solved}/3`}</p>
-            {clear && result.penalty > 0 && <p className="mt-1 text-[11px] font-bold text-[#ffe7a8]/80">{t('penaltyLine', { raw: clock(result.ms ?? 0, true), n: result.penalty / HINT_PENALTY_MS, s: result.penalty / 1000 })}</p>}
+            {clear && result.penalty > 0 && <p className="mt-1 text-[11px] font-bold text-[#ffe7a8]/80">{t('penaltyLine', { raw: clock(result.ms ?? 0, true), s: result.penalty / 1000 })}</p>}
           </div>
           <div className="flex -space-x-2">{[0, 1, 2, 3, 4].map((c) => <PgStone key={c} colour={c} size={30} mood={clear ? 'proud' : c % 2 ? 'worried' : 'look'} className={clear ? 'pg-hop' : ''} />)}</div>
         </div>
@@ -350,7 +386,7 @@ function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult
           {tiles.map((x) => (
             <div key={x.tier} className={`rounded-[11px] px-2 py-2 text-center ${x.solved ? (x.tier === 3 ? 'bg-[#ff4d5e]/20' : 'bg-[#3fd67a]/15') : 'bg-white/[0.06]'}`}>
               <p className="flex items-center justify-center gap-1 text-[10.5px] font-black text-white/60">{x.tier === 3 && <VenetianMask size={11} />}{t(TIER_KEY[x.tier])}</p>
-              <p className="mt-0.5 flex items-center justify-center gap-1 font-mono text-[15px] font-black">{x.ms !== null ? clock(x.ms) : '—'}{x.hint && <Lightbulb size={11} className="text-[#ffd36e]" />}</p>
+              <p className="mt-0.5 flex items-center justify-center gap-1 font-mono text-[15px] font-black">{x.ms !== null ? clock(x.ms) : '—'}{x.hint && <Lightbulb size={11} className="text-[#ffd36e]" />}{x.stone > 0 && <BlackPiece size={10} glow={false} />}</p>
             </div>
           ))}
         </div>
@@ -414,6 +450,8 @@ function Practice() {
   const [idx, setIdx] = useState(0);
   const [finish, setFinish] = useState<Finish>(null);
   const [hintOn, setHintOn] = useState(false);
+  const [givens, setGivens] = useState<[number, number][]>([]);
+  const boardNow = useRef<number[]>([]);
   const [shown, setShown] = useState<number[] | null>(null);
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [solvedMs, setSolvedMs] = useState<number | null>(null);
@@ -429,7 +467,7 @@ function Practice() {
     const i = list[Math.floor(Math.random() * list.length)];
     seen[tr] = pool.length ? [...used, i] : [i];
     try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch { /* private mode */ }
-    setIdx(i); setFinish(null); setHintOn(false); setShown(null); setStartedAt(Date.now()); setSolvedMs(null);
+    setIdx(i); setFinish(null); setHintOn(false); setGivens([]); setShown(null); setStartedAt(Date.now()); setSolvedMs(null);
   }, []);
   useEffect(() => { loadPractice().then((s) => { setSet(s); pick(s, 1); }).catch(() => setFailed(true)); }, [pick]);
   useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 500); return () => window.clearInterval(id); }, []);
@@ -441,8 +479,17 @@ function Practice() {
     const lie = pub.tier === 3 ? pub.props.findIndex((p) => !evalProp(p, cells)) : -1;
     setFinish(lie >= 0 ? { kind: 'lie', lie } : { kind: 'solved' });
     setSolvedMs(Date.now() - startedAt);
-    if (!shown) reportGame(`pg-practice-${tier}-${idx}-${startedAt}`, 'proposition_go', 'solo', 'win', { mode: 'practice', tier, hint: hintOn }).catch(() => {});
-  }, [pub, startedAt, shown, tier, idx, hintOn]);
+    if (!shown) reportGame(`pg-practice-${tier}-${idx}-${startedAt}`, 'proposition_go', 'solo', 'win', { mode: 'practice', tier, hint: hintOn, stoneHints: givens.length }).catch(() => {});
+  }, [pub, startedAt, shown, tier, idx, hintOn, givens.length]);
+  // Practice 블랙피스 hint (free): a random stone that is not on its point yet.
+  const stoneHint = () => {
+    if (!puzzle) return;
+    const now = boardNow.current;
+    const left = puzzle.answer.flatMap((c, s) => (now[s] !== c && !givens.some(([g]) => g === s) ? [s] : []));
+    if (!left.length) return;
+    const s = left[Math.floor(Math.random() * left.length)];
+    setGivens([...givens, [s, puzzle.answer[s]]]);
+  };
 
   if (failed) return <div className={`${STAGE} p-6 text-center text-sm text-white/60`}>{t('netError')}</div>;
   if (!set || !puzzle || !pub) return <div className={`${STAGE} flex h-[420px] items-center justify-center`}><Loader2 className="animate-spin text-(--accent)" /></div>;
@@ -459,17 +506,15 @@ function Practice() {
         </div>
         <span className="flex h-8 min-w-[64px] items-center justify-center gap-1 rounded-[9px] bg-black/50 font-mono text-[14px] font-black text-white/80 ring-1 ring-white/10"><Timer size={12} />{clock(solvedMs ?? now - startedAt)}</span>
       </div>
-      <PropPlayfield key={`${tier}-${idx}-${shown ? 'a' : 'p'}`} puzzle={pub} hint={hintOn ? puzzle.hint : null} finish={finish} locked={!!finish} onSolved={onSolved} initial={shown} answer={shown} />
+      <PropPlayfield key={`${tier}-${idx}-${shown ? 'a' : 'p'}`} puzzle={pub} hint={hintOn ? puzzle.hint : null} finish={finish} locked={!!finish} onSolved={onSolved} initial={shown} answer={shown} givens={shown ? undefined : givens} cellsRef={boardNow} />
       {finish ? (
         <div className="pg-rise flex items-center gap-2 rounded-[14px] bg-[#3fd67a]/15 p-2 pl-3 ring-1 ring-[#3fd67a]/40">
           <p className="min-w-0 flex-1 text-[13px] font-black text-[#bff5cd]">{shown ? t('answerWas') : finish.kind === 'lie' ? t('practiceLie', { t: clock(solvedMs ?? 0) }) : t('practiceSolved', { t: clock(solvedMs ?? 0) })}</p>
           <button type="button" onClick={() => pick(set, tier)} className="flex min-h-[42px] items-center gap-1 rounded-[10px] bg-(--accent) px-3.5 text-[13px] font-black text-(--accent-ink)">{t('nextPuzzle')}<ChevronRight size={15} /></button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2">
-          <button type="button" onClick={() => setHintOn(true)} disabled={hintOn} className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-[12px] border border-[#ffd36e]/40 bg-[#ffd36e]/10 text-[12px] font-black text-[#ffe7a8] disabled:opacity-45"><Lightbulb size={15} />{hintOn ? t('hintUsed') : t('hintFree')}</button>
-          <button type="button" onClick={() => setShown(puzzle.answer)} className={`${BTN} min-h-[44px]`}><Eye size={14} />{t('showAnswer')}</button>
-        </div>
+        <HintBar left={null} free propUsed={hintOn} busy={false} onProp={() => setHintOn(true)} onStone={stoneHint}
+          extra={<button type="button" onClick={() => setShown(puzzle.answer)} className="flex items-center gap-1 text-[11px] font-bold text-white/45 hover:text-white"><Eye size={12} />{t('showAnswer')}</button>} />
       )}
       <p className="text-center text-[10.5px] font-bold text-white/35">{t(`${TIER_KEY[tier]}Sub`)}</p>
     </div>

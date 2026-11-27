@@ -335,6 +335,15 @@ function propagate(ps: Prop[], start: number[]): { dom: number[] | null; steps: 
 const solvedDom = (dom: number[]) => dom.every((m) => popcount(m) === 1);
 const fullDom = (n: number) => new Array<number>(n).fill(0xffff);
 
+/**
+ * What is still open after reading every card once over, as bits (sum of log2 of each stone's possible points), with the
+ * card readings that took. 0 bits = solved by reading alone. Used to measure how much a hint helps.
+ */
+export function openBits(ps: Prop[], n: number): { bits: number; steps: number } | null {
+  const { dom, steps } = propagate(ps, fullDom(n));
+  return dom ? { bits: dom.reduce((a, m) => a + Math.log2(popcount(m)), 0), steps } : null;
+}
+
 /** How a person would get through ps (null when level 2 is not enough). */
 export function grade(ps: Prop[], n: number, start = fullDom(n)): Grade | null {
   let { dom, steps } = propagate(ps, start);
@@ -404,14 +413,24 @@ const TYPE_WEIGHT: Record<PropType, number> = { in: 3, out: 2, adj: 2.5, nadj: 2
 
 /** At most this many cards of one kind in a puzzle. */
 const TYPE_CAP: Partial<Record<PropType, number>> = { next: 2, diag: 2, count: 2, with: 1, if: 1, nline: 1, out: 2 };
+/**
+ * 심화 and 거짓말 lean on the cards that make a person think (a conditional, a "not", a count) and away from the ones
+ * that glue two stones together at once (바로 아래 / 대각선): fewer of those, more of these.
+ */
+const HARD_BOOST: Partial<Record<PropType, number>> = { if: 2.6, nadj: 1.8, out: 1.8, count: 1.4, with: 1.6, nline: 1.4, next: 0.5, diag: 0.7, in: 0.7 };
+const HARD_CAP: Partial<Record<PropType, number>> = { next: 1, diag: 1, if: 2, count: 2, with: 1, nline: 1, out: 2 };
+/** Kinds that only narrow things down through reasoning; the harder tiers need at least two of them doing work. */
+const SOFT = new Set<PropType>(['if', 'out', 'nadj', 'nline', 'count', 'with']);
+const softCount = (ps: Prop[]) => ps.filter((p) => SOFT.has(p.t)).length;
 
 const key = (p: Prop) => JSON.stringify(p);
 
 /** Picks a kind first (so the 2 000 "if" cards do not drown the 30 "above" cards), then one unused card of it. */
-function pickProp(r: Rand, byType: Map<PropType, Prop[]>, used: Set<string>, typeCount: Partial<Record<PropType, number>>, boost?: (t: PropType) => number): Prop | null {
-  const types = [...byType.keys()].filter((t) => (typeCount[t] ?? 0) < (TYPE_CAP[t] ?? 3) && byType.get(t)!.some((p) => !used.has(key(p))));
+function pickProp(r: Rand, byType: Map<PropType, Prop[]>, used: Set<string>, typeCount: Partial<Record<PropType, number>>, hard = false): Prop | null {
+  const cap = hard ? HARD_CAP : TYPE_CAP;
+  const types = [...byType.keys()].filter((t) => (typeCount[t] ?? 0) < (cap[t] ?? 3) && byType.get(t)!.some((p) => !used.has(key(p))));
   if (!types.length) return null;
-  const ws = types.map((t) => (TYPE_WEIGHT[t] / (1 + (typeCount[t] ?? 0) * 1.6)) * (boost ? boost(t) : 1));
+  const ws = types.map((t) => (TYPE_WEIGHT[t] / (1 + (typeCount[t] ?? 0) * 1.6)) * (hard ? HARD_BOOST[t] ?? 1 : 1));
   let x = r() * ws.reduce((a, b) => a + b, 0);
   let t = types[types.length - 1];
   for (let i = 0; i < types.length; i++) { x -= ws[i]; if (x <= 0) { t = types[i]; break; } }
@@ -462,7 +481,7 @@ function buildPlain(r: Rand, tier: Tier, cells: number[], pool: Prop[]): Built |
     // Of a few random cards, keep the sharpest that is not too sharp: short puzzles, no single card doing it all.
     let best: { p: Prop; next: Int32Array } | null = null;
     for (let k = 0; k < SAMPLE; k++) {
-      const p = pickProp(r, truths, used, typeCount);
+      const p = pickProp(r, truths, used, typeCount, tier > 1);
       if (!p) break;
       const next = filterBy(set, p, n);
       if (next.length > set.length * 0.9) { used.add(key(p)); continue; }
@@ -486,8 +505,10 @@ function buildPlain(r: Rand, tier: Tier, cells: number[], pool: Prop[]): Built |
   if (unaryPinned(props, n) > (tier === 1 ? 1 : 0)) return null;
   const g = grade(props, n);
   if (!g) return null;
-  if (tier === 1 && !(g.level === 1 && g.steps >= 4)) return null;
-  if (tier === 2 && !(g.level <= 2 && g.steps >= 7 && (g.level === 2 || g.steps >= 9))) return null;
+  // 기본: one card at a time solves it, but not in a couple of glances. 심화: needs a what-if, or a long chain of readings,
+  // and at least two of the reasoning kinds.
+  if (tier === 1 && !(g.level === 1 && g.steps >= 6 && g.steps <= 16)) return null;
+  if (tier === 2 && !(g.level <= 2 && (g.level === 2 || g.steps >= 16) && softCount(props) >= 2)) return null;
   return { props: shuffle(r, props), lie: null, grade: g };
 }
 
@@ -545,7 +566,7 @@ function buildLie(r: Rand, tier: Tier, cells: number[], pool: Prop[]): Built | n
   for (let guard = 0; guard < 60 && (withJ.length > 1 || withL.length > 0); guard++) {
     let best: { p: Prop; nj: Int32Array; nl: Int32Array; score: number } | null = null;
     for (let k = 0; k < SAMPLE; k++) {
-      const p = pickProp(r, truths, used, typeCount);
+      const p = pickProp(r, truths, used, typeCount, true);
       if (!p) break;
       const nj = filterBy(withJ, p, n), nl = filterBy(withL, p, n);
       if (nj.length > withJ.length * 0.9 && nl.length > withL.length * 0.9) { used.add(key(p)); continue; }
@@ -577,7 +598,7 @@ function buildLie(r: Rand, tier: Tier, cells: number[], pool: Prop[]): Built | n
   let refuted = gFalse.dom === null;
   if (!refuted) { const g2 = grade([...T, L], n); refuted = g2 === null; }
   if (!refuted) return null;
-  if (gTrue.steps < 5) return null;
+  if (!(gTrue.level === 2 || gTrue.steps >= 14) || softCount([...T, J]) < 2) return null;
   return { props, lie: props.indexOf(L), grade: { level: gTrue.level, steps: gTrue.steps + 2, trials: gTrue.trials } };
 }
 
@@ -635,6 +656,10 @@ export const decodeCells = (s: string) => [...s].map((ch) => parseInt(ch, 16));
 
 /** Seconds added to a run's ranked time for each 피스 hint. */
 export const HINT_PENALTY_MS = 30_000;
+/** Seconds added for each 블랙피스 hint (one stone shown on its point). */
+export const STONE_HINT_PENALTY_MS = 40_000;
+/** Hints of both kinds together in one daily run (the 피스 hint also at most once per puzzle). */
+export const HINT_CAP = 3;
 export const HINT_PRICE = 1;
 /** The whole run (three puzzles) must end inside this. */
 export const RUN_LIMIT_MS = 10 * 60_000;

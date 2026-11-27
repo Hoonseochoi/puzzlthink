@@ -30,8 +30,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: Sparkles,
-        ko: { title: '명제 바둑이 나왔어요 — PUZZLTHINK ORIGINAL 첫 퍼즐', desc: '색 바둑알을 놓아 모든 명제를 참으로 만드는 논리 퍼즐이에요. 매일 모두 같은 3문제를 시계 하나로 풀고(세 번째는 거짓말 찾기), 막히면 피스 1개로 명제를 하나 더 받을 수 있어요(+30초).' },
-        en: { title: 'Proposition Go is here — the first PUZZLTHINK ORIGINAL puzzle', desc: 'Place coloured stones so every proposition is true. Everyone plays the same three puzzles each day on one clock (the third hides a lie); stuck, one piece buys one more proposition (+30 s).' },
+        ko: { title: '명제 바둑이 나왔어요 — PUZZLTHINK ORIGINAL 첫 퍼즐', desc: '색 바둑알을 놓아 모든 명제를 참으로 만드는 논리 퍼즐이에요. 매일 모두 같은 3문제를 시계 하나로 풀고(세 번째는 거짓말 찾기), 막히면 피스로 명제를 하나 더(+30초), 블랙피스로 돌 하나의 자리를(+40초) 받을 수 있어요. 힌트는 한 판에 3개까지예요.' },
+        en: { title: 'Proposition Go is here — the first PUZZLTHINK ORIGINAL puzzle', desc: 'Place coloured stones so every proposition is true. Everyone plays the same three puzzles each day on one clock (the third hides a lie); stuck, a piece buys one more proposition (+30 s) and a black piece shows one stone (+40 s), up to 3 hints per run.' },
       },
     ],
   },

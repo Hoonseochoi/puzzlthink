@@ -4,15 +4,16 @@ import type { Prop, PublicPuzzle, Tier } from './propositionGo';
 
 export type PgResult = {
   done: true; run: string; day: string; result: 'clear' | 'giveup' | 'timeout'; ms: number | null; penalty: number; total: number | null;
-  splits: number[]; hints: number[]; solved: number; flag: string | null; rank: number | null; players: number; streak: number; crown: boolean;
+  splits: number[]; hints: number[]; stoneHints?: number[]; solved: number; flag: string | null; rank: number | null; players: number; streak: number; crown: boolean;
 };
 export type PgView = {
   done: false; run: string; day: string; stage: number; elapsed: number; limit: number; splits: number[]; hints: number[];
   puzzle: PublicPuzzle; hint: Prop | null; pieces: number; wrong?: boolean; error?: string;
+  stoneHints?: number[]; givens?: [number, number][]; hintsLeft?: number; blackPieces?: number;
 };
 export type PgToday = {
   day: string; players: number; ready: boolean; top: { nickname: string; total: number } | null;
-  status: 'guest' | 'none' | 'running' | 'done'; streak?: number; pieces?: number; result?: PgResult | null;
+  status: 'guest' | 'none' | 'running' | 'done'; streak?: number; pieces?: number; blackPieces?: number; result?: PgResult | null;
 };
 export type PgRankRow = { rank: number; nickname: string; avatar_url: string | null; total: number; hints: number; is_me: boolean };
 
@@ -28,6 +29,8 @@ export const startRun = () => call<PgView | PgResult>('prop_start');
 export const solveStage = (run: string, stage: number, cells: string, trace?: { steps: unknown; signals: unknown } | null) =>
   call<PgView | PgResult>('prop_solve', { p_run: run, p_stage: stage, p_cells: cells, p_trace: trace?.steps ?? null, p_signals: trace?.signals ?? null });
 export const buyHint = (run: string) => call<PgView | PgResult>('prop_hint', { p_run: run });
+/** `cells`: the board now, one hex digit per stone in tray order, '-' for a stone in the tray. */
+export const buyStoneHint = (run: string, cells: string) => call<PgView | PgResult>('prop_stone_hint', { p_run: run, p_cells: cells });
 export const giveUp = (run: string) => call<PgResult>('prop_giveup', { p_run: run });
 export const fetchRanking = (limit = 20) => call<PgRankRow[]>('prop_ranking', { p_limit: limit });
 

@@ -16,13 +16,14 @@ mkdirSync(OUT, { recursive: true });
 // ── mock server state ───────────────────────────────────────────────────────────────────────────────────────────
 const day = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 const set = ([1, 2, 3] as Tier[]).map((t) => generate(t, 1_000_000 + 7 * t));
-const run = { id: '11111111-2222-3333-4444-555555555555', started: 0, stage: 0, splits: [] as number[], hints: [0, 0, 0], done: null as null | Record<string, unknown> };
-let pieces = 3;
+const run = { id: '11111111-2222-3333-4444-555555555555', started: 0, stage: 0, splits: [] as number[], hints: [0, 0, 0], stones: [0, 0, 0], givens: [[], [], []] as [number, number][][], done: null as null | Record<string, unknown> };
+let pieces = 3, black = 4;
+const used = () => run.hints.reduce((a, b) => a + b, 0) + run.stones.reduce((a, b) => a + b, 0);
 const USER = { id: '9f1a2b3c-0000-4000-8000-00000000abcd', aud: 'authenticated', role: 'authenticated', email: 'tester@example.test', app_metadata: { provider: 'google' }, user_metadata: { full_name: '테스터' }, created_at: '2026-11-01T00:00:00Z' };
-const view = () => ({ done: false, run: run.id, day, stage: run.stage, elapsed: Date.now() - run.started, limit: 600000, splits: run.splits, hints: run.hints, puzzle: publicPart(set[run.stage]), hint: run.hints[run.stage] ? set[run.stage].hint : null, pieces });
+const view = () => ({ done: false, run: run.id, day, stage: run.stage, elapsed: Date.now() - run.started, limit: 600000, splits: run.splits, hints: run.hints, puzzle: publicPart(set[run.stage]), hint: run.hints[run.stage] ? set[run.stage].hint : null, pieces, blackPieces: black, stoneHints: run.stones, givens: run.givens[run.stage] ?? [], hintsLeft: 3 - used() });
 const result = (kind: 'clear' | 'giveup') => {
-  const ms = Date.now() - run.started, hintN = run.hints.reduce((a, b) => a + b, 0);
-  return { done: true, run: run.id, day, result: kind, ms, penalty: hintN * 30000, total: kind === 'clear' ? ms + hintN * 30000 : null, splits: run.splits, hints: run.hints, solved: run.splits.length, flag: null, rank: kind === 'clear' ? 4 : null, players: 38, streak: 3, crown: false };
+  const ms = Date.now() - run.started, pen = run.hints.reduce((a, b) => a + b, 0) * 30000 + run.stones.reduce((a, b) => a + b, 0) * 40000;
+  return { done: true, run: run.id, day, result: kind, ms, penalty: pen, total: kind === 'clear' ? ms + pen : null, splits: run.splits, hints: run.hints, stoneHints: run.stones, solved: run.splits.length, flag: null, rank: kind === 'clear' ? 4 : null, players: 38, streak: 3, crown: false };
 };
 const RANK = [['명제왕', 61234, 0], ['바둑알', 72410, 0], ['로직러', 80555, 1], ['테스터', 0, 1], ['퍼즐러버', 131200, 0]];
 
@@ -31,7 +32,16 @@ function rpc(name: string, body: Record<string, unknown>) {
     case 'prop_today': return run.done ? { day, players: 38, ready: true, top: { nickname: '명제왕', total: 61234 }, status: 'done', streak: 3, pieces, result: run.done }
       : { day, players: 37, ready: true, top: { nickname: '명제왕', total: 61234 }, status: run.started ? 'running' : 'none', streak: 2, pieces };
     case 'prop_start': if (!run.started) run.started = Date.now(); return run.done ?? view();
-    case 'prop_hint': if (!run.hints[run.stage] && pieces > 0) { run.hints[run.stage] = 1; pieces--; } return view();
+    case 'prop_hint': if (used() >= 3) return { ...view(), error: 'cap' }; if (!run.hints[run.stage] && pieces > 0) { run.hints[run.stage] = 1; pieces--; } return view();
+    case 'prop_stone_hint': {
+      if (used() >= 3) return { ...view(), error: 'cap' };
+      const ans = set[run.stage].answer, now = String(body.p_cells ?? '');
+      const left = ans.flatMap((c, i) => (now[i] !== c.toString(16) && !run.givens[run.stage].some(([g]) => g === i) ? [i] : []));
+      if (!left.length) return { ...view(), error: 'nothing_left' };
+      const st = left[Math.floor(Math.random() * left.length)];
+      run.givens[run.stage].push([st, ans[st]]); run.stones[run.stage]++; black--;
+      return view();
+    }
     case 'prop_solve': {
       if (body.p_stage !== run.stage) return view();
       if (body.p_cells !== encodeCells(set[run.stage].answer)) return { ...view(), wrong: true };
@@ -50,6 +60,10 @@ function rpc(name: string, body: Record<string, unknown>) {
   }
 }
 
+// Tray buttons are labelled with the stone's colour name: map names to the puzzle's stone indexes, per puzzle.
+const NAMES = ['빨강', '파랑', '초록', '노랑', '보라'];
+const stoneIndex = new Map<string, number>();
+const setStage = (i: number) => { stoneIndex.clear(); set[i].stones.forEach((c, k) => stoneIndex.set(NAMES[c], k)); };
 // A session for the fake user, so the game sees a signed-in member (the token never leaves this machine).
 const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const exp = Math.floor(Date.now() / 1000) + 3600 * 6;
@@ -101,6 +115,17 @@ async function place(page: Page, cells: number[], upto = cells.length) {
     await page.waitForTimeout(140);
   }
 }
+/** Puts every tray stone on its answer point (givens are already locked there), leaving `keep` stones in the tray. */
+async function finishBoard(page: Page, answer: number[], keep = 0) {
+  for (let i = 0; i < 6; i++) {
+    const tray = page.locator('[data-pg-tray] [role="button"]');
+    if ((await tray.count()) <= keep) return;
+    const label = await tray.first().getAttribute('aria-label');
+    if ((await tray.first().getAttribute('aria-pressed')) !== 'true') await tray.first().click();
+    await page.locator(`[data-pg-cell="${answer[stoneIndex.get(label ?? '') ?? 0]}"]`).click();
+    await page.waitForTimeout(150);
+  }
+}
 const stateCount = async (page: Page, label: string) => page.locator(`button[aria-label="${label}"]`).count();
 
 // ── 1. phone: home, entry, tutorial, practice, daily ───────────────────────────────────────────────────────────────
@@ -140,11 +165,13 @@ for (const [w, h, tag] of [[375, 812, '폰'], [1280, 900, '데스크톱']] as co
   // Practice: tier 3 from the practice set, a free hint, solve.
   if (existsSync('public/proposition-go/practice.json') && process.env.ONLY !== 'daily') {
   await page.goto(`${BASE}/ko/proposition-go?mode=practice#play`); await settle(page);
-  await page.getByRole('button', { name: '힌트 보기 (연습은 무료)' }).click();
+  await page.getByRole('button', { name: /명제 \+1/ }).click();
   // Partial board: two stones, to show true / false / undecided side by side.
   await page.locator('[data-pg-cell="5"]').click();
   await page.locator('[data-pg-cell="10"]').click();
-  await shot(page, `${tag}-07-연습-기본-놓는중-참거짓미정-힌트카드`);
+  await page.getByRole('button', { name: /돌 위치 1개/ }).click();
+  await page.waitForTimeout(400);
+  await shot(page, `${tag}-07-연습-놓는중-참거짓미정-두힌트`);
   await page.getByRole('button', { name: '정답 보기' }).click();
   await page.waitForTimeout(700);
   await shot(page, `${tag}-08-연습-정답보기`);
@@ -154,11 +181,12 @@ for (const [w, h, tag] of [[375, 812, '폰'], [1280, 900, '데스크톱']] as co
   if (tag === '폰') {
     await page.goto(`${BASE}/ko/proposition-go?mode=daily#play`); await settle(page);
     await shot(page, `${tag}-09-오늘의명제-시작전`);
+    setStage(0);
     await page.getByRole('button', { name: '오늘의 3문제 시작' }).click();
     await page.waitForTimeout(900);
     await place(page, set[0].answer, 2);
     await shot(page, `${tag}-10-오늘의명제-1번-놓는중`);
-    await page.getByRole('button', { name: /피스 힌트/ }).click();
+    await page.getByRole('button', { name: /명제 \+1/ }).click();
     await page.waitForTimeout(600);
     check(await page.getByLabel('피스 힌트 카드 (항상 참)').count() === 1, `[${tag}] daily: piece hint card shown`);
     await shot(page, `${tag}-11-오늘의명제-피스힌트`);
@@ -167,11 +195,21 @@ for (const [w, h, tag] of [[375, 812, '폰'], [1280, 900, '데스크톱']] as co
     await shot(page, `${tag}-12-오늘의명제-1번-정답-연출`);
     await page.waitForTimeout(1500);
     check((await page.locator('[data-pg-tray] [role="button"]').count()) === 5, `[${tag}] daily: puzzle 2 has five stones`);
-    await place(page, set[1].answer);
+    setStage(1);
+    await place(page, set[1].answer, 2);
+    await page.getByRole('button', { name: /돌 위치 1개/ }).click();
+    await page.waitForTimeout(700);
+    check(await page.locator('span.border-dashed').count() === 1, `[${tag}] daily: 블랙피스 hint locks one stone`);
+    await shot(page, `${tag}-12b-오늘의명제-2번-블랙피스힌트-돌고정`);
+    await finishBoard(page, set[1].answer);
     await page.waitForTimeout(1800);
-    await place(page, set[2].answer, 4);
-    await shot(page, `${tag}-13-오늘의명제-3번-거짓말단계`);
-    await place(page, set[2].answer.slice(4), 1);
+    setStage(2);
+    await page.getByRole('button', { name: /돌 위치 1개/ }).click();
+    await page.waitForTimeout(700);
+    check(await page.getByText('힌트 0/3 남음').count() === 1, `[${tag}] daily: three hints used, none left`);
+    await finishBoard(page, set[2].answer, 1);
+    await shot(page, `${tag}-13-오늘의명제-3번-거짓말단계-힌트3개소진`);
+    await finishBoard(page, set[2].answer);
     await page.waitForTimeout(450);
     check(await stateCount(page, '거짓말 카드') === 1, `[${tag}] daily: the lie is revealed`);
     await shot(page, `${tag}-14-오늘의명제-거짓말-공개`);
@@ -199,14 +237,6 @@ for (const [w, h, tag] of [[375, 812, '폰'], [1280, 900, '데스크톱']] as co
   await ctx.close();
 }
 
-// ── 2. the sheet: card states and stone moods ──────────────────────────────────────────────────────────────────────
-{
-  const ctx = await context(900, 760, false);
-  const page = await ctx.newPage();
-  await page.goto(`${BASE}/ko/proposition-go/sheet`); await settle(page);
-  await shot(page, '시트-카드상태-돌반응', true);
-  await ctx.close();
-}
 await browser.close();
 console.log(log.join('\n'));
 console.log(fails.length ? `\n${fails.length} FAIL:\n${fails.join('\n')}` : '\nall checks passed');

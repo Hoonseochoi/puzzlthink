@@ -2464,7 +2464,7 @@
           "Exactly one placement makes every proposition card true (✓). Find it.",
           "As you place stones, the cards about them light ✓ true or ✗ false at once.",
           "The third puzzle has a liar: find the placement where exactly one card is ✗.",
-          "Today's three run on one clock. One piece buys one more proposition (+30 s)."
+          "Today's three run on one clock. A piece buys one more proposition (+30 s), a black piece shows one stone (+40 s); 3 hints per run."
         ],
         "origin": "Not taken from a TV show or an existing game: PUZZLTHINK made the rules, as part of the PUZZLTHINK ORIGINAL series. Every puzzle is made by computer and checked to have exactly one answer."
       },
@@ -6015,7 +6015,7 @@
       "Place every stone so all cards turn ✓. There is exactly one answer.",
       "A card lights once the stones it names are down. Tap a card to see its points on the board.",
       "Lie stage: one card is false. The answer leaves exactly one card ✗.",
-      "Today's three share one clock, 10 minutes at most. One piece hint per puzzle, +30 s."
+      "Today's three share one clock, 10 minutes at most. Up to 3 hints per run: a piece buys one more proposition (once per puzzle, +30 s), a black piece shows one stone (+40 s)."
     ],
     "rankingTitle": "Today's ranking",
     "rankingEmpty": "Nobody has cleared today yet. Set the first time!",
@@ -6048,6 +6048,16 @@
     "hintUsedSub": "The gold card is the piece hint (always true)",
     "hintFree": "Show a hint (free in practice)",
     "hintCard": "Piece hint card (always true)",
+    "hintCapped": "Three hints per run at most.",
+    "stoneHintNone": "Every stone is already on its point.",
+    "noBlackPieces": "Not enough black pieces. Beat a Very Hard AI to earn some.",
+    "hintsLeft": "Hints left {n}/{max}",
+    "hintsFree": "Practice hints are free and not recorded",
+    "hintProp": "+1 proposition",
+    "hintStone": "Show 1 stone",
+    "free": "Free",
+    "costPiece": "1 piece · +{s}s · have {n}",
+    "costBlack": "1 black piece · +{s}s · have {n}",
     "giveUp": "Give up",
     "giveUpTitle": "Give up today's run?",
     "giveUpDesc": "You cannot try again today. Only the puzzles you solved are recorded.",
@@ -6067,7 +6077,7 @@
     "resultClear": "Today's three cleared",
     "resultTimeout": "Time up",
     "resultGiveup": "That is it for today",
-    "penaltyLine": "Solve {raw} + {n} hint(s) × {s}s",
+    "penaltyLine": "Solve {raw} + hints {s}s",
     "rankLine": "#{n} of {total} today",
     "crownLine": "Today's crown",
     "flagged": "Too fast to be ranked.",
@@ -6101,7 +6111,7 @@
     "ts3Title": "The third puzzle hides a lie",
     "ts3Desc": "One card is false. Find two cards that cannot both be true: the liar is one of them.",
     "ts4Title": "Today's three, one clock",
-    "ts4Desc": "Everyone plays the same three puzzles each day on one clock (10 minutes at most). Stuck? One piece buys one more proposition (+30 s)."
+    "ts4Desc": "Everyone plays the same three puzzles each day on one clock (10 minutes at most). Stuck? A piece buys one more proposition (+30 s), a black piece shows one stone (+40 s)."
   },
   "FlipOmok": {
     "metaTitle": "Flip Omok — Omok meets Othello, a PUZZLTHINK original board game",

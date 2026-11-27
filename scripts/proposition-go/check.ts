@@ -8,11 +8,24 @@
 //  - the grade is in the tier's band, and every line fits the length budget in Korean and English.
 // Prints the distribution (cards per puzzle, kinds used, grade, steps, ms per puzzle).
 // Usage: node --import ./scripts/proposition-go/resolve-ts.mjs scripts/proposition-go/check.ts [count per tier=1000] [first seed=1]
-import { type Prop, type Tier, TIER_SPEC, allPlacements, evalProp, generate, unpack } from '../../src/lib/propositionGo';
+//        ... check.ts parts/*.jsonl      the rows pool.ts wrote (daily ones): verify and grade them without generating again
+import { readFileSync } from 'node:fs';
+import { type Prop, type Puzzle, type Tier, TIER_SPEC, allPlacements, evalProp, generate, grade, openBits, unpack } from '../../src/lib/propositionGo';
 import { propText } from '../../src/lib/propositionGoText';
 
-const COUNT = Number(process.argv[2] ?? 1000);
-const FIRST = Number(process.argv[3] ?? 1);
+const PARTS = process.argv.slice(2).filter((a) => a.endsWith('.jsonl'));
+type PartRow = { kind: string; tier: Tier; seed: number; puzzle: { stones: number[]; props: Prop[] }; hint: Prop; answer: number[]; lie: number | null };
+const partRows: PartRow[] = PARTS.flatMap((f) => readFileSync(f, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l) as PartRow)).filter((r) => r.kind === 'daily');
+/** A pool row as a Puzzle, graded the way the generator grades (거짓말: the truths with the lie known, +2 for finding it). */
+function fromRow(r: PartRow): Puzzle {
+  const n = r.puzzle.stones.length;
+  const g = grade(r.puzzle.props.filter((_, i) => i !== r.lie), n) ?? { level: 3 as const, steps: 0, trials: 0 };
+  return { tier: r.tier, seed: r.seed, stones: r.puzzle.stones, props: r.puzzle.props, answer: r.answer, lie: r.lie, hint: r.hint, grade: r.lie === null ? g : { ...g, steps: g.steps + 2 } };
+}
+const COUNT_ARG = Number(PARTS.length ? 0 : process.argv[2] ?? 1000);
+/** Card readings a patient person manages without a what-if (the "no hint" step budget). */
+const READ_BUDGET = 20;
+const FIRST = Number(PARTS.length ? 0 : process.argv[3] ?? 1);
 /**
  * Characters with stone names spelled out. A card on a 375 px phone is ~120 px of text in two columns: two lines hold
  * about 20 Hangul or 50 Latin characters with the chips, so 24 / 50 keeps every card within two lines, rarely three.
@@ -39,12 +52,26 @@ for (const tier of [1, 2, 3] as Tier[]) {
   const all = allPlacements(n);
   const cards: number[] = [], steps: number[] = [], levels: number[] = [], ms: number[] = [];
   const kinds = new Map<string, number>();
-  for (let seed = FIRST; seed < FIRST + COUNT; seed++) {
+  // Without hints: does reading cards one at a time (no what-if) finish it within the budget? How many bits stay open?
+  // With the 피스 hint: how many bits stay open then (the hint's real help).
+  let byReading = 0, trials = 0;
+  const bitsNoHint: number[] = [], bitsHint: number[] = [];
+  const list = PARTS.length ? partRows.filter((r) => r.tier === tier).sort((a, b) => a.seed - b.seed) : null;
+  const COUNT = list ? list.length : COUNT_ARG;
+  for (let k = 0; k < COUNT; k++) {
     const t0 = performance.now();
-    const pz = generate(tier, seed);
-    ms.push(performance.now() - t0);
+    const pz = list ? fromRow(list[k]) : generate(tier, FIRST + k);
+    const seed = pz.seed;
+    if (!list) ms.push(performance.now() - t0);
     cards.push(pz.props.length); steps.push(pz.grade.steps); levels.push(pz.grade.level);
     for (const p of pz.props) kinds.set(p.t, (kinds.get(p.t) ?? 0) + 1);
+    const truths = pz.props.filter((_, i) => i !== pz.lie);
+    const before = openBits(truths, n), after = openBits([...truths, pz.hint], n);
+    if (before && after) {
+      bitsNoHint.push(before.bits); bitsHint.push(after.bits);
+      if (before.bits === 0 && before.steps <= READ_BUDGET) byReading++;
+    }
+    trials += pz.grade.trials;
     const tag = `tier ${tier} seed ${seed}`;
     if (pz.stones.length !== n || new Set(pz.answer).size !== n) fail(`${tag}: bad stones/answer`);
     if (pz.props.length < spec.min || pz.props.length > spec.max) fail(`${tag}: ${pz.props.length} cards`);
@@ -85,7 +112,10 @@ for (const tier of [1, 2, 3] as Tier[]) {
   console.log(`grade     level ${hist(levels)}`);
   console.log(`steps     ${hist(steps)}  (median ${pct(steps, 0.5)})`);
   console.log(`kinds     ${[...kinds.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${(100 * v / cards.reduce((a, b) => a + b, 0)).toFixed(0)}%`).join(' · ')}`);
-  console.log(`gen ms    median ${pct(ms, 0.5).toFixed(0)} · p90 ${pct(ms, 0.9).toFixed(0)} · max ${Math.max(...ms).toFixed(0)}`);
+  const avg = (xs: number[]) => (xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)).toFixed(1);
+  console.log(`no hint   ${(100 * byReading / COUNT).toFixed(0)}% solved by reading cards one at a time within ${READ_BUDGET} readings; the rest need a what-if (avg ${(trials / COUNT).toFixed(1)} what-ifs per puzzle)`);
+  console.log(`open bits after one read-through: no hint ${avg(bitsNoHint)} · with the 피스 hint ${avg(bitsHint)} (median ${pct(bitsNoHint, 0.5).toFixed(1)} → ${pct(bitsHint, 0.5).toFixed(1)})${spec.lie ? ' [truths only: the solver is told which card lies]' : ''}`);
+  if (ms.length) console.log(`gen ms    median ${pct(ms, 0.5).toFixed(0)} · p90 ${pct(ms, 0.9).toFixed(0)} · max ${Math.max(...ms).toFixed(0)}`);
 }
 console.log(`\ntext length ko median ${pct(textLens.ko, 0.5)} max ${Math.max(...textLens.ko)} (budget ${BUDGET.ko}) — "${longest.ko}"`);
 console.log(`text length en median ${pct(textLens.en, 0.5)} max ${Math.max(...textLens.en)} (budget ${BUDGET.en}) — "${longest.en}"`);
