@@ -189,3 +189,25 @@ button:disabled { cursor: default; }
 @keyframes hwp-glow { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
 .hwp-glow { animation: hwp-glow 3.6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .hwp-sheen { animation: none; opacity: 0; } .hwp-drift { animation: none; opacity: var(--hwp-o, .5); } .hwp-glow { animation: none; } }
+
+/* 슬리더링크 festive themes (src/components/slitherlink/SlitherFestive.tsx). Only transform/opacity, each runs a few times. */
+.slx-pop { animation: slx-pop 520ms cubic-bezier(.2,1.6,.4,1) both; }
+.slx-ring { animation: slx-ring 620ms ease-out both; transform-box: fill-box; transform-origin: center; }
+.slx-shake { animation: slx-shake 360ms ease-in-out; }
+.slx-glow { opacity: 0; animation: slx-on 420ms ease-out var(--slx-d, 0ms) forwards, slx-twinkle 1.6s ease-in-out calc(var(--slx-d, 0ms) + 1.6s) 4 alternate; }
+.slx-bulb { animation: slx-bright 420ms ease-out var(--slx-d, 0ms) both; transform-box: fill-box; transform-origin: center; }
+.slx-star { animation: slx-star 900ms cubic-bezier(.2,1.4,.4,1) 1.1s both; }
+.slx-burst { opacity: 0; animation: slx-burst 1.5s cubic-bezier(.15,.7,.3,1) both; }
+@keyframes slx-pop { 0% { transform: scale(0) rotate(-40deg); } 70% { transform: scale(1.45) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes slx-ring { 0% { opacity: .9; transform: scale(.4); } 100% { opacity: 0; transform: scale(2.4); } }
+@keyframes slx-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-.04px); } 75% { transform: translateX(.04px); } }
+@keyframes slx-on { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slx-twinkle { from { opacity: 1; } to { opacity: .45; } }
+@keyframes slx-bright { 0% { transform: scale(1); } 50% { transform: scale(1.5); } 100% { transform: scale(1.12); } }
+@keyframes slx-star { 0% { opacity: 0; transform: translateY(-1.2px) scale(0) rotate(-120deg); } 100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
+@keyframes slx-burst { 0% { opacity: 0; transform: translate(0, 0) scale(.4); } 12% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--slx-x), var(--slx-y)) scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .slx-pop, .slx-ring, .slx-shake, .slx-bulb, .slx-star { animation: none; }
+  .slx-glow { animation: none; opacity: 1; }
+  .slx-burst, .slx-ring { display: none; }
+}

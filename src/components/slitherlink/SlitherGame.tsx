@@ -13,7 +13,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
-import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
+import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, seg } from '@/components/ui/gameUi';
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { ResultBannerSlot } from '@/components/ads/HiddenLogAd';
 import { SLITHER_SIZES, type Mark, type SlitherSize, type Puzzle, formatClock, generatePuzzle, hintEdges, isSolved, loopOrder, newSeed } from '@/lib/slitherlink';
@@ -21,7 +21,11 @@ import { type BoardRow, type FinishResult, type RankRow, type RivalRow, type Sli
 import { reportGame } from '@/lib/stats';
 import SlitherHistory from './SlitherHistory';
 import ClearRate from '../ClearRate';
-import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool, undoOf, useUndoKey } from './SlitherBoard';
+import SlitherBoard, { type Tool, undoOf, useUndoKey } from './SlitherBoard';
+import SlitherThemePicker from './SlitherThemePicker';
+import SlitherSnow from './SlitherSnow';
+import SlitherShareCard from './SlitherShareCard';
+import { themeShellStyle, useSlitherPrefs } from '@/lib/slitherTheme';
 import GameUpdates from '@/components/GameUpdates';
 
 type Mode = 'challenge' | 'beat' | 'practice';
@@ -61,6 +65,7 @@ export default function SlitherGame() {
   const t = useTranslations('Slitherlink');
   const locale = useLocale();
   const { user, ready, configured, nickname } = useAuth();
+  const { theme, motion } = useSlitherPrefs();
   const [mode, setMode] = useState<Mode>('challenge');
   const [size, setSize] = useState<SlitherSize>(9);
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
@@ -343,10 +348,11 @@ export default function SlitherGame() {
   );
 
   return (
-    <div className={SHELL} style={{ ...accentVars(SLITHER_ACCENT, SLITHER_INK), backgroundImage: fog('120, 100, 220') }}>
+    <div className={SHELL} style={themeShellStyle(theme)}>
       <Shards tint="#2a2450" />
+      {theme.effects.snow && motion && <SlitherSnow />}
       <GameHeader backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
-        <GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark />
+        <SlitherThemePicker className="hidden sm:block" /><GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark />
         {mode === 'practice' && <button type="button" onClick={() => startPractice(size)} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newBoard')}</span></button>}
       </GameHeader>
 
@@ -428,9 +434,10 @@ export default function SlitherGame() {
                     <span className="flex items-center gap-1"><Lightbulb size={13} />{mode === 'practice' ? t('hintsUsed', { n: hints }) : t('hintsLeft', { n: Math.max(0, hintsLeft) })}</span>
                   </p>
                 </div>
-                {mode === 'practice' && <div className="flex gap-1">
-                  {SLITHER_SIZES.map((s) => <button key={s} type="button" onClick={() => startPractice(s)} className={`px-2.5 py-1.5 ${seg(size === s)}`}>{s}×{s}</button>)}
-                </div>}
+                <div className="flex items-center gap-1">
+                  {mode === 'practice' && SLITHER_SIZES.map((s) => <button key={s} type="button" onClick={() => startPractice(s)} className={`px-2.5 py-1.5 ${seg(size === s)}`}>{s}×{s}</button>)}
+                  <SlitherThemePicker className="sm:hidden" withLabel />
+                </div>
               </div>
 
               {replaying && <ReplayHeader player={player} caption={t('replayCaption')} onClose={() => setReplaying(false)} />}
@@ -459,6 +466,7 @@ export default function SlitherGame() {
                 dimLines={!replaying && (phase === 'reveal' || phase === 'gaveUp')}
                 solutionUpTo={!replaying && (phase === 'reveal' || phase === 'gaveUp') ? order.slice(0, revealed) : null}
                 answerTrack={replaying && answerKnown && replayAnswer}
+                theme={theme} motion={motion} celebrate={phase === 'solved' && !replaying}
               />
 
               {replaying ? <ReplayControls player={player} onShowResult={() => setReplaying(false)} /> : phase === 'play' ? (
@@ -478,9 +486,11 @@ export default function SlitherGame() {
                 </div>
               ) : (
                 <div className="mx-auto mt-4 max-w-[440px] text-center">
+                  {phase === 'solved' && theme.effects.celebrate && (mode === 'practice' || result?.ok) && <p className="mb-1 text-xs font-black tracking-[0.14em] text-[#ffc23d]" data-testid="slither-celebrate">{t(`clearCheer_${theme.id}`)}</p>}
                   {phase === 'solved' && mode === 'practice' && <>
                     <p className="flex items-center justify-center gap-2 text-2xl font-black"><Check size={24} className="text-[#7ee2ae]" />{t('solvedTitle', { time: formatClock(endMs) })}</p>
                     <p className="mt-1 text-xs text-white/50">{t('solvedDesc', { size: `${dots}×${dots}`, hints })}</p>
+                    <SlitherShareCard puzzle={puzzle} theme={theme} ms={endMs} detail={`${dots}×${dots} · ${t('mode_practice')}`} extra={t('shareHints', { n: hints })} path={`/${locale}/slitherlink`} shareText={t('shareCardText', { size: `${dots}×${dots}`, time: formatClock(endMs) })} />
                   </>}
                   {phase === 'solved' && mode !== 'practice' && (!result ? <p className="flex items-center justify-center gap-2 text-sm text-white/60"><Loader2 size={14} className="animate-spin" />{t('saving')}</p> : <>
                     <p className="flex items-center justify-center gap-2 text-2xl font-black">{result.ok ? <Check size={24} className="text-[#7ee2ae]" /> : <X size={24} className="text-[#ff8f8f]" />}
@@ -498,6 +508,7 @@ export default function SlitherGame() {
                         <div className="mt-2"><ShareButtons path={boardPath(locale, run.challenge)} text={t('shareBoardText', { name: myName, time: time(result.ms) })} /></div>
                       </div>
                     )}
+                    {result.ok && run && <SlitherShareCard puzzle={puzzle} theme={theme} ms={result.ms} detail={`${dots}×${dots} · ${t(`mode_${mode}`)}`} extra={t('shareHints', { n: hints })} path={boardPath(locale, run.challenge)} shareText={t('shareBoardText', { name: myName, time: time(result.ms) })} />}
                   </>)}
                   {phase === 'failed' && <>
                     <p className="text-lg font-black">{timeUp || (limitMs !== null && endMs >= limitMs) ? t('timeUp') : t('gaveUpBeat')}</p>
