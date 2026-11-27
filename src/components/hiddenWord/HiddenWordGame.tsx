@@ -7,6 +7,7 @@ import { ArrowRight, BookOpen, Loader2, LockKeyhole, RotateCcw, Send, Sparkles, 
 import { Piece } from '@/components/CompetitionBoard';
 import { useAuth } from '@/components/AuthProvider';
 import { markSignupSource } from '@/lib/signupSource';
+import { AppOnlyOpenCard } from '@/components/AppTesterInvite';
 import AuthButton from '@/components/AuthButton';
 import BugReport from '@/components/BugReport';
 import GameUpdates from '@/components/GameUpdates';
@@ -425,6 +426,8 @@ function OverStage({ view, level, t, signedIn, onAgain, onRank }: { view: HwView
           );
         })}
       </ul>
+      {/* website members: 히든 워드 오픈 대전 is in the Play app only (the tester invitation) */}
+      <AppOnlyOpenCard compact className="mt-5" />
       <div className="mt-5 grid grid-cols-3 gap-2">
         <HomeButton block className="!rounded-md !text-sm" />
         <button type="button" onClick={onRank} className={`${BTN} !py-3 !text-sm`}><Trophy size={15} />{t.ranking}</button>

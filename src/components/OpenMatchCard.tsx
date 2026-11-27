@@ -2,13 +2,13 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { DoorOpen, Loader2, LogIn, MessageCircle, Plus, RefreshCw, Sparkles, Swords, UsersRound, X } from 'lucide-react';
-import { useAppGames } from '@/components/playApp/usePlayApp';
+import { DoorOpen, Loader2, Lock, LogIn, MessageCircle, Plus, RefreshCw, Sparkles, Swords, UsersRound, X } from 'lucide-react';
+import { useAppGames, usePlayApp } from '@/components/playApp/usePlayApp';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
-import { type LiveRoomRow, type OpenRoomAnyRow, listAllOpenRooms, listLiveRooms, saveTitle } from '@/lib/openRooms';
+import { type LiveRoomRow, type OpenRoomAnyRow, isAppOnlyOpen, listAllOpenRooms, listLiveRooms, saveTitle } from '@/lib/openRooms';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
-import { GAME_MODES, openRoomHref } from './gameModes';
+import { GAME_MODES, openRoomHref, openVariants } from './gameModes';
 
 /** Games that have friend rooms, in home-page order. */
 const ROOM_GAMES = GAMES.filter((game) => GAME_MODES[game.id].useRoom);
@@ -52,6 +52,7 @@ export function FitTile({ title, children, className = 'rounded-lg bg-white/[.06
  */
 export default function OpenMatchCard({ previews }: { previews: Partial<Record<GameId, ReactNode>> }) {
   const appGames = useAppGames(); // without the games hidden in the Google Play app
+  const app = usePlayApp(); // 히든 워드's open rooms are hosted only in the app (APP_ONLY_OPEN); anyone joins
   const roomGames = ROOM_GAMES.filter((game) => appGames.includes(game));
   const t = useTranslations('OpenMatch');
   const tc = useTranslations('Common');
@@ -81,6 +82,8 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   // A full page load, so the game page reads #play and the open room from the URL as it mounts.
   const go = (game: GameId, code: string, variant: number) => { window.location.assign(new URL(`/${locale}${openRoomHref(game, code, variant)}`, window.location.origin)); };
   const create = async (game: GameId, variant: number) => {
+    // Website: hosting is for app testers; the game's entry screen has the card with the member's next step.
+    if (isAppOnlyOpen(game) && !app) { window.location.assign(new URL(`/${locale}${GAME_MODES[game].path}#open-host`, window.location.origin)); return; }
     setCreating(`${game}-${variant}`);
     try {
       const code = await GAME_MODES[game].rooms[variant].create();
@@ -92,7 +95,7 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   const open = (rooms ?? []).filter((room) => room.game in GAME_MODES && room.players < room.capacity);
   const count = rooms === null ? null : open.length;
   // 지금 열린 방 = rooms waiting for players; 지금 플레이 중 = matches under way (open and friend), per game.
-  // Every game with rooms counts here, not only the ones that have open rooms: 히든 워드 is friend-room only.
+  // Every game with rooms counts here, friend rooms included (히든 워드 has the most of them).
   const playingByGame = appGames.flatMap((game) => {
     const roomCount = (live ?? []).filter((row) => row.game === game.id).reduce((sum, row) => sum + row.open + row.friend, 0);
     return roomCount > 0 ? [{ ...game, roomCount }] : [];
@@ -230,17 +233,21 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
               </label>
               <p className="mb-1.5 mt-4 flex items-center gap-1.5 text-[11px] font-black text-black/50"><b className="flex h-4 w-4 items-center justify-center rounded-full bg-[#17201e] text-[9px] text-white">2</b>{t('stepGame')}</p>
               <div className="grid grid-cols-2 gap-2">
-                {roomGames.flatMap((game) => GAME_MODES[game.id].rooms.map((room, variant) => {
+                {roomGames.flatMap((game) => openVariants(game.id).map(({ room, variant }, _i, all) => {
                   const key = `${game.id}-${variant}`;
-                  const many = GAME_MODES[game.id].rooms.length > 1;
+                  const many = all.length > 1;
+                  const appOnly = isAppOnlyOpen(game.id);
+                  const locked = appOnly && !app;
                   return (
-                    <button key={key} type="button" disabled={!signedIn || creating !== null} onClick={() => create(game.id, variant)}
+                    <button key={key} type="button" disabled={(!signedIn && !locked) || creating !== null} onClick={() => create(game.id, variant)}
                       className="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-3 py-3 text-left transition hover:border-black/30 disabled:opacity-40">
                       <span className="h-7 w-1.5 shrink-0 rounded-full" style={{ background: game.color }} />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-black">{tc(game.id)}</span>
-                        {many && <span className="block truncate text-[10px] font-bold text-black/45">{tg(`short_${room.label}`)}</span>}
+                        {locked ? <span className="mt-0.5 inline-flex items-center gap-0.5 rounded-full bg-[#5b45c9]/10 px-1.5 py-0.5 text-[9.5px] font-black text-[#5b45c9]"><Lock size={9} />{t('hostTag')}</span>
+                          : many && <span className="block truncate text-[10px] font-bold text-black/45">{tg(`short_${room.label}`)}</span>}
                       </span>
+                      {!locked && appOnly && <span className="shrink-0 rounded-full bg-[#5b45c9] px-1.5 py-0.5 text-[9px] font-black text-white">{tg('openAppBadge')}</span>}
                       {creating === key && <Loader2 size={14} className="shrink-0 animate-spin" />}
                     </button>
                   );

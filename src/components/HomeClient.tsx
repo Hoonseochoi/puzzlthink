@@ -302,6 +302,7 @@ export default function HomeClient() {
       blindGomoku: <BlindGomokuPreview />, nineMensMorris: <MorrisPreview />, flipOmok: <FlipOmokPreview />, wallgo: <WallGoPreview />, wallgo2: <WallGo2Preview />, russianRoulette: <RussianRoulettePreview />, heavy13: <Heavy13Art />,
       janggi: <JanggiPreview />, russianJanggi: <RussianJanggiPreview />,
       timeAuction: <TimeAuctionTile />, mineOblivion: <MineOblivionTile />,
+      hiddenWord: <HiddenWordTile />, hiddenWordPlus: <HiddenWordPlusTile />,
     }} />;
   // Phones get the app home, wider screens (foldables, tablets, desktop) the web home. Both are in the server HTML (CSS picks one);
   // once the browser knows its width the other is dropped.
