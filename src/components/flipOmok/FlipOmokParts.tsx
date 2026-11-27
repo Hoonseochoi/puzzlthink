@@ -65,6 +65,13 @@ export function Stone({ cell, latest = false, flip = false, delay = 0, loop = fa
   </span>;
 }
 
+/** Every point of a winning line, from start to end. */
+function lineCells(line: Line): number[] {
+  const r0 = Math.floor(line.start / SIZE), c0 = line.start % SIZE, r1 = Math.floor(line.end / SIZE), c1 = line.end % SIZE;
+  const dr = Math.sign(r1 - r0), dc = Math.sign(c1 - c0), n = Math.max(Math.abs(r1 - r0), Math.abs(c1 - c0));
+  return Array.from({ length: n + 1 }, (_, i) => (r0 + dr * i) * SIZE + c0 + dc * i);
+}
+
 /** Small coloured dot for a player (scores, player rows). */
 export function Dot({ p, size = 12 }: { p: Player; size?: number }) {
   return <i className="inline-block shrink-0 rounded-full" style={{ width: size, height: size, background: STONE_HEX[p], boxShadow: `0 0 6px ${STONE_HEX[p]}` }} />;
@@ -104,6 +111,7 @@ export function FlipOmokBoard({ board, last, flipped, flipKey, win, turn, intera
   const previewSet = new Set(preview);
   const gap = interactive && hover !== null && !board[hover] && !banned.has(hover) && isGap(board, hover, turn);
   const flippedSet = new Set(flipped);
+  const winSet = new Set(win ? lineCells(win) : []);
 
   return <>
     <div className="relative mx-auto aspect-square w-full max-w-[700px] rounded-[10px] bg-gradient-to-br from-[#ff4d6d] via-[#26313f] to-[#3fb8ff] p-[3px] shadow-[0_24px_60px_rgba(0,0,0,.78),0_0_30px_rgba(63,184,255,.14)]">
@@ -124,6 +132,7 @@ export function FlipOmokBoard({ board, last, flipped, flipKey, win, turn, intera
               className={`absolute z-10 h-[6.2%] w-[6.2%] -translate-x-1/2 -translate-y-1/2 rounded-full outline-none [perspective:300px] ${canPlace ? 'cursor-pointer' : ''}`}
               style={{ left: `${pos(c)}%`, top: `${pos(r)}%` }}>
               {cell ? <span className={`relative block h-full w-full ${previewSet.has(at) ? 'animate-pulse rounded-full opacity-55 ring-2 ring-[#ffd76b]' : ''}`}>
+                {winSet.has(at) && <span className="end-reveal-pulse pointer-events-none absolute -inset-[10%] rounded-full" style={{ ['--reveal' as string]: STONE_HEX[win!.owner] }} />}
                 {/* the key changes on a flip so the animation replays */}
                 <Stone key={`${cell}-${flippedSet.has(at) ? flipKey : 0}`} cell={cell} latest={at === last} flip={flippedSet.has(at)} delay={last === null ? 0 : (Math.max(Math.abs(r - Math.floor(last / SIZE)), Math.abs(c - (last % SIZE))) - 1) * 110} />
               </span>

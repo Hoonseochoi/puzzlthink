@@ -19,6 +19,8 @@ import { useMonorailRoom } from '@/hooks/useMonorailRoom';
 import { inChallenge, moveText, newMonorail } from '@/lib/monorail';
 import { MONORAIL_TURN_OPTIONS, colorOf, seatToMove, winnerSeat } from '@/lib/monorailRoom';
 import { reportGame } from '@/lib/stats';
+import { useEndReveal } from '@/hooks/useEndReveal';
+import { EndRevealBanner } from '@/components/ui/EndReveal';
 import { ChallengeBanner, MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, ResultExtras, TileDeck, TurnControls, monorailFrames, useFrameCaption, useMonorailDraft } from './MonorailParts';
 import GameUpdates from '@/components/GameUpdates';
 
@@ -83,6 +85,8 @@ export default function MonorailRoomView({ code }: { code: string }) {
   const notice = status === 'unconfigured' ? t('unconfigured') : status === 'error' ? t('connectionError') : !state && waitedLong ? t('roomNotFound') : state && !me?.isHost && !hostOnline ? t('hostOffline') : null;
   const winner = state ? winnerSeat(state) : null;
   const result = !state || state.phase !== 'finished' || winner === null ? '' : mySeat === null ? t('winner', { name: seatName(winner) }) : winner === mySeat ? tm('youWin') : t('youLose');
+  // Both players see the final board a moment before the result popup (a tap skips it).
+  const reveal = useEndReveal(finished && state ? state.sid : null);
   const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? result : challenge ? (myTurn ? tm('challengeHeading') : t('waitingFor', { name: seatName(toMove) })) : myTurn ? (draft.tiles.length ? tm('pickMore', { n: 3 - draft.tiles.length }) : tm('yourTurn')) : t('waitingFor', { name: seatName(toMove) });
 
   return (
@@ -107,10 +111,11 @@ export default function MonorailRoomView({ code }: { code: string }) {
               {challenge && <ChallengeBanner state={game} mine={myTurn} caller={seatName(callerSeat)} answerer={seatName(toMove)} />}
               {frame && <ReplayHeader player={replay} caption={caption(frame)} onClose={() => setView((v) => ({ ...v, replaying: false }))} />}
               <div className="relative">{frame ? <MonorailBoard state={frame.state} /> : <MonorailBoard state={game} pending={draft.tiles} interactive={myTurn} onCell={draft.add} onPending={draft.remove} />}
-                {finished && view.showResult && !frame && <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[18px] bg-[#19080d]/62 p-5 backdrop-blur-[2px]"><div className="relative w-full max-w-sm rounded-[18px] border border-[#f3b64a]/45 bg-[#241016]/95 p-6 text-center"><button type="button" onClick={() => setResult(false)} aria-label={tm('viewBoard')} title={tm('viewBoard')} className="absolute right-2 top-2 rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white"><X size={15} /></button><Trophy size={30} className="mx-auto text-[#f3b64a]" /><h2 className="mt-3 text-2xl font-black">{result}</h2><p className="mt-2 text-sm text-white/55">{reasonText}</p>{me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{tm('rematch')}</button> : <p className="mt-4 text-xs text-white/40">{t('rematchWait')}</p>}<ResultExtras canReplay={frames.length > 1} onReplay={() => setView((v) => ({ ...v, replaying: true }))} onViewBoard={() => setResult(false)} /></div></div>}
+                <EndRevealBanner show={reveal.revealing && !frame} text={`${result} · ${reasonText}`} onSkip={reveal.skip} />
+                {finished && view.showResult && reveal.showResult && !frame && <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[18px] bg-[#19080d]/62 p-5 backdrop-blur-[2px]"><div className="relative w-full max-w-sm rounded-[18px] border border-[#f3b64a]/45 bg-[#241016]/95 p-6 text-center"><button type="button" onClick={() => setResult(false)} aria-label={tm('viewBoard')} title={tm('viewBoard')} className="absolute right-2 top-2 rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white"><X size={15} /></button><Trophy size={30} className="mx-auto text-[#f3b64a]" /><h2 className="mt-3 text-2xl font-black">{result}</h2><p className="mt-2 text-sm text-white/55">{reasonText}</p>{me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} mt-5 w-full py-3`}><RotateCcw size={14} />{tm('rematch')}</button> : <p className="mt-4 text-xs text-white/40">{t('rematchWait')}</p>}<ResultExtras canReplay={frames.length > 1} onReplay={() => setView((v) => ({ ...v, replaying: true }))} onViewBoard={() => setResult(false)} /></div></div>}
               </div>
               {frame && <ReplayControls player={replay} onShowResult={() => setResult(true)} />}
-              {finished && !frame && !view.showResult && <div className="mx-auto mt-3 flex max-w-[440px] flex-wrap items-center justify-center gap-2">
+              {finished && !frame && !view.showResult && reveal.showResult && <div className="mx-auto mt-3 flex max-w-[440px] flex-wrap items-center justify-center gap-2">
                 <button type="button" onClick={() => setResult(true)} className={`${BTN} py-2.5`}><Trophy size={14} />{tc('replayShowResult')}</button>
                 {frames.length > 1 && <button type="button" onClick={() => setView((v) => ({ ...v, replaying: true }))} className={`${BTN} py-2.5`}><History size={14} />{tc('replayOpen')}</button>}
                 {me?.isHost && <button type="button" onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} py-2.5`}><RotateCcw size={14} />{tm('rematch')}</button>}

@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { CjRoom } from '@/lib/cardJanggiRoom';
 import { reportGame } from '@/lib/stats';
+import { REVEAL_MS } from '@/hooks/useEndReveal';
+import { EndRevealGate } from '../ui/EndReveal';
 import ResultActions from '../ResultActions';
 import { KICKER, MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 import { type CjCopy, sideColor } from './copy';
@@ -22,13 +24,25 @@ export function useCjReport(room: CjRoom | null, mySeat: number | null, mode: 'a
       ...(mode === 'ai' ? { difficulty: 'hard' } : {}),
       wins: room.wins, rounds: room.results.length, reason: room.reason,
       endings: room.results.map((r) => r.reason),
-    }, { revealDelayMs: 1200 });
+    }, { revealDelayMs: REVEAL_MS + 300 });
   }, [done, room, mySeat, mode, sid]);
 }
 
-export default function CjResult({ room, mySeat, names, t, onAgain, waitingLabel, onClose, path }: {
+type CjResultProps = {
   room: CjRoom; mySeat: number | null; names: [string, string]; t: CjCopy; onAgain?: () => void; waitingLabel?: string; onClose: () => void; path: string;
-}) {
+};
+
+/** The match result; the last round's final board (its deciding capture) stays up a moment first. */
+export default function CjResult(props: CjResultProps) {
+  const { room, mySeat, names, t } = props;
+  const won = mySeat !== null && room.winner === mySeat;
+  const title = room.winner === 'draw' ? t.matchDraw : mySeat === null ? t.winnerIs(names[room.winner as number]) : won ? t.matchWin : t.matchLose;
+  const why = room.reason === 'resign' || room.reason === 'idle' ? (won ? t.reason : t.reasonLost)[room.reason] : null;
+  return <EndRevealGate endKey={`${room.sid}-${room.results.length}-${room.reason}`} text={why ? `${title} · ${why}` : title}
+    color={typeof room.winner === 'number' ? sideColor(room.winner) : undefined}><CjResultCard {...props} /></EndRevealGate>;
+}
+
+function CjResultCard({ room, mySeat, names, t, onAgain, waitingLabel, onClose, path }: CjResultProps) {
   const viewer = mySeat ?? 0;
   const won = mySeat !== null && room.winner === mySeat;
   const title = room.winner === 'draw' ? t.matchDraw : mySeat === null ? t.winnerIs(names[room.winner as number]) : won ? t.matchWin : t.matchLose;

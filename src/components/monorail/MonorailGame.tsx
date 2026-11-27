@@ -11,6 +11,8 @@ import { ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { BTN, BTN_ACCENT, HEADING, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg } from '@/components/ui/gameUi';
 import { reportGame } from '@/lib/stats';
+import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
+import { EndRevealBanner } from '@/components/ui/EndReveal';
 import { answerChallenge, chooseMonorailAction, declareImpossible, giveUpChallenge, inChallenge, moveText, newMonorail, playMonorail, proveCompletion, type MonorailLevel, type MonorailState, type RailTile } from '@/lib/monorail';
 import { ChallengeBanner, MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, ResultExtras, TileDeck, TurnControls, monorailFrames, useFrameCaption, useMonorailDraft } from './MonorailParts';
 import GameUpdates from '@/components/GameUpdates';
@@ -67,7 +69,7 @@ export default function MonorailGame() {
   useEffect(() => {
     if (game.winner === null || reportedMatch.current) return;
     reportedMatch.current = true;
-    reportGame(`monorail-ai-${Date.now()}-${game.moveNo}`, 'monorail', 'ai', game.winner === 0 ? 'win' : 'loss', { difficulty: level, reason: game.reason, moves: game.moveNo });
+    reportGame(`monorail-ai-${Date.now()}-${game.moveNo}`, 'monorail', 'ai', game.winner === 0 ? 'win' : 'loss', { difficulty: level, reason: game.reason, moves: game.moveNo }, { revealDelayMs: REVEAL_MS + 300 });
   }, [game.winner]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const restart = (nextLevel = level) => {
@@ -92,6 +94,8 @@ export default function MonorailGame() {
       : game.reason === 'proved' ? (game.winner === 0 ? t('youProved') : t('aiProved', { name: AI_NAME }))
         : game.winner === 0 ? t('youWin') : t('aiWins');
   const reason = !game.reason ? '' : game.reason === 'gave-up' ? `${t('reason.gave-up')} ${game.proof ? t('gaveUpPossible') : t('gaveUpImpossible')}` : t(`reason.${game.reason}`);
+  // The final board stays up a moment before the result popup (a tap skips it).
+  const reveal = useEndReveal(over && `${game.moveNo}-${game.tiles.length}-${game.reason}`);
   const heading = result ?? (challenge ? (myTurn ? t('challengeHeading') : t('aiProving', { name: AI_NAME }))
     : thinking ? t('aiThinking') : myTurn ? (draft.tiles.length ? t('pickMore', { n: 3 - draft.tiles.length }) : t('yourTurn')) : t('aiTurn'));
   const last = game.last ? moveText(game.last) : t('firstMove');
@@ -116,7 +120,8 @@ export default function MonorailGame() {
           <div className="relative">
             {frame ? <MonorailBoard state={frame.state} />
               : <MonorailBoard state={game} pending={myTurn ? draft.tiles : aiDraft} interactive={myTurn} onCell={draft.add} onPending={draft.remove} />}
-            {over && showResult && !frame && (
+            <EndRevealBanner show={reveal.revealing && !frame} text={`${result} · ${reason}`} onSkip={reveal.skip} />
+            {over && showResult && reveal.showResult && !frame && (
               <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[18px] bg-[#19080d]/62 p-5 backdrop-blur-[2px]">
                 <div className="relative w-full max-w-sm rounded-[18px] border border-[#f3b64a]/45 bg-[#241016]/95 p-6 text-center shadow-[0_0_70px_rgba(243,182,74,.22)]">
                   <button type="button" onClick={() => setShowResult(false)} aria-label={t('viewBoard')} title={t('viewBoard')} className="absolute right-2 top-2 rounded-md p-1.5 text-white/40 hover:bg-white/10 hover:text-white"><X size={15} /></button>
@@ -130,7 +135,7 @@ export default function MonorailGame() {
             )}
           </div>
           {frame && <ReplayControls player={replay} onShowResult={() => { setReplaying(false); setShowResult(true); }} />}
-          {over && !frame && !showResult && <div className="mx-auto mt-3 flex max-w-[440px] flex-wrap items-center justify-center gap-2">
+          {over && !frame && !showResult && reveal.showResult && <div className="mx-auto mt-3 flex max-w-[440px] flex-wrap items-center justify-center gap-2">
             <button type="button" onClick={() => setShowResult(true)} className={`${BTN} py-2.5`}><Trophy size={14} />{tc('replayShowResult')}</button>
             {frames.length > 1 && <button type="button" onClick={() => setReplaying(true)} className={`${BTN} py-2.5`}><History size={14} />{tc('replayOpen')}</button>}
             <button type="button" onClick={() => restart()} className={`${BTN_ACCENT} py-2.5`}><RotateCcw size={14} />{t('rematch')}</button>

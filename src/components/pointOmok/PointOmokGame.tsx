@@ -13,6 +13,7 @@ import { BTN, BTN_ACCENT, KICKER, MODAL_BACKDROP, PANEL, PANEL_TITLE, RESULT_PRI
 import { useLocalRoom } from '@/hooks/useRealtimeRoom';
 import { PO_ROOM } from '@/hooks/usePointOmokRoom';
 import { reportGame } from '@/lib/stats';
+import { REVEAL_MS } from '@/hooks/useEndReveal';
 import { setRoomPlaying } from '@/lib/roomChat';
 import { PO_LEVELS, chooseBets, chooseTriple, type PoAiView, type PoLevel } from '@/lib/pointOmokAi';
 import { type PoRoom, PO_SHOW_MS, budgetOf, createPoRoom, reducePoRoom } from '@/lib/pointOmokRoom';
@@ -96,7 +97,7 @@ export default function PointOmokGame() {
   useEffect(() => {
     if (!state || state.phase !== 'finished') return;
     reportGame(`point_omok-ai-${state.sid}-${state.rounds.length}`, 'point_omok', 'ai', state.winner === 'draw' ? 'draw' : state.winner === 0 ? 'win' : 'loss',
-      { difficulty: state.level, style: state.aiStyle, rounds: state.rounds.length, fives: state.fives, reason: state.reason });
+      { difficulty: state.level, style: state.aiStyle, rounds: state.rounds.length, fives: state.fives, reason: state.reason }, { revealDelayMs: REVEAL_MS + 300 });
   }, [state]);
 
   const started = !!state && state.rounds.length > 0;

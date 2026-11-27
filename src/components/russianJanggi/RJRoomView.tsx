@@ -17,10 +17,12 @@ import GameHeader from '../ui/GameHeader';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, SHELL, STAGE, playerRow } from '../ui/gameUi';
 import RJPiece from './RJPiece';
-import RJResult from './RJResult';
+import RJResult, { rjEndText } from './RJResult';
+import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
+import { EndRevealBanner } from '@/components/ui/EndReveal';
 import RJTable from './RJTable';
 import TurnClock from './TurnClock';
-import { RESULT_DELAY_MS, RulesPanel } from './RJGame';
+import { RulesPanel } from './RJGame';
 import RJReplay from './RJReplay';
 import { RJ_PANEL, RJ_ROOT, RJ_SHARD, RJ_TITLE, SIDE_COLORS } from './theme';
 import GameUpdates from '@/components/GameUpdates';
@@ -37,7 +39,7 @@ export default function RJRoomView({ code }: { code: string }) {
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [skipNote, setSkipNote] = useState<string | null>(null);
-  const [resultFor, setResultFor] = useState<string | null>(null); // game key whose result popup is open
+  const [closedFor, setClosedFor] = useState<string | null>(null); // game key whose result popup was closed
   const [replayFor, setReplayFor] = useState<string | null>(null); // game key being replayed
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
@@ -46,7 +48,7 @@ export default function RJRoomView({ code }: { code: string }) {
   useEffect(() => {
     const phase = state?.phase ?? null;
     if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
-      reportGame(`russian_janggi-friend-${crypto.randomUUID()}`, 'russian_janggi', 'friend', state.game.winner === null ? 'draw' : state.game.winner === mySeat ? 'win' : 'loss', { reason: state.game.reason, moves: state.game.ply });
+      reportGame(`russian_janggi-friend-${crypto.randomUUID()}`, 'russian_janggi', 'friend', state.game.winner === null ? 'draw' : state.game.winner === mySeat ? 'win' : 'loss', { reason: state.game.reason, moves: state.game.ply }, { revealDelayMs: REVEAL_MS + 300 });
     }
     prevPhase.current = phase;
   });
@@ -77,12 +79,8 @@ export default function RJRoomView({ code }: { code: string }) {
 
   // Each finished game gets a key, so a rematch starts with the popup closed again.
   const finishedKey = state?.phase === 'finished' && state.game ? `${state.sid}-${state.first}-${state.game.moves?.length ?? 0}-${state.game.reason}` : null;
-  // Leave the final board up for a moment before the result pops up.
-  useEffect(() => {
-    if (!finishedKey) return;
-    const timer = window.setTimeout(() => setResultFor(finishedKey), RESULT_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [finishedKey]);
+  // Both players see the final board (the three lined through) a moment before the result pops up.
+  const reveal = useEndReveal(finishedKey);
   const showReplay = !!finishedKey && replayFor === finishedKey;
 
   const viewer: Side = mySeat ?? 0;
@@ -165,7 +163,7 @@ export default function RJRoomView({ code }: { code: string }) {
             ) : (
               <>
                 {showReplay
-                  ? <RJReplay game={game} viewer={viewer} names={[names[0], names[1]]} onShowResult={() => { setReplayFor(null); setResultFor(finishedKey); }} onClose={() => setReplayFor(null)} />
+                  ? <RJReplay game={game} viewer={viewer} names={[names[0], names[1]]} onShowResult={() => { setReplayFor(null); setClosedFor(null); }} onClose={() => setReplayFor(null)} />
                   : <RJTable game={game} viewer={viewer} canAct={myTurn} onAction={(action) => dispatch({ t: 'act', action })} names={[names[0], names[1]]} />}
                 {skipNote && <p className="mx-auto mt-3 max-w-[440px] rounded-md border border-(--accent)/30 bg-(--accent)/10 px-3 py-2 text-center text-xs font-bold text-[#ffdc95]">{skipNote}</p>}
                 {mySeat === null && <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
@@ -204,10 +202,11 @@ export default function RJRoomView({ code }: { code: string }) {
         </main>
       )}
 
-      {state?.phase === 'finished' && game && resultFor === finishedKey && !showReplay && (
+      <EndRevealBanner show={!!game && reveal.revealing && !showReplay} text={game ? rjEndText(tg, game, mySeat, names) : ''} color={game?.winner != null ? SIDE_COLORS[game.winner] : undefined} onSkip={reveal.skip} />
+      {state?.phase === 'finished' && game && reveal.showResult && closedFor !== finishedKey && !showReplay && (
         <RJResult game={game} viewer={mySeat} names={state.seats.map((seat) => seat?.name ?? '')}
           onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t('rematchWait')} exitPath="/russian-janggi"
-          onReplay={() => { setResultFor(null); setReplayFor(finishedKey); }} onClose={() => setResultFor(null)} />
+          onReplay={() => { setClosedFor(finishedKey); setReplayFor(finishedKey); }} onClose={() => setClosedFor(finishedKey)} />
       )}
     </div>
   );

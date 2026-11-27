@@ -14,10 +14,11 @@ import RoomAlerts from '../RoomAlerts';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiPiece from './JanggiPiece';
-import JanggiResult from './JanggiResult';
+import JanggiResult, { janggiEndText } from './JanggiResult';
+import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
+import { EndRevealBanner } from '@/components/ui/EndReveal';
 import JanggiTable from './JanggiTable';
 import JanggiReplay from './JanggiReplay';
-import { RESULT_DELAY_MS } from './JanggiGame';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
@@ -37,7 +38,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
   const [nameDraft, setNameDraft] = useState('');
   const [waitedLong, setWaitedLong] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
-  const [resultFor, setResultFor] = useState<string | null>(null); // finished game whose result popup is open
+  const [closedFor, setClosedFor] = useState<string | null>(null); // finished game whose result popup was closed
   const [replayFor, setReplayFor] = useState<string | null>(null); // finished game being replayed
   const alerts = usePresenceAlerts(peers, me?.id, status === 'online');
 
@@ -46,7 +47,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
   useEffect(() => {
     const phase = state?.phase ?? null;
     if (phase === 'finished' && prevPhase.current && prevPhase.current !== 'finished' && mySeat !== null && state) {
-      reportGame(`janggi-friend-${crypto.randomUUID()}`, 'janggi', 'friend', state.game.winner === null ? 'draw' : state.game.winner === mySeat ? 'win' : 'loss', { reason: state.game.reason, turnSec: state.turnSec });
+      reportGame(`janggi-friend-${crypto.randomUUID()}`, 'janggi', 'friend', state.game.winner === null ? 'draw' : state.game.winner === mySeat ? 'win' : 'loss', { reason: state.game.reason, turnSec: state.turnSec }, { revealDelayMs: REVEAL_MS + 300 });
     }
     prevPhase.current = phase;
   });
@@ -61,12 +62,8 @@ export default function JanggiRoomView({ code }: { code: string }) {
 
   // Each finished game gets a key, so a rematch starts with the popup closed again.
   const finishedKey = state?.phase === 'finished' && state.game ? `${state.sid}-${state.first}-${state.game.moves?.length ?? state.game.ply}-${state.game.reason}` : null;
-  // Leave the final board up for a moment before the result pops up.
-  useEffect(() => {
-    if (!finishedKey) return;
-    const timer = window.setTimeout(() => setResultFor(finishedKey), RESULT_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [finishedKey]);
+  // Both players see the final board (the deciding capture marked) a moment before the result pops up.
+  const reveal = useEndReveal(finishedKey);
   const showReplay = !!finishedKey && replayFor === finishedKey;
 
   const viewer: Side = mySeat ?? 0;
@@ -162,7 +159,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
             ) : (
               <>
                 {showReplay
-                  ? <JanggiReplay game={game} viewer={viewer} names={names} onShowResult={() => { setReplayFor(null); setResultFor(finishedKey); }} onClose={() => setReplayFor(null)} />
+                  ? <JanggiReplay game={game} viewer={viewer} names={names} onShowResult={() => { setReplayFor(null); setClosedFor(null); }} onClose={() => setReplayFor(null)} />
                   : <JanggiTable game={game} viewer={viewer} canAct={myTurn} onAction={(action) => dispatch({ t: 'act', action })} />}
                 {mySeat === null && <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/45"><Eye size={14} />{t('spectating')}</p>}
               </>
@@ -206,10 +203,11 @@ export default function JanggiRoomView({ code }: { code: string }) {
         </main>
       )}
 
-      {state?.phase === 'finished' && game && resultFor === finishedKey && !showReplay && (
+      <EndRevealBanner show={!!game && reveal.revealing && !showReplay} text={game ? janggiEndText(tj, game, mySeat, names) : ''} color={game?.winner != null ? SIDE_COLORS[game.winner] : undefined} onSkip={reveal.skip} />
+      {state?.phase === 'finished' && game && reveal.showResult && closedFor !== finishedKey && !showReplay && (
         <JanggiResult game={game} viewer={mySeat} names={state.seats.map((seat) => seat?.name ?? '')}
           onAgain={me?.isHost ? () => dispatch({ t: 'start' }) : undefined} againLabel={t('rematch')} waitingLabel={t('rematchWait')} exitPath="/janggi"
-          onReplay={() => { setResultFor(null); setReplayFor(finishedKey); }} onClose={() => setResultFor(null)} />
+          onReplay={() => { setClosedFor(finishedKey); setReplayFor(finishedKey); }} onClose={() => setClosedFor(finishedKey)} />
       )}
     </div>
   );

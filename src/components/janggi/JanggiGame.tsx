@@ -10,7 +10,9 @@ import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '../LanguageSwitcher';
 import JanggiTable from './JanggiTable';
 import JanggiTutorial from './JanggiTutorial';
-import JanggiResult from './JanggiResult';
+import JanggiResult, { janggiEndText } from './JanggiResult';
+import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
+import { EndRevealBanner } from '@/components/ui/EndReveal';
 import JanggiReplay from './JanggiReplay';
 import WallGoShards from '../WallGoShards';
 import GameHeader from '../ui/GameHeader';
@@ -25,7 +27,6 @@ const TURN_KEY = 'puzzlthink_janggi_turn_sec';
 const TURN_CHOICES = [0, 90, 60, 30] as const; // 0 = no clock
 type TurnChoice = (typeof TURN_CHOICES)[number];
 type ClockView = { game: JanggiState; deadline: number; turnSec: number; paused: boolean; timeouts: number; play: (action: Action, auto?: boolean) => void; timeOut: () => void };
-export const RESULT_DELAY_MS = 2000;
 const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard']; // 'hell' gets its own row below
 type FirstChoice = 'me' | 'ai' | 'random';
 /** A level named in the link (e.g. `?difficulty=hell#play` from the 헬모드 page), if it is one of ours. */
@@ -59,7 +60,8 @@ export default function JanggiGame() {
   const [deadline, setDeadline] = useState(0);
   const [now, setNow] = useState(0);
   const [timeouts, setTimeouts] = useState(0); // my timeouts in a row; three loses on time
-  const [resultOpen, setResultOpen] = useState(false);
+  const [resultClosed, setResultClosed] = useState(false);
+  const [gameNo, setGameNo] = useState(0);
   const [replaying, setReplaying] = useState(false);
   const names = [t('you'), 'AI'];
   const over = game.winner !== null || game.reason !== null;
@@ -70,7 +72,7 @@ export default function JanggiGame() {
   const newGame = (choice: FirstChoice = firstChoice, level: Difficulty = difficulty) => {
     const first: Side = choice === 'me' ? 0 : choice === 'ai' ? 1 : Math.random() < 0.5 ? 0 : 1;
     setFirstChoice(choice); setDifficulty(level); setGame(initialState(first)); setSaved(false);
-    setResultOpen(false); setReplaying(false); setTimeouts(0); setDeadline(Date.now() + turnSec * 1000);
+    setResultClosed(false); setGameNo((n) => n + 1); setReplaying(false); setTimeouts(0); setDeadline(Date.now() + turnSec * 1000);
     setLog([t(first === 0 ? 'logYouFirst' : 'logAiFirst')]);
   };
 
@@ -112,12 +114,8 @@ export default function JanggiGame() {
     try { localStorage.setItem(TURN_KEY, String(sec)); } catch { /* Optional. */ }
   };
 
-  // Leave the final board up for a moment before the result pops up.
-  useEffect(() => {
-    if (!over) return;
-    const timer = window.setTimeout(() => setResultOpen(true), RESULT_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [over, game]);
+  // Leave the final board up (the deciding capture marked) for a moment before the result pops up; a tap skips it.
+  const reveal = useEndReveal(over && `${gameNo}-${game.ply}-${game.reason}`);
 
   // AI turn.
   useEffect(() => {
@@ -146,7 +144,7 @@ export default function JanggiGame() {
     const record: MatchRecord = { won: game.winner === 0, draw: game.winner === null, difficulty, date: new Date().toISOString() };
     const timer = window.setTimeout(() => {
       setSaved(true);
-      reportGame(`janggi-ai-${record.date}`, 'janggi', 'ai', game.winner === null ? 'draw' : game.winner === 0 ? 'win' : 'loss', { difficulty, reason: game.reason, moves: game.ply, replay: { first: game.first, moves: game.moves ?? [] } });
+      reportGame(`janggi-ai-${record.date}`, 'janggi', 'ai', game.winner === null ? 'draw' : game.winner === 0 ? 'win' : 'loss', { difficulty, reason: game.reason, moves: game.ply, replay: { first: game.first, moves: game.moves ?? [] } }, { revealDelayMs: REVEAL_MS + 300 });
       setRecords((current) => {
         const next = [record, ...current].slice(0, 50);
         try { localStorage.setItem(RECORD_KEY, JSON.stringify(next)); } catch { /* Optional. */ }
@@ -189,7 +187,7 @@ export default function JanggiGame() {
             </div>
           </div>
           {replaying
-            ? <JanggiReplay game={game} viewer={0} names={names} onShowResult={() => { setReplaying(false); setResultOpen(true); }} onClose={() => setReplaying(false)} />
+            ? <JanggiReplay game={game} viewer={0} names={names} onShowResult={() => { setReplaying(false); setResultClosed(false); }} onClose={() => setReplaying(false)} />
             : <JanggiTable game={game} viewer={0} canAct={!over && game.turn === 0 && !showTutorial} onAction={play} />}
         </section>
 
@@ -226,9 +224,10 @@ export default function JanggiGame() {
         </aside>
       </main>
 
-      {over && resultOpen && !replaying && (
+      <EndRevealBanner show={reveal.revealing && !replaying} text={janggiEndText(t, game, 0, names)} color={game.winner !== null ? SIDE_COLORS[game.winner] : undefined} onSkip={reveal.skip} />
+      {over && reveal.showResult && !resultClosed && !replaying && (
         <JanggiResult game={game} viewer={0} names={names} onAgain={() => newGame()} exitPath="/"
-          onReplay={() => { setResultOpen(false); setReplaying(true); }} onClose={() => setResultOpen(false)} />
+          onReplay={() => { setResultClosed(true); setReplaying(true); }} onClose={() => setResultClosed(true)} />
       )}
     </div>
   );

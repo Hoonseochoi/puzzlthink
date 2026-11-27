@@ -7,6 +7,7 @@ import { BTN, BTN_ACCENT, KICKER, MODAL_BACKDROP } from '@/components/ui/gameUi'
 import { type FtRoom, finalists, missionSucceeded, outcomeFor, playerRanking } from '@/lib/fourThreeRoom';
 import { FtPiece } from './FourThreeParts';
 import { RoomPieces } from '../PieceStone';
+import { EndRevealGate } from '@/components/ui/EndReveal';
 
 /** End of the four rounds: did the mission hold, the players' pieces and who goes through. */
 function FourThreeResultInner({ room, mySeat, onAgain, waitingLabel, exitPath }: {
@@ -48,5 +49,10 @@ function FourThreeResultInner({ room, mySeat, onAgain, waitingLabel, exitPath }:
 
 /** FourThreeResult with every player's own 바둑알 on their pieces (PieceStone). */
 export default function FourThreeResult(props: Parameters<typeof FourThreeResultInner>[0]) {
-  return <RoomPieces seats={props.room.seats} me={props.mySeat} ai={props.room.ai}><FourThreeResultInner {...props} /></RoomPieces>;
+  const t = useTranslations('FourThree');
+  const { room } = props;
+  // The last round's board (its three-in-a-row lined) stays up a moment before the popup.
+  return <EndRevealGate endKey={`${room.sid}-${room.results.length}`} text={missionSucceeded(room) ? t('missionOk') : t('missionFail')}>
+    <RoomPieces seats={room.seats} me={props.mySeat} ai={room.ai}><FourThreeResultInner {...props} /></RoomPieces>
+  </EndRevealGate>;
 }

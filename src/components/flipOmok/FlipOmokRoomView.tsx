@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, RotateCcw, Share2, Swords, Trophy, Users, WifiOff, X } from 'lucide-react';
 import { useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
+import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
+import { EndRevealBanner } from '@/components/ui/EndReveal';
 import { ReplayButton, ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import BugReport from '@/components/BugReport';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -18,7 +20,7 @@ import { reportGame } from '@/lib/stats';
 import { Link } from '@/i18n/routing';
 import { coordinateLabel, emptyBoard, forbiddenPoints, owner, type Player } from '@/lib/flipOmok';
 import { FLIP_TURN_OPTIONS, colorOf, seatToMove } from '@/lib/flipOmokRoom';
-import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, MiniBoard } from './FlipOmokParts';
+import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, MiniBoard, STONE_HEX } from './FlipOmokParts';
 import { FlipLegend, FlipTips, LossTip, SafeGapCallout } from './FlipOmokGame';
 import GameUpdates from '@/components/GameUpdates';
 import { PieceOwners, useMyNickname } from '../PieceStone';
@@ -55,7 +57,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
   useEffect(() => {
     if (!state || state.phase !== 'finished' || mySeat === null) return;
     reportGame(`flip_omok-friend-${state.sid}`, 'flip_omok', 'friend', state.winner === 'draw' ? 'draw' : state.winner === mySeat ? 'win' : 'loss',
-      { moves: state.moves, reason: state.reason, turnSec: state.turnSec });
+      { moves: state.moves, reason: state.reason, turnSec: state.turnSec }, { revealDelayMs: REVEAL_MS + 300 });
   }, [state, mySeat]);
 
   const playing = state?.phase === 'playing';
@@ -67,7 +69,9 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
   const finished = state?.phase === 'finished';
   const replay = useReplayPlayer(Math.max(0, frames.length - 1), replaying && finished, 900);
   const frame = replaying && finished ? frames[replay.at] : null;
-  const resultOpen = finished && hideResult !== state?.sid && !frame;
+  // Both players see the final board (the five lined through) a moment before the popup.
+  const reveal = useEndReveal(finished && state ? `${state.sid}-${state.moves}` : null);
+  const resultOpen = finished && reveal.showResult && hideResult !== state?.sid && !frame;
   const banned = useMemo(() => new Set(state && myTurn ? forbiddenPoints(state.board, state.turn) : []), [state, myTurn]);
 
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
@@ -181,6 +185,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
                   : <FlipOmokBoard board={board} last={state.last} flipped={state.flipped} flipKey={state.moves} win={state.win} turn={state.turn}
                     interactive={myTurn} banned={banned} onPlace={(at) => dispatch({ t: 'move', at })} overlay={result} />}
                 {frame && <ReplayControls player={replay} onShowResult={() => { setReplaying(false); setHideResult(null); }} />}
+                <EndRevealBanner show={finished && reveal.revealing && !frame} text={resultText()} color={state.win ? STONE_HEX[state.win.owner] : undefined} onSkip={reveal.skip} />
                 {finished && !frame && !resultOpen && <div className="mx-auto mt-2 flex max-w-[440px] flex-wrap items-center justify-center gap-2">
                   <button type="button" onClick={() => setHideResult(null)} className={`${BTN} py-2.5`}><Trophy size={14} />{tc('replayShowResult')}</button>
                   {frames.length > 1 && <button type="button" onClick={() => setReplaying(true)} className={`${BTN} py-2.5`}>{tc('replayOpen')}</button>}

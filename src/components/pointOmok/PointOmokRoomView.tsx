@@ -16,6 +16,7 @@ import { usePointOmokRoom } from '@/hooks/usePointOmokRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
 import { reportGame } from '@/lib/stats';
+import { REVEAL_MS } from '@/hooks/useEndReveal';
 import PoTable from './PoTable';
 import { PO_ACCENT, PO_INK, PoStone } from './PoParts';
 import GameUpdates from '@/components/GameUpdates';
@@ -46,7 +47,7 @@ export default function PointOmokRoomView({ code }: { code: string }) {
   useEffect(() => {
     if (!state || state.phase !== 'finished' || mySeat === null) return;
     reportGame(`point_omok-friend-${state.sid}-${state.rounds.length}-${state.reason}`, 'point_omok', 'friend',
-      state.winner === 'draw' ? 'draw' : state.winner === mySeat ? 'win' : 'loss', { reason: state.reason, rounds: state.rounds.length, fives: state.fives });
+      state.winner === 'draw' ? 'draw' : state.winner === mySeat ? 'win' : 'loss', { reason: state.reason, rounds: state.rounds.length, fives: state.fives }, { revealDelayMs: REVEAL_MS + 300 });
   }, [state, mySeat]);
 
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
