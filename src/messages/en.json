@@ -5891,7 +5891,16 @@
     "missionCount": "{n} / {total}",
     "missionAvg": "{n} / {total} · avg #{avg}",
     "missionDone": "Done",
-    "missionLocked": "Sign in to see your progress"
+    "missionLocked": "Sign in to see your progress",
+    "testerTitle": "PLAY TESTER",
+    "testerRule": "Google Play app testers only",
+    "testerTester": "TESTER",
+    "testerTesterDesc": "Yours the moment you join as an app tester. Withdrawing removes it.",
+    "tester14d": "14 DAYS",
+    "tester14dDesc": "Given by the operator to testers who stay through the closed test.",
+    "testerFounder": "FOUNDER",
+    "testerFounderDesc": "Given by the operator to the founding group of testers.",
+    "testerJoin": "Join to get it"
   },
   "Icons": {
     "crownLostTitle": "{name} took your #1 in {game}",
@@ -5936,7 +5945,11 @@
     "mission_hell": "HIDDEN MISSION · ALL HELL",
     "mission_rank": "HIDDEN MISSION · TOP 10",
     "popupEquipped": "Now on your profile",
-    "popupTitleMission": "Hidden mission cleared!"
+    "popupTitleMission": "Hidden mission cleared!",
+    "tester_tester": "PLAY TESTER · TESTER",
+    "tester_14d": "PLAY TESTER · 14 DAYS",
+    "tester_founder": "PLAY TESTER · FOUNDER",
+    "popupTitleTester": "A testers-only icon!"
   },
   "PieceRace": {
     "shortTitle": "Piece race · Week 2",
@@ -8761,11 +8774,11 @@
     "eyebrow": "GOOGLE PLAY APP TESTERS WANTED",
     "title": "Be a tester before the app launches",
     "stripTitle": "App testers wanted before launch",
-    "stripSub": "New games with no ads · free",
+    "stripSub": "New games, no ads · exclusive icon",
     "lead": "PUZZLTHINK is coming to Google Play. We are looking for testers to try the app before its public release.",
     "benefit1": "Play new games with no ads",
-    "benefit2": "Get the app before everyone else",
-    "benefit3": "Free",
+    "benefit2": "Get the testers-only TESTER icon right away",
+    "benefit3": "Get the app before everyone else, free",
     "join": "Agree and join",
     "later": "Not now",
     "ok": "OK",
@@ -8779,12 +8792,12 @@
     "invalid": "Please check the email address.",
     "failed": "That did not work. Please try again in a moment.",
     "doneTitle": "You are signed up",
-    "doneEmail": "Signed up with {email}.",
+    "doneEmail": "Signed up with {email}. The TESTER icon is now on your profile.",
     "doneWait": "Once the test opens, a 'Get the app' button appears on the home and Records pages. We will email you the guide too.",
     "getApp": "Get the app",
     "keepInstalled": "Please keep the app installed for 14 days during the test.",
     "withdrawAsk": "Withdraw from the tester program",
-    "withdrawConfirm": "Withdrawing deletes the stored email at once.",
+    "withdrawConfirm": "Withdrawing deletes the stored email at once and removes the TESTER icon.",
     "withdraw": "Withdraw",
     "withdrawn": "You have withdrawn. The stored email was deleted."
   }

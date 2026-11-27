@@ -21,6 +21,7 @@ export function useIconLabel() {
     if (ref.kind === 'openWin') return t('openWin');
     if (ref.kind === 'hellClear') return t('hellClear');
     if (ref.kind === 'mission') return t(`mission_${ref.mission}`);
+    if (ref.kind === 'tester') return t(`tester_${ref.tier}`);
     if (ref.kind === 'play') return t('playHours', { n: ref.hours });
     return t('crown', { game: CERT_GAMES[ref.game][locale === 'en' ? 'en' : 'ko'] });
   };

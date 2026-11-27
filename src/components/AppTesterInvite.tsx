@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useId, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { BadgeCheck, Ban, Check, Download, Gift, Loader2, Smartphone, Sparkles, X } from 'lucide-react';
+import { BadgeCheck, Ban, Check, Download, Loader2, Smartphone, Sparkles, X } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { usePlayApp } from './playApp/usePlayApp';
+import { TesterStone } from './TesterIcons';
+import { checkNewIcons } from './IconUnlock';
+import { refreshStoneChoices } from './StoneAvatar';
 import { usePathname } from '@/i18n/routing';
 import { GAMES } from '@/lib/gameCatalog';
 import { PLAY_TESTER_OPT_IN_URL } from '@/lib/playApp';
@@ -36,7 +39,13 @@ function useTester() {
   return { ...auth, uid, status };
 }
 
-const ICONS = [Sparkles, Smartphone, Gift];
+/** The TESTER icon a member gets on joining (pt-tester), drawn as on their profile. */
+function TesterIcon({ size }: { size: number }) {
+  const id = useId().replace(/:/g, '');
+  return <TesterStone id={`ati-${id}`} name="TESTER" size={size} tier="tester" />;
+}
+
+const ICONS = [Sparkles, null, Smartphone];
 
 function Benefits({ tone, compact }: { tone: Tone; compact?: boolean }) {
   const t = useTranslations('AppTester');
@@ -46,8 +55,8 @@ function Benefits({ tone, compact }: { tone: Tone; compact?: boolean }) {
       {lines.map((line, i) => {
         const Icon = ICONS[i];
         return compact
-          ? <li key={i} className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10.5px] font-bold ${tone === 'dark' ? 'bg-white/10 text-white/75' : 'bg-[#5b45c9]/8 text-[#4a39a8]'}`}><Icon size={11} />{line}</li>
-          : <li key={i} className="flex items-center gap-2.5 text-sm font-bold"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#5b45c9] text-white"><Icon size={14} /></span><span className="break-keep">{line}</span></li>;
+          ? <li key={i} className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10.5px] font-bold ${tone === 'dark' ? 'bg-white/10 text-white/75' : 'bg-[#5b45c9]/8 text-[#4a39a8]'}`}>{Icon ? <Icon size={11} /> : <TesterIcon size={14} />}{line}</li>
+          : <li key={i} className="flex items-center gap-2.5 text-sm font-bold">{Icon ? <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#5b45c9] text-white"><Icon size={14} /></span> : <span className="flex h-7 w-7 shrink-0 items-center justify-center"><TesterIcon size={28} /></span>}<span className="break-keep">{line}</span></li>;
       })}
     </ul>
   );
@@ -91,6 +100,8 @@ function Consent({ tone, source, onJoined, later, head }: {
     const e = await joinTester(uid, google ? null : email);
     setBusy(false);
     if (e) { setError(e); return; }
+    refreshStoneChoices();
+    checkNewIcons(400); // the TESTER icon's "새 아이콘" celebration
     onJoined?.();
   };
   return (
@@ -164,7 +175,7 @@ function Compact({ tone, source, slim, className = '' }: { tone: Tone; source: S
   if (slim) {
     const head = (
       <span className="flex min-w-0 flex-1 items-center gap-2.5">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#5b45c9] text-white"><Smartphone size={16} /></span>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center"><TesterIcon size={40} /></span>
         <span className="min-w-0"><b className="block break-keep text-[13.5px] font-black leading-[18px] tracking-[-0.02em]">{t('stripTitle')}</b><span className="block break-keep text-[11px] font-bold leading-4 text-[#5b45c9]">{t('stripSub')}</span></span>
       </span>
     );
@@ -226,8 +237,11 @@ export function AppTesterPopup() {
         ) : (
           <>
             <div className="flex items-start justify-between gap-3">
-              <div><Eyebrow tone="light" /><h3 className="mt-1.5 break-keep text-xl font-black leading-7 tracking-[-0.03em]">{t('title')}</h3></div>
-              <button type="button" onClick={later} className="-mr-1 rounded-md p-2 text-black/35 hover:text-black" aria-label={t('later')}><X size={16} /></button>
+              <div className="min-w-0"><Eyebrow tone="light" /><h3 className="mt-1.5 break-keep text-xl font-black leading-7 tracking-[-0.03em]">{t('title')}</h3></div>
+              <div className="flex shrink-0 items-start">
+                <span className="mt-1 drop-shadow-[0_6px_14px_rgba(91,69,201,.35)]"><TesterIcon size={72} /></span>
+                <button type="button" onClick={later} className="-mr-2 -mt-1 rounded-md p-2 text-black/35 hover:text-black" aria-label={t('later')}><X size={16} /></button>
+              </div>
             </div>
             <p className="mt-1 break-keep text-[13px] leading-5 text-black/55">{t('lead')}</p>
             <Benefits tone="light" />
@@ -259,7 +273,7 @@ export function AppTesterSettings({ className = '' }: { className?: string }) {
     setBusy(true); setFailed(false);
     const ok = await leaveTester(uid);
     setBusy(false);
-    if (ok) setLeft(true); else setFailed(true);
+    if (ok) { setLeft(true); refreshStoneChoices(); window.dispatchEvent(new Event('puzzlthink:icons-changed')); } else setFailed(true);
   };
   return (
     <div className={`${box('light')} ${className}`}>

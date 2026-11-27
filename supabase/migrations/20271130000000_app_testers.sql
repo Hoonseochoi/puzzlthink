@@ -9,6 +9,10 @@
 --  * Account deletion (delete_my_account → delete_account_data → delete from auth.users) removes the row through the
 --    ON DELETE CASCADE foreign key.
 --  * Operator list: scripts/play/testers.sh reads the current emails (read-only) into a CSV for Play Console.
+--  * PLAY TESTER profile icons (src/components/TesterIcons.tsx): pt-tester is granted on joining and revoked on
+--    withdrawing; pt-14d (stayed through the closed test) and pt-founder (the first group) are granted by the operator
+--    with scripts/play/grant-icon.sh. Deploy the frontend BEFORE applying this file: older pages do not know the pt-*
+--    ids (they show a plain stone, nothing breaks, but the icon would look missing).
 --
 -- Apply by hand on the live DB:
 --   docker exec -i supabase-db psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/migrations/20271130000000_app_testers.sql
@@ -36,6 +40,67 @@ as $$
   end;
 $$;
 
+-- ─── PLAY TESTER icons ────────────────────────────────────────────────────────────────────────────────────────
+-- Both CHECK constraints list every icon id. They are extended from their LIVE definitions at apply time (so ids
+-- added by any other migration are kept), and only if pt-* is not there yet.
+do $$
+declare
+  r record;
+  v_def text;
+  v_new text;
+begin
+  for r in select c.conrelid::regclass as tbl, c.conname, pg_get_constraintdef(c.oid) as def
+             from pg_constraint c
+            where c.conname in ('profile_icons_icon_check', 'stone_choices_stone_check')
+              and c.connamespace = 'public'::regnamespace
+  loop
+    v_def := r.def;
+    if position('pt-(tester|14d|founder)' in v_def) > 0 then continue; end if;
+    if position(')$''::text' in v_def) = 0 then raise exception 'unexpected definition of %: %', r.conname, v_def; end if;
+    v_new := replace(v_def, ')$''::text', '|pt-(tester|14d|founder))$''::text');
+    execute format('alter table %s drop constraint %I', r.tbl, r.conname);
+    execute format('alter table %s add constraint %I %s', r.tbl, r.conname, v_new);
+  end loop;
+  if (select count(*) from pg_constraint where conname in ('profile_icons_icon_check', 'stone_choices_stone_check')
+        and pg_get_constraintdef(oid) like '%pt-(tester|14d|founder)%') <> 2 then
+    raise exception 'icon id constraints were not extended';
+  end if;
+end $$;
+
+-- Grants a PLAY TESTER icon (like grant_icon(): a real icon, a revoked one comes back, seen = false so the "새 아이콘"
+-- popup shows it). Equipping: it goes on at once over a basic colour, an achievement badge or a lower tester icon,
+-- but a contest / #1 / 2048 / HIDDEN MISSION icon the member shows now stays on (and is saved as their choice, so
+-- the newer tester icon does not take over effective_stone()'s fallback). They can switch in 기록실 any time.
+create or replace function public.grant_tester_icon(p_user uuid, p_icon text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_new boolean;
+  v_cur text;
+begin
+  if p_user is null or p_icon !~ '^pt-(tester|14d|founder)$' then return false; end if;
+  v_cur := public.effective_stone(p_user);
+  insert into public.profile_icons as i (user_id, icon) values (p_user, p_icon)
+  on conflict (user_id, icon) do update set revoked_at = null, granted_at = now(), seen = false
+   where i.revoked_at is not null
+  returning true into v_new;
+  if coalesce(v_new, false) then
+    insert into public.stone_choices (user_id, stone)
+    values (p_user, case
+      when v_cur is null or v_cur in ('black', 'white', 'red', 'blue') or public.badge_rank(v_cur) is not null
+        or (v_cur ~ '^pt-' and (case v_cur when 'pt-founder' then 3 when 'pt-14d' then 2 else 1 end)
+                              <= (case p_icon when 'pt-founder' then 3 when 'pt-14d' then 2 else 1 end))
+      then p_icon else v_cur end)
+    on conflict (user_id) do update set stone = excluded.stone, updated_at = now();
+  end if;
+  return coalesce(v_new, false);
+end;
+$$;
+revoke all on function public.grant_tester_icon(uuid, text) from public, anon, authenticated;
+
 -- Join (or re-join). p_email null → the caller's sign-in email. Returns the same shape as app_tester_status().
 create or replace function public.app_tester_join(p_email text default null)
 returns jsonb
@@ -57,6 +122,7 @@ begin
   insert into public.app_testers (user_id, email, consented_at, withdrawn_at)
   values (v_user, v_email, now(), null)
   on conflict (user_id) do update set email = excluded.email, consented_at = now(), withdrawn_at = null;
+  perform public.grant_tester_icon(v_user, 'pt-tester');
   return jsonb_build_object('joined', true, 'email', public.app_tester_mask(v_email));
 end;
 $$;
@@ -77,6 +143,10 @@ begin
   end if;
   update public.app_testers set withdrawn_at = now(), email = public.app_tester_mask(email)
   where user_id = v_user and withdrawn_at is null;
+  -- The TESTER icon goes with it; the shown stone falls back as for a lost #1 crown (effective_stone()).
+  -- 14 DAYS / FOUNDER, once granted, stay.
+  update public.profile_icons set revoked_at = now()
+   where user_id = v_user and icon = 'pt-tester' and revoked_at is null;
   return true;
 end;
 $$;

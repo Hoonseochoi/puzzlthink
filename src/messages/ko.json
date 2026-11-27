@@ -5983,7 +5983,16 @@
     "missionCount": "{n} / {total}",
     "missionAvg": "{n} / {total} · 평균 {avg}위",
     "missionDone": "달성",
-    "missionLocked": "로그인하면 진행도를 볼 수 있어요"
+    "missionLocked": "로그인하면 진행도를 볼 수 있어요",
+    "testerTitle": "PLAY TESTER",
+    "testerRule": "Google Play 앱 테스터 전용",
+    "testerTester": "TESTER",
+    "testerTesterDesc": "앱 테스터로 참여하면 바로 받아요. 철회하면 사라져요.",
+    "tester14d": "14 DAYS",
+    "tester14dDesc": "비공개 테스트를 끝까지 함께한 테스터에게 운영자가 드려요.",
+    "testerFounder": "FOUNDER",
+    "testerFounderDesc": "처음 모인 창립 테스터에게 운영자가 드려요.",
+    "testerJoin": "참여하고 받기"
   },
   "Icons": {
     "crownLostTitle": "{game} 1위를 {name}님께 빼앗겼어요",
@@ -6028,7 +6037,11 @@
     "mission_hell": "HIDDEN MISSION · ALL HELL",
     "mission_rank": "HIDDEN MISSION · TOP 10",
     "popupEquipped": "지금 내 프로필에 장착됐어요",
-    "popupTitleMission": "히든 미션 달성!"
+    "popupTitleMission": "히든 미션 달성!",
+    "tester_tester": "PLAY TESTER · TESTER",
+    "tester_14d": "PLAY TESTER · 14 DAYS",
+    "tester_founder": "PLAY TESTER · FOUNDER",
+    "popupTitleTester": "테스터 전용 아이콘이에요!"
   },
   "PieceRace": {
     "shortTitle": "피스 경쟁전 2W",
@@ -8942,11 +8955,11 @@
     "eyebrow": "GOOGLE PLAY 앱 테스터 모집",
     "title": "정식 앱 출시 전, 테스터가 되어 주세요",
     "stripTitle": "정식 앱 출시 전 테스터 모집",
-    "stripSub": "새로운 게임을 광고 없이 · 무료",
+    "stripSub": "광고 없는 새 게임 · 전용 아이콘",
     "lead": "PUZZLTHINK가 Google Play 앱으로 나와요. 정식 출시 전에 먼저 써 볼 테스터를 모으고 있어요.",
     "benefit1": "새로운 게임을 광고 없이 즐겨요",
-    "benefit2": "정식 출시보다 먼저 앱을 받아요",
-    "benefit3": "무료예요",
+    "benefit2": "테스터 전용 아이콘 TESTER를 바로 받아요",
+    "benefit3": "정식 출시보다 먼저, 무료로 앱을 받아요",
     "join": "동의하고 참여",
     "later": "다음에",
     "ok": "확인",
@@ -8960,12 +8973,12 @@
     "invalid": "이메일 주소를 다시 확인해 주세요.",
     "failed": "처리하지 못했어요. 잠시 뒤 다시 해 주세요.",
     "doneTitle": "신청 완료",
-    "doneEmail": "{email} 주소로 신청했어요.",
+    "doneEmail": "{email} 주소로 신청했어요. TESTER 아이콘이 프로필에 들어왔어요.",
     "doneWait": "테스트가 열리면 홈과 기록실에 '앱 받기' 버튼이 나와요. 안내 메일도 보내 드릴게요.",
     "getApp": "앱 받기",
     "keepInstalled": "테스트 동안 14일은 앱을 지우지 말고 그대로 두어 주세요.",
     "withdrawAsk": "테스터 신청 철회",
-    "withdrawConfirm": "철회하면 저장된 이메일이 바로 지워져요.",
+    "withdrawConfirm": "철회하면 저장된 이메일이 바로 지워지고 TESTER 아이콘도 사라져요.",
     "withdraw": "철회하기",
     "withdrawn": "테스터 신청을 철회했어요. 저장된 이메일을 지웠어요."
   }
