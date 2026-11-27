@@ -34,7 +34,7 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
         en: { title: 'Fixed: MORA repeated a word already on the board', desc: 'MORA sometimes gave your wrong answer back to you as a hint in the next stage. Words already on the board no longer come back, and in party rooms an answer from an earlier stage cannot be given again.' },
       },
       {
-        date: '11/28', icon: Users,
+        date: '11/27', icon: Users,
         ko: { title: '친구 2~5명 파티 방이 열렸어요', desc: '방송 메인매치처럼 모두가 한 번씩 출제하고 나머지가 동시에 답해요. 맞힌 사람마다 +1, 아무도 못 맞히면 출제자 +1·+2·+3, 2라운드는 2배. 내 봉투 단어는 나만 봐요.' },
         en: { title: 'Party rooms for 2–5 friends', desc: 'Like the show\'s main match: everyone sets once a round and the rest answer together. +1 for each right answer, +1/+2/+3 for the setter if nobody gets it, round 2 doubled. Only you see your envelope.' },
       },
