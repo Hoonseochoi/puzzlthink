@@ -30,8 +30,9 @@ function useHold(room: TaRoom, mySeat: number | null, onAction: (a: TaRoomAction
   const g = room.game;
   const me = mySeat !== null && g.inGame[mySeat] && !room.ai[mySeat] ? mySeat : null;
   const down = useRef(false);
-  const pointer = useRef<number | null>(null);
-  const [isDown, setIsDown] = useState(false);
+  // The round the button was latched in (null = up). A latch from an earlier auction does not count.
+  const [latch, setLatch] = useState<number | null>(null);
+  const isDown = latch === g.round && (g.phase === 'ready' || g.phase === 'live');
   const rec = useRef<Rec | null>(null);
   const sawReady = useRef(0); // the last round whose ready step this page saw
   const [view, setView] = useState<Rec | null>(null); // render copy of rec
@@ -102,25 +103,32 @@ function useHold(room: TaRoom, mySeat: number | null, onAction: (a: TaRoomAction
     const loop = () => {
       const r = rec.current;
       const bank = bankRef.current;
-      if (r && r.released === null && down.current && bank >= TA_UNIT && performance.now() - r.cdEnd >= bank) { letGo(bank, true); return; }
+      if (r && r.released === null && down.current && bank >= TA_UNIT && performance.now() - r.cdEnd >= bank) { letGo(bank, true); down.current = false; setLatch(null); return; }
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frame);
   }, [g.phase, g.round, letGo]);
 
+  // The button is a latch now, so it has to be let up when the auction is over (or the time ran out): the next
+  // auction starts from "not pressed" again.
+  useEffect(() => {
+    if (g.phase !== 'reveal' && g.phase !== 'finished') return;
+    down.current = false;
+  }, [g.phase, g.round]);
+
   const press = useCallback(() => {
-    if (me === null || down.current) return;
+    // Only before the countdown: once it runs, a tap can only stop.
+    if (me === null || down.current || g.phase !== 'ready') return;
     down.current = true;
-    setIsDown(true);
+    setLatch(g.round);
     if (g.phase === 'ready' && !g.pressed[me]) act.current({ t: 'press', r: g.round, on: true });
   }, [me, g.phase, g.round, g.pressed]);
 
   const release = useCallback(() => {
     if (!down.current) return;
     down.current = false;
-    pointer.current = null;
-    setIsDown(false);
+    setLatch(null);
     if (me === null) return;
     if (g.phase === 'ready') { if (g.pressed[me] && !g.pass[me]) act.current({ t: 'press', r: g.round, on: false }); return; }
     if (g.phase === 'live') {
@@ -141,29 +149,23 @@ function useHold(room: TaRoom, mySeat: number | null, onAction: (a: TaRoomAction
     return () => window.clearTimeout(timer);
   }, [rooms, empty, waiting, g.round]);
 
-  // Hiding the tab, leaving the page or the window losing focus counts as letting go.
+  // Hiding the tab or leaving the page counts as stopping. (A passing loss of focus, such as a notification, does not.)
   useEffect(() => {
     const hide = () => { if (document.visibilityState === 'hidden') release(); };
-    window.addEventListener('blur', release);
     window.addEventListener('pagehide', release);
     document.addEventListener('visibilitychange', hide);
-    return () => { window.removeEventListener('blur', release); window.removeEventListener('pagehide', release); document.removeEventListener('visibilitychange', hide); };
+    return () => { window.removeEventListener('pagehide', release); document.removeEventListener('visibilitychange', hide); };
   }, [release]);
 
-  /** Pointer handling for the button: the first finger or mouse button only, captured so a slide cannot drop it. */
+  /** One tap starts (ready, then bidding), the next tap stops: nobody has to keep a finger on the button. */
+  const toggle = () => { if (down.current) release(); else press(); };
   const handlers = {
     onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
-      if (pointer.current !== null || e.button > 0) return;
+      if (e.button > 0 || !e.isPrimary) return;
       e.preventDefault();
-      pointer.current = e.pointerId;
-      try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* capture is optional */ }
-      press();
+      toggle();
     },
-    onPointerUp: (e: React.PointerEvent) => { if (e.pointerId === pointer.current) release(); },
-    onPointerCancel: (e: React.PointerEvent) => { if (e.pointerId === pointer.current) release(); },
-    onLostPointerCapture: (e: React.PointerEvent) => { if (e.pointerId === pointer.current) release(); },
-    onKeyDown: (e: React.KeyboardEvent) => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); press(); } },
-    onKeyUp: (e: React.KeyboardEvent) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); release(); } },
+    onKeyDown: (e: React.KeyboardEvent) => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); toggle(); } },
     onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
   };
   return { me, isDown, rec: view && view.round === g.round ? view : null, counting, press, release, pass, handlers };
@@ -321,7 +323,7 @@ export default function TimeAuctionTable({ room, mySeat, onAction, t, locale, di
             style={{ touchAction: 'none', WebkitTouchCallout: 'none', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent' } as CSSProperties}
           >
             <HoldRing cdEnd={g.phase === 'live' && rec && rec.released === null ? rec.cdEnd : null} holding={isDown} />
-            <span className="pointer-events-none font-mono text-[10px] font-black tracking-[0.3em] opacity-70">{state === 'holding' ? 'HOLD' : state === 'counting' ? 'READY' : 'PRESS'}</span>
+            <span className="pointer-events-none font-mono text-[10px] font-black tracking-[0.3em] opacity-70">{state === 'holding' || state === 'counting' ? 'STOP' : state === 'armed' ? 'READY' : 'PRESS'}</span>
             <span className="pointer-events-none mt-1 max-w-[80%] break-keep text-[15px] font-black leading-tight sm:text-lg">{label}</span>
             {sub && <span className="pointer-events-none mt-1 max-w-[78%] break-keep text-[10.5px] font-bold leading-tight opacity-80">{sub}</span>}
           </button>

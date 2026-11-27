@@ -168,6 +168,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/27', icon: Timer,
+        ko: { title: '버튼을 계속 누르지 않아도 돼요', desc: '한 번 누르면 시작하고, 다시 누르면 멈춰요. 카운트다운 안에 다시 누르면 포기, 그 뒤에 누르면 그 시간에 입찰이 끝나요.' },
+        en: { title: 'No more holding the button', desc: 'One tap starts and the next tap stops. Tap again during the countdown to drop out; after it, your tap ends your bid at that time.' },
+      },
+      {
+        date: '11/27', icon: Timer,
         ko: { title: '내 남은 시간이 보여요 · 기본은 표준 5분', desc: '버튼 위에 내 남은 시간이 보이고, 누르는 동안 0.1초 단위로 줄어요. 다른 사람의 시간은 그대로 비공개예요(친구 방은 방장이 방송처럼 숨길 수 있어요). 기본 경매는 표준 5분 × 13경매가 됐어요.' },
         en: { title: 'See your own time · Standard 5:00 by default', desc: 'Your remaining time now shows above the button and drains to 0.1 s while you hold; everyone else\'s stays hidden (friend-room hosts can hide it as on the show). The default is now Standard, 5:00 × 13 auctions.' },
       },
