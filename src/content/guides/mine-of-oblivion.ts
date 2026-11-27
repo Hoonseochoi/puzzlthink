@@ -3,7 +3,7 @@
 // 0, −5 and a respawn next to the start, treasure 10/15/20, end on the third treasure or 70 moves, equal = draw) and
 // src/lib/mineOblivionRoom.ts (120 s to bury, 30 s a move, the 4.2 s memorise moment). AI levels: mineOblivionAi.ts.
 // Broadcast facts: src/content/shows/dg1/games-b.ts (mineOfOblivion) and dg2/mine-of-oblivion-2.ts (나무위키).
-// Figures: scripts/mine-oblivion/sim.ts, 400 AI matches (seed 20261128, 2026-11-28).
+// Figures: scripts/mine-oblivion/sim.ts, 400 AI matches (seed 20261128, 2026-11-28). Items: src/lib/mineOblivionItems.ts.
 import type { GameGuide } from './types';
 
 const guide: GameGuide = {
@@ -137,6 +137,20 @@ const guide: GameGuide = {
             ['자기 지뢰 밟기', '한 판에 0.2번꼴', '거의 없음'],
           ] },
           { type: 'p', text: 'AI끼리 400판(scripts/mine-oblivion/sim.ts)에서 어려움은 보통을 **73.8%** 이겼고, 한 판은 평균 56수, 78%는 보물 세 개로 끝났어요(나머지는 70수 제한).' },
+        ],
+      },
+      {
+        id: 'items',
+        title: '아이템 (AI 대전)',
+        blocks: [
+          { type: 'p', text: 'AI 대전(보통·어려움)에서는 로그인한 회원이 다른 게임에서 모은 **피스**와 **블랙피스**로 아이템을 쓸 수 있어요. 친구 방·공개방에는 아이템이 없어요. 사람끼리 돈 주고 도움을 사면 불공평하니까요.' },
+          { type: 'table', head: ['아이템', '값', '한 판에', '하는 일'], rows: [
+            ['탐지기', '피스 1', '2번', '움직이지 않고 내 둘레 칸 하나를 골라 그 칸 둘레의 지뢰 수를 잠깐 봐요. 그 칸 자체가 지뢰인지는 알려 주지 않아요.'],
+            ['기억 되살리기', '피스 1', '2번', '내가 묻은 지뢰(아직 안 터진 것)가 2초 동안 다시 보여요.'],
+            ['방폭복', '블랙피스 1', '1번', '켜 두면 다음에 밟는 지뢰가 −5점도, 되돌아가기도 없이 터지기만 해요. 끝까지 지뢰를 안 밟아도 소멸돼요.'],
+          ] },
+          { type: 'callout', tone: 'tip', title: '언제 쓰면 좋을까', text: '탐지기는 다음에 밟으려는 칸에 쓰면 그 칸 둘레의 숫자를 미리 알 수 있어요. 숫자가 크면 그 칸 자체도 위험할 수 있다는 신호예요. 기억 되살리기는 판 가운데로 들어가기 직전, 방폭복은 보물로 가는 마지막 길이 수상할 때 가장 값어치가 커요. AI와 시뮬레이션한 결과로는 방폭복의 효과가 가장 컸어요.' },
+          { type: 'callout', tone: 'note', title: '아이템을 쓴 판의 기록', text: '탐지기와 기억 되살리기는 내 수를 쓰지 않아요. 아이템을 쓴 판은 결과 화면과 기록에 표시되고, 어려움 클리어 인증서·피스 획득·명예의 전당 승수에는 들어가지 않아요. 승패 기록은 그대로 남아요. 블랙피스를 쓰면 이번 주 블랙피스 순위의 개수도 줄어요.' },
         ],
       },
       {
@@ -307,6 +321,20 @@ const guide: GameGuide = {
             ['Steps on its own mine', 'About 0.2 times a game', 'Almost never'],
           ] },
           { type: 'p', text: 'In 400 AI-vs-AI games (scripts/mine-oblivion/sim.ts) Hard beat Normal **73.8%** of the time; games averaged 56 moves and 78% ended with the third treasure (the rest at 70 moves).' },
+        ],
+      },
+      {
+        id: 'items',
+        title: 'Items (AI matches)',
+        blocks: [
+          { type: 'p', text: 'In AI matches (Normal and Hard), signed-in members can spend the **pieces** and **black pieces** they earned in other games on items. Friend and open rooms have no items: paid help between players would not be fair.' },
+          { type: 'table', head: ['Item', 'Price', 'Per game', 'What it does'], rows: [
+            ['Detector', '1 piece', '2', 'Without moving, pick a cell next to you and see, for a moment, how many mines are around it. It does not say whether that cell itself is a mine.'],
+            ['Recall', '1 piece', '2', 'Your own mines (the ones still live) show again for 2 seconds.'],
+            ['Blast suit', '1 black piece', '1', 'While on, the next mine you step on goes off without the −5 and without sending you back. Spent even if you never step on a mine.'],
+          ] },
+          { type: 'callout', tone: 'tip', title: 'When to use them', text: 'Use the Detector on the cell you plan to step on next: you learn the number around it in advance, and a big number hints that the cell itself may be mined. Recall is worth most just before you walk into the middle, the Blast suit when the last stretch to a treasure looks risky. In AI simulations the Blast suit made the biggest difference.' },
+          { type: 'callout', tone: 'note', title: 'What an item game counts for', text: 'Detector and Recall do not use your move. A game with items is marked on the result screen and in your records, and does not count for the Hard certificate, piece earnings or Hall of Fame wins. The win or loss is still recorded. Spending a black piece also lowers your black-piece count for the week.' },
         ],
       },
       {

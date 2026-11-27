@@ -71,7 +71,8 @@ export const HARD_GAMES: GameId[] = [
 ];
 
 export function isHardClear(game: GameId, mode: string, result: string, detail: Record<string, unknown>) {
-  if (result !== 'win') return false;
+  // A game won with paid items (망각의 지뢰) certifies nothing (the SQL is_hard_clear says the same).
+  if (result !== 'win' || detail.items) return false;
   const level = (detail.difficulty ?? detail.level) as string | undefined;
   return (mode === 'ai' && level === 'hard') || (game === 'sudoku' && mode === 'solo' && level === 'hard');
 }

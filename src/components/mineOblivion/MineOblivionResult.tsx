@@ -2,15 +2,18 @@
 
 import { useEffect } from 'react';
 import { History, X } from 'lucide-react';
-import { type MoSeat, other, treasuresBy } from '@/lib/mineOblivion';
+import { type MoItem, type MoSeat, other, treasuresBy } from '@/lib/mineOblivion';
+import { MO_ITEM_ORDER, itemCounts, usedItems } from '@/lib/mineOblivionItems';
 import type { MoRoom } from '@/lib/mineOblivionRoom';
 import { reportGame } from '@/lib/stats';
 import { REVEAL_MS } from '@/hooks/useEndReveal';
 import ResultActions from '../ResultActions';
 import { BTN, KICKER, MODAL, MODAL_BACKDROP, MODAL_CLOSE, RESULT_PRIMARY, STEEL_TEXT } from '../ui/gameUi';
 import { type MoCopy, endingText } from './copy';
-import { MineStone, TreasureStone, WALKER, WalkerStone } from './MineStones';
+import { WALKER, WalkerStone } from './MineStones';
 import { moName } from './MineOblivionTable';
+import { ITEM_ICON } from './MineOblivionItems';
+import MineOblivionBreakdown from './MineOblivionBreakdown';
 import { playWin } from './sound';
 
 /** Mines each seat stepped on, and how many of them were its own (known once the game is over). */
@@ -35,7 +38,9 @@ export function useMoReport(room: MoRoom | null, mySeat: number | null, mode: 'a
     reportGame(`mine_oblivion-${mode}-${gid}-${me}`, 'mine_oblivion', mode, result, {
       score: g.score[me], opp: g.score[other(me)], treasures: treasuresBy(g, me), blasts: b.hits, ownBlasts: b.own,
       moves: g.log.length, ending: g.ending, first: g.first === me,
-      ...(room.ai.some(Boolean) && mode === 'ai' ? { level: room.level } : {}),
+      ...(room.ai.some(Boolean) && mode === 'ai' ? { level: room.level, gid: g.gid } : {}),
+      // Items mark the game (not a hard clear, no pieces, no Hall win); the server also adds `items` from its log.
+      ...(usedItems(g, me) ? { items: (g.items ?? []).filter((u) => u.seat === me).length, itemUse: itemCounts(g, me) } : {}),
     }, { revealDelayMs: REVEAL_MS + 300 });
   }, [done, gid, mySeat, mode, room]);
 }
@@ -59,26 +64,38 @@ export default function MineOblivionResult({ room, mySeat, t, onAgain, onClose, 
             const b = blastStats(room, s);
             const won = g.winner === s;
             return (
-              <div key={s} className={`flex items-center gap-3 rounded-[12px] border px-3 py-2.5 ${won ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-white/10 bg-white/[0.03]'}`}>
+              <div key={s} className={`flex items-center gap-3 rounded-[12px] border px-3 py-2 ${won ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-white/10 bg-white/[0.03]'}`}>
                 <WalkerStone seat={s} size={40} glow={won} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold">{moName(room, s, mySeat, t)}</p>
-                  <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-white/55">
-                    <span className="flex items-center gap-1"><TreasureStone size={14} />{t.stats.treasures} {treasuresBy(g, s)}</span>
-                    <span className="flex items-center gap-1"><MineStone size={14} state="blast" />{t.stats.blasts} {b.hits}{b.own ? ` (${t.stats.own} ${b.own})` : ''}</span>
-                  </p>
+                  {b.own > 0 && <p className="mt-0.5 text-[11px] text-white/50">{t.stats.blasts} {b.hits} ({t.stats.own} {b.own})</p>}
                 </div>
                 <b className="font-mono text-3xl font-black tabular-nums" style={{ color: WALKER[s].color }}>{g.score[s]}</b>
               </div>
             );
           })}
         </div>
+        <div className="mt-2"><MineOblivionBreakdown g={g} seats={[order[0], order[1]]} names={[moName(room, order[0], mySeat, t), moName(room, order[1], mySeat, t)]} t={t} /></div>
+        {me !== null && usedItems(g, me) && <ItemsUsed counts={itemCounts(g, me)} t={t} />}
         <p className="mt-3 break-keep text-[11px] leading-4 text-white/45">{t.replayAll}</p>
         <div className="mt-4">
           <ResultActions won={me === null || g.winner === null ? undefined : g.winner === me} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/mine-of-oblivion" primaryClass={RESULT_PRIMARY}
             replay={onReplay ? <button type="button" onClick={onReplay} className={`${BTN} w-full py-3`}><History size={14} />{t.replay}</button> : undefined} />
         </div>
       </div>
+    </div>
+  );
+}
+
+/** The mark of a game played with items: which ones, and what that leaves out. */
+function ItemsUsed({ counts, t }: { counts: Partial<Record<MoItem, number>>; t: MoCopy }) {
+  return (
+    <div className="mt-3 rounded-[12px] border border-[#5ee0c8]/40 bg-[#5ee0c8]/[0.07] px-3 py-2" data-testid="mo-items-used">
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] font-black text-[#9ff2e2]">
+        <span className="rounded-full bg-[#5ee0c8] px-2 py-0.5 text-[10px] text-[#062320]">{t.items.used}</span>
+        {MO_ITEM_ORDER.filter((i) => counts[i]).map((i) => <span key={i} className="flex items-center gap-1 text-white/80">{ITEM_ICON[i]({ size: 18 })}{t.items.name[i]} ×{counts[i]}</span>)}
+      </p>
+      <p className="mt-1 break-keep text-[11px] leading-4 text-white/55">{t.items.excluded}</p>
     </div>
   );
 }

@@ -3,11 +3,14 @@
 // 2) random full matches (random burials, random legal moves) never reach an illegal state.
 import assert from 'node:assert/strict';
 import {
-  MO_MOVE_LIMIT, type MineOblivion, type MoSeat, buryMines, buryCells, canBury, idx, legalMoves, mineMap, moFrames, neighbours, moveTo, newMineOblivion,
+  MO_MOVE_LIMIT, type MineOblivion, moBreakdown, type MoSeat, buryMines, buryCells, canBury, idx, legalMoves, mineMap, moFrames, neighbours, moveTo, newMineOblivion,
   randomBurial, respawnAt, respawnOptions, startOf, validBurial,
 } from '../../src/lib/mineOblivion';
 import { moKnowledge } from '../../src/lib/mineOblivionAi';
-import { rng } from './sim';
+import { MO_ITEMS, applyItem, itemBlock, itemsLeft, probeTargets, usedItems } from '../../src/lib/mineOblivionItems';
+import { createMoRoom, reduceMoRoom } from '../../src/lib/mineOblivionRoom';
+import { reduceMoSolo } from '../../src/lib/mineOblivionSolo';
+import { playOne, rng } from './sim';
 
 const at = (r: number, c: number) => idx(r, c);
 let checks = 0;
@@ -130,7 +133,70 @@ for (let game = 0; game < N; game += 1) {
   ok(h.winner === null ? h.score[0] === h.score[1] : h.score[h.winner] > h.score[1 - h.winner], 'higher score wins, equal draws');
   const frames = moFrames(h);
   eq(frames.at(-1)!.score, h.score, 'replay rebuilds the final score');
+  for (const seat of [0, 1] as MoSeat[]) {
+    const b = moBreakdown(h, seat);
+    eq(b.total, h.score[seat], 'breakdown adds up to the score');
+    eq(b.treasure + b.minePoints + b.numbers, h.score[seat], 'treasure + mines + numbers = score');
+    eq(b.minePoints, b.mines ? -5 * b.mines : 0, 'each mine costs 5');
+  }
   eq(frames.at(-1)!.pos, h.pos, 'replay rebuilds the final position');
   endings[h.ending!] = (endings[h.ending!] ?? 0) + 1;
+}
+
+// ── Items (AI matches) ──
+{
+  let h: MineOblivion = buryMines(buryMines(newMineOblivion(0, 'items'), 0, own0)!, 1, own1)!;
+  ok(itemBlock(h, 1, 'probe') === 'turn', 'items only on your own move');
+  // Probe a cell next to the start: the number is what stepping there would score, and nothing moves.
+  const cell = probeTargets(h, 0)[0];
+  const p1 = applyItem(h, 0, 'probe', cell)!;
+  eq(p1.items![0].number, neighbours()[cell].reduce((n, c) => n + mineMap(h)[c], 0), 'probe number = mines around the cell');
+  eq([p1.pos, p1.turn, p1.log.length, p1.score], [h.pos, h.turn, h.log.length, h.score], 'probe uses no move');
+  ok(applyItem(h, 0, 'probe', at(5, 5)) === null, 'probe only next to you');
+  const p2 = applyItem(p1, 0, 'probe', cell)!;
+  ok(itemsLeft(p2, 0, 'probe') === 0 && itemBlock(p2, 0, 'probe') === 'cap' && applyItem(p2, 0, 'probe', cell) === null, `probe cap ${MO_ITEMS.probe.cap}`);
+  const r1 = applyItem(h, 0, 'recall')!;
+  eq([r1.pos, r1.turn, r1.log.length], [h.pos, h.turn, h.log.length], 'recall uses no move');
+  // Blast suit: walk seat 0 onto a mine with it armed.
+  h = applyItem(h, 0, 'suit')!;
+  ok(h.suit![0] && itemBlock(h, 0, 'suit') !== null, 'suit armed once');
+  // Seat 0 at (10,0): (9,1) then (8,2) (no mines: inside the no-go zone), seat 1 moves around its corner.
+  const walk = (x: MineOblivion, seat: MoSeat, to: number) => { const y = moveTo(x, seat, to); assert.ok(y, `move ${seat}→${to}`); return y!; };
+  h = walk(h, 0, at(9, 1)); h = walk(h, 1, at(1, 9)); h = walk(h, 0, at(8, 2)); h = walk(h, 1, at(0, 10));
+  ok(h.suit![0], 'suit still on before a mine');
+  // (7,1) holds seat 1's mine.
+  const before = h;
+  h = walk(h, 0, at(7, 1));
+  const st = h.log.at(-1)!;
+  ok(st.kind === 'mine' && st.shielded && st.gain === 0, 'suit: mine goes off for 0');
+  eq(h.score[0], before.score[0], 'suit: no −5');
+  ok(h.respawn === null && h.pos[0] === at(7, 1) && h.turn === 1, 'suit: no walk back, turn passes');
+  ok(h.craters.includes(at(7, 1)) && h.minedCells === before.minedCells - 1 && mineMap(h)[at(7, 1)] === 0, 'suit: crater and count as usual');
+  ok(!h.suit![0], 'suit spent');
+  const fr = moFrames(h);
+  eq(fr.at(-1)!.pos, h.pos, 'replay keeps a shielded walker on the crater');
+  ok(usedItems(h, 0) && !usedItems(h, 1), 'item game is marked for its user only');
+  { const b = moBreakdown(h, 0); ok(b.shielded === 1 && b.mines === 0 && b.total === h.score[0], 'breakdown: a shielded mine costs nothing and adds up'); }
+  // Rooms: the room reducer has no item action; the solo reducer refuses items outside the AI match.
+  const solo = createMoRoom({ id: 'me', name: 'me', at: 0 }, { solo: true, level: 'hard' });
+  const room = { ...createMoRoom({ id: 'me', name: 'me', at: 0 }), game: h, phase: 'playing' as const, walkAt: 0 };
+  ok(reduceMoSolo(room, { t: 'item', item: 'recall' }, 0, true) === null, 'no items in a friend/open room');
+  ok(reduceMoRoom(room, { t: 'item' } as never, 0, true) === null, 'room protocol has no item action');
+  ok(reduceMoSolo(solo, { t: 'item', item: 'recall' }, 1, true) === null, 'the AI seat never uses items');
+}
+// ── Breakdown over AI games (treasure endings are common there), with items on one side ──
+{
+  const rand = rng(77);
+  let treasures = 0;
+  for (let i = 0; i < 40; i += 1) {
+    const { g: h } = playOne(['normal', 'hard'], (i % 2) as MoSeat, rand, i % 3 === 0 ? 0 : null);
+    for (const seat of [0, 1] as MoSeat[]) {
+      const b = moBreakdown(h, seat);
+      eq(b.total, h.score[seat], 'AI game: breakdown adds up');
+      eq(b.treasures.map((x) => x.value), b.treasures.map((x) => [10, 15, 20][x.order - 1]), 'treasure values follow the order found');
+      treasures += b.treasures.length;
+    }
+  }
+  ok(treasures > 40, 'AI games found treasure to break down');
 }
 console.log(`ok: ${checks} checks, ${N} random games`, endings);

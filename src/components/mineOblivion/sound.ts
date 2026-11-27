@@ -52,3 +52,11 @@ export function playTreasure() { const c = context(); if (!c) return; [659, 784,
 export function playBury(on: boolean) { const c = context(); if (!c) return; tone(c, on ? 320 : 240, 0.06, 0.04, 'square'); }
 /** The game is over and I won. */
 export function playWin() { const c = context(); if (!c) return; [523, 659, 784, 1047].forEach((f, i) => tone(c, f, 0.24, 0.05, 'triangle', i * 0.1)); }
+/** 탐지기: a sonar ping, then the reading (pitch like an announced number). */
+export function playProbe(n: number) { const c = context(); if (!c) return; tone(c, 1320, 0.12, 0.04, 'sine', 0, 880); tone(c, 1320, 0.1, 0.025, 'sine', 0.22, 990); tone(c, 440 + n * 70, 0.16, 0.045, 'sine', 0.55); }
+/** 기억 되살리기: a soft shimmer rising, then falling as the mines fade. */
+export function playRecall() { const c = context(); if (!c) return; [523, 659, 784].forEach((f, i) => tone(c, f, 0.5, 0.03, 'sine', i * 0.06)); tone(c, 784, 0.6, 0.02, 'triangle', 1.4, 392); }
+/** 방폭복 on: two heavy clasps. */
+export function playSuit() { const c = context(); if (!c) return; tone(c, 160, 0.09, 0.08, 'square'); tone(c, 220, 0.1, 0.06, 'square', 0.12); tone(c, 880, 0.25, 0.025, 'triangle', 0.24); }
+/** A mine goes off on 방폭복: a muffled thud and a bright clang (막았다!). */
+export function playSaved() { const c = context(); if (!c) return; noise(c, 0.35, 0.12); tone(c, 988, 0.35, 0.05, 'triangle', 0.08); tone(c, 1319, 0.4, 0.04, 'triangle', 0.16); }

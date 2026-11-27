@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { accentVars } from '../ui/gameUi';
-import type { MoEnding } from '@/lib/mineOblivion';
+import type { MoEnding, MoItem } from '@/lib/mineOblivion';
 import type { MoLevel } from '@/lib/mineOblivionAi';
 
 export const MO_ACCENT = '#ffb020';
@@ -32,7 +32,9 @@ const ko = {
     blank: (who: string) => `${who} · 이미 점수를 받은 칸 (0점)`,
     mine: (who: string) => `${who} · 지뢰를 밟았어요!`,
     treasure: (who: string, v: number) => `${who} · 보물 발견! +${v}`,
+    saved: (who: string) => `${who} · 지뢰! 방폭복이 막았어요 (0점, 그 자리에 그대로)`,
   },
+  savedFlash: '막았다!',
   gain: (g: number) => (g > 0 ? `+${g}점` : g < 0 ? `${g}점` : '0점'),
   sawHint: '이 숫자는 곧 사라져요. 기억해 두세요.',
   craterNote: '지뢰가 터진 칸은 비었어요(나중에 밟으면 점수 계산).',
@@ -73,6 +75,40 @@ const ko = {
     '보물 칸도 처음 밟은 사람은 둘레 숫자만큼 점수를 더 받아요.',
     '시즌 2처럼 70수 제한을 두고, 같은 점수면 무승부예요. 시한폭탄(시즌 2)과 연습판은 없어요.',
   ],
+  breakdown: {
+    title: '점수 내역', numbers: '숫자', treasure: '보물', mines: '지뢰', total: '합계', decided: '승부처', none: '없음',
+    order: (n: number) => `${n}번째`, mineCalc: (n: number) => `${n}번 × −5`, shielded: (n: number) => `방폭복 ${n}`, cells: (n: number) => `${n}칸에서`,
+    note: '보물은 찾은 순서대로 +10, +15, +20. 승부처 = 두 사람 차이가 가장 큰 줄.',
+  },
+  pointsTip: [
+    '승부는 대개 숫자 점수에서 갈려요. 보물 하나보다 지뢰 옆 칸에서 모은 숫자가 더 클 때가 많아요.',
+    '보물은 늦게 찾을수록 커요(+10, +15, +20). 마지막 보물이 가장 값지고, 찾는 순간 게임이 끝나요.',
+  ],
+  // Items (AI matches only)
+  items: {
+    title: 'ITEMS', aiOnly: 'AI 대전 전용', piece: '피스', black: '블랙피스', walletLabel: '내 피스와 블랙피스', membersOnly: '회원 전용',
+    name: { probe: '탐지기', recall: '기억 되살리기', suit: '방폭복' } as Record<MoItem, string>,
+    desc: { probe: '옆 칸 둘레 지뢰 수', recall: '내 지뢰 2초 보기', suit: '다음 지뢰 1번 막기' } as Record<MoItem, string>,
+    price: (n: number, black: boolean) => `${black ? '블랙피스' : '피스'} ${n}`,
+    priceShort: (n: number, black: boolean) => `${black ? '블랙' : '피스'} ${n}`,
+    left: (n: number) => `${n}번 남음`,
+    block: { signin: '로그인 필요', turn: '내 차례에', cap: '이번 판 다 씀', armed: '착용 중', funds: '부족해요', over: '끝난 판' },
+    armed: '착용 중 · 다음 지뢰 막음', picking: '칸을 고르세요',
+    pickCell: '탐지할 칸을 판에서 고르세요 (내 둘레 8칸). 탐지기를 다시 누르면 취소, 피스는 칸을 고를 때 빠져요.',
+    probeSaid: (n: number) => `탐지기: 그 칸 둘레 지뢰 ${n}개`,
+    suitNote: '탐지기·기억 되살리기는 수를 쓰지 않아요. 방폭복은 한 판 1번, 지뢰를 못 밟고 끝나도 소멸돼요.',
+    locked: '로그인한 회원은 피스·블랙피스로 아이템을 쓸 수 있어요.', signIn: '로그인',
+    hintTitle: '새 기능: 아이템', hint: '모은 피스로 탐지기·기억 되살리기, 블랙피스로 방폭복을 써 보세요. AI 대전에서만 쓸 수 있어요.',
+    errors: { signin: '로그인이 필요해요.', item: '쓸 수 없는 아이템이에요.', level: '쓸 수 없는 판이에요.', match: '쓸 수 없는 판이에요.', cap: '이번 판에 쓸 수 있는 만큼 다 썼어요.', funds: '피스가 모자라요. 차감되지 않았어요.', network: '연결 문제로 쓰지 못했어요. 차감되지 않았어요.' },
+    used: '아이템 사용', excluded: '아이템을 쓴 판이라 어려움 인증서·피스 획득·명예의 전당 승수에는 들어가지 않아요. 승패 기록은 남아요.',
+    rulesTitle: '아이템 (AI 대전, 회원)',
+    rules: [
+      '탐지기 (피스 1, 판당 2번): 움직이지 않고 내 둘레 칸 하나를 골라 그 칸 둘레의 지뢰 수를 잠깐 봐요. 그 칸 자체가 지뢰인지는 알려 주지 않아요.',
+      '기억 되살리기 (피스 1, 판당 2번): 내가 묻은 지뢰가 2초 동안 다시 보여요. 둘 다 내 수를 쓰지 않아요.',
+      '방폭복 (블랙피스 1, 판당 1번): 켜 두면 다음에 밟는 지뢰가 −5점도, 되돌아가기도 없이 터지기만 해요. 끝까지 안 밟아도 소멸돼요.',
+    ],
+    replayUse: (item: string, n: number) => `${n + 1}수 전 · ${item}`,
+  },
   aiNote: '보통 AI는 사람처럼 자기 지뢰와 지난 숫자를 조금씩 잊어요. 어려움 AI는 본 것을 모두 기억하고 숫자로 상대 지뢰 위치를 확률로 계산해요. 둘 다 상대 지뢰는 몰라요.',
 };
 
@@ -97,7 +133,9 @@ const en: MoCopy = {
     blank: (who) => `${who} · already scored (0)`,
     mine: (who) => `${who} · stepped on a mine!`,
     treasure: (who, v) => `${who} · treasure! +${v}`,
+    saved: (who) => `${who} · a mine! The blast suit took it (0, and stays put)`,
   },
+  savedFlash: 'Blocked!',
   gain: (g) => (g > 0 ? `+${g}` : `${g}`),
   sawHint: 'This number will fade. Remember it.',
   craterNote: 'A blown cell is empty now (it scores when stepped on later).',
@@ -133,6 +171,39 @@ const en: MoCopy = {
     'The first visitor to a treasure also scores its number.',
     'A 70-move limit as in season 2, and equal scores are a draw. No time bombs (season 2) and no practice board.',
   ],
+  breakdown: {
+    title: 'SCORE', numbers: 'Numbers', treasure: 'Treasure', mines: 'Mines', total: 'Total', decided: 'Decider', none: 'none',
+    order: (n) => (n === 1 ? '1st' : n === 2 ? '2nd' : '3rd'), mineCalc: (n) => `${n} × −5`, shielded: (n) => `suit ${n}`, cells: (n) => `${n} cell${n === 1 ? '' : 's'}`,
+    note: 'Treasure is +10, +15, +20 in the order found. Decider = the line with the biggest gap.',
+  },
+  pointsTip: [
+    'Games are usually decided by the numbers you collect: the cells next to mines often add up to more than a treasure.',
+    'Treasure is worth more the later it is found (+10, +15, +20). The last one is worth most, and finding it ends the game.',
+  ],
+  items: {
+    title: 'ITEMS', aiOnly: 'AI matches only', piece: 'Pieces', black: 'Black', walletLabel: 'Your pieces and black pieces', membersOnly: 'Members only',
+    name: { probe: 'Detector', recall: 'Recall', suit: 'Blast suit' },
+    desc: { probe: 'Mines around a cell next to you', recall: 'See your mines 2 s', suit: 'Blocks your next mine' },
+    price: (n, black) => `${n} ${black ? 'black piece' : 'piece'}${n === 1 ? '' : 's'}`,
+    priceShort: (n, black) => `${n} ${black ? 'black' : 'pc'}`,
+    left: (n) => `${n} left`,
+    block: { signin: 'Sign in', turn: 'On your move', cap: 'Used up', armed: 'Wearing it', funds: 'Not enough', over: 'Game over' },
+    armed: 'On · blocks the next mine', picking: 'Pick a cell',
+    pickCell: 'Pick a cell on the board (one of the eight around you). Tap Detector again to cancel; the piece is taken when you pick.',
+    probeSaid: (n) => `Detector: ${n} mine${n === 1 ? '' : 's'} around that cell`,
+    suitNote: 'Detector and Recall do not use your move. Blast suit: once a game, and it is spent even if you never step on a mine.',
+    locked: 'Members can spend pieces and black pieces on items.', signIn: 'Sign in',
+    hintTitle: 'New: items', hint: 'Spend pieces on Detector and Recall, a black piece on the Blast suit. AI matches only.',
+    errors: { signin: 'Please sign in.', item: 'That item cannot be used.', level: 'Not in this game.', match: 'Not in this game.', cap: 'Used as often as this game allows.', funds: 'Not enough pieces. Nothing was taken.', network: 'Connection problem: not used, nothing was taken.' },
+    used: 'Items used', excluded: 'A game with items does not count for the Hard certificate, piece earnings or Hall of Fame wins. The win or loss is still recorded.',
+    rulesTitle: 'Items (AI matches, members)',
+    rules: [
+      'Detector (1 piece, twice a game): without moving, pick a cell next to you and see how many mines are around it, for a moment. It does not say whether that cell itself is a mine.',
+      'Recall (1 piece, twice a game): your own mines show again for 2 seconds. Neither uses your move.',
+      'Blast suit (1 black piece, once a game): while on, the next mine you step on goes off without the −5 and without sending you back. Spent even if you never step on one.',
+    ],
+    replayUse: (item, n) => `before move ${n + 1} · ${item}`,
+  },
   aiNote: 'Normal AI forgets some of its own mines and older numbers, like a person. Hard AI remembers everything it saw and computes where your mines can be from the numbers. Neither knows your mines.',
 };
 

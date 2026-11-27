@@ -35,6 +35,10 @@
  *  9. [site] Resigning loses. In rooms a player has 120 s to bury and 30 s per move; a missed move is played by the
  *     AI for that seat (as in the site's other rooms) until the player comes back.
  *
+ * Items (AI matches only; src/lib/mineOblivionItems.ts): 탐지기 shows the number of a cell next to you without moving,
+ * 기억 되살리기 shows your own mines again for a moment, 방폭복 makes the next mine you step on cost nothing and not
+ * send you back (the mine still goes off: crater, count down by one, the turn passes). Rooms never use them.
+ *
  * Left out on purpose: season 2's time bombs (one tight mode instead of two half-explained ones) and the 9×9 practice
  * game. See siteDiff on the two show pages.
  */
@@ -67,7 +71,13 @@ export type MoStep = {
   respawn?: number;
   /** Mines removed by the explosion (1 or 2 on a double cell); not shown to players before the end. */
   removed?: number;
+  /** A mine stepped on while wearing 방폭복 (AI matches only): no −5, no walk back; the player stays on the crater. */
+  shielded?: true;
 };
+
+export type MoItem = 'probe' | 'recall' | 'suit';
+/** One item used (AI matches only). `n` = moves played when it was used (it came before move n + 1). */
+export type MoItemUse = { item: MoItem; seat: MoSeat; n: number; cell?: number; number?: number };
 
 export type MoTreasure = { cell: number; by: MoSeat | null; value: number; n: number };
 
@@ -96,6 +106,9 @@ export type MineOblivion = {
   ending: MoEnding | null;
   winner: MoSeat | null; // null with an ending = draw
   resigned?: MoSeat;
+  /** AI matches only (never set in rooms): items used, oldest first, and whose 방폭복 is on now. */
+  items?: MoItemUse[];
+  suit?: [boolean, boolean];
 };
 
 // ── Geometry ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -208,6 +221,13 @@ export function moveTo(g: MineOblivion, seat: MoSeat, to: number): MineOblivion 
   pos[seat] = to;
   const score = [...g.score] as [number, number];
   const n = g.log.length + 1;
+  if (map[to] > 0 && g.suit?.[seat]) {
+    // 방폭복: the mine goes off (crater, one mined cell fewer) but costs nothing and nobody walks back.
+    const step: MoStep = { n, seat, from, to, kind: 'mine', number: null, gain: 0, removed: map[to], shielded: true };
+    const suit = [...g.suit] as [boolean, boolean];
+    suit[seat] = false;
+    return settle({ ...g, pos, craters: [...g.craters, to], log: [...g.log, step], suit, turn: other(seat), minedCells: g.minedCells - 1 });
+  }
   if (map[to] > 0) {
     score[seat] -= MO_PENALTY;
     const step: MoStep = { n, seat, from, to, kind: 'mine', number: null, gain: -MO_PENALTY, removed: map[to] };
@@ -294,4 +314,42 @@ export function moFrames(g: MineOblivion): MoFrame[] {
     frames.push({ step: s, pos, score, scored, craters, found, trail });
   }
   return frames;
+}
+
+// ── Score breakdown (result screen, 복기) ───────────────────────────────────────────────────────────────────────
+export type MoBreakdown = {
+  /** Treasure points, one entry per treasure found, in the order the game found them (1st +10, 2nd +15, 3rd +20). */
+  treasures: { value: number; order: number }[];
+  treasure: number;
+  /** Mines that cost points (−5 each); mines a 방폭복 took are counted apart and cost nothing. */
+  mines: number;
+  minePoints: number;
+  shielded: number;
+  /** Numbers scored on cells (treasure cells included: their first visitor scores the number too). */
+  numbers: number;
+  /** Cells that scored a number. */
+  numberCells: number;
+  total: number;
+};
+
+/** Where a seat's score came from, rebuilt from the step log: always adds up to the score (scripts/mine-oblivion/check.ts). */
+export function moBreakdown(g: MineOblivion, seat: MoSeat, upTo = g.log.length): MoBreakdown {
+  const out: MoBreakdown = { treasures: [], treasure: 0, mines: 0, minePoints: 0, shielded: 0, numbers: 0, numberCells: 0, total: 0 };
+  let found = 0;
+  for (const s of g.log.slice(0, upTo)) {
+    if (s.kind === 'treasure') found += 1;
+    if (s.seat !== seat) continue;
+    if (s.kind === 'mine') { if (s.shielded) out.shielded += 1; else { out.mines += 1; out.minePoints += s.gain; } continue; }
+    if (s.number !== null) { out.numbers += s.number; out.numberCells += 1; }
+    if (s.kind === 'treasure' && s.treasure) { out.treasures.push({ value: s.treasure, order: found }); out.treasure += s.treasure; }
+  }
+  out.total = out.treasure + out.minePoints + out.numbers;
+  return out;
+}
+
+export type MoBreakdownLine = 'treasure' | 'mines' | 'numbers';
+/** The line that decided the game: the biggest gap between the two seats (ties go numbers → treasure → mines). */
+export function decidingLine(a: MoBreakdown, b: MoBreakdown): MoBreakdownLine {
+  const gaps: [MoBreakdownLine, number][] = [['numbers', a.numbers - b.numbers], ['treasure', a.treasure - b.treasure], ['mines', a.minePoints - b.minePoints]];
+  return gaps.reduce((best, x) => (Math.abs(x[1]) > Math.abs(best[1]) ? x : best))[0];
 }

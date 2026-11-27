@@ -9,8 +9,9 @@ import { MO_MEMORIZE_MS, MO_WARN_SEC, type MoRoom, type MoRoomAction } from '@/l
 import { BTN, BTN_ACCENT } from '../ui/gameUi';
 import { type MoCopy, endingText } from './copy';
 import MineOblivionBoard, { type MoFlash, type ShownMine } from './MineOblivionBoard';
-import { MineStone, TreasureStone, WALKER, WalkerStone } from './MineStones';
-import { moSoundOn, playBlast, playBury, playNumber, playStep, playTreasure, setMoSound } from './sound';
+import type { MoItemsView } from './MineOblivionItems';
+import { MineStone, ShieldRing, TreasureStone, WALKER, WalkerStone } from './MineStones';
+import { moSoundOn, playBlast, playBury, playNumber, playSaved, playStep, playTreasure, setMoSound } from './sound';
 
 export const moName = (room: MoRoom, seat: MoSeat, mySeat: number | null, t: MoCopy) =>
   seat === mySeat ? t.you : room.ai[seat] && !room.away?.[seat] ? `${t.ai} · ${t.levelName[room.level]}` : room.seats[seat]?.name ?? t.opp;
@@ -34,14 +35,15 @@ export function allMines(g: MineOblivion, gone: number[], state: ShownMine['stat
   return [...out.values()];
 }
 
-export function stepFlash(step: MoStep): MoFlash {
+export function stepFlash(step: MoStep, savedText = '!'): MoFlash {
+  if (step.shielded) return { cell: step.to, text: savedText, tone: 'saved', key: `s${step.n}`, number: null };
   const tone = step.kind;
   const text = tone === 'treasure' ? `+${step.gain}` : tone === 'blank' ? '0' : tone === 'mine' ? '−5' : String(step.number ?? 0);
   return { cell: step.to, text, tone, key: `s${step.n}`, number: step.number };
 }
 
 export function stepLine(step: MoStep, who: string, t: MoCopy) {
-  return step.kind === 'mine' ? t.saw.mine(who) : step.kind === 'treasure' ? t.saw.treasure(who, step.treasure ?? 0) : step.kind === 'blank' ? t.saw.blank(who) : t.saw.score(who, step.number ?? 0);
+  return step.shielded ? t.saw.saved(who) : step.kind === 'mine' ? t.saw.mine(who) : step.kind === 'treasure' ? t.saw.treasure(who, step.treasure ?? 0) : step.kind === 'blank' ? t.saw.blank(who) : t.saw.score(who, step.number ?? 0);
 }
 
 /** 묻기 → 이동 → 결과 */
@@ -76,8 +78,10 @@ function Seat({ room, seat, mySeat, t, active, right }: { room: MoRoom; seat: Mo
 }
 
 /** The game screen: shared by the AI match and rooms. */
-export default function MineOblivionTable({ room, mySeat, onAction, t, rooms = false, reveal = false }: {
+export default function MineOblivionTable({ room, mySeat, onAction, t, rooms = false, reveal = false, items = null }: {
   room: MoRoom; mySeat: number | null; onAction: (a: MoRoomAction) => void; t: MoCopy; rooms?: boolean; reveal?: boolean;
+  /** The AI match's item bar and effects (src/components/mineOblivion/MineOblivionItems.tsx); rooms pass nothing. */
+  items?: MoItemsView | null;
 }) {
   const g = room.game;
   const me = (mySeat === 0 || mySeat === 1 ? mySeat : null) as MoSeat | null;
@@ -114,7 +118,8 @@ export default function MineOblivionTable({ room, mySeat, onAction, t, rooms = f
     stepRef.current = g.log.length;
     if (!lastStep) return;
     playStep();
-    if (lastStep.kind === 'mine') playBlast();
+    if (lastStep.shielded) playSaved();
+    else if (lastStep.kind === 'mine') playBlast();
     else if (lastStep.kind === 'treasure') playTreasure();
     else if (lastStep.number !== null) playNumber(lastStep.number);
   }, [g.log.length, lastStep]);
@@ -127,19 +132,24 @@ export default function MineOblivionTable({ room, mySeat, onAction, t, rooms = f
   const waiting = g.phase === 'walk' ? (g.respawn ?? g.turn) : null;
   const myTurn = me !== null && waiting === me && !memorizing;
   const respawning = me !== null && g.respawn === me;
+  const probing = !!items?.probeCells && myTurn && !respawning;
   const targets = g.phase === 'bury'
     ? (me !== null && !g.ready[me] ? Array.from({ length: g.size * g.size }, (_, i) => i).filter((c) => canBury(c, g.size)) : [])
-    : myTurn ? (respawning ? respawnOptions(g, me) : legalMoves(g, me)) : [];
+    : items?.busy ? []
+      : probing ? items!.probeCells!
+        : myTurn ? (respawning ? respawnOptions(g, me) : legalMoves(g, me)) : [];
 
   const frames = useMemo(() => (finished ? moFrames(g) : null), [finished, g]);
   const shown: ShownMine[] = useMemo(() => {
     if (finished) return allMines(g, g.craters);
     if (g.phase === 'bury' && me !== null) return (g.ready[me] ? myMines : picks).map((cell) => ({ cell, owner: me, state: 'armed' as const }));
     if (memorizing && me !== null) return myMines.map((cell) => ({ cell, owner: me, state: 'dormant' as const, fading: true }));
+    // 기억 되살리기: my live mines, fading in and out.
+    if (items?.recall && me !== null && g.phase === 'walk') return myMines.filter((c) => !g.craters.includes(c)).map((cell) => ({ cell, owner: me, state: 'dormant' as const, recall: true }));
     return [];
-  }, [finished, g, me, myMines, picks, memorizing]);
+  }, [finished, g, me, myMines, picks, memorizing, items?.recall]);
 
-  const flash = lastStep && !finished ? stepFlash(lastStep) : null;
+  const flash = lastStep && !finished ? stepFlash(lastStep, t.savedFlash) : null;
   const nameOf = (s: MoSeat) => moName(room, s, mySeat, t);
   const secLeft = rooms && !finished && room.deadline < Number.MAX_SAFE_INTEGER / 2 && now > 0 ? Math.max(0, Math.ceil((room.deadline - now) / 1000)) : null;
 
@@ -154,7 +164,9 @@ export default function MineOblivionTable({ room, mySeat, onAction, t, rooms = f
       });
       return;
     }
-    if (!myTurn) return;
+    if (!myTurn || items?.busy) return;
+    items?.onBoardTap();
+    if (probing) { items!.onProbe(cell); return; }
     onAction(respawning ? { t: 'respawn', to: cell } : { t: 'move', to: cell });
   };
   const fillRandom = () => setPicks((list) => {
@@ -184,8 +196,9 @@ export default function MineOblivionTable({ room, mySeat, onAction, t, rooms = f
       scored={footprints(g)} craters={g.craters}
       treasures={g.treasures.map((tr) => ({ cell: tr.cell, found: tr.by !== null }))}
       mines={shown} zones={g.phase === 'bury' ? 'bury' : 'walk'}
-      targets={targets} targetTone={g.phase === 'bury' ? 'bury' : respawning ? 'respawn' : 'move'} onCell={tap}
-      flash={flash} shakeKey={lastStep?.kind === 'mine' && !finished ? `x${lastStep.n}` : null}
+      targets={targets} targetTone={g.phase === 'bury' ? 'bury' : probing ? 'probe' : respawning ? 'respawn' : 'move'} onCell={tap}
+      flash={flash} shakeKey={lastStep?.kind === 'mine' && !lastStep.shielded && !finished ? `x${lastStep.n}` : null}
+      probe={items?.probe ?? null} shield={me !== null && g.suit?.[me] && !finished ? me : null}
       trails={finished && frames ? frames[frames.length - 1].trail : null} ownerRings={finished}
       me={me} names={[nameOf(0), nameOf(1)]} label={t.title}
     />
@@ -193,7 +206,7 @@ export default function MineOblivionTable({ room, mySeat, onAction, t, rooms = f
 
   return (
     <div className="mx-auto grid w-full max-w-[920px] gap-3 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:items-start">
-      <div className="grid gap-2">
+      <div className="grid gap-2" data-testid="mo-play">
         <PhaseSteps t={t} phase={phase} />
         <div className="flex items-stretch gap-2">
           <Seat room={room} seat={view} mySeat={mySeat} t={t} active={waiting === view && !finished} />
@@ -214,6 +227,7 @@ export default function MineOblivionTable({ room, mySeat, onAction, t, rooms = f
         </div>
         {g.phase !== 'bury' && <div className="lg:hidden"><Announcement room={room} t={t} step={lastStep} nameOf={nameOf} finished={finished} compact /></div>}
         {board}
+        {items?.bar}
         {g.phase === 'bury' && me !== null && !g.ready[me] && (
           <div className="grid grid-cols-[auto_1fr_1fr] items-center gap-2">
             <span className="flex items-center gap-1 rounded-md border border-white/10 bg-black/40 px-2.5 py-2 font-mono text-sm font-black"><MineStone size={18} state="armed" />{t.buryCount(picks.length, g.mines)}</span>
@@ -258,12 +272,13 @@ function Announcement({ room, t, step, nameOf, finished, compact = false }: { ro
   void room;
   const h = compact ? 'min-h-[48px] py-1' : 'min-h-[64px] py-2';
   if (!step) return <div className={`flex ${h} items-center justify-center rounded-[12px] border border-dashed border-white/12 bg-black/25 px-3 text-center text-[11px] text-white/40 break-keep`}>{t.legend}</div>;
-  const big = step.kind === 'mine' ? '−5' : step.kind === 'blank' ? '0' : step.kind === 'treasure' ? `+${step.gain}` : String(step.number);
-  const color = step.kind === 'mine' ? '#ff6b5a' : step.kind === 'treasure' ? '#ffd23f' : step.kind === 'blank' ? '#9aa3ad' : '#ffffff';
+  const big = step.shielded ? '0' : step.kind === 'mine' ? '−5' : step.kind === 'blank' ? '0' : step.kind === 'treasure' ? `+${step.gain}` : String(step.number);
+  const color = step.shielded ? '#5ee0ff' : step.kind === 'mine' ? '#ff6b5a' : step.kind === 'treasure' ? '#ffd23f' : step.kind === 'blank' ? '#9aa3ad' : '#ffffff';
   return (
     <div key={step.n} className={`mo-pop flex ${h} items-center gap-3 rounded-[12px] border px-3 ${step.kind === 'mine' ? 'border-[#ff6b5a]/60 bg-[#ff3b30]/12' : step.kind === 'treasure' ? 'border-[#ffd23f]/60 bg-[#ffd23f]/10' : 'border-white/12 bg-black/40'}`}>
       <span className={`relative flex shrink-0 items-center justify-center ${compact ? 'h-9 w-9' : 'h-12 w-12'}`}>
-        {step.kind === 'mine' ? <MineStone size={compact ? 38 : 48} state="blast" /> : step.kind === 'treasure' ? <TreasureStone size={compact ? 34 : 44} /> : <WalkerStone seat={step.seat} size={compact ? 32 : 42} />}
+        {step.shielded ? <span className="relative block" style={{ width: compact ? 34 : 44, height: compact ? 34 : 44 }}><WalkerStone seat={step.seat} size={compact ? 30 : 40} className="absolute inset-0 m-auto" /><ShieldRing burst className="absolute inset-[-10%] h-[120%] w-[120%]" /></span>
+          : step.kind === 'mine' ? <MineStone size={compact ? 38 : 48} state="blast" /> : step.kind === 'treasure' ? <TreasureStone size={compact ? 34 : 44} /> : <WalkerStone seat={step.seat} size={compact ? 32 : 42} />}
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-[12px] font-bold text-white/80">{stepLine(step, nameOf(step.seat), t)}</p>

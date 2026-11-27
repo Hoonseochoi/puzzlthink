@@ -26,7 +26,14 @@ import {
 export type MoLevel = 'normal' | 'hard';
 export const MO_LEVELS: MoLevel[] = ['normal', 'hard'];
 /** A seat's private memory seed (normal level): which of its mines and which numbers it will forget. */
-export type MoMind = { seed: number };
+export type MoMind = {
+  seed: number;
+  /** Items (the simulation's item-using player only; the AI itself never uses items): own moves made when it last
+   * used 기억 되살리기, and the 탐지기 numbers it has seen. */
+  recallAt?: number;
+  probes?: MoProbe[];
+};
+export type MoProbe = { cell: number; number: number; n: number };
 export const rollMoMind = (rng: Rng = Math.random): MoMind => ({ seed: Math.floor(rng() * 2 ** 31) });
 
 const hash01 = (seed: number, a: number, b: number) => {
@@ -45,6 +52,7 @@ export type MoKnowledge = {
   own: number[]; // own mines it remembers (all of them at hard)
   ownAll: boolean; // whether `own` is complete
   steps: MoSeen[]; // announced moves it remembers, oldest first
+  probes: MoProbe[]; // 탐지기 numbers it saw and remembers (item-using players only)
   allSteps: number; // moves played so far
   pos: [number, number]; score: [number, number];
   scored: number[]; craters: number[];
@@ -59,16 +67,18 @@ export function moKnowledge(g: MineOblivion, seat: MoSeat, level: MoLevel, mind?
   const all: MoSeen[] = g.log.map(({ n, seat: s, from, to, kind, number, respawn }) => ({ n, seat: s, from, to, kind, number, respawn }));
   let own = [...g.buried[seat]];
   let steps = all;
+  let probes = mind?.probes ?? [];
   if (level === 'normal') {
     // Own mines fade: one in twenty is gone at the first move, one in four by the 40th.
-    const forget = Math.min(NORMAL.forgetMax, NORMAL.forget0 + NORMAL.forgetSlope * myMoves);
+    const forget = Math.min(NORMAL.forgetMax, NORMAL.forget0 + NORMAL.forgetSlope * Math.max(0, myMoves - (mind?.recallAt ?? 0)));
     own = own.filter((_, i) => hash01(seed, 1, i) >= forget);
     // Numbers: the last two moves are always remembered; one 10 moves old is gone four times in ten.
     const now = g.log.length;
     steps = all.filter((s) => { const age = now - s.n; return age < 2 || hash01(seed, 2, s.n) >= Math.min(0.92, NORMAL.obsFade * age); });
+    probes = probes.filter((p) => { const age = now - p.n; return age < 2 || hash01(seed, 3, p.n * 131 + p.cell) >= Math.min(0.92, NORMAL.obsFade * age); });
   }
   return {
-    size: g.size, seat, mines: g.mines, own, ownAll: level === 'hard', steps, allSteps: g.log.length,
+    size: g.size, seat, mines: g.mines, own, ownAll: level === 'hard', steps, probes, allSteps: g.log.length,
     pos: [...g.pos] as [number, number], score: [...g.score] as [number, number],
     scored: [...g.scored], craters: [...g.craters],
     treasures: g.treasures.map((t) => ({ cell: t.cell, found: t.by !== null })),
@@ -102,6 +112,12 @@ function hardBeliefs(k: MoKnowledge, rng: Rng): number[] {
       const ownHere = cells.filter((c) => S.has(c)).length;
       cons.push({ cells: cells.filter((c) => canBury(c, size)), k: s.number - ownHere });
     }
+  }
+  for (const p of k.probes) {
+    // A 탐지기 number: like an announced number, but the cell itself may hold a mine.
+    const gone = new Set(k.steps.filter((s) => s.kind === 'mine' && s.n <= p.n).map((s) => s.to));
+    const cells = nb[p.cell].filter((c) => !gone.has(c));
+    cons.push({ cells: cells.filter((c) => canBury(c, size)), k: p.number - cells.filter((c) => S.has(c)).length });
   }
   // Unknown-to-hard steps cannot happen (it remembers all), but craters in k.craters not in steps would: none.
   const inPool = allowed.filter((c) => S.has(c) && !forced0.has(c) && !forced1.has(c));
@@ -187,6 +203,13 @@ function normalBeliefs(k: MoKnowledge): number[] {
     if (!cand.length) continue;
     const p = Math.max(0, Math.min(1, (s.number - ownHere) / cand.length));
     cand.forEach((c) => est[c].push(p));
+  }
+  for (const p of k.probes) {
+    const cells = nb[p.cell].filter((c) => canBury(c, size) && !craters.has(c));
+    const cand = cells.filter((c) => !safe.has(c) && !S.has(c));
+    if (!cand.length) continue;
+    const q = Math.max(0, Math.min(1, (p.number - cells.filter((c) => S.has(c)).length) / cand.length));
+    cand.forEach((c) => est[c].push(q));
   }
   const prob = Array<number>(N).fill(0);
   for (const c of unknown) prob[c] = est[c].length ? (est[c].reduce((a, b) => a + b, 0) + base) / (est[c].length + 1) : base;
@@ -323,6 +346,13 @@ export function chooseMoMove(g: MineOblivion, seat: MoSeat, level: MoLevel, mind
   let r = rng() * w.reduce((a, b) => a + b, 0);
   for (let i = 0; i < w.length; i += 1) { r -= w[i]; if (r <= 0) return scored[i].c; }
   return scored[scored.length - 1].c;
+}
+
+/** How likely each of `cells` is to explode, as `seat` believes (the simulation's item policy). */
+export function moDanger(g: MineOblivion, seat: MoSeat, level: MoLevel, mind: MoMind | null | undefined, cells: number[], rng: Rng = Math.random) {
+  const k = moKnowledge(g, seat, level, mind);
+  const x: Ctx = { k, p: moBeliefs(k, level, rng), own: new Set(k.own), level, opp: g.pos[other(seat)] };
+  return cells.map((c) => danger(x, c));
 }
 
 /** After a mine: the respawn cell closest (in risk) to the best remaining treasure. */

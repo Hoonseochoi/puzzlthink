@@ -29,6 +29,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '망각의 지뢰', en: 'Mine of Oblivion' },
     items: [
       {
+        date: '11/28', icon: Scale,
+        ko: { title: '결과 화면에 점수 내역', desc: '보물(몇 번째에 찾았는지)·지뢰 감점·숫자 점수·합계를 두 사람 나란히 보여 주고, 차이가 가장 큰 줄을 승부처로 표시해요. 복기 끝에도 같은 내역이 나와요.' },
+        en: { title: 'Score breakdown on the result', desc: 'Treasure (and in which order it was found), mine penalties, number points and the total, side by side, with the line that decided the game marked. The same breakdown ends the replay.' },
+      },
+      {
+        date: '11/28', icon: Coins,
+        ko: { title: 'AI 대전에 아이템이 생겼어요', desc: '회원은 피스로 탐지기(옆 칸 둘레 지뢰 수)·기억 되살리기(내 지뢰 2초), 블랙피스로 방폭복(다음 지뢰 한 번 무효)을 쓸 수 있어요. 아이템을 쓴 판은 어려움 인증·피스 획득·명예의 전당 승수에서 빠져요.' },
+        en: { title: 'Items in AI matches', desc: 'Members can spend pieces on Detector (mines around a cell next to you) and Recall (your mines for 2 s), and a black piece on the Blast suit (your next mine costs nothing). Item games do not count for the Hard certificate, piece earnings or Hall wins.' },
+      },
+      {
         date: '11/28', icon: Sparkles,
         ko: { title: '망각의 지뢰가 열렸어요', desc: '데스게임 6회차 1:1 게임을 방송 규칙대로 옮겼어요. 지뢰 15개를 몰래 묻고, 내 지뢰마저 사라진 판을 걸으며 숫자를 기억해 보물을 찾아요. AI 보통·어려움과 친구·공개방 1:1.' },
         en: { title: 'Mine of Oblivion is here', desc: 'The 1:1 match from Death Game, with the broadcast rules: bury 15 secret mines, then walk a board that hides even yours, remembering the numbers to find treasure. Normal and hard AI, friend and open rooms.' },
