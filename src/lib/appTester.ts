@@ -13,7 +13,8 @@ export type TesterStatus =
   /** The RPCs are not there (migration not applied yet) or failed: show nothing. */
   | { kind: 'unavailable' }
   | { kind: 'not' }
-  | { kind: 'joined'; email: string };
+  /** `listed`: the email is on the Play Console tester list, so the Play opt-in page opens for them. */
+  | { kind: 'joined'; email: string; listed: boolean };
 
 type Entry = { uid: string; status: TesterStatus };
 let entry: Entry | null = null;
@@ -28,8 +29,8 @@ export function testerSnapshot(uid: string | null): TesterStatus {
   return uid && entry?.uid === uid ? entry.status : LOADING;
 }
 
-type Rpc = { joined?: boolean; email?: string | null } | null;
-const fromRpc = (data: Rpc): TesterStatus => data?.joined && data.email ? { kind: 'joined', email: data.email } : { kind: 'not' };
+type Rpc = { joined?: boolean; email?: string | null; listed?: boolean } | null;
+const fromRpc = (data: Rpc): TesterStatus => data?.joined && data.email ? { kind: 'joined', email: data.email, listed: data.listed !== false } : { kind: 'not' };
 
 /** Loads the signed-in member's status once per tab (again after sign-in as someone else). */
 export function loadTester(uid: string) {
