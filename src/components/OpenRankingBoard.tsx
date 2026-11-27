@@ -15,6 +15,7 @@ const GAMES: { id: GameId; color: string }[] = [
   { id: 'wallgo', color: '#ff6b4a' }, { id: 'wallgo2', color: '#e0283a' }, { id: 'nine_mens_morris', color: '#3ec9d6' }, { id: 'flip_omok', color: '#3fb8ff' }, { id: 'four_three', color: '#ffb52e' }, { id: 'black_white', color: '#2b2b31' }, { id: 'black_white_2', color: '#ef3340' },
   { id: 'laser_janggi', color: '#28b9d7' }, { id: 'russian_janggi', color: '#e2283c' }, { id: 'blind_gomoku', color: '#d39b2f' }, { id: 'janggi', color: '#e8a33c' },
   { id: 'time_auction', color: '#ff3b30' },
+  { id: 'mine_oblivion', color: '#ffb020' },
 ];
 const MEDALS = ['🥇', '🥈', '🥉'];
 type Ranking = { top: TopRow[]; near: RankRow[] };

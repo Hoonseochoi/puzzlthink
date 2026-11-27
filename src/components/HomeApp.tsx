@@ -30,7 +30,7 @@ import { AppTesterStrip } from './AppTesterInvite';
 import OriginalsRow from './OriginalsRow';
 
 // Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
-export const NEW: GameId[] = ['propositionGo', 'hiddenWordPlus', 'sniperHoldem', 'hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'timeAuction', 'gradation', 'pointOmok'];
+export const NEW: GameId[] = ['propositionGo', 'mineOblivion', 'hiddenWordPlus', 'sniperHoldem', 'hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'timeAuction', 'gradation', 'pointOmok'];
 const PUZZLE: GameId[] = ['propositionGo', 'slitherlink', 'hiddenWordPlus', 'hiddenWord', 'equationSignal', 'equationTower', 'magicswap', 'colorlink', 'merge2048', 'onestroke', 'starbattle', 'nonogram', 'binairo', 'masyu', 'sudoku', 'nemoCount', 'gyulhap', 'hexagon'];
 /** 오늘의 추천 on the phone home: set by the site owner. */
 /** 슬리더링크's card while its Christmas theme is the default: candy-cane stripes instead of the game's tint. */

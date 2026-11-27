@@ -5,12 +5,13 @@ import { useTranslations } from 'next-intl';
 import { Crown, DoorOpen, Loader2, Lock, Pencil, Play, Swords, Users, X } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import type { GameId } from '@/lib/gameCatalog';
-import { EMOTES, EMOTE_MS, closeOpenRoom, markOpenRoom, listOpenRooms, putOpenRoom, saveTitle, savedTitle } from '@/lib/openRooms';
+import { EMOTES, EMOTE_MS, closeOpenRoom, isAppOnlyOpen, markOpenRoom, listOpenRooms, putOpenRoom, saveTitle, savedTitle } from '@/lib/openRooms';
 import { type GameResult, type Tally, fetchHeadToHeadAll, fetchVersusRecord, lastResultAgainst } from '@/lib/stats';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import type { Peer } from '@/lib/room';
-import { GAME_MODES, type RoomHook } from './gameModes';
+import { GAME_MODES, type RoomHook, openVariants } from './gameModes';
+import { usePlayApp } from './playApp/usePlayApp';
 
 /** A quick reaction bubble over a name, for a few seconds after it was sent. */
 export function EmoteBubble({ peer, now }: { peer?: Peer; now: number }) {
@@ -42,10 +43,13 @@ export function EmoteButtons({ onEmote, className = '' }: { onEmote: (text: stri
 export default function OpenRoomPanel({ game, code, variant }: { game: GameId; code: string; variant: number }) {
   const modes = GAME_MODES[game];
   const { user, ready, configured } = useAuth();
+  const app = usePlayApp();
   if (!modes.useRoom || !ready) return null;
   // Open rooms are for signed-in players, so every game is recorded against each opponent.
   if (configured && !user) return <SignInPanel />;
-  return <Panel game={game} code={code} variant={variant} useRoom={modes.useRoom} />;
+  // App-only hosting (히든 워드): anyone joins, but outside the Play app this browser never lists a room as its host
+  // (a guest who took over from a host who left keeps the match going unlisted).
+  return <Panel game={game} code={code} variant={variant} useRoom={modes.useRoom} hostLocked={isAppOnlyOpen(game) && !app} />;
 }
 
 function Shell({ body, tab }: { body: React.ReactNode; tab: React.ReactNode }) {
@@ -99,7 +103,7 @@ function useRecords(uids: string[], myUid: string | undefined) {
 
 const played = (r: Tally | null | undefined) => !!r && r.win + r.loss + r.draw > 0;
 
-function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; variant: number; useRoom: RoomHook }) {
+function Panel({ game, code, variant, useRoom, hostLocked = false }: { game: GameId; code: string; variant: number; useRoom: RoomHook; hostLocked?: boolean }) {
   const t = useTranslations('OpenRoom');
   const tc = useTranslations('Common');
   const tg = useTranslations('GameGate');
@@ -129,13 +133,13 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
 
   // The host keeps the room in the public list while it waits, and takes it off when it starts or closes.
   useEffect(() => {
-    if (!isHost || state?.phase !== 'lobby' || !me) return;
+    if (!isHost || hostLocked || state?.phase !== 'lobby' || !me) return;
     // A guest who took over as host keeps the title the room was listed under.
     const put = () => putOpenRoom(game, code, { variant, host: me.name, players: humans, capacity, title: title.trim() || listedTitle || t('defaultTitle', { name: me.name }) });
     put();
     const timer = window.setInterval(put, 20_000);
     return () => window.clearInterval(timer);
-  }, [isHost, state?.phase, me, game, code, variant, humans, capacity, title, listedTitle, t]);
+  }, [isHost, hostLocked, state?.phase, me, game, code, variant, humans, capacity, title, listedTitle, t]);
   // Guests read the room title from the public list.
   useEffect(() => {
     if (isHost) return;
@@ -185,7 +189,7 @@ function Panel({ game, code, variant, useRoom }: { game: GameId; code: string; v
               {isHost && <Pencil size={12} className="shrink-0 text-white/40" />}
             </button>
           )}
-          <p className="mt-0.5 truncate text-[11px] font-bold text-white/55">{tc(game)}{modes.rooms.length > 1 ? ` · ${tg(`short_${option.label}`)}` : ''}</p>
+          <p className="mt-0.5 truncate text-[11px] font-bold text-white/55">{tc(game)}{openVariants(game).length > 1 ? ` · ${tg(`short_${option.label}`)}` : ''}</p>
           <p className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-white/45"><Users size={12} />{t('players', { n: humans, cap: capacity || '–' })}</p>
         </div>
       </div>

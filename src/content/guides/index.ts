@@ -24,6 +24,7 @@ import hiddenWord from './hidden-word';
 import hiddenWordPlus from './hidden-word-plus';
 import hitStay from './hit-stay';
 import timeAuction from './time-auction';
+import mineOblivion from './mine-of-oblivion';
 import indianPoker from './indian-poker';
 import janggi from './janggi';
 import laserJanggi from './laser-janggi';
@@ -76,6 +77,7 @@ const REGISTRY: Partial<Record<GameId, GameGuide | null>> = {
   wallgo,
   wallgo2,
   timeAuction,
+  mineOblivion,
 };
 
 /** Catalog href of a game ('/wallgo'). */

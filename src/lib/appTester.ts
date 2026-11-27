@@ -127,6 +127,9 @@ const ELSEWHERE_SHOWN_KEY = 'puzzlthink:app-tester-elsewhere-shown';
 export const TESTER_INSTALL_OPEN_EVENT = 'puzzlthink:tester-install-open';
 
 export const isAndroid = () => typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
+/** iPhone/iPad (iPadOS reports itself as a Mac with touch): there is no app for them, so no tester or install pitch. */
+export const isIOS = () => typeof navigator !== 'undefined'
+  && (/iPhone|iPad|iPod/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
 
 const read = (s: () => Storage, k: string) => { try { return s().getItem(k); } catch { return null; } };
 const write = (s: () => Storage, k: string) => { try { s().setItem(k, '1'); } catch { /* private mode: it may come back */ } };
@@ -145,3 +148,5 @@ export function markInstallShown(android = isAndroid()) {
 }
 /** "이미 설치했어요". */
 export function markInstalled() { write(local, INSTALLED_KEY); }
+/** Whether this device said "이미 설치했어요" (the header then stops pitching the install). */
+export const markedInstalled = () => !!read(local, INSTALLED_KEY);

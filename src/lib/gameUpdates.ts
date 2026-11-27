@@ -1,4 +1,4 @@
-import { Bot, Coins, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { Bot, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -35,9 +35,34 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
       },
     ],
   },
+  mine_oblivion: {
+    name: { ko: '망각의 지뢰', en: 'Mine of Oblivion' },
+    items: [
+      {
+        date: '11/28', icon: Scale,
+        ko: { title: '결과 화면에 점수 내역', desc: '보물(몇 번째에 찾았는지)·지뢰 감점·숫자 점수·합계를 두 사람 나란히 보여 주고, 차이가 가장 큰 줄을 승부처로 표시해요. 복기 끝에도 같은 내역이 나와요.' },
+        en: { title: 'Score breakdown on the result', desc: 'Treasure (and in which order it was found), mine penalties, number points and the total, side by side, with the line that decided the game marked. The same breakdown ends the replay.' },
+      },
+      {
+        date: '11/28', icon: Coins,
+        ko: { title: 'AI 대전에 아이템이 생겼어요', desc: '회원은 피스로 탐지기(옆 칸 둘레 지뢰 수)·기억 되살리기(내 지뢰 2초), 블랙피스로 방폭복(다음 지뢰 한 번 무효)을 쓸 수 있어요. 아이템을 쓴 판은 어려움 인증·피스 획득·명예의 전당 승수에서 빠져요.' },
+        en: { title: 'Items in AI matches', desc: 'Members can spend pieces on Detector (mines around a cell next to you) and Recall (your mines for 2 s), and a black piece on the Blast suit (your next mine costs nothing). Item games do not count for the Hard certificate, piece earnings or Hall wins.' },
+      },
+      {
+        date: '11/28', icon: Sparkles,
+        ko: { title: '망각의 지뢰가 열렸어요', desc: '데스게임 6회차 1:1 게임을 방송 규칙대로 옮겼어요. 지뢰 15개를 몰래 묻고, 내 지뢰마저 사라진 판을 걸으며 숫자를 기억해 보물을 찾아요. AI 보통·어려움과 친구·공개방 1:1.' },
+        en: { title: 'Mine of Oblivion is here', desc: 'The 1:1 match from Death Game, with the broadcast rules: bury 15 secret mines, then walk a board that hides even yours, remembering the numbers to find treasure. Normal and hard AI, friend and open rooms.' },
+      },
+    ],
+  },
   hidden_word_plus: {
     name: { ko: '히든 워드 확장판', en: 'Hidden Word: Expansion' },
     items: [
+      {
+        date: '11/28', icon: DoorOpen,
+        ko: { title: '오픈 대전이 생겼어요 (방은 앱 테스터만 열 수 있어요)', desc: '처음 보는 사람과 붙는 오픈 대전이에요. 1:1 대전만 열려요. 방은 Google Play 테스트 앱에서만 열 수 있고, 참가는 웹·아이폰 어디서든 돼요. 봉투와 숨긴 단어는 서버가 맡아서 상대 화면에는 끝날 때까지 보이지 않아요.' },
+        en: { title: 'Open matches are here (app testers host them)', desc: 'Matches against people you do not know. 1:1 only. Rooms are opened only in the Google Play test app; anyone can join, on the web or an iPhone. The server holds the envelopes and hidden words, so the other side never sees yours before the turn ends.' },
+      },
       {
         date: '11/28', icon: Undo2,
         ko: { title: '뒤로가기를 고치고, 끝난 판에 홈으로 버튼을 달았어요', desc: '대전 중 왼쪽 위 ← 가 먹히지 않던 문제를 고쳤고, 규칙·랭킹 창은 휴대폰 뒤로가기로 닫혀요. 대전 중 Google 로그인을 하면 하던 대전으로 돌아오고, 결과 화면에 홈으로 버튼이 생겼어요.' },
@@ -99,6 +124,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   hidden_word: {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
+      {
+        date: '11/28', icon: DoorOpen,
+        ko: { title: '오픈 대전이 생겼어요 (방은 앱 테스터만 열 수 있어요)', desc: '처음 보는 사람과 붙는 오픈 대전이에요. 방은 Google Play 테스트 앱에서만 열 수 있고, 참가는 웹·아이폰 어디서든 돼요. 봉투와 숨긴 단어는 서버가 맡아서 상대 화면에는 끝날 때까지 보이지 않아요.' },
+        en: { title: 'Open matches are here (app testers host them)', desc: 'Matches against people you do not know. Rooms are opened only in the Google Play test app; anyone can join, on the web or an iPhone. The server holds the envelopes and hidden words, so the other side never sees yours before the turn ends.' },
+      },
       {
         date: '11/28', icon: Undo2,
         ko: { title: '뒤로가기를 고치고, 끝난 판에 홈으로 버튼을 달았어요', desc: '대전 중 왼쪽 위 ← 가 먹히지 않던 문제를 고쳤고, 규칙·랭킹 창은 휴대폰 뒤로가기로 닫혀요. 대전 중 Google 로그인을 하면 하던 대전으로 돌아오고, 결과 화면에 홈으로 버튼이 생겼어요.' },
@@ -630,7 +660,7 @@ const ROOM_GAMES: Record<string, { ko: string; en: string }> = {
   onestroke: { ko: '한붓길', en: 'One Stroke' }, piggy_bank: { ko: '돼지 저금통', en: 'Piggy Bank' }, point_omok: { ko: '포인트 오목', en: 'Point Omok' },
   russian_janggi: { ko: '러시아장기', en: 'Russian Janggi' }, russian_roulette: { ko: '러시안 룰렛', en: 'Russian Roulette' }, slitherlink: { ko: '슬리더링크', en: 'Slitherlink' },
   starbattle: { ko: '스타배틀', en: 'Star Battle' }, two_sided_poker: { ko: '양면포커', en: 'Two-Sided Poker' }, wallgo: { ko: '벽바둑', en: 'Wallgo' }, wallgo2: { ko: '벽바둑 II', en: 'Wallgo II' },
-  time_auction: { ko: '시간 경매', en: 'Time Auction' },
+  time_auction: { ko: '시간 경매', en: 'Time Auction' }, mine_oblivion: { ko: '망각의 지뢰', en: 'Mine of Oblivion' },
 };
 
 for (const [key, name] of Object.entries(ROOM_GAMES)) {

@@ -3,6 +3,18 @@
 import { getSupabase } from './supabase';
 import type { GameId as CatalogId } from './gameCatalog';
 import type { GameId as StatsId } from './stats';
+import { PLAY_APP_VALUE, isPlayApp } from './playApp';
+
+/**
+ * Games whose open rooms can be opened (hosted) only inside the Google Play app (the same list as the database's
+ * open_room_app_only()). Anyone signed in can join them, on any device. The website and the home-screen web app show
+ * "방 만들기" locked; only the app's put sends `p_app`, and the database lists no such room without it.
+ * Friend rooms are not affected.
+ */
+export const APP_ONLY_OPEN: readonly CatalogId[] = ['hiddenWord', 'hiddenWordPlus'];
+export const isAppOnlyOpen = (game: string) => (APP_ONLY_OPEN as readonly string[]).includes(game);
+/** The marker the Play app's client adds (spoofable: it keeps the website out, not a hand-written client). */
+const appArg = (): { p_app?: string } => (isPlayApp() ? { p_app: PLAY_APP_VALUE } : {});
 
 /** Records name each game differently from the catalog. */
 export const STATS_ID: Record<CatalogId, StatsId> = {
@@ -10,7 +22,7 @@ export const STATS_ID: Record<CatalogId, StatsId> = {
   fourThree: 'four_three', flipOmok: 'flip_omok', nineMensMorris: 'nine_mens_morris', wallgo2: 'wallgo2', slitherlink: 'slitherlink', gyulhap: 'gyulhap', indianPoker: 'indian_poker',
   hexagon: 'hexagon', piggyBank: 'piggy_bank', nemoCount: 'nemo_count', blackWhite: 'black_white', blackWhite2: 'black_white_2', laserJanggi: 'laser_janggi', blindGomoku: 'blind_gomoku',
   wallgo: 'wallgo', russianRoulette: 'russian_roulette', heavy13: 'heavy13', janggi: 'janggi', russianJanggi: 'russian_janggi', sudoku: 'sudoku',
-  timeAuction: 'time_auction',
+  timeAuction: 'time_auction', mineOblivion: 'mine_oblivion',
 };
 
 export type OpenRoomRow = { code: string; variant: number; host: string; players: number; capacity: number; title?: string };
@@ -37,12 +49,12 @@ export type OpenRoomAnyRow = OpenRoomRow & { game: string };
 
 /** Room channel prefix → game. */
 export const CHANNEL_GAME: Record<string, CatalogId> = {
-  'time-auction-room': 'timeAuction',
+  'time-auction-room': 'timeAuction', 'mine-oblivion-room': 'mineOblivion',
   'binairo-room': 'binairo', 'onestroke-room': 'onestroke', 'colorlink-room': 'colorlink', 'magicswap-room': 'magicswap', 'merge2048-room': 'merge2048', 'starbattle-room': 'starbattle', 'masyu-room': 'masyu', 'nonogram-room': 'nonogram', 'two-sided-poker-room': 'twoSidedPoker', 'monorail-room': 'monorail',
   'wallgo-room': 'wallgo', 'wallgo2-room': 'wallgo2', 'slither-room': 'slitherlink', 'gyulhap-room': 'gyulhap', 'indian-poker-room': 'indianPoker',
   'hexagon-room': 'hexagon', 'piggy-bank-room': 'piggyBank', 'nemo-count-room': 'nemoCount', 'black-white-room': 'blackWhite', 'black-white-2-room': 'blackWhite2',
   'laser-janggi-room': 'laserJanggi', 'blind-gomoku-room': 'blindGomoku', 'morris-room': 'nineMensMorris', 'flip-omok-room': 'flipOmok', 'four-three-room': 'fourThree', 'point-omok-room': 'pointOmok', 'russian-roulette-room': 'russianRoulette', 'heavy13-room': 'heavy13',
-  'janggi-room': 'janggi', 'russian-janggi-room': 'russianJanggi', 'hit-stay-room': 'hitStay', 'sniper-holdem-room': 'sniperHoldem', 'card-janggi-room': 'cardJanggi', 'color-link-duel-room': 'colorLinkDuel', 'gradation-room': 'gradation', 'equation-signal-room': 'equationSignal', 'equation-tower-room': 'equationTower', 'hidden-word-room': 'hiddenWord', 'hidden-word-plus-room': 'hiddenWordPlus',
+  'janggi-room': 'janggi', 'russian-janggi-room': 'russianJanggi', 'hit-stay-room': 'hitStay', 'sniper-holdem-room': 'sniperHoldem', 'card-janggi-room': 'cardJanggi', 'color-link-duel-room': 'colorLinkDuel', 'gradation-room': 'gradation', 'equation-signal-room': 'equationSignal', 'equation-tower-room': 'equationTower', 'hidden-word-room': 'hiddenWord', 'hidden-word-plus-room': 'hiddenWordPlus', 'hidden-word-party-room': 'hiddenWordPlus',
 };
 export type LiveRoomRow = { game: CatalogId; open: number; friend: number };
 
@@ -73,8 +85,9 @@ export async function putOpenRoom(game: string, code: string, row: { variant: nu
   const supabase = getSupabase();
   const token = hostToken(game, code, true);
   if (!supabase || !token) return;
+  if (isAppOnlyOpen(game) && !isPlayApp()) return; // hosting these games is for the Play app only
   const args = { p_game: game, p_code: code, p_token: token, p_variant: row.variant, p_host: row.host, p_players: row.players, p_capacity: row.capacity };
-  const { error } = await supabase.rpc('open_room_put', { ...args, p_title: row.title.slice(0, 30) });
+  const { error } = await supabase.rpc('open_room_put', { ...args, p_title: row.title.slice(0, 30), ...appArg() });
   // Before the titles migration the function takes no title: list the room without one.
   if (error?.code === 'PGRST202') await supabase.rpc('open_room_put', args);
 }

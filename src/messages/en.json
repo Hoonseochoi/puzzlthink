@@ -10,6 +10,7 @@
     "sniperHoldem": "Sniper Hold'em",
     "gradation": "Gradation",
     "timeAuction": "Time Auction",
+    "mineOblivion": "Mine of Oblivion",
     "equationSignal": "Equation Signal",
     "equationTower": "Tower of Equations",
     "hellMode": "Very Hard",
@@ -233,6 +234,8 @@
     "gradationMeta": "4 AI (hard) · friends · open rooms, 1:1 · The Devil's Plan 3",
     "timeAuctionDescription": "Buy go stones with time: hold the button longest to win each one. Time spent never comes back, and nobody sees what the others have left. A six-player mind game.",
     "timeAuctionMeta": "6 players · 5 AI, friends or open rooms · The Devil's Plan 2",
+    "mineOblivionDescription": "Each player buries 15 secret mines, then walks a board that hides even their own. Score the mines around each cell you step on; a mine costs 5. Remember the numbers and find three treasures in a 1:1 duel of memory and deduction.",
+    "mineOblivionMeta": "Normal / Hard AI · friends or open rooms 1:1 · Death Game",
     "equationSignalDescription": "Find a hidden 9-cell equation from green, yellow and red signals. The third game of The Devil's Plan 3 final, powers included.",
     "equationSignalMeta": "Practice · 10-minute challenge · friends and open rooms (2–4) · The Devil's Plan 3",
     "equationTowerDescription": "Move and flip number blocks to build a tower worth the target. In how many moves? A prison match from The Devil's Plan 3.",
@@ -2007,6 +2010,7 @@
       "sniperHoldem": {"tagline": "A hold’em with four shared cards and two private ones — plus the snipe: name the exact hand someone holds, like \"9 straight\", and it ranks last. A survival betting game.", "players": "2–5 (5 on the show; empty seats are AI)", "pace": "No clock vs AI · 30 s per bet or snipe in rooms (then the AI takes over)", "level": "AI easy, normal, hard · it sees only what a player would", "ai": "5 players (4 AI) normal or hard, 1:1 hard", "friend": "Link or 4-digit code, AI on/off, 60 or 24 chips", "rules": ["Four sets of number cards 1–10 (40 cards, no suits). 60 chips each; every round you ante 1 and get two private cards only you see.", "Two shared cards go up, then bet 1; two more, then bet 2. There is no checking: bet at least 1 or fold, until everyone has put in the same. Nobody puts in more than the smallest stack in a round.", "Hands: four of a kind > full house > straight > three of a kind > two pair > pair > high card (no flush). Before private cards are shown, each player from the first may snipe one hand as \"top number + type\" (a full house by its triple); a sniped hand ranks last.", "The best unsniped hand takes the pot. Ties go to the hand’s numbers, then the higher private card, then the other; if every hand is sniped the pot is split. Reach 75 chips, pay them and you are safe; the last one left is eliminated."], "origin": "An unofficial fan-made web version of Sniper Hold’em, the day-3 prison match of Netflix’s The Devil’s Plan: Death Room (season 2), with the show’s rules. How this version differs (player count, safety line) is in the guide below."},
       "gradation": {"tagline": "Hide seven number cubes in a rack of shaded cups, rising and summing to 30 or less, then duel cup by cup seeing only shades.", "players": "2 players (1:1)", "pace": "5 min to place · 30 s per cup in rooms", "level": "4 AI players · all hard, one drawn each match", "ai": "1:1 (one of 4 AI at random)", "friend": "Link or 4-digit code, 1:1", "rules": ["Seven cups: dark at both ends and lighter toward the middle (dark · grey · light · white · light · grey · dark).", "Put 7 of your cubes (0–9, two of each) one per cup: rising left to right, total 30 or less, within 5 minutes.", "The lead player hands in a cup; the other side sees only its shade and answers with a cup. Higher cube scores 1, a tie scores nothing.", "The round winner leads next (a tie keeps the lead). After 7 rounds the higher score wins; a tie means new rows and a rematch."], "origin": "An unofficial fan version of \"Gradation\", the day-6 prison match of Netflix's The Devil's Plan: Dead Again (season 3), played by the show's rules — as a single match instead of the show's two-wins-in-a-row format."},
       "timeAuction": {"tagline": "A go-stone auction: each round puts up one stone, and you bid with time instead of money. Whoever holds the button longest takes the stone (the victory token), but losers lose the time they held too. A six-player auction where everyone else's remaining time is hidden.", "players": "6 (vs AI) · rooms 2–6", "pace": "Standard 5:00 × 13 (15–20 min vs AI) · Quick 2:00 × 9 (about 7 min) · Broadcast 10:00 × 19", "level": "5 AI · Normal / Hard, five styles", "ai": "6 players (5 AI)", "friend": "Link or 4-digit code; empty seats are AI", "rules": ["Everyone gets the same time to spend (Quick 2:00, Standard 5:00, Broadcast 10:00), recorded to 0.1 s.", "Each auction begins when everyone presses: a 5-second countdown. Let go during it to skip the auction for free.", "After the countdown your time drains while you hold. The board shows only the time running in this auction, never who is holding.", "The last one holding takes the stone (the victory token). Losers pay what they held too; a tie to 0.1 s voids it; at 0:00.0 your button is pushed out.", "House rule — piece values: the auctions put up pieces drawn as PUZZLTHINK icons. A starter piece is worth 1 point, every third auction's mid-tier icon (30/50 hours played, match wins…) 2, the last auction's top icon (Open match #1, 100 hours played…) 3; the order is public from the start. The pieces on auction are points in this game only; no real profile icon is granted.", "House rule — the minus stone (the hell-mode stone): when two or more bid, whoever let go first takes −1 (a tie to 0.1 s: nobody). Dropping out in the countdown never takes it.", "Your own remaining time is on your screen only (a site rule — on the show even that was hidden); everyone else's stays hidden until the end. After the last auction, the highest score (points won − minus) is 1st (tie: more time), the lowest is eliminated (tie: less time)."], "origin": "An unofficial fan version of Time Auction, the day-2 prison match of Netflix's The Devil's Plan: Death Room (season 2), with the broadcast rules. The show used 6 players, 10:00 and 19 auctions; here you can also pick 5:00 × 13 (default) or 2:00 × 9. Showing you your own remaining time is a site rule too. Stone values (1, 2, 3) and the minus stone for whoever lets go first are house rules, not in the show."},
+      "mineOblivion": {"tagline": "The 1:1 memory-and-deduction game from match 6 of Netflix's Death Game. Each player secretly buries 15 mines; when the walk starts, even your own vanish from the board. Score the mines around each cell you step on; anyone's mine costs 5. Remember the numbers that flash and fade, dodge their mines and find the three treasures.", "players": "1:1 (vs AI) · friends or open rooms 1:1", "pace": "4–7 min a game · at most 70 moves in all", "level": "AI Normal / Hard", "ai": "1:1 · AI Normal / Hard", "friend": "Link or 4-digit code, 1:1", "rules": ["An 11×11 board with treasure in the centre and two corners; the other two corners are the starts.", "Each player secretly buries 15 mines, never in the 3×3 by a start or on treasure; both may pick the same cell.", "Four seconds after the walk starts even your own mines vanish. Only the number of mined cells is public.", "Take turns moving to one of the eight cells around you. On a clear cell, score the mines in the eight cells around it (yours count; a shared cell counts 2). A cell already scored gives 0.", "Anyone's mine costs 5; the mines on that cell are removed and you go back to one of the three cells by your start.", "Treasure is +10, +15, +20 in the order found. When all three are found (or after 70 moves) the higher score wins."], "origin": "An unofficial fan adaptation of Mine of Oblivion, match 6 of Netflix's Death Game (The Risk Takers), with the broadcast rules. Numbers show for a moment and then fade; footprints and craters stay on the board. Picking the respawn cell, a shared cell costing 5 once, a treasure cell's number, the 70-move limit (season 2) and draws on equal scores are rules this site set."},
       "equationSignal": {"tagline": "A deduction game about a hidden 9-cell equation. Hand in any equation and each cell lights up green, yellow or red; nine greens solve it.", "players": "1 player, or 2–4 friends", "pace": "1–3 minutes an equation · 10-minute challenge", "level": "Arithmetic + deduction (digits 0–9, + − × ÷ = ^)", "solo": "Practice · 10-minute challenge (ranked)", "friend": "2–4 players, the same equation at once, points by solving order, link or 4-digit code", "ai": "Practice · 10-minute challenge", "rules": ["The answer is a true 9-cell equation made of digits 0–9 and the signs +, −, ×, ÷, = and ^ (power).", "Hand in any nine digits and signs. A guess does not have to be true, and signs may sit side by side.", "Each cell lights up. Green: right symbol, right place. Yellow: in the equation, another place. Red: not in it (or more copies than it has).", "Nine greens win. Powers come first, then × ÷, then + −, and no number in the answer starts with 0."], "origin": "An unofficial fan game based on Equation Signal, the third game of the final of Netflix's The Devil's Plan: Dead Again (season 3). On the show the two finalists wrote each other's equations; here the equations are generated, so one to four can play."},
       "equationTower": {"tagline": "Move and flip number blocks across four stacks until a tower of the asked height is worth the target number. Fewer moves are better.", "players": "1 player, or 2–4 friends", "pace": "30 seconds–2 minutes a round · 10-minute challenge", "level": "Mental maths + planning (9 blocks, 4 stacks)", "solo": "Practice (Normal or Hard) · Hard 10-minute challenge (ranked)", "friend": "2–4 players, pick a difficulty, buzz with a number of moves, the lowest offer plays, link or 4-digit code", "ai": "Practice · 10-minute challenge", "rules": ["Nine blocks (three plain numbers, six with a sign) stand in four stacks. Each round names a target number and a height.", "One move lifts any number of blocks off the top of a stack and sets them on any stack. The bundle may be turned upside down; flipping in place is a move too.", "The top of a tower must be a plain number, and the formula reads from the top down, × and ÷ before + and − (5, +3, ×2 → 5+3×2 = 11).", "A tower of exactly the asked height worth the target finishes the round. The stacks carry over to the next round."], "origin": "An unofficial fan game based on Tower of Equations, the day-5 prison match of Netflix's The Devil's Plan: Dead Again (season 3). The show did not publish its block set, so that is this site's own choice."},
       "merge2048": {
@@ -2556,6 +2560,8 @@
     "taQuickNormal": "Quick 2:00 × 9 (AI Normal)",
     "taBroadcast": "Broadcast rules 10:00 × 19 (AI Hard)",
     "taRoom": "Create a room (2–6 · AI on/off)",
+    "moNormal": "1:1 · AI Normal",
+    "moHard": "1:1 · AI Hard",
     "short_taRoom": "2–6",
     "grAi": "1:1 · one of 4 AI at random (hard)",
     "eqsChallenge": "10-minute challenge (ranked)",
@@ -2649,7 +2655,9 @@
     "short_logicRoom": "2–4",
     "slitherRoom": "Create a room (2–4)",
     "short_slitherRoom": "2–4",
-    "magicswapPractice": "Practice (5×5 · 6×6 · 7×7)"
+    "magicswapPractice": "Practice (5×5 · 6×6 · 7×7)",
+    "openAppBadge": "App only",
+    "openCreateLocked": "Hosting is for app testers"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -4251,7 +4259,8 @@
     "joinTitle": "Open rooms",
     "createTitle": "Which game?",
     "close": "Close",
-    "note": "Signed-in players only. Results count toward each other's records."
+    "note": "Signed-in players only. Results count toward each other's records.",
+    "hostTag": "App testers only"
   },
   "OpenResult": {
     "close": "Close",
@@ -8921,10 +8930,10 @@
   },
   "AppTester": {
     "eyebrow": "GOOGLE PLAY APP TESTERS WANTED",
-    "title": "Be a tester before the app launches",
-    "stripTitle": "App testers wanted before launch",
-    "stripSub": "New games, no ads · exclusive icon",
-    "lead": "PUZZLTHINK is coming to Google Play. We are looking for testers to try the app before its public release.",
+    "title": "Only app testers can host Hidden Word open matches",
+    "stripTitle": "Only app testers can host Hidden Word open matches",
+    "stripSub": "Agree → install → host · TESTER icon",
+    "lead": "Become a tester of the PUZZLTHINK Google Play app. Agree → install → host: three steps.",
     "benefit1": "Play new games with no ads",
     "benefit2": "Get the testers-only TESTER icon right away",
     "benefit3": "Get the app before everyone else, free",
@@ -8942,9 +8951,9 @@
     "failed": "That did not work. Please try again in a moment.",
     "doneTitle": "You are signed up",
     "doneEmail": "Signed up with {email}. The TESTER icon is now on your profile.",
-    "doneWait": "Once the test opens, a 'Get the app' button appears on the home and Records pages. We will email you the guide too.",
+    "doneWait": "Once the test opens, a 'Get the app' button appears on the home and Records pages. Install it to host Hidden Word open matches.",
     "getApp": "Get the app",
-    "doneSoon": "We are adding you to the tester list. The install button usually appears here within an hour.",
+    "doneSoon": "We are adding you to the tester list. The install button usually appears here within an hour; install it to host Hidden Word open matches.",
     "keepInstalled": "Please keep the app installed for 14 days during the test.",
     "withdrawAsk": "Withdraw from the tester program",
     "withdrawConfirm": "Withdrawing deletes the stored email at once and removes the TESTER icon.",
@@ -8952,8 +8961,8 @@
     "withdrawn": "You have withdrawn. The stored email was deleted.",
     "headerInstall": "Install test app",
     "installEyebrow": "PLAY TESTER",
-    "installTitle": "The test app is open",
-    "installLead": "Thanks for signing up as a tester. Two steps and the app is yours.",
+    "installTitle": "Install it to host Hidden Word open matches",
+    "installLead": "The test app is open. Two steps and it is installed.",
     "installStep1": "Accept the invite",
     "installStep1Desc": "Tap the button below, then tap 'Become a tester' on the Google Play page that opens.",
     "installStep2": "Install from Google Play",
@@ -8962,6 +8971,15 @@
     "installGo": "Go install the app",
     "installLater": "Later",
     "installDone": "I already installed it",
-    "installAndroidOnly": "The test app is for Android phones. Sign in to PUZZLTHINK on an Android phone to install it."
+    "installAndroidOnly": "The test app is for Android phones. Sign in to PUZZLTHINK on an Android phone to install it.",
+    "benefitOpen": "Host your own Hidden Word open matches",
+    "headerPerk": "HOST HIDDEN WORD",
+    "installHost": "Install it to host Hidden Word open matches",
+    "hostTag": "APP TESTERS ONLY",
+    "hostHow": "Agree, install the test app, and you can open a room right away. Agree → install → host.",
+    "hostAndroidOnly": "For now, rooms can be opened only in the Android test app. You can still join open matches others opened, right here.",
+    "hostInstalled": "Already installed? Open Hidden Word in the PUZZLTHINK app and open a room.",
+    "hostMore": "How",
+    "appWelcome": "As a tester you can host Hidden Word open matches"
   }
 }

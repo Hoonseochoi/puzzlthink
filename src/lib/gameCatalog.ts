@@ -1,12 +1,12 @@
 // Single source for the game list used by the header dropdown, the games page and the footer.
 // Order: by plays on 2026-11-23 (KST), most played first; 카드 장기 (new) is pinned 2nd, 컬러 링크 (new) 3rd, 수식 신호등 (new) 4th, 수식의 탑 (new) 5th, Hit,Stay 6th, 그라데이션 7th, 포인트 오목 8th, 마방진 스왑 9th and 2048 10th.
-export type GameId = 'propositionGo' | 'sniperHoldem' | 'hiddenWord' | 'hiddenWordPlus' | 'equationSignal' | 'equationTower' | 'gradation' | 'cardJanggi' | 'colorLinkDuel' | 'hitStay' | 'timeAuction' | 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
+export type GameId = 'propositionGo' | 'sniperHoldem' | 'hiddenWord' | 'hiddenWordPlus' | 'equationSignal' | 'equationTower' | 'gradation' | 'cardJanggi' | 'colorLinkDuel' | 'hitStay' | 'timeAuction' | 'mineOblivion' | 'pointOmok' | 'merge2048' | 'magicswap' | 'fourThree' | 'binairo' | 'onestroke' | 'colorlink' | 'starbattle' | 'masyu' | 'nonogram' | 'twoSidedPoker' | 'monorail' | 'flipOmok' | 'nineMensMorris' | 'wallgo2' | 'slitherlink' | 'gyulhap' | 'indianPoker' | 'hexagon' | 'piggyBank' | 'nemoCount' | 'blackWhite' | 'blackWhite2' | 'laserJanggi' | 'blindGomoku' | 'wallgo' | 'russianRoulette' | 'heavy13' | 'janggi' | 'russianJanggi' | 'sudoku';
 // Order: by plays on 2026-11-23 (KST), most played first; 컬러 링크 (new) is pinned 2nd, Hit,Stay (new) 3rd, 포인트 오목 (new) 3rd, 마방진 스왑 5th and 2048 (new) 7th.
 
 export interface CatalogGame {
   id: GameId;
   /** Route of the playable page. */
-  href: '/proposition-go' | '/sniper-holdem' | '/hidden-word' | '/hidden-word-plus' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/time-auction' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
+  href: '/proposition-go' | '/sniper-holdem' | '/hidden-word' | '/hidden-word-plus' | '/equation-signal' | '/equation-tower' | '/gradation' | '/card-janggi' | '/color-link-duel' | '/hit-stay' | '/time-auction' | '/mine-of-oblivion' | '/point-omok' | '/2048' | '/magic-square' | '/four-three' | '/binairo' | '/one-stroke' | '/color-link' | '/star-battle' | '/masyu' | '/nonogram' | '/two-sided-poker' | '/monorail' | '/flip-omok' | '/nine-mens-morris' | '/wallgo-2' | '/slitherlink' | '/gyulhap' | '/indian-poker' | '/hexagon' | '/piggy-bank' | '/nemo-count' | '/black-white' | '/black-white-2' | '/laser-janggi' | '/blind-gomoku' | '/wallgo' | '/russian-roulette' | '/heavy13' | '/janggi' | '/russian-janggi' | '/play';
   /** Accent color, matching the home page cards. */
   color: string;
   /** Whether the game page renders a long-form guide below the board (anchored at #guide). */
@@ -21,9 +21,11 @@ export interface CatalogGame {
 }
 
 export const GAMES: readonly CatalogGame[] = [
-  // 명제 바둑 (new, 11/28): the first game of the PUZZLTHINK ORIGINAL series, pinned first while it is the newest release.
+  // 망각의 지뢰 (new, 11/28): pinned first while it is the newest release.
+  { id: 'mineOblivion', href: '/mine-of-oblivion', color: '#ffb020', hasGuide: true },
+  // 명제 바둑 (new, 11/28): the first PUZZLTHINK ORIGINAL puzzle, pinned second, after 망각의 지뢰.
   { id: 'propositionGo', href: '/proposition-go', color: '#9b7bff', hasGuide: true, original: true },
-  // 히든 워드 확장판 (new, 11/27): pinned first while it is the newest release.
+  // 히든 워드 확장판 (new, 11/27).
   { id: 'hiddenWordPlus', href: '/hidden-word-plus', color: '#b79cff', hasGuide: true },
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
   { id: 'hiddenWord', href: '/hidden-word', color: '#a8ef70', hasGuide: true },

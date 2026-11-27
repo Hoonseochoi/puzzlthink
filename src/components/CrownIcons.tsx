@@ -367,6 +367,11 @@ const LOOKS: Record<GameId, Look> = {
     body: ['#ffaaa2', '#ff3b30', '#6a0703'], metal: 'gold', gem: '#ffffff', glow: '#ff5a4a',
     pat: () => <><path d={`M${CX} ${CY}L${CX} ${CY - 33}A33 33 0 0 1 ${f1(CX + 33 * Math.sin(2.2))} ${f1(CY - 33 * Math.cos(2.2))}Z`} fill="#ffd66b" opacity=".35" />{Array.from({ length: 12 }, (_, i) => { const a = (i * Math.PI) / 6, r0 = i % 3 ? 30 : 27; return <path key={i} d={`M${f1(CX + r0 * Math.sin(a))} ${f1(CY - r0 * Math.cos(a))}L${f1(CX + 33 * Math.sin(a))} ${f1(CY - 33 * Math.cos(a))}`} stroke="#ffffff" strokeOpacity=".75" strokeWidth={i % 3 ? 1.2 : 2.4} strokeLinecap="round" />; })}<path d={`M${CX} ${CY}L${f1(CX + 24 * Math.sin(2.2))} ${f1(CY - 24 * Math.cos(2.2))}`} stroke="#ffd66b" strokeWidth="2.4" strokeLinecap="round" /><circle cx={CX} cy={CY} r="2.6" fill="#ffd66b" /></>,
   },
+  // Mine of oblivion: a studded mine stone on warning tape, its number lit.
+  mine_oblivion: {
+    body: ['#ffe2a3', '#ffb020', '#6a3d00'], metal: 'gold', gem: '#ff3b30', glow: '#ffc04a',
+    pat: () => <><g stroke={K} strokeOpacity=".4" strokeWidth="4.5">{[14, 28, 42, 56, 70, 84].map((x) => <path key={x} d={`M${x - 8} 96L${x + 6} 76`} />)}</g><g stroke={K} strokeWidth="5" strokeLinecap="round">{[-40, 0, 40, 90, 140, 180, 220].map((a) => { const r = (a * Math.PI) / 180; return <path key={a} d={`M${f1(CX + 12 * Math.cos(r))} ${f1(CY - 4 + 12 * Math.sin(r))}L${f1(CX + 20 * Math.cos(r))} ${f1(CY - 4 + 20 * Math.sin(r))}`} />; })}</g><rect x="45" y="31" width="10" height="7" rx="1.6" fill={K} /><path d="M45.5 32 a4.5 4.5 0 0 1 9 0z" fill="#ff3b30" /><circle cx={CX} cy={CY - 4} r="14" fill={K} /><rect x="44.5" y="47" width="3.2" height="6" rx="1.6" fill={W} /><rect x="52.3" y="47" width="3.2" height="6" rx="1.6" fill={W} />{T(76, 88, '3', 11, '#ffffff', { opacity: 0.85 })}</>,
+  },
   // Point omok: a go board where every stone carries its points.
   point_omok: {
     body: ['#ffc0d3', '#ff5d8f', '#7a0f38'], metal: 'gold', gem: '#ff5d8f', glow: '#ff7aa3',

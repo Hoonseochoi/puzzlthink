@@ -8,6 +8,7 @@ import { doublesPlan, heavensSecret, suspects } from './games-c';
 
 const show: Show = {
   slug: 'death-game',
+  seo: 'dg1',
   series: 'death-game',
   short: { ko: '데스게임', en: 'Death Game' },
   aired: { start: '2026-01-28', end: '2026-04-01' },

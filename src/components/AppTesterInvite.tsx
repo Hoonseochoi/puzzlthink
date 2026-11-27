@@ -3,7 +3,7 @@
 import { useEffect, useId, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { BadgeCheck, Ban, Check, Download, Loader2, Smartphone, Sparkles, X } from 'lucide-react';
+import { BadgeCheck, Ban, Check, DoorOpen, Download, Loader2, Lock, Smartphone, Sparkles, X } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { usePlayApp } from './playApp/usePlayApp';
 import { TesterStone } from './TesterIcons';
@@ -14,8 +14,8 @@ import { GAMES } from '@/lib/gameCatalog';
 import { PLAY_TESTER_OPT_IN_URL } from '@/lib/playApp';
 import { type SignupSource, markSignupSource } from '@/lib/signupSource';
 import {
-  EMAIL_RE, TESTER_INSTALL_OPEN_EVENT, type TesterStatus, dismissPopup, installPopupDue, inviteEmail, isAndroid,
-  joinTester, leaveTester, loadTester, markInstalled, markInstallShown, markPending, maskEmail, popupDue,
+  EMAIL_RE, TESTER_INSTALL_OPEN_EVENT, type TesterStatus, dismissPopup, installPopupDue, inviteEmail, isAndroid, isIOS,
+  joinTester, leaveTester, loadTester, markInstalled, markInstallShown, markPending, markedInstalled, maskEmail, popupDue,
   subscribeTester, takePending, testerSnapshot,
 } from '@/lib/appTester';
 
@@ -30,6 +30,11 @@ import {
  *  - <AppTesterInstallPopup /> on every visit until "이미 설치했어요" (Android), or a one-line note elsewhere.
  * Members who already joined see none of the invitations, and inside the Play app nothing is shown but the
  * records row of a member who joined (so they can still withdraw).
+ * The hook, one phrase everywhere: "히든 워드 오픈 대전 방은 앱 테스터만 열 수 있어요" (only the Play app hosts these rooms,
+ * APP_ONLY_OPEN in src/lib/openRooms.ts; anyone can join them). The recruit headline and first benefit, the install
+ * popup and the header say it; <AppOnlyOpenCard /> stands where a website visitor would open such a room, and
+ * <AppHostBanner /> leads the 히든 워드 entry screens. iPhone/iPad get no tester or install pitch (there is no app for
+ * them), only the plain line that rooms are opened in the Android app and they can join.
  */
 
 type Tone = 'dark' | 'light';
@@ -49,11 +54,11 @@ function TesterIcon({ size }: { size: number }) {
   return <TesterStone id={`ati-${id}`} name="TESTER" size={size} tier="tester" />;
 }
 
-const ICONS = [Sparkles, null, Smartphone];
+const ICONS = [DoorOpen, Sparkles, null, Smartphone];
 
 function Benefits({ tone, compact }: { tone: Tone; compact?: boolean }) {
   const t = useTranslations('AppTester');
-  const lines = [t('benefit1'), t('benefit2'), t('benefit3')];
+  const lines = [t('benefitOpen'), t('benefit1'), t('benefit2'), t('benefit3')];
   return (
     <ul className={compact ? 'mt-2 flex flex-wrap gap-1.5' : 'mt-4 space-y-2'}>
       {lines.map((line, i) => {
@@ -149,7 +154,8 @@ function Joined({ tone, email, listed = true }: { tone: Tone; email: string; lis
         <p className={`mt-1 break-keep text-[12px] leading-5 ${muted}`}>{t('installAndroidOnly')}</p>
       ) : PLAY_TESTER_OPT_IN_URL ? (
         <>
-          <a href={PLAY_TESTER_OPT_IN_URL} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#3ddc97] px-4 py-2.5 text-[13px] font-black text-[#06231a]"><Download size={14} />{t('getApp')}</a>
+          <p className="mt-2 flex items-center gap-1 break-keep text-[12px] font-black leading-5 text-[#5b45c9]"><DoorOpen size={13} className="shrink-0" />{t('installHost')}</p>
+          <a href={PLAY_TESTER_OPT_IN_URL} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#3ddc97] px-4 py-2.5 text-[13px] font-black text-[#06231a]"><Download size={14} />{t('getApp')}</a>
           <p className={`mt-2 break-keep text-[11px] leading-4 ${muted}`}>{t('keepInstalled')}</p>
         </>
       ) : <p className={`mt-1 break-keep text-[12px] leading-5 ${muted}`}>{t('doneWait')}</p>}
@@ -175,7 +181,8 @@ function Compact({ tone, source, slim, className = '' }: { tone: Tone; source: S
   const { ready, configured, user, status } = useTester();
   const app = usePlayApp();
   const [justJoined, setJustJoined] = useState(false);
-  if (app || !ready || !configured) return null;
+  const [ios] = useState(isIOS);
+  if (app || !ready || !configured || ios) return null;
   if (status.kind === 'joined') {
     // Joined just now here, or joined before and the test is open: the "신청 완료" state with its link.
     if (!justJoined && !(PLAY_TESTER_OPT_IN_URL && source !== 'result')) return null;
@@ -226,7 +233,7 @@ export function AppTesterPopup() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
 
-  const eligible = !!user && !app && status.kind === 'not' && nicknameSet !== false
+  const eligible = !!user && !app && !isIOS() && status.kind === 'not' && nicknameSet !== false
     && (pendingAfterSignIn() || (popupDue() && !onGamePage(path)));
   useEffect(() => {
     if (!eligible || open) return;
@@ -314,6 +321,13 @@ export function useTesterInstall() {
   return !!PLAY_TESTER_OPT_IN_URL && !app && status.kind === 'joined' && status.listed;
 }
 
+/** The header's "테스트 앱 설치" place: listed testers, but never on iPhone/iPad (no app to install there). */
+export function useTesterHeader() {
+  const ready = useTesterInstall();
+  const [ios] = useState(isIOS);
+  return ready && !ios;
+}
+
 const openInstall = () => window.dispatchEvent(new Event(TESTER_INSTALL_OPEN_EVENT));
 
 /**
@@ -323,20 +337,109 @@ const openInstall = () => window.dispatchEvent(new Event(TESTER_INSTALL_OPEN_EVE
 export function HeaderTesterButton({ full = false }: { full?: boolean }) {
   const t = useTranslations('AppTester');
   const [android] = useState(isAndroid);
+  // Until "이미 설치했어요": what installing gets you (hosting 히든 워드 오픈 대전).
+  const [perk] = useState(() => !markedInstalled());
   const cls = full
     ? 'flex w-full shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#5b45c9] px-4 py-3 text-sm font-extrabold text-white transition hover:bg-[#4a39a8]'
     : 'group relative flex h-10 shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-xl bg-[#17113a] pl-1.5 pr-3 text-white shadow-[0_0_14px_rgba(124,92,255,.45),inset_0_0_10px_rgba(198,255,61,.12)] ring-1 ring-[#9b85ff]/70 transition hover:shadow-[0_0_22px_rgba(124,92,255,.75)]';
   const body = full ? <><Download size={15} />{t('headerInstall')}</> : <>
     <span className="shrink-0 transition group-hover:scale-110"><TesterIcon size={30} /></span>
     <span className="flex flex-col items-start leading-none">
-      <span className="font-mono text-[9px] font-black tracking-[0.08em] text-[#c6ff3d]">PLAY TESTER</span>
+      <span className="font-mono text-[9px] font-black tracking-[0.08em] text-[#c6ff3d]">{perk ? t('headerPerk') : 'PLAY TESTER'}</span>
       <span className="mt-[3px] text-[12px] font-black tracking-[-0.02em]">{t('headerInstall')}</span>
     </span>
   </>;
-  return android
-    ? <a href={PLAY_TESTER_OPT_IN_URL} target="_blank" rel="noopener noreferrer" className={cls}>{body}</a>
-    : <button type="button" onClick={openInstall} className={cls}>{body}</button>;
+  const title = perk ? t('installHost') : undefined;
+  const button = android
+    ? <a href={PLAY_TESTER_OPT_IN_URL} target="_blank" rel="noopener noreferrer" className={cls} title={title}>{body}</a>
+    : <button type="button" onClick={openInstall} className={cls} title={title}>{body}</button>;
+  if (!full || !perk) return button;
+  return <div>{button}<p className="mt-1.5 flex items-center justify-center gap-1 break-keep text-center text-[11px] font-bold leading-4 text-[#5b45c9]"><DoorOpen size={12} className="shrink-0" />{t('installHost')}</p></div>;
 }
+
+const noop = () => () => {};
+/** Android, read after hydration (the server and the first client render say false, so the markup matches). */
+const useAndroid = () => useSyncExternalStore(noop, isAndroid, () => false);
+
+/** "앱 테스터 전용" tag. */
+function HostTag({ tone }: { tone: Tone }) {
+  const t = useTranslations('AppTester');
+  return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black tracking-[0.06em] ${tone === 'dark' ? 'bg-[#7c5cff]/25 text-[#d9ceff]' : 'bg-[#5b45c9]/10 text-[#5b45c9]'}`}><Lock size={10} />{t('hostTag')}</span>;
+}
+
+/**
+ * What a website visitor gets where they would open a 히든 워드 open room (entry screens, the result screens after an AI
+ * or friend game): "히든 워드 오픈 대전 방은 앱 테스터만 열 수 있어요" and the one action for their state. Android: sign up
+ * (or sign in), "명단에 올리는 중", or install (the install popup's steps). iPhone/iPad and computers: the plain line that
+ * rooms are opened in the Android test app and that they can join rooms others open. Nothing inside the app.
+ * `compact`: result screens (members only, tighter).
+ */
+export function AppOnlyOpenCard({ tone = 'dark', compact = false, className = '', id }: { tone?: Tone; compact?: boolean; className?: string; id?: string }) {
+  const t = useTranslations('AppTester');
+  const { ready, configured, user, status } = useTester();
+  const app = usePlayApp();
+  const android = useAndroid();
+  if (app) return null;
+  if (compact && (!ready || !user)) return null; // result screens: members only
+  const dark = tone === 'dark';
+  const muted = dark ? 'text-white/60' : 'text-black/55';
+  const joined = status.kind === 'joined';
+  const line = (text: string) => <p className={`mt-1.5 break-keep text-[12px] leading-5 ${muted}`}>{text}</p>;
+  const action = !android ? line(t('hostAndroidOnly'))
+    : !ready || !configured || status.kind === 'unavailable' || (user && status.kind === 'loading') ? null
+      : joined && !status.listed ? line(t('doneSoon'))
+        : joined ? (
+          <div className="mt-3">
+            <button type="button" onClick={openInstall} className="inline-flex items-center gap-1.5 rounded-full bg-[#5b45c9] px-4 py-2.5 text-[13px] font-black text-white shadow-[0_6px_18px_rgba(91,69,201,.35)] transition active:scale-[.98]"><Download size={14} />{t('headerInstall')}</button>
+            {markedInstalled() && <p className={`mt-2 break-keep text-[11px] leading-4 ${muted}`}>{t('hostInstalled')}</p>}
+          </div>
+        ) : <>{line(t('hostHow'))}<Consent tone={tone} source={compact ? 'result' : 'other'} /></>;
+  return (
+    <div id={id} data-app-only-open className={`${box(tone)} scroll-mt-24 ${className}`}>
+      <HostTag tone={tone} />
+      <p className={`mt-1.5 break-keep font-black leading-5 tracking-[-0.02em] ${compact ? 'text-[14px]' : 'text-[15px]'}`}>{t('title')}</p>
+      {action}
+    </div>
+  );
+}
+
+/**
+ * Top of the 히든 워드 / 확장판 entry screens. Website: the one phrase with the tag and a jump to the card where rooms are
+ * opened (on iPhone/iPad and computers, the plain line instead). App: the first time, "테스터라서 히든 워드 오픈 대전 방을
+ * 열 수 있어요"; afterwards nothing.
+ */
+export function AppHostBanner({ tone = 'dark', target, className = '' }: { tone?: Tone; target: string; className?: string }) {
+  const t = useTranslations('AppTester');
+  const app = usePlayApp();
+  const android = useAndroid();
+  const [welcome, setWelcome] = useState(false);
+  useEffect(() => {
+    if (!app) return;
+    try {
+      if (localStorage.getItem(WELCOME_KEY)) return;
+      localStorage.setItem(WELCOME_KEY, '1');
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- shown once, the first time this device opens it in the app
+      setWelcome(true);
+    } catch { /* storage is optional: no welcome */ }
+  }, [app]);
+  const dark = tone === 'dark';
+  if (app) {
+    if (!welcome) return null;
+    return <p data-host-welcome className={`flex items-center gap-1.5 break-keep rounded-full px-3 py-2 text-[12px] font-black ${dark ? 'bg-[#7c5cff]/20 text-[#e1d8ff]' : 'bg-[#5b45c9]/10 text-[#4a39a8]'} ${className}`}><DoorOpen size={14} className="shrink-0" />{t('appWelcome')}</p>;
+  }
+  return (
+    <a href={`#${target}`} data-host-banner className={`flex items-center gap-3 rounded-[14px] border px-3.5 py-3 transition ${dark ? 'border-[#b9a8ff]/35 bg-[#7c5cff]/12 text-white hover:bg-[#7c5cff]/20' : 'border-[#5b45c9]/20 bg-white text-[#17201e]'} ${className}`}>
+      <DoorOpen size={18} className={`shrink-0 ${dark ? 'text-[#c9bcff]' : 'text-[#5b45c9]'}`} />
+      <span className="min-w-0 flex-1">
+        <HostTag tone={tone} />
+        <b className="mt-1 block break-keep text-[13.5px] font-black leading-[18px]">{t('title')}</b>
+        {!android && <span className={`mt-0.5 block break-keep text-[11.5px] leading-4 ${dark ? 'text-white/55' : 'text-black/50'}`}>{t('hostAndroidOnly')}</span>}
+      </span>
+      {android && <span className={`shrink-0 text-[12px] font-black ${dark ? 'text-[#c9bcff]' : 'text-[#5b45c9]'}`}>{t('hostMore')} ↓</span>}
+    </a>
+  );
+}
+const WELCOME_KEY = 'puzzlthink:hw-host-welcome';
 
 /** Another dialog is up (the nickname prompt, the "새 아이콘" celebration, the recruitment popup): wait for it. */
 const otherDialogOpen = () => !!document.querySelector('[aria-labelledby="nickname-title"],[aria-labelledby="icon-unlock-title"],[data-tester-recruit]');
