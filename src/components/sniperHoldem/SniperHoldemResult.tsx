@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, X } from 'lucide-react';
+import { Eye, History, ShieldCheck, X } from 'lucide-react';
 import { SH_SEATS } from '@/lib/sniperHoldem';
 import { SH_PERSONA } from '@/lib/sniperHoldemAi';
 import type { SniperHoldemRoom } from '@/lib/sniperHoldemRoom';
@@ -39,17 +39,33 @@ export function useSniperHoldemReport(room: SniperHoldemRoom | null, mySeat: num
   }, [place, gid, mySeat, mode, rounds, players, out, humans, level, chips]);
 }
 
+/** Seat names as the table shows them: 나 / the AI's persona / the player's name. */
+export const shNamer = (room: SniperHoldemRoom, mySeat: number | null, t: ShCopy, locale: string) => (s: number) => {
+  if (s === mySeat) return t.you;
+  const style = room.seats[s]?.id.startsWith('ai-') ? room.style[s] : null;
+  return style ? (locale === 'en' ? SH_PERSONA[style].nameEn : SH_PERSONA[style].name) : room.seats[s]?.name ?? `P${s + 1}`;
+};
+
+/**
+ * The result waits a moment after my place is settled, so the hand that settled it (the final showdown) is seen
+ * first instead of the match ending at once.
+ */
+export function useResultDelay(done: boolean, key: string, ms = 3200) {
+  const [ready, setReady] = useState<string | null>(null);
+  useEffect(() => {
+    if (!done) return;
+    const timer = window.setTimeout(() => setReady(key), ms);
+    return () => window.clearTimeout(timer);
+  }, [done, key, ms]);
+  return done && ready === key;
+}
+
 /** Standings: who reached safety in what order, and who was eliminated. */
-export default function SniperHoldemResult({ room, mySeat, t, locale, onAgain, onClose, waitingLabel }: {
-  room: SniperHoldemRoom; mySeat: number | null; t: ShCopy; locale: string; onAgain?: () => void; onClose: () => void; waitingLabel?: string;
+export default function SniperHoldemResult({ room, mySeat, t, locale, onAgain, onClose, onReplay, waitingLabel }: {
+  room: SniperHoldemRoom; mySeat: number | null; t: ShCopy; locale: string; onAgain?: () => void; onClose: () => void; onReplay?: () => void; waitingLabel?: string;
 }) {
   const g = room.game;
-  const en = locale === 'en';
-  const nameOf = (s: number) => {
-    if (s === mySeat) return t.you;
-    const style = room.seats[s]?.id.startsWith('ai-') ? room.style[s] : null;
-    return style ? (en ? SH_PERSONA[style].nameEn : SH_PERSONA[style].name) : room.seats[s]?.name ?? `P${s + 1}`;
-  };
+  const nameOf = shNamer(room, mySeat, t, locale);
   const seats = Array.from({ length: SH_SEATS }, (_, s) => s).filter((s) => !g.absent?.[s]);
   const order = seats.sort((a, b) => (g.place[a] ?? 9) - (g.place[b] ?? 9) || g.chips[b] - g.chips[a]);
   const myPlace = mySeat === null ? null : g.place[mySeat];
@@ -57,7 +73,7 @@ export default function SniperHoldemResult({ room, mySeat, t, locale, onAgain, o
   const loser = seats.find((s) => g.out[s]);
   return (
     <div className={`${MODAL_BACKDROP} !z-[80]`}>
-      <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`${MODAL} max-w-md text-white`}>
+      <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`${MODAL} max-h-[92vh] max-w-md overflow-y-auto text-white`}>
         <button type="button" onClick={onClose} aria-label={t.close} className={MODAL_CLOSE}><X size={16} /></button>
         <p className={KICKER}>{g.phase === 'finished' ? t.final : t.safeKicker} · {t.rounds(g.round)}</p>
         <h2 className={`mt-2 text-3xl font-black tracking-tight ${myPlace && !iOut ? 'text-[#7ef0b0]' : STEEL_TEXT}`}>
@@ -85,7 +101,13 @@ export default function SniperHoldemResult({ room, mySeat, t, locale, onAgain, o
             );
           })}
         </ol>
-        <ResultActions won={myPlace === null ? undefined : !iOut} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/sniper-holdem" exitPath="/sniper-holdem" primaryClass={RESULT_PRIMARY} />
+        {/* 게임 보기: back to the table (the final hand stays on it); 복기: the match again, hand by hand. */}
+        <ResultActions replay={
+          <div className={`mt-5 grid gap-2 ${onReplay && g.rounds.length ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            <button type="button" onClick={onClose} className="flex items-center justify-center gap-2 rounded-md border border-white/15 bg-white/5 py-3 text-sm font-extrabold text-white/80 hover:bg-white/10"><Eye size={15} />{t.viewGame}</button>
+            {onReplay && g.rounds.length > 0 && <button type="button" onClick={onReplay} className="flex items-center justify-center gap-2 rounded-md border border-(--accent)/40 bg-(--accent)/10 py-3 text-sm font-extrabold text-(--accent) hover:bg-(--accent)/20"><History size={15} />{t.replay}</button>}
+          </div>
+        } won={myPlace === null ? undefined : !iOut} onAgain={onAgain} waitingLabel={waitingLabel} gamePath="/sniper-holdem" exitPath="/sniper-holdem" primaryClass={RESULT_PRIMARY} />
       </motion.div>
     </div>
   );

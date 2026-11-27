@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { BookOpen, Bot, Check, Copy, Crown, Loader2, Share2, Trophy, UserRound, WifiOff } from 'lucide-react';
+import { BookOpen, Bot, Check, Copy, Crown, History, Loader2, Share2, Trophy, UserRound, WifiOff } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import BugReport from '@/components/BugReport';
 import GameUpdates from '@/components/GameUpdates';
@@ -21,7 +21,8 @@ import { BTN, BTN_ACCENT, INPUT, KICKER, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE,
 import { SH_ACCENT, SH_ROOT_STYLE, shCopy } from './copy';
 import { SniperHoldemRules } from './SniperHoldemGame';
 import { ShAvatar } from './SniperHoldemParts';
-import SniperHoldemResult, { shMyPlace, useSniperHoldemReport } from './SniperHoldemResult';
+import SniperHoldemResult, { shMyPlace, shNamer, useResultDelay, useSniperHoldemReport } from './SniperHoldemResult';
+import { SniperHoldemReplay, useShReplayRecorder } from './SniperHoldemReplay';
 import SniperHoldemTable from './SniperHoldemTable';
 
 /** A 5-seat 스나이퍼 홀덤 table with friends (or an open room); seats nobody takes are played by the AI unless the host turns that off. */
@@ -54,6 +55,11 @@ export default function SniperHoldemRoomView({ code }: { code: string }) {
   // My result shows once my place is settled: at the end, or as soon as I am knocked out.
   const done = !!state && (finished || shMyPlace(state, mySeat) !== null);
   const resultKey = state ? `${state.game.gid}-${finished}` : '';
+  const resultReady = useResultDelay(done, resultKey);
+  const [replaying, setReplaying] = useState(false);
+  // People at the table: the 복기 shows only what this seat saw (my cards and the hands shown down).
+  const seen = useShReplayRecorder(state && state.phase !== 'lobby' ? state.game : null, mySeat, false);
+  if (replaying && !done) setReplaying(false); // a rematch started
   useSniperHoldemReport(state, mySeat, 'friend');
 
   return (
@@ -77,13 +83,18 @@ export default function SniperHoldemRoomView({ code }: { code: string }) {
           onChips={(chips) => dispatch({ t: 'chips', chips })} onLevel={(level) => dispatch({ t: 'level', level })} onAnte={(rule) => dispatch({ t: 'ante', rule })} />
       ) : (
         <main className="relative z-10 px-3 py-3 sm:px-5 sm:py-5">
-          <SniperHoldemTable room={state} mySeat={mySeat} onAction={dispatch} t={t} locale={locale} />
-          {done && closedKey === resultKey && (
-            <div className="mx-auto mt-2 max-w-[760px]"><button type="button" onClick={() => setClosedKey(null)} className={`${BTN} w-full py-3`}><Trophy size={14} />{t.showResult}</button></div>
+          {replaying && done
+            ? <SniperHoldemReplay g={state.game} seen={seen} t={t} nameOf={shNamer(state, mySeat, t, locale)} mySeat={mySeat} onClose={() => { setReplaying(false); setClosedKey(resultKey); }} onShowResult={() => { setReplaying(false); setClosedKey(null); }} />
+            : <SniperHoldemTable room={state} mySeat={mySeat} onAction={dispatch} t={t} locale={locale} finalSheet={!resultReady} />}
+          {done && resultReady && closedKey === resultKey && !replaying && (
+            <div className="mx-auto mt-2 grid max-w-[760px] grid-cols-2 gap-2">
+              <button type="button" onClick={() => setClosedKey(null)} className={`${BTN} py-3`}><Trophy size={14} />{t.showResult}</button>
+              <button type="button" onClick={() => setReplaying(true)} disabled={!state.game.rounds.length} className={`${BTN} py-3 disabled:opacity-30`}><History size={14} />{t.replay}</button>
+            </div>
           )}
         </main>
       )}
-      {done && closedKey !== resultKey && state && <SniperHoldemResult room={state} mySeat={mySeat} t={t} locale={locale} onAgain={me?.isHost && finished ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t.rematchWait} onClose={() => setClosedKey(resultKey)} />}
+      {done && resultReady && closedKey !== resultKey && !replaying && state && <SniperHoldemResult room={state} mySeat={mySeat} t={t} locale={locale} onAgain={me?.isHost && finished ? () => dispatch({ t: 'start' }) : undefined} waitingLabel={t.rematchWait} onClose={() => setClosedKey(resultKey)} onReplay={() => setReplaying(true)} />}
       {rulesOpen && <SniperHoldemRules t={t} locale={locale} players={state && state.phase !== 'lobby' ? state.game.players : SH_SEATS} start={state?.chips ?? 60} rise={state && state.phase !== 'lobby' ? state.game.anteRule === 'rise' : (state?.anteRule ?? 'rise') === 'rise'} onClose={() => setRulesOpen(false)} />}
     </div>
   );

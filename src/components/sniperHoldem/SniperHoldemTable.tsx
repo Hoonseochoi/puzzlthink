@@ -18,7 +18,8 @@ import { type TalkEvent, personaCopy, talkLine } from './personas';
 import type { ShStyle } from '@/lib/sniperHoldemAi';
 import { playCard, playChips, playHit, playSnipe, playWin, setShSound, shSoundOn } from './sound';
 
-type Props = { room: SniperHoldemRoom; mySeat: number | null; onAction: (action: SniperHoldemRoomAction) => void; t: ShCopy; locale: string };
+/** `finalSheet`: keep the last hand's showdown sheet up after the match ends (until the result is shown). */
+type Props = { room: SniperHoldemRoom; mySeat: number | null; onAction: (action: SniperHoldemRoomAction) => void; t: ShCopy; locale: string; finalSheet?: boolean };
 type Persona = (typeof SH_PERSONA)[keyof typeof SH_PERSONA];
 const NEVER = Number.MAX_SAFE_INTEGER / 2;
 
@@ -57,7 +58,7 @@ function useTableFeedback(g: SniperHoldem, mySeat: number | null, myTurn: boolea
   useEffect(() => { if (myTurn && !was.current) buzz(28); was.current = myTurn; }, [myTurn]);
 }
 
-export default function SniperHoldemTable({ room, mySeat, onAction, t, locale }: Props) {
+export default function SniperHoldemTable({ room, mySeat, onAction, t, locale, finalSheet = false }: Props) {
   const g = room.game;
   const en = locale === 'en';
   const nameOf = (s: number) => {
@@ -130,7 +131,7 @@ export default function SniperHoldemTable({ room, mySeat, onAction, t, locale }:
         )}
         <SnipeFlash g={g} t={t} nameOf={nameOf} mySeat={mySeat} />
         <AnimatePresence>{historyOpen && <HistorySheet key="history" g={g} t={t} nameOf={nameOf} mySeat={mySeat} onClose={() => setHistoryOpen(false)} />}</AnimatePresence>
-        <AnimatePresence>{g.phase === 'showdown' && g.showdown && <ShowdownSheet key={g.round} g={g} t={t} nameOf={nameOf} mySeat={mySeat} />}</AnimatePresence>
+        <AnimatePresence>{(g.phase === 'showdown' || (g.phase === 'finished' && finalSheet)) && g.showdown && <ShowdownSheet key={g.round} g={g} t={t} nameOf={nameOf} mySeat={mySeat} />}</AnimatePresence>
       </Layer>
     </div>
   );
@@ -591,10 +592,11 @@ function SnipePicker({ g, seat, t, nameOf, seconds, warning, onClose, onPass, on
   const chosen: ShTarget | null = cat !== null && n !== null ? { cat, n } : null;
   const isPossible = (c: ShCat, k: number) => possible.some((p) => p.cat === c && p.n === k);
   const alreadySaid = (x: ShTarget) => said.some((e) => shSameTarget(e.x, x));
+  const bettors = Array.from({ length: SH_SEATS }, (_, i) => (seat + i) % SH_SEATS).filter((s) => g.bets[s] > 0);
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-[2px] sm:items-center" onClick={onClose}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 sm:items-center" onClick={onClose}>
       <motion.div initial={{ y: 60 }} animate={{ y: 0 }} exit={{ y: 60 }} transition={{ type: 'spring', stiffness: 320, damping: 30 }} onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-[520px] rounded-t-[18px] border border-(--accent)/30 bg-[#121217] p-4 pb-[calc(env(safe-area-inset-bottom)+14px)] sm:rounded-[18px]">
+        className="max-h-[94dvh] w-full max-w-[520px] overflow-y-auto rounded-t-[18px] border border-(--accent)/30 bg-[#121217] p-4 pb-[calc(env(safe-area-inset-bottom)+14px)] sm:rounded-[18px]">
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-1.5 text-sm font-black text-white"><Scope size={16} className="text-(--accent)" />{t.snipeTitle} · {t.round(g.round)}</p>
           <div className="flex items-center gap-2">{seconds !== null && <b className={`font-mono text-xs ${seconds <= 5 ? 'text-(--accent)' : 'text-white/50'}`}>{seconds}s</b>}<button type="button" onClick={onClose} aria-label={t.close} className="grid h-8 w-8 place-items-center rounded-md border border-white/10 text-white/60"><X size={15} /></button></div>
@@ -602,6 +604,17 @@ function SnipePicker({ g, seat, t, nameOf, seconds, warning, onClose, onPass, on
         <p className="mt-1 break-keep text-[11px] leading-4 text-white/45">{t.snipeHint}</p>
         <AnimatePresence>{warning && seconds !== null && <div className="mt-2"><IdleWarning seconds={seconds} t={t} /></div>}</AnimatePresence>
         <div className="mt-2.5 flex items-center gap-1.5">{board.map((c, i) => <ShCard key={i} value={c} size="sm" />)}<span className="mx-1 h-6 w-px bg-white/15" />{mineCards.map((c, i) => <ShCard key={i} value={c} size="sm" />)}{myTarget && <span className="ml-1 truncate text-[11px] font-black text-white/70">{t.label(myTarget)}</span>}</div>
+        {/* The bets are what a snipe is read from: who put in how much this hand, and who folded. */}
+        <div className="mt-2 rounded-[10px] border border-[#ffd36b]/20 bg-[#ffd36b]/[0.04] px-2.5 py-1.5">
+          <p className="flex items-center justify-between text-[9px] font-black tracking-[0.14em] text-white/35"><span>{t.snipeTable}</span><span className="flex items-center gap-1 tracking-normal text-[#ffd36b]">{t.pot} <ShChip n={shPot(g)} className="text-[11px] text-[#ffd36b]" /></span></p>
+          <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 min-[420px]:grid-cols-3">
+            {bettors.map((s) => (
+              <span key={s} className={`flex min-w-0 items-center justify-between gap-1 text-[11px] font-bold ${g.folded[s] ? 'text-white/30 line-through' : s === seat ? 'text-(--accent)' : 'text-white/80'}`}>
+                <span className="truncate">{nameOf(s)}</span><b className="shrink-0 font-mono text-[#ffd36b]">{g.bets[s]}</b>
+              </span>
+            ))}
+          </div>
+        </div>
         <div className="mt-2.5 rounded-[10px] border border-white/10 bg-black/30 px-2.5 py-1.5">
           <p className="text-[9px] font-black tracking-[0.14em] text-white/35">{t.snipesSoFar}</p>
           {said.length ? <div className="mt-1 flex flex-wrap gap-1">{said.map((e) => <span key={e.s} className="flex items-center gap-1 rounded bg-(--accent)/15 px-1.5 py-0.5 text-[11px] font-black text-[#ff9aa4]">{nameOf(e.s)} <Scope size={10} />{t.label(e.x)}</span>)}</div>
@@ -722,21 +735,24 @@ function HistorySheet({ g, t, nameOf, mySeat, onClose }: { g: SniperHoldem; t: S
 
 /* ------------------------------------------------------------------ log & ladder */
 
+/** One line of the table log (also used by the 복기). */
+export function logLine(e: ShEvent, t: ShCopy, nameOf: (s: number) => string): string {
+  switch (e.k) {
+    case 'round': return t.logRound(e.round, nameOf(e.first), e.cap, e.ante);
+    case 'board': return t.logBoard(e.cards[0], e.cards[1]);
+    case 'call': return t.logCall(nameOf(e.seat), e.to);
+    case 'raise': return t.logRaise(nameOf(e.seat), e.to, e.open);
+    case 'fold': return t.logFold(nameOf(e.seat));
+    case 'snipe': return t.logSnipe(nameOf(e.seat), t.label(e.target));
+    case 'pass': return t.logPass(nameOf(e.seat));
+    case 'win': return t.logWin(e.seats.map(nameOf).join(', '), e.pot, e.split, e.allSniped);
+    case 'safe': return t.logSafe(nameOf(e.seat), e.place);
+    case 'out': return t.logOut(nameOf(e.seat));
+  }
+}
+
 function LogList({ g, t, nameOf }: { g: SniperHoldem; t: ShCopy; nameOf: (s: number) => string }) {
-  const line = (e: ShEvent) => {
-    switch (e.k) {
-      case 'round': return t.logRound(e.round, nameOf(e.first), e.cap, e.ante);
-      case 'board': return t.logBoard(e.cards[0], e.cards[1]);
-      case 'call': return t.logCall(nameOf(e.seat), e.to);
-      case 'raise': return t.logRaise(nameOf(e.seat), e.to, e.open);
-      case 'fold': return t.logFold(nameOf(e.seat));
-      case 'snipe': return t.logSnipe(nameOf(e.seat), t.label(e.target));
-      case 'pass': return t.logPass(nameOf(e.seat));
-      case 'win': return t.logWin(e.seats.map(nameOf).join(', '), e.pot, e.split, e.allSniped);
-      case 'safe': return t.logSafe(nameOf(e.seat), e.place);
-      case 'out': return t.logOut(nameOf(e.seat));
-    }
-  };
+  const line = (e: ShEvent) => logLine(e, t, nameOf);
   return (
     <>
       <p className={PANEL_TITLE}>{t.log}</p>

@@ -175,7 +175,7 @@ const guide: GameGuide = {
           { type: 'list', items: [
             '**AI 5인전 (보통·어려움)**과 **1:1 (어려움)**을 할 수 있어요. AI는 자기 자리에서 보이는 것(자기 카드, 공유 카드, 모두의 베팅과 저격)만 보고 판단하고, 숨겨진 카드는 보지 않아요.',
             '보통 AI는 상대의 베팅을 읽어 상대 패를 추정하고, 그 추정으로 승률과 저격을 계산해요. 어려움 AI는 여기에 더해 **자기 레이즈와 저격이 상대에게 어떻게 읽힐지**까지 따져, 강한 패를 숨기거나 낮은 족보를 저격하기도 해요.',
-            'AI는 10가지 성향이 있고 매 판 무작위로 앉아요. 성향은 같은 계산 위에서 **거의 같은 값의 수 가운데 무엇을 고르느냐**만 바꾸기 때문에, 어떤 성향도 약하지 않아요(어려움 5인전 100판에서 성향별 탈락률 14~24%, 성향 없는 기준 AI 26%, 공평하면 20%). 난이도는 계산의 깊이만 바꿔요: 1:1에서 어려움이 보통을 약 56%, 보통이 쉬움을 약 68% 이겨요. 5인전은 운의 몫이 커서 탈락률이 어려움 20%, 보통 17%, 쉬움 23% 정도로 어려움과 보통의 차이가 거의 없어요.',
+            'AI는 10가지 성향이 있고 매 판 무작위로 앉아요. 성향은 같은 계산 위에서 **거의 같은 값의 수 가운데 무엇을 고르느냐**만 바꾸기 때문에, 어떤 성향도 약하지 않아요(보통 5인전 200판에서 성향별 탈락률 18~23%, 공평하면 20%). 난이도는 계산의 깊이만 바꿔요: 1:1에서 어려움이 보통을 약 53%, 보통이 쉬움을 약 61% 이겨요. 5인전은 운의 몫이 커서 어려움과 보통의 차이가 거의 없어요. AI는 패가 확실하면 판돈의 절반 이상이나 올인으로 크게 걸고, 같은 베팅 안에서 1칩씩 레이즈를 주고받지 않아요.',
             '**친구 방·공개방**은 2~5명이 할 수 있어요. 방장이 AI로 빈자리를 채울지, 시작 칩을 60개(방송)로 할지 24개(빠른 판)로 할지, AI 난이도를 정해요. 베팅과 저격은 30초 안에 해야 하고, 마지막 10초에 경고가 뜬 뒤 시간이 지나면 AI가 그 자리를 대신해요. 돌아오면 "다시 참여"로 자리를 돌려받아요.',
             '기록: 생존하면 승, 탈락하면 패로 남아요. 어려움 AI 테이블에서 **가장 먼저 생존**하면 어려움 클리어 인증서를 받아요.',
           ] },
@@ -389,7 +389,7 @@ const guide: GameGuide = {
           { type: 'list', items: [
             '**Five players vs AI (normal or hard)** and **1:1 (hard)**. The AI sees only what its seat would: its own cards, the shared cards, every bet and snipe. It never looks at hidden cards.',
             'Normal AI reads opponents’ bets into a guess at their cards and works out its odds and snipes from that. Hard AI also weighs **how its own raises and snipes will be read**, so it hides strong hands and sometimes snipes low.',
-            'The AI has 10 personalities and a random few sit down each match. A personality only changes **which of the nearly equally good moves** it picks on top of the same calculation, so none is weaker (100 hard five-player matches: 14–24% eliminated per personality, 26% for a no-personality baseline, 20% would be even). The level changes only how deep the calculation goes: in 1:1, hard beats normal about 56% of the time and normal beats easy about 68%. At five players luck weighs more: about 20% eliminated for hard, 17% for normal, 23% for easy, so hard and normal are close there.',
+            'The AI has 10 personalities and a random few sit down each match. A personality only changes **which of the nearly equally good moves** it picks on top of the same calculation, so none is weaker (200 normal five-player matches: 18–23% eliminated per personality, 20% would be even). The level changes only how deep the calculation goes: in 1:1, hard beats normal about 53% of the time and normal beats easy about 61%. At five players luck weighs more, so hard and normal are close there. With a clearly strong hand the AI bets big (half the pot or more, sometimes all in), and it does not trade 1-chip raises within a betting round.',
             '**Friend and open rooms** seat 2–5. The host chooses whether AI fills empty seats, 60 starting chips (the show) or 24 (quick), and the AI level. Bets and snipes have 30 seconds; after a warning in the last 10 the AI takes the seat until you press "rejoin".',
             'Records: reaching safety is a win, being eliminated a loss. Be **first to safety at a hard AI table** for the hard clear certificate.',
           ] },

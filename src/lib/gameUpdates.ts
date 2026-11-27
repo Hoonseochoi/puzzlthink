@@ -1,4 +1,4 @@
-import { Bot, Coins, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { Bot, Coins, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -49,6 +49,21 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '스나이퍼 홀덤', en: "Sniper Hold'em" },
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
     items: [
+      {
+        date: '11/27', icon: History,
+        ko: { title: '복기와 게임 보기가 생겼어요', desc: '게임이 끝나면 마지막 판을 잠깐 보여준 뒤 결과가 떠요. 결과 창의 「게임 보기」로 마지막 테이블로 돌아가고, 「복기하기」로 판마다 모두의 패·공유 카드·베팅 순서·저격·팟의 주인을 다시 볼 수 있어요(친구방에서는 내가 본 패만).' },
+        en: { title: 'Replay and View game', desc: 'When a match ends, the last hand stays up for a moment before the result. "View game" takes you back to the final table, and "Replay" steps through every hand: all cards, the shared cards, each bet in order, the snipes and who took the pot (in rooms, only the cards you saw).' },
+      },
+      {
+        date: '11/27', icon: Crosshair,
+        ko: { title: '저격할 때 공유 카드와 베팅이 보여요', desc: '저격 창 안에 공유 카드 4장과 내 카드, 이번 판에 각자 건 칩과 포기한 사람, 팟이 함께 보여요. 테이블을 가리지 않고도 무엇을 저격할지 고를 수 있어요.' },
+        en: { title: 'Shared cards and bets while sniping', desc: 'The snipe picker now shows the four shared cards, your cards, what each player put in this hand (and who folded) and the pot, so you can choose a snipe without the table hidden behind it.' },
+      },
+      {
+        date: '11/27', icon: Bot,
+        ko: { title: 'AI가 1칩씩 주고받는 레이즈를 멈췄어요', desc: 'AI끼리 1칩씩 끝없이 올리던 핑퐁이 사라졌어요. 이제 패가 확실하면 판돈의 절반 이상이나 올인으로 크게 걸고, 한 번 레이즈한 뒤 다시 올려 오면 콜·폴드하거나 크게 한 번만 받아쳐요. 성향에 따라 크게 거는 기준은 달라요.' },
+        en: { title: 'The AI stopped trading 1-chip raises', desc: 'AIs no longer raise each other by 1 chip over and over. A clearly strong hand now bets half the pot or more, sometimes all in, and an AI that gets re-raised calls, folds or answers once with a big raise. How strong a hand must be to bet big depends on the personality.' },
+      },
       {
         date: '11/27', icon: Bot,
         ko: { title: 'AI 상대 10가지 성향과 심리전', desc: '블러퍼, 바위, 콜링 스테이션, 저격 난사꾼, 큰 판만 노리는 독사 등 10가지 성향 중 매 판 무작위로 앉고 그날 기분도 달라요. 지난 판에 공개된 패와 저격을 기억해 당신의 버릇을 읽고, 가끔은 성향과 다르게 둬요. 대사도 하고, 진짜 성향은 결과 화면에서 공개돼요.' },
