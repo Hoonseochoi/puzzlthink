@@ -169,7 +169,8 @@ async function rpc<T>(name: string, args: Record<string, unknown>): Promise<T | 
 export const hwrDeal = (level: HwLevel = 'basic') => rpc<{ deal: string; envelopes: string[][]; error?: string }>('hw_room_deal', level === 'basic' ? {} : { p_level: level });
 export const hwrLock = (deal: string, word: string) => rpc<string>('hw_room_lock', { p_deal: deal, p_word: word });
 /** Similarity of each word to the locked hidden word (null: not in the dictionary). Null when the server refused. */
-export const hwrScore = (lock: string, words: string[]) => rpc<(number | null)[]>('hw_room_score', { p_lock: lock, p_words: words });
+/** `kind` tells the server's play log whether the words are a hint or an answer (it keeps no player identity). */
+export const hwrScore = (lock: string, words: string[], kind: 'hint' | 'answer') => rpc<(number | null)[]>('hw_room_score', { p_lock: lock, p_words: words, p_kind: kind });
 export const hwrReveal = (lock: string, usedWords: string[]) => rpc<{ w: string; s: number } | null>('hw_room_reveal', { p_lock: lock, p_used: usedWords });
 export const hwrUsed = used;
 export const hwrHintsLeft = (t: HwrTurn) => HWR_CFG.maxHints - hintsThisStage(t);

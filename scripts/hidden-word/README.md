@@ -119,3 +119,24 @@ Comparing models: `embed_models.py <data> <name> ...` then `eval_models.py <data
 second assoc dir to include its lists). After editing a list only `make_assoc.py`, `build_game.py` and `load_game.sh`
 need to run again, unless the list adds a word the vocabulary does not have yet (then from `build_vocab.py`).
 Size: hw_targets 58 MB in Postgres (13 MB before), hw_vocab 6.6 MB, hw_hints 2.5 MB; the build takes ~5 minutes.
+
+## Play log (from 11/28; backfilled to launch)
+
+`20271128200000_hidden_word_log.sql` keeps every hint and answer of both games for good, without any account data:
+`hw_log_hints`, `hw_log_answers`, `hw_log_refused` (words the game refused, e.g. not in the vocabulary). Rows of one
+match share a keyed hash of the match id, not the id itself. Written by a trigger on `hw_games`, by `hw_act` (refused
+words) and by the friend-room scoring functions.
+
+```bash
+S=~/wallgo/scripts/hidden-word
+$S/backfill_log.sh ~/puzzlthink-supabase/hidden-word/backup/hw_games_snapshot_20261127_0924.sql.gz   # idempotent; prints the reconciliation
+python3 $S/analyze_log.py missing --top 50        # hints players type that are not on the word's list → list candidates
+python3 $S/analyze_log.py misscored --min 8       # numbers that look wrong against play
+python3 $S/analyze_log.py words                   # per word / group: found at stage 1 / ever, by MORA and by players
+python3 $S/analyze_log.py unknown                 # words the game lacks: vocabulary and new hidden-word candidates
+python3 $S/analyze_log.py weekly                  # one line for the status report
+python3 $S/analyze_log.py live-pairs --n 300 > /tmp/pairs.tsv   # fresh pairs to grade for eval/live_pairs.tsv
+```
+In 'misscored', "found" is the opponent's success in that stage; in AI matches that opponent is MORA, so a low rate
+can mean MORA cannot read the hint (one-syllable hints like 열 for 대기) rather than a wrong number. Friend rooms,
+where both sides are people, give the cleaner signal as they accumulate.

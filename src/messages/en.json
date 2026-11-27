@@ -622,7 +622,7 @@
   },
   "Legal": {
     "legal": "LEGAL",
-    "lastUpdated": "Last updated: November 27, 2026",
+    "lastUpdated": "Last updated: November 28, 2026",
     "privacyTitle": "Privacy Policy",
     "privacyDescription": "The PUZZLTHINK privacy policy.",
     "privacySections": [
@@ -644,7 +644,7 @@
       },
       {
         "title": "5. Statistics that cannot identify you",
-        "body": "For everyone, we count visitors per day and plays per game and mode as plain numbers. These counts contain no name, email, IP address or anything else that identifies you. To avoid counting the same visit twice in a day, the date of your visit is stored in your browser. To show how many people are online right now, a randomly generated device identifier and the time of your last visit are recorded in our database (Supabase) about every 45 seconds while a page is open. It cannot identify you and is deleted automatically 10 minutes after you leave."
+        "body": "For everyone, we count visitors per day and plays per game and mode as plain numbers. These counts contain no name, email, IP address or anything else that identifies you. To avoid counting the same visit twice in a day, the date of your visit is stored in your browser. To show how many people are online right now, a randomly generated device identifier and the time of your last visit are recorded in our database (Supabase) about every 45 seconds while a page is open. It cannot identify you and is deleted automatically 10 minutes after you leave. In Hidden Word, the words you type as hints and answers, with their similarity scores, are kept without any account information, grouped only by match, to improve the word data."
       },
       {
         "title": "6. Playing with friends (real-time)",

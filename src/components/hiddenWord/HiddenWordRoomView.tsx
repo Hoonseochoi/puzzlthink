@@ -330,7 +330,7 @@ function HintDock({ turn, t, onSend }: { turn: HwrTurn; t: HwCopy; onSend: (word
     if (clean === turn.word) { setError('secret'); return; }
     if (hwrUsed(turn).includes(clean)) { setError('duplicate'); return; }
     setBusy(true); setError(null);
-    const scores = await hwrScore(turn.lock, [clean]);
+    const scores = await hwrScore(turn.lock, [clean], 'hint');
     if (!scores) { setBusy(false); setError('server'); return; }
     const s = scores[0];
     if (s === null || s === undefined) { setBusy(false); setError('unknown'); return; }
@@ -367,7 +367,7 @@ function GuessDock({ turn, t, onSend }: { turn: HwrTurn; t: HwCopy; onSend: (wor
     if (!words.every(isHwWord)) { setError('invalid'); return; }
     if (new Set(words).size !== words.length || words.some((w) => hwrUsed(turn).includes(w))) { setError('duplicate'); return; }
     setBusy(true); setError(null);
-    const scores = await hwrScore(turn.lock, words);
+    const scores = await hwrScore(turn.lock, words, 'answer');
     setBusy(false);
     if (!scores) { setError('server'); return; }
     if (scores.some((s) => s === null || s === undefined)) { setError('unknown'); return; }
