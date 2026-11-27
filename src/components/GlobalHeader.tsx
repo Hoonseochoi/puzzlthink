@@ -10,7 +10,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import AuthButton from './AuthButton';
 import GamesMenu from './GamesMenu';
 import { HeaderSupportButton } from './SupportLink';
-import { HeaderTesterButton, useTesterInstall } from './AppTesterInvite';
+import { HeaderTesterButton, useTesterHeader } from './AppTesterInvite';
 import { TopBannerSlot } from './ads/HiddenLogAd';
 
 const HIDE_ON = ['/hidden-word', '/hidden-word-plus', '/equation-signal', '/equation-tower', '/card-janggi', '/point-omok', '/2048', '/magic-square', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker', '/masyu', '/nonogram', '/star-battle', '/binairo', '/one-stroke', '/color-link'];
@@ -26,7 +26,7 @@ export default function GlobalHeader() {
   const [gamesOpen, setGamesOpen] = useState(true);
   // Members who joined the Play closed test (once it is open) get "테스트 앱 설치" in 자율 후원's place; 후원 stays in
   // the phone menu and the footer for them.
-  const tester = useTesterInstall();
+  const tester = useTesterHeader();
   const headerCta = tester ? <HeaderTesterButton /> : <HeaderSupportButton />;
   if (HIDE_ON.some((segment) => pathname.includes(segment))) return null;
 

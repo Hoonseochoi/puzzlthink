@@ -2632,7 +2632,8 @@
     "slitherRoom": "Create a room (2–4)",
     "short_slitherRoom": "2–4",
     "magicswapPractice": "Practice (5×5 · 6×6 · 7×7)",
-    "openAppBadge": "App only"
+    "openAppBadge": "App only",
+    "openCreateLocked": "Hosting is for app testers"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -4235,7 +4236,7 @@
     "createTitle": "Which game?",
     "close": "Close",
     "note": "Signed-in players only. Results count toward each other's records.",
-    "appOnlyHint": "Opens in the app only"
+    "hostTag": "App testers only"
   },
   "OpenResult": {
     "close": "Close",
@@ -8785,10 +8786,10 @@
   },
   "AppTester": {
     "eyebrow": "GOOGLE PLAY APP TESTERS WANTED",
-    "title": "Be a tester before the app launches",
-    "stripTitle": "App testers wanted before launch",
-    "stripSub": "App-only Hidden Word open matches · exclusive icon",
-    "lead": "PUZZLTHINK is coming to Google Play. We are looking for testers to try the app before its public release.",
+    "title": "Only app testers can host Hidden Word open matches",
+    "stripTitle": "Only app testers can host Hidden Word open matches",
+    "stripSub": "Agree → install → host · TESTER icon",
+    "lead": "Become a tester of the PUZZLTHINK Google Play app. Agree → install → host: three steps.",
     "benefit1": "Play new games with no ads",
     "benefit2": "Get the testers-only TESTER icon right away",
     "benefit3": "Get the app before everyone else, free",
@@ -8806,9 +8807,9 @@
     "failed": "That did not work. Please try again in a moment.",
     "doneTitle": "You are signed up",
     "doneEmail": "Signed up with {email}. The TESTER icon is now on your profile.",
-    "doneWait": "Once the test opens, a 'Get the app' button appears on the home and Records pages. We will email you the guide too.",
+    "doneWait": "Once the test opens, a 'Get the app' button appears on the home and Records pages. Install it to host Hidden Word open matches.",
     "getApp": "Get the app",
-    "doneSoon": "We are adding you to the tester list. The install button usually appears here within an hour.",
+    "doneSoon": "We are adding you to the tester list. The install button usually appears here within an hour; install it to host Hidden Word open matches.",
     "keepInstalled": "Please keep the app installed for 14 days during the test.",
     "withdrawAsk": "Withdraw from the tester program",
     "withdrawConfirm": "Withdrawing deletes the stored email at once and removes the TESTER icon.",
@@ -8816,8 +8817,8 @@
     "withdrawn": "You have withdrawn. The stored email was deleted.",
     "headerInstall": "Install test app",
     "installEyebrow": "PLAY TESTER",
-    "installTitle": "The test app is open",
-    "installLead": "Thanks for signing up as a tester. Two steps and the app is yours.",
+    "installTitle": "Install it to host Hidden Word open matches",
+    "installLead": "The test app is open. Two steps and it is installed.",
     "installStep1": "Accept the invite",
     "installStep1Desc": "Tap the button below, then tap 'Become a tester' on the Google Play page that opens.",
     "installStep2": "Install from Google Play",
@@ -8827,14 +8828,14 @@
     "installLater": "Later",
     "installDone": "I already installed it",
     "installAndroidOnly": "The test app is for Android phones. Sign in to PUZZLTHINK on an Android phone to install it.",
-    "benefitOpen": "Join Hidden Word open matches, only in the app",
-    "headerPerk": "APP-ONLY OPEN MATCH",
-    "installPerk": "Install it to open and join Hidden Word open matches, which only the app has.",
-    "appOnlyEyebrow": "APP ONLY",
-    "appOnlyTitle": "Hidden Word open matches are app-only",
-    "appOnlyDesc": "Open matches against people you do not know can be created and joined only in the PUZZLTHINK test app. Friend rooms work on the web as before.",
-    "appOnlyJoin": "Sign up as a tester to get the app early and open matches there.",
-    "appOnlyAndroid": "For now they open only in the Android test app.",
-    "appOnlyInstalled": "Already installed? Open the PUZZLTHINK app and come to Hidden Word."
+    "benefitOpen": "Host your own Hidden Word open matches",
+    "headerPerk": "HOST HIDDEN WORD",
+    "installHost": "Install it to host Hidden Word open matches",
+    "hostTag": "APP TESTERS ONLY",
+    "hostHow": "Agree, install the test app, and you can open a room right away. Agree → install → host.",
+    "hostAndroidOnly": "For now, rooms can be opened only in the Android test app. You can still join open matches others opened, right here.",
+    "hostInstalled": "Already installed? Open Hidden Word in the PUZZLTHINK app and open a room.",
+    "hostMore": "How",
+    "appWelcome": "As a tester you can host Hidden Word open matches"
   }
 }

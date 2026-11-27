@@ -40,8 +40,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: DoorOpen,
-        ko: { title: '오픈 대전이 생겼어요 (Google Play 테스트 앱 전용)', desc: '처음 보는 사람과 붙는 오픈 대전을 PUZZLTHINK 테스트 앱에서 열고 참여할 수 있어요. 1:1 대전만 열려요. 봉투와 숨긴 단어는 서버가 맡아서 상대 화면에는 끝날 때까지 보이지 않아요.' },
-        en: { title: 'Open matches are here (Google Play test app only)', desc: 'Open and join matches against people you do not know in the PUZZLTHINK test app. 1:1 only. The server holds the envelopes and hidden words, so the other side never sees yours before the turn ends.' },
+        ko: { title: '오픈 대전이 생겼어요 (방은 앱 테스터만 열 수 있어요)', desc: '처음 보는 사람과 붙는 오픈 대전이에요. 1:1 대전만 열려요. 방은 Google Play 테스트 앱에서만 열 수 있고, 참가는 웹·아이폰 어디서든 돼요. 봉투와 숨긴 단어는 서버가 맡아서 상대 화면에는 끝날 때까지 보이지 않아요.' },
+        en: { title: 'Open matches are here (app testers host them)', desc: 'Matches against people you do not know. 1:1 only. Rooms are opened only in the Google Play test app; anyone can join, on the web or an iPhone. The server holds the envelopes and hidden words, so the other side never sees yours before the turn ends.' },
       },
       {
         date: '11/28', icon: Undo2,
@@ -106,8 +106,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: DoorOpen,
-        ko: { title: '오픈 대전이 생겼어요 (Google Play 테스트 앱 전용)', desc: '처음 보는 사람과 붙는 오픈 대전을 PUZZLTHINK 테스트 앱에서 열고 참여할 수 있어요. 봉투와 숨긴 단어는 서버가 맡아서 상대 화면에는 끝날 때까지 보이지 않아요.' },
-        en: { title: 'Open matches are here (Google Play test app only)', desc: 'Open and join matches against people you do not know in the PUZZLTHINK test app. The server holds the envelopes and hidden words, so the other side never sees yours before the turn ends.' },
+        ko: { title: '오픈 대전이 생겼어요 (방은 앱 테스터만 열 수 있어요)', desc: '처음 보는 사람과 붙는 오픈 대전이에요. 방은 Google Play 테스트 앱에서만 열 수 있고, 참가는 웹·아이폰 어디서든 돼요. 봉투와 숨긴 단어는 서버가 맡아서 상대 화면에는 끝날 때까지 보이지 않아요.' },
+        en: { title: 'Open matches are here (app testers host them)', desc: 'Matches against people you do not know. Rooms are opened only in the Google Play test app; anyone can join, on the web or an iPhone. The server holds the envelopes and hidden words, so the other side never sees yours before the turn ends.' },
       },
       {
         date: '11/28', icon: Undo2,

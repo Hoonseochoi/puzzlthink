@@ -15,7 +15,6 @@ import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANEL_TITLE, SHELL, STAGE } from '@/components/ui/gameUi';
 import { startOpenMatch, useHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
 import { AppOnlyOpenCard } from '@/components/AppTesterInvite';
-import { usePlayApp } from '@/components/playApp/usePlayApp';
 import { isOpenRoom } from '@/lib/openRooms';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link, useRouter } from '@/i18n/routing';
@@ -117,7 +116,6 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
     setStarting(false);
     if (deal && !deal.error && Array.isArray(deal.envelopes)) dispatch({ t: 'start', deal: deal.deal, envelopes: deal.envelopes });
   };
-  const app = usePlayApp();
   // A browser that came in through the open-room list refuses a match its host started the friend way (words in the state).
   const [cameOpen] = useState(() => isOpenRoom(code));
   const unfair = !!state && cameOpen && !me?.isHost && !state.open && state.phase !== 'lobby';
@@ -146,10 +144,7 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
       {notice && <div className="relative z-10 mx-auto mt-3 flex max-w-[640px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}
 
       <main className="relative z-10 mx-auto w-full max-w-[640px] px-3 pb-10 pt-3 sm:px-4 sm:pt-5">
-        {state && open && !app ? (
-          // Open matches are app-only: on the website the room is the invitation, not the game.
-          <div className="space-y-3"><AppOnlyOpenCard /><Link href={path} className={`flex w-full justify-center px-4 py-3 text-sm ${BTN}`}>{r.backToGame}</Link></div>
-        ) : unfair ? (
+        {unfair ? (
           <div className={`${STAGE} flex min-h-[240px] flex-col items-center justify-center gap-4 text-center`}>
             <p className="max-w-sm break-keep text-sm font-bold text-white/70">{r.openGuard}</p>
             <Link href={path} className={`px-4 py-2.5 text-sm ${BTN_ACCENT}`}>{r.backToGame}</Link>

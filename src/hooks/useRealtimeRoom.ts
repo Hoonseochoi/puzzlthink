@@ -7,7 +7,6 @@ import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
 import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypto';
 import { setRoomOpen, setRoomOpponents } from '@/lib/stats';
 import { isOpenRoom, pingLiveRoom } from '@/lib/openRooms';
-import { isPlayApp } from '@/lib/playApp';
 import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatPeers, setRoomPlaying } from '@/lib/roomChat';
 import { pushHostNotice } from '@/lib/roomHost';
 
@@ -145,7 +144,6 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     name: identity.name, at: joinedAt.current, host: identity.isHost,
     ...(identity.isHost ? { term: termRef.current, ...(hostValueRef.current ? { hv: hostValueRef.current } : {}) } : {}),
     ...(pubRef.current ? { pub: pubRef.current } : {}), ...(uidRef.current ? { uid: uidRef.current } : {}),
-    ...(isPlayApp() ? { app: true } : {}),
   }), []);
 
   const lastChange = useRef(0);
@@ -295,8 +293,8 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     };
 
     channel.on('presence', { event: 'sync' }, () => {
-      const presence = channel.presenceState<HostMeta & { emote?: string; emoteAt?: number; uid?: string; app?: boolean }>();
-      const list: Peer[] = Object.entries(presence).map(([key, metas]) => ({ id: key, name: metas[0]?.name ?? '', at: metas[0]?.at ?? 0, emote: metas[0]?.emote, emoteAt: metas[0]?.emoteAt, uid: metas[0]?.uid, ...(metas[0]?.app ? { app: true } : {}) }));
+      const presence = channel.presenceState<HostMeta & { emote?: string; emoteAt?: number; uid?: string }>();
+      const list: Peer[] = Object.entries(presence).map(([key, metas]) => ({ id: key, name: metas[0]?.name ?? '', at: metas[0]?.at ?? 0, emote: metas[0]?.emote, emoteAt: metas[0]?.emoteAt, uid: metas[0]?.uid }));
       for (const [key, metas] of Object.entries(presence)) { const pub = metas[0]?.pub; if (pub) peerPubs.current.set(key, pub); }
       const hosts = Object.entries(presence).flatMap(([key, metas]) => { const meta = metas.find((m) => m.host); return meta ? [[key, meta] as [string, HostMeta]] : []; }).sort(hostRank);
       const top = hosts[0];

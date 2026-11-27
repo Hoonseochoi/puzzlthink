@@ -7,8 +7,7 @@ import { Link, useRouter } from '@/i18n/routing';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
 import { type OpenRoomRow, isAppOnlyOpen, listOpenRooms, saveTitle } from '@/lib/openRooms';
-import { isPlayApp } from '@/lib/playApp';
-import { AppOnlyOpenCard } from './AppTesterInvite';
+import { AppHostBanner, AppOnlyOpenCard } from './AppTesterInvite';
 import { usePlayApp } from './playApp/usePlayApp';
 import OpenRoomPanel from './OpenRoomPanel';
 import OpenPracticeShell from './OpenPractice';
@@ -53,7 +52,8 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   const menuRef = useRef<HTMLDivElement>(null);
   const { user, configured } = useAuth();
   const signedIn = !!user || !configured; // open rooms need an account so results are kept for both sides
-  // 히든 워드's open rooms exist only inside the Play app: on the website the section is locked (AppOnlyOpenCard).
+  // 히든 워드's open rooms are opened (hosted) only inside the Play app; anyone joins. Outside the app the create row is
+  // the tester card (AppOnlyOpenCard), and a banner under the title leads with it.
   const app = usePlayApp();
   const appOnly = isAppOnlyOpen(game);
   const locked = appOnly && !app;
@@ -61,13 +61,13 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
 
   // Open rooms waiting for players: refreshed every 10 s while the entry screen is showing.
   useEffect(() => {
-    if (started || !modes.useRoom || locked) return;
+    if (started || !modes.useRoom) return;
     let alive = true;
     const load = () => { if (document.visibilityState === 'visible') listOpenRooms(game).then((rows) => { if (alive) setOpenRooms(rows); }); };
     load();
     const timer = window.setInterval(load, 10_000);
     return () => { alive = false; window.clearInterval(timer); };
-  }, [started, game, modes.useRoom, listTick, locked]);
+  }, [started, game, modes.useRoom, listTick]);
 
   // True while the #play entry on top of the history is one this page pushed, so leaving the game can pop it.
   const pushed = useRef(false);
@@ -77,15 +77,6 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
       setStarted(window.location.hash === PLAY_HASH);
       const params = new URLSearchParams(window.location.search);
       const code = params.get('open');
-      // An app-only open room reached on the website (a shared or edited link): back to the locked entry screen.
-      if (code && isAppOnlyOpen(game) && !isPlayApp()) {
-        params.delete('open'); params.delete('v');
-        const query = params.toString();
-        window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
-        pushed.current = false;
-        setStarted(false); setOpenRoom(null);
-        return;
-      }
       setOpenRoom(code && isRoomCode(code) && window.location.hash === PLAY_HASH ? { code, variant: Number(params.get('v')) || 0 } : null);
     };
     sync();
@@ -93,7 +84,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     // The Google sign-in round trip puts #play back once it has landed (AuthProvider).
     window.addEventListener('puzzlthink:url', sync);
     return () => { window.removeEventListener('popstate', sync); window.removeEventListener('puzzlthink:url', sync); };
-  }, [game]);
+  }, []);
 
   /**
    * Leave the game for this entry screen (the header's back arrow). Started here: pop the #play entry, as the system back does.
@@ -113,7 +104,6 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   /** Solo play query for an open room's variant (e.g. WallGo 1:1 vs 1:1:1). */
   const playQuery = (variant: number) => modes.rooms[variant]?.play ?? modes.ai[0]?.query;
   const enterOpenRoom = (code: string, variant: number) => {
-    if (locked) return;
     const base = playQuery(variant);
     start(`${base ? `${base}&` : ''}open=${code}&v=${variant}`);
     setOpenRoom({ code, variant });
@@ -185,6 +175,8 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
             <span className={`grid h-6 w-6 place-items-center rounded-full ${dark ? 'bg-white/10' : 'bg-black/[0.06]'}`}><House size={13} /></span>
             PUZZLTHINK
           </Link>
+          {/* 히든 워드: who can open open-match rooms, first thing on the page (in the app, a one-time welcome). */}
+          {appOnly && <AppHostBanner tone={tone} target="open-host" className="-mt-2 mb-5 sm:-mt-4" />}
           {hero}
 
           {/* How to start: AI (or solo) and, for multiplayer games, friends by link or 4-digit code. */}
@@ -234,12 +226,11 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="flex items-center gap-2 text-base font-black"><DoorOpen size={17} className="text-(--accent)" />{t('openTitle')}
-                    {appOnly && <span className="rounded-full bg-(--accent)/15 px-2 py-0.5 text-[10px] font-black tracking-normal text-(--accent)">{t('openAppBadge')}</span>}</h3>
+                    {appOnly && app && <span className="rounded-full bg-(--accent)/15 px-2 py-0.5 text-[10px] font-black tracking-normal text-(--accent)">{t('openAppBadge')}</span>}</h3>
                   <p className={`mt-1 text-xs leading-5 ${muted}`}>{t('openDesc')}</p>
                 </div>
-                {!locked && <button type="button" onClick={() => setListTick((n) => n + 1)} className={`shrink-0 rounded-md p-2 ${muted} hover:text-(--accent)`} aria-label={t('openRefresh')}><RefreshCw size={15} /></button>}
+                <button type="button" onClick={() => setListTick((n) => n + 1)} className={`shrink-0 rounded-md p-2 ${muted} hover:text-(--accent)`} aria-label={t('openRefresh')}><RefreshCw size={15} /></button>
               </div>
-              {locked ? <AppOnlyOpenCard tone={dark ? 'dark' : 'light'} className="mt-4" /> : <>
               <div className="mt-4 space-y-2">
                 {openRooms === null ? <p className={`flex items-center gap-2 text-xs ${muted}`}><Loader2 size={13} className="animate-spin" />{t('openLoading')}</p>
                   : openRooms.length === 0 ? <p className={`rounded-md border border-dashed px-3 py-3 text-center text-xs ${dark ? 'border-white/15' : 'border-black/15'} ${muted}`}>{t('openEmpty')}</p>
@@ -261,7 +252,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                 </div>
               )}
               {/* Name the room and create it on one line (games with several room types get one button each). */}
-              <div className={`mt-4 flex flex-col gap-2 ${variants.length > 1 ? '' : 'sm:flex-row'}`}>
+              {locked ? <AppOnlyOpenCard id="open-host" tone={tone} className="mt-4" /> : <div className={`mt-4 flex flex-col gap-2 ${variants.length > 1 ? '' : 'sm:flex-row'}`}>
                 <input
                   value={roomTitle} maxLength={30} onChange={(event) => setRoomTitle(event.target.value)} disabled={!signedIn}
                   onKeyDown={(event) => { if (event.key === 'Enter' && variants.length === 1 && creating === null && signedIn) createOpenRoom(variants[0].variant); }}
@@ -276,8 +267,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                     </button>
                   ))}
                 </div>
-              </div>
-              </>}
+              </div>}
             </section>
           )}
 

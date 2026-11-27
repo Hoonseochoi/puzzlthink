@@ -3,11 +3,7 @@
 import { useCallback, useEffect } from 'react';
 import type { HwLevel } from '@/lib/hiddenWord';
 import { type HwrAction, type HwrRoom, createHwrRoom, hwoDeal, reduceHwrRoom, syncHwrSeats } from '@/lib/hiddenWordRoom';
-import type { Peer } from '@/lib/room';
 import { type RoomEngine, prepareRoom, useRealtimeRoom } from './useRealtimeRoom';
-
-/** An open match seats only browsers in the Play app (the host is always seat 0). */
-const seatable = (state: HwrRoom, peers: Peer[]) => (state.open ? peers.filter((p) => p.app || p.id === state.seats[0]?.id) : peers);
 
 /** One engine per game: 히든 워드 (기본 words) and 히든 워드 확장판 (확장 words) have their own channels and saved rooms,
  * so an invite link opens the game it was made in. */
@@ -19,7 +15,7 @@ function engine(level: HwLevel): RoomEngine<HwrRoom, HwrAction> {
     create: (v, host) => (v === value ? createHwrRoom(host, level) : null),
     restorable: (saved) => Array.isArray(saved?.seats) && Array.isArray(saved.scores) && Array.isArray(saved.hands),
     reduce: reduceHwrRoom,
-    syncSeats: (state, peers) => syncHwrSeats(state, seatable(state, peers)),
+    syncSeats: syncHwrSeats,
     running: (state) => state.phase === 'hint' || state.phase === 'reveal' || state.phase === 'guess',
     timeoutAction: { t: 'timeout' },
   };
@@ -43,7 +39,7 @@ export async function startOpenMatch(level: HwLevel, dispatch: (action: HwrActio
 
 /**
  * The open-room panel's view of a 히든 워드 room (GAME_MODES.useRoom): the host marks the room as an open match while
- * it waits (from then on only Play-app browsers get a seat), and its start fetches a server-held deal first.
+ * it waits, and its start fetches a server-held deal first. Anyone signed in may join; only the Play app hosts.
  */
 function useOpenRoom(level: HwLevel, code: string, defaultName: string) {
   const room = useHiddenWordRoom(code, defaultName, level);

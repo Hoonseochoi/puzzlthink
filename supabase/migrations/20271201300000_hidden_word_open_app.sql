@@ -1,9 +1,10 @@
--- 히든 워드 / 히든 워드 확장판 open matches (오픈 대전), opened inside the Google Play app only.
+-- 히든 워드 / 히든 워드 확장판 open matches (오픈 대전): opened (hosted) inside the Google Play app only, joined by anyone.
 --
--- 1. App-only listing. open_room_put / open_room_list / open_room_list_all take p_app; rooms of the games in
---    public.open_room_app_only() are written and listed only when it is 'play' (the Play app's client sends it, the
---    website never does). This is a marker, not proof: any client can send it. It stops a website visitor from
---    reaching the rooms through the site (URL editing included); it does not stop a hand-written client.
+-- 1. App-only hosting. open_room_put takes p_app; a room of a game in public.open_room_app_only() is listed only when
+--    its host's call says 'play' (the Play app's client sends it, the website and the home-screen web app never do).
+--    open_room_list / open_room_list_all list these rooms for everyone, so anyone signed in can join. The marker is
+--    not proof: a hand-written client can send it. It stops the website from opening such a room (URL editing and
+--    the browser console's ordinary paths included); it does not stop someone who writes their own client.
 --
 -- 2. Fair matches with strangers. In a friend room the host's browser holds all six envelopes and every hidden word
 --    (hw_room_deal returns them, and the room state carries them to both browsers). An open match never puts a word
@@ -19,7 +20,7 @@
 --    way to probe the word. What stays client-reported (as in every open room, whose state the host's browser runs):
 --    the numbers and the right/wrong a player sends with its own action. See the PR for the follow-up.
 --
--- Rollout: apply this before deploying the client. Old clients keep working (the new parameters have defaults).
+-- Rollout: apply this before deploying the client. Old clients keep working (the new parameter has a default).
 
 alter table public.hw_room_deals add column if not exists open boolean not null default false;
 alter table public.hw_room_deals add column if not exists envelopes jsonb;
@@ -64,35 +65,9 @@ begin
     where public.open_rooms.token = excluded.token or public.open_rooms.updated_at < now() - interval '45 seconds';
 end; $function$;
 
-drop function if exists public.open_room_list(text);
-CREATE OR REPLACE FUNCTION public.open_room_list(p_game text, p_app text DEFAULT NULL::text)
- RETURNS TABLE(code text, variant smallint, host text, players smallint, capacity smallint, title text)
- LANGUAGE sql
- STABLE SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-  select code, variant, host, players, capacity, title from public.open_rooms
-   where game = p_game and updated_at > now() - interval '90 seconds'
-     and (p_app = 'play' or not (game = any (public.open_room_app_only())))
-   order by updated_at desc limit 30;
-$function$;
-
-drop function if exists public.open_room_list_all();
-CREATE OR REPLACE FUNCTION public.open_room_list_all(p_app text DEFAULT NULL::text)
- RETURNS TABLE(game text, code text, variant smallint, host text, players smallint, capacity smallint, title text)
- LANGUAGE sql
- STABLE SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-  select game, code, variant, host, players, capacity, title from public.open_rooms
-   where updated_at > now() - interval '90 seconds'
-     and (p_app = 'play' or not (game = any (public.open_room_app_only())))
-   order by updated_at desc limit 60;
-$function$;
+-- open_room_list / open_room_list_all are unchanged: everyone sees and can join these rooms.
 
 grant execute on function public.open_room_put(text, text, text, integer, text, integer, integer, text, text) to anon, authenticated;
-grant execute on function public.open_room_list(text, text) to anon, authenticated;
-grant execute on function public.open_room_list_all(text) to anon, authenticated;
 
 -- ── 2. server-dealt open matches ───────────────────────────────────────────────────────────────────────────────────
 -- The scoring and closest-word bodies of hw_room_score / hw_room_reveal, unchanged, as internal functions; the public

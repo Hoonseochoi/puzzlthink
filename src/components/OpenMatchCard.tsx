@@ -52,7 +52,7 @@ export function FitTile({ title, children, className = 'rounded-lg bg-white/[.06
  */
 export default function OpenMatchCard({ previews }: { previews: Partial<Record<GameId, ReactNode>> }) {
   const appGames = useAppGames(); // without the games hidden in the Google Play app
-  const app = usePlayApp(); // 히든 워드's open rooms open only in the app (APP_ONLY_OPEN): locked on the website
+  const app = usePlayApp(); // 히든 워드's open rooms are hosted only in the app (APP_ONLY_OPEN); anyone joins
   const roomGames = ROOM_GAMES.filter((game) => appGames.includes(game));
   const t = useTranslations('OpenMatch');
   const tc = useTranslations('Common');
@@ -82,8 +82,8 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   // A full page load, so the game page reads #play and the open room from the URL as it mounts.
   const go = (game: GameId, code: string, variant: number) => { window.location.assign(new URL(`/${locale}${openRoomHref(game, code, variant)}`, window.location.origin)); };
   const create = async (game: GameId, variant: number) => {
-    // Website: the locked entry goes to the game's open-room section, where the tester invitation is.
-    if (isAppOnlyOpen(game) && !app) { window.location.assign(new URL(`/${locale}${GAME_MODES[game].path}#play-modes`, window.location.origin)); return; }
+    // Website: hosting is for app testers; the game's entry screen has the card with the member's next step.
+    if (isAppOnlyOpen(game) && !app) { window.location.assign(new URL(`/${locale}${GAME_MODES[game].path}#open-host`, window.location.origin)); return; }
     setCreating(`${game}-${variant}`);
     try {
       const code = await GAME_MODES[game].rooms[variant].create();
@@ -244,11 +244,10 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
                       <span className="h-7 w-1.5 shrink-0 rounded-full" style={{ background: game.color }} />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-black">{tc(game.id)}</span>
-                        {locked ? <span className="block truncate text-[10px] font-bold text-[#5b45c9]">{t('appOnlyHint')}</span>
+                        {locked ? <span className="mt-0.5 inline-flex items-center gap-0.5 rounded-full bg-[#5b45c9]/10 px-1.5 py-0.5 text-[9.5px] font-black text-[#5b45c9]"><Lock size={9} />{t('hostTag')}</span>
                           : many && <span className="block truncate text-[10px] font-bold text-black/45">{tg(`short_${room.label}`)}</span>}
                       </span>
-                      {locked ? <Lock size={13} className="shrink-0 text-[#5b45c9]" />
-                        : appOnly && <span className="shrink-0 rounded-full bg-[#5b45c9] px-1.5 py-0.5 text-[9px] font-black text-white">{tg('openAppBadge')}</span>}
+                      {!locked && appOnly && <span className="shrink-0 rounded-full bg-[#5b45c9] px-1.5 py-0.5 text-[9px] font-black text-white">{tg('openAppBadge')}</span>}
                       {creating === key && <Loader2 size={14} className="shrink-0 animate-spin" />}
                     </button>
                   );

@@ -73,8 +73,8 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
   // The AI match runs on the server (hw_* functions). In a friend room the host's browser holds the hidden words,
   // which is fine between friends. Open rooms are a different match: the server deals and keeps every word
-  // (hw_open_*, src/lib/hiddenWordRoom.ts), and they open only inside the Google Play app (APP_ONLY_OPEN in
-  // src/lib/openRooms.ts): the website shows the entry locked with the tester invitation.
+  // (hw_open_*, src/lib/hiddenWordRoom.ts). They are opened (hosted) only inside the Google Play app (APP_ONLY_OPEN
+  // in src/lib/openRooms.ts) and joined by anyone; the website's "방 만들기" is the tester invitation.
   hiddenWord: { path: '/hidden-word', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordRoom }], useRoom: useHiddenWordOpenRoom },
   // 확장판: the same match on the 확장 words; its rooms are its own (channel hidden-word-plus-room). Open rooms: 1:1 only.
   hiddenWordPlus: { path: '/hidden-word-plus', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordPlusRoom }, { label: 'hwParty', create: prepareHiddenWordPartyRoom, path: '/hidden-word-plus/party', open: false }], useRoom: useHiddenWordPlusOpenRoom },
