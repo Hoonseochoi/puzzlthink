@@ -8,13 +8,17 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
-import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, playerRow, seg } from '@/components/ui/gameUi';
+import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, playerRow, seg } from '@/components/ui/gameUi';
 import { useSlitherRoom } from '@/hooks/useSlitherRoom';
 import { type Mark, formatClock, hintEdges, isSolved, loopOrder } from '@/lib/slitherlink';
 import { ROOM_SIZES, roomPuzzle } from '@/lib/slitherRoom';
 import { reportGame } from '@/lib/stats';
 import GameUpdates from '@/components/GameUpdates';
-import SlitherBoard, { SLITHER_ACCENT, SLITHER_INK, type Tool, undoOf, useUndoKey } from './SlitherBoard';
+import SlitherBoard, { type Tool, undoOf, useUndoKey } from './SlitherBoard';
+import SlitherThemePicker from './SlitherThemePicker';
+import SlitherSnow from './SlitherSnow';
+import SlitherShareCard from './SlitherShareCard';
+import { themeShellStyle, useSlitherPrefs } from '@/lib/slitherTheme';
 
 const COLORS = ['#8f7cff', '#ff6b8a', '#4ac9ff', '#8ce06b'];
 const ROOM_HINTS = 1;
@@ -28,6 +32,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
   const ts = useTranslations('Slitherlink');
   const tc = useTranslations('Common');
   const locale = useLocale();
+  const { theme, motion } = useSlitherPrefs();
   const [defaultName] = useState(() => `${t('guest')} ${Math.floor(1000 + Math.random() * 9000)}`);
   const { status, state, hostOnline, me, mySeat, dispatch, rename } = useSlitherRoom(code, defaultName);
   const [now, setNow] = useState(0);
@@ -64,7 +69,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
   const share = async () => { if (navigator.share) { try { await navigator.share({ title: ts('title'), url: shareUrl }); return; } catch { return; } } copy(); };
 
   if (!state) {
-    return <div className={SHELL} style={accentVars(SLITHER_ACCENT, SLITHER_INK)}>
+    return <div className={SHELL} style={{ ...themeShellStyle(theme), backgroundImage: theme.page ?? undefined }}>
       <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · ${code}`} />
       <main className="flex min-h-[70vh] items-center justify-center">{status === 'online' ? <Loader2 className="animate-spin" /> : <p className="flex items-center gap-2 text-sm text-white/50"><WifiOff size={15} />{t(status === 'error' ? 'connectionError' : 'connecting')}</p>}</main>
     </div>;
@@ -117,9 +122,11 @@ export default function SlitherRoomView({ code }: { code: string }) {
       : mySeat !== null && state.gaveUp[mySeat] ? t('gaveUpWatching') : t('race');
   const tools: [Tool, typeof PenLine, string][] = [['pen', PenLine, ts('toolPen')], ['eraser', Eraser, ts('toolEraser')], ['marker', X, ts('toolMarker')]];
 
-  return <div className={SHELL} style={{ ...accentVars(SLITHER_ACCENT, SLITHER_INK), backgroundImage: fog('120, 100, 220') }}>
-    
-    <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · 2–4 · ${code}`}><GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
+  const mySolvedMs = mySeat !== null && state.phase !== 'lobby' ? state.solvedMs[mySeat] ?? null : null;
+
+  return <div className={SHELL} style={themeShellStyle(theme)}>
+    {theme.effects.snow && motion && <SlitherSnow />}
+    <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/slitherlink" backLabel={tc('slitherlink')} title={ts('title')} subtitle={`ONLINE · 2–4 · ${code}`}><SlitherThemePicker /><GameUpdates game="slitherlink" /><BugReport /><LanguageSwitcher compact dark /></GameHeader>
     {!hostOnline && !me?.isHost && <p className="mx-auto mt-3 max-w-[1180px] px-4 text-xs text-[#ffb3aa]">{t('hostOffline')}</p>}
     <main className={MAIN}>
       <section className={STAGE}>
@@ -140,6 +147,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
             puzzle={puzzle} marks={local.marks.length ? local.marks : new Array<Mark>(puzzle.solution.length).fill(0)} locked={lockedSet} tool={tool}
             readOnly={!iPlay} onEdges={(changes) => apply(changes)} onHint={takeHint}
             dimLines={showAnswer} solutionUpTo={showAnswer ? loopOrder(puzzle) : null}
+            theme={theme} motion={motion} celebrate={mySolvedMs !== null && !showAnswer}
           />
           {iPlay ? (
             <div className="mx-auto mt-3 max-w-[560px] space-y-2">
@@ -156,6 +164,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
             </div>
           ) : state.phase === 'finished' ? (
             <div className="mx-auto mt-4 max-w-md space-y-2 text-center">
+              {mySolvedMs !== null && <SlitherShareCard puzzle={puzzle} theme={theme} ms={mySolvedMs} detail={`${state.dots}×${state.dots} · ${t('shareDetail', { n: state.playerCount })}`} path={`/${locale}/slitherlink`} shareText={ts('shareCardText', { size: `${state.dots}×${state.dots}`, time: formatClock(mySolvedMs) })} />}
               <button type="button" onClick={() => setShowAnswer((v) => !v)} className={`${BTN} w-full py-2.5`}><Eye size={14} />{showAnswer ? t('hideAnswer') : t('showAnswer')}</button>
               {me?.isHost ? <button onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3`}><RotateCcw size={14} />{t('rematch')}</button> : <p className="text-xs text-white/45">{t('rematchWait')}</p>}
             </div>

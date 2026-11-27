@@ -1,4 +1,4 @@
-import { Bot, Coins, Crown, Flame, History, MousePointerClick, PenLine, Scale, Sparkles, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { Bot, Coins, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -208,6 +208,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '슬리더링크', en: 'Slitherlink' },
     note: { ko: '플레이어분이 보내주신 의견을 반영했어요. 고맙습니다!', en: "Made from players' feedback. Thank you!" },
     items: [
+      {
+        date: '11/27', icon: Sparkles,
+        ko: { title: '크리스마스 테마가 나왔어요 (기본 적용)', desc: "사탕 지팡이 숫자와 꼬마전구 선, 눈 내리는 밤으로 바뀌었어요. 숫자를 채우면 초록색과 별이, 넘치면 점선 고리가 보이고, 클리어하면 고리를 따라 불이 켜져요. 위쪽 '테마' 버튼에서 예전 '기본' 보드로 돌아가거나 효과를 끌 수 있어요." },
+        en: { title: 'New Christmas theme (on by default)', desc: "Candy-cane numbers, fairy-light lines and a snowy night. A number turns green with a star once it is met and gets a dashed ring if passed, and on a clear the lights switch on around the loop. The 'Theme' button at the top brings back the Classic board or turns the effects off." },
+      },
+      {
+        date: '11/27', icon: Share2,
+        ko: { title: '클리어 카드를 SNS에 공유할 수 있어요', desc: '풀고 나면 내 보드와 기록이 담긴 카드 이미지가 만들어져요. 휴대폰에서는 카톡·인스타·X로 바로 보내고, 저장하거나 링크만 복사할 수도 있어요.' },
+        en: { title: 'Share a clear card', desc: 'After a clear you get a picture of your solved board and time. On a phone send it straight to any app, or save it, or copy the link.' },
+      },
       {
         date: '11/26', icon: Wrench,
         ko: { title: '챌린지 힌트는 이제 피스 1개를 써요', desc: '새로운 맵·맵 뺏기의 힌트(판마다 1번)는 경쟁전 피스 1개를 쓰고, 쓴 피스는 경쟁전 개수에서 빠져요. 연습 모드 힌트는 그대로 무료예요.' },

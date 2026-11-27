@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { type Mark, type Puzzle, edgeAt, geometry, hEdge, vEdge } from '@/lib/slitherlink';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { type Mark, type Puzzle, cellCount, edgeAt, geometry, hEdge, loopOrder, vEdge } from '@/lib/slitherlink';
+import { CLASSIC_THEME, type SlitherTheme } from '@/lib/slitherTheme';
+import { starSpot } from '@/lib/slitherGlyphs';
+import { ClearStar, CuteClue, GarlandBulbs, clueState } from './SlitherFestive';
 
 export type Tool = 'pen' | 'eraser' | 'marker' | 'hint';
 export const SLITHER_ACCENT = '#8f7cff';
@@ -45,7 +48,7 @@ export function useUndoKey(onUndo: () => void) {
  * the eraser clears and only the marker toggles ✕. With the hint tool, a tap picks the 3×3-dot area around it.
  * `onEdges` gets the [edge, value] pairs of one tap.
  */
-export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onHint, solutionUpTo = null, dimLines = false, readOnly = false, flashArea = null, answerTrack = false }: {
+export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onHint, solutionUpTo = null, dimLines = false, readOnly = false, flashArea = null, answerTrack = false, theme = CLASSIC_THEME, motion = false, celebrate = false }: {
   puzzle: Puzzle; marks: Mark[]; tool: Tool; locked?: ReadonlySet<number>;
   onEdges?: (changes: [number, Mark][]) => void; onHint?: (r: number, c: number) => void;
   /** Give-up animation: the first N edges of the answer (in loop order) drawn over the board. */
@@ -55,6 +58,12 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
   flashArea?: { r: number; c: number } | null;
   /** Replay: show the whole answer under the player's lines and mark the player's lines and ✕ that disagree with it. */
   answerTrack?: boolean;
+  /** Board theme (src/lib/slitherTheme.ts); Classic is the show's look. */
+  theme?: SlitherTheme;
+  /** Whether the theme's animated touches may run (effects on, no reduced-motion). */
+  motion?: boolean;
+  /** The loop is solved: the theme's clear celebration. */
+  celebrate?: boolean;
 }) {
   const g = geometry(puzzle.rows, puzzle.cols);
   const n = puzzle.dots;
@@ -150,6 +159,13 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
   const solutionSet = solutionUpTo ? new Set(solutionUpTo) : null;
   const area = flashArea ? { r: Math.max(0, Math.min(puzzle.rows - 2, flashArea.r)), c: Math.max(0, Math.min(puzzle.cols - 2, flashArea.c)) } : null;
 
+  const festive = theme.id !== 'classic';
+  const handlers = {
+    onPointerDown: onDown, onPointerMove: onMove, onPointerUp: onUp,
+    onPointerCancel: () => { press.current = null; stroke.current = null; setPreview(null); },
+  };
+  if (festive) return <FestiveBoard {...{ puzzle, shown, locked, answerTrack, dimLines, solutionSet, area, theme, motion, celebrate, readOnly, tool, svgRef, handlers, lineFor, crossFor }} />;
+
   return (
     <svg
       ref={svgRef} viewBox={`0 0 ${n} ${n}`} role="img" aria-label="board"
@@ -168,6 +184,49 @@ export default function SlitherBoard({ puzzle, marks, tool, locked, onEdges, onH
       {shown.map((m, edge) => m === 2 ? crossFor(edge, `x${edge}`, locked?.has(edge) ? HINT : answerTrack && puzzle.solution[edge] ? WRONG : '#8a83b8') : null)}
       {solutionSet && [...solutionSet].map((edge) => lineFor(edge, SOLUTION, 0.12, `s${edge}`))}
       {Array.from({ length: n * n }, (_, i) => <circle key={`d${i}`} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.075} fill={DOT} />)}
+    </svg>
+  );
+}
+
+type LineFn = (edge: number, color: string, width: number, key: string, opacity?: number) => React.ReactNode;
+
+/** The themed board (anything but Classic): same layout and input as Classic, drawn with the theme's styles. */
+function FestiveBoard({ puzzle, shown, locked, answerTrack, dimLines, solutionSet, area, theme, motion, celebrate, readOnly, tool, svgRef, handlers, lineFor, crossFor }: {
+  puzzle: Puzzle; shown: Mark[]; locked?: ReadonlySet<number>; answerTrack: boolean; dimLines: boolean; solutionSet: Set<number> | null;
+  area: { r: number; c: number } | null; theme: SlitherTheme; motion: boolean; celebrate: boolean; readOnly: boolean; tool: Tool;
+  svgRef: React.RefObject<SVGSVGElement | null>; handlers: React.SVGProps<SVGSVGElement>;
+  lineFor: LineFn; crossFor: (edge: number, key: string, color: string) => React.ReactNode;
+}) {
+  const g = geometry(puzzle.rows, puzzle.cols);
+  const n = puzzle.dots;
+  const b = theme.board;
+  const order = useMemo(() => loopOrder(puzzle), [puzzle]);
+  const star = useMemo(() => starSpot(g, puzzle.solution), [g, puzzle]);
+  const garland = theme.line === 'garland' && !answerTrack;
+  // Bulbs on the player's own lines (hint lines stay plain gold so they read as given).
+  const bulbEdges = garland ? shown.flatMap((m, e) => (m === 1 && !locked?.has(e) ? [e] : [])) : [];
+  const pop = motion && !readOnly;
+  return (
+    <svg
+      ref={svgRef} viewBox={`0 0 ${n} ${n}`} role="img" aria-label="board" data-theme={theme.id}
+      className={`mx-auto block aspect-square w-full max-w-[min(100%,calc(100svh-290px))] lg:max-w-[min(100%,calc(100svh-250px))] touch-none select-none rounded-[10px] ${readOnly ? '' : tool === 'hint' ? 'cursor-help' : 'cursor-pointer'}`}
+      style={{ background: b.bg2 ? `linear-gradient(160deg, ${b.bg} 0%, ${b.bg} 45%, ${b.bg2} 100%)` : b.bg, boxShadow: 'inset 0 0 0 1px rgba(30,107,71,0.18)' }}
+      {...handlers}
+    >
+      {area && <rect x={area.c + 0.5 - 0.18} y={area.r + 0.5 - 0.18} width={2.36} height={2.36} rx={0.18} fill={b.hint} opacity={0.16} stroke={b.hint} strokeWidth={0.04} />}
+      {puzzle.clues.map((v, cell) => {
+        if (v < 0) return null;
+        const r = Math.floor(cell / puzzle.cols), c = cell % puzzle.cols;
+        const state = theme.clueStates ? clueState(v, cellCount(g, shown, cell)) : 'normal';
+        return <CuteClue key={`n${cell}-${state}`} x={c + 1} y={r + 1} value={v} state={state} theme={theme} pop={pop} />;
+      })}
+      {answerTrack && puzzle.solution.map((on, edge) => on ? lineFor(edge, b.track, 0.26, `t${edge}`, 0.32) : null)}
+      {shown.map((m, edge) => m === 1 ? lineFor(edge, locked?.has(edge) ? b.hint : answerTrack && !puzzle.solution[edge] ? b.wrong : b.line, 0.1, `l${edge}`, dimLines ? 0.25 : 1) : null)}
+      {garland && <g opacity={dimLines ? 0.25 : 1}><GarlandBulbs g={g} edges={bulbEdges} theme={theme} lit={celebrate} order={order} motion={motion} /></g>}
+      {shown.map((m, edge) => m === 2 ? crossFor(edge, `x${edge}`, locked?.has(edge) ? b.hint : answerTrack && puzzle.solution[edge] ? b.wrong : b.cross) : null)}
+      {solutionSet && [...solutionSet].map((edge) => lineFor(edge, b.solution, 0.12, `s${edge}`))}
+      {Array.from({ length: n * n }, (_, i) => <circle key={`d${i}`} cx={(i % n) + 0.5} cy={Math.floor(i / n) + 0.5} r={0.07} fill={b.dot} />)}
+      {celebrate && theme.effects.celebrate && star && <ClearStar x={star.x} y={star.y} motion={motion} />}
     </svg>
   );
 }
