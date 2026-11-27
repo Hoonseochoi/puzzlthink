@@ -52,7 +52,7 @@ function isStandalone() {
     || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 }
 
-/** Slim "install as app" bar at the top of the page on phones; registers the service worker everywhere. */
+/** Slim "add to home screen" bar at the top of the page on iPhone/iPad; registers the service worker everywhere. */
 export default function InstallBanner() {
   const t = useTranslations('Install');
   const pathname = usePathname();
@@ -75,7 +75,10 @@ export default function InstallBanner() {
     // Inside the Google Play app the user already has the app: no install prompt.
     if (!mobile || isStandalone() || (PLAY_APP_HIDE.install && isPlayApp())) return () => window.removeEventListener('appinstalled', onAnyInstall);
 
-    const onPrompt = (e: Event) => { e.preventDefault(); setDeferred(e as BeforeInstallPromptEvent); setMode('prompt'); };
+    // Android gets the Google Play app (closed test now, see AppTesterInvite), so the site no longer offers the
+    // home-screen web app there: the browser's own install prompt is swallowed and no banner is shown.
+    // iPhone/iPad have no Play app, so the Share-sheet guide stays for them.
+    const onPrompt = (e: Event) => { e.preventDefault(); };
     const onInstalled = () => setMode(null);
     window.addEventListener('beforeinstallprompt', onPrompt);
     window.addEventListener('appinstalled', onInstalled);
@@ -84,7 +87,7 @@ export default function InstallBanner() {
     // iOS has no install prompt: Safari users add it from the Share sheet.
     const ios = /iPhone|iPad|iPod|Macintosh/.test(ua);
     const iosSafari = ios && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|Instagram|FBAN|FBAV|Line|NAVER/i.test(ua);
-    const fallback: Mode = /KAKAOTALK/i.test(ua) ? 'kakao' : iosSafari ? 'ios' : null;
+    const fallback: Mode = !ios ? null : /KAKAOTALK/i.test(ua) ? 'kakao' : iosSafari ? 'ios' : null;
     // Shown a beat after load so the page paints first (and Android's own prompt event can win).
     const timer = fallback ? window.setTimeout(() => setMode((m) => m ?? fallback), 800) : undefined;
     // First visit: the top bar, once.
