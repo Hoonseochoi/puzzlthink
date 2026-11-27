@@ -8799,6 +8799,19 @@
     "withdrawAsk": "Withdraw from the tester program",
     "withdrawConfirm": "Withdrawing deletes the stored email at once and removes the TESTER icon.",
     "withdraw": "Withdraw",
-    "withdrawn": "You have withdrawn. The stored email was deleted."
+    "withdrawn": "You have withdrawn. The stored email was deleted.",
+    "headerInstall": "Install test app",
+    "installEyebrow": "PLAY TESTER",
+    "installTitle": "The test app is open",
+    "installLead": "Thanks for signing up as a tester. Two steps and the app is yours.",
+    "installStep1": "Accept the invite",
+    "installStep1Desc": "Tap the button below, then tap 'Become a tester' on the Google Play page that opens.",
+    "installStep2": "Install from Google Play",
+    "installStep2Desc": "On the same page, tap 'Download it on Google Play' to install the app.",
+    "installKeep": "For the official release, testers need to keep the app installed for 14 days. Please do not uninstall it for 14 days.",
+    "installGo": "Go install the app",
+    "installLater": "Later",
+    "installDone": "I already installed it",
+    "installAndroidOnly": "The test app is for Android phones. Sign in to PUZZLTHINK on an Android phone to install it."
   }
 }

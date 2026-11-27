@@ -114,3 +114,33 @@ export function takePending(): boolean {
     return Date.now() - at < 30 * 60_000;
   } catch { return false; }
 }
+
+// ── The install popup (joined testers, once the closed test is open: PLAY_TESTER_OPT_IN_URL set) ──────────────────
+// Android: once per browser tab session ("나중에" brings it back next visit) until "이미 설치했어요", which stops it on
+// this device for good (the web cannot see whether the app is installed). Elsewhere (iPhone/iPad, desktop) a one-line
+// "Android only" note, at most once per device.
+const INSTALLED_KEY = 'puzzlthink:app-tester-installed';
+const INSTALL_SHOWN_KEY = 'puzzlthink:app-tester-install-shown';
+const ELSEWHERE_SHOWN_KEY = 'puzzlthink:app-tester-elsewhere-shown';
+/** The header button opens the popup on demand (on any device) with this event. */
+export const TESTER_INSTALL_OPEN_EVENT = 'puzzlthink:tester-install-open';
+
+export const isAndroid = () => typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
+
+const read = (s: () => Storage, k: string) => { try { return s().getItem(k); } catch { return null; } };
+const write = (s: () => Storage, k: string) => { try { s().setItem(k, '1'); } catch { /* private mode: it may come back */ } };
+const local = () => localStorage;
+const session = () => sessionStorage;
+
+/** Whether the install popup is due on this visit (Android) or ever again (elsewhere). */
+export function installPopupDue(android = isAndroid()): boolean {
+  return android
+    ? !read(local, INSTALLED_KEY) && !read(session, INSTALL_SHOWN_KEY)
+    : !read(local, ELSEWHERE_SHOWN_KEY);
+}
+/** Marked when the popup opens on its own, so it waits for the next visit (or, elsewhere, never comes back). */
+export function markInstallShown(android = isAndroid()) {
+  write(android ? session : local, android ? INSTALL_SHOWN_KEY : ELSEWHERE_SHOWN_KEY);
+}
+/** "이미 설치했어요". */
+export function markInstalled() { write(local, INSTALLED_KEY); }

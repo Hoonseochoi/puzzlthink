@@ -10,6 +10,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import AuthButton from './AuthButton';
 import GamesMenu from './GamesMenu';
 import { HeaderSupportButton } from './SupportLink';
+import { HeaderTesterButton, useTesterInstall } from './AppTesterInvite';
 import { TopBannerSlot } from './ads/HiddenLogAd';
 
 const HIDE_ON = ['/hidden-word', '/hidden-word-plus', '/equation-signal', '/equation-tower', '/card-janggi', '/point-omok', '/2048', '/magic-square', '/play', '/four-three', '/monorail', '/flip-omok', '/nine-mens-morris', '/hexagon', '/piggy-bank', '/wallgo', '/blind-gomoku', '/black-white', '/laser-janggi', '/nemo-count', '/slitherlink', '/janggi', '/heavy13', '/russian-roulette', '/russian-janggi', '/two-sided-poker', '/masyu', '/nonogram', '/star-battle', '/binairo', '/one-stroke', '/color-link'];
@@ -23,6 +24,10 @@ export default function GlobalHeader() {
   const t = useTranslations('Common');
   const [open, setOpen] = useState(false);
   const [gamesOpen, setGamesOpen] = useState(true);
+  // Members who joined the Play closed test (once it is open) get "테스트 앱 설치" in 자율 후원's place; 후원 stays in
+  // the phone menu and the footer for them.
+  const tester = useTesterInstall();
+  const headerCta = tester ? <HeaderTesterButton /> : <HeaderSupportButton />;
   if (HIDE_ON.some((segment) => pathname.includes(segment))) return null;
 
   const links = [
@@ -50,14 +55,14 @@ export default function GlobalHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <HeaderSupportButton />
+          {headerCta}
           <LanguageSwitcher compact />
           <AuthButton source="header" />
           <GamesMenu variant="cta" align="right" />
         </div>
 
         {/* Phones, foldables: 기록실 is in the bottom tab bar, so the header keeps 자율 후원 beside the menu button. */}
-        <div className="ml-auto mr-1 lg:hidden"><HeaderSupportButton /></div>
+        <div className="ml-auto mr-1 lg:hidden">{headerCta}</div>
         <button type="button" aria-label={t('menu')} aria-expanded={open} onClick={() => setOpen((value) => !value)} className="rounded-xl p-2 transition hover:bg-white lg:hidden">{open ? <X size={20} /> : <Menu size={20} />}</button>
       </div>
 
@@ -80,7 +85,7 @@ export default function GlobalHeader() {
             )}
             {HELL_LIVE.length > 0 && <Link href="/hell" onClick={closeMenu} className={`${HELL_LINK} my-1 w-fit !px-4 !py-3 !text-sm`}><Skull size={15} />{t('hellModeGo')}</Link>}
             {links.map((item) => <Link key={item.href} href={item.href} onClick={closeMenu} className={MOBILE_LINK}>{item.label}</Link>)}
-            <div className="mt-2 flex flex-col gap-2 border-t border-black/[0.07] pt-3"><HeaderSupportButton full /><AuthButton full source="header_menu" /><LanguageSwitcher /></div>
+            <div className="mt-2 flex flex-col gap-2 border-t border-black/[0.07] pt-3">{tester && <HeaderTesterButton full />}<HeaderSupportButton full /><AuthButton full source="header_menu" /><LanguageSwitcher /></div>
           </nav>
         </div>
       )}
