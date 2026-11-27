@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { CERT_GAMES, clearLabel, fetchCert, formatClearDate } from '@/lib/hardClear';
-import { OG_SIZE, fontsFor } from '@/lib/og';
+import { OG_SIZE, cachedImage, dataKey, fontsFor } from '@/lib/og';
 import { hellLabel } from '@/lib/hell';
 
 // The certificate picture: link preview for the share page and the "이미지 저장" download.
@@ -10,6 +10,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const cert = await fetchCert(id);
   if (!cert) return new Response('Not found', { status: 404 });
 
+  // Drawn again only when what the picture shows changes (the "N cleared so far" line grows).
+  return cachedImage(dataKey('cert', id, locale, cert.tier, cert.game, cert.nickname, cert.clear_no, cert.cleared_at, cert.total), () => draw(cert, locale));
+}
+
+async function draw(cert: NonNullable<Awaited<ReturnType<typeof fetchCert>>>, locale: 'ko' | 'en'): Promise<Response> {
   const en = locale === 'en';
   if (cert.tier === 'hell') return hellImage(cert, en);
   const accent = CERT_GAMES[cert.game]?.color ?? '#ffd36e';

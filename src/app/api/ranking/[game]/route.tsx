@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { CERT_GAMES } from '@/lib/hardClear';
-import { OG_SIZE, fontsFor } from '@/lib/og';
+import { OG_SIZE, cachedImage, dataKey, fontsFor } from '@/lib/og';
 import { fetchGameRanking, gameFromSlug, podium } from '@/lib/rankings';
 
 // Share image for a game's ranking page: the current top three.
@@ -11,6 +11,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ game
   const info = CERT_GAMES[game];
   const name = en ? info.en : info.ko;
   const top = podium(await fetchGameRanking(game));
+  // Drawn again only when the top three change (the response's own Cache-Control is not honoured in front of a Worker).
+  return cachedImage(dataKey('ranking', game, en, top), async () => {
   const kicker = en ? 'RANKING' : '랭킹';
   const title = en ? `${name} Ranking` : `${name} 랭킹`;
   const cta = en ? 'Your name could be next' : '다음 이름은 당신 차례';
@@ -37,4 +39,5 @@ export async function GET(request: Request, { params }: { params: Promise<{ game
     </div>,
     { ...OG_SIZE, fonts, headers: { 'Cache-Control': 'public, max-age=120, s-maxage=300, stale-while-revalidate=3600' } },
   );
+  });
 }

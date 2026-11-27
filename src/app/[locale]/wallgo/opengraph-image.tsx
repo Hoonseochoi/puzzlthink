@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { OG_SIZE, WallGoBoardArt, TrendOgCard, fontsFor, ogLocale, trendText } from '@/lib/og';
+import { OG_SIZE, WallGoBoardArt, TrendOgCard, fontsFor, ogLocale, trendText, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -12,11 +12,15 @@ const COPY = {
   en: { kicker: "The Devil's Plan 3", hot: 'Trending', title: 'Wallgo', sub: 'Move 2, build a wall, own the most ground', modes: ['Free · play now', 'vs AI · 3P or 1:1', 'Play a friend by link'] },
 };
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(trendText(c) + '0123');
   return new ImageResponse(
     <TrendOgCard {...c} accent="#e0283a" glow="rgba(224,40,58,0.38)" art={<WallGoBoardArt size={430} />} />,
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('wallgo', props, render);
 }

@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText } from '@/lib/og';
+import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -16,7 +16,7 @@ const COLORS = ['#ff4d5e', '#ffc93c', '#3ddc84', '#3f8cff'];
 // Top piece of each cell (−1 empty), with a red line on the diagonal.
 const TOPS = [0, -1, 3, 1, 2, 0, -1, 3, -1, 1, 0, -1, 3, -1, 2, 1];
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const c = COPY[ogLocale((await params).locale)];
   const fonts = await fontsFor(ogText(c, ''));
   return new ImageResponse(
@@ -31,4 +31,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     } />,
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('four-three', props, render);
 }

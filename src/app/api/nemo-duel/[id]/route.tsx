@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { duelTime, fetchDuel } from '@/lib/nemoDuel';
-import { OG_SIZE, fontsFor } from '@/lib/og';
+import { OG_SIZE, cachedImage, dataKey, fontsFor } from '@/lib/og';
 
 const LEVEL = { ko: { easy: '쉬움', normal: '보통', hard: '어려움' }, en: { easy: 'Easy', normal: 'Normal', hard: 'Hard' } } as const;
 
@@ -10,6 +10,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const en = new URL(request.url).searchParams.get('l') === 'en';
   const duel = await fetchDuel(id);
   if (!duel) return new Response('Not found', { status: 404 });
+  // Drawn again only when what the picture shows changes.
+  return cachedImage(dataKey('nemo-duel', id, en, duel.creator, duel.creator_run, duel.difficulty, duel.count, duel.total), async () => {
   const run = duel.creator_run ?? { correct: 0, ms: 0 };
   const level = (en ? LEVEL.en : LEVEL.ko)[duel.difficulty];
   const kicker = en ? 'NEMO COUNT CHALLENGE' : '네모 세기 도전장';
@@ -39,4 +41,5 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     </div>,
     { ...OG_SIZE, fonts, headers: { 'Cache-Control': 'public, max-age=30, s-maxage=60, stale-while-revalidate=3600' } },
   );
+  });
 }

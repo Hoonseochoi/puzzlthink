@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText } from '@/lib/og';
+import { GameOgCard, OG_SIZE, fontsFor, ogLocale, ogText, cachedOg } from '@/lib/og';
 
 export const size = OG_SIZE;
 export const contentType = 'image/png';
@@ -17,7 +17,7 @@ const HINTS = { ko: ['감정', '연인', '초록'], en: ['감정', '연인', '�
 const SCORES = [96.5, 91, 85];
 const HEAT = ['#ff5d73', '#ffc857', '#b79cff'];
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
+async function render({ params }: { params: Promise<{ locale: string }> }) {
   const locale = ogLocale((await params).locale);
   const c = COPY[locale];
   const fonts = await fontsFor(ogText(c, `0123456789.%?${HINTS[locale].join('')}`));
@@ -40,4 +40,8 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     } />,
     { ...size, fonts },
   );
+}
+
+export default async function Image(props: { params: Promise<{ locale: string }> }) {
+  return cachedOg('hidden-word-plus', props, render);
 }

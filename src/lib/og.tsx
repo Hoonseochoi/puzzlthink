@@ -51,6 +51,34 @@ export async function cachedImage(key: string, render: () => Promise<Response>):
 
 export const ogLocale = (locale: string) => (locale === 'en' ? 'en' : 'ko');
 
+declare const __OG_BUILD__: string | undefined;
+/** Stamped by vite.config.ts at build time, so every deploy draws the previews afresh (once per location). */
+const OG_BUILD = typeof __OG_BUILD__ === 'string' ? __OG_BUILD__ : 'dev';
+
+/**
+ * The cache key of a picture drawn from data (a ranking, a certificate): the same data gives the same key, so the
+ * picture is drawn once and again only when what it shows changes.
+ */
+export function dataKey(name: string, ...parts: unknown[]) {
+  const text = JSON.stringify(parts);
+  let h1 = 2166136261, h2 = 5381;
+  for (let i = 0; i < text.length; i++) { const c = text.charCodeAt(i); h1 = Math.imul(h1 ^ c, 16777619); h2 = (Math.imul(h2, 33) + c) | 0; }
+  return `${name}-${(h1 >>> 0).toString(36)}${(h2 >>> 0).toString(36)}-${OG_BUILD}`;
+}
+
+/**
+ * A page's opengraph-image through the edge cache: `export const dynamic = 'force-static'` is not honoured on
+ * Cloudflare (every request drew the picture again, 1-5 s of CPU each), so each route goes through this.
+ */
+export async function cachedOg(
+  name: string,
+  props: { params: Promise<{ locale: string }> },
+  render: (props: { params: Promise<{ locale: string }> }) => Promise<Response>,
+): Promise<Response> {
+  const locale = ogLocale((await props.params).locale);
+  return cachedImage(`${name}-${locale}-${OG_BUILD}`, () => render(props));
+}
+
 // ---------- mini drawings (Satori: every multi-child div needs display:flex) ----------
 
 export function WallGoMini({ size = 300 }: { size?: number }) {
