@@ -99,8 +99,15 @@ function loadChoices() {
     const supabase = getSupabase();
     const map = new Map<string, string>();
     if (!supabase) return map;
-    const { data } = await supabase.rpc('stone_choices_public');
-    if (Array.isArray(data)) for (const r of data as { nickname: string; stone: string }[]) map.set(r.nickname, r.stone);
+    // The API answers at most 1,000 rows a request (PGRST_DB_MAX_ROWS), and more players than that have a stone:
+    // read page by page in a fixed order, or the players past the first thousand show the default stone.
+    const PAGE = 1000;
+    for (let from = 0; from < 20 * PAGE; from += PAGE) {
+      const { data } = await supabase.rpc('stone_choices_public').order('nickname').range(from, from + PAGE - 1);
+      if (!Array.isArray(data)) break;
+      for (const r of data as { nickname: string; stone: string }[]) map.set(r.nickname, r.stone);
+      if (data.length < PAGE) break;
+    }
     return map;
   })();
   return choicesPromise;
