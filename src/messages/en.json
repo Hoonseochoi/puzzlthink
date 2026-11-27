@@ -208,6 +208,7 @@
   },
   "Home": {
     "hellTag": "HELL MODE ON",
+    "partyOpenTag": "5P ROOMS OPEN",
     "merge2048Meta": "Free play · challenge ranking · 2–4 friends",
     "merge2048Description": "Slide matching blocks together and watch the little squares grow into shiny stones. A calm puzzle for a tired brain — take your time to 2048.",
     "tag_healing": "HEALING",
@@ -218,7 +219,7 @@
     "hiddenWordDescription": "Hide your word and find the opponent's from the similarity of each hint. A word-deduction point match (Korean words).",
     "hiddenWordMeta": "AI point match · points ranking · The Devil's Plan 3",
     "hiddenWordPlusDescription": "186 look-alike words in 30 groups. Find MORA's word inside its group from each hint's similarity: Hidden Word, expanded.",
-    "hiddenWordPlusMeta": "NEW Expansion · 186 words · own ranking",
+    "hiddenWordPlusMeta": "NEW Expansion · rooms for up to 5 · own ranking",
     "hitStayDescription": "Get your card total closest to the limit the die sets. HIT or STAY, bet your chips, and outlast four others.",
     "hitStayMeta": "5 players · 4 AI, friends or open rooms · The Devil's Plan 3",
     "sniperHoldemDescription": "Name the exact hand an opponent holds and it ranks last. The Devil's Plan 2 prison-match hold'em with four shared cards.",

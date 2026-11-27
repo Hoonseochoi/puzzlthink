@@ -387,7 +387,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
             <svg viewBox="0 0 100 100" className="pointer-events-none absolute left-[47%] top-3 h-5 w-5 text-white/80" aria-hidden="true"><path d="M50 0 L58 42 L100 50 L58 58 L50 100 L42 58 L0 50 L42 42Z" fill="currentColor" /></svg>
             <svg viewBox="0 0 100 100" className="pointer-events-none absolute bottom-4 left-[52%] h-3 w-3 text-white/60" aria-hidden="true"><path d="M50 0 L58 42 L100 50 L58 58 L50 100 L42 58 L0 50 L42 42Z" fill="currentColor" /></svg>
             <span className="relative flex min-w-0 flex-1 flex-col justify-between gap-3 self-stretch text-white">
-              <span className="flex w-fit items-center gap-1 rounded-full bg-black/25 px-2.5 py-1 text-[10px] font-black tracking-[0.12em]"><Flame size={11} className="fill-white" />{th('todayPick')}</span>
+              <span className="flex flex-wrap items-center gap-1.5"><span className="flex w-fit items-center gap-1 rounded-full bg-black/25 px-2.5 py-1 text-[10px] font-black tracking-[0.12em]"><Flame size={11} className="fill-white" />{th('todayPick')}</span>{hero.id === 'hiddenWordPlus' && <span className="rounded-full bg-[#7c5cff] px-2.5 py-1 text-[10px] font-black tracking-[0.02em] text-white shadow-[0_0_10px_rgba(124,92,255,.55)]">{t('partyOpenTag')}</span>}</span>
               <span>
                 {heroPodium?.entries.length ? (
                   <span className="mb-2 flex flex-col gap-[3px]">
@@ -420,6 +420,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
                   <span className="absolute inset-[9%] overflow-hidden rounded-[14px] bg-[#17201e]/90"><FitTile title={tc(g.id)} className="h-full w-full"><Preview id={g.id} /></FitTile></span>
                   {g.id === 'hiddenWordPlus' ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[linear-gradient(135deg,#ffe9a6,#e0a83a)] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.04em] text-[#2a1a04]">NEW+</span>
                     : NEW.includes(g.id) && <span className="absolute left-1.5 top-1.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.08em] text-white">NEW</span>}
+                  {g.id === 'hiddenWordPlus' && <span className="absolute bottom-1.5 left-1.5 max-w-[calc(100%-12px)] truncate rounded-full bg-[#7c5cff] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.02em] text-white shadow-[0_0_10px_rgba(124,92,255,.55)]">{t('partyOpenTag')}</span>}
                   {g.hell?.live && <span className="absolute right-1.5 top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#07060a] text-[#ff3355] ring-1 ring-[#ff3355]/60"><Skull size={10} /></span>}
                   {name && <MyRank rank={me.ranks.get(g.href)} name={name} />}
                 </span>
