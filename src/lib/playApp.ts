@@ -38,7 +38,7 @@ export const PLAY_APP_PACKAGE = 'com.puzzlthink.app';
  */
 export const PLAY_APP_FINGERPRINTS = {
   upload: 'FC:DA:A4:31:09:BD:76:2C:FC:38:81:9F:1A:13:F3:B0:57:1C:F7:FD:78:A3:32:60:1B:FF:97:F3:8A:6C:6E:09',
-  playAppSigning: '', // ← PLACEHOLDER: Play App Signing key SHA-256 (see above)
+  playAppSigning: '43:33:23:43:6A:89:50:BE:55:C5:06:D4:5D:6E:0E:71:6E:6D:E2:C8:BE:8F:4F:B3:40:20:36:1D:AE:50:14:C4', // Play App Signing key (Play Console → App signing, 2026-11-27)
 } as const;
 
 /** Query parameter on the app's start URL: /?app=play */
