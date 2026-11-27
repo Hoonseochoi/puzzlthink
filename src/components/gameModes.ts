@@ -41,7 +41,7 @@ import { prepareGradationRoom, useGradationRoom } from '@/hooks/useGradationRoom
 import { prepareColorLinkDuelRoom, useColorLinkDuelRoom } from '@/hooks/useColorLinkDuelRoom';
 import { prepareEquationSignalRoom, useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
 import { prepareEquationTowerRoom, useEquationTowerRoom } from '@/hooks/useEquationTowerRoom';
-import { prepareHiddenWordPlusRoom, prepareHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
+import { prepareHiddenWordPlusRoom, prepareHiddenWordRoom, useHiddenWordOpenRoom, useHiddenWordPlusOpenRoom } from '@/hooks/useHiddenWordRoom';
 import { prepareHiddenWordPartyRoom } from '@/hooks/useHiddenWordParty';
 import { prepareTimeAuctionRoom, useTimeAuctionRoom } from '@/hooks/useTimeAuctionRoom';
 import { prepareMineOblivionRoom, useMineOblivionRoom } from '@/hooks/useMineOblivionRoom';
@@ -53,8 +53,12 @@ export type PlayOption = { label: string; query?: string };
  * `play`: the solo game to play while an open room waits. `openMin`: people needed to start it as an open room; left out = every seat.
  * `fillAi`: whether the start button should describe empty seats as AI seats.
  */
-/** `path`: where this kind of room lives, when it is not `${game path}/room` (히든 워드 확장판's party room). */
-export type RoomOption = { label: string; create: () => Promise<string>; openMin?: number; play?: string; fillAi?: boolean; path?: string };
+/** `path`: where this kind of room lives, when it is not `${game path}/room` (히든 워드 확장판's party room).
+ * `open: false`: a friend-only kind, left out of the open rooms (its variant index is kept). */
+export type RoomOption = { label: string; create: () => Promise<string>; openMin?: number; play?: string; fillAi?: boolean; path?: string; open?: false };
+
+/** The room kinds a game offers as open rooms, with their variant numbers. */
+export const openVariants = (game: GameId) => GAME_MODES[game].rooms.flatMap((room, variant) => (room.open === false ? [] : [{ room, variant }]));
 
 /** What the open-room panel needs from any game's room hook. */
 export type RoomView = {
@@ -67,11 +71,13 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
-  // The AI match runs on the server (hw_* functions). Friend rooms only (no useRoom, so no open rooms): the host's
-  // browser holds the hidden words, which is fine between friends.
-  hiddenWord: { path: '/hidden-word', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordRoom }] },
-  // 확장판: the same match on the 확장 words; its rooms are its own (channel hidden-word-plus-room).
-  hiddenWordPlus: { path: '/hidden-word-plus', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordPlusRoom }, { label: 'hwParty', create: prepareHiddenWordPartyRoom, path: '/hidden-word-plus/party' }] },
+  // The AI match runs on the server (hw_* functions). In a friend room the host's browser holds the hidden words,
+  // which is fine between friends. Open rooms are a different match: the server deals and keeps every word
+  // (hw_open_*, src/lib/hiddenWordRoom.ts), and they open only inside the Google Play app (APP_ONLY_OPEN in
+  // src/lib/openRooms.ts): the website shows the entry locked with the tester invitation.
+  hiddenWord: { path: '/hidden-word', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordRoom }], useRoom: useHiddenWordOpenRoom },
+  // 확장판: the same match on the 확장 words; its rooms are its own (channel hidden-word-plus-room). Open rooms: 1:1 only.
+  hiddenWordPlus: { path: '/hidden-word-plus', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordPlusRoom }, { label: 'hwParty', create: prepareHiddenWordPartyRoom, path: '/hidden-word-plus/party', open: false }], useRoom: useHiddenWordPlusOpenRoom },
   pointOmok: {
     path: '/point-omok', ai: [{ label: 'poNormal', query: 'difficulty=normal' }, { label: 'poHard', query: 'difficulty=hard' }],
     rooms: [{ label: 'roomTwo', create: preparePointOmokRoom }], useRoom: usePointOmokRoom,

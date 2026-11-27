@@ -2692,7 +2692,8 @@
     "short_logicRoom": "2~4명",
     "slitherRoom": "친구 방 만들기 (2~4명)",
     "short_slitherRoom": "2~4명",
-    "magicswapPractice": "연습하기 (5×5 · 6×6 · 7×7)"
+    "magicswapPractice": "연습하기 (5×5 · 6×6 · 7×7)",
+    "openAppBadge": "앱 전용"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -4310,7 +4311,8 @@
     "joinTitle": "열린 방",
     "createTitle": "어떤 게임으로 열까요?",
     "close": "닫기",
-    "note": "로그인한 사람끼리만 참가할 수 있어요. 결과는 서로의 전적으로 남아요."
+    "note": "로그인한 사람끼리만 참가할 수 있어요. 결과는 서로의 전적으로 남아요.",
+    "appOnlyHint": "앱에서만 열 수 있어요"
   },
   "OpenResult": {
     "close": "닫기",
@@ -8966,7 +8968,7 @@
     "eyebrow": "GOOGLE PLAY 앱 테스터 모집",
     "title": "정식 앱 출시 전, 테스터가 되어 주세요",
     "stripTitle": "정식 앱 출시 전 테스터 모집",
-    "stripSub": "광고 없는 새 게임 · 전용 아이콘",
+    "stripSub": "앱 전용 히든 워드 오픈 대전 · 전용 아이콘",
     "lead": "PUZZLTHINK가 Google Play 앱으로 나와요. 정식 출시 전에 먼저 써 볼 테스터를 모으고 있어요.",
     "benefit1": "새로운 게임을 광고 없이 즐겨요",
     "benefit2": "테스터 전용 아이콘 TESTER를 바로 받아요",
@@ -9005,6 +9007,15 @@
     "installGo": "앱 설치하러 가기",
     "installLater": "나중에",
     "installDone": "이미 설치했어요",
-    "installAndroidOnly": "테스트 앱은 안드로이드 휴대폰용이에요. 안드로이드 휴대폰에서 PUZZLTHINK에 로그인하면 설치할 수 있어요."
+    "installAndroidOnly": "테스트 앱은 안드로이드 휴대폰용이에요. 안드로이드 휴대폰에서 PUZZLTHINK에 로그인하면 설치할 수 있어요.",
+    "benefitOpen": "앱에서만 열리는 히든 워드 오픈 대전에 참여해요",
+    "headerPerk": "앱 전용 오픈 대전",
+    "installPerk": "설치하면 앱에서만 열리는 히든 워드 오픈 대전을 열고 참여할 수 있어요.",
+    "appOnlyEyebrow": "앱 전용",
+    "appOnlyTitle": "히든 워드 오픈 대전은 앱에서만",
+    "appOnlyDesc": "처음 보는 사람과 붙는 오픈 대전은 PUZZLTHINK 테스트 앱에서만 만들고 참여할 수 있어요. 친구 방은 웹에서도 그대로예요.",
+    "appOnlyJoin": "테스터로 신청하면 앱을 먼저 받아 오픈 대전을 열 수 있어요.",
+    "appOnlyAndroid": "지금은 안드로이드 테스트 앱에서만 열려요.",
+    "appOnlyInstalled": "이미 설치했다면 PUZZLTHINK 앱을 열고 히든 워드로 오세요."
   }
 }

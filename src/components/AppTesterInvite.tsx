@@ -3,7 +3,7 @@
 import { useEffect, useId, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { BadgeCheck, Ban, Check, Download, Loader2, Smartphone, Sparkles, X } from 'lucide-react';
+import { BadgeCheck, Ban, Check, DoorOpen, Download, Loader2, Lock, Smartphone, Sparkles, X } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { usePlayApp } from './playApp/usePlayApp';
 import { TesterStone } from './TesterIcons';
@@ -15,7 +15,7 @@ import { PLAY_TESTER_OPT_IN_URL } from '@/lib/playApp';
 import { type SignupSource, markSignupSource } from '@/lib/signupSource';
 import {
   EMAIL_RE, TESTER_INSTALL_OPEN_EVENT, type TesterStatus, dismissPopup, installPopupDue, inviteEmail, isAndroid,
-  joinTester, leaveTester, loadTester, markInstalled, markInstallShown, markPending, maskEmail, popupDue,
+  joinTester, leaveTester, loadTester, markInstalled, markInstallShown, markPending, markedInstalled, maskEmail, popupDue,
   subscribeTester, takePending, testerSnapshot,
 } from '@/lib/appTester';
 
@@ -30,6 +30,8 @@ import {
  *  - <AppTesterInstallPopup /> on every visit until "이미 설치했어요" (Android), or a one-line note elsewhere.
  * Members who already joined see none of the invitations, and inside the Play app nothing is shown but the
  * records row of a member who joined (so they can still withdraw).
+ * The hook: 히든 워드 오픈 대전 opens only inside the app (APP_ONLY_OPEN, src/lib/openRooms.ts). The benefit lists, the
+ * install popup and the header say so, and <AppOnlyOpenCard /> stands in for the open rooms on the website.
  */
 
 type Tone = 'dark' | 'light';
@@ -49,11 +51,11 @@ function TesterIcon({ size }: { size: number }) {
   return <TesterStone id={`ati-${id}`} name="TESTER" size={size} tier="tester" />;
 }
 
-const ICONS = [Sparkles, null, Smartphone];
+const ICONS = [DoorOpen, Sparkles, null, Smartphone];
 
 function Benefits({ tone, compact }: { tone: Tone; compact?: boolean }) {
   const t = useTranslations('AppTester');
-  const lines = [t('benefit1'), t('benefit2'), t('benefit3')];
+  const lines = [t('benefitOpen'), t('benefit1'), t('benefit2'), t('benefit3')];
   return (
     <ul className={compact ? 'mt-2 flex flex-wrap gap-1.5' : 'mt-4 space-y-2'}>
       {lines.map((line, i) => {
@@ -323,19 +325,63 @@ const openInstall = () => window.dispatchEvent(new Event(TESTER_INSTALL_OPEN_EVE
 export function HeaderTesterButton({ full = false }: { full?: boolean }) {
   const t = useTranslations('AppTester');
   const [android] = useState(isAndroid);
+  // Until "이미 설치했어요": what installing gets you (히든 워드 오픈 대전, app only).
+  const [perk] = useState(() => !markedInstalled());
   const cls = full
     ? 'flex w-full shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#5b45c9] px-4 py-3 text-sm font-extrabold text-white transition hover:bg-[#4a39a8]'
     : 'group relative flex h-10 shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-xl bg-[#17113a] pl-1.5 pr-3 text-white shadow-[0_0_14px_rgba(124,92,255,.45),inset_0_0_10px_rgba(198,255,61,.12)] ring-1 ring-[#9b85ff]/70 transition hover:shadow-[0_0_22px_rgba(124,92,255,.75)]';
   const body = full ? <><Download size={15} />{t('headerInstall')}</> : <>
     <span className="shrink-0 transition group-hover:scale-110"><TesterIcon size={30} /></span>
     <span className="flex flex-col items-start leading-none">
-      <span className="font-mono text-[9px] font-black tracking-[0.08em] text-[#c6ff3d]">PLAY TESTER</span>
+      <span className="font-mono text-[9px] font-black tracking-[0.08em] text-[#c6ff3d]">{perk ? t('headerPerk') : 'PLAY TESTER'}</span>
       <span className="mt-[3px] text-[12px] font-black tracking-[-0.02em]">{t('headerInstall')}</span>
     </span>
   </>;
-  return android
-    ? <a href={PLAY_TESTER_OPT_IN_URL} target="_blank" rel="noopener noreferrer" className={cls}>{body}</a>
-    : <button type="button" onClick={openInstall} className={cls}>{body}</button>;
+  const title = perk ? t('installPerk') : undefined;
+  const button = android
+    ? <a href={PLAY_TESTER_OPT_IN_URL} target="_blank" rel="noopener noreferrer" className={cls} title={title}>{body}</a>
+    : <button type="button" onClick={openInstall} className={cls} title={title}>{body}</button>;
+  if (!full || !perk) return button;
+  return <div>{button}<p className="mt-1.5 flex items-center justify-center gap-1 break-keep text-center text-[11px] font-bold leading-4 text-[#5b45c9]"><DoorOpen size={12} className="shrink-0" />{t('installPerk')}</p></div>;
+}
+
+/**
+ * Website stand-in for 히든 워드's open rooms (entry screen) and a compact card on its result screens: open matches
+ * are in the Play app only. The action follows the member's tester state: sign up (or sign in), "명단에 올리는 중",
+ * install (Android; the install popup's steps), or a line that the test app is Android only. Nothing in the app.
+ */
+export function AppOnlyOpenCard({ tone = 'dark', compact = false, className = '' }: { tone?: Tone; compact?: boolean; className?: string }) {
+  const t = useTranslations('AppTester');
+  const { ready, configured, user, status } = useTester();
+  const app = usePlayApp();
+  const [android] = useState(isAndroid);
+  if (app) return null;
+  if (compact && (!ready || !user)) return null; // result screens: members only
+  const dark = tone === 'dark';
+  const muted = dark ? 'text-white/60' : 'text-black/55';
+  const joined = status.kind === 'joined';
+  const action = !ready || !configured || status.kind === 'unavailable' || (user && status.kind === 'loading') ? null
+    : joined && !status.listed ? <p className={`mt-2 break-keep text-[12px] leading-5 ${muted}`}>{t('doneSoon')}</p>
+      : joined && !android ? <p className={`mt-2 break-keep text-[12px] leading-5 ${muted}`}>{t('appOnlyAndroid')}</p>
+        : joined ? (
+          <div className="mt-3">
+            <button type="button" onClick={openInstall} className="inline-flex items-center gap-1.5 rounded-full bg-[#5b45c9] px-4 py-2.5 text-[13px] font-black text-white shadow-[0_6px_18px_rgba(91,69,201,.35)] transition active:scale-[.98]"><Download size={14} />{t('headerInstall')}</button>
+            {markedInstalled() && <p className={`mt-2 break-keep text-[11px] leading-4 ${muted}`}>{t('appOnlyInstalled')}</p>}
+          </div>
+        ) : (
+          <>
+            <p className={`mt-2 break-keep text-[12px] leading-5 ${muted}`}>{t('appOnlyJoin')}{android ? '' : ` ${t('appOnlyAndroid')}`}</p>
+            <Consent tone={tone} source={compact ? 'result' : 'other'} />
+          </>
+        );
+  return (
+    <div data-app-only-open className={`${box(tone)} ${className}`}>
+      <p className={`flex items-center gap-1 text-[10px] font-black tracking-[0.14em] ${dark ? 'text-[#c9bcff]' : 'text-[#5b45c9]'}`}><Lock size={12} />{t('appOnlyEyebrow')}</p>
+      <p className="mt-1 break-keep text-[15px] font-black leading-5 tracking-[-0.02em]">{t('appOnlyTitle')}</p>
+      {!compact && <p className={`mt-1 break-keep text-[12px] leading-5 ${muted}`}>{t('appOnlyDesc')}</p>}
+      {action}
+    </div>
+  );
 }
 
 /** Another dialog is up (the nickname prompt, the "새 아이콘" celebration, the recruitment popup): wait for it. */
@@ -389,7 +435,8 @@ export function AppTesterInstallPopup() {
               <button type="button" onClick={close} className="-mr-2 -mt-1 rounded-md p-2 text-black/35 hover:text-black" aria-label={t('installLater')}><X size={16} /></button>
             </div>
           </div>
-          <ol className="mt-4 space-y-2.5">
+          <p className="mt-3 flex gap-2 rounded-2xl bg-[#5b45c9]/10 px-3 py-2.5 text-[12.5px] font-black leading-[18px] text-[#4a39a8]"><DoorOpen size={15} className="mt-px shrink-0" /><span className="break-keep">{t('installPerk')}</span></p>
+          <ol className="mt-3 space-y-2.5">
             {([['installStep1', 'installStep1Desc'], ['installStep2', 'installStep2Desc']] as const).map(([title, desc], i) => (
               <li key={title} className="flex gap-3 rounded-2xl border border-black/[0.07] bg-white p-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#5b45c9] text-[13px] font-black text-white">{i + 1}</span>

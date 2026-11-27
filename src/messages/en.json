@@ -2631,7 +2631,8 @@
     "short_logicRoom": "2–4",
     "slitherRoom": "Create a room (2–4)",
     "short_slitherRoom": "2–4",
-    "magicswapPractice": "Practice (5×5 · 6×6 · 7×7)"
+    "magicswapPractice": "Practice (5×5 · 6×6 · 7×7)",
+    "openAppBadge": "App only"
   },
   "RussianRouletteGuide": {
     "eyebrow": "RUSSIAN ROULETTE GUIDE",
@@ -4233,7 +4234,8 @@
     "joinTitle": "Open rooms",
     "createTitle": "Which game?",
     "close": "Close",
-    "note": "Signed-in players only. Results count toward each other's records."
+    "note": "Signed-in players only. Results count toward each other's records.",
+    "appOnlyHint": "Opens in the app only"
   },
   "OpenResult": {
     "close": "Close",
@@ -8785,7 +8787,7 @@
     "eyebrow": "GOOGLE PLAY APP TESTERS WANTED",
     "title": "Be a tester before the app launches",
     "stripTitle": "App testers wanted before launch",
-    "stripSub": "New games, no ads · exclusive icon",
+    "stripSub": "App-only Hidden Word open matches · exclusive icon",
     "lead": "PUZZLTHINK is coming to Google Play. We are looking for testers to try the app before its public release.",
     "benefit1": "Play new games with no ads",
     "benefit2": "Get the testers-only TESTER icon right away",
@@ -8824,6 +8826,15 @@
     "installGo": "Go install the app",
     "installLater": "Later",
     "installDone": "I already installed it",
-    "installAndroidOnly": "The test app is for Android phones. Sign in to PUZZLTHINK on an Android phone to install it."
+    "installAndroidOnly": "The test app is for Android phones. Sign in to PUZZLTHINK on an Android phone to install it.",
+    "benefitOpen": "Join Hidden Word open matches, only in the app",
+    "headerPerk": "APP-ONLY OPEN MATCH",
+    "installPerk": "Install it to open and join Hidden Word open matches, which only the app has.",
+    "appOnlyEyebrow": "APP ONLY",
+    "appOnlyTitle": "Hidden Word open matches are app-only",
+    "appOnlyDesc": "Open matches against people you do not know can be created and joined only in the PUZZLTHINK test app. Friend rooms work on the web as before.",
+    "appOnlyJoin": "Sign up as a tester to get the app early and open matches there.",
+    "appOnlyAndroid": "For now they open only in the Android test app.",
+    "appOnlyInstalled": "Already installed? Open the PUZZLTHINK app and come to Hidden Word."
   }
 }

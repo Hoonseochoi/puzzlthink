@@ -1,7 +1,8 @@
 // Shared pieces for host-authoritative realtime rooms (WallGo, 12-janggi).
 export type Seat = { id: string; name: string } | null;
-/** A browser in the room. `emote` is the latest quick reaction (ㅎㅇ, ㅇㅋ…) and when it was sent. */
-export type Peer = { id: string; name: string; at: number; emote?: string; emoteAt?: number; uid?: string };
+/** A browser in the room. `emote` is the latest quick reaction (ㅎㅇ, ㅇㅋ…) and when it was sent.
+ * `app`: the browser says it runs inside the Google Play app (src/lib/playApp.ts; a claim, used for app-only rooms). */
+export type Peer = { id: string; name: string; at: number; emote?: string; emoteAt?: number; uid?: string; app?: boolean };
 /** `term`: which host is running the room. It goes up by one each time a guest takes over from a host who left. */
 export type BaseRoom = { sid: string; v: number; seats: Seat[]; phase: string; deadline: number; term?: number };
 

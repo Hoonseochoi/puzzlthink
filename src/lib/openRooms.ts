@@ -3,6 +3,17 @@
 import { getSupabase } from './supabase';
 import type { GameId as CatalogId } from './gameCatalog';
 import type { GameId as StatsId } from './stats';
+import { PLAY_APP_VALUE, isPlayApp } from './playApp';
+
+/**
+ * Games whose open rooms exist only inside the Google Play app (the same list as the database's open_room_app_only()).
+ * The website shows their open-room entry locked; the list and put calls send `p_app` only from the app, and the
+ * database neither lists nor writes these games' rooms without it. Friend rooms are not affected.
+ */
+export const APP_ONLY_OPEN: readonly CatalogId[] = ['hiddenWord', 'hiddenWordPlus'];
+export const isAppOnlyOpen = (game: string) => (APP_ONLY_OPEN as readonly string[]).includes(game);
+/** The marker the Play app's client adds (spoofable: it keeps the website out, not a hand-written client). */
+const appArg = (): { p_app?: string } => (isPlayApp() ? { p_app: PLAY_APP_VALUE } : {});
 
 /** Records name each game differently from the catalog. */
 export const STATS_ID: Record<CatalogId, StatsId> = {
@@ -29,7 +40,8 @@ export function hostToken(game: string, code: string, create = false) {
 export async function listOpenRooms(game: string): Promise<OpenRoomRow[]> {
   const supabase = getSupabase();
   if (!supabase) return [];
-  const { data, error } = await supabase.rpc('open_room_list', { p_game: game });
+  if (isAppOnlyOpen(game) && !isPlayApp()) return [];
+  const { data, error } = await supabase.rpc('open_room_list', { p_game: game, ...appArg() });
   return error || !Array.isArray(data) ? [] : (data as OpenRoomRow[]);
 }
 
@@ -65,16 +77,19 @@ export function pingLiveRoom(room: string, open: boolean) {
 export async function listAllOpenRooms(): Promise<OpenRoomAnyRow[] | null> {
   const supabase = getSupabase();
   if (!supabase) return null;
-  const { data, error } = await supabase.rpc('open_room_list_all');
-  return error || !Array.isArray(data) ? null : (data as OpenRoomAnyRow[]);
+  const { data, error } = await supabase.rpc('open_room_list_all', appArg());
+  if (error || !Array.isArray(data)) return null;
+  // the database already leaves app-only games out for the website; this also covers it before the migration
+  return isPlayApp() ? (data as OpenRoomAnyRow[]) : (data as OpenRoomAnyRow[]).filter((row) => !isAppOnlyOpen(row.game));
 }
 
 export async function putOpenRoom(game: string, code: string, row: { variant: number; host: string; players: number; capacity: number; title: string }) {
   const supabase = getSupabase();
   const token = hostToken(game, code, true);
   if (!supabase || !token) return;
+  if (isAppOnlyOpen(game) && !isPlayApp()) return;
   const args = { p_game: game, p_code: code, p_token: token, p_variant: row.variant, p_host: row.host, p_players: row.players, p_capacity: row.capacity };
-  const { error } = await supabase.rpc('open_room_put', { ...args, p_title: row.title.slice(0, 30) });
+  const { error } = await supabase.rpc('open_room_put', { ...args, p_title: row.title.slice(0, 30), ...appArg() });
   // Before the titles migration the function takes no title: list the room without one.
   if (error?.code === 'PGRST202') await supabase.rpc('open_room_put', args);
 }

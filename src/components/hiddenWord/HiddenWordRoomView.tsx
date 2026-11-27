@@ -13,13 +13,19 @@ import { useBackClose } from '@/hooks/useBackClose';
 import InviteCode from '@/components/ui/InviteCode';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANEL_TITLE, SHELL, STAGE } from '@/components/ui/gameUi';
-import { useHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
+import { startOpenMatch, useHiddenWordRoom } from '@/hooks/useHiddenWordRoom';
+import { AppOnlyOpenCard } from '@/components/AppTesterInvite';
+import { usePlayApp } from '@/components/playApp/usePlayApp';
+import { isOpenRoom } from '@/lib/openRooms';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link, useRouter } from '@/i18n/routing';
 import { roomIsBusy } from '@/hooks/useRealtimeRoom';
 import { HWP_CHANNEL } from '@/hooks/useHiddenWordParty';
 import { HW_ENVELOPES, type HwLevel, hwClean, isHwWord } from '@/lib/hiddenWord';
-import { HWR_CFG, type HwrRoom, type HwrTurn, hwrDeal, hwrHintsLeft, hwrLock, hwrReveal, hwrScore, hwrUsed } from '@/lib/hiddenWordRoom';
+import {
+  HWR_CFG, type HwrRoom, type HwrTurn, hwoAnswer, hwoHand, hwoHint, hwoLeft, hwoLock, hwoReveal, hwoTake, hwoWordOf,
+  hwrDeal, hwrHintsLeft, hwrLock, hwrReveal, hwrScore, hwrUsed,
+} from '@/lib/hiddenWordRoom';
 import { reportGame } from '@/lib/stats';
 import { HW_ACCENT, HW_GOLD, HWP_ACCENT, type HwCopy, hwCopy, hwRootStyle } from './copy';
 import { EditionMark, Envelope, SecretCard, SimRow, StageTrack, TimerRing, WordCard } from './HiddenWordParts';
@@ -28,7 +34,8 @@ type Errors = 'invalid' | 'secret' | 'duplicate' | 'unknown' | 'server' | null;
 const PHASE_SECS = { hint: HWR_CFG.hintSecs, guess: HWR_CFG.guessSecs } as const;
 
 /** 히든 워드 with a friend, 1:1: the same four turns as against MORA, in a room. level 'plus': a 확장판 room
- * (its own channel and link, the 확장 words). */
+ * (its own channel and link, the 확장 words). An open match (`state.open`, from an open room in the Play app) plays
+ * the same turns with every word held by the server and by its owner's browser (src/lib/hiddenWordRoom.ts). */
 export default function HiddenWordRoomView({ code, level = 'basic' }: { code: string; level?: HwLevel }) {
   const locale = useLocale();
   const t = hwCopy(locale, level);
@@ -67,14 +74,31 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
   const seconds = phaseKey && (phase === 'hint' || phase === 'guess')
     ? Math.max(0, Math.ceil((PHASE_SECS[phase] * 1000 - (now - (seenAt.key === phaseKey ? seenAt.at : now))) / 1000)) : null;
 
-  // Host: out of time below the cut, look up the closest word for the board.
-  const revealKey = state && turn && phase === 'reveal' && me?.isHost ? `${state.sid}-${state.round}-${state.turnNo}-${turn.stage}` : '';
+  const open = !!state?.open;
+  const deal = state?.deal ?? '';
+  // Out of time below the cut, look up the closest word for the board: the host, or in an open match the setter
+  // (only its key may ask the server).
+  const revealer = open ? !!turn && mySeat === turn.setter : !!me?.isHost;
+  const revealKey = state && turn && phase === 'reveal' && revealer ? `${state.sid}-${state.round}-${state.turnNo}-${turn.stage}` : '';
   const revealed = useRef('');
   useEffect(() => {
     if (!revealKey || revealed.current === revealKey || !turn) return;
     revealed.current = revealKey;
-    void hwrReveal(turn.lock, hwrUsed(turn)).then((rev) => dispatch({ t: 'reveal', rev: rev ?? null }));
-  }, [revealKey, turn, dispatch]);
+    void (open ? hwoReveal(deal, turn.lock, hwrUsed(turn)) : hwrReveal(turn.lock, hwrUsed(turn))).then((rev) => dispatch({ t: 'reveal', rev: rev ?? null }));
+  }, [revealKey, turn, dispatch, open, deal]);
+
+  // Open match: the setter shows its word once its turn is over (also for a turn already moved to the history).
+  const shown = useRef(new Map<string, number>()); // lock → when it was last sent (resent if it did not land)
+  useEffect(() => {
+    if (!state?.open || (mySeat !== 0 && mySeat !== 1)) return;
+    const done = [...state.history, ...(state.phase === 'turnEnd' && state.t ? [state.t] : [])];
+    for (const h of done) {
+      const word = h.setter === mySeat && !h.word ? hwoWordOf(state.deal, h.lock) : '';
+      if (!word || Date.now() - (shown.current.get(h.lock) ?? 0) < 3000) continue;
+      shown.current.set(h.lock, Date.now());
+      dispatch({ t: 'word', lock: h.lock, word });
+    }
+  }, [state, mySeat, dispatch, now]);
 
   // Each player records the finished match once.
   useEffect(() => {
@@ -88,10 +112,15 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
   const start = async () => {
     if (starting) return;
     setStarting(true);
+    if (state?.open) { await startOpenMatch(state.level ?? level, dispatch); setStarting(false); return; }
     const deal = await hwrDeal(state?.level ?? level);
     setStarting(false);
     if (deal && !deal.error && Array.isArray(deal.envelopes)) dispatch({ t: 'start', deal: deal.deal, envelopes: deal.envelopes });
   };
+  const app = usePlayApp();
+  // A browser that came in through the open-room list refuses a match its host started the friend way (words in the state).
+  const [cameOpen] = useState(() => isOpenRoom(code));
+  const unfair = !!state && cameOpen && !me?.isHost && !state.open && state.phase !== 'lobby';
 
   // A code typed on the 확장판 entry screen comes here; if it is a party room, go there instead.
   const router = useRouter();
@@ -117,7 +146,15 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
       {notice && <div className="relative z-10 mx-auto mt-3 flex max-w-[640px] items-center gap-2 px-4 text-xs text-[#ffc2b5]"><WifiOff size={14} />{notice}</div>}
 
       <main className="relative z-10 mx-auto w-full max-w-[640px] px-3 pb-10 pt-3 sm:px-4 sm:pt-5">
-        {!state ? (
+        {state && open && !app ? (
+          // Open matches are app-only: on the website the room is the invitation, not the game.
+          <div className="space-y-3"><AppOnlyOpenCard /><Link href={path} className={`flex w-full justify-center px-4 py-3 text-sm ${BTN}`}>{r.backToGame}</Link></div>
+        ) : unfair ? (
+          <div className={`${STAGE} flex min-h-[240px] flex-col items-center justify-center gap-4 text-center`}>
+            <p className="max-w-sm break-keep text-sm font-bold text-white/70">{r.openGuard}</p>
+            <Link href={path} className={`px-4 py-2.5 text-sm ${BTN_ACCENT}`}>{r.backToGame}</Link>
+          </div>
+        ) : !state ? (
           <div className={`${STAGE} flex min-h-[320px] flex-col items-center justify-center gap-3 text-center`}>
             {!notice ? <p className="flex items-center gap-2 text-sm text-white/50"><Loader2 size={16} className="animate-spin" />{r.connecting}</p> : <Link href={path} className={`px-4 py-2.5 text-sm ${BTN_ACCENT}`}>{r.backToGame}</Link>}
           </div>
@@ -157,11 +194,12 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
             <div className="mt-3">
               {phase === 'envelope' && <EnvelopeStage state={state} mySeat={mySeat} t={t} plus={plus} onPick={(i) => dispatch({ t: 'envelope', i })} />}
               {phase === 'pick' && (state.setter === mySeat
-                ? <PickStage hand={state.hands[mySeat]} deal={state.deal} t={t} plus={plus} onPick={(word, lock) => dispatch({ t: 'pick', word, lock })} />
+                // open match: my hand is only here, and the word never goes into the action (the lock stands for it)
+                ? <PickStage hand={open ? hwoLeft(hwoHand(state.deal)) : state.hands[mySeat]} deal={state.deal} open={open} t={t} plus={plus} onPick={(word, lock) => dispatch({ t: 'pick', word: open ? '' : word, lock })} />
                 : <Waiting text={r.pickWait(name(state.setter))} />)}
               {turn && (phase === 'hint' || phase === 'reveal' || phase === 'guess' || phase === 'turnEnd') && (
                 <TurnStage key={`${state.sid}-${state.round}-${state.turnNo}`} state={state} turn={turn} mySeat={mySeat} name={name} seconds={seconds} t={t}
-                  onHint={(word, s, rev) => dispatch({ t: 'hint', word, s, rev })} onGuess={(words, s) => dispatch({ t: 'guess', words, s })} onNext={() => dispatch({ t: 'next' })} />
+                  onHint={(word, s, rev) => dispatch({ t: 'hint', word, s, rev })} onGuess={(words, s, ok) => dispatch({ t: 'guess', words, s, ...(ok === undefined ? {} : { ok }) })} onNext={() => dispatch({ t: 'next' })} />
               )}
               {phase === 'finished' && <OverStage state={state} mySeat={mySeat} name={name} t={t} isHost={!!me?.isHost} starting={starting} onAgain={() => void start()} />}
               {!playing && phase !== 'finished' && <p className="mt-3 text-center text-xs text-white/45">{r.spectating}</p>}
@@ -217,7 +255,19 @@ const Waiting = ({ text }: { text: string }) => (
 function EnvelopeStage({ state, mySeat, t, plus, onPick }: { state: HwrRoom; mySeat: number | null; t: HwCopy; plus: boolean; onPick: (i: number) => void }) {
   const mine = mySeat === 0 || mySeat === 1 ? state.picks[mySeat] : null;
   const theirs = mySeat === 0 || mySeat === 1 ? state.picks[1 - mySeat] : null;
-  const canPick = (mySeat === 0 || mySeat === 1) && mine === null;
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const canPick = (mySeat === 0 || mySeat === 1) && mine === null && !busy;
+  // Open match: take the envelope on the server first (it hands this browser its five words); the room only learns which.
+  const pick = async (i: number) => {
+    if (!state.open) { onPick(i); return; }
+    setBusy(true); setError(null);
+    const hand = await hwoTake(state.deal, i);
+    setBusy(false);
+    if (hand === 'taken') setError(t.room.envelopeTaken);
+    else if (!hand || hand.i === null) setError(t.room.errorServer);
+    else onPick(hand.i);
+  };
   return (
     <section className={`${STAGE} !p-5 sm:!p-7`}>
       <h2 className="text-center text-xl font-black tracking-[-0.03em] sm:text-2xl">{t.envelopeTitle}</h2>
@@ -225,24 +275,25 @@ function EnvelopeStage({ state, mySeat, t, plus, onPick }: { state: HwrRoom; myS
       <div className="mx-auto mt-6 grid max-w-[420px] grid-cols-3 gap-3 sm:gap-4">
         {Array.from({ length: HW_ENVELOPES }, (_, i) => (
           <div key={i} className="relative">
-            <Envelope n={i + 1} plus={plus} label={t.envelope(i + 1)} state={mine === i ? 'opening' : canPick && theirs !== i && !state.picks.includes(i) ? 'idle' : 'dim'} onPick={() => onPick(i)} />
+            <Envelope n={i + 1} plus={plus} label={t.envelope(i + 1)} state={mine === i ? 'opening' : canPick && theirs !== i && !state.picks.includes(i) ? 'idle' : 'dim'} onPick={() => void pick(i)} />
             {mine === i && <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-(--accent) px-2 py-0.5 text-[10px] font-black text-(--accent-ink)">{t.room.envelopeMine}</span>}
           </div>
         ))}
       </div>
       {mine !== null && <p className="mt-5 flex items-center justify-center gap-2 text-sm font-bold text-white/55"><Loader2 size={14} className="animate-spin" />{t.room.envelopeWait}</p>}
+      {error && <p className="mt-4 text-center text-xs font-bold text-[#ff8a9a]">{error}</p>}
     </section>
   );
 }
 
-function PickStage({ hand, deal, t, plus, onPick }: { hand: string[]; deal: string; t: HwCopy; plus: boolean; onPick: (word: string, lock: string) => void }) {
+function PickStage({ hand, deal, open, t, plus, onPick }: { hand: string[]; deal: string; open: boolean; t: HwCopy; plus: boolean; onPick: (word: string, lock: string) => void }) {
   const [word, setWord] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const confirm = async () => {
     if (!word || busy) return;
     setBusy(true); setFailed(false);
-    const lock = await hwrLock(deal, word);
+    const lock = await (open ? hwoLock(deal, word) : hwrLock(deal, word));
     setBusy(false);
     if (lock) onPick(word, lock); else setFailed(true);
   };
@@ -263,12 +314,14 @@ function PickStage({ hand, deal, t, plus, onPick }: { hand: string[]; deal: stri
 
 function TurnStage({ state, turn, mySeat, name, seconds, t, onHint, onGuess, onNext }: {
   state: HwrRoom; turn: HwrTurn; mySeat: number | null; name: (s: number) => string; seconds: number | null; t: HwCopy;
-  onHint: (word: string, s: number, rev: { w: string; s: number } | null) => void; onGuess: (words: string[], s: number[]) => void; onNext: () => void;
+  onHint: (word: string, s: number, rev: { w: string; s: number } | null) => void; onGuess: (words: string[], s: number[], ok?: boolean) => void; onNext: () => void;
 }) {
   const r = t.room;
   const phase = state.phase;
   const setter = turn.setter, guesser = 1 - turn.setter;
   const iSet = mySeat === setter, iGuess = mySeat === guesser;
+  // the hidden word as this browser knows it (open match: only the setter, until it is shown at the turn's end)
+  const secret = state.open ? (iSet ? hwoWordOf(state.deal, turn.lock) : turn.word) : turn.word;
   const ended = phase === 'turnEnd';
   const results = Array.from({ length: HWR_CFG.stages }, (_, i) => {
     const g = turn.guesses.find((x) => x.stage === i + 1);
@@ -285,7 +338,7 @@ function TurnStage({ state, turn, mySeat, name, seconds, t, onHint, onGuess, onN
   return (
     <section className={`${STAGE} !p-3 sm:!p-5`}>
       <div className="flex items-stretch gap-2">
-        <SecretCard label={iSet ? t.myWord : r.secretOf(name(setter))} word={iSet || ended || mySeat === null ? turn.word : undefined} sealedLabel={t.sealed} />
+        <SecretCard label={iSet ? t.myWord : r.secretOf(name(setter))} word={(iSet || ended || mySeat === null ? secret : '') || undefined} sealedLabel={t.sealed} />
         <StageTrack labels={Array.from({ length: HWR_CFG.stages }, (_, i) => t.stage(i + 1))} points={points} current={ended ? 0 : turn.stage} results={results} />
       </div>
 
@@ -320,8 +373,8 @@ function TurnStage({ state, turn, mySeat, name, seconds, t, onHint, onGuess, onN
 
       {ended ? <TurnEnd state={state} turn={turn} name={name} t={t} canNext={mySeat === 0 || mySeat === 1} onNext={onNext} />
         : phase === 'reveal' ? <p className="mt-4 flex items-center justify-center gap-2 text-sm font-bold text-white/55"><Loader2 size={14} className="animate-spin" />{r.revealing}</p>
-        : phase === 'hint' ? (iSet ? <HintDock key={turn.stage} turn={turn} t={t} onSend={onHint} /> : <p className="mt-4 flex items-center justify-center gap-2 text-sm font-bold text-white/55"><Loader2 size={14} className="animate-spin" />{r.hintWait(name(setter))}</p>)
-        : phase === 'guess' ? (iGuess ? <GuessDock key={turn.stage} turn={turn} t={t} onSend={onGuess} /> : <p className="mt-4 flex items-center justify-center gap-2 text-sm font-bold text-white/55"><Loader2 size={14} className="animate-spin" />{r.guessWait(name(guesser))}</p>)
+        : phase === 'hint' ? (iSet ? <HintDock key={turn.stage} turn={turn} secret={secret} deal={state.open ? state.deal : ''} t={t} onSend={onHint} /> : <p className="mt-4 flex items-center justify-center gap-2 text-sm font-bold text-white/55"><Loader2 size={14} className="animate-spin" />{r.hintWait(name(setter))}</p>)
+        : phase === 'guess' ? (iGuess ? <GuessDock key={turn.stage} turn={turn} deal={state.open ? state.deal : ''} t={t} onSend={onGuess} /> : <p className="mt-4 flex items-center justify-center gap-2 text-sm font-bold text-white/55"><Loader2 size={14} className="animate-spin" />{r.guessWait(name(guesser))}</p>)
         : null}
     </section>
   );
@@ -331,7 +384,8 @@ function errorText(t: HwCopy, e: Errors) {
   return e === 'server' ? t.room.errorServer : e ? t.errors[e] : null;
 }
 
-function HintDock({ turn, t, onSend }: { turn: HwrTurn; t: HwCopy; onSend: (word: string, s: number, rev: { w: string; s: number } | null) => void }) {
+/** `deal`: set in an open match, where only this browser's key may score hints (hw_open_hint). */
+function HintDock({ turn, secret, deal, t, onSend }: { turn: HwrTurn; secret: string; deal: string; t: HwCopy; onSend: (word: string, s: number, rev: { w: string; s: number } | null) => void }) {
   const [word, setWord] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<Errors>(null);
@@ -341,15 +395,15 @@ function HintDock({ turn, t, onSend }: { turn: HwrTurn; t: HwCopy; onSend: (word
     const clean = hwClean(word);
     if (busy || !clean) return;
     if (!isHwWord(clean)) { setError('invalid'); return; }
-    if (clean === turn.word) { setError('secret'); return; }
+    if (clean === secret) { setError('secret'); return; }
     if (hwrUsed(turn).includes(clean)) { setError('duplicate'); return; }
     setBusy(true); setError(null);
-    const scores = await hwrScore(turn.lock, [clean], 'hint');
+    const scores = await (deal ? hwoHint(deal, turn.lock, clean) : hwrScore(turn.lock, [clean], 'hint'));
     if (!scores) { setBusy(false); setError('server'); return; }
     const s = scores[0];
     if (s === null || s === undefined) { setBusy(false); setError('unknown'); return; }
     // the last hint below the cut brings the closest word with it
-    const rev = left === 1 && s < HWR_CFG.cut ? await hwrReveal(turn.lock, [...hwrUsed(turn), clean]) : null;
+    const rev = left === 1 && s < HWR_CFG.cut ? await (deal ? hwoReveal(deal, turn.lock, [...hwrUsed(turn), clean]) : hwrReveal(turn.lock, [...hwrUsed(turn), clean])) : null;
     setBusy(false);
     onSend(clean, s, rev ?? null);
     setWord('');
@@ -368,7 +422,8 @@ function HintDock({ turn, t, onSend }: { turn: HwrTurn; t: HwCopy; onSend: (word
   );
 }
 
-function GuessDock({ turn, t, onSend }: { turn: HwrTurn; t: HwCopy; onSend: (words: string[], s: number[]) => void }) {
+/** `deal`: set in an open match, where the server scores the answer and says whether it is right (hw_open_answer). */
+function GuessDock({ turn, deal, t, onSend }: { turn: HwrTurn; deal: string; t: HwCopy; onSend: (words: string[], s: number[], ok?: boolean) => void }) {
   const [word, setWord] = useState('');
   const [second, setSecond] = useState('');
   const [two, setTwo] = useState(false);
@@ -381,6 +436,14 @@ function GuessDock({ turn, t, onSend }: { turn: HwrTurn; t: HwCopy; onSend: (wor
     if (!words.every(isHwWord)) { setError('invalid'); return; }
     if (new Set(words).size !== words.length || words.some((w) => hwrUsed(turn).includes(w))) { setError('duplicate'); return; }
     setBusy(true); setError(null);
+    if (deal) {
+      const res = await hwoAnswer(deal, turn.lock, words);
+      setBusy(false);
+      if (res?.error === 'unknown') { setError('unknown'); return; }
+      if (!res || !Array.isArray(res.s)) { setError('server'); return; }
+      onSend(words, res.s, res.ok === true);
+      return;
+    }
     const scores = await hwrScore(turn.lock, words, 'answer');
     setBusy(false);
     if (!scores) { setError('server'); return; }
@@ -417,7 +480,7 @@ function TurnEnd({ state, turn, name, t, canNext, onNext }: { state: HwrRoom; tu
   const last = state.round === 2 && state.turnNo === 1;
   return (
     <div className={`mt-4 rounded-[14px] border p-4 text-center [animation:hwPop_.45s_ease-out_both] ${solved ? 'border-(--accent)/45 bg-(--accent)/[0.08]' : 'border-[#ffc857]/40 bg-[#ffc857]/[0.06]'}`}>
-      <p className="text-xs font-bold text-white/50">{t.theWord} · <strong lang="ko" className="text-white">{turn.word}</strong></p>
+      <p className="text-xs font-bold text-white/50">{t.theWord} · <strong lang="ko" className="text-white">{turn.word || '…'}</strong></p>
       <p className={`mt-1 text-lg font-black tracking-[-0.02em] sm:text-xl ${solved ? 'text-(--accent)' : 'text-[#ffc857]'}`}>{solved ? r.endSolved(name(1 - turn.setter), solved) : r.endHeld(name(turn.setter))}</p>
       <div className="mt-2 flex items-center justify-center gap-4 font-mono text-sm font-black">
         <span className="text-white/80">{t.gained(name(0), turn.gained[0])}</span><span className="text-white/25">·</span><span className="text-white/80">{t.gained(name(1), turn.gained[1])}</span>
@@ -447,11 +510,12 @@ function OverStage({ state, mySeat, name, t, isHost, starting, onAgain }: { stat
         {state.history.map((h, i) => (
           <li key={i} className="flex items-center justify-between gap-2 rounded-md bg-black/25 px-3 py-2 text-[12px]">
             <span className="text-white/55">R{h.round} · {r.turnOf(name(h.setter))}</span>
-            <strong lang="ko" className="text-white/85">{h.word}</strong>
+            <strong lang="ko" className="text-white/85">{h.word || '—'}</strong>
             <span className="font-mono text-white/60">{h.solved ? t.histSolved(h.solved) : t.histHeld}</span>
           </li>
         ))}
       </ul>
+      <AppOnlyOpenCard compact className="mt-5" />
       {!isHost && <p className="mt-5 text-xs text-white/45">{r.rematchWait}</p>}
       <div className={`grid gap-2 ${isHost ? 'mt-5 grid-cols-[1fr_2fr]' : 'mt-3'}`}>
         <HomeButton block className="!rounded-md !text-sm" />

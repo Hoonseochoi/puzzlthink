@@ -6,12 +6,15 @@ import { BookOpen, Bot, ChevronUp, DoorOpen, House, KeyRound, Link2, Loader2, Pl
 import { Link, useRouter } from '@/i18n/routing';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
-import { type OpenRoomRow, listOpenRooms, saveTitle } from '@/lib/openRooms';
+import { type OpenRoomRow, isAppOnlyOpen, listOpenRooms, saveTitle } from '@/lib/openRooms';
+import { isPlayApp } from '@/lib/playApp';
+import { AppOnlyOpenCard } from './AppTesterInvite';
+import { usePlayApp } from './playApp/usePlayApp';
 import OpenRoomPanel from './OpenRoomPanel';
 import OpenPracticeShell from './OpenPractice';
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
-import { GAME_MODES } from './gameModes';
+import { GAME_MODES, openVariants } from './gameModes';
 import { accentVars } from './ui/gameUi';
 import { GameExitContext } from './ui/GameBackLink';
 
@@ -50,16 +53,21 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   const menuRef = useRef<HTMLDivElement>(null);
   const { user, configured } = useAuth();
   const signedIn = !!user || !configured; // open rooms need an account so results are kept for both sides
+  // 히든 워드's open rooms exist only inside the Play app: on the website the section is locked (AppOnlyOpenCard).
+  const app = usePlayApp();
+  const appOnly = isAppOnlyOpen(game);
+  const locked = appOnly && !app;
+  const variants = openVariants(game);
 
   // Open rooms waiting for players: refreshed every 10 s while the entry screen is showing.
   useEffect(() => {
-    if (started || !modes.useRoom) return;
+    if (started || !modes.useRoom || locked) return;
     let alive = true;
     const load = () => { if (document.visibilityState === 'visible') listOpenRooms(game).then((rows) => { if (alive) setOpenRooms(rows); }); };
     load();
     const timer = window.setInterval(load, 10_000);
     return () => { alive = false; window.clearInterval(timer); };
-  }, [started, game, modes.useRoom, listTick]);
+  }, [started, game, modes.useRoom, listTick, locked]);
 
   // True while the #play entry on top of the history is one this page pushed, so leaving the game can pop it.
   const pushed = useRef(false);
@@ -69,6 +77,15 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
       setStarted(window.location.hash === PLAY_HASH);
       const params = new URLSearchParams(window.location.search);
       const code = params.get('open');
+      // An app-only open room reached on the website (a shared or edited link): back to the locked entry screen.
+      if (code && isAppOnlyOpen(game) && !isPlayApp()) {
+        params.delete('open'); params.delete('v');
+        const query = params.toString();
+        window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+        pushed.current = false;
+        setStarted(false); setOpenRoom(null);
+        return;
+      }
       setOpenRoom(code && isRoomCode(code) && window.location.hash === PLAY_HASH ? { code, variant: Number(params.get('v')) || 0 } : null);
     };
     sync();
@@ -76,7 +93,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     // The Google sign-in round trip puts #play back once it has landed (AuthProvider).
     window.addEventListener('puzzlthink:url', sync);
     return () => { window.removeEventListener('popstate', sync); window.removeEventListener('puzzlthink:url', sync); };
-  }, []);
+  }, [game]);
 
   /**
    * Leave the game for this entry screen (the header's back arrow). Started here: pop the #play entry, as the system back does.
@@ -96,11 +113,13 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
   /** Solo play query for an open room's variant (e.g. WallGo 1:1 vs 1:1:1). */
   const playQuery = (variant: number) => modes.rooms[variant]?.play ?? modes.ai[0]?.query;
   const enterOpenRoom = (code: string, variant: number) => {
+    if (locked) return;
     const base = playQuery(variant);
     start(`${base ? `${base}&` : ''}open=${code}&v=${variant}`);
     setOpenRoom({ code, variant });
   };
   const createOpenRoom = async (variant: number) => {
+    if (locked) return;
     const label = `open-${variant}`;
     setCreating(label);
     try {
@@ -214,11 +233,13 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
             <section className={`${card} mt-3`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="flex items-center gap-2 text-base font-black"><DoorOpen size={17} className="text-(--accent)" />{t('openTitle')}</h3>
+                  <h3 className="flex items-center gap-2 text-base font-black"><DoorOpen size={17} className="text-(--accent)" />{t('openTitle')}
+                    {appOnly && <span className="rounded-full bg-(--accent)/15 px-2 py-0.5 text-[10px] font-black tracking-normal text-(--accent)">{t('openAppBadge')}</span>}</h3>
                   <p className={`mt-1 text-xs leading-5 ${muted}`}>{t('openDesc')}</p>
                 </div>
-                <button type="button" onClick={() => setListTick((n) => n + 1)} className={`shrink-0 rounded-md p-2 ${muted} hover:text-(--accent)`} aria-label={t('openRefresh')}><RefreshCw size={15} /></button>
+                {!locked && <button type="button" onClick={() => setListTick((n) => n + 1)} className={`shrink-0 rounded-md p-2 ${muted} hover:text-(--accent)`} aria-label={t('openRefresh')}><RefreshCw size={15} /></button>}
               </div>
+              {locked ? <AppOnlyOpenCard tone={dark ? 'dark' : 'light'} className="mt-4" /> : <>
               <div className="mt-4 space-y-2">
                 {openRooms === null ? <p className={`flex items-center gap-2 text-xs ${muted}`}><Loader2 size={13} className="animate-spin" />{t('openLoading')}</p>
                   : openRooms.length === 0 ? <p className={`rounded-md border border-dashed px-3 py-3 text-center text-xs ${dark ? 'border-white/15' : 'border-black/15'} ${muted}`}>{t('openEmpty')}</p>
@@ -226,7 +247,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                       const full = room.players >= room.capacity;
                       return (
                         <div key={room.code} className={`flex items-center gap-3 rounded-md border px-3 py-2.5 ${dark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white'}`}>
-                          <span className="min-w-0 flex-1 truncate text-sm font-bold">{room.title || t('openHost', { name: room.host })}{modes.rooms.length > 1 && modes.rooms[room.variant] ? <span className={`ml-1.5 text-xs ${muted}`}>{t(`short_${modes.rooms[room.variant].label}`)}</span> : null}</span>
+                          <span className="min-w-0 flex-1 truncate text-sm font-bold">{room.title || t('openHost', { name: room.host })}{variants.length > 1 && modes.rooms[room.variant] ? <span className={`ml-1.5 text-xs ${muted}`}>{t(`short_${modes.rooms[room.variant].label}`)}</span> : null}</span>
                           <span className={`flex shrink-0 items-center gap-1 font-mono text-xs font-black ${full ? muted : 'text-(--accent)'}`} title={t('openSeats')}><UsersRound size={13} />{room.players}/{room.capacity}</span>
                           <button type="button" disabled={full || !signedIn} onClick={() => enterOpenRoom(room.code, room.variant)} className={`${primary} !px-3 !py-1.5 text-xs disabled:opacity-40`}>{full ? t('openFull') : t('openJoin')}</button>
                         </div>
@@ -240,22 +261,23 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
                 </div>
               )}
               {/* Name the room and create it on one line (games with several room types get one button each). */}
-              <div className={`mt-4 flex flex-col gap-2 ${modes.rooms.length > 1 ? '' : 'sm:flex-row'}`}>
+              <div className={`mt-4 flex flex-col gap-2 ${variants.length > 1 ? '' : 'sm:flex-row'}`}>
                 <input
                   value={roomTitle} maxLength={30} onChange={(event) => setRoomTitle(event.target.value)} disabled={!signedIn}
-                  onKeyDown={(event) => { if (event.key === 'Enter' && modes.rooms.length === 1 && creating === null && signedIn) createOpenRoom(0); }}
+                  onKeyDown={(event) => { if (event.key === 'Enter' && variants.length === 1 && creating === null && signedIn) createOpenRoom(variants[0].variant); }}
                   placeholder={t('openTitlePlaceholder')} aria-label={t('openTitleLabel')}
                   className={`min-w-0 flex-1 rounded-md border px-3 py-2.5 text-sm font-bold outline-none focus:border-(--accent) disabled:opacity-40 ${dark ? 'border-white/15 bg-black/30 text-white placeholder:text-white/35' : 'border-black/15 bg-white placeholder:text-black/35'}`}
                 />
-                <div className={`grid gap-2 ${modes.rooms.length > 1 ? 'grid-cols-2' : 'sm:shrink-0'}`}>
-                  {modes.rooms.map((room, variant) => (
+                <div className={`grid gap-2 ${variants.length > 1 ? 'grid-cols-2' : 'sm:shrink-0'}`}>
+                  {variants.map(({ room, variant }) => (
                     <button key={room.label} type="button" disabled={creating !== null || !signedIn} onClick={() => createOpenRoom(variant)} className={`${secondary} whitespace-nowrap`}>
                       {creating === `open-${variant}` ? <Loader2 size={15} className="animate-spin" /> : <DoorOpen size={15} />}
-                      {creating === `open-${variant}` ? t('creating') : modes.rooms.length > 1 ? t('openCreateFor', { label: t(`short_${room.label}`) }) : t('openCreate')}
+                      {creating === `open-${variant}` ? t('creating') : variants.length > 1 ? t('openCreateFor', { label: t(`short_${room.label}`) }) : t('openCreate')}
                     </button>
                   ))}
                 </div>
               </div>
+              </>}
             </section>
           )}
 

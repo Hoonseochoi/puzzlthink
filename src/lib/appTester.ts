@@ -145,3 +145,5 @@ export function markInstallShown(android = isAndroid()) {
 }
 /** "이미 설치했어요". */
 export function markInstalled() { write(local, INSTALLED_KEY); }
+/** Whether this device said "이미 설치했어요" (the header then stops pitching the install). */
+export const markedInstalled = () => !!read(local, INSTALLED_KEY);

@@ -3,6 +3,10 @@
 // gives hints, the other guesses. Similarity numbers come from the server (hw_room_* functions): the player who
 // acts asks for them and sends them with the action, the host checks the rest. Friends may see the state; the
 // screen only hides the hidden word from the guesser.
+// Open matches (`open`, strangers, Play app only) keep every word out of the state: the server deals the envelopes
+// (hw_open_* functions, supabase/migrations/20271201300000_hidden_word_open_app.sql), each player's browser takes its
+// own with a secret key that never leaves it, and the server scores answers and says whether they are right. The
+// hidden word goes into the state only when the setter shows it at the end of the turn.
 import { getSupabase } from './supabase';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 import { HW_ENVELOPES, type HwLevel, isHwWord } from './hiddenWord';
@@ -24,15 +28,19 @@ export type HwrRoom = BaseRoom & {
   t: HwrTurn | null; history: HwrTurn[]; scores: number[];
   /** The word set: 히든 워드 rooms are 기본, 확장판 rooms 확장 (set when the room is made); missing in rooms saved before levels: 기본. */
   level?: HwLevel;
+  /** An open match (set by the host in the lobby): no envelope or word in the state, see the top of this file. */
+  open?: boolean;
 };
 
 export type HwrAction =
-  | { t: 'start'; deal?: string; envelopes?: string[][] }
+  | { t: 'start'; deal?: string; envelopes?: string[][]; open?: boolean }
+  | { t: 'open' }
+  | { t: 'word'; lock: string; word: string }
   | { t: 'envelope'; i: number }
   | { t: 'pick'; word: string; lock: string }
   | { t: 'hint'; word: string; s: number; rev?: { w: string; s: number } | null }
   | { t: 'reveal'; rev: { w: string; s: number } | null }
-  | { t: 'guess'; words: string[]; s: number[] }
+  | { t: 'guess'; words: string[]; s: number[]; ok?: boolean }
   | { t: 'next' }
   | { t: 'timeout' };
 
@@ -60,9 +68,10 @@ const toHint = (state: HwrRoom, t: HwrTurn): HwrRoom => ({ ...state, t, phase: '
 /** Out of hints or time below the cut: the host looks up the closest word, then the guesser answers. */
 const toReveal = (state: HwrRoom, t: HwrTurn): HwrRoom => ({ ...state, t, phase: 'reveal', deadline: Date.now() + REVEAL_WAIT_MS });
 
-function answer(state: HwrRoom, words: string[], s: number[]): HwrRoom {
+function answer(state: HwrRoom, words: string[], s: number[], claimed = false): HwrRoom {
   const t = state.t!;
-  const ok = words.includes(t.word);
+  // open match: the word is not here; the server told the guesser whether the answer was right
+  const ok = state.open ? claimed && words.length > 0 : words.includes(t.word);
   const guesser = other(t.setter);
   const guesses = [...t.guesses, { w: words, s, stage: t.stage, ok }];
   const chance = t.chance && words.length < 2;
@@ -84,8 +93,22 @@ export function reduceHwrRoom(state: HwrRoom, action: HwrAction, seat: number | 
   const playing = seat === 0 || seat === 1;
   const t = state.t;
   switch (action.t) {
+    case 'open': {
+      if (!isHost || state.phase !== 'lobby' || state.open) break;
+      next = { ...state, open: true };
+      break;
+    }
     case 'start': {
       if (!isHost || (state.phase !== 'lobby' && state.phase !== 'finished') || state.seats.some((s) => !s)) break;
+      if (state.open) {
+        // an open match starts only on a server-held deal (its envelopes never come here)
+        if (!action.open || typeof action.deal !== 'string' || !action.deal) break;
+        next = {
+          ...state, sid: newSid(), phase: 'envelope', deadline: 0, deal: action.deal, envelopes: [], picks: [null, null], hands: [[], []],
+          first: Math.random() < 0.5 ? 0 : 1, round: 1, turnNo: 0, setter: 0, t: null, history: [], scores: [0, 0],
+        };
+        break;
+      }
       const envs = action.envelopes;
       if (typeof action.deal !== 'string' || !Array.isArray(envs) || envs.length !== HW_ENVELOPES || !envs.every((e) => Array.isArray(e) && e.length === 5 && e.every((w) => typeof w === 'string'))) break;
       next = {
@@ -98,12 +121,19 @@ export function reduceHwrRoom(state: HwrRoom, action: HwrAction, seat: number | 
       const i = action.i;
       if (state.phase !== 'envelope' || !playing || state.picks[seat!] !== null || !Number.isInteger(i) || i < 0 || i >= HW_ENVELOPES || state.picks.includes(i)) break;
       const picks = state.picks.map((p, s) => (s === seat ? i : p));
-      const hands = state.hands.map((h, s) => (s === seat ? [...state.envelopes[i]] : h));
+      const hands = state.open ? state.hands : state.hands.map((h, s) => (s === seat ? [...state.envelopes[i]] : h));
       next = picks.every((p) => p !== null) ? beginTurn({ ...state, picks, hands }, 1, 0) : { ...state, picks, hands };
       break;
     }
     case 'pick': {
-      if (state.phase !== 'pick' || seat !== state.setter || !state.hands[seat].includes(action.word) || typeof action.lock !== 'string' || !action.lock) break;
+      if (state.phase !== 'pick' || seat !== state.setter || typeof action.lock !== 'string' || !action.lock) break;
+      if (state.open) {
+        // the server checked the word is the setter's; a lock is used once
+        if (state.history.some((h) => h.lock === action.lock)) break;
+        next = toHint(state, { setter: seat, word: '', lock: action.lock, stage: 1, hints: [], guesses: [], chance: true, gained: [0, 0], round: state.round });
+        break;
+      }
+      if (!state.hands[seat].includes(action.word)) break;
       const hands = state.hands.map((h, s) => (s === seat ? h.filter((w) => w !== action.word) : h));
       next = toHint({ ...state, hands }, { setter: seat, word: action.word, lock: action.lock, stage: 1, hints: [], guesses: [], chance: true, gained: [0, 0], round: state.round });
       break;
@@ -121,7 +151,8 @@ export function reduceHwrRoom(state: HwrRoom, action: HwrAction, seat: number | 
       break;
     }
     case 'reveal': {
-      if (state.phase !== 'reveal' || !t || !isHost) break;
+      // open match: only the setter's browser can ask the server for the closest word
+      if (state.phase !== 'reveal' || !t || (state.open ? seat !== t.setter : !isHost)) break;
       const rev = action.rev && typeof action.rev.w === 'string' && num(action.rev.s) !== null && !used(t).includes(action.rev.w) ? action.rev : null;
       next = toGuess(state, rev ? { ...t, hints: [...t.hints, { w: rev.w, s: num(rev.s)!, stage: t.stage, by: 'reveal' }] } : t);
       break;
@@ -133,7 +164,16 @@ export function reduceHwrRoom(state: HwrRoom, action: HwrAction, seat: number | 
       if (!words.every(isHwWord) || words.some((w) => used(t).includes(w)) || action.s.length !== words.length) break;
       const s = action.s.map(num);
       if (s.some((x) => x === null)) break;
-      next = answer(state, words, s as number[]);
+      next = answer(state, words, s as number[], action.ok === true);
+      break;
+    }
+    case 'word': {
+      // open match: the setter shows its word once the turn is over (on the turn, or on it in the history)
+      if (!state.open || typeof action.word !== 'string' || !action.word || typeof action.lock !== 'string') break;
+      const show = (x: HwrTurn) => (x.lock === action.lock && x.setter === seat && !x.word ? { ...x, word: action.word } : x);
+      if (t && t.lock === action.lock && state.phase === 'turnEnd') { if (show(t) !== t) next = { ...state, t: show(t) }; break; }
+      const history = state.history.map(show);
+      if (history.some((x, i) => x !== state.history[i])) next = { ...state, history };
       break;
     }
     case 'next': {
@@ -173,4 +213,50 @@ export const hwrLock = (deal: string, word: string) => rpc<string>('hw_room_lock
 export const hwrScore = (lock: string, words: string[], kind: 'hint' | 'answer') => rpc<(number | null)[]>('hw_room_score', { p_lock: lock, p_words: words, p_kind: kind });
 export const hwrReveal = (lock: string, usedWords: string[]) => rpc<{ w: string; s: number } | null>('hw_room_reveal', { p_lock: lock, p_used: usedWords });
 export const hwrUsed = used;
+
+// ---- open matches: the server deals; this browser keeps its own envelope and key ----
+export type HwoHand = { key: string; i: number | null; words: string[]; locks: Record<string, string> };
+const handKey = (deal: string) => `puzzlthink_hwo_${deal}`;
+const handCache = new Map<string, HwoHand>(); // this tab (and localStorage, so a reload keeps the hand)
+/** This browser's secret for an open deal (its key, envelope and locked words), made on first use. */
+export function hwoHand(deal: string): HwoHand {
+  const known = handCache.get(deal);
+  if (known) return known;
+  let hand: HwoHand | null = null;
+  try {
+    const saved = JSON.parse(localStorage.getItem(handKey(deal)) || 'null') as HwoHand | null;
+    if (saved && typeof saved.key === 'string') hand = saved;
+  } catch { /* storage is optional: a fresh key */ }
+  hand ??= { key: crypto.randomUUID(), i: null, words: [], locks: {} };
+  saveHwoHand(deal, hand);
+  return hand;
+}
+function saveHwoHand(deal: string, hand: HwoHand) {
+  handCache.set(deal, hand);
+  try { localStorage.setItem(handKey(deal), JSON.stringify(hand)); } catch { /* optional */ }
+}
+export const hwoDeal = (level: HwLevel = 'basic') => rpc<{ deal?: string; error?: string }>('hw_open_deal', { p_level: level });
+/** Takes envelope i (or, asked again, the one this key already took). */
+export async function hwoTake(deal: string, i: number): Promise<HwoHand | 'taken' | null> {
+  const hand = hwoHand(deal);
+  const res = await rpc<{ i?: number; words?: string[]; error?: string }>('hw_open_take', { p_deal: deal, p_i: i, p_key: hand.key });
+  if (res?.error === 'taken' || res?.error === 'full') return 'taken';
+  if (!res || typeof res.i !== 'number' || !Array.isArray(res.words)) return null;
+  const next = { ...hand, i: res.i, words: res.words };
+  saveHwoHand(deal, next);
+  return next;
+}
+export async function hwoLock(deal: string, word: string): Promise<string | null> {
+  const hand = hwoHand(deal);
+  const lock = await rpc<string>('hw_open_lock', { p_deal: deal, p_key: hand.key, p_word: word });
+  if (lock) { const now = hwoHand(deal); saveHwoHand(deal, { ...now, locks: { ...now.locks, [lock]: word } }); }
+  return lock;
+}
+export const hwoHint = (deal: string, lock: string, word: string) => rpc<(number | null)[]>('hw_open_hint', { p_lock: lock, p_key: hwoHand(deal).key, p_word: word });
+export const hwoReveal = (deal: string, lock: string, usedWords: string[]) => rpc<{ w: string; s: number } | null>('hw_open_reveal', { p_lock: lock, p_key: hwoHand(deal).key, p_used: usedWords });
+export const hwoAnswer = (deal: string, lock: string, words: string[]) => rpc<{ s?: number[]; ok?: boolean; error?: string }>('hw_open_answer', { p_lock: lock, p_key: hwoHand(deal).key, p_words: words });
+/** The word this browser locked for a turn (open match, setter only). */
+export const hwoWordOf = (deal: string, lock: string) => hwoHand(deal).locks[lock] ?? '';
+/** My hand's words not locked yet. */
+export const hwoLeft = (hand: HwoHand) => hand.words.filter((w) => !Object.values(hand.locks).includes(w));
 export const hwrHintsLeft = (t: HwrTurn) => HWR_CFG.maxHints - hintsThisStage(t);
