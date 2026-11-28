@@ -8531,7 +8531,7 @@
       "Hints: the setter gives Korean nouns. Each hint shows its similarity to the hidden word, and a hint at 95% or more ends the hint phase at once.",
       "A stage allows five hints and two minutes. If none reaches 95%, the word closest to the hidden word is revealed instead.",
       "Answers: when the hints end the other side answers. A miss pays the setter and starts the next stage, up to three: 1, 2, then 3 points.",
-      "The guesser earns more the earlier the answer: 6, 3, then 1. Once per word you can spend 1 race piece to give two answers.",
+      "The guesser earns more the earlier the answer: 6, 3, then 1. Once per word you can spend 1 piece to give two answers.",
       "Round 2 doubles every point. The ranking score is your average points per match plus 0.3 per match played (up to 20)."
     ],
     "specialTitle": "Easy to miss",
