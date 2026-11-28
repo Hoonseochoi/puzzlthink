@@ -10,8 +10,8 @@ export const alt = 'PUZZLTHINK 히든 워드: 라이어';
 
 // One card for the game page and every room invite under it (room links reuse it, so no image is drawn per room).
 const COPY = {
-  ko: { kicker: '히든 워드 · PUZZLTHINK ORIGINAL', title: '라이어 게임', sub: '한 명만 다른 단어를 받았다. 본인도 모른다.', modes: ['4~10인 파티', '친구 초대', '공개방'] },
-  en: { kicker: 'HIDDEN WORD · ORIGINAL', title: 'Liar Game', sub: 'One player got a different word, and doesn\'t know it.', modes: ['4–10 players', 'Invite friends', 'Matchmaking'] },
+  ko: { kicker: '히든 워드 · PUZZLTHINK ORIGINAL', title: '라이어 게임', sub: '라이어만 제시어가 없다. 숫자를 보고 속여라.', modes: ['4~10인 파티', '친구 초대', '공개방'] },
+  en: { kicker: 'HIDDEN WORD · ORIGINAL', title: 'Liar Game', sub: 'The liar has no word. Read the numbers and bluff.', modes: ['4–10 players', 'Invite friends', 'Matchmaking'] },
 };
 const CLUES = [{ w: '공', s: '72', c: '#ff9a3d' }, { w: '체육관', s: '41', c: '#7fd0ff' }, { w: '선수', s: '🔥85+', c: '#ff5a3d' }];
 

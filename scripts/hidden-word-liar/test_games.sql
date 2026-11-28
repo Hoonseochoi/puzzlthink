@@ -29,9 +29,9 @@ begin
     if v -> 'liar' <> 'null'::jsonb then raise exception 'liar seat leaked'; end if;
     if (v -> 'me' ->> 'seat')::int = r.liar then
       if v::text like '%' || r.answer || '%' then raise exception 'answer leaked to liar'; end if;
-      if v -> 'me' ->> 'word' <> r.decoy then raise exception 'liar word'; end if;
+      if v -> 'me' ->> 'word' is not null or not (v -> 'me' ->> 'liar')::boolean then raise exception 'liar word / liar flag'; end if;   -- the liar knows, and has no word
     else
-      if v::text like '%"' || r.decoy || '"%' then raise exception 'decoy leaked'; end if;
+      if (v -> 'me' ->> 'liar')::boolean or v -> 'liar' <> 'null'::jsonb then raise exception 'liar identity leaked to a citizen'; end if;
       if v -> 'me' ->> 'word' <> r.answer then raise exception 'citizen word'; end if;
     end if;
   end loop;
@@ -45,7 +45,7 @@ begin
       perform pg_temp.as_user(pg_temp.uid(seat + 1));
       -- a clue: a listed hint of the player's own word, or a silent turn now and then
       if random() < 0.1 then update public.hwl_rooms set deadline = now() where code = p_code; perform public.hwl_tick(p_code); continue; end if;
-      select h.word into w from public.hw_hints h where h.target = case when seat = r.liar then r.decoy else r.answer end
+      select h.word into w from public.hw_hints h where h.target = r.answer and (seat <> r.liar or h.score < 75)
         and not exists (select 1 from public.hwl_clues c where c.code = p_code and c.game_no = r.game_no and c.word = h.word) order by random() limit 1;
       if w is null then select word into w from public.hw_vocab where idx = (random() * 70000)::int; end if;
       res := public.hwl_clue(p_code, pg_temp.key(seat + 1), w, random() < 0.15);
@@ -72,7 +72,7 @@ begin
       for i in 1..n loop perform pg_temp.as_user(pg_temp.uid(i)); perform public.hwl_decide(p_code, pg_temp.key(i), 'arrest'); end loop;
     elsif r.phase = 'guess' then
       perform pg_temp.as_user(pg_temp.uid(r.liar + 1));
-      res := public.hwl_guess(p_code, pg_temp.key(r.liar + 1), case when p_mode = 'catch-hit' then r.answer else r.decoy end);
+      res := public.hwl_guess(p_code, pg_temp.key(r.liar + 1), case when p_mode = 'catch-hit' then r.answer else '사람' end);
     else
       update public.hwl_rooms set deadline = now() where code = p_code; perform public.hwl_tick(p_code);
     end if;

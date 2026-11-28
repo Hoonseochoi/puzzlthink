@@ -12,8 +12,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     locale, path: '/hidden-word-liar',
     title: korean ? '히든 워드: 라이어 — 라이어 게임 온라인, 4~10명 친구·공개방 무료' : 'Hidden Word: Liar — an online liar game for 4–10 players',
     description: korean
-      ? '같은 제시어로 한 마디씩, 그런데 한 명만 다른 단어를 받았어요. 단서마다 정답과의 유사도가 뜨는 히든 워드 라이어 게임. 카카오톡으로 친구를 불러 4~10명이 무료로.'
-      : 'Everyone says one word about the same secret word, but one player got a different one. Every clue shows its similarity to the answer. Free, 4–10 players, friends or matchmaking.',
+      ? '같은 제시어로 한 마디씩, 그런데 라이어 한 명은 제시어가 없어요. 단서마다 정답과의 유사도가 뜨는 히든 워드 라이어 게임. 카카오톡으로 친구를 불러 4~10명이 무료로.'
+      : 'Everyone says one word about the same secret word, but the one liar has no word at all. Every clue shows its similarity to the answer. Free, 4–10 players, friends or matchmaking.',
     keywords: korean
       ? ['라이어 게임', '라이어게임', '라이어 게임 온라인', '히든 워드', '히든워드 라이어', '파티 게임', '단어 게임', '마피아 게임', '친구랑 할 게임', '카톡 게임', '단체 게임']
       : ['liar game', 'online liar game', 'Hidden Word', 'party word game', 'spyfall-like', 'word game with friends'],

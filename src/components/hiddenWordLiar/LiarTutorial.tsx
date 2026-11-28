@@ -26,7 +26,7 @@ const COPY = {
   ko: {
     title: '라이어 게임 하는 법', skip: '건너뛰기', next: '다음', start: '시작하기', off: '다시 보지 않기', open: '튜토리얼',
     cards: [
-      { t: '한 명만 다른 단어', d: '모두 같은 제시어를 받는데, 한 명만 같은 묶음의 비슷한 단어를 받아요. 그 사람이 라이어예요. 라이어 본인도 몰라요!' },
+      { t: '라이어는 제시어가 없어요', d: '시민은 모두 같은 제시어를 받고, 라이어 한 명은 "당신은 라이어입니다"만 받아요. 라이어는 단어를 모른 채 남들의 단어와 숫자를 보고 섞여 들어가요. 라이어는 첫 번째로 말하지 않아요.' },
       { t: '떠오르는 명사 하나', d: '내 차례가 되면 테이블 가운데 칸에 제시어에서 연상되는 명사를 하나 적어요. 20초 안에! 막히면 ⏱ +30초 연장을 한 판에 한 번 쓸 수 있어요. 같은 단어는 다시 못 써요.' },
       { t: '숫자를 읽어요', d: '단서 옆 숫자는 시민 제시어와 얼마나 비슷한지예요. 85 이상은 🔥85+로 가려져요. 혼자 숫자가 어긋나는 사람이 수상해요.' },
       { t: '지목할까, 한 바퀴 더?', d: '한 바퀴가 끝나면 다 같이 골라요. 라이어 같은 사람이 있으면 지목, 아직 모르겠으면 한 바퀴 더. 아이콘을 눌러 👁 의심 표시도 할 수 있어요.' },
@@ -37,7 +37,7 @@ const COPY = {
   en: {
     title: 'How to play Liar', skip: 'Skip', next: 'Next', start: 'Start', off: 'Don\'t show again', open: 'Tutorial',
     cards: [
-      { t: 'One word is different', d: 'Everyone gets the same word except one player, who gets a look-alike from the same group. That player is the liar, and they don\'t know it!' },
+      { t: 'The liar has no word', d: 'Citizens all get the same word; the one liar only gets "You are the liar". They don\'t know the word and blend in by reading the others\' words and numbers. The liar never speaks first.' },
       { t: 'Say one noun', d: 'On your turn, type one noun the word brings to mind in the box in the middle of the table. 20 seconds! Stuck? ⏱ +30 s once a game. Words already said can\'t be used again.' },
       { t: 'Read the numbers', d: 'The number by each clue is how close it is to the citizens\' word. 85+ is hidden as 🔥85+. Someone whose numbers are off is suspicious.' },
       { t: 'Accuse or one more round?', d: 'After a round, everyone picks: accuse if someone looks like the liar, or go round again. Tap a player to mark 👁 suspicion.' },
@@ -53,7 +53,7 @@ function Art({ i }: { i: number }) {
   const card = (w: string, liar = false) => <span className={`rounded-md px-2 py-1 text-[12px] font-black shadow ${liar ? 'bg-[#ff5a3d] text-white ring-2 ring-white/70' : 'bg-white text-[#241457]'}`}>{w}</span>;
   if (i === 0) return (
     <div className="flex items-end justify-center gap-2">
-      {['커피', '커피', '우유', '커피'].map((w, k) => (
+      {['커피', '커피', '🎭 라이어', '커피'].map((w, k) => (
         <div key={k} className="flex flex-col items-center gap-1">{card(w, k === 2)}<span className={k === 2 ? 'hwl-glow rounded-full' : ''}><LiarStone id={`tut0-${k}`} name="" size={k === 2 ? 58 : 46} /></span></div>
       ))}
     </div>

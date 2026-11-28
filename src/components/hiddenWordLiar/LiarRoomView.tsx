@@ -194,7 +194,8 @@ export default function LiarRoomView({ code }: { code: string }) {
         </div>
         <ChatPanel chat={chat} t={t} say={say} view={view} myTurn={myTurn} submitClue={submitClue} typingNow={typingNow} marks={marks} now={now} />
       </div>
-      <LiarTutorial auto pause={mine} />
+      <CardReveal view={view} t={t} />
+      <LiarTutorial auto pause={mine || view.phase === 'cards'} />
     </Shell>
   );
 }
@@ -282,6 +283,11 @@ function HeaderMenu({ t }: { t: T }) {
 function MyWord({ view, t }: { view: LiarView; t: T }) {
   const [show, setShow] = useState(false);
   const word = view.me?.word;
+  if (view.me?.liar && RUNNING.includes(view.phase)) return (
+    <div className="mx-auto mt-3 flex max-w-[520px] items-center justify-center gap-2 rounded-2xl border border-[#ff5a3d]/50 bg-[linear-gradient(90deg,#3a1220,#1b1530)] px-4 py-2.5 shadow-[0_0_24px_rgba(255,90,61,.18)]">
+      <span className="text-[16px] font-black tracking-tight text-[#ff8a6d]">{t.myWordLiar}</span>
+    </div>
+  );
   if (!word || !RUNNING.includes(view.phase)) return null;
   const first = view.phase === 'cards';
   return (
@@ -293,6 +299,32 @@ function MyWord({ view, t }: { view: LiarView; t: T }) {
         {show || first ? word : '●●●'}
       </button>
       {!show && !first && <span className="text-[10px] font-bold text-white/45">{t.holdToSee}</span>}
+    </div>
+  );
+}
+
+/** The card each player is dealt, shown big at the start of a game: the word, or "you are the liar" (no word). */
+function CardReveal({ view, t }: { view: LiarView; t: T }) {
+  const [closed, setClosed] = useState<number | null>(null);
+  const liar = !!view.me?.liar;
+  const open = view.phase === 'cards' && !!view.me?.playing && closed !== view.game;
+  useEffect(() => { if (open && liar) buzz([60, 80, 140]); }, [open, liar]);
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm" onClick={() => setClosed(view.game)}>
+      <div onClick={(e) => e.stopPropagation()}
+        className={`hwl-deal relative w-full max-w-[320px] overflow-hidden rounded-[26px] p-6 text-center shadow-[0_30px_80px_rgba(0,0,0,.6)] ${liar ? 'border-2 border-[#ff5a3d]/70 bg-[radial-gradient(ellipse_at_50%_20%,#5a1a2a,#1a0d18_70%)]' : 'border border-[#a98bff]/45 bg-[radial-gradient(ellipse_at_50%_20%,#3b2a75,#15111f_72%)]'}`}>
+        {liar ? <>
+          <div className="mx-auto w-fit" style={{ filter: 'drop-shadow(0 0 22px rgba(255,90,61,.55))' }}><span className="hwl-turn block"><LiarStone id="card-liar" name="" size={110} /></span></div>
+          <p className="hwl-stamp mt-3 text-[26px] font-black tracking-tight text-[#ff8a6d]">🎭 {t.cardLiar}</p>
+          <p className="mt-2 break-keep text-[13px] font-bold leading-[1.6] text-white/80">{t.cardLiarNote}</p>
+        </> : <>
+          <p className="text-[12px] font-black tracking-[0.12em] text-[#c9b6ff]">{t.cardCitizen}</p>
+          <p className="hwl-pop mx-auto mt-3 w-fit rounded-2xl bg-white px-6 py-3 text-[34px] font-black tracking-tight text-[#241457] shadow-[0_10px_30px_rgba(169,139,255,.35)]">{view.me?.word}</p>
+          <p className="mt-3 break-keep text-[12.5px] font-bold leading-[1.6] text-white/70">{t.cardCitizenNote}</p>
+        </>}
+        <button type="button" onClick={() => setClosed(view.game)} className={`mt-5 w-full rounded-xl py-2.5 text-[14px] font-black ${liar ? 'bg-[#ff5a3d] text-white' : 'bg-[#a98bff] text-[#1a1030]'}`}>{t.cardOk}</button>
+      </div>
     </div>
   );
 }
@@ -375,10 +407,10 @@ function TableTip({ view, t, pos, top }: { view: LiarView; t: T; pos: Record<num
   const numbered = [...view.clues].reverse().find((c) => c.word && (c.score != null || c.hot));
   let id: string | null = null; let text = ''; let at: { x: number; y: number } = { x: 50, y: 13 };
   if (!me?.playing) id = null;
-  else if (myTurn) { id = 'myturn'; text = t.tips.myTurn; }
+  else if (myTurn) { id = me.liar ? 'myturnLiar' : 'myturn'; text = me.liar ? t.tips.myTurnLiar : t.tips.myTurn; }
   else if (view.phase === 'guess' && view.liar === me.seat) { id = 'guess'; text = t.tips.guess; }
   else if (top.includes(me.seat)) { id = 'suspected'; text = t.tips.suspected; }
-  else if (view.phase === 'clue' && numbered && pos[numbered.seat]) { id = 'numbers'; text = t.tips.numbers; at = { x: Math.max(26, Math.min(74, pos[numbered.seat].x)), y: pos[numbered.seat].y < 30 ? pos[numbered.seat].y + 16 : pos[numbered.seat].y - 20 }; }
+  else if (view.phase === 'clue' && numbered && pos[numbered.seat]) { id = me.liar ? 'numbersLiar' : 'numbers'; text = me.liar ? t.tips.numbersLiar : t.tips.numbers; at = { x: Math.max(26, Math.min(74, pos[numbered.seat].x)), y: pos[numbered.seat].y < 30 ? pos[numbered.seat].y + 16 : pos[numbered.seat].y - 20 }; }
   else if (view.phase === 'talk') { id = 'talk'; text = t.tips.talk; }
   else if (view.phase === 'vote' || view.phase === 'runoff') { id = me.voted == null ? 'vote' : null; text = t.tips.vote; }
   else if (view.phase === 'last') { id = view.accused === me.seat ? 'lastMine' : 'last'; text = view.accused === me.seat ? t.tips.lastMine : t.tips.last; }
@@ -558,7 +590,7 @@ function Table({ view, t, marks, typing, now, frac, left, show, toast, onTap, ch
             style={{ left: `${x}%`, top: `${y}%`, width: big ? 92 : 86, transform: `translate(-50%, -50%) ${lift}`, opacity: m.gone ? 0.35 : dim ? 0.55 : 1 }}>
             {/* the reveal card, typing "…", or the last clue */}
             {over && show && view.result!.outcome !== 'void' ? (
-              <RevealCard key={flipped ? 'f' : 'b'} flipped={flipped} word={liarSeat ? view.result!.decoy : view.result!.answer} liar={liarSeat} big={big} />
+              <RevealCard key={flipped ? 'f' : 'b'} flipped={flipped} word={liarSeat ? t.liarCard : view.result!.answer} liar={liarSeat} big={big} />
             ) : typer ? (
               <span className={`mb-1 flex h-[20px] items-center rounded-full px-2.5 shadow ${typer.kind === 'clue' ? 'bg-[#ffd36e] text-[#241457]' : 'bg-white/20 text-white'}`} title={typer.kind === 'clue' ? t.typingClue : t.typingChat}><Dots /></span>
             ) : clue && (
@@ -687,13 +719,15 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
 
   let body: React.ReactNode = null;
   if (view.phase === 'lobby') body = <><p className="text-[13px] font-black">{view.kind === 'house' ? t.houseLobby : t.lobbyTitle}</p><p className="mt-1 text-[11px] text-white/55">{view.members.length}/10</p></>;
-  else if (view.phase === 'cards') body = <><p className="text-[15px] font-black">{t.cards}</p><p className="mt-1 break-keep text-[11px] text-white/55">{t.wordNote}</p></>;
+  else if (view.phase === 'cards') body = me?.liar
+    ? <><p className="text-[17px] font-black text-[#ff8a6d]">🎭 {t.cardLiar}</p><p className="mt-1 break-keep text-[11px] text-white/60">{t.cardLiarNote}</p></>
+    : <><p className="text-[15px] font-black">{t.cards}</p><p className="mt-1 break-keep text-[11px] text-white/55">{t.wordNote}</p></>;
   else if (myTurn) body = (
     <form className={`${live} hwl-enter w-full rounded-2xl border border-[#ffd36e]/60 bg-[#1b1530]/95 p-2 shadow-[0_0_30px_rgba(255,211,110,.25)]`}
       onSubmit={(e) => { e.preventDefault(); if (word.trim() && !repeat) void send(() => submitClue(word, mask)); }}>
       <div className="flex items-center gap-1.5">
         {ring}
-        <p className="min-w-0 flex-1 break-keep text-left text-[12px] font-black leading-tight text-[#ffd36e]">{t.myTurn}</p>
+        <p className={`min-w-0 flex-1 break-keep text-left text-[12px] font-black leading-tight ${me?.liar ? 'text-[#ff8a6d]' : 'text-[#ffd36e]'}`}>{me?.liar ? t.myTurnLiar : t.myTurn}</p>
         <div className="flex shrink-0 flex-col gap-1">
           <button type="button" disabled={me?.maskUsed} onClick={() => setMask((m) => !m)} title={t.maskTip}
             className={`rounded-full px-2 py-0.5 text-[10px] font-black ${mask ? 'bg-[#a98bff] text-[#1a1030]' : 'bg-white/10 text-white/75'} disabled:opacity-35`}>{me?.maskUsed ? t.maskUsed : mask ? t.maskOn : t.mask}</button>
@@ -817,9 +851,8 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
             <p className="mt-1.5 text-[11px] font-black text-white/80">{t.liarIs(liarName)} 🎭</p>
             {t.reason[r.reason] && <p className="text-[10.5px] text-white/55">{t.reason[r.reason]}</p>}
             <div className="mt-1.5 flex items-center justify-center gap-2 text-[12px]">
-              <span className="rounded-lg bg-white px-2 py-0.5 font-black text-[#241457]" title={t.answer}>{r.answer}</span>
-              <span className="text-white/40">vs</span>
-              <span className="rounded-lg bg-[#ff5a3d] px-2 py-0.5 font-black text-white" title={t.decoy}>{r.decoy}</span>
+              <span className="text-[10.5px] font-bold text-white/55">{t.answer}</span>
+              <span className="rounded-lg bg-white px-2 py-0.5 font-black text-[#241457]">{r.answer}</span>
             </div>
             {r.guess && <p className="mt-0.5 text-[10.5px] text-white/70">{t.guessed}: <b>{r.guess}</b></p>}
           </>
@@ -877,7 +910,7 @@ function Actions({ view, t, en, code, refresh }: { view: LiarView; t: T; en: boo
         {me?.piecesToday != null && <p className="mb-2 text-center text-[11px] font-black text-[#ffd36e]">🧩 {t.todayLeft(Math.max(0, view.cfg.dailyCap - me.piecesToday), view.cfg.dailyCap)}</p>}
         {me?.playing && r.outcome !== 'void' && <>
           <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.share}</p>
-          <LiarShare compact url={`${url.replace(/\/room\/.*$/, '')}`} title={t.title} text={`${t.shareResult(iWasLiar, r.outcome)} · ${r.answer} vs ${r.decoy}`} button={en ? 'Play' : '플레이하기'} en={en} />
+          <LiarShare compact url={`${url.replace(/\/room\/.*$/, '')}`} title={t.title} text={`${t.shareResult(iWasLiar, r.outcome)} · ${t.answer} ${r.answer}`} button={en ? 'Play' : '플레이하기'} en={en} />
         </>}
         <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.invite}</p>
         <LiarShare compact url={url} title={t.title} text={t.inviteText(code.toUpperCase())} button={t.inviteButton} en={en} />

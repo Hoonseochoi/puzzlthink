@@ -20,13 +20,13 @@ export type LiarView = {
   runoff: number[] | null; accused: number | null; liar: number | null; excluded: number[]; revotes: number;
   reveal: { at: number; until: number } | null;
   cfg: { hot: number; min: number; max: number; liarWin: number; citizenWin: number; dailyCap: number; again?: number; readyWait?: number };
-  me: { seat: number; playing: boolean; maskUsed: boolean; extended: boolean; talk: 'accuse' | 'more' | null; decide: 'arrest' | 'revote' | null; ready: boolean; word: string | null; voted: number | null; piecesToday: number | null } | null;
+  me: { seat: number; playing: boolean; liar: boolean; maskUsed: boolean; extended: boolean; talk: 'accuse' | 'more' | null; decide: 'arrest' | 'revote' | null; ready: boolean; word: string | null; voted: number | null; piecesToday: number | null } | null;
   members: LiarMember[];
   talk: { accuse: number; more: number };
   decide: { arrest: number; revote: number };
   clues: LiarClue[];
   votes: { stage: 'vote' | 'runoff'; seat: number; target: number }[] | null;
-  result: { outcome: 'liar' | 'citizens' | 'void'; reason: string; answer: string; decoy: string; liar: number; guess: string | null; valid: boolean } | null;
+  result: { outcome: 'liar' | 'citizens' | 'void'; reason: string; answer: string; decoy: string | null; liar: number; guess: string | null; valid: boolean } | null;
 };
 
 const rpc = async <T,>(fn: string, args: Record<string, unknown>): Promise<T | null> => {
