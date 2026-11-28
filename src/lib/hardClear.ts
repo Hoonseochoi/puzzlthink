@@ -71,6 +71,9 @@ export const HARD_GAMES: GameId[] = [
   'time_auction', 'mine_oblivion',
 ];
 
+/** HIDDEN MISSION · ALL HARD: clears needed, out of HARD_GAMES (SQL mission_hard_need). */
+export const HARD_MISSION_NEED = 24;
+
 export function isHardClear(game: GameId, mode: string, result: string, detail: Record<string, unknown>) {
   // A game won with paid items (망각의 지뢰) certifies nothing (the SQL is_hard_clear says the same).
   if (result !== 'win' || detail.items) return false;

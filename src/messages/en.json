@@ -5929,7 +5929,7 @@
     "missionTitle": "HIDDEN MISSION",
     "missionRule": "Secret missions · switched on when done · yours for good",
     "missionHard": "ALL HARD",
-    "missionHardDesc": "Clear every game that has a Hard AI on Hard or above",
+    "missionHardDesc": "Clear any 24 games that have a Hard AI on Hard or above",
     "missionHell": "ALL HELL",
     "missionHellDesc": "Clear every game that has Very Hard on Very Hard",
     "missionRank": "TOP 10",
