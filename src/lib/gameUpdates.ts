@@ -1,4 +1,4 @@
-import { Bot, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { Bot, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Swords, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -200,6 +200,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '수식 신호등', en: 'Equation Signal' },
     note: { ko: '의견은 언제든 버그 제보로 보내주세요. 고맙습니다!', en: 'Send us your thoughts any time with the bug report button. Thank you!' },
     items: [
+      {
+        date: '11/28', icon: Swords,
+        ko: { title: '새 모드: 1:1 출제 대결', desc: '친구 방·공개방에서 둘이 3분 동안 서로 풀 수식을 내고, 동시에 상대의 수식을 맞혀요. 맞힌 쪽이 이기고, 둘 다 맞히면 제출이 적은 쪽, 같으면 더 빨리 맞힌 쪽이 이겨요.' },
+        en: { title: 'New mode: 1:1 puzzle duel', desc: 'In a friend or open room, each of you writes an equation in 3 minutes, then you both find the other\'s at once. Solving wins; if both solve, fewer guesses wins, then the faster solve.' },
+      },
       {
         date: '11/26', icon: Wrench,
         ko: { title: '친구·공개방: 방장에게 상대 수식이 보이던 문제 수정', desc: '라운드 중에는 방장에게도 다른 사람의 제출이 신호 색으로만 보여요. 숫자와 기호는 라운드가 끝나면 공개돼요.' },
