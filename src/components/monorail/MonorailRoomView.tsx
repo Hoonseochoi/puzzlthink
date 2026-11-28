@@ -23,6 +23,7 @@ import { useEndReveal } from '@/hooks/useEndReveal';
 import { EndRevealBanner } from '@/components/ui/EndReveal';
 import { ChallengeBanner, MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, ResultExtras, TileDeck, TurnControls, monorailFrames, useFrameCaption, useMonorailDraft } from './MonorailParts';
 import GameUpdates from '@/components/GameUpdates';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 const EMPTY_GAME = newMonorail();
 
@@ -62,6 +63,8 @@ export default function MonorailRoomView({ code }: { code: string }) {
   const online = new Set(peers.map((peer) => peer.id));
   const seconds = state ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : 0;
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(playing ? { mine: myTurn, who: myTurn ? null : seatName(toMove) } : null);
   const copyLink = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* optional */ } };
   const shareLink = async () => { if (navigator.share) { try { await navigator.share({ title: tm('title'), text: t('shareText'), url: shareUrl }); return; } catch { /* cancelled */ } } copyLink(); };
   const commit = () => { if (draft.tiles.length) { dispatch({ t: 'move', move: draft.move }); draft.clear(); } };

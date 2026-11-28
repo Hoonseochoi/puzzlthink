@@ -33,6 +33,8 @@ export function openChat(myId: string, send: (text: string) => ChatBlock | null,
 export function closeChat(token: number) {
   if (room?.token !== token) return;
   room = null;
+  baseStatus = null;
+  mergeStatus();
   emit();
 }
 export function pushChat(token: number, message: ChatMessage) {
@@ -104,4 +106,42 @@ export function setChatOff(value: boolean) {
   off = value;
   try { localStorage.setItem(OFF_KEY, value ? '1' : '0'); } catch { /* optional */ }
   emit();
+}
+
+/**
+ * The game's state in one line, shown at the top of the room chat so a player typing never loses the game.
+ * The room hook fills in what every game has (lobby or not, the turn clock); a game adds what only it knows with
+ * `useChatStatus` (src/hooks/useChatStatus.ts): whose move it is, the score, the last move, what I do next.
+ */
+export type ChatStatus = {
+  idle?: boolean;           // not in play: the waiting room, or the match is over (the chat shows its plain title)
+  mine?: boolean;           // it is my move now: the chat shows "내 차례 — 게임으로" and buzzes once
+  who?: string | null;      // whose move it is, when it is someone else's
+  text?: string | null;     // one short line: what is going on, or what I do next
+  score?: string | null;    // score / chips / position, short
+  last?: string | null;     // the last move, short
+  deadline?: number | null; // when the current clock runs out (ms since epoch)
+};
+let baseStatus: { token: number; status: ChatStatus } | null = null;
+let gameStatus: ChatStatus | null = null;
+let status: ChatStatus | null = null;
+const sameStatus = (a: ChatStatus | null | undefined, b: ChatStatus | null | undefined) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+function mergeStatus() {
+  const base = baseStatus && room?.token === baseStatus.token ? baseStatus.status : null;
+  const next = base || gameStatus ? { ...base, ...gameStatus } : null;
+  if (sameStatus(next, status)) return;
+  status = next;
+  emit();
+}
+export const chatStatus = () => status;
+/** Room hook: what every game has. */
+export function setChatBase(token: number, value: ChatStatus) {
+  if (room?.token !== token || (baseStatus?.token === token && sameStatus(baseStatus.status, value))) return;
+  baseStatus = { token, status: value };
+  mergeStatus();
+}
+/** Game view: what only it knows (null when it unmounts). */
+export function setGameChatStatus(value: ChatStatus | null) {
+  gameStatus = value;
+  mergeStatus();
 }

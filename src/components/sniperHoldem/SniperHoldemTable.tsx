@@ -17,6 +17,7 @@ import { useMyNickname } from '../PieceStone';
 import { type TalkEvent, personaCopy, talkLine } from './personas';
 import type { ShStyle } from '@/lib/sniperHoldemAi';
 import { playCard, playChips, playHit, playSnipe, playWin, setShSound, shSoundOn } from './sound';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 /** `finalSheet`: keep the last hand's showdown sheet up after the match ends (until the result is shown). */
 type Props = { room: SniperHoldemRoom; mySeat: number | null; onAction: (action: SniperHoldemRoomAction) => void; t: ShCopy; locale: string; finalSheet?: boolean };
@@ -73,6 +74,8 @@ export default function SniperHoldemTable({ room, mySeat, onAction, t, locale, f
   const waiting = shWaitingOn(g);
   const myTurn = mySeat !== null && room.phase === 'playing' && waiting.includes(mySeat) && !room.ai[mySeat];
   const seconds = useCountdown(room.deadline, room.phase === 'playing' && !!room.turnSec);
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(room.phase === 'playing' ? { mine: myTurn, who: !myTurn && waiting.length === 1 ? nameOf(waiting[0]) : null, deadline: seconds != null ? room.deadline : null } : null);
   useTableFeedback(g, mySeat, myTurn);
   const absentKey = (g.absent ?? []).join();
   const others = useMemo(() => Array.from({ length: SH_SEATS }, (_, i) => ((mySeat ?? -1) + 1 + i) % SH_SEATS).filter((s) => s !== mySeat && !g.absent?.[s]),

@@ -18,6 +18,7 @@ import { reportGame } from '@/lib/stats';
 import { type BW2Side, bw2NextLeader, bw2Other, bw2RoundsLeft, bw2ScoresOf, bw2StageRounds } from '@/lib/blackWhite2';
 import { BW2_FLASH_MS, BW2_TURN_OPTIONS, type Bw2FirstChoice, seatToBid } from '@/lib/blackWhite2Room';
 import { BW2Card, BW2GaugePanel, type BW2LeadView, BW2Replay, BW2RoundLog, BW2Scoreboard, BW2Table, BidControl } from './BW2Parts';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 const ACCENT = '#ef3340';
 
@@ -68,6 +69,8 @@ export default function BlackWhite2RoomView({ code }: { code: string }) {
   const toPlay = state ? seatToBid(state) : 0;
   const myTurn = !!playing && mySeat !== null && toPlay === mySeat && !flashing;
   const leader = state ? bw2NextLeader(rounds, state.first) : 0;
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(playing ? { mine: myTurn, who: myTurn || flashing ? null : seatName(toPlay) } : null);
   const seconds = state ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : 0;
   const myBank = state && mySeat !== null ? Math.max(0, state.bank[mySeat]) : 0;
   const leadView: BW2LeadView = lead ? { side: lead.side, bid: lead.side === view && lead.bid >= 0 ? lead.bid : null, color: lead.color, gaugeAfter: lead.gaugeAfter } : null;

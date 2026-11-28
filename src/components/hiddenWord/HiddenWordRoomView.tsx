@@ -10,6 +10,7 @@ import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
 import HomeButton from '@/components/ui/HomeButton';
 import { useBackClose } from '@/hooks/useBackClose';
+import { useChatStatus } from '@/hooks/useChatStatus';
 import InviteCode from '@/components/ui/InviteCode';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANEL_TITLE, SHELL, STAGE } from '@/components/ui/gameUi';
@@ -133,6 +134,19 @@ export default function HiddenWordRoomView({ code, level = 'basic' }: { code: st
   const name = (seat: number) => state?.seats[seat]?.name ?? r.guest;
   const seated = state ? state.seats.filter(Boolean).length : 0;
   const playing = mySeat === 0 || mySeat === 1;
+  // The room chat's status line: my move / whose move, the score, the newest hint or guess, the clock.
+  const actor = !state ? null : phase === 'pick' ? state.setter : !turn ? null : phase === 'hint' ? turn.setter : phase === 'guess' ? 1 - turn.setter : null;
+  const lastHint = turn?.hints[turn.hints.length - 1], lastGuess = turn?.guesses[turn.guesses.length - 1];
+  const myLeft = mySeat === 1 ? 1 : 0;
+  useChatStatus(state && phase && phase !== 'lobby' ? {
+    mine: playing && (phase === 'envelope' ? state.picks[mySeat] === null : actor === mySeat),
+    who: actor !== null && actor !== mySeat ? name(actor) : null,
+    text: phase === 'envelope' ? t.envelopeTitle : phase === 'finished' ? t.finalScore
+      : `${t.round(state.round)} · ${state.setter === mySeat ? r.turnSet : playing ? r.turnGuess : r.turnOf(name(state.setter))}`,
+    score: `${name(myLeft)} ${state.scores[myLeft]} : ${state.scores[1 - myLeft]} ${name(1 - myLeft)}`,
+    last: lastGuess && (turn?.guesses.length ?? 0) >= (turn?.hints.length ?? 0) ? `❓ ${lastGuess.w.join(', ')}` : lastHint ? `💡 ${lastHint.w}` : null,
+    deadline: seconds !== null && (phase === 'hint' || phase === 'guess') ? seenAt.at + PHASE_SECS[phase] * 1000 : null,
+  } : null);
 
   return (
     <div className={SHELL} style={hwRootStyle(level)} data-hw={level}>

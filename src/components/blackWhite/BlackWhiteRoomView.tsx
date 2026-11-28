@@ -18,6 +18,7 @@ import { type Side, colorOf, nextLeader, other, scoresOf } from '@/lib/blackWhit
 import { BW_FLASH_MS, BW_TURN_OPTIONS, seatToPlay } from '@/lib/blackWhiteRoom';
 import { BWTile, Hand, MemoPad, OpponentTrack, Replay, RoundLog, Scoreboard, Table } from './BWParts';
 import GameUpdates from '@/components/GameUpdates';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 const ACCENT = '#e9c46a';
 
@@ -68,6 +69,8 @@ export default function BlackWhiteRoomView({ code }: { code: string }) {
   const toPlay = state ? seatToPlay(state) : 0;
   const myTurn = !!playing && mySeat !== null && toPlay === mySeat && !flashing;
   const leader = state ? nextLeader(rounds, state.first) : 0;
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(playing ? { mine: myTurn, who: myTurn || flashing ? null : seatName(toPlay) } : null);
   const seconds = state ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : 0;
   const myLaid = lead && lead.side === me2 && lead.tile >= 0 ? lead.tile : null;
   const theirColor = lead && lead.side === opp ? lead.color : null;

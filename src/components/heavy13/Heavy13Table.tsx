@@ -9,6 +9,7 @@ import { ChipToken, CubeStack, RockCard } from './Bits';
 import { STAND, SAND, SAND_INK } from './theme';
 import TurnDrawer from '../ui/TurnDrawer';
 import { BTN_ACCENT, DIAMOND, accentVars, HEADING, KICKER, PANEL, PANEL_TITLE, WELL, timer } from '../ui/gameUi';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 /** Everything on the table. `room` should already be the redacted view for this player. */
 export default function Heavy13Table({ room, mySeat, onAction, online }: {
@@ -28,6 +29,8 @@ export default function Heavy13Table({ room, mySeat, onAction, online }: {
   const iSubmitted = mySeat !== null && room.submitted[mySeat];
   const myTurn = g.phase === 'place' && g.current === mySeat && mySeat !== null;
   const mySub = myTurn ? g.subs[mySeat!] : null;
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(g.phase === 'place' && mySeat !== null ? { mine: myTurn, who: myTurn || g.current == null ? null : name(g.current) } : null);
   const seconds = Number.isFinite(room.deadline) && room.deadline < Number.MAX_SAFE_INTEGER ? Math.max(0, Math.ceil((room.deadline - now) / 1000)) : null;
   // Each of my turns gets a key; a new one opens the drawer again (a pass brings a second placement turn).
   const turnKey = me && g.phase === 'submit' && !iSubmitted ? `s-${g.round}` : myTurn && mySub ? `p-${g.round}-${g.resolvingPasses ? 'r' : 'm'}` : null;

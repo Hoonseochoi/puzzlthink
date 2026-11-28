@@ -11,6 +11,7 @@ import { HS_ACCENT, HS_HIT, HS_INK, type HsCopy } from './copy';
 import { accentVars } from '../ui/gameUi';
 import { HsAvatar, HsCard, HsChip, HsDie } from './HitStayParts';
 import HitStayHands from './HitStayHands';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 type Props = {
   room: HitStayRoom;
@@ -98,6 +99,15 @@ export default function HitStayTable({ room, mySeat, onAction, t, locale }: Prop
   const [handsOpen, setHandsOpen] = useState(false);
   const openHands = () => setHandsOpen(true);
   const showdown = g.phase === 'showdown' || g.phase === 'finished' ? g.showdown : null;
+  // The room chat's status line: my move / who is up, the dealer's line, the pot and my chips, the last move.
+  useChatStatus(room.phase === 'playing' ? {
+    mine: myTurn,
+    who: !myTurn && waiting.length === 1 ? nameOf(waiting[0]) : null,
+    text: dealerText(g, t, nameOf, myTurn),
+    score: `${t.pot} ${pot}${mySeat !== null ? ` · ${t.you} ${g.chips[mySeat]}` : ''}`,
+    last: g.log[0] && g.log[0].k !== 'round' ? hsLogLine(g.log[0], t, nameOf) : null,
+    deadline: seconds != null ? room.deadline : null,
+  } : null);
 
   return (
     <div className="mx-auto grid w-full max-w-[1180px] gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
@@ -592,8 +602,8 @@ function ShowdownSheet({ g, t, nameOf, mySeat }: { g: HitStay; t: HsCopy; nameOf
 
 /* ------------------------------------------------------------------ log */
 
-function LogList({ g, t, nameOf }: { g: HitStay; t: HsCopy; nameOf: (s: number) => string }) {
-  const line = (e: HsEvent) => {
+/** One log line, as the log panel and the room chat's status line say it. */
+function hsLogLine(e: HsEvent, t: HsCopy, nameOf: (s: number) => string) {
     switch (e.k) {
       case 'round': return t.logRound(e.round, nameOf(e.first), e.limit, e.ante, e.ante < hsAnte(e.round));
       case 'open': return t.logOpen(nameOf(e.seat), e.card);
@@ -606,7 +616,10 @@ function LogList({ g, t, nameOf }: { g: HitStay; t: HsCopy; nameOf: (s: number) 
       case 'win': return t.logWin(e.seats.map(nameOf).join(', '), e.pot, e.split);
       case 'out': return t.logOut(nameOf(e.seat), e.place);
     }
-  };
+}
+
+function LogList({ g, t, nameOf }: { g: HitStay; t: HsCopy; nameOf: (s: number) => string }) {
+  const line = (e: HsEvent) => hsLogLine(e, t, nameOf);
   return (
     <>
       <p className={PANEL_TITLE}>{t.log}</p>

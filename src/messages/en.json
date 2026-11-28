@@ -4186,7 +4186,7 @@
     "title": "Chat",
     "notSaved": "Only visible in this room, never saved",
     "open": "Open chat",
-    "close": "Close",
+    "close": "Close and see the game",
     "turnOff": "Turn off",
     "turnOn": "Turn on",
     "offDesc": "Chat is off. You won't see anyone's messages.",
@@ -4199,7 +4199,11 @@
     "unmuteAll": "Unmute all",
     "block_fast": "Too fast. Wait a moment before sending.",
     "block_burst": "Too many messages. Try again in a few seconds.",
-    "block_repeat": "You can't send the same message again and again."
+    "block_repeat": "You can't send the same message again and again.",
+    "myTurn": "Your turn — back to the game",
+    "theirTurn": "{name}'s turn",
+    "playing": "Game on",
+    "newBelow": "New messages"
   },
   "Lounge": {
     "title": "Lounge",

@@ -15,6 +15,7 @@ import { reportGame } from '@/lib/stats';
 import { PokerHistory, PokerStage, pokerView } from './IndianPokerParts';
 import { IndianPokerResultModal } from './IndianPokerResult';
 import GameUpdates from '@/components/GameUpdates';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 const ACCENT = '#e6b94f';
 
@@ -38,6 +39,8 @@ export default function IndianPokerRoomView({ code }: { code: string }) {
   const copy = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1500); } catch {} };
   const share = async () => { if (navigator.share) { try { await navigator.share({ title: tg('title'), url: shareUrl }); return; } catch {} } copy(); };
 
+  // The room chat's status line (my move / whose move); the turn clock comes from the room. Before the early return (hook order).
+  useChatStatus(state?.phase === 'playing' ? { mine: mySeat !== null && state.turn === mySeat, who: state.turn === mySeat ? null : state.seats[state.turn]?.name ?? null } : null);
   if (!state) return <div className={SHELL} style={accentVars(ACCENT, '#17120a')}><GameHeader players={roomPlayers(state)} me={mySeat} backHref="/indian-poker" backLabel={tc('indianPoker')} title={tg('title')} subtitle={`ONLINE · ${code}`} /><main className="flex min-h-[70vh] items-center justify-center">{status === 'online' ? <Loader2 className="animate-spin" /> : <p className="flex items-center gap-2 text-sm text-white/50"><WifiOff size={15} />{t(status === 'error' ? 'connectionError' : 'connecting')}</p>}</main></div>;
   const seatName = (n: number) => state.seats[n]?.name ?? t('emptySeat');
   const me2 = (mySeat ?? 0) as 0 | 1;

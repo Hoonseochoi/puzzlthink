@@ -9,6 +9,7 @@ import { type FtAction, type FtRoom, playersWonRound } from '@/lib/fourThreeRoom
 import { type CellMark, COLOR_KEYS, FT_COLORS, FtBoard, FtPiece, HandRow } from './FourThreeParts';
 import FourThreeRulesTip from './FourThreeRulesTip';
 import { RoomPieces } from '../PieceStone';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 /** The play area shared by the AI game and online rooms: status, board, players and the mission track. */
 function FourThreeTableInner({ room, mySeat, onAction }: { room: FtRoom; mySeat: number | null; onAction: (a: FtAction) => void }) {
@@ -51,6 +52,8 @@ function FourThreeTableInner({ room, mySeat, onAction }: { room: FtRoom; mySeat:
     if (!s) return '—';
     return seat === mySeat && s.name !== t('you') ? `${s.name} (${t('you')})` : s.name;
   };
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(playing ? { mine: myTurn, who: myTurn ? null : name(current) } : null);
   const left = Math.max(0, Math.ceil((room.deadline - now) / 1000));
   const last = game.last;
   const lastText = !last ? t('firstHint')

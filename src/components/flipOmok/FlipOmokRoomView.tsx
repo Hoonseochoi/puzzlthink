@@ -26,6 +26,7 @@ import { FlipLegend, FlipTips, LossTip, RulesCard, SafeGapCallout, SoundToggle }
 import GameUpdates from '@/components/GameUpdates';
 import { OriginalMark } from '@/components/propositionGo/PropParts';
 import { PieceOwners, useMyNickname } from '../PieceStone';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 const NONE = new Set<number>();
 
@@ -92,6 +93,8 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
 
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
   const names = [0, 1].map((seat) => (state?.seats[seat]?.id === me?.id ? `${seatName(seat)} (${t('me')})` : seatName(seat)));
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(playing ? { mine: myTurn, who: myTurn ? null : seatName(toMove) } : null);
   const full = !!state && state.seats.every(Boolean);
   const online = new Set(peers.map((peer) => peer.id));
   const seconds = state ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : 0;

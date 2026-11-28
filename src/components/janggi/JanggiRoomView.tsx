@@ -25,6 +25,7 @@ import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, NOTE, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, playerRow, seg, timer } from '../ui/gameUi';
 import { GOLD, JANGGI_FOG, SIDE_COLORS, hanjaFont } from './theme';
 import GameUpdates from '@/components/GameUpdates';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 export default function JanggiRoomView({ code }: { code: string }) {
   const t = useTranslations('JanggiOnline');
@@ -84,6 +85,8 @@ export default function JanggiRoomView({ code }: { code: string }) {
   const notice = status === 'unconfigured' ? t('unconfigured') : status === 'error' ? t('connectionError')
     : !state && waitedLong ? t('roomNotFound') : state && !me?.isHost && !hostOnline ? t('hostOffline') : null;
   const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? tj('gameOver') : myTurn ? tj('yourTurn') : t('waitingFor', { player: seatName(game!.turn) });
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(state?.phase === 'playing' && game ? { mine: myTurn, who: myTurn ? null : seatName(game.turn) } : null);
 
   return (
     <div className={SHELL} style={{ ...accentVars(GOLD, '#1a1408'), backgroundImage: JANGGI_FOG }}>

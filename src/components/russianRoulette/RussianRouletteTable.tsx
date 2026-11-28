@@ -12,6 +12,7 @@ import { RR_FIRE_FLASH_MS, RR_FIRE_LEAD_MS, RR_FIRE_ROTATE_MS, RR_FIRE_STEP_MS, 
 import { DIAMOND, PANEL, PANEL_TITLE, WELL } from '../ui/gameUi';
 import TurnDrawer from '../ui/TurnDrawer';
 import { RR_ROOT_STYLE } from './theme';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 type Pending = 'publicInspect' | 'privateInspect' | 'manipulate' | null;
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -143,6 +144,8 @@ export default function RussianRouletteTable({ room, mySeat, onAction, online }:
     setSuspected((current) => current.includes(seat) ? current.filter((value) => value !== seat) : current.length < 2 ? [...current, seat] : [current[1], seat]);
   };
   const playerName = (seat: number) => seat === mySeat ? t('you') : room.seats[seat]?.name ?? `P${seat + 1}`;
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(game.phase === 'playing' ? { mine: myTurn, who: myTurn ? null : playerName(game.turn) } : null);
   const currentShot = firingShot >= 0 ? game.shots[firingShot] : null;
   const currentShotResolved = currentShot !== null && revealedShots > firingShot;
 

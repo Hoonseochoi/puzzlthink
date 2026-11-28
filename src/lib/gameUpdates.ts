@@ -1,4 +1,4 @@
-import { BellRing, Bot, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Settings2, Share2, Sparkles, Swords, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { BellRing, Bot, MessageCircle, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Settings2, Share2, Sparkles, Swords, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -784,7 +784,15 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
 
 // ---------------------------------------------------------------------------------------------
 // Notes for every game with friend and open rooms (changes to the shared room code). Newest first.
+// The room chat (src/components/RoomChat.tsx) is shared by every friend/open room, 히든 워드 and its expansion included.
+const ROOM_CHAT_NOTE: GameUpdate = {
+  date: '11/29', icon: MessageCircle,
+  ko: { title: '친구·오픈 대전: 채팅을 열어도 게임이 보여요', desc: '채팅이 화면 아래쪽 반만 차지하고, 키보드를 올리면 키보드 바로 위로 작아져 게임판이 위에 그대로 보여요. 맨 위 한 줄에 누구 차례·남은 시간·점수·마지막 수가 뜨고, 내 차례가 오면 「내 차례 — 게임으로」 버튼(진동 한 번)으로 바로 돌아가요. 치던 글은 그대로 남아요. PC·가로 화면에선 게임 옆에 붙어요.' },
+  en: { title: 'Friend and open matches: the game stays in view while you chat', desc: 'The chat takes only the lower part of the screen, and with the keyboard up it shrinks to sit right on the keyboard, so the board stays visible above it. A line at the top shows whose turn it is, the clock, the score and the last move; when your turn comes, "Your turn — back to the game" (one buzz) takes you straight back, keeping what you were typing. On PCs and phones on their side the chat sits beside the game.' },
+};
+
 const ROOM_NOTES: GameUpdate[] = [
+  ROOM_CHAT_NOTE,
   {
     date: '11/28', icon: BellRing,
     ko: { title: '오픈 대전: AI전 중인 사람에게 초대 보내기', desc: '오픈 대전 방장은 대기실에서 지금 그 게임 AI전을 하고 있는 사람들에게 초대를 보낼 수 있어요(1분에 한 번, 방마다 5번까지). 초대받은 사람 화면 위쪽에 작은 알림이 뜨고 「참가」로 바로 들어와요. 1분이 지나거나 방이 차면 사라지고, 「오늘은 초대 받지 않기」로 끌 수 있어요.' },
@@ -833,6 +841,8 @@ for (const [key, name] of Object.entries(ROOM_GAMES)) {
   // 'MM/DD' sorts by date; the sort is stable, so a game's own notes keep their order within a day.
   log.items = [...ROOM_NOTES, ...log.items].sort((a, b) => b.date.localeCompare(a.date));
 }
+// 히든 워드 and its expansion keep their own logs (not in ROOM_GAMES); the room chat change reaches them too.
+for (const key of ['hidden_word', 'hidden_word_plus']) GAME_UPDATES[key]?.items.unshift(ROOM_CHAT_NOTE);
 for (const key of STONE_ICON_GAMES) {
   const log = GAME_UPDATES[key];
   if (log) log.items = [...STONE_ICON_NOTES, ...log.items].sort((a, b) => b.date.localeCompare(a.date));
