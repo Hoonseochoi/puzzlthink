@@ -294,9 +294,13 @@ export function thinkLaser(pieces: LaserPiece[], owner: LaserOwner, difficulty: 
   const all = b.actions(me, []).slice();
   if (!all.length) return null;
   const start = now();
+  // Never shoot your own king while any other move exists: when every line loses anyway, a self-hit scores
+  // within a few points of a slower loss, so it is taken out of the root list instead of left to the scores.
+  const notSuicide = all.filter((a) => { const r = b.make(a, me); b.unmake(); return r >= 0; });
+  const roots = notSuicide.length ? notSuicide : all;
 
   if (difficulty === 'hard') {
-    let ranked = searchRoot(b, me, 2, true, Infinity)!;
+    let ranked = searchRoot(b, me, 2, true, Infinity, roots)!;
     let depth = 2;
     for (let d = 3; d <= HARD_MAX_DEPTH; d += 1) {
       if (ranked[0][1] >= WIN - 10) break; // a forced win is already found
@@ -312,7 +316,7 @@ export function thinkLaser(pieces: LaserPiece[], owner: LaserOwner, difficulty: 
   if (difficulty === 'normal') {
     // 3 plies with king-shot threats at the leaves (what 어려움 sees on its way to deeper plies), then a
     // random pick among moves within 40 points of the best, so it plays soundly but not the same game twice.
-    const two = searchRoot(b, me, 2, true, Infinity)!;
+    const two = searchRoot(b, me, 2, true, Infinity, roots)!;
     const ranked = searchRoot(b, me, 3, true, Infinity, two.map(([a]) => a), 40)!;
     const best = ranked[0][1];
     const pool = ranked.filter(([, v]) => v >= best - (Math.abs(best) > WIN / 2 ? 0 : 40));
@@ -321,7 +325,7 @@ export function thinkLaser(pieces: LaserPiece[], owner: LaserOwner, difficulty: 
   }
 
   // easy: one ply, then the reply's king shot only; picks among the top dozen non-losing moves
-  const ranked = searchRoot(b, me, 2, false, Infinity, undefined, Infinity)!;
+  const ranked = searchRoot(b, me, 2, false, Infinity, roots, Infinity)!;
   if (ranked[0][1] >= WIN - 10) return { action: b.toAction(ranked[0][0]), score: ranked[0][1], depth: 1 };
   const safe = ranked.filter(([, v]) => v > -WIN / 2);
   const pool = (safe.length ? safe : ranked).slice(0, 12);
