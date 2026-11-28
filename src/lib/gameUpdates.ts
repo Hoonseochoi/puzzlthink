@@ -29,6 +29,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드: 라이어', en: 'Hidden Word: Liar' },
     items: [
       {
+        date: '11/28', icon: Scale,
+        ko: { title: '라이어는 자기가 라이어인 걸 알아요', desc: '라이어는 제시어 없이 "당신은 라이어입니다" 카드만 받아요. 다른 사람들의 단어와 유사도를 보고 정체를 숨기며 정답을 추리하세요. 라이어는 첫 번째로 말하지 않아요.' },
+        en: { title: 'The liar knows they are the liar', desc: 'The liar gets no word, just a "You are the liar" card. Read the others\' words and numbers to hide and work out the answer. The liar never speaks first.' },
+      },
+      {
         date: '11/28', icon: Timer,
         ko: { title: '⏱ 시간 연장 +30초', desc: '단어가 안 떠오르면 내 차례에 「⏱ +30초」를 한 판에 한 번 누를 수 있어요. 누르면 모두에게 알림이 뜨고 그 자리에 ⏱ 표시가 남아요.' },
         en: { title: '⏱ +30 s time extension', desc: 'Stuck for a word? Press ⏱ +30 s on your turn, once a game. Everyone is told, and a ⏱ mark stays on your seat.' },

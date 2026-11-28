@@ -100,7 +100,7 @@ export default function LiarHero({ web = false, todayLabel, onOpen }: { web?: bo
               <ChevronRight size={web ? 26 : 20} className="shrink-0 opacity-70" />
             </Link>
             <span className={`mt-1 block break-keep font-bold text-white/85 ${web ? 'text-[13px] lg:text-[15px]' : 'text-[11.5px] leading-[15px]'}`}>
-              {en ? 'One player got a different word and doesn\'t know it. 4–10 players.' : '한 명만 다른 단어를 받았어요. 본인도 몰라요. 4~10명 파티 게임.'}
+              {en ? 'One liar with no word. Read the numbers and bluff. 4–10 players.' : '라이어만 제시어가 없어요. 숫자를 보고 속여 보세요. 4~10명 파티 게임.'}
             </span>
           </div>
         </div>

@@ -17,7 +17,7 @@ import { liarCopy } from './copy';
 
 const T = {
   ko: {
-    back: '홈', tag: '한 명만 다른 단어를 받았어요. 본인도 몰라요.',
+    back: '홈', tag: '라이어 한 명만 제시어가 없어요. 숫자를 보고 속여 보세요.',
     sub: '돌아가며 명사 하나씩. 단서 옆에 정답과의 유사도가 떠요. 숫자와 말솜씨로 단 한 명의 라이어를 찾으세요.',
     players: '4~10명', minutes: '한 판 4~8분', open: '공개방 · 친구방',
     queueBtn: '오픈방 참가 신청', queueing: '참가 신청 완료', queuedNote: '다른 게임 하고 있어도 돼요. 인원이 모이면 팝업으로 알려 드려요.', cancel: '신청 취소', friendBtn: '친구랑 하기',
@@ -26,7 +26,7 @@ const T = {
     today: (left: number, cap: number) => `오늘 남은 피스 ${left}/${cap}`,
     how: '이렇게 해요',
     steps: [
-      { t: '제시어 확인', d: '모두 같은 단어, 한 명만 닮은 단어. 라이어도 자기가 라이어인 줄 몰라요.' },
+      { t: '제시어 확인', d: '모두 같은 단어, 라이어 한 명은 "당신은 라이어입니다". 라이어는 단어를 모르고, 첫 번째로 말하지 않아요.' },
       { t: '한 마디씩', d: '명사 하나를 말하면 정답과의 유사도가 옆에 떠요. 85 이상은 🔥85+로 가려져요.' },
       { t: '지목!', d: '아이콘을 눌러 투표. 지목된 라이어는 정답을 맞히면 역전승.' },
     ],
@@ -36,7 +36,7 @@ const T = {
     iconLiar: '라이어로 첫 승리', iconCrown: '공개방 랭킹 1위', guide: '자세한 규칙과 공략',
   },
   en: {
-    back: 'Home', tag: 'One player got a different word, and doesn\'t know it.',
+    back: 'Home', tag: 'The one liar has no word. Read the numbers and bluff.',
     sub: 'One noun each, in turn. Each clue shows its similarity to the answer. Read the numbers and the talk to find the one liar.',
     players: '4–10 players', minutes: '4–8 min', open: 'Matchmaking · friends',
     queueBtn: 'Join open room', queueing: 'Signed up', queuedNote: 'Play anything meanwhile: a popup calls you when enough players gather.', cancel: 'Cancel', friendBtn: 'Play with friends',
@@ -45,7 +45,7 @@ const T = {
     today: (left: number, cap: number) => `Pieces left today ${left}/${cap}`,
     how: 'How it works',
     steps: [
-      { t: 'Check your word', d: 'Everyone shares a word except one look-alike. The liar doesn\'t know it.' },
+      { t: 'Check your word', d: 'Everyone shares a word; the one liar just sees "You are the liar". They don\'t know the word and never go first.' },
       { t: 'One word each', d: 'Say a noun; its similarity to the answer appears. 85+ hides as 🔥85+.' },
       { t: 'Accuse!', d: 'Tap to vote. An accused liar can still win by guessing the word.' },
     ],
