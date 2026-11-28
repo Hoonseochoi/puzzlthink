@@ -55,6 +55,7 @@ export const CHANNEL_GAME: Record<string, CatalogId> = {
   'hexagon-room': 'hexagon', 'piggy-bank-room': 'piggyBank', 'nemo-count-room': 'nemoCount', 'black-white-room': 'blackWhite', 'black-white-2-room': 'blackWhite2',
   'laser-janggi-room': 'laserJanggi', 'blind-gomoku-room': 'blindGomoku', 'morris-room': 'nineMensMorris', 'flip-omok-room': 'flipOmok', 'four-three-room': 'fourThree', 'point-omok-room': 'pointOmok', 'russian-roulette-room': 'russianRoulette', 'heavy13-room': 'heavy13',
   'janggi-room': 'janggi', 'russian-janggi-room': 'russianJanggi', 'hit-stay-room': 'hitStay', 'sniper-holdem-room': 'sniperHoldem', 'card-janggi-room': 'cardJanggi', 'color-link-duel-room': 'colorLinkDuel', 'gradation-room': 'gradation', 'equation-signal-room': 'equationSignal', 'equation-tower-room': 'equationTower', 'hidden-word-room': 'hiddenWord', 'hidden-word-plus-room': 'hiddenWordPlus', 'hidden-word-party-room': 'hiddenWordPlus',
+  'hidden-word-liar-room': 'hiddenWordLiar', // live_rooms adds 라이어's games from hwl_rooms under this name
 };
 export type LiveRoomRow = { game: CatalogId; open: number; friend: number };
 
