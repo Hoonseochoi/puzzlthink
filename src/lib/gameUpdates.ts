@@ -389,6 +389,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     note: { ko: '플레이어분이 보내주신 의견을 반영했어요. 고맙습니다!', en: "Made from players' feedback. Thank you!" },
     items: [
       {
+        date: '11/28', icon: Wrench,
+        ko: { title: '기록 도전: 시작할 때 본 기록 안에 깨면 성공이에요', desc: '도전하는 사이 다른 사람이 더 빠른 기록으로 맵을 가져가면 실패로 처리되던 문제를 고쳤어요. 이제 시작할 때 보인 기록 안에 깨면 성공으로 남고, 맵은 더 빠른 기록을 가진 사람에게 그대로 있어요. 그동안 이렇게 실패 처리된 판도 성공으로 되돌렸어요.' },
+        en: { title: 'Record attempts: beat the record you were shown and it counts', desc: 'If someone took the map with a faster time while you were playing, your run used to be recorded as a fail. Now a run inside the record shown at the start is a clear, and the map stays with the faster holder. Runs recorded as fails this way were restored as clears.' },
+      },
+      {
         date: '11/28', icon: Coins,
         ko: { title: '12/2부터 남은 피스는 현자의 징표가 돼요', desc: '12/2(수) 3W가 시작될 때 1W·2W에 남은 피스를 현자의 징표로 한꺼번에 교환해 드리고, 그 뒤로도 매주 수요일 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
         en: { title: "From 12/2, leftover pieces become Sage's Tokens", desc: "When week 3 starts on Wed 12/2, your leftover week 1 and week 2 pieces are exchanged for Sage's Tokens together, and every Wednesday after that the past week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
