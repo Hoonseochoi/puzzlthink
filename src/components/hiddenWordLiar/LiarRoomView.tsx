@@ -9,7 +9,7 @@ import { RimStone } from '@/components/match/PlayerPlate';
 import { checkNewIcons } from '@/components/IconUnlock';
 import GameUpdates from '@/components/GameUpdates';
 import {
-  LIAR_ACCENT, REVEAL, type LiarClue, type LiarMember, type LiarView, decideLiar, guessLiar, kickLiar, leaveLiar, myName, readyLiar,
+  LIAR_ACCENT, REVEAL, type LiarClue, type LiarMember, type LiarView, decideLiar, extendLiar, guessLiar, kickLiar, leaveLiar, myName, readyLiar,
   revealFlip, sayClue, phaseSecs, scoreColor, secondsLeft, startLiar, talkLiar, voteLiar,
 } from '@/lib/hiddenWordLiar';
 import { bgmOn, buzz, onSoundChange, setBgm, setMood, setSfx, sfx, sfxOn, unlock } from './liarSound';
@@ -102,6 +102,24 @@ export default function LiarRoomView({ code }: { code: string }) {
     return () => { document.removeEventListener('pointerdown', go); setMood('none'); };
   }, []);
   useEffect(() => { setMood(moodOf(view?.phase)); }, [view?.phase]);
+  // ⏱ a player took +30 s: tell everyone, and let the speaker's ring count the longer turn
+  const extSeen = useRef<string | null>(null);
+  const [extTurn, setExtTurn] = useState<string | null>(null);
+  const [extToast, setExtToast] = useState<{ key: string; text: string } | null>(null);
+  const extKey = view ? `${view.game}:${view.members.filter((m) => m.extended).map((m) => m.seat).join(',')}` : null;
+  useEffect(() => {
+    if (!view || !extKey) return;
+    const was = extSeen.current;
+    extSeen.current = extKey;
+    if (was == null || was === extKey || was.split(':')[0] !== extKey.split(':')[0]) return;
+    const before = new Set(was.split(':')[1].split(',').filter(Boolean).map(Number));
+    const who = view.members.find((m) => m.extended && !before.has(m.seat));
+    if (!who) return;
+    const k = `${view.game}:${view.round}:${view.turn}`;
+    const s = window.setTimeout(() => { setExtTurn(k); setExtToast({ key: extKey, text: t.extendToast(who.name) }); sfx.banner(); }, 0);
+    const h = window.setTimeout(() => setExtToast((x) => (x?.key === extKey ? null : x)), 2600);
+    return () => { window.clearTimeout(s); window.clearTimeout(h); };
+  }, [extKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const myTurnNow = !!view?.me && view.phase === 'clue' && view.turn === view.me.seat;
   useEffect(() => { if (myTurnNow) sfx.myTurn(); }, [myTurnNow]);
 
@@ -136,7 +154,7 @@ export default function LiarRoomView({ code }: { code: string }) {
   }
 
   const me = view.me;
-  const total = phaseSecs(view);
+  const total = (phaseSecs(view) ?? 0) + (view.phase === 'clue' && extTurn === `${view.game}:${view.round}:${view.turn}` ? 30 : 0);
   const frac = view.deadline && total ? Math.max(0, Math.min(1, (view.deadline - (now + skew)) / (total * 1000))) : null;
   const myTurn = view.phase === 'clue' && view.turn === me?.seat;
   const show = revealShow(view, now, skew, skippedGame === view.game);
@@ -152,7 +170,7 @@ export default function LiarRoomView({ code }: { code: string }) {
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 [scrollbar-color:rgba(255,255,255,.18)_transparent] lg:px-6">
           <MyWord view={view} t={t} />
           {view.phase === 'lobby' && <Actions view={view} t={t} en={en} code={code} refresh={refresh} show={show} />}
-          <Table view={view} t={t} marks={marks} typing={typing} now={now} frac={frac} left={left} show={show}
+          <Table view={view} t={t} marks={marks} typing={typing} now={now} frac={frac} left={left} show={show} toast={extToast}
             onTap={(seat) => onSeatTap(view, seat, mark, marks, refresh)}>
             <Center key={`${view.game}-${view.phase}-${view.turn ?? ''}-${view.accused ?? ''}`} view={view} t={t} left={left} frac={frac} marks={marks} mark={mark}
               refresh={refresh} submitClue={submitClue} typingNow={typingNow} typing={typing} now={now} show={show} onSkip={() => setSkippedGame(view.game)} />
@@ -359,8 +377,9 @@ function TableTip({ view, t, pos, top }: { view: LiarView; t: T; pos: Record<num
 }
 
 /** Seats around an oval table, icons first; the table's centre (children) is where the current phase is played. */
-function Table({ view, t, marks, typing, now, frac, left, show, onTap, children }: {
+function Table({ view, t, marks, typing, now, frac, left, show, toast, onTap, children }: {
   view: LiarView; t: T; marks: Record<number, number>; typing: Typing; now: number; frac: number | null; left: number | null; show: Show | null;
+  toast: { key: string; text: string } | null;
   onTap: (seat: number) => void; children: React.ReactNode;
 }) {
   const [ref, box] = useBox();
@@ -486,7 +505,7 @@ function Table({ view, t, marks, typing, now, frac, left, show, onTap, children 
           style={{ left: `${50 + 36.5 * Math.cos(a)}%`, top: `${50 + 34.5 * Math.sin(a)}%`, rotate: `${(a * 180) / Math.PI + 90}deg` }} />;
       })}
       {/* NEXT: the next speaker, so they can get ready */}
-      {view.phase === 'clue' && nextMember && (
+      {view.phase === 'clue' && nextMember && !toast && (
         <span className={`absolute -top-9 right-0 z-30 flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2.5 text-[11px] font-black shadow-lg ${meNext ? 'hwl-next bg-[#ffd36e] text-[#241457]' : 'bg-black/55 text-white/85 ring-1 ring-white/15'}`}>
           <RimStone name={nextMember.name} size={20} rim={1} />
           <span className="text-[9px] tracking-[0.14em] opacity-70">NEXT</span>
@@ -552,6 +571,7 @@ function Table({ view, t, marks, typing, now, frac, left, show, onTap, children 
               {voting && m.voted && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#3fd67a] px-1 text-[9px] font-black text-[#0b2b16]">✓</span>}
               {view.phase === 'talk' && m.talked && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#7fd0ff] px-1 text-[9px] font-black text-[#082033]">✓</span>}
               {view.phase === 'decide' && m.decided && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#7fd0ff] px-1 text-[9px] font-black text-[#082033]">✓</span>}
+              {m.extended && RUNNING.includes(view.phase) && <span title={t.extendUsed} className="absolute -right-2.5 top-[38%] rounded-full bg-[#7fd0ff] px-[3px] text-[9px] leading-[14px] shadow">⏱</span>}
               {view.host === m.seat && view.kind === 'friend' && <Crown size={13} className="absolute -top-2 left-1/2 -translate-x-1/2 text-[#ffd36e]" />}
             </span>
             <span className={`mt-1 max-w-full truncate text-[11px] font-black ${liar ? 'rounded-full bg-[#ff5a3d] px-1.5 text-white' : mine ? 'text-[#ffe9a8]' : 'text-white/80'} ${isTurn ? 'mt-2' : ''}`}>{m.name}{mine ? ` (${t.me})` : ''}</span>
@@ -584,6 +604,11 @@ function Table({ view, t, marks, typing, now, frac, left, show, onTap, children 
       <TableTip view={view} t={t} pos={pos} top={top} />
       {/* the centre sits above the seats' wide buttons, but lets taps through where it is empty */}
       <div className="pointer-events-none absolute inset-[19%_20%_27%] z-10 flex items-center justify-center">{children}</div>
+      {toast && (
+        <div key={toast.key} className="pointer-events-none absolute inset-x-0 -top-9 z-40 flex justify-center">
+          <span className="hwl-pop rounded-full bg-[#7fd0ff] px-3.5 py-1.5 text-[12.5px] font-black text-[#082033] shadow-[0_8px_26px_rgba(127,208,255,.45)]">{toast.text}</span>
+        </div>
+      )}
       {banner && (
         <div key={banner.key} className="pointer-events-none absolute inset-x-0 top-[42%] z-40 flex justify-center overflow-hidden">
           <span className="hwl-banner whitespace-nowrap rounded-xl bg-gradient-to-r from-[#ffd36e] via-[#ffb27a] to-[#ff8a6d] px-6 py-2 text-[22px] font-black tracking-tight text-[#241457] shadow-[0_10px_40px_rgba(255,170,90,.45)]">{banner.text}</span>
@@ -616,6 +641,7 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
   const [mask, setMask] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [extending, setExtending] = useState(false);
   const myTurn = view.phase === 'clue' && view.turn === me?.seat;
   const myGuess = view.phase === 'guess' && view.liar === me?.seat;
   const myMark = me ? marks[me.seat] : undefined;
@@ -654,14 +680,21 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
       <div className="flex items-center gap-1.5">
         {ring}
         <p className="min-w-0 flex-1 break-keep text-left text-[12px] font-black leading-tight text-[#ffd36e]">{t.myTurn}</p>
-        <button type="button" disabled={me?.maskUsed} onClick={() => setMask((m) => !m)} title={t.maskTip}
-          className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${mask ? 'bg-[#a98bff] text-[#1a1030]' : 'bg-white/10 text-white/75'} disabled:opacity-35`}>{me?.maskUsed ? t.maskUsed : mask ? t.maskOn : t.mask}</button>
+        <div className="flex shrink-0 flex-col gap-1">
+          <button type="button" disabled={me?.maskUsed} onClick={() => setMask((m) => !m)} title={t.maskTip}
+            className={`rounded-full px-2 py-0.5 text-[10px] font-black ${mask ? 'bg-[#a98bff] text-[#1a1030]' : 'bg-white/10 text-white/75'} disabled:opacity-35`}>{me?.maskUsed ? t.maskUsed : mask ? t.maskOn : t.mask}</button>
+          <button type="button" disabled={me?.extended || extending} title={t.extendTip}
+            onClick={async () => { setExtending(true); const res = await extendLiar(view.code); setExtending(false); if (res?.error) setErr(t.error); void refresh(); }}
+            className={`rounded-full px-2 py-0.5 text-[10px] font-black disabled:opacity-35 ${me?.extended ? 'bg-white/10 text-white/60' : `bg-[#7fd0ff] text-[#082033] ${left != null && left <= 5 ? 'hwl-next' : ''}`}`}>{me?.extended ? t.extendUsed : t.extend}</button>
+        </div>
       </div>
       <div className="mt-1.5 flex gap-1">
         {field(t.cluePh, 'clue')}
         <button type="submit" disabled={busy || !word.trim() || !!repeat} className="shrink-0 rounded-xl bg-[#ffd36e] px-2.5 text-[12px] font-black text-[#241457] disabled:opacity-40">{busy ? <Loader2 size={14} className="animate-spin" /> : t.say}</button>
       </div>
-      {repeat ? <p className="mt-1 break-keep text-[11px] font-bold text-[#ff8a6d]">{t.repeatWarn(repeat)}</p> : err && <p className="mt-1 break-keep text-[11px] font-bold text-[#ff8a6d]">{err}</p>}
+      {repeat ? <p className="mt-1 break-keep text-[11px] font-bold text-[#ff8a6d]">{t.repeatWarn(repeat)}</p>
+        : err ? <p className="mt-1 break-keep text-[11px] font-bold text-[#ff8a6d]">{err}</p>
+        : !me?.extended && left != null && left <= 5 && <p className="mt-1 text-right text-[11px] font-black text-[#7fd0ff]">{t.extendHint} ↑</p>}
     </form>
   );
   else if (view.phase === 'clue') {

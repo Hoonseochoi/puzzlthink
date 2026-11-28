@@ -26,7 +26,7 @@ const ko = {
   chat: '채팅', chatPh: '메시지 입력…', chatPhGame: '채팅 (제시어 아님)…', chatNote: '💬 여기는 채팅이에요. 제시어는 가운데 칸에 적어 주세요.', asClue: (w: string) => `‘${w}’ 를 제시어로 낼까요?`, asClueYes: '제시어로 내기', asClueNo: '채팅으로 보내기', send: '보내기', chatBlocked: { fast: '조금 천천히 보내 주세요.', burst: '잠시 후 다시 보내 주세요.', repeat: '같은 말을 반복할 수 없어요.', word: '제시어나 정답은 채팅에 쓸 수 없어요.', error: '연결에 문제가 있어요.' } as Record<string, string>,
   quick: ['수상해 🤨', '나 아님 🙅', 'ㅋㅋㅋ', '한 바퀴 더!', '너지? 👀', '믿어줘 🥺'],
   board: '단서판', clueSys: (name: string, word: string, shown: string) => `📢 ${name}: ${word} ${shown}`,
-  rules: ['한 명만 같은 묶음의 다른 단어를 받았어요. 본인도 몰라요.', '숫자는 모두 시민 제시어와의 유사도. 85 이상은 🔥85+로만 보여요.', '1바퀴 뒤부터 지목 가능. 지목되면 20초 최후의 발언, 그다음 검거 또는 다시 투표(한 판에 한 번).', '검거된 사람이 라이어면 정답 맞히기 1번. 제시어나 정답은 채팅에 쓸 수 없어요.'],
+  rules: ['한 명만 같은 묶음의 다른 단어를 받았어요. 본인도 몰라요.', '숫자는 모두 시민 제시어와의 유사도. 85 이상은 🔥85+로만 보여요.', '막히면 내 차례에 ⏱ +30초 연장(한 판에 한 번).', '1바퀴 뒤부터 지목 가능. 지목되면 20초 최후의 발언, 그다음 검거 또는 다시 투표(한 판에 한 번).', '검거된 사람이 라이어면 정답 맞히기 1번. 제시어나 정답은 채팅에 쓸 수 없어요.'],
 
   lastTitle: '최후의 발언', lastMine: '최후의 발언! 20초 동안 채팅으로 변론하세요', lastOther: (n: string) => `${n}님의 변론을 들어 보세요`, votesFor: (k: number) => `🗳 ${k}표`,
   decideTitle: (n: string) => `${n}님을 검거할까요?`, arrest: '🚔 검거하기', revote: '🔄 다시 투표하기', release: '🕊 풀어 주기',
@@ -37,11 +37,12 @@ const ko = {
   verdictCaught: '라이어 검거 성공!', verdictFailed: '라이어 검거 실패…', verdictLiar: '라이어 승리!', liarIs: (n: string) => `라이어는 ${n}`,
   skip: '탭해서 건너뛰기', showing: '결과 공개 중…', hiddenLine: '🤐 제시어가 들어간 말이라 가려졌어요', lastChat: '⚖️ 최후의 발언 중: 지목된 사람의 말이 강조돼요',
 
+  extend: '⏱ +30초', extendUsed: '⏱ 사용함', extendHint: '생각이 안 나면 연장!', extendToast: (n: string) => `⏱ ${n}님이 시간을 연장했어요 (+30초)`, extendTip: '시간 연장은 한 판에 한 번, 내 차례에 +30초',
   help: '도움말', sound: '소리', close: '닫기', tutorial: '튜토리얼 보기', tipsAgain: '도움말 말풍선 다시 보기', sfx: '효과음 · 진동', bgm: '배경음',
   nextMe: '나 · 준비하세요!', topSuspect: '의심 1위', suspectedMe: '👁 의심받고 있어요! 채팅으로 해명해 보세요', suspectSays: '👁 의심 1위의 해명',
   repeatWarn: (w: string) => `‘${w}’는 이미 나왔어요. 다른 단어를 적어 주세요.`,
   tips: {
-    myTurn: '제시어에서 떠오르는 단어(명사)를 하나 적어 주세요. 너무 가까우면 라이어가 정답을 눈치채요!',
+    myTurn: '제시어에서 떠오르는 단어(명사)를 하나 적어 주세요. 너무 가까우면 라이어가 정답을 눈치채요! 막히면 ⏱ +30초 (한 번)',
     numbers: '숫자 = 시민 제시어와 얼마나 비슷한지. 🔥85+는 아주 가까워요. 혼자 낮은 사람이 수상해요',
     talk: '라이어 같은 사람이 있으면 지목, 아직 모르겠으면 한 바퀴 더',
     vote: '라이어라고 생각하는 사람 아이콘을 누르세요',
@@ -81,7 +82,7 @@ const en: LiarCopy = {
   chat: 'Chat', chatPh: 'Message…', chatPhGame: 'Chat (not your clue)…', chatNote: '💬 This is chat. Type your clue in the box in the middle.', asClue: (w) => `Submit ‘${w}’ as your clue?`, asClueYes: 'Submit as clue', asClueNo: 'Send as chat', send: 'Send', chatBlocked: { fast: 'Slow down a little.', burst: 'Wait a moment.', repeat: 'No repeats.', word: 'Your word or the answer can\'t go in chat.', error: 'Connection problem.' },
   quick: ['Sus 🤨', 'Not me 🙅', 'lol', 'One more!', 'It\'s you 👀', 'Trust me 🥺'],
   board: 'Clues', clueSys: (name, word, shown) => `📢 ${name}: ${word} ${shown}`,
-  rules: ['One player got a look-alike word and does not know it.', 'Every number is similarity to the citizens\' word. 85+ shows as 🔥85+.', 'Accuse after round 1. The accused gets 20 s of last words, then the table arrests or votes again (once a game).', 'An arrested liar gets one guess. Game words can\'t go in chat.'],
+  rules: ['One player got a look-alike word and does not know it.', 'Every number is similarity to the citizens\' word. 85+ shows as 🔥85+.', 'Stuck? ⏱ +30 s on your turn, once a game.', 'Accuse after round 1. The accused gets 20 s of last words, then the table arrests or votes again (once a game).', 'An arrested liar gets one guess. Game words can\'t go in chat.'],
 
   lastTitle: 'Last words', lastMine: 'Last words! 20 s to make your case in chat', lastOther: (n) => `Hear ${n}'s defence`, votesFor: (k) => `🗳 ${k} votes`,
   decideTitle: (n) => `Arrest ${n}?`, arrest: '🚔 Arrest', revote: '🔄 Vote again', release: '🕊 Let go',
@@ -92,11 +93,12 @@ const en: LiarCopy = {
   verdictCaught: 'Liar caught!', verdictFailed: 'The liar got away…', verdictLiar: 'The liar wins!', liarIs: (n) => `The liar was ${n}`,
   skip: 'Tap to skip', showing: 'Revealing…', hiddenLine: '🤐 Hidden: it had a game word in it', lastChat: '⚖️ Last words: the accused\'s lines are highlighted',
 
+  extend: '⏱ +30 s', extendUsed: '⏱ Used', extendHint: 'Stuck? Extend!', extendToast: (n) => `⏱ ${n} took 30 more seconds`, extendTip: 'Once a game, on your turn: +30 s',
   help: 'Help', sound: 'Sound', close: 'Close', tutorial: 'Tutorial', tipsAgain: 'Show tips again', sfx: 'Effects · vibration', bgm: 'Music',
   nextMe: 'Me · get ready!', topSuspect: 'Most suspected', suspectedMe: '👁 You\'re under suspicion! Explain yourself in chat', suspectSays: '👁 The top suspect says',
   repeatWarn: (w) => `‘${w}’ was already said. Try another word.`,
   tips: {
-    myTurn: 'Type one noun the word brings to mind. Too close and the liar will guess it!',
+    myTurn: 'Type one noun the word brings to mind. Too close and the liar will guess it! Stuck? ⏱ +30 s (once)',
     numbers: 'Number = how close to the citizens\' word. 🔥85+ is very close. Low numbers look suspicious',
     talk: 'Accuse if someone looks like the liar; not sure yet? One more round',
     vote: 'Tap the player you think is the liar',

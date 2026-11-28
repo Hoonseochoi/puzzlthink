@@ -11,7 +11,7 @@ export const isLiarCode = (code: string) => /^[a-z0-9]{5}$/.test(code);
 export type LiarPhase = 'lobby' | 'cards' | 'clue' | 'talk' | 'vote' | 'runoff' | 'last' | 'decide' | 'guess' | 'done' | 'closed';
 export type LiarMember = {
   seat: number; name: string; playing: boolean; gone: boolean; ready: boolean; here: boolean; member: boolean;
-  talked: boolean; decided: boolean; mask: boolean; voted: boolean; pieces: number | null;
+  talked: boolean; decided: boolean; mask: boolean; extended: boolean; voted: boolean; pieces: number | null;
 };
 export type LiarClue = { n: number; seat: number; round: number; word: string | null; hot: boolean; masked: boolean; score: number | null; decoyScore: number | null };
 export type LiarView = {
@@ -20,7 +20,7 @@ export type LiarView = {
   runoff: number[] | null; accused: number | null; liar: number | null; excluded: number[]; revotes: number;
   reveal: { at: number; until: number } | null;
   cfg: { hot: number; min: number; max: number; liarWin: number; citizenWin: number; dailyCap: number };
-  me: { seat: number; playing: boolean; maskUsed: boolean; talk: 'accuse' | 'more' | null; decide: 'arrest' | 'revote' | null; ready: boolean; word: string | null; voted: number | null; piecesToday: number | null } | null;
+  me: { seat: number; playing: boolean; maskUsed: boolean; extended: boolean; talk: 'accuse' | 'more' | null; decide: 'arrest' | 'revote' | null; ready: boolean; word: string | null; voted: number | null; piecesToday: number | null } | null;
   members: LiarMember[];
   talk: { accuse: number; more: number };
   decide: { arrest: number; revote: number };
@@ -64,6 +64,7 @@ export const sayClue = (code: string, word: string, mask: boolean) => rpc<{ ok?:
 export const talkLiar = (code: string, choice: 'accuse' | 'more') => rpc('hwl_talk', { p_code: code, p_key: seatKey(code), p_choice: choice });
 export const voteLiar = (code: string, target: number) => rpc('hwl_vote', { p_code: code, p_key: seatKey(code), p_target: target });
 export const guessLiar = (code: string, word: string) => rpc<{ ok?: boolean } & Err>('hwl_guess', { p_code: code, p_key: seatKey(code), p_word: word });
+export const extendLiar = (code: string) => rpc<{ ok?: boolean } & Err>('hwl_extend', { p_code: code, p_key: seatKey(code) });
 export const decideLiar = (code: string, choice: 'arrest' | 'revote') => rpc('hwl_decide', { p_code: code, p_key: seatKey(code), p_choice: choice });
 export type LiarLine = { id: number; seat: number; name: string; at: number; text: string | null };
 /** Chat goes through the server (it refuses or hides lines with a game word); the push carries only the new id. */

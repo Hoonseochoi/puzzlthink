@@ -27,7 +27,7 @@ const COPY = {
     title: '라이어 게임 하는 법', skip: '건너뛰기', next: '다음', start: '시작하기', off: '다시 보지 않기', open: '튜토리얼',
     cards: [
       { t: '한 명만 다른 단어', d: '모두 같은 제시어를 받는데, 한 명만 같은 묶음의 비슷한 단어를 받아요. 그 사람이 라이어예요. 라이어 본인도 몰라요!' },
-      { t: '떠오르는 명사 하나', d: '내 차례가 되면 테이블 가운데 칸에 제시어에서 연상되는 명사를 하나 적어요. 20초 안에! 같은 단어는 다시 못 써요.' },
+      { t: '떠오르는 명사 하나', d: '내 차례가 되면 테이블 가운데 칸에 제시어에서 연상되는 명사를 하나 적어요. 20초 안에! 막히면 ⏱ +30초 연장을 한 판에 한 번 쓸 수 있어요. 같은 단어는 다시 못 써요.' },
       { t: '숫자를 읽어요', d: '단서 옆 숫자는 시민 제시어와 얼마나 비슷한지예요. 85 이상은 🔥85+로 가려져요. 혼자 숫자가 어긋나는 사람이 수상해요.' },
       { t: '지목할까, 한 바퀴 더?', d: '한 바퀴가 끝나면 다 같이 골라요. 라이어 같은 사람이 있으면 지목, 아직 모르겠으면 한 바퀴 더. 아이콘을 눌러 👁 의심 표시도 할 수 있어요.' },
       { t: '최후의 발언 → 검거', d: '가장 많이 뽑힌 사람은 20초 동안 변론해요. 그다음 나머지가 「검거하기」나 「다시 투표하기」를 골라요. 다시 투표는 한 판에 한 번!' },
@@ -38,7 +38,7 @@ const COPY = {
     title: 'How to play Liar', skip: 'Skip', next: 'Next', start: 'Start', off: 'Don\'t show again', open: 'Tutorial',
     cards: [
       { t: 'One word is different', d: 'Everyone gets the same word except one player, who gets a look-alike from the same group. That player is the liar, and they don\'t know it!' },
-      { t: 'Say one noun', d: 'On your turn, type one noun the word brings to mind in the box in the middle of the table. 20 seconds! Words already said can\'t be used again.' },
+      { t: 'Say one noun', d: 'On your turn, type one noun the word brings to mind in the box in the middle of the table. 20 seconds! Stuck? ⏱ +30 s once a game. Words already said can\'t be used again.' },
       { t: 'Read the numbers', d: 'The number by each clue is how close it is to the citizens\' word. 85+ is hidden as 🔥85+. Someone whose numbers are off is suspicious.' },
       { t: 'Accuse or one more round?', d: 'After a round, everyone picks: accuse if someone looks like the liar, or go round again. Tap a player to mark 👁 suspicion.' },
       { t: 'Last words → arrest', d: 'The most-voted player gets 20 s to defend themselves, then the others choose Arrest or Vote again (once a game).' },
@@ -62,6 +62,7 @@ function Art({ i }: { i: number }) {
     <div className="w-[230px] rounded-2xl border border-[#ffd36e]/60 bg-[#1b1530] p-2.5 shadow-[0_0_30px_rgba(255,211,110,.25)]">
       <div className="flex items-center gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-[#ffd36e] font-mono text-[12px] font-black">14</span><span className="text-[12px] font-black text-[#ffd36e]">내 차례! 떠오르는 명사 하나</span></div>
       <div className="mt-2 flex gap-1"><span className="flex-1 rounded-xl border-2 border-[#ffd36e] bg-black/60 py-1.5 text-center text-[15px] font-black">원두</span><span className="rounded-xl bg-[#ffd36e] px-2 py-1.5 text-[11px] font-black text-[#241457]">제시어 내기</span></div>
+      <div className="mt-1.5 flex justify-end"><span className="rounded-full bg-[#7fd0ff] px-2 py-0.5 text-[10px] font-black text-[#082033]">⏱ +30초</span></div>
     </div>
   );
   if (i === 2) return (

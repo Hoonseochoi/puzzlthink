@@ -29,6 +29,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드: 라이어', en: 'Hidden Word: Liar' },
     items: [
       {
+        date: '11/28', icon: Timer,
+        ko: { title: '⏱ 시간 연장 +30초', desc: '단어가 안 떠오르면 내 차례에 「⏱ +30초」를 한 판에 한 번 누를 수 있어요. 누르면 모두에게 알림이 뜨고 그 자리에 ⏱ 표시가 남아요.' },
+        en: { title: '⏱ +30 s time extension', desc: 'Stuck for a word? Press ⏱ +30 s on your turn, once a game. Everyone is told, and a ⏱ mark stays on your seat.' },
+      },
+      {
         date: '11/28', icon: BellRing,
         ko: { title: '튜토리얼, 도움말 말풍선, NEXT, 소리', desc: '처음 들어오면 튜토리얼이 떠요(다시 보지 않기 가능, ? 메뉴에서 다시 보기). 단계마다 말풍선 도움말, 다음 차례를 알려 주는 NEXT, 효과음·진동과 배경음(기본 꺼짐)이 생겼어요. 의심 1위는 채팅이 강조돼서 해명할 수 있어요. 한 번 나온 단어는 조사를 붙여도 다시 못 써요.' },
         en: { title: 'Tutorial, tips, NEXT and sound', desc: 'A tutorial opens the first time (turn it off, or reopen it from the ? menu). Tip bubbles at each step, a NEXT chip for the next speaker, sound effects with vibration and music (off by default). The most-suspected player\'s chat is highlighted so they can explain. A word already said can\'t come back, even with a particle.' },

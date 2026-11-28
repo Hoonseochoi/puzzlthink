@@ -120,6 +120,21 @@ begin
   res := public.hwl_clue(c, pg_temp.seat_key(c, r.turn_order[2]), ' 사 람을 ', false);
   if res ->> 'error' <> 'dup' then raise exception 'D: repeat with a particle %', res; end if;
   if public.hwl_clue_word('고양이') <> '고양이' or public.hwl_clue_word('바다에서') <> '바다' then raise exception 'D: particles % %', public.hwl_clue_word('고양이'), public.hwl_clue_word('바다에서'); end if;
+  -- E. ⏱ +30 s: only on my turn, only once a game
+  select * into r from public.hwl_rooms where code = c;
+  perform pg_temp.as_user(pg_temp.uid(r.turn_order[r.pos + 2] + 1));
+  res := public.hwl_extend(c, pg_temp.seat_key(c, r.turn_order[r.pos + 2]));
+  if res ->> 'error' <> 'turn' then raise exception 'E: extended off-turn %', res; end if;
+  perform pg_temp.as_user(pg_temp.uid(r.turn_order[r.pos + 1] + 1));
+  secs := extract(epoch from r.deadline - now());
+  res := public.hwl_extend(c, pg_temp.seat_key(c, r.turn_order[r.pos + 1]));
+  if (res ->> 'ok') is null then raise exception 'E: extend %', res; end if;
+  if extract(epoch from (select deadline from public.hwl_rooms where code = c) - now()) < secs + 29 then raise exception 'E: deadline not moved'; end if;
+  res := public.hwl_extend(c, pg_temp.seat_key(c, r.turn_order[r.pos + 1]));
+  if res ->> 'error' <> 'used' then raise exception 'E: second extend %', res; end if;
+  v := public.hwl_view(c, pg_temp.seat_key(c, r.turn_order[r.pos + 1]));
+  if not (v -> 'me' ->> 'extended')::boolean then raise exception 'E: view'; end if;
+  raise notice 'E ok: +30 s once on my turn; off-turn and second time refused';
   raise notice 'D ok: 사람 then " 사 람을 " → dup; 고양이 kept, 바다에서 → 바다';
   raise notice 'C ok: own word refused (particle, spaces), other word hidden from others only, flood held';
 end $$;
