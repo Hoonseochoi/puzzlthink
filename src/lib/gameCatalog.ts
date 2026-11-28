@@ -63,7 +63,7 @@ export const GAMES: readonly CatalogGame[] = [
   { id: 'timeAuction', href: '/time-auction', color: '#ff3b30', hasGuide: true },
   { id: 'nineMensMorris', href: '/nine-mens-morris', color: '#3ec9d6', hasGuide: true },
   { id: 'fourThree', href: '/four-three', color: '#ffb52e', hasGuide: true },
-  { id: 'magicswap', href: '/magic-square', color: '#e45bd6', hasGuide: true },
+  { id: 'magicswap', href: '/magic-square', color: '#e45bd6', hasGuide: true, original: true },
   { id: 'masyu', href: '/masyu', color: '#ff4d5e', hasGuide: true },
   { id: 'piggyBank', href: '/piggy-bank', color: '#e0a91c', hasGuide: true },
   { id: 'hexagon', href: '/hexagon', color: '#e8b04a', hasGuide: true },
