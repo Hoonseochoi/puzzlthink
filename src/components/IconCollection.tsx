@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ArrowRight, Check, Clock, Eye, Crown, Gamepad2, Medal, Palette, Skull, Sparkles, Swords, Trophy, Users, X } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import type { GameId } from '@/lib/stats';
-import { CERT_GAMES, HARD_GAMES } from '@/lib/hardClear';
+import { CERT_GAMES, HARD_GAMES, HARD_MISSION_NEED } from '@/lib/hardClear';
 import { HELL_GAMES } from '@/lib/hell';
 import { gameFromSlug, rankSlug } from '@/lib/rankings';
 import { getSupabase } from '@/lib/supabase';
@@ -154,8 +154,8 @@ export default function IconCollection() {
             {MISSIONS.map((m: Mission) => {
               const icon = `hm-${m}`;
               const mine = owned.has(icon);
-              const total = m === 'hard' ? HARD_GAMES.length : m === 'hell' ? HELL_GAMES.length : CROWN_GAMES.length;
-              const done = m === 'hard' ? mission?.hard : m === 'hell' ? mission?.hell : mission?.ranked;
+              const total = m === 'hard' ? HARD_MISSION_NEED : m === 'hell' ? HELL_GAMES.length : CROWN_GAMES.length;
+              const done = m === 'hard' ? (mission ? Math.min(mission.hard, HARD_MISSION_NEED) : undefined) : m === 'hell' ? mission?.hell : mission?.ranked;
               const key = m === 'hard' ? 'Hard' : m === 'hell' ? 'Hell' : 'Rank';
               return (
                 <li key={m} role="button" tabIndex={0} onClick={() => setDetail({ key: icon, icon, name: t(`mission${key}`), dark: true })} onKeyDown={(e) => { if (e.key === 'Enter') setDetail({ key: icon, icon, name: t(`mission${key}`), dark: true }); }}
