@@ -30,6 +30,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: Trophy,
+        ko: { title: '주간 랭킹과 주간 1위', desc: '매일 1위 20점, 2위 19점 … 20위 1점을 받아 수요일부터 일주일 동안 더해요. 게임 화면과 입장 화면에 주간 1위와 지난주 1위가 보이고, 랭킹은 오늘 / 이번 주 탭으로 볼 수 있어요.' },
+        en: { title: 'Weekly ranking and the weekly #1', desc: 'Each day #1 gets 20 points, #2 19 … #20 1, added up over the week from Wednesday. The game and entry screens show the weekly #1 and last week\'s #1, and the ranking has Today / This week tabs.' },
+      },
+      {
+        date: '11/28', icon: Timer,
+        ko: { title: '시작 전에 "하루 한 번" 안내', desc: '오늘의 도전을 누르면 기록 기회는 하루 한 번이고 시작하면 시계가 멈추지 않는다는 안내가 먼저 나와요. 「연습 먼저」를 고르면 무제한 연습으로 가요. 이어서 풀 때는 묻지 않아요.' },
+        en: { title: 'A "one try a day" notice before you start', desc: 'Starting today\'s challenge first tells you there is one ranked try a day and the clock never stops once it runs. "Practice first" takes you to unlimited practice. Resuming a run doesn\'t ask.' },
+      },
+      {
+        date: '11/28', icon: Trophy,
         ko: { title: '5분 안에 풀면 피스, 1·2·3위는 피스 5개 더', desc: '오늘의 명제 바둑을 5분 안에(힌트 시간 포함) 풀면 피스 1개를 받아요. 다음 날 새 문제가 열리면 전날 1·2·3위가 피스 5개를 더 받고, 입장·결과 화면에 어제와 오늘의 포디움이 보여요.' },
         en: { title: 'Pieces for a 5-minute solve, 5 more for the top three', desc: "Solve today's Proposition Go within 5 minutes (hint time included) for 1 piece. When the next day's set opens, yesterday's top three get 5 more pieces, and the entry and result screens show yesterday's and today's podium." },
       },

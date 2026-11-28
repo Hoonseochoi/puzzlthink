@@ -22,13 +22,14 @@ import { ResultBannerSlot } from '@/components/ads/HiddenLogAd';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
 import { type Prop, type PublicPuzzle, type Tier, HINT_CAP, HINT_PENALTY_MS, STONE_HINT_PENALTY_MS, encodeCells, evalProp } from '@/lib/propositionGo';
-import { type PgPodiumRow, type PgRankRow, type PgResult, type PgToday, type PgView, type PracticePuzzle, PG_FAST_MS, PG_TOP_PIECES, buyHint, buyStoneHint, clock, dayBefore, fetchPodium, fetchRanking, fetchToday, giveUp, loadPractice, msToNextDay, solveStage, startRun } from '@/lib/propositionGoClient';
+import { type PgPodiumRow, type PgRankRow, type PgResult, type PgToday, type PgView, type PgWeek, type PracticePuzzle, PG_FAST_MS, PG_TOP_PIECES, buyHint, buyStoneHint, clock, dayBefore, fetchPodium, fetchRanking, fetchToday, giveUp, loadPractice, msToNextDay, solveStage, startRun } from '@/lib/propositionGoClient';
 import { walletChanged } from '@/lib/pieceWallet';
 import { type LogicTraceRecorder, startLogicTrace } from '@/lib/logicTrace';
 import { reportGame } from '@/lib/stats';
 import PropPlayfield, { type Finish, type TraceInput } from './PropPlayfield';
 import { OriginalMark, PG_ACCENT, PG_INK, PgDefs, PgStone } from './PropParts';
 import { KakaoPlayButton } from '@/components/ui/KakaoShareButton';
+import { BoardTabs, PG_RANKED_EVENT, WeekRanking, WeekRule, WeekTopBlock, useRankedTick, useWeek, useWeekRows } from './PropWeekly';
 
 type Mode = 'daily' | 'practice' | 'tutorial';
 const readMode = (): Mode => {
@@ -68,7 +69,7 @@ export default function PropositionGoGame() {
         </section>
         <aside className="hidden flex-col gap-4 lg:flex">
           <div className={PANEL}><h2 className={PANEL_TITLE}>{t('rulesTitle')}</h2><Rules /></div>
-          <div className={PANEL}><h2 className={PANEL_TITLE}>{t('rankingTitle')}</h2><Ranking compact /></div>
+          <div className={PANEL}><h2 className={PANEL_TITLE}>{t('rankingBoard')}</h2><Ranking compact /></div>
         </aside>
       </main>
     </div>
@@ -97,12 +98,14 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
   const [finish, setFinish] = useState<Finish>(null);
   const [now, setNow] = useState(() => Date.now());
   const [confirmQuit, setConfirmQuit] = useState(false);
+  const [confirmStart, setConfirmStart] = useState(false); // the one-try notice before a run that has not started
   const [showRanking, setShowRanking] = useState(false);
   const [rankTick, setRankTick] = useState(0);
   const [origin, setOrigin] = useState(0); // local ms when the run's clock read 0
   const expiring = useRef(false);
   const recorder = useRef<LogicTraceRecorder | null>(null);
   const stageKey = useRef<string | null>(null);
+  const week = useWeek();
 
   useEffect(() => {
     if (!ready) return;
@@ -113,7 +116,7 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
 
   const take = useCallback((v: PgView | PgResult | null) => {
     if (!v) return;
-    if (v.done) { recorder.current?.stop(); recorder.current = null; setView(null); setResult(v); setRankTick((x) => x + 1); window.dispatchEvent(new Event(RANKED_EVENT)); checkPieceNews(); walletChanged(); return; }
+    if (v.done) { recorder.current?.stop(); recorder.current = null; setView(null); setResult(v); setRankTick((x) => x + 1); window.dispatchEvent(new Event(PG_RANKED_EVENT)); checkPieceNews(); walletChanged(); return; }
     setOrigin(Date.now() - v.elapsed);
     const key = `${v.run}-${v.stage}`;
     if (stageKey.current !== key) {
@@ -143,7 +146,10 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
   const elapsed = view ? now - origin : 0;
   useEffect(() => () => recorder.current?.stop(), []);
 
+  // A run that has already started resumes at once; a new one asks first (one ranked try a day, the clock never stops).
+  const tapStart = () => { if (today?.status === 'running') void start(); else setConfirmStart(true); };
   const start = async () => {
+    setConfirmStart(false);
     setBusy(true); setError(null);
     const { data, error: e } = await startRun();
     setBusy(false);
@@ -197,7 +203,7 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
 
   if (!ready || (user && !today && !result)) return <div className={`${STAGE} flex h-[420px] items-center justify-center`}><Loader2 className="animate-spin text-(--accent)" /></div>;
 
-  if (result) return <DailyResult result={result} today={today} onPractice={onPractice} rankTick={rankTick} />;
+  if (result) return <DailyResult result={result} today={today} week={week} onPractice={onPractice} rankTick={rankTick} />;
 
   if (view) {
     const tier = view.puzzle.tier;
@@ -230,9 +236,10 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
     <div className={`${STAGE} flex flex-col gap-3`}>
       <PieceNews only={['prop_fast', 'prop_top']} onGame />
       <TodayCard today={today} />
+      <WeekTopBlock week={week} />
       {today?.day && <PropPodium day={today.day} />}
       {signedIn ? (
-        <button type="button" onClick={start} disabled={busy || today?.ready === false}
+        <button type="button" onClick={tapStart} disabled={busy || today?.ready === false}
           className="flex min-h-[54px] items-center justify-center gap-2 rounded-[14px] bg-(--accent) text-[16px] font-black text-(--accent-ink) shadow-[0_0_26px_var(--accent-glow)] transition active:scale-[.98] disabled:opacity-50">
           {busy ? <Loader2 size={18} className="animate-spin" /> : <Timer size={18} />}{today?.status === 'running' ? t('resume') : t('startDaily')}
         </button>
@@ -255,10 +262,24 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 sm:items-center sm:p-6" onClick={() => setShowRanking(false)}>
           <div role="dialog" aria-label={t('rankingTitle')} className="max-h-[80vh] w-full max-w-sm overflow-y-auto rounded-t-[18px] border border-white/10 bg-[#16141f] p-4 sm:rounded-[18px]" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 flex items-center justify-between">
-              <h2 className={`${PANEL_TITLE} flex items-center gap-1.5`}><Trophy size={11} />{t('rankingTitle')} · {t('playersToday', { n: today?.players ?? 0 })}</h2>
+              <h2 className={`${PANEL_TITLE} flex items-center gap-1.5`}><Trophy size={11} />{t('rankingBoard')} · {t('playersToday', { n: today?.players ?? 0 })}</h2>
               <button type="button" onClick={() => setShowRanking(false)} className="text-[12px] font-black text-white/55 hover:text-white">{t('close')}</button>
             </div>
             <Ranking />
+          </div>
+        </div>
+      )}
+      {confirmStart && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-6" onClick={() => setConfirmStart(false)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="pg-one-try" data-pg-one-try className="pg-rise w-full max-w-xs rounded-[18px] border border-[#c9b6ff]/25 bg-[radial-gradient(120%_90%_at_50%_0%,#2d1a6b_0%,#16141f_70%)] p-5 text-center" onClick={(e) => e.stopPropagation()}>
+            <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-(--accent)/20 text-(--accent) ring-1 ring-(--accent)/40"><Timer size={24} /></span>
+            <p id="pg-one-try" className="mt-3 text-[16px] font-black">{t('oneTryTitle')}</p>
+            <p className="mt-2 break-keep text-[13px] font-bold leading-[21px] text-white/75">{t('oneTryDesc')}</p>
+            <p className="mt-2 break-keep text-[11px] font-bold text-white/45">{t('oneTrySub')}</p>
+            <div className="mt-4 flex gap-2">
+              <button type="button" className={`${BTN} min-h-[46px] flex-1`} onClick={() => { setConfirmStart(false); onPractice(); }}><RotateCcw size={14} />{t('oneTryPractice')}</button>
+              <button type="button" autoFocus className="flex min-h-[46px] flex-1 items-center justify-center gap-1.5 rounded-[12px] bg-(--accent) text-[14px] font-black text-(--accent-ink) shadow-[0_0_18px_var(--accent-glow)] active:scale-[.98]" onClick={start}><Timer size={15} />{t('oneTryGo')}</button>
+            </div>
           </div>
         </div>
       )}
@@ -280,6 +301,7 @@ function TodayCard({ today }: { today: PgToday | null }) {
           <p className="mt-2 text-[11px] font-black tracking-[0.12em] text-[#c9b6ff]">{t('todayKicker')} · {dayLabel}</p>
           <h2 className="mt-0.5 break-keep text-[22px] font-black leading-[1.15] tracking-[-0.04em]">{t('todayTitle')}</h2>
           <p className="mt-1 break-keep text-[12px] font-bold leading-[17px] text-white/65">{t('todayDesc')}</p>
+          <p data-pg-one-try-line className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#ffd36e]/15 px-2 py-0.5 text-[11px] font-black text-[#ffe7a8] ring-1 ring-[#ffd36e]/30"><Timer size={11} />{t('oneTry')}</p>
         </div>
         <div className="pg-float flex shrink-0 -space-x-2 pt-1">{[0, 1, 2].map((c) => <PgStone key={c} colour={c} size={30} mood={c === 1 ? 'happy' : 'idle'} blinkDelay={c} />)}</div>
       </div>
@@ -357,7 +379,7 @@ function RunBar({ stage, splits, hints, elapsed, left }: { stage: number; splits
   );
 }
 
-function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult; today: PgToday | null; onPractice: () => void; rankTick: number }) {
+function DailyResult({ result, today, week, onPractice, rankTick }: { result: PgResult; today: PgToday | null; week: PgWeek | null | undefined; onPractice: () => void; rankTick: number }) {
   const t = useTranslations('PropositionGo');
   const locale = useLocale();
   const [copied, setCopied] = useState(false);
@@ -423,6 +445,7 @@ function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult
           </p>
         )}
       </div>
+      <WeekTopBlock week={week} />
       <PropPodium day={result.day} />
       <div className="grid grid-cols-2 gap-2">
         <button type="button" onClick={share} className="flex min-h-[48px] items-center justify-center gap-2 rounded-[12px] bg-(--accent) text-[14px] font-black text-(--accent-ink) shadow-[0_0_20px_var(--accent-glow)] active:scale-[.98]"><Share2 size={16} />{copied ? t('copied') : t('share')}</button>
@@ -431,7 +454,7 @@ function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult
       <KakaoPlayButton url={`/${locale}/proposition-go`} text={t('shareHead', { day })} className="w-full min-h-[44px] rounded-[12px]" />
       <p className="text-center text-[11.5px] font-bold text-white/50">{t('nextSet', { t: `${hh}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}` })}</p>
       <div className="rounded-[14px] border border-white/10 bg-black/30 p-3 lg:hidden">
-        <h2 className={`${PANEL_TITLE} mb-2 flex items-center gap-1.5`}><Trophy size={11} />{t('rankingTitle')} · {t('playersToday', { n: today?.players ?? result.players })}</h2>
+        <h2 className={`${PANEL_TITLE} mb-2 flex items-center gap-1.5`}><Trophy size={11} />{t('rankingBoard')} · {t('playersToday', { n: today?.players ?? result.players })}</h2>
         <Ranking tick={rankTick} />
       </div>
       <ResultBannerSlot won={clear} />
@@ -447,7 +470,7 @@ function PropPodium({ day }: { day: string }) {
   const t = useTranslations('PropositionGo');
   const [which, setWhich] = useState<'today' | 'yesterday'>('today');
   const [rows, setRows] = useState<Record<string, PgPodiumRow[]>>({});
-  const own = useRanked();
+  const own = useRankedTick();
   const target = which === 'today' ? day : dayBefore(day);
   useEffect(() => {
     let alive = true;
@@ -490,19 +513,21 @@ function PropPodium({ day }: { day: string }) {
     </div>
   );
 }
-const useRanked = () => {
-  const [n, setN] = useState(0);
-  useEffect(() => { const on = () => setN((x) => x + 1); window.addEventListener(RANKED_EVENT, on); return () => window.removeEventListener(RANKED_EVENT, on); }, []);
-  return n;
-};
-
-/** Fired when a daily run ends, so the side panel's ranking picks up the new time. */
-const RANKED_EVENT = 'puzzlthink:pg-ranked';
+/** The ranking: today's board (time) and this week's (points), side panel / dialog / result. */
 function Ranking({ compact = false, tick = 0 }: { compact?: boolean; tick?: number }) {
+  const [tab, setTab] = useState<'today' | 'week'>('today');
+  const weekRows = useWeekRows(compact ? 10 : 20, tab === 'week', tick);
+  return (
+    <div className="flex flex-col gap-2">
+      <BoardTabs value={tab} onChange={setTab} className="self-start" />
+      {tab === 'today' ? <TodayRanking compact={compact} tick={tick} /> : <><WeekRanking rows={weekRows} /><WeekRule /></>}
+    </div>
+  );
+}
+function TodayRanking({ compact = false, tick = 0 }: { compact?: boolean; tick?: number }) {
   const t = useTranslations('PropositionGo');
   const [rows, setRows] = useState<PgRankRow[] | null>(null);
-  const [own, setOwn] = useState(0);
-  useEffect(() => { const on = () => setOwn((x) => x + 1); window.addEventListener(RANKED_EVENT, on); return () => window.removeEventListener(RANKED_EVENT, on); }, []);
+  const own = useRankedTick();
   useEffect(() => {
     let alive = true;
     fetchRanking(compact ? 10 : 20).then(({ data }) => { if (alive) setRows(data ?? []); });

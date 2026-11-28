@@ -35,6 +35,15 @@ export const buyHint = (run: string) => call<PgView | PgResult>('prop_hint', { p
 export const buyStoneHint = (run: string, cells: string) => call<PgView | PgResult>('prop_stone_hint', { p_run: run, p_cells: cells });
 export const giveUp = (run: string) => call<PgResult>('prop_giveup', { p_run: run });
 export const fetchRanking = (limit = 20) => call<PgRankRow[]>('prop_ranking', { p_limit: limit });
+/** The weekly board (20271208000000_prop_weekly.sql): each day #1 = 20 points … #20 = 1, summed Wed–Tue (KST). */
+export type PgWeekRow = { rank: number; nickname: string; avatar_url: string | null; points: number; days: number; best: number; is_me: boolean };
+export type PgWeekTop = { nickname: string; points: number; days: number };
+export type PgWeek = { start: string; end: string; players: number; top: PgWeekTop | null; last: PgWeekTop | null; me: { rank: number; points: number; days: number } | null };
+/** `week`: 0 = this week, 1 = last week. */
+export const fetchWeeklyRanking = (limit = 20, week = 0) => call<PgWeekRow[]>('prop_weekly_ranking', { p_limit: limit, p_week: week });
+export const fetchWeek = () => call<PgWeek>('prop_week');
+/** Points one day's rank gives on the weekly board. */
+export const PG_WEEK_POINTS = (rank: number) => Math.max(0, 21 - rank);
 export type PgPodiumRow = { rank: number; nickname: string; total: number; hints: number };
 /** A day's top three (anyone may read it). */
 export const fetchPodium = (day: string) => call<PgPodiumRow[]>('prop_podium', { p_day: day });
