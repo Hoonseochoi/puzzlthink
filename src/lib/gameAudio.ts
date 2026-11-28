@@ -86,3 +86,16 @@ export function playMergeNote(value: number) {
   tone(context, f, 0.32, 0.07, 'sine');
   tone(context, f * 2, 0.16, 0.018, 'triangle');
 }
+
+// 히든 워드: 라이어: a soft clock tick for the last seconds of my turn, and a little chime when a clue's number lands.
+export function playLiarTick(last: boolean) {
+  const context = getContext();
+  if (!context) return;
+  tone(context, last ? 880 : 660, 0.06, 0.035, 'triangle');
+}
+export function playLiarReveal(hot: boolean) {
+  const context = getContext();
+  if (!context) return;
+  if (hot) [0, 0.07, 0.14].forEach((d, i) => tone(context, 620 + i * 180, 0.12, 0.04, 'triangle', d));
+  else tone(context, 520, 0.09, 0.03, 'sine');
+}

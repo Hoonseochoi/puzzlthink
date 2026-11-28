@@ -3,6 +3,7 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { ArrowLeft, BookOpen, Check, Crown, Loader2, Trophy, Users } from 'lucide-react';
+import GameUpdates from '@/components/GameUpdates';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '@/components/AuthProvider';
 import StoneAvatar from '@/components/StoneAvatar';
@@ -109,6 +110,8 @@ export default function LiarHome({ guide }: { guide?: ReactNode }) {
     <div className="min-h-screen bg-[#0d0b14] text-[#ece8f7]" style={{ backgroundImage: 'radial-gradient(ellipse 90% 40% at 50% 0%, rgba(150,110,255,.32), transparent 70%)' }}>
       <header className="flex h-12 items-center gap-2 px-3">
         <Link href="/" className="flex items-center gap-1 rounded-lg px-2 py-1 text-[13px] font-bold text-white/70 hover:bg-white/10"><ArrowLeft size={17} />{t.back}</Link>
+        <span className="flex-1" />
+        <GameUpdates game="hidden_word_liar" />
       </header>
       <main className="mx-auto grid max-w-[980px] gap-4 px-4 pb-10 lg:grid-cols-[1fr_360px]">
         <section className="grid content-start gap-4">

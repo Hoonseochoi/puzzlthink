@@ -20,6 +20,8 @@ export function useLiarRoom(code: string, name: string) {
   const [chat, setChat] = useState<LiarChat[]>([]);
   const [marks, setMarks] = useState<Record<number, number>>({}); // seat → the seat they suspect
   const [skew, setSkew] = useState(0);
+  const [typing, setTyping] = useState<Record<number, { kind: 'clue' | 'chat'; until: number }>>({}); // seat → who is typing what
+  const typedAt = useRef(0);
   const channel = useRef<RealtimeChannel | null>(null);
   const viewRef = useRef<LiarView | null>(null);
   const loading = useRef(false);
@@ -68,6 +70,16 @@ export function useLiarRoom(code: string, name: string) {
         if (!p.emote && floodCheck(log, Date.now(), text, true)) return; // a modified client is held back too
         log.push({ at: Date.now(), text }); if (log.length > 20) log.shift();
         setChat((c) => [...c, { key: `${Date.now()}-${Math.random()}`, seat: p.seat, name: String(p.name ?? '').slice(0, 16), text, at: Date.now(), mine: false, kind: p.emote ? 'emote' as const : 'chat' as const }].slice(-CHAT_KEEP));
+        setTyping((m) => { if (!m[p.seat]) return m; const n = { ...m }; delete n[p.seat]; return n; });
+      })
+      .on('broadcast', { event: 'typing' }, ({ payload }) => {
+        const p = payload as { seat: number; kind?: string; stop?: boolean };
+        if (typeof p?.seat !== 'number') return;
+        setTyping((m) => {
+          const n = { ...m };
+          if (p.stop) delete n[p.seat]; else n[p.seat] = { kind: p.kind === 'clue' ? 'clue' : 'chat', until: Date.now() + 3000 };
+          return n;
+        });
       })
       .on('broadcast', { event: 'mark' }, ({ payload }) => {
         const p = payload as { seat: number; target: number | null };
@@ -116,9 +128,20 @@ export function useLiarRoom(code: string, name: string) {
     setMarks((m) => { const n = { ...m }; if (target == null) delete n[mySeat]; else n[mySeat] = target; return n; });
     void channel.current.send({ type: 'broadcast', event: 'mark', payload: { seat: mySeat, target } });
   }, [mySeat]);
+  // "…" over my icon on the other screens while I type: at most one push every 1.5 s, gone 3 s after the last one
+  const typingNow = useCallback((kind: 'clue' | 'chat', stop = false) => {
+    if (mySeat == null || !channel.current) return;
+    const at = Date.now();
+    if (!stop && at - typedAt.current < 1500) return;
+    typedAt.current = stop ? 0 : at;
+    void channel.current.send({ type: 'broadcast', event: 'typing', payload: { seat: mySeat, kind, stop } });
+  }, [mySeat]);
+  const clearTyping = useCallback((seat: number) => {
+    setTyping((m) => { if (!m[seat]) return m; const n = { ...m }; delete n[seat]; return n; });
+  }, []);
   const pushSystem = useCallback((text: string, seat = -1) => {
     setChat((c) => [...c, { key: `${Date.now()}-${Math.random()}`, seat, name: '', text, at: Date.now(), mine: false, kind: 'system' as const }].slice(-CHAT_KEEP));
   }, []);
 
-  return { view, status, chat, marks, skew, refresh, say, mark, pushSystem };
+  return { view, status, chat, marks, skew, typing, refresh, say, mark, pushSystem, typingNow, clearTyping };
 }

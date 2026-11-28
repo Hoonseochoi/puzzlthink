@@ -89,6 +89,19 @@ export function scoreColor(score: number | null | undefined) {
   return '#6c8cff';
 }
 
+/** Each phase's full length in seconds (mirrors hwl_cfg in the migrations), for the countdown rings. */
+export const phaseSecs = (view: LiarView) => {
+  switch (view.phase) {
+    case 'clue': return 20;
+    case 'talk': return view.order.length > 6 ? 60 : 45;
+    case 'vote': return 20;
+    case 'runoff': return 15;
+    case 'guess': return 30;
+    case 'cards': return 8;
+    default: return null;
+  }
+};
+
 /** Seconds left on the server's clock, corrected for this browser's clock skew. */
 export const secondsLeft = (view: LiarView | null, skew: number, now: number) =>
   view?.deadline ? Math.max(0, Math.ceil((view.deadline - (now + skew)) / 1000)) : null;

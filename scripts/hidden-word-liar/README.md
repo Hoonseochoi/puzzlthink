@@ -23,7 +23,7 @@ docker exec -i supabase-db psql -U postgres -d hwl_dev -q < scripts/hidden-word-
 
 ## Numbers (hwl_cfg)
 🔥 cap 85 (a clue at or above shows as 85+, from the play log: players' own-word hints have median 80, and a liar's
-strong decoy hints score median 68 on the real answer, so the two overlap). Turn 22 s, talk 45 s (60 s for 7+), vote
+strong decoy hints score median 68 on the real answer, so the two overlap). Turn 20 s (no clue in time = a silent "⏰ 시간 초과" row that does not count as spoken), talk 45 s (60 s for 7+), vote
 20 s, runoff 15 s, liar's guess 30 s, rounds 3 (≤6 players) / 2. Rewards: liar win 3 피스, citizen win 1, at most 7 a KST day per player (owner 11/28), only in a valid game (4+ signed-in players; spoken clues from at least half the seats, min 4 — a game of silence pays nothing).
 
 ## What counts where

@@ -25,6 +25,21 @@ export type GameUpdateLog = {
 };
 
 export const GAME_UPDATES: Record<string, GameUpdateLog> = {
+  hidden_word_liar: {
+    name: { ko: '히든 워드: 라이어', en: 'Hidden Word: Liar' },
+    items: [
+      {
+        date: '11/28', icon: Timer,
+        ko: { title: '제시어는 테이블 가운데에서 · 20초 타이머', desc: '내 차례가 되면 테이블 가운데에 제시어 칸이 열리고 20초가 줄어들어요. 시간이 다 되면 ⏰ 시간 초과로 다음 사람에게 넘어가요. 지목/한 바퀴 더, 투표, 정답 맞히기도 모두 가운데에서 해요.' },
+        en: { title: 'Clues go in the middle of the table · 20 s timer', desc: 'On your turn a clue box opens in the middle of the table with a 20-second countdown. When time runs out it shows ⏰ Time out and passes on. Accuse / one more round, the vote and the liar\'s guess all happen in the middle too.' },
+      },
+      {
+        date: '11/28', icon: PenLine,
+        ko: { title: '입력 중 "…" 표시와 채팅 구분', desc: '누가 제시어나 채팅을 치고 있으면 아이콘 위에 "…"가 떠요. 내 차례에 채팅창에 단어 하나만 쓰면 "제시어로 낼까요?"라고 물어봐요.' },
+        en: { title: 'Typing "…" and a clearer chat', desc: 'A "…" shows over a player\'s icon while they type a clue or a chat line. If you type a single word into chat on your turn, it asks whether to submit it as your clue.' },
+      },
+    ],
+  },
   proposition_go: {
     name: { ko: '명제 바둑', en: 'Proposition Go' },
     items: [

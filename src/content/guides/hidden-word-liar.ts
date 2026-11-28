@@ -1,5 +1,5 @@
 // 히든 워드: 라이어 guide. Rules from supabase/migrations/20271205100000_hidden_word_liar.sql (hwl_cfg: 🔥 at 85,
-// turn 22 s, talk 45 s / 60 s for 7+, vote 20 s, runoff 15 s, guess 30 s, 3 rounds for ≤6 players and 2 for 7+;
+// turn 20 s, talk 45 s / 60 s for 7+, vote 20 s, runoff 15 s, guess 30 s, 3 rounds for ≤6 players and 2 for 7+;
 // liar win 3 피스, citizen win 1, 7 a KST day; valid game = 4+ members, spoken clues from half the seats) and the
 // similarity tables of 히든 워드 (hw_score). The worked example's numbers were read from hw_score for 냉면 / 김밥.
 import type { GameGuide } from './types';
@@ -32,7 +32,7 @@ const guide: GameGuide = {
           { type: 'glossary', items: [
             { term: '인원', def: '4~10명 (공개방은 매칭 5명 이상)' },
             { term: '제시어', def: '시민은 모두 같은 단어, 라이어 1명은 같은 묶음의 닮은 단어. 라이어도 자기가 라이어인 줄 몰라요' },
-            { term: '단서', def: '차례대로 명사 하나, 22초. 단서 옆에 시민 제시어와의 유사도가 떠요' },
+            { term: '단서', def: '차례대로 명사 하나, 20초. 내 차례엔 테이블 가운데 칸에 적어요. 시간이 지나면 ⏰ 시간 초과로 넘어가요' },
             { term: '🔥85+', def: '유사도 85 이상은 숫자 대신 🔥85+로만 보여요' },
             { term: '바퀴', def: '6명 이하 최대 3바퀴, 7명 이상 최대 2바퀴' },
             { term: '지목', def: '1바퀴부터 매 바퀴 끝에 "지목하자 / 한 바퀴 더" 다수결. 마지막 바퀴 뒤엔 무조건 투표' },
@@ -167,7 +167,7 @@ const guide: GameGuide = {
           { type: 'glossary', items: [
             { term: 'Players', def: '4–10 (matchmaking needs 5 accepts)' },
             { term: 'Words', def: 'Citizens share one word; the liar gets a look-alike from the same group and doesn\'t know it' },
-            { term: 'Clues', def: 'One noun each in turn, 22 s. Its similarity to the citizens\' word appears next to it' },
+            { term: 'Clues', def: 'One noun each in turn, 20 s, typed in the box in the middle of the table. Its similarity to the citizens\' word appears next to it; no clue in time shows ⏰ Time out' },
             { term: '🔥85+', def: 'Similarity 85 or more shows only as 🔥85+' },
             { term: 'Rounds', def: 'Up to 3 for ≤6 players, 2 for 7+' },
             { term: 'Accusing', def: 'After each round from the first: majority "accuse / one more round"; the last round always goes to the vote' },
