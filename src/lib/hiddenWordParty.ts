@@ -1,33 +1,36 @@
-// 히든 워드 확장판 party room: 2–5 friends, the broadcast's main-match rules.
+// 히든 워드 확장판 party room: 2–6 players (friend or open room), the broadcast's main-match rules, one turn each.
 //
 // Rules (데블스 플랜: 데드 어게인, day 5 main match, as written up in src/content/shows/dp3/hidden-word.ts from
 // 나무위키's day-5 page and the broadcast). Confirmation status: the write-up was checked on 11/26; re-checking on 11/28
 // failed (나무위키 and the recap pages refused automated reading), so the rules below rest on that write-up.
 //   Broadcast                                         Here
-//   6 players, envelopes of 5 nouns, pick 1          2–5 players (host sets the seat count), same six envelopes of five
-//   2 rounds; each player sets once per round,       same; the setter order is drawn at the start and kept for round 2
-//     order drawn
+//   6 players, envelopes of 5 nouns, pick 1          2–6 players (the host sets the seat count), same six envelopes of five
+//   2 rounds; each player sets once per round,       one round (the owner's call, 11/28): each player sets once, so a
+//     order drawn                                      game is as many turns as players (6 at a full table); order drawn
 //   setter: up to 10 hints in 15 min; a hint at      up to 5 hints in 2 minutes (the site's pace, as in every 히든 워드
 //     95%+ ends the hints; without one the            match); 95%+ ends the hints; without one, the closest word of the
 //     closest word is revealed                       list is revealed
 //   everyone else answers within 5 min, all          everyone else answers within 75 s, shown when all have answered
 //     shown at once; a piece buys a second answer      (or time is up); once per word a second answer, free (as in the
 //                                                      1:1 room)
-//   a right answer: +1 to each who got it, next      same (+2 in round 2); the word goes to the next setter
+//   a right answer: +1 to each who got it, next      same; the word goes to the next setter
 //     setter
 //   nobody right: setter +1 / +2 / +3 by stage,      same
 //     next stage, at most 3 stages
-//   round 2 doubles every point; rank by points     same; friend matches are not ranked
+//   round 2 doubles every point; rank by points     no round 2, so no doubling; rank by points; not ranked on the site
 // Online adaptations: a setter who does not pick a word in 60 s (or has left) loses the turn, nobody scores; a guesser
 // who does not answer in time simply has no answer; after a turn ends the room moves on by itself after 20 s.
 // Secrecy: envelopes are dealt and claimed on the server (hw_party_*), so a browser holds only its own five words and the
-// room state carries a lock id, never a hidden word; the setter's browser shows the word to everyone when the turn ends.
-// Seats are human only (no AI filling); there are no open (public) party rooms.
+// room state carries a lock id, never a hidden word. Hints, the closest word and answers are scored by the server only
+// for the browser that holds the right secret (the setter for hints, another player of the deal for answers), so a lock
+// id is no way to probe the word; the setter's browser shows the word to everyone when the turn ends.
+// Seats are human only (no AI filling). Open party rooms are listed like every 히든 워드 open room (hosted only in the
+// Play app, joined by anyone signed in).
 import { getSupabase } from './supabase';
 import { type BaseRoom, type Peer, type Seat, bump, newSid, syncSeats } from './room';
 import { isHwWord } from './hiddenWord';
 
-export const HWP_MAX = 5;
+export const HWP_MAX = 6;
 export const HWP_CFG = { cut: 95, stages: 3, maxHints: 5, setPoints: [1, 2, 3], guessPoints: [1, 1, 1], pickSecs: 60, hintSecs: 120, answerSecs: 75, endSecs: 20, revealMs: 10_000, envelopes: 6 } as const;
 
 export type HwpHint = { w: string; s: number; stage: number; by: 'set' | 'reveal' };
@@ -41,7 +44,7 @@ export type HwpTurn = {
 };
 export type HwpRoom = BaseRoom & {
   phase: 'lobby' | 'envelope' | 'pick' | 'hint' | 'reveal' | 'answer' | 'turnEnd' | 'finished';
-  /** seats open in the lobby (2–5) */
+  /** seats open in the lobby (2–6) */
   capacity: number;
   deal: string; picks: (number | null)[]; players: number[]; order: number[];
   round: number; turnIdx: number; t: HwpTurn | null; history: HwpTurn[]; scores: number[];
@@ -93,13 +96,12 @@ const toEnd = (state: HwpRoom, t: HwpTurn): HwpRoom => ({ ...state, t, phase: 't
 function resolve(state: HwpRoom): HwpRoom {
   const t = state.t!;
   const found = t.answers.filter((a) => a.stage === t.stage && a.ok).map((a) => a.seat);
-  const m = state.round;
   if (found.length) {
-    const gained = t.gained.map((g, i) => (found.includes(i) ? g + HWP_CFG.guessPoints[t.stage - 1] * m : g));
-    const scores = state.scores.map((x, i) => (found.includes(i) ? x + HWP_CFG.guessPoints[t.stage - 1] * m : x));
+    const gained = t.gained.map((g, i) => (found.includes(i) ? g + HWP_CFG.guessPoints[t.stage - 1] : g));
+    const scores = state.scores.map((x, i) => (found.includes(i) ? x + HWP_CFG.guessPoints[t.stage - 1] : x));
     return toEnd({ ...state, scores }, { ...t, gained, solved: t.stage });
   }
-  const n = HWP_CFG.setPoints[t.stage - 1] * m;
+  const n = HWP_CFG.setPoints[t.stage - 1];
   const gained = t.gained.map((g, i) => (i === t.setter ? g + n : g));
   const scores = state.scores.map((x, i) => (i === t.setter ? x + n : x));
   if (t.stage >= HWP_CFG.stages) return toEnd({ ...state, scores }, { ...t, gained, solved: 0 });
@@ -109,7 +111,6 @@ function resolve(state: HwpRoom): HwpRoom {
 function nextTurn(state: HwpRoom): HwpRoom {
   const done = { ...state, history: [...state.history, state.t!] };
   if (state.turnIdx + 1 < state.order.length) return beginTurn(done, state.round, state.turnIdx + 1);
-  if (state.round === 1) return beginTurn(done, 2, 0);
   return { ...done, phase: 'finished', deadline: 0, t: null };
 }
 
@@ -158,7 +159,8 @@ export function reduceHwpRoom(state: HwpRoom, action: HwpAction, seat: number | 
       break;
     }
     case 'reveal': {
-      if (state.phase !== 'reveal' || !t || !isHost) break;
+      // only the setter's browser can ask the server for the closest word; without it the reveal times out to answers
+      if (state.phase !== 'reveal' || !t || seat !== t.setter) break;
       const rev = action.rev && typeof action.rev.w === 'string' && num(action.rev.s) !== null && !hwpUsed(t).includes(action.rev.w) ? action.rev : null;
       next = toAnswer(state, rev ? { ...t, hints: [...t.hints, { w: rev.w, s: num(rev.s)!, stage: t.stage, by: 'reveal' }] } : t);
       break;
@@ -213,6 +215,12 @@ export const hwpDeal = (players: number) => rpc<{ deal: string; envelopes: numbe
 /** My five words from envelope i (null: taken by someone else). `secret` stays in this browser. */
 export const hwpClaim = (deal: string, i: number, secret: string) => rpc<string[] | null>('hw_party_claim', { p_deal: deal, p_envelope: i, p_secret: secret });
 export const hwpLock = (deal: string, word: string, secret: string) => rpc<string | null>('hw_party_lock', { p_deal: deal, p_word: word, p_secret: secret });
+/** Similarity of the setter's hint (null: refused; [null]: not a list word). */
+export const hwpHint = (deal: string, lock: string, word: string) => rpc<(number | null)[]>('hw_party_hint', { p_lock: lock, p_secret: hwpMine(deal).secret, p_word: word });
+/** The closest unused list word (setter only). */
+export const hwpReveal = (deal: string, lock: string, used: string[]) => rpc<{ w: string; s: number } | null>('hw_party_reveal', { p_lock: lock, p_secret: hwpMine(deal).secret, p_used: used });
+/** A guesser's answer: the numbers and whether it is right, from the server. */
+export const hwpAnswer = (deal: string, lock: string, words: string[]) => rpc<{ s?: (number | null)[]; ok?: boolean; error?: string }>('hw_party_answer', { p_lock: lock, p_secret: hwpMine(deal).secret, p_words: words });
 
 /** What this browser keeps for a deal: its secret, envelope and five words, and the words it has set so far. */
 export type HwpMine = { secret: string; envelope: number | null; words: string[]; set: string[]; locks?: Record<string, string> };

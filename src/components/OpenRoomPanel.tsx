@@ -11,7 +11,7 @@ import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import type { Peer } from '@/lib/room';
 import { AiInviteButton } from './OpenInvite';
-import { GAME_MODES, type RoomHook, openVariants } from './gameModes';
+import { GAME_MODES, type RoomHook, openVariants, roomHref } from './gameModes';
 import { usePlayApp } from './playApp/usePlayApp';
 
 /** A quick reaction bubble over a name, for a few seconds after it was sent. */
@@ -45,12 +45,13 @@ export default function OpenRoomPanel({ game, code, variant }: { game: GameId; c
   const modes = GAME_MODES[game];
   const { user, ready, configured } = useAuth();
   const app = usePlayApp();
-  if (!modes.useRoom || !ready) return null;
+  const useRoom = modes.rooms[variant]?.useRoom ?? modes.useRoom;
+  if (!useRoom || !ready) return null;
   // Open rooms are for signed-in players, so every game is recorded against each opponent.
   if (configured && !user) return <SignInPanel />;
   // App-only hosting (히든 워드): anyone joins, but outside the Play app this browser never lists a room as its host
   // (a guest who took over from a host who left keeps the match going unlisted).
-  return <Panel game={game} code={code} variant={variant} useRoom={modes.useRoom} hostLocked={isAppOnlyOpen(game) && !app} />;
+  return <Panel key={variant} game={game} code={code} variant={variant} useRoom={useRoom} hostLocked={isAppOnlyOpen(game) && !app} />;
 }
 
 function Shell({ body, tab }: { body: React.ReactNode; tab: React.ReactNode }) {
@@ -158,8 +159,8 @@ function Panel({ game, code, variant, useRoom, hostLocked = false }: { game: Gam
     if (!state || state.phase === 'lobby' || leaving.current) return;
     leaving.current = true;
     if (isHost) closeOpenRoom(game, code);
-    router.push(`${modes.path}/room/${code}`);
-  }, [state, isHost, game, code, modes.path, router]);
+    router.push(roomHref(game, variant, code));
+  }, [state, isHost, game, code, variant, router]);
 
   const leave = () => {
     leaving.current = true;
