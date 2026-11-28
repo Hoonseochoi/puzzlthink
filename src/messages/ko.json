@@ -9237,5 +9237,27 @@
     "costToken": "징표 {n}",
     "ok": "확인",
     "close": "닫기"
+  },
+  "Match": {
+    "introLabel": "대전 시작",
+    "introKicker": "MATCH START",
+    "introKickerN": "{n}인 대전 시작",
+    "introSkip": "탭해서 넘기기",
+    "me": "나",
+    "record": "대전 {w}승 {l}패",
+    "line_mission_hard": "히든 미션 달성자",
+    "line_mission_hell": "히든 미션 달성자",
+    "line_mission_rank": "히든 미션 달성자",
+    "line_crown": "랭킹 1위 아이콘 보유",
+    "line_gameTop": "이 게임 랭킹 1위",
+    "line_piece": "피스 경쟁전 입상자",
+    "line_hell": "블랙피스 입상자",
+    "line_open": "오픈 대전 TOP 3",
+    "line_hard": "어려움 AI 정복",
+    "line_hellClear": "매우 어려움 AI 정복",
+    "line_m2048": "2048 고수",
+    "line_founder": "창립 테스터",
+    "winnerKicker": "WINNER",
+    "drawKicker": "DRAW"
   }
 }

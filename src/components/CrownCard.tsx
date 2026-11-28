@@ -9,7 +9,7 @@ import { Stone } from './StoneAvatar';
 
 // Who holds each game's #1 icon, fetched once per page load.
 let holdersPromise: Promise<Map<string, string>> | null = null;
-function loadHolders() {
+export function loadCrownHolders() {
   holdersPromise ??= (async () => {
     const map = new Map<string, string>();
     const { data } = (await getSupabase()?.rpc('game_crowns_public')) ?? { data: null };
@@ -25,7 +25,7 @@ export default function CrownCard({ game }: { game: GameId }) {
   const [holder, setHolder] = useState<string | null | undefined>(undefined);
   useEffect(() => {
     let alive = true;
-    loadHolders().then((m) => { if (alive) setHolder(m.get(game) ?? null); });
+    loadCrownHolders().then((m) => { if (alive) setHolder(m.get(game) ?? null); });
     return () => { alive = false; };
   }, [game]);
 

@@ -11,6 +11,7 @@ import { clearPendingGame } from '@/lib/stats';
 import { ResultBannerSlot } from './ads/HiddenLogAd';
 import AdSlot from './AdSlot';
 import { AppTesterCard } from './AppTesterInvite';
+import MatchWinner from './match/MatchWinner';
 
 /** "Keep this on record?" card with Google sign-in, shown on result screens to signed-out players. */
 function RecordPrompt() {
@@ -93,6 +94,8 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, primary
   }
   return (
     <>
+      {/* Friend / open matches: the winner's icon, big (nothing in AI and solo games). */}
+      <MatchWinner />
       <ResultBannerSlot won={won} className="mt-5" />
       {replay}
       <RecordPrompt />

@@ -686,6 +686,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
 // Notes for every game with friend and open rooms (changes to the shared room code). Newest first.
 const ROOM_NOTES: GameUpdate[] = [
   {
+    date: '11/28', icon: Sparkles,
+    ko: { title: '친구·오픈 대전: 시작할 때 VS 화면, 결과에 승자 아이콘', desc: '대전이 시작되면 2초쯤 내 아이콘과 상대 아이콘이 크게 맞붙고(탭하면 바로 넘어가요), 상대의 대전 전적과 1위·히든 미션 같은 칭호가 보여요. 위쪽 이름표는 아이콘이 먼저 보이고, 희귀 아이콘은 테두리가 빛나요.' },
+    en: { title: 'Friend and open matches: a VS screen at the start, the winner\'s icon at the end', desc: 'When a match starts, your icon and your opponent\'s face off for about 2 seconds (tap to skip), with their record against people and titles like #1 or Hidden Mission. The name plates at the top now lead with the icon, and rare icons get a glowing rim.' },
+  },
+  {
     date: '11/26', icon: Crown,
     ko: { title: '친구·공개 대전: 방장이 나가도 방이 유지돼요', desc: '방장이 나가면 몇 초 뒤 남은 사람 중 먼저 들어온 사람이 방장을 이어받아 계속해요. 숨긴 카드가 있는 게임은 진행 중인 판을 새로 시작하거나 대기실로 돌아가요.' },
     en: { title: 'Friend and open rooms survive the host leaving', desc: 'A few seconds after the host leaves, whoever joined first takes over as host and play goes on. Games with hidden cards deal the current hand again or go back to the lobby.' },
