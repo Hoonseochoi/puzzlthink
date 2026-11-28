@@ -1,6 +1,7 @@
 "use client";
 
 import BugReport from '@/components/BugReport';
+import StoneIconToggle from '@/components/StoneIconToggle';
 import InviteCode from '@/components/ui/InviteCode';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -153,7 +154,7 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
           <strong className={`${locale === 'ko' ? 'font-black' : cinzel.className} ${STEEL_TEXT} text-xl tracking-[0.12em]`}>{locale === 'ko' ? tc(GAME) : v2 ? 'WALLGO II' : 'WALLGO'}</strong>
           <span className="hidden text-[9px] font-bold tracking-[0.16em] text-[#ff4d5e]/70 sm:inline">ONLINE · {mode ? `${mode.id === 'two' ? '1:1' : '1:1:1'} · ` : ''}{code.toUpperCase()}</span>
         </div>
-        <GameUpdates game={GAME} /><BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game={GAME} /><BugReport /><StoneIconToggle /><LanguageSwitcher compact dark />
       </header>
       <PlayerStrip players={roomPlayers(state)} me={mySeat} />
 

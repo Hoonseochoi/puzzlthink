@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { BookOpen, RotateCcw, ShieldQuestion } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import StoneIconToggle from '@/components/StoneIconToggle';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ResultActions from '@/components/ResultActions';
 import Shards from '@/components/WallGoShards';
@@ -112,7 +113,7 @@ export default function PointOmokGame() {
       <Shards />
       <GameHeader players={roomPlayers(state, true)} me={0} backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
         <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
-        <GameUpdates game="point_omok" /><BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="point_omok" /><BugReport /><StoneIconToggle /><LanguageSwitcher compact dark />
         <button type="button" onClick={() => { if (!started || state?.phase === 'finished' || window.confirm(t('newGameConfirm'))) reset(); }} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 

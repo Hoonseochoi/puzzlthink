@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Check, ChevronRight, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, RotateCcw, Share2, Swords, Trophy, Users, WifiOff, X } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import StoneIconToggle from '@/components/StoneIconToggle';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import Shards from '@/components/WallGoShards';
@@ -108,7 +109,7 @@ export default function MorrisRoomView({ code }: { code: string }) {
       <Shards />
       <RoomAlerts alerts={alerts} accent={MORRIS_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/nine-mens-morris" backLabel={tc('nineMensMorris')} title={tm('title')} titleClass="font-black" subtitle={`ONLINE · 1:1 · ${code.toUpperCase()}`}>
-        <GameUpdates game="nine_mens_morris" /><BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="nine_mens_morris" /><BugReport /><StoneIconToggle /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

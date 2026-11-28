@@ -9,6 +9,7 @@ import { parseIcon } from './ProfileIcons';
 import { useIconLabel } from './useIconLabel';
 import IconCollectionLink from './IconCollectionLink';
 import { SupporterCoverCard } from './SupporterCover';
+import { StoneIconSwitch } from './StoneIconToggle';
 
 type Options = { chosen: string | null; earned: string[]; lost: string[] };
 export const MY_ICON_ANCHOR = 'my-icon';
@@ -116,6 +117,8 @@ export default function StonePicker({ name, form }: { name: string; form?: React
 
       <p className="mt-4 text-[11px] font-black text-black/55">{t('stoneBasic')}</p>
       <ul className="mt-2 grid grid-cols-4 gap-2 sm:max-w-md">{STONE_COLORS.map((c) => option(c, t(`stoneColor.${c}`)))}</ul>
+
+      <StoneIconSwitch className="mt-4" />
 
       {opts && opts.lost.length > 0 && <>
         <p className="mt-4 text-[11px] font-black text-black/40">{ti('lostTitle')} <span className="font-bold text-black/30">· {ti('lostNote')}</span></p>

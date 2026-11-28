@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { RotateCcw } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import StoneIconToggle from '@/components/StoneIconToggle';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
@@ -42,7 +43,7 @@ export default function FourThreeGame() {
     <div className={SHELL} style={{ ...accentVars(FT_ACCENT, FT_INK), backgroundImage: fog('255, 181, 46') }}>
       <Shards />
       <GameHeader players={roomPlayers(state, true)} me={0} backHref="/" backLabel="PUZZLTHINK" title={t('title')} subtitle={t('subtitle')}>
-        <GameUpdates game="four_three" /><BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="four_three" /><BugReport /><StoneIconToggle /><LanguageSwitcher compact dark />
         <button type="button" onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
       <main className="relative z-10 mx-auto w-full max-w-[860px] px-3 py-3 sm:px-4 sm:py-5 lg:py-8">

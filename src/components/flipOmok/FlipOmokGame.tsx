@@ -8,6 +8,7 @@ import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
 import { EndRevealBanner } from '@/components/ui/EndReveal';
 import { ReplayButton, ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import BugReport from '@/components/BugReport';
+import StoneIconToggle from '@/components/StoneIconToggle';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
@@ -204,7 +205,7 @@ export default function FlipOmokGame() {
     <MyPieces seat={1}>
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
       <GameHeader ai={mode === 'ai'} backHref="/flip-omok" backLabel={t('title')} title={t('title')} subtitle={<OriginalMark size="xs" className="align-middle" />}>
-        <GameUpdates game="flip_omok" /><BugReport /><SoundToggle /><LanguageSwitcher compact dark />
+        <GameUpdates game="flip_omok" /><BugReport /><StoneIconToggle /><SoundToggle /><LanguageSwitcher compact dark />
         {!over && history.length > 0 && <button type="button" title={t('resignTip')} onClick={resign} className={`${BTN} text-white/60`}><Flag size={14} /><span className="hidden sm:inline">{t('resign')}</span></button>}
         <button type="button" title={t('undoTip')} onClick={undo} disabled={!history.length || aiTurn} className={`${BTN} disabled:opacity-35`}><Undo2 size={14} /><span className="hidden sm:inline">{t('undo')}</span></button>
         <button type="button" title={t('newGameTip')} onClick={() => reset()} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
