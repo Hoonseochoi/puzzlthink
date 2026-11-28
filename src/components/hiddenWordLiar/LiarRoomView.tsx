@@ -120,6 +120,16 @@ export default function LiarRoomView({ code }: { code: string }) {
     const h = window.setTimeout(() => setExtToast((x) => (x?.key === extKey ? null : x)), 2600);
     return () => { window.clearTimeout(s); window.clearTimeout(h); };
   }, [extKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  // 다시 하기: a pop when someone readies, a fanfare when the next game starts
+  const readyN = view && (view.phase === 'done' || view.phase === 'closed') ? view.members.filter((m) => m.ready && !m.gone).length : 0;
+  const lastReady = useRef(0);
+  useEffect(() => { if (readyN > lastReady.current) { sfx.mark(); buzz(15); } lastReady.current = readyN; }, [readyN]);
+  const gameNo = view?.game ?? 0;
+  const lastGame = useRef<number | null>(null);
+  useEffect(() => {
+    if (lastGame.current != null && gameNo > lastGame.current) { sfx.banner(); buzz([30, 40, 30]); }
+    lastGame.current = gameNo;
+  }, [gameNo]);
   const myTurnNow = !!view?.me && view.phase === 'clue' && view.turn === view.me.seat;
   useEffect(() => { if (myTurnNow) sfx.myTurn(); }, [myTurnNow]);
 
@@ -167,6 +177,7 @@ export default function LiarRoomView({ code }: { code: string }) {
   return (
     <Shell t={t} code={code} onLeave={leave} timer={show && !show.over ? null : left} view={view}>
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 [scrollbar-color:rgba(255,255,255,.18)_transparent] lg:px-6">
           <MyWord view={view} t={t} />
           {view.phase === 'lobby' && <Actions view={view} t={t} en={en} code={code} refresh={refresh} show={show} />}
@@ -178,6 +189,8 @@ export default function LiarRoomView({ code }: { code: string }) {
           {view.phase !== 'lobby' && (!show || show.over) && <Actions view={view} t={t} en={en} code={code} refresh={refresh} show={show} />}
           <ClueBoard view={view} t={t} />
           {view.phase === 'lobby' || !me?.playing ? <Rules t={t} /> : null}
+        </div>
+        <PinnedAgain view={view} t={t} code={code} refresh={refresh} show={show} now={now} skew={skew} />
         </div>
         <ChatPanel chat={chat} t={t} say={say} view={view} myTurn={myTurn} submitClue={submitClue} typingNow={typingNow} marks={marks} now={now} />
       </div>
@@ -569,6 +582,7 @@ function Table({ view, t, marks, typing, now, frac, left, show, toast, onTap, ch
               {(suspects[m.seat] ?? 0) > 0 && !over && <span key={`s${suspects[m.seat]}`} className={`hwl-pop absolute -left-2 -top-1.5 flex items-center gap-0.5 rounded-full px-1 font-black ${suspects[m.seat] >= 3 ? 'bg-[#ff5a3d] text-[12px] text-white' : suspects[m.seat] === 2 ? 'bg-[#ff9a3d] text-[11px] text-[#2a0d05]' : 'bg-black/75 text-[10px] text-[#ffd36e]'}`}><Eye size={suspects[m.seat] >= 2 ? 12 : 10} />{suspects[m.seat]}</span>}
               {(votes[m.seat] ?? 0) > 0 && !over && <span key={`v${voteFly}`} className="hwl-pop absolute -bottom-1.5 -right-2 rounded-full bg-[#ff5a3d] px-1.5 text-[10px] font-black text-white" style={voteFly ? { animationDelay: '1.1s' } : undefined}>{votes[m.seat]}</span>}
               {voting && m.voted && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#3fd67a] px-1 text-[9px] font-black text-[#0b2b16]">✓</span>}
+              {(view.phase === 'done' || view.phase === 'closed') && m.ready && <span key="rdy" className="hwl-pop absolute -bottom-1 -left-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#3fd67a] text-[11px] font-black text-[#0b2b16] shadow-[0_0_10px_rgba(63,214,122,.7)] ring-2 ring-[#120d22]">✓</span>}
               {view.phase === 'talk' && m.talked && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#7fd0ff] px-1 text-[9px] font-black text-[#082033]">✓</span>}
               {view.phase === 'decide' && m.decided && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#7fd0ff] px-1 text-[9px] font-black text-[#082033]">✓</span>}
               {m.extended && RUNNING.includes(view.phase) && <span title={t.extendUsed} className="absolute -right-2.5 top-[38%] rounded-full bg-[#7fd0ff] px-[3px] text-[9px] leading-[14px] shadow">⏱</span>}
@@ -817,7 +831,7 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
   return <div className={`flex w-full flex-col items-center justify-center text-center ${pop ? 'hwl-pop' : ''}`}>{body}</div>;
 }
 
-function Actions({ view, t, en, code, refresh, show }: { view: LiarView; t: T; en: boolean; code: string; refresh: () => Promise<void>; show: Show | null }) {
+function Actions({ view, t, en, code, refresh }: { view: LiarView; t: T; en: boolean; code: string; refresh: () => Promise<void>; show?: Show | null }) {
   const me = view.me;
   const [busy, setBusy] = useState(false);
   const [url, setUrl] = useState('');
@@ -857,12 +871,10 @@ function Actions({ view, t, en, code, refresh, show }: { view: LiarView; t: T; e
   if (view.phase === 'done' && view.result) {
     const r = view.result;
     const iWasLiar = me?.seat === r.liar;
-    const wait = !!show?.serverWait;   // skipped the show: the server still waits for everyone else to see it
     return (
       <div className={`${box} hwl-pop`}>
         {!r.valid && r.outcome !== 'void' && <p className="mb-2 break-keep text-center text-[10px] text-white/40">{t.noReward}</p>}
         {me?.piecesToday != null && <p className="mb-2 text-center text-[11px] font-black text-[#ffd36e]">🧩 {t.todayLeft(Math.max(0, view.cfg.dailyCap - me.piecesToday), view.cfg.dailyCap)}</p>}
-        <Again view={view} t={t} code={code} refresh={refresh} wait={wait} busy={busy} onStart={() => submit(() => startLiar(code))} />
         {me?.playing && r.outcome !== 'void' && <>
           <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.share}</p>
           <LiarShare compact url={`${url.replace(/\/room\/.*$/, '')}`} title={t.title} text={`${t.shareResult(iWasLiar, r.outcome)} · ${r.answer} vs ${r.decoy}`} button={en ? 'Play' : '플레이하기'} en={en} />
@@ -873,39 +885,52 @@ function Actions({ view, t, en, code, refresh, show }: { view: LiarView; t: T; e
       </div>
     );
   }
-  if (view.phase === 'closed' && me) {
-    return (
-      <div className={`${box} hwl-pop`}>
-        <p className="mb-2 break-keep text-center text-[12px] font-bold text-white/70">{t.closedNote}</p>
-        <button type="button" disabled={busy} onClick={() => submit(() => readyLiar(code, true))} className="w-full rounded-xl py-3 text-[15px] font-black text-[#1a1030] disabled:opacity-50" style={{ background: LIAR_ACCENT }}>{t.reopen}</button>
-      </div>
-    );
-  }
   return null;
 }
 
-/** 한 판 더: everyone can ready up (n/4); 4 ready start soon, all ready at once. A friend room's host can also start now. */
-function Again({ view, t, code, refresh, wait, busy, onStart }: { view: LiarView; t: T; code: string; refresh: () => Promise<void>; wait: boolean; busy: boolean; onStart: () => void }) {
+/**
+ * 다시 하기, pinned above the chat once the show is over (it stays when the result card is scrolled away):
+ * ready count n/4, a countdown ring, a gentle pulse until I am ready. Friend rooms: the host gets 「다시 시작」,
+ * everyone else 「준비」. A closed room that still has people: 「한 판 더 (방 다시 열기)」.
+ */
+function PinnedAgain({ view, t, code, refresh, show, now, skew }: { view: LiarView; t: T; code: string; refresh: () => Promise<void>; show: Show | null; now: number; skew: number }) {
   const me = view.me;
+  const [busy, setBusy] = useState(false);
+  if (!me) return null;
+  const closed = view.phase === 'closed';
+  if (!closed && !(view.phase === 'done' && view.result && (!show || show.over))) return null;
   const present = view.members.filter((m) => !m.gone);
   const ready = present.filter((m) => m.ready).length;
   const min = view.cfg.min;
-  const isHost = view.kind === 'friend' && view.host === me?.seat;
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 500); return () => window.clearInterval(id); }, []);
-  const soon = ready >= min && view.deadline ? Math.max(0, Math.ceil((view.deadline - now) / 1000)) : null;
+  const host = view.kind === 'friend' && view.host === me.seat;
+  const wait = !!show?.serverWait;
+  const left = !closed && view.deadline ? Math.max(0, Math.ceil((view.deadline - (now + skew)) / 1000)) : null;
+  const total = ready >= min ? view.cfg.readyWait ?? 10 : view.cfg.again ?? 25;
+  const frac = left != null ? Math.max(0, Math.min(1, left / total)) : null;
+  const act = async (fn: () => Promise<unknown>) => { if (busy) return; setBusy(true); unlock(); await fn(); setBusy(false); void refresh(); };
+  const label = closed ? t.reopen
+    : host ? t.restart
+    : me.ready ? `✓ ${t.readyOn} · ${ready}/${min}`
+    : view.kind === 'friend' ? `${t.readyBtn} · ${ready}/${min}` : `${t.againBig} ${ready}/${min}${left != null ? ` · ${left}${t.sec}` : ''}`;
+  const primary = !me.ready || host || closed;
   return (
-    <>
-      <div className={`grid gap-2 ${isHost ? 'grid-cols-[1fr_auto]' : ''}`}>
-        <button type="button" disabled={!me || me.ready} onClick={() => { void readyLiar(code, true).then(refresh); }}
-          className={`relative w-full overflow-hidden rounded-xl py-3 text-[15px] font-black disabled:opacity-100 ${me?.ready ? 'bg-[#3fd67a]/20 text-[#7fe3a0] ring-1 ring-[#3fd67a]/50' : 'text-[#1a1030]'}`} style={me?.ready ? undefined : { background: LIAR_ACCENT }}>
-          <span className="absolute inset-y-0 left-0 bg-white/15 transition-all" style={{ width: `${Math.min(100, (ready / min) * 100)}%` }} />
-          <span className="relative">{me?.ready ? `✓ ${t.readyOn}` : t.again} · {t.againWait(ready, min)}</span>
+    <div className="shrink-0 border-t border-white/10 bg-[#120d22]/95 px-3 py-2 backdrop-blur lg:px-6">
+      <div className="mx-auto flex max-w-[520px] items-center gap-2.5">
+        {frac != null && <Ring frac={frac} left={left} size={42} />}
+        <button type="button" disabled={busy || (host && (wait || present.length < min)) || (!host && !closed && me.ready)}
+          onClick={() => { void act(() => (host ? startLiar(code) : readyLiar(code, true))); }}
+          className={`relative flex-1 overflow-hidden rounded-2xl py-3.5 text-[17px] font-black disabled:cursor-default ${primary ? `text-[#1a1030] shadow-[0_8px_30px_rgba(169,139,255,.45)] ${me.ready && !host ? '' : 'hwl-again'}` : 'bg-[#3fd67a]/20 text-[#7fe3a0] ring-1 ring-[#3fd67a]/50'}`}
+          style={primary ? { background: 'linear-gradient(90deg,#c4b0ff,#a98bff 55%,#8d6cf0)' } : undefined}>
+          {!closed && <span className="absolute inset-y-0 left-0 bg-white/25 transition-all duration-500" style={{ width: `${Math.min(100, (ready / min) * 100)}%` }} />}
+          <span className="relative">{host && wait ? t.showing : label}</span>
         </button>
-        {isHost && <button type="button" disabled={busy || wait || present.length < min} onClick={onStart} className="rounded-xl bg-white/10 px-3 text-[13px] font-black text-white disabled:opacity-40">{wait ? t.showing : t.againHost}</button>}
+        {host && !closed && (
+          <button type="button" disabled={busy || me.ready} onClick={() => { void act(() => readyLiar(code, true)); }}
+            className="shrink-0 rounded-2xl bg-white/10 px-3 py-3.5 text-[13px] font-black text-white disabled:text-[#7fe3a0]">{me.ready ? '✓' : t.readyBtn} {ready}/{min}</button>
+        )}
       </div>
-      <p className="mt-1.5 text-center text-[11px] font-bold text-white/55">{soon != null ? <span className="text-[#ffd36e]">⏱ {t.againSoon(soon)}</span> : t.againNote(min)}</p>
-    </>
+      <p className="mx-auto mt-1 max-w-[520px] text-center text-[10.5px] font-bold text-white/50">{closed ? t.closedNote : ready >= min && left != null ? <span className="text-[#ffd36e]">⏱ {t.againSoon(left)}</span> : t.againNote(min)}</p>
+    </div>
   );
 }
 

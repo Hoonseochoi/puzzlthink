@@ -19,7 +19,7 @@ export type LiarView = {
   game: number; round: number; roundsMax: number; order: number[]; turn: number | null; host: number | null;
   runoff: number[] | null; accused: number | null; liar: number | null; excluded: number[]; revotes: number;
   reveal: { at: number; until: number } | null;
-  cfg: { hot: number; min: number; max: number; liarWin: number; citizenWin: number; dailyCap: number };
+  cfg: { hot: number; min: number; max: number; liarWin: number; citizenWin: number; dailyCap: number; again?: number; readyWait?: number };
   me: { seat: number; playing: boolean; maskUsed: boolean; extended: boolean; talk: 'accuse' | 'more' | null; decide: 'arrest' | 'revote' | null; ready: boolean; word: string | null; voted: number | null; piecesToday: number | null } | null;
   members: LiarMember[];
   talk: { accuse: number; more: number };
