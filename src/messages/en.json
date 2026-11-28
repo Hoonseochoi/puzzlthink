@@ -1692,6 +1692,7 @@
   "Records": {
     "propRewardRow": "Proposition Go challenge",
     "pieceHallCrownWeek": "The top three wear the week {n} jewel stone ({name} edition) for good",
+    "pieceTokenSoon": "Only this week's pieces count here. When week 3 starts on Wed 12/2, leftover week 1 and week 2 pieces become Sage's Tokens, and every week after that too. Hints and items use tokens first.",
     "pieceTokenNote": "Only this week's pieces count here. Leftover pieces from past weeks became Sage's Tokens, which hints and items use first.",
     "piecePeriodLive": "Runs one week from Wed {start} · ends Tue {end} 23:59 (KST)",
     "blackPieceTab": "Black pieces",
