@@ -74,6 +74,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드 확장판', en: 'Hidden Word: Expansion' },
     items: [
       {
+        date: '11/28', icon: Users,
+        ko: { title: '파티 방 6명까지 · 오픈 파티 방', desc: '파티 방에 6명까지 앉을 수 있고, 모두가 한 번씩만 출제해요(6명이면 6턴, 2라운드·2배 없음). 누구나 들어오는 오픈 파티 방도 앱에서 열 수 있고, 힌트와 답의 유사도는 서버가 계산해요.' },
+        en: { title: 'Party rooms for up to 6 · open party rooms', desc: 'Party rooms seat six, and everyone sets once (six turns at a full table, no doubled round 2). Open party rooms (opened from the app) let anyone in, and the server scores every hint and answer.' },
+      },
+      {
         date: '11/28', icon: DoorOpen,
         ko: { title: '오픈 대전이 생겼어요 (방은 앱 테스터만 열 수 있어요)', desc: '처음 보는 사람과 붙는 오픈 대전이에요. 1:1 대전만 열려요. 방은 Google Play 테스트 앱에서만 열 수 있고, 참가는 웹·아이폰 어디서든 돼요. 봉투와 숨긴 단어는 서버가 맡아서 상대 화면에는 끝날 때까지 보이지 않아요.' },
         en: { title: 'Open matches are here (app testers host them)', desc: 'Matches against people you do not know. 1:1 only. Rooms are opened only in the Google Play test app; anyone can join, on the web or an iPhone. The server holds the envelopes and hidden words, so the other side never sees yours before the turn ends.' },

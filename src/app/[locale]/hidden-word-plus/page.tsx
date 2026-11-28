@@ -44,7 +44,7 @@ export default async function HiddenWordPlusPage({ params }: { params: Promise<{
   return (
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
-        gameJsonLd({ locale, path: '/hidden-word-plus', name, alternateName: ['히든 워드 확장판', '히든워드 확장판', 'Hidden Word: Expansion', 'Hidden Word Expansion'], description: games('games.hiddenWordPlus.tagline'), genre: ['Word game', 'Deduction', 'Party game'], players: { min: 1, max: 2 }, show: 'dp3' }),
+        gameJsonLd({ locale, path: '/hidden-word-plus', name, alternateName: ['히든 워드 확장판', '히든워드 확장판', 'Hidden Word: Expansion', 'Hidden Word Expansion'], description: games('games.hiddenWordPlus.tagline'), genre: ['Word game', 'Deduction', 'Party game'], players: { min: 1, max: 6 }, show: 'dp3' }),
         faqJsonLd(faq),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name: korean ? '히든 워드' : 'Hidden Word', path: '/hidden-word' }, { name, path: '/hidden-word-plus' }]),
       ] }} />
