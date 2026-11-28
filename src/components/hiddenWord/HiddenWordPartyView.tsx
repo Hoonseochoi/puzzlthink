@@ -10,6 +10,7 @@ import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
 import HomeButton from '@/components/ui/HomeButton';
 import { useBackClose } from '@/hooks/useBackClose';
+import { useChatStatus } from '@/hooks/useChatStatus';
 import InviteCode from '@/components/ui/InviteCode';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANEL_TITLE, SHELL, STAGE } from '@/components/ui/gameUi';
@@ -92,6 +93,19 @@ export default function HiddenWordPartyView({ code }: { code: string }) {
 
   const notice = status === 'unconfigured' ? t.room.unconfigured : status === 'error' ? t.room.connectionError : !state && waitedLong ? t.room.roomNotFound : state && !me?.isHost && !hostOnline ? t.room.hostOffline : null;
   const seatedNow = state ? state.seats.filter((s, i) => s && i < state.capacity).length : 0;
+  // The room chat's status line: my move / whose move, the top of the scoreboard, the newest hint.
+  const inGame = !!state && mySeat !== null && state.players.includes(mySeat);
+  const answering = !!state && !!turn && phase === 'answer' && inGame && mySeat !== turn.setter && !hwpAnswered(turn).includes(mySeat!);
+  const actor = turn && (phase === 'pick' || phase === 'hint') ? turn.setter : null;
+  const newestHint = turn?.hints[turn.hints.length - 1];
+  useChatStatus(state && phase && phase !== 'lobby' ? {
+    mine: phase === 'envelope' ? inGame && state.picks[mySeat!] === null : actor !== null ? actor === mySeat : answering,
+    who: actor !== null && actor !== mySeat ? name(actor) : null,
+    text: phase === 'envelope' ? t.envelopeTitle
+      : turn && phase === 'answer' ? `${t.round(state.round)} · ✍ ${hwpAnswered(turn).length}/${hwpGuessers(state, turn).length}` : t.round(state.round),
+    score: [...state.players].sort((a, b) => state.scores[b] - state.scores[a]).map((s) => `${s === mySeat ? t.you : name(s)} ${state.scores[s]}`).join(' · '),
+    last: newestHint ? `💡 ${newestHint.w}` : null,
+  } : null);
 
   return (
     <div className={SHELL} style={hwRootStyle('plus')} data-hw="plus">

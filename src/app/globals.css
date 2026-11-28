@@ -345,3 +345,7 @@ button:disabled { cursor: default; }
   .hwl-pop, .hwl-stamp, .hwl-glow, .hwl-dots > i, .hwl-urgent, .hwl-hot, .hwl-enter, .hwl-flip, .hwl-turn, .hwl-verdict { animation: none; }
   .hwl-fly, .hwl-fly-vote, .hwl-banner, .hwl-maskoff { display: none; }
 }
+
+/* Room chat open (src/components/RoomChat.tsx): the page makes room for it, so nothing of the game is stuck under it. */
+html[data-room-chat="sheet"] body { padding-bottom: var(--room-chat-h, 0px); }
+html[data-room-chat="side"] body { padding-right: var(--room-chat-w, 0px); }

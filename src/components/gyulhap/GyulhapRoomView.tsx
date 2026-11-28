@@ -13,6 +13,7 @@ import { useGyulhapRoom } from '@/hooks/useGyulhapRoom';
 import { GYUL_TURN_OPTIONS } from '@/lib/gyulhapRoom';
 import { reportGame } from '@/lib/stats';
 import { GyulBoard, GyulFound, GyulScore } from './GyulhapParts';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 const ACCENT = '#ffcf3f';
 const COLORS = ['#ffcf3f', '#ff5568', '#4ac9ff', '#8ce06b'];
@@ -40,6 +41,8 @@ export default function GyulhapRoomView({ code }: { code: string }) {
   const copy = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1500); } catch {} };
   const share = async () => { if (navigator.share) { try { await navigator.share({ title: tg('title'), url: shareUrl }); return; } catch {} } copy(); };
 
+  // The room chat's status line (my move / whose move); the turn clock comes from the room. Before the early return (hook order).
+  useChatStatus(state?.phase === 'playing' ? { mine: mySeat !== null && state.turn === mySeat, who: state.turn === mySeat ? null : state.seats[state.turn]?.name ?? null } : null);
   if (!state) return <div className={SHELL} style={accentVars(ACCENT, '#17120a')}><GameHeader players={roomPlayers(state)} me={mySeat} backHref="/gyulhap" backLabel={tc('gyulhap')} title={tg('title')} subtitle={`ONLINE · ${code}`} /> <main className="flex min-h-[70vh] items-center justify-center">{status === 'online' ? <Loader2 className="animate-spin" /> : <p className="flex items-center gap-2 text-sm text-white/50"><WifiOff size={15} />{t(status === 'error' ? 'connectionError' : 'connecting')}</p>}</main></div>;
   const seatName = (n: number) => state.seats[n]?.name ?? t('emptySeat');
   const activeCount = state.phase === 'lobby' ? state.seats.filter(Boolean).length : state.playerCount;

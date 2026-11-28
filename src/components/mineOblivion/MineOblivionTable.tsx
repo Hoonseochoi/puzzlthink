@@ -12,6 +12,7 @@ import MineOblivionBoard, { type MoFlash, type ShownMine } from './MineOblivionB
 import type { MoItemsView } from './MineOblivionItems';
 import { MineStone, ShieldRing, TreasureStone, WALKER, WalkerStone } from './MineStones';
 import { moSoundOn, playBlast, playBury, playNumber, playSaved, playStep, playTreasure, setMoSound } from './sound';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 export const moName = (room: MoRoom, seat: MoSeat, mySeat: number | null, t: MoCopy) =>
   seat === mySeat ? t.you : room.ai[seat] && !room.away?.[seat] ? `${t.ai} · ${t.levelName[room.level]}` : room.seats[seat]?.name ?? t.opp;
@@ -151,6 +152,8 @@ export default function MineOblivionTable({ room, mySeat, onAction, t, rooms = f
 
   const flash = lastStep && !finished ? stepFlash(lastStep, t.savedFlash) : null;
   const nameOf = (s: MoSeat) => moName(room, s, mySeat, t);
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(rooms && !finished && waiting !== null ? { mine: myTurn, who: waiting === me ? null : nameOf(waiting) } : null);
   const secLeft = rooms && !finished && room.deadline < Number.MAX_SAFE_INTEGER / 2 && now > 0 ? Math.max(0, Math.ceil((room.deadline - now) / 1000)) : null;
 
   const tap = (cell: number) => {

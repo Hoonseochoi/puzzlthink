@@ -22,6 +22,7 @@ import { HandRow, MORRIS_ACCENT, MORRIS_INK, MorrisBoard, MorrisStone, useMorris
 import { ScoreDots } from './MorrisGame';
 import GameUpdates from '@/components/GameUpdates';
 import { PieceOwners, useMyNickname } from '../PieceStone';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 export default function MorrisRoomView({ code }: { code: string }) {
   const t = useTranslations('MorrisOnline');
@@ -62,6 +63,8 @@ export default function MorrisRoomView({ code }: { code: string }) {
 
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
   const names = [0, 1].map((seat) => (state?.seats[seat]?.id === me?.id ? `${seatName(seat)} (${t('me')})` : seatName(seat)));
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(playing ? { mine: myTurn, who: myTurn ? null : seatName(toMove) } : null);
   const full = !!state && state.seats.every(Boolean);
   const online = new Set(peers.map((peer) => peer.id));
   const seconds = state ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : 0;

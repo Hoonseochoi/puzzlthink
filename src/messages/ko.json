@@ -4262,7 +4262,7 @@
     "title": "채팅",
     "notSaved": "이 방에서만 보이고 어디에도 저장되지 않아요",
     "open": "채팅 열기",
-    "close": "닫기",
+    "close": "닫고 게임 보기",
     "turnOff": "채팅 끄기",
     "turnOn": "채팅 켜기",
     "offDesc": "채팅을 껐어요. 다른 사람의 메시지가 보이지 않아요.",
@@ -4275,7 +4275,11 @@
     "unmuteAll": "모두 해제",
     "block_fast": "너무 빨라요. 잠깐 쉬었다 보내 주세요.",
     "block_burst": "메시지를 너무 많이 보냈어요. 몇 초 뒤에 다시 보내 주세요.",
-    "block_repeat": "같은 말을 계속 보낼 수 없어요."
+    "block_repeat": "같은 말을 계속 보낼 수 없어요.",
+    "myTurn": "내 차례 — 게임으로",
+    "theirTurn": "{name} 차례",
+    "playing": "게임 진행 중",
+    "newBelow": "새 메시지"
   },
   "Lounge": {
     "title": "라운지",

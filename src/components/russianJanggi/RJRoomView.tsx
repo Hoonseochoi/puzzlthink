@@ -26,6 +26,7 @@ import { RulesPanel } from './RJGame';
 import RJReplay from './RJReplay';
 import { RJ_PANEL, RJ_ROOT, RJ_SHARD, RJ_TITLE, SIDE_COLORS } from './theme';
 import GameUpdates from '@/components/GameUpdates';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 export default function RJRoomView({ code }: { code: string }) {
   const t = useTranslations('RussianJanggiOnline');
@@ -98,6 +99,8 @@ export default function RJRoomView({ code }: { code: string }) {
   const notice = status === 'unconfigured' ? t('unconfigured') : status === 'error' ? t('connectionError')
     : !state && waitedLong ? t('roomNotFound') : state && !me?.isHost && !hostOnline ? t('hostOffline') : null;
   const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? tg('gameOver') : myTurn ? tg('yourTurn') : t('waitingFor', { player: seatName(game!.turn) });
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(state?.phase === 'playing' && game ? { mine: myTurn, who: myTurn ? null : seatName(game.turn) } : null);
 
   return (
     <div className={SHELL} style={RJ_ROOT}>

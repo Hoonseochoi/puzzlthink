@@ -23,6 +23,7 @@ import BlindStone from './BlindStone';
 import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
 import GameUpdates from '@/components/GameUpdates';
 import { PieceOwners, useMyNickname } from '../PieceStone';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 const ACCENT = '#ffd166';
 
@@ -74,6 +75,8 @@ export default function BlindGomokuRoomView({ code }: { code: string }) {
   const toMove = state ? seatToMove(state) : 0;
   const myTurn = !!state && state.phase === 'playing' && mySeat === toMove;
   const iAmBlack = !!state && mySeat !== null && ownerOf(state, mySeat) === 'black';
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(state?.phase === 'playing' ? { mine: myTurn, who: myTurn ? null : seatName(toMove) } : null);
   const peeking = myTurn && !!state && now < state.revealUntil;
   const peekSeconds = state ? Math.max(0, Math.ceil((state.revealUntil - now) / 1000)) : 0;
   const seconds = state ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : 0;

@@ -13,6 +13,7 @@ import { BTN, BTN_ACCENT, KICKER, PANEL, PANEL_TITLE, accentVars } from '../ui/g
 import CldBoard from './CldBoard';
 import { BoardChip } from './CldBoardPicker';
 import { CLD_ACCENT, CLD_INK, type CldCopy, cldColor } from './copy';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 /** Ticks every quarter second (for the clocks). */
 function useNow(active: boolean) {
@@ -146,6 +147,8 @@ export default function CldTable({ room, mySeat, dispatch, names, t, thinking = 
   const seconds = (room.deadline - now) / 1000;
   const clockSeat: CldSeat | null = room.phase === 'place' ? room.turn : room.phase === 'proof' ? room.proof!.prover : room.phase === 'choose' ? room.chooser : null;
   const nameOf = (seat: CldSeat) => names[seat];
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(clockSeat !== null ? { mine: mySeat !== null && clockSeat === mySeat, who: clockSeat === mySeat ? null : nameOf(clockSeat) } : null);
 
   let status: ReactNode;
   if (room.phase === 'place') {

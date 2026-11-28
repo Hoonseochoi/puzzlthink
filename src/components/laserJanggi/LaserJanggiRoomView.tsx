@@ -25,6 +25,7 @@ import { shotTimeline } from './laserFx';
 import LaserPiece from './LaserPiece';
 import { LASER_CYAN } from './theme';
 import GameUpdates from '@/components/GameUpdates';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 export default function LaserJanggiRoomView({ code }: { code: string }) {
   const t = useTranslations('LaserJanggiOnline');
@@ -89,6 +90,8 @@ export default function LaserJanggiRoomView({ code }: { code: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- one beat per turn
     [beatTurn]);
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
+  // The room chat's status line (my move / whose move); the turn clock comes from the room.
+  useChatStatus(state?.phase === 'playing' ? { mine: myTurn, who: mySeat === state.current ? null : seatName(state.current) } : null);
   const result = !state ? '' : state.reason === 'turn-limit' ? t('draw') : state.winner === null ? '' : `${seatName(state.winner)} · ${state.reason === 'king' ? t('byKing') : state.reason === 'resign' ? t('byResign') : t('byTimeout')}`;
   const shotCaption = (s: LaserShot | null) => {
     if (!s) return tc('replayStart');

@@ -28,6 +28,7 @@ import Shards from './WallGoShards';
 import { cinzel, FOG, PANEL, PANEL_TITLE, STEEL_TEXT } from './wallgoTheme';
 import GameUpdates from '@/components/GameUpdates';
 import PlayerStrip, { roomPlayers } from './ui/PlayerStrip';
+import { useChatStatus } from '@/hooks/useChatStatus';
 
 export default function WallGoRoom({ code, variant = 1 }: { code: string; variant?: Variant }) {
   const t = useTranslations('WallGoOnline');
@@ -139,6 +140,15 @@ export default function WallGoRoom({ code, variant = 1 }: { code: string; varian
 
   const notice = status === 'unconfigured' ? t('unconfigured') : status === 'error' ? t('connectionError')
     : !state && waitedLong ? t('roomNotFound') : state && !me?.isHost && !hostOnline ? t('hostOffline') : null;
+  // The room chat's status line: my move / whose move, the score, the last move.
+  const over = state?.phase === 'finished';
+  useChatStatus(state && state.phase !== 'lobby' ? {
+    mine: myTurn,
+    who: myTurn || over ? null : plainName(state.current),
+    text: myTurn || over ? instruction : null,
+    score: scoring && mode ? mode.players.map((p) => `${p === mySeat ? t('me') : plainName(p)} ${territory.scores[p]}`).join(' : ') : null,
+    last: !over && state.log[0] ? logLine(state.log[0]) : null,
+  } : null);
 
   return (
     <WallGoVariant.Provider value={variant}>

@@ -8,7 +8,7 @@ import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypt
 import { setRoomOpen, setRoomOpponents } from '@/lib/stats';
 import { isOpenRoom, pingLiveRoom } from '@/lib/openRooms';
 import { gameOfChannel, setMatch } from '@/lib/matchStore';
-import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatPeers, setRoomPlaying } from '@/lib/roomChat';
+import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatBase, setChatPeers, setRoomPlaying } from '@/lib/roomChat';
 import { pushHostNotice } from '@/lib/roomHost';
 
 /**
@@ -148,6 +148,7 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   }), []);
 
   const lastChange = useRef(0);
+  const chatTokenRef = useRef(0); // the room chat this room feeds (its live status line)
   const emoteRef = useRef<((text: string) => void) | null>(null); // for the chat drawer's quick reactions
   // Encrypted per-seat secrets (only used when the engine defines privateFor).
   const keysRef = useRef<Promise<{ privateKey: CryptoKey; pub: string }> | null>(null);
@@ -369,6 +370,8 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
       pushChat(chatToken, { ...message, key: `${self.id}-${at}`, at, mine: true });
       return null;
     }, (text) => emoteRef.current?.(text));
+    chatTokenRef.current = chatToken;
+    if (stateRef.current) setChatBase(chatToken, baseChatStatus(engine, stateRef.current));
     channel.on('broadcast', { event: 'chat' }, ({ payload }) => {
       const from = typeof payload?.from === 'string' ? payload.from : '';
       const text = typeof payload?.text === 'string' ? cleanChat(payload.text) : '';
@@ -477,6 +480,10 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   // people, or an open room once it has started (waiting open rooms are listed on their own).
   const openRoom = isOpenRoom(code);
   const started = !!state && state.phase !== 'lobby';
+  // The room chat's status line: in play or not and the turn clock, for every game (games add the rest with useChatStatus).
+  useEffect(() => {
+    if (state && chatTokenRef.current) setChatBase(chatTokenRef.current, baseChatStatus(engine, state));
+  }, [state, engine]);
   // The site-wide lounge hides while the match is on (it shows again in the lobby, next to the room chat).
   useEffect(() => {
     setRoomPlaying(started);
@@ -511,6 +518,12 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
 
   const mySeat = state && me ? seatOf(state, me.id) : null;
   return { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote };
+}
+
+/** What the room chat can say about any game: in play or not (lobby, finished), and when the turn clock runs out. */
+function baseChatStatus<S extends BaseRoom, A>(engine: RoomEngine<S, A>, state: S) {
+  const idle = state.phase === 'lobby' || state.phase === 'finished' || state.phase === 'over';
+  return { idle, deadline: !idle && engine.running(state) && state.deadline > 0 ? state.deadline : null };
 }
 
 /** Same engine, played entirely in this browser (solo vs AI). Seat 0 is the local player. */
