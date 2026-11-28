@@ -25,6 +25,46 @@ export type GameUpdateLog = {
 };
 
 export const GAME_UPDATES: Record<string, GameUpdateLog> = {
+  hidden_word_liar: {
+    name: { ko: '히든 워드: 라이어', en: 'Hidden Word: Liar' },
+    items: [
+      {
+        date: '11/28', icon: Timer,
+        ko: { title: '⏱ 시간 연장 +30초', desc: '단어가 안 떠오르면 내 차례에 「⏱ +30초」를 한 판에 한 번 누를 수 있어요. 누르면 모두에게 알림이 뜨고 그 자리에 ⏱ 표시가 남아요.' },
+        en: { title: '⏱ +30 s time extension', desc: 'Stuck for a word? Press ⏱ +30 s on your turn, once a game. Everyone is told, and a ⏱ mark stays on your seat.' },
+      },
+      {
+        date: '11/28', icon: BellRing,
+        ko: { title: '튜토리얼, 도움말 말풍선, NEXT, 소리', desc: '처음 들어오면 튜토리얼이 떠요(다시 보지 않기 가능, ? 메뉴에서 다시 보기). 단계마다 말풍선 도움말, 다음 차례를 알려 주는 NEXT, 효과음·진동과 배경음(기본 꺼짐)이 생겼어요. 의심 1위는 채팅이 강조돼서 해명할 수 있어요. 한 번 나온 단어는 조사를 붙여도 다시 못 써요.' },
+        en: { title: 'Tutorial, tips, NEXT and sound', desc: 'A tutorial opens the first time (turn it off, or reopen it from the ? menu). Tip bubbles at each step, a NEXT chip for the next speaker, sound effects with vibration and music (off by default). The most-suspected player\'s chat is highlighted so they can explain. A word already said can\'t come back, even with a particle.' },
+      },
+      {
+        date: '11/28', icon: Scale,
+        ko: { title: '최후의 발언 → 검거하기 / 다시 투표하기', desc: '지목된 사람은 20초 동안 변론하고, 나머지가 검거할지 다시 투표할지 정해요. 다시 투표는 한 판에 한 번(방금 지목된 사람 제외), 두 번째엔 풀어 주면 라이어 승리예요.' },
+        en: { title: 'Last words → Arrest / Vote again', desc: 'The accused gets 20 s to defend themselves, then the others decide to arrest or vote again. Vote again happens once a game (without the accused); the second time, letting them go means the liar wins.' },
+      },
+      {
+        date: '11/28', icon: Sparkles,
+        ko: { title: '제시어 공개 쇼와 검거 판정', desc: '끝나면 한 명씩 카드를 뒤집어 제시어를 보여 주고, 라이어는 마지막에 가면을 벗어요. 이어서 「라이어 검거 성공!」 또는 「검거 실패…」 도장이 찍혀요. 차례가 된 사람은 테이블 위로 떠오르고 단서는 가운데에서 날아가요.' },
+        en: { title: 'A word reveal and the verdict', desc: 'At the end each card flips in turn, the liar\'s last with the mask coming off, then a "Liar caught!" or "The liar got away…" stamp. The speaker now rises onto the table and each clue flies out from the centre.' },
+      },
+      {
+        date: '11/28', icon: Wrench,
+        ko: { title: '채팅에 제시어·정답 금지', desc: '띄어쓰기나 조사, 자모로 바꿔 써도 서버가 막아요. 상대 쪽 단어는 다른 사람 화면에서 가려져요.' },
+        en: { title: 'No game words in chat', desc: 'The server stops them even with spaces, particles or loose jamo. A line with the other game word is hidden for everyone else.' },
+      },
+      {
+        date: '11/28', icon: Timer,
+        ko: { title: '제시어는 테이블 가운데에서 · 20초 타이머', desc: '내 차례가 되면 테이블 가운데에 제시어 칸이 열리고 20초가 줄어들어요. 시간이 다 되면 ⏰ 시간 초과로 다음 사람에게 넘어가요. 지목/한 바퀴 더, 투표, 정답 맞히기도 모두 가운데에서 해요.' },
+        en: { title: 'Clues go in the middle of the table · 20 s timer', desc: 'On your turn a clue box opens in the middle of the table with a 20-second countdown. When time runs out it shows ⏰ Time out and passes on. Accuse / one more round, the vote and the liar\'s guess all happen in the middle too.' },
+      },
+      {
+        date: '11/28', icon: PenLine,
+        ko: { title: '입력 중 "…" 표시와 채팅 구분', desc: '누가 제시어나 채팅을 치고 있으면 아이콘 위에 "…"가 떠요. 내 차례에 채팅창에 단어 하나만 쓰면 "제시어로 낼까요?"라고 물어봐요.' },
+        en: { title: 'Typing "…" and a clearer chat', desc: 'A "…" shows over a player\'s icon while they type a clue or a chat line. If you type a single word into chat on your turn, it asks whether to submit it as your clue.' },
+      },
+    ],
+  },
   proposition_go: {
     name: { ko: '명제 바둑', en: 'Proposition Go' },
     items: [
