@@ -1,5 +1,6 @@
 // Player records stored in Supabase (only for signed-in players) plus an anonymous play counter. All calls fail quietly.
 import { getSupabase } from './supabase';
+import { setMatchResult } from './matchStore';
 import { HARD_CLEAR_EVENT, type HardClearDetail, isHardClear } from './hardClear';
 import { HELL_CLEAR_EVENT, type HellClearDetail, isHellClear } from './hell';
 
@@ -90,6 +91,7 @@ export async function reportGame(key: string, game: GameId, mode: GameMode, resu
   // 복기 (`detail.replay`) is kept only for a human win against the 매우 어려움 AI; every other result drops it.
   if ('replay' in detail && !isHellClear(game, mode, result, detail)) { const { replay: _drop, ...rest } = detail; void _drop; detail = rest; }
   reported.add(key);
+  if (mode === 'friend') setMatchResult(result);
   // The "install as app" card listens for this and comes up after a win (a solo clear or score counts as one).
   window.dispatchEvent(new CustomEvent<{ result: GameResult }>('puzzlthink:game-finished', { detail: { result } }));
   const opponents = mode === 'friend' ? roomOpponents : [];

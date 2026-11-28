@@ -7,6 +7,7 @@ import { type BaseRoom, type Peer, seatOf } from '@/lib/room';
 import { cryptoReady, deriveKey, makeKeyPair, open, seal } from '@/lib/roomCrypto';
 import { setRoomOpen, setRoomOpponents } from '@/lib/stats';
 import { isOpenRoom, pingLiveRoom } from '@/lib/openRooms';
+import { gameOfChannel, setMatch } from '@/lib/matchStore';
 import { type ChatBlock, cleanChat, closeChat, floodCheck, openChat, pushChat, setChatPeers, setRoomPlaying } from '@/lib/roomChat';
 import { pushHostNotice } from '@/lib/roomHost';
 
@@ -481,6 +482,24 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
     setRoomPlaying(started);
     return () => setRoomPlaying(false);
   }, [started]);
+  // The shared match pieces (VS intro, winner on the result screen): who is seated, once the match has begun.
+  // Whether this client saw the match begin: it saw the lobby, or the match is a later one than the first it saw.
+  const firstSeen = useRef<{ lobby: boolean; key: string }>({ lobby: false, key: '' });
+  useEffect(() => { firstSeen.current = { lobby: false, key: '' }; return () => setMatch(null); }, [code]);
+  useEffect(() => {
+    if (!state || !me) return;
+    if (state.phase === 'lobby') { firstSeen.current.lobby = true; setMatch(null); return; }
+    const ai = Array.isArray((state as { ai?: unknown }).ai) ? ((state as { ai?: unknown[] }).ai as unknown[]) : [];
+    const byId = new Map(peers.map((peer) => [peer.id, peer]));
+    const players = state.seats.flatMap((seat, index) => (seat && !ai[index] ? [{
+      seat: index, name: seat.name, me: seat.id === me.id, ...(byId.get(seat.id)?.uid ? { uid: byId.get(seat.id)!.uid } : {}),
+    }] : []));
+    if (!players.some((p) => p.me) || players.length < 2) { setMatch(null); return; }
+    const key = `${engine.channel}-${code}-${state.sid}`;
+    if (!firstSeen.current.key) firstSeen.current.key = key;
+    setMatch({ key, game: gameOfChannel(engine.channel), players, clock: engine.running(state), sawLobby: firstSeen.current.lobby || key !== firstSeen.current.key });
+  }, [state, peers, me, engine, code]);
+
   const live = !!me?.isHost && status === 'online' && peers.length >= 2 && (!openRoom || started);
   useEffect(() => {
     if (!live) return;

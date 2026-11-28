@@ -9055,5 +9055,27 @@
     "costToken": "{n} token",
     "ok": "OK",
     "close": "Close"
+  },
+  "Match": {
+    "introLabel": "Match start",
+    "introKicker": "MATCH START",
+    "introKickerN": "{n}-player match",
+    "introSkip": "Tap to skip",
+    "me": "Me",
+    "record": "{w}W {l}L vs people",
+    "line_mission_hard": "Hidden mission cleared",
+    "line_mission_hell": "Hidden mission cleared",
+    "line_mission_rank": "Hidden mission cleared",
+    "line_crown": "Holds a #1 icon",
+    "line_gameTop": "#1 in this game",
+    "line_piece": "Piece contest podium",
+    "line_hell": "Black Piece podium",
+    "line_open": "Open match top 3",
+    "line_hard": "Beat the hard AI",
+    "line_hellClear": "Beat the hardest AI",
+    "line_m2048": "2048 master",
+    "line_founder": "Founding tester",
+    "winnerKicker": "WINNER",
+    "drawKicker": "DRAW"
   }
 }

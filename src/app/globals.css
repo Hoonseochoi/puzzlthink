@@ -235,3 +235,28 @@ button:disabled { cursor: default; }
 @keyframes endRevealTaken { 0% { opacity: 0; transform: scale(1.8) rotate(-20deg); } 60% { opacity: 1; transform: scale(.95) rotate(6deg); } 100% { opacity: .9; transform: none; } }
 .end-reveal-taken { animation: endRevealTaken .6s .15s cubic-bezier(.2,.8,.2,1) both; }
 @media (prefers-reduced-motion: reduce) { .end-reveal-taken { animation: none; } }
+
+/* Match pieces (src/components/match): a turning rim and glow behind rare icons, the VS intro. */
+.match-rim { isolation: isolate; }
+.match-rim::before { content: ''; position: absolute; inset: calc(var(--rim-w, 2px) * -1 - 1px); z-index: -1; border-radius: 9999px; background: var(--rim); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--rim-w, 2px) - 1px), #000 calc(100% - var(--rim-w, 2px))); mask: radial-gradient(farthest-side, transparent calc(100% - var(--rim-w, 2px) - 1px), #000 calc(100% - var(--rim-w, 2px))); animation: matchRim 3.2s linear infinite; }
+.match-rim::after { content: ''; position: absolute; inset: 8%; z-index: -2; border-radius: 9999px; box-shadow: 0 0 calc(var(--rim-w, 2px) * 5) var(--rim-glow); }
+@keyframes matchRim { to { transform: rotate(360deg); } }
+@keyframes vsIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vsSlideL { 0% { opacity: 0; transform: translateX(-60%) scale(.8); } 70% { opacity: 1; transform: translateX(4%) scale(1.03); } 100% { transform: none; } }
+@keyframes vsSlideR { 0% { opacity: 0; transform: translateX(60%) scale(.8); } 70% { opacity: 1; transform: translateX(-4%) scale(1.03); } 100% { transform: none; } }
+@keyframes vsSlam { 0% { opacity: 0; transform: scale(2.6) rotate(-8deg); } 55% { opacity: 1; transform: scale(.92) rotate(-8deg); } 100% { transform: scale(1) rotate(-8deg); } }
+@keyframes vsRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes vsOut { to { opacity: 0; } }
+@keyframes vsBar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.vs-in { animation: vsIn .18s ease-out both; }
+.vs-out { animation: vsOut .22s ease-in forwards; }
+.vs-left { animation: vsSlideL .5s cubic-bezier(.2,.9,.3,1.1) both; }
+.vs-right { animation: vsSlideR .5s cubic-bezier(.2,.9,.3,1.1) both; }
+.vs-slam { animation: vsSlam .45s .25s cubic-bezier(.2,.9,.3,1.2) both; }
+.vs-rise { animation: vsRise .35s ease-out both; }
+.vs-bar { transform-origin: left; animation: vsBar var(--vs-ms, 2000ms) linear both; }
+@media (prefers-reduced-motion: reduce) {
+  .match-rim::before { animation: none; }
+  .vs-in, .vs-out, .vs-left, .vs-right, .vs-slam, .vs-rise, .vs-bar { animation: none; }
+  .vs-slam { transform: rotate(-8deg); }
+}

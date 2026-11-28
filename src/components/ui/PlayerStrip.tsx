@@ -1,9 +1,8 @@
 "use client";
 
-import { Bot } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '../AuthProvider';
-import StoneAvatar from '../StoneAvatar';
+import PlayerPlate from '../match/PlayerPlate';
 
 /** A player in the strip: their seat (to match `me`), name, and whether the seat is an AI. */
 export type StripPlayer = { seat: number; name: string; ai?: boolean };
@@ -36,7 +35,7 @@ export default function PlayerStrip({ players, me = null, ai, tone = 'dark', pla
   return (
     <div aria-label={t('label')} className={place === 'header'
       ? 'hidden min-w-0 flex-1 overflow-x-auto px-2 [scrollbar-width:none] lg:block'
-      : `relative z-10 overflow-x-auto border-b px-3 py-1.5 backdrop-blur [scrollbar-width:none] ${place === 'mobile' ? 'lg:hidden' : ''} ${light ? 'border-black/[.06] bg-white/60' : 'border-white/[.06] bg-black/35'}`}>
+      : `relative z-10 overflow-x-auto border-b px-3 py-1 backdrop-blur [scrollbar-width:none] ${place === 'mobile' ? 'lg:hidden' : ''} ${light ? 'border-black/[.06] bg-white/60' : 'border-white/[.06] bg-black/35'}`}>
       {/* w-max + mx-auto: centred when it fits, scrolls from the first player when it does not. */}
       <div className="mx-auto flex w-max items-center gap-1.5">
       {list.map((p, i) => (
@@ -44,13 +43,7 @@ export default function PlayerStrip({ players, me = null, ai, tone = 'dark', pla
           {i > 0 && (list.length === 2
             ? <span className="shrink-0 px-0.5 font-mono text-[10px] font-black tracking-[0.12em] text-white/35">VS</span>
             : <span className="h-1 w-1 shrink-0 rounded-full bg-white/20" />)}
-          <span className={`flex min-w-0 shrink-0 items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2.5 ${p.mine ? (light ? 'bg-[#17201e] ring-1 ring-[#ffd36e]/60' : 'bg-[#ffd36e]/[.12] ring-1 ring-[#ffd36e]/45') : light ? 'bg-black/[.05]' : 'bg-white/[.06]'}`}>
-            {p.ai
-              ? <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white/70"><Bot size={15} /></span>
-              : <StoneAvatar name={p.name} size={28} />}
-            <span className={`max-w-[6.5rem] truncate text-[12px] font-black sm:max-w-[10rem] ${p.mine ? 'text-[#ffe9a8]' : light ? 'text-black/75' : 'text-white/85'}`}>{p.name}</span>
-            {p.mine && <span className="shrink-0 rounded-full bg-[#ffd36e] px-1.5 text-[9px] font-black leading-[15px] text-[#17201e]">{t('me')}</span>}
-          </span>
+          <PlayerPlate name={p.name} mine={p.mine} ai={p.ai} light={light} meLabel={t('me')} />
         </span>
       ))}
       </div>
