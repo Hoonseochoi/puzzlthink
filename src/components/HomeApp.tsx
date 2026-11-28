@@ -18,7 +18,9 @@ import { listAllOpenRooms, listLiveRooms } from '@/lib/openRooms';
 import { getSupabase } from '@/lib/supabase';
 import type { GameId as StatsGameId } from '@/lib/stats';
 import { useAuth } from './AuthProvider';
-import { Piece, PIECE_WEEKS } from './CompetitionBoard';
+import { Piece } from './CompetitionBoard';
+import { SageToken } from './SageToken';
+import { kstMonthDay, piecePeriodBounds, piecePeriodOf, useWallet } from '@/lib/pieceWallet';
 import { BlackPiece } from './hell/BlackPiece';
 import { GAME_LABEL } from './HallCelebration';
 import { type GamePodium, useHallPodiums } from './HallPodium';
@@ -247,7 +249,7 @@ export function MyRank({ rank, name }: { rank?: number; name: string }) {
 /** The home's event banners: AI 헬모드, 피스 경쟁전 (while it runs) and 오픈 대전 with the matches on right now. */
 export function useHomeEvents(races: Races) {
   const th = useTranslations('HomeApp');
-  const [pieceLive] = useState(() => Date.now() < PIECE_WEEKS[2].ends);
+  const [week] = useState(() => piecePeriodOf()); // 피스 경쟁전 runs every week now
   const [rooms, setRooms] = useState<number | null>(null);
   const [live, setLive] = useState<{ open: number; friend: number } | null>(null); // matches being played right now
   useEffect(() => {
@@ -265,7 +267,7 @@ export function useHomeEvents(races: Races) {
 
   const events = [
     { key: 'hell', icon: <Skull size={15} />, eyebrow: 'AI HELL MODE', title: th('evHellTitle'), sub: th('evHellSub'), cta: th('evHellCta'), bg: 'linear-gradient(135deg, #2a0812 0%, #07060a 70%)', accent: '#ff3355', href: '/hell' as const, hash: undefined, side: <RacePodium rows={races.black} icon={(p) => `h1-${p}`} accent="#ff8ea0" /> },
-    ...(pieceLive ? [{ key: 'piece', icon: <Puzzle size={15} />, eyebrow: 'PIECE RACE · 2W', title: th('evPieceTitle'), sub: th('evPieceSub'), cta: th('evPieceCta'), bg: 'linear-gradient(135deg, #2c2a14 0%, #17201e 70%)', accent: '#ffd36e', href: '/records' as const, hash: 'competition', side: <RacePodium rows={races.piece} icon={(p) => `w2-${p}`} accent="#ffd36e" /> }] : []),
+    { key: 'piece', icon: <Puzzle size={15} />, eyebrow: `PIECE RACE · ${week}W`, title: th('evPieceTitle', { n: week }), sub: th('evPieceSub', { end: kstMonthDay(piecePeriodBounds(week).ends - 1) }), cta: th('evPieceCta'), bg: 'linear-gradient(135deg, #2c2a14 0%, #17201e 70%)', accent: '#ffd36e', href: '/records' as const, hash: 'competition', side: <RacePodium rows={races.piece} icon={(p) => `w${week}-${p}`} accent="#ffd36e" /> },
     { key: 'open', icon: <Swords size={15} />, eyebrow: 'OPEN MATCH', title: th('evOpenTitle'), sub: live ? th('evOpenLive', { open: live.open, friend: live.friend }) + (rooms ? ` · ${th('evOpenWaiting', { n: rooms })}` : '') : rooms ? th('evOpenRooms', { n: rooms }) : th('evOpenSub'), cta: th('evOpenCta'), bg: 'linear-gradient(135deg, #1b1f4a 0%, #0e1020 70%)', accent: '#8f9bff', href: '/' as const, hash: 'open-match', side: openSide },
   ];
   return events;
@@ -280,6 +282,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
   const me = useMe(user?.id ?? null);
   const races = useRaces(user?.id ?? null);
   const myPiece = races.piece.find((r) => r.is_me), myBlack = races.black.find((r) => r.is_me);
+  const wallet = useWallet(!!user);
   const podiums = useHallPodiums();
   const playApp = usePlayApp();
   const feed = useFeed().filter((item) => !(playApp && hiddenGameOfPath(item.href, GAMES))); // Google Play app: no hidden games
@@ -314,6 +317,12 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
                 <span className="flex items-center gap-1 text-[13px] font-black text-[#ffd36e]"><Piece size={12} />{myPiece?.pieces ?? 0}</span>
                 <span className="text-[9px] font-bold text-white/45">{myPiece ? th('piecesRank', { n: myPiece.rank }) : th('pieces')}</span>
               </Link>
+              {!!wallet?.tokens && (
+                <Link href={{ pathname: '/records', hash: 'competition' }} data-token-chip className="flex shrink-0 flex-col items-center rounded-2xl bg-[#2a1670] px-3 py-1.5 text-white ring-1 ring-[#b48cff]/40 active:scale-95" title={th('tokens')}>
+                  <span className="flex items-center gap-1 text-[13px] font-black text-[#e3d8ff]"><SageToken size={14} />{wallet.tokens}</span>
+                  <span className="text-[9px] font-bold text-white/45">{th('tokens')}</span>
+                </Link>
+              )}
               <Link href="/hell" className="flex shrink-0 flex-col items-center rounded-2xl bg-[#07060a] px-3 py-1.5 text-white ring-1 ring-[#ff3355]/40 active:scale-95" title={th('blackPieces')}>
                 <span className="flex items-center gap-1 text-[13px] font-black text-[#ff5c77]"><BlackPiece size={12} glow={false} />{myBlack?.pieces ?? 0}</span>
                 <span className="text-[9px] font-bold text-white/45">{myBlack ? th('blackRank', { n: myBlack.rank }) : th('blackPieces')}</span>

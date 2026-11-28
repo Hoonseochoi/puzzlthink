@@ -16,11 +16,14 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Piece } from '@/components/CompetitionBoard';
 import { BlackPiece } from '@/components/hell/BlackPiece';
 import StoneAvatar from '@/components/StoneAvatar';
+import PieceNews, { checkPieceNews } from '@/components/PieceNews';
+import { SageToken } from '@/components/SageToken';
 import { ResultBannerSlot } from '@/components/ads/HiddenLogAd';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog } from '@/components/ui/gameUi';
 import { type Prop, type PublicPuzzle, type Tier, HINT_CAP, HINT_PENALTY_MS, STONE_HINT_PENALTY_MS, encodeCells, evalProp } from '@/lib/propositionGo';
-import { type PgRankRow, type PgResult, type PgToday, type PgView, type PracticePuzzle, buyHint, buyStoneHint, clock, fetchRanking, fetchToday, giveUp, loadPractice, msToNextDay, solveStage, startRun } from '@/lib/propositionGoClient';
+import { type PgPodiumRow, type PgRankRow, type PgResult, type PgToday, type PgView, type PracticePuzzle, PG_FAST_MS, PG_TOP_PIECES, buyHint, buyStoneHint, clock, dayBefore, fetchPodium, fetchRanking, fetchToday, giveUp, loadPractice, msToNextDay, solveStage, startRun } from '@/lib/propositionGoClient';
+import { walletChanged } from '@/lib/pieceWallet';
 import { type LogicTraceRecorder, startLogicTrace } from '@/lib/logicTrace';
 import { reportGame } from '@/lib/stats';
 import PropPlayfield, { type Finish, type TraceInput } from './PropPlayfield';
@@ -108,7 +111,7 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
 
   const take = useCallback((v: PgView | PgResult | null) => {
     if (!v) return;
-    if (v.done) { recorder.current?.stop(); recorder.current = null; setView(null); setResult(v); setRankTick((x) => x + 1); window.dispatchEvent(new Event(RANKED_EVENT)); return; }
+    if (v.done) { recorder.current?.stop(); recorder.current = null; setView(null); setResult(v); setRankTick((x) => x + 1); window.dispatchEvent(new Event(RANKED_EVENT)); checkPieceNews(); walletChanged(); return; }
     setOrigin(Date.now() - v.elapsed);
     const key = `${v.run}-${v.stage}`;
     if (stageKey.current !== key) {
@@ -202,7 +205,7 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
       <div className={`${STAGE} flex flex-col gap-2.5`}>
         <RunBar stage={view.stage} splits={view.splits} hints={view.hints.map((h, i) => h + (view.stoneHints?.[i] ?? 0))} elapsed={elapsed} left={left} />
         <PropPlayfield key={`${view.run}-${view.stage}`} puzzle={view.puzzle} hint={view.hint} finish={finish} locked={!!finish || busy} onSolved={onSolved} trace={trace} givens={view.givens} cellsRef={boardNow} />
-        <HintBar left={view.hintsLeft ?? 0} propUsed={hinted} busy={busy || !!finish} pieces={view.pieces ?? 0} black={view.blackPieces ?? 0} onProp={hint} onStone={stoneHint}
+        <HintBar left={view.hintsLeft ?? 0} propUsed={hinted} busy={busy || !!finish} pieces={view.pieces ?? 0} tokens={view.tokens ?? 0} black={view.blackPieces ?? 0} onProp={hint} onStone={stoneHint}
           extra={<button type="button" onClick={() => setConfirmQuit(true)} disabled={busy || !!finish} className="flex items-center gap-1 text-[11px] font-bold text-white/45 hover:text-white disabled:opacity-40"><Flag size={12} />{t('giveUp')}</button>} />
         {error && <p className="text-center text-[12px] font-bold text-[#ff9aa5]">{error}</p>}
         <p className="text-center text-[10.5px] font-bold text-white/35">{t(`${TIER_KEY[tier]}Sub`)}</p>
@@ -223,7 +226,9 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
   const signedIn = !!user;
   return (
     <div className={`${STAGE} flex flex-col gap-3`}>
+      <PieceNews only={['prop_fast', 'prop_top']} onGame />
       <TodayCard today={today} />
+      {today?.day && <PropPodium day={today.day} />}
       {signedIn ? (
         <button type="button" onClick={start} disabled={busy || today?.ready === false}
           className="flex min-h-[54px] items-center justify-center gap-2 rounded-[14px] bg-(--accent) text-[16px] font-black text-(--accent-ink) shadow-[0_0_26px_var(--accent-glow)] transition active:scale-[.98] disabled:opacity-50">
@@ -285,8 +290,8 @@ function TodayCard({ today }: { today: PgToday | null }) {
  * The two hints. 피스: one more true proposition (once per puzzle, +30 s). 블랙피스: one stone shown on its point and
  * locked (+40 s). Both together at most 3 per run (the server checks it too). Practice: both free, no cap.
  */
-function HintBar({ left, propUsed, busy, pieces, black, onProp, onStone, extra, free = false }: {
-  left: number | null; propUsed: boolean; busy: boolean; pieces?: number; black?: number; onProp: () => void; onStone: () => void; extra?: React.ReactNode; free?: boolean;
+function HintBar({ left, propUsed, busy, pieces, tokens = 0, black, onProp, onStone, extra, free = false }: {
+  left: number | null; propUsed: boolean; busy: boolean; pieces?: number; tokens?: number; black?: number; onProp: () => void; onStone: () => void; extra?: React.ReactNode; free?: boolean;
 }) {
   const t = useTranslations('PropositionGo');
   const out = left !== null && left <= 0;
@@ -301,7 +306,7 @@ function HintBar({ left, propUsed, busy, pieces, black, onProp, onStone, extra, 
           className="flex min-h-[48px] items-center gap-2 rounded-[12px] border border-[#ffd36e]/40 bg-[#ffd36e]/10 px-2.5 text-left text-[#ffe7a8] transition active:scale-[.98] disabled:opacity-40">
           <Lightbulb size={17} className="shrink-0" />
           <span className="min-w-0 flex-1 leading-[15px]"><b className="block text-[12px] font-black">{propUsed ? t('hintUsed') : t('hintProp')}</b>
-            <span className="flex items-center gap-1 text-[10px] font-bold text-[#ffe7a8]/65">{free ? t('free') : <><Piece size={9} />{t('costPiece', { s: HINT_PENALTY_MS / 1000, n: pieces ?? 0 })}</>}</span></span>
+            <span className="flex items-center gap-1 text-[10px] font-bold text-[#ffe7a8]/65">{free ? t('free') : tokens > 0 ? <><SageToken size={11} />{t('costToken', { s: HINT_PENALTY_MS / 1000, n: tokens })}</> : <><Piece size={9} />{t('costPiece', { s: HINT_PENALTY_MS / 1000, n: pieces ?? 0 })}</>}</span></span>
         </button>
         <button type="button" onClick={onStone} disabled={busy || out || (!free && (black ?? 0) < 1)}
           className="flex min-h-[48px] items-center gap-2 rounded-[12px] border border-[#ff5c77]/45 bg-[linear-gradient(135deg,rgba(255,51,85,.16),rgba(7,6,10,.6))] px-2.5 text-left text-[#ffc2cc] transition active:scale-[.98] disabled:opacity-40">
@@ -365,8 +370,10 @@ function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult
   };
   const hh = Math.floor(left / 3600_000), mm = Math.floor((left % 3600_000) / 60_000), ss = Math.floor((left % 60_000) / 1000);
 
+  const fastMs = result.fastMs ?? PG_FAST_MS;
   return (
     <div className={`${STAGE} flex flex-col gap-3`}>
+      <PieceNews only={['prop_fast', 'prop_top']} onGame />
       {/* the share card: no answers on it */}
       <div className="pg-rise relative overflow-hidden rounded-[20px] bg-[radial-gradient(120%_100%_at_100%_0%,#5b37c9_0%,#1a0f3a_55%,#0d0820_100%)] p-4 ring-1 ring-[#c9b6ff]/30">
         <span className="pointer-events-none absolute -left-10 bottom-0 h-36 w-36 rounded-full bg-[#3fd67a]/10" />
@@ -396,7 +403,13 @@ function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult
           {result.streak > 0 && <span className="flex items-center gap-1 text-[#ffb37a]"><Flame size={13} />{t('streakN', { n: result.streak })}</span>}
           {result.flag && <span className="text-[11px] font-bold text-white/45">{t('flagged')}</span>}
         </div>
+        {clear && !result.flag && (
+          <p data-pg-reward className={`relative mt-2.5 flex items-center gap-1.5 rounded-[10px] px-2.5 py-1.5 text-[11.5px] font-black ${result.reward ? 'bg-[#ffd36e]/15 text-[#ffe7a8]' : 'bg-white/[0.06] text-white/55'}`}>
+            <Piece size={10} />{result.reward ? t('rewardEarned', { n: result.reward.amount }) : t('rewardMissed', { m: Math.round(fastMs / 60000) })}
+          </p>
+        )}
       </div>
+      <PropPodium day={result.day} />
       <div className="grid grid-cols-2 gap-2">
         <button type="button" onClick={share} className="flex min-h-[48px] items-center justify-center gap-2 rounded-[12px] bg-(--accent) text-[14px] font-black text-(--accent-ink) shadow-[0_0_20px_var(--accent-glow)] active:scale-[.98]"><Share2 size={16} />{copied ? t('copied') : t('share')}</button>
         <button type="button" onClick={onPractice} className={`${BTN} min-h-[48px] text-[13px]`}><RotateCcw size={15} />{t('practiceMore')}</button>
@@ -410,6 +423,63 @@ function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult
     </div>
   );
 }
+
+/**
+ * 명제 바둑 podium: yesterday's final top three (who earned 피스 +5) and today's top three so far, 2nd · 1st · 3rd,
+ * each player's stone, time and 💡 for hints.
+ */
+function PropPodium({ day }: { day: string }) {
+  const t = useTranslations('PropositionGo');
+  const [which, setWhich] = useState<'today' | 'yesterday'>('today');
+  const [rows, setRows] = useState<Record<string, PgPodiumRow[]>>({});
+  const own = useRanked();
+  const target = which === 'today' ? day : dayBefore(day);
+  useEffect(() => {
+    let alive = true;
+    fetchPodium(target).then(({ data }) => { if (alive) setRows((r) => ({ ...r, [target]: data ?? [] })); });
+    return () => { alive = false; };
+  }, [target, own]);
+  const list = rows[target];
+  const order = [2, 1, 3].map((p) => list?.find((r) => r.rank === p));
+  return (
+    <div data-pg-podium className="rounded-[16px] border border-[#c9b6ff]/20 bg-[radial-gradient(120%_90%_at_50%_0%,rgba(155,123,255,.18),rgba(0,0,0,.25))] p-3">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="flex items-center gap-1.5 text-[12px] font-black text-[#e3d8ff]"><Trophy size={13} className="text-[#ffd36e]" />{t('podiumTitle')}</h3>
+        <div className="flex gap-0.5 rounded-full bg-black/40 p-0.5">
+          {(['today', 'yesterday'] as const).map((w) => (
+            <button key={w} type="button" onClick={() => setWhich(w)} aria-pressed={which === w}
+              className={`rounded-full px-2.5 py-1 text-[10.5px] font-black transition ${which === w ? 'bg-(--accent) text-(--accent-ink)' : 'text-white/55 hover:text-white'}`}>{w === 'today' ? t('podiumToday') : t('podiumYesterday')}</button>
+          ))}
+        </div>
+      </div>
+      {!list ? <div className="flex h-[132px] items-center justify-center"><Loader2 size={16} className="animate-spin text-white/40" /></div>
+        : !list.length ? <p className="flex h-[132px] items-center justify-center text-center text-[12px] text-white/45">{which === 'today' ? t('podiumEmptyToday') : t('podiumEmptyYesterday')}</p>
+        : (
+          <div className="mt-2 grid grid-cols-3 items-end gap-2">
+            {order.map((r, i) => {
+              const place = [2, 1, 3][i];
+              if (!r) return <div key={place} />;
+              const block = place === 1 ? 'h-14 bg-gradient-to-b from-[#ffd45c] to-[#e8a33c]' : place === 2 ? 'h-10 bg-gradient-to-b from-[#e7e9ee] to-[#b9bec8]' : 'h-7 bg-gradient-to-b from-[#f0c39a] to-[#c98a55]';
+              return (
+                <div key={place} className="flex min-w-0 flex-col items-center text-center">
+                  <span className={place === 1 ? 'drop-shadow-[0_0_12px_rgba(255,196,60,.6)]' : ''}><StoneAvatar name={r.nickname} size={place === 1 ? 50 : 40} /></span>
+                  <span className="mt-1 w-full truncate px-0.5 text-[11.5px] font-black">{r.nickname}</span>
+                  <span className="flex items-center gap-0.5 font-mono text-[11px] font-black text-white/75">{clock(r.total, true)}{r.hints > 0 && <span className="text-[10px]">{'💡'.repeat(Math.min(r.hints, 3))}</span>}</span>
+                  <span className={`mt-1 flex w-full justify-center rounded-t-[10px] pt-0.5 font-black text-white/90 shadow-[inset_0_2px_0_rgba(255,255,255,.35)] ${block}`}>{place}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      <p className="mt-2 break-keep text-center text-[10.5px] font-bold text-white/45">{which === 'today' ? t('podiumRuleToday', { n: PG_TOP_PIECES }) : t('podiumRuleYesterday', { n: PG_TOP_PIECES })}</p>
+    </div>
+  );
+}
+const useRanked = () => {
+  const [n, setN] = useState(0);
+  useEffect(() => { const on = () => setN((x) => x + 1); window.addEventListener(RANKED_EVENT, on); return () => window.removeEventListener(RANKED_EVENT, on); }, []);
+  return n;
+};
 
 /** Fired when a daily run ends, so the side panel's ranking picks up the new time. */
 const RANKED_EVENT = 'puzzlthink:pg-ranked';

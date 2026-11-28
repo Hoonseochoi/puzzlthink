@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { ArrowRight, BookOpen, Loader2, LockKeyhole, RotateCcw, Send, Sparkles, Trophy, X } from 'lucide-react';
 import { Piece } from '@/components/CompetitionBoard';
+import { SageToken } from '@/components/SageToken';
 import { useAuth } from '@/components/AuthProvider';
 import { markSignupSource } from '@/lib/signupSource';
 import { AppOnlyOpenCard } from '@/components/AppTesterInvite';
@@ -275,7 +276,7 @@ function TurnStage({ view, turn, visible, pending, seconds, busy, error, t, act,
       {ended ? <TurnEnd view={view} turn={turn} t={t} busy={busy} onNext={() => void act({ t: 'next' })} />
         : pending ? null
         : view.phase === 'hint' ? <HintDock key={turn.stage} t={t} cut={cfg.cut} left={cfg.maxHints - myHints} busy={busy} error={error} clearError={clearError} onSend={(word) => act({ t: 'hint', word })} />
-        : view.phase === 'guess' ? <GuessDock key={turn.stage} t={t} chance={turn.chance} pieces={view.pieces ?? 0} busy={busy} error={error} clearError={clearError} onSend={(words) => act({ t: 'guess', words })} />
+        : view.phase === 'guess' ? <GuessDock key={turn.stage} t={t} chance={turn.chance} pieces={view.pieces ?? 0} tokens={view.tokens ?? 0} busy={busy} error={error} clearError={clearError} onSend={(words) => act({ t: 'guess', words })} />
         : null}
     </section>
   );
@@ -337,8 +338,8 @@ function HintDock({ t, cut, left, busy, error, clearError, onSend }: {
   );
 }
 
-function GuessDock({ t, chance, pieces, busy, error, clearError, onSend }: {
-  t: HwCopy; chance: boolean; /** my 피스 left: a second answer costs one */ pieces: number; busy: boolean; error: string | null; clearError: () => void; onSend: (words: string[]) => Promise<boolean>;
+function GuessDock({ t, chance, pieces, tokens, busy, error, clearError, onSend }: {
+  t: HwCopy; chance: boolean; /** my 피스 left (tokens included): a second answer costs one */ pieces: number; /** 현자의 징표 among them: spent first */ tokens: number; busy: boolean; error: string | null; clearError: () => void; onSend: (words: string[]) => Promise<boolean>;
 }) {
   const [word, setWord] = useState('');
   const [second, setSecond] = useState('');
@@ -366,10 +367,10 @@ function GuessDock({ t, chance, pieces, busy, error, clearError, onSend }: {
           placeholder={t.secondPlaceholder} aria-label={t.secondPlaceholder} onChange={change(setSecond)} />}
       </div>
       <div className="mt-2 flex items-center justify-between gap-3 px-0.5">
-        <p key={message ?? 'ok'} role={message ? 'alert' : undefined} className={`break-keep text-[11.5px] leading-5 ${message ? 'font-bold text-[#ff8a9a] [animation:hwShake_.35s]' : 'text-white/45'}`}>{message ?? (useChance ? t.chanceHelp(pieces) : chance && pieces < 1 ? t.chanceNeed : t.guessHelp)}</p>
+        <p key={message ?? 'ok'} role={message ? 'alert' : undefined} className={`break-keep text-[11.5px] leading-5 ${message ? 'font-bold text-[#ff8a9a] [animation:hwShake_.35s]' : 'text-white/45'}`}>{message ?? (useChance ? (tokens > 0 ? t.chanceHelpToken(tokens, Math.max(0, pieces - tokens)) : t.chanceHelp(pieces)) : chance && pieces < 1 ? t.chanceNeed : t.guessHelp)}</p>
         <button type="button" disabled={!chance || pieces < 1} onClick={() => setUseChance((on) => !on)} aria-pressed={useChance}
           className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1.5 text-[11px] font-black transition ${!chance || pieces < 1 ? 'border-white/10 text-white/25' : useChance ? 'border-[#ffc857] bg-[#ffc857]/20 text-[#ffc857]' : 'border-[#ffc857]/50 text-[#ffc857] hover:bg-[#ffc857]/10'}`}>
-          <span className={!chance || pieces < 1 ? 'opacity-40 grayscale' : ''}><Piece size={11} /></span>{!chance ? t.chanceUsed : pieces < 1 ? t.chanceNoPiece : useChance ? t.chanceOn : t.chance}
+          <span className={!chance || pieces < 1 ? 'opacity-40 grayscale' : ''}>{tokens > 0 ? <SageToken size={13} /> : <Piece size={11} />}</span>{!chance ? t.chanceUsed : pieces < 1 ? t.chanceNoPiece : useChance ? (tokens > 0 ? t.chanceTokenOn : t.chanceOn) : tokens > 0 ? t.chanceToken : t.chance}
         </button>
       </div>
     </form>

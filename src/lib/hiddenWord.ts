@@ -22,6 +22,8 @@ export type HwView = {
   deadline: number | null; now: number; cfg: HwCfg; recorded?: boolean;
   /** My 피스 left in the running 경쟁전 week (0 when signed out): a second answer costs one. */
   pieces?: number;
+  /** 현자의 징표 among `pieces` (spent first). */
+  tokens?: number;
   /** Why the last word was refused (nothing changed). */
   error?: 'invalid' | 'secret' | 'duplicate' | 'unknown' | 'missing' | 'unavailable' | 'nopiece' | 'login'; word?: string;
 };

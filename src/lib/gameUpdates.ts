@@ -29,9 +29,14 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '명제 바둑', en: 'Proposition Go' },
     items: [
       {
+        date: '11/28', icon: Trophy,
+        ko: { title: '5분 안에 풀면 피스, 1·2·3위는 피스 5개 더', desc: '오늘의 명제 바둑을 5분 안에(힌트 시간 포함) 풀면 피스 1개를 받아요. 다음 날 새 문제가 열리면 전날 1·2·3위가 피스 5개를 더 받고, 입장·결과 화면에 어제와 오늘의 포디움이 보여요.' },
+        en: { title: 'Pieces for a 5-minute solve, 5 more for the top three', desc: "Solve today's Proposition Go within 5 minutes (hint time included) for 1 piece. When the next day's set opens, yesterday's top three get 5 more pieces, and the entry and result screens show yesterday's and today's podium." },
+      },
+      {
         date: '11/28', icon: Coins,
-        ko: { title: '피스가 이제 계속 쌓여요', desc: '1W에 모은 피스도 쓸 수 있고, 한 주가 끝나도 피스는 사라지지 않아요. 피스를 쓰면 가장 오래된 피스부터 빠져서, 지난 주 피스가 남아 있는 동안은 경쟁전 개수가 줄지 않아요.' },
-        en: { title: 'Pieces now add up for good', desc: 'Pieces from week 1 can be spent too, and nothing resets when a week ends. Spending uses your oldest pieces first, so while earlier pieces last, your Piece Race count stays put.' },
+        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
       },
       {
         date: '11/28', icon: Sparkles,
@@ -45,8 +50,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: Coins,
-        ko: { title: '피스가 이제 계속 쌓여요', desc: '1W에 모은 피스도 쓸 수 있고, 한 주가 끝나도 피스는 사라지지 않아요. 피스를 쓰면 가장 오래된 피스부터 빠져서, 지난 주 피스가 남아 있는 동안은 경쟁전 개수가 줄지 않아요.' },
-        en: { title: 'Pieces now add up for good', desc: 'Pieces from week 1 can be spent too, and nothing resets when a week ends. Spending uses your oldest pieces first, so while earlier pieces last, your Piece Race count stays put.' },
+        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
       },
       {
         date: '11/28', icon: Scale,
@@ -136,8 +141,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: Coins,
-        ko: { title: '피스가 이제 계속 쌓여요', desc: '1W에 모은 피스도 쓸 수 있고, 한 주가 끝나도 피스는 사라지지 않아요. 피스를 쓰면 가장 오래된 피스부터 빠져서, 지난 주 피스가 남아 있는 동안은 경쟁전 개수가 줄지 않아요.' },
-        en: { title: 'Pieces now add up for good', desc: 'Pieces from week 1 can be spent too, and nothing resets when a week ends. Spending uses your oldest pieces first, so while earlier pieces last, your Piece Race count stays put.' },
+        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
       },
       {
         date: '11/28', icon: DoorOpen,
@@ -305,8 +310,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: Coins,
-        ko: { title: '피스가 이제 계속 쌓여요', desc: '1W에 모은 피스도 쓸 수 있고, 한 주가 끝나도 피스는 사라지지 않아요. 피스를 쓰면 가장 오래된 피스부터 빠져서, 지난 주 피스가 남아 있는 동안은 경쟁전 개수가 줄지 않아요.' },
-        en: { title: 'Pieces now add up for good', desc: 'Pieces from week 1 can be spent too, and nothing resets when a week ends. Spending uses your oldest pieces first, so while earlier pieces last, your Piece Race count stays put.' },
+        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
       },
       {
         date: '11/27', icon: Sparkles,

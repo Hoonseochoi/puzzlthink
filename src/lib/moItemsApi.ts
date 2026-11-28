@@ -3,12 +3,13 @@ import type { MoItem } from './mineOblivion';
 import type { MoLevel } from './mineOblivionAi';
 import { getSupabase } from './supabase';
 
-export type MoWallet = { pieces: number; black_pieces: number };
+/** `pieces` is spendable (현자의 징표 + this week's pieces); `tokens` are spent first. */
+export type MoWallet = { pieces: number; tokens: number; black_pieces: number };
 export type MoBuyError = 'signin' | 'item' | 'level' | 'match' | 'cap' | 'funds' | 'network';
 export type MoBuy = { ok: boolean; error?: MoBuyError; wallet?: MoWallet };
 
 const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
-const wallet = (d: Record<string, unknown>): MoWallet => ({ pieces: num(d.pieces), black_pieces: num(d.black_pieces) });
+const wallet = (d: Record<string, unknown>): MoWallet => ({ pieces: num(d.pieces), tokens: num(d.tokens), black_pieces: num(d.black_pieces) });
 
 export async function fetchMoWallet(): Promise<MoWallet | null> {
   const supabase = getSupabase();

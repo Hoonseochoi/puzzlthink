@@ -8,7 +8,10 @@ import { CERT_GAMES } from '@/lib/hardClear';
 import { getSupabase } from '@/lib/supabase';
 import { GAME_LABEL } from './HallCelebration';
 import { useAuth } from './AuthProvider';
-import { CHAMPION_LOOKS, Stone } from './StoneAvatar';
+import { Stone } from './StoneAvatar';
+import { SageToken } from './SageToken';
+import { useChampName } from './useIconLabel';
+import { kstMonthDay, piecePeriodBounds, piecePeriodCap, piecePeriodOf } from '@/lib/pieceWallet';
 
 type Row = { rank: number; nickname: string; avatar_url: string | null; pieces: number; per_game: Partial<Record<GameId, number>>; last_win: string; is_me: boolean | null; prev_rank: number | null };
 
@@ -51,20 +54,18 @@ function RankChange({ row, className = '' }: { row: Row; className?: string }) {
 
 
 /**
- * Weeks of 피스 경쟁전: 2W runs one week, 11/25 00:00 → 12/2 00:00 KST (5 pieces per game; the SQL stops counting at
- * the end too); 1W ended 11/24 (30 per game) and is kept as a hall of fame. A week is live until it ends.
+ * Weeks of 피스 경쟁전 (src/lib/pieceWallet.ts, the same arithmetic as the SQL): 1W ended 11/24 (30 per game); from
+ * 11/25 a new week starts every Wednesday 00:00 KST (5 per game). The running week is ranked live; a finished one is
+ * frozen, its top three keep that week's stone, and everyone's unspent pieces of it became 현자의 징표.
  */
-export const PIECE_WEEKS = {
-  2: { cap: 5, ends: Date.parse('2026-12-02T00:00:00+09:00') },
-  1: { cap: 30, ends: Date.parse('2026-11-25T00:00:00+09:00') },
-} as const;
-type Week = keyof typeof PIECE_WEEKS;
-export const pieceWeekLive = (week: Week) => Date.now() < PIECE_WEEKS[week].ends;
+type Week = number;
+export const pieceWeekLive = (week: Week) => week === piecePeriodOf();
 
 /** Wins per game behind a player's pieces, most first. */
 function GameWins({ row, cap }: { row: Row; cap: number }) {
   const tc = useTranslations('Common');
-  const games = (Object.entries(row.per_game) as [GameId, number][]).filter(([g]) => CERT_GAMES[g]).sort((a, b) => b[1] - a[1]);
+  const tr = useTranslations('Records');
+  const games = (Object.entries(row.per_game) as [GameId, number][]).filter(([g]) => CERT_GAMES[g] && g !== 'proposition_go').sort((a, b) => b[1] - a[1]);
   return (
     <ul className="grid gap-1.5 sm:grid-cols-2">
       {games.map(([game, n]) => (
@@ -75,6 +76,13 @@ function GameWins({ row, cap }: { row: Row; cap: number }) {
           <PieceCount n={n} size={11} />
         </li>
       ))}
+      {!!row.per_game.proposition_go && (
+        <li data-play-game="proposition_go" className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#9b7bff]" />
+          <span className="min-w-0 flex-1 truncate">{tr('propRewardRow')}</span>
+          <PieceCount n={row.per_game.proposition_go} size={11} />
+        </li>
+      )}
     </ul>
   );
 }
@@ -86,12 +94,16 @@ function GameWins({ row, cap }: { row: Row; cap: number }) {
  */
 export default function CompetitionBoard() {
   const t = useTranslations('Records');
+  const champ = useChampName();
   const { user } = useAuth();
-  const [week, setWeek] = useState<Week>(2);
+  const current = piecePeriodOf();
+  const weeks = Array.from({ length: current }, (_, i) => current - i); // newest first: the live week, then the finished ones
+  const [week, setWeek] = useState<Week>(current);
   const [loaded, setLoaded] = useState<{ week: Week; rows: Row[] } | null>(null);
   const [open, setOpen] = useState<number | null>(null);
   const live = pieceWeekLive(week);
-  const cap = PIECE_WEEKS[week].cap;
+  const cap = piecePeriodCap(week);
+  const { starts, ends } = piecePeriodBounds(week);
   const rows = loaded?.week === week ? loaded.rows : null;
 
   useEffect(() => {
@@ -99,10 +111,10 @@ export default function CompetitionBoard() {
     const supabase = getSupabase();
     if (!supabase) { setLoaded({ week, rows: [] }); return; } // eslint-disable-line react-hooks/set-state-in-effect -- no server: show the empty board
     // 2W is ranked live (the SQL stops counting at its end); 1W is a frozen board.
-    const call = week === 2 ? supabase.rpc('competition_ranking', { p_limit: 50 }) : supabase.rpc('competition_final', { p_week: week, p_limit: 50 });
+    const call = live ? supabase.rpc('competition_ranking', { p_limit: 50 }) : supabase.rpc('competition_final', { p_week: week, p_limit: 50 });
     call.then(({ data }) => { if (alive) setLoaded({ week, rows: Array.isArray(data) ? (data as Row[]) : [] }); });
     return () => { alive = false; };
-  }, [user, week]);
+  }, [user, week, live]);
 
   const top = rows?.filter((r) => r.rank <= 50) ?? [];
   const me = rows?.find((r) => r.is_me) ?? null;
@@ -115,11 +127,11 @@ export default function CompetitionBoard() {
     <section className="mt-10">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-xl font-black"><Swords size={20} className="text-[#e8a33c]" />{t('competitionTitle')}</h2>
-        <div className="grid grid-cols-2 gap-1 rounded-full border border-black/10 bg-[#e9e5dc] p-1" role="tablist" aria-label={t('pieceWeekTabs')}>
-          {([2, 1] as Week[]).map((w) => (
+        <div className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-black/10 bg-[#e9e5dc] p-1 [scrollbar-width:none]" role="tablist" aria-label={t('pieceWeekTabs')}>
+          {weeks.map((w) => (
             <button key={w} type="button" role="tab" aria-selected={week === w} onClick={() => { setWeek(w); setOpen(null); }}
-              className={`flex items-center justify-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-black transition ${week === w ? 'bg-[#17201e] text-white shadow' : 'text-black/50 hover:text-black'}`}>
-              {!pieceWeekLive(w) && <Crown size={11} className={week === w ? 'text-[#ffd36b]' : ''} />}{pieceWeekLive(w) ? t('pieceWeekLive', { n: w }) : w === 2 ? t('pieceWeekEnded', { n: w }) : t('pieceWeekHall', { n: w })}
+              className={`flex shrink-0 items-center justify-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-black transition ${week === w ? 'bg-[#17201e] text-white shadow' : 'text-black/50 hover:text-black'}`}>
+              {!pieceWeekLive(w) && <Crown size={11} className={week === w ? 'text-[#ffd36b]' : ''} />}{pieceWeekLive(w) ? t('pieceWeekLive', { n: w }) : w === 1 ? t('pieceWeekHall', { n: w }) : t('pieceWeekEnded', { n: w })}
             </button>
           ))}
         </div>
@@ -127,14 +139,15 @@ export default function CompetitionBoard() {
       {live ? <>
         <p className="mt-1 break-keep text-xs leading-5 text-black/45">{t('competitionDesc')}</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-[#17201e] px-3 py-1 text-[11px] font-black text-[#ffe08a]"><CalendarDays size={12} />{t('piecePeriod2')}</p>
+          <p className="inline-flex items-center gap-1.5 rounded-full bg-[#17201e] px-3 py-1 text-[11px] font-black text-[#ffe08a]"><CalendarDays size={12} />{t('piecePeriodLive', { start: kstMonthDay(starts), end: kstMonthDay(ends - 1) })}</p>
           <p className="inline-flex items-center gap-1.5 rounded-full border border-[#e8a33c]/40 bg-[#fff6e2] px-3 py-1 text-[11px] font-bold text-[#8a5a12]"><Piece size={12} />{t('pieceRule')}</p>
         </div>
         <p className="mt-1.5 text-[10px] font-bold text-black/35">{t('rankChangeHint')}</p>
+        <p className="mt-2 flex items-start gap-1.5 break-keep rounded-2xl border border-[#8b5cf6]/25 bg-[#f4efff] px-3 py-2 text-[11px] font-bold leading-4 text-[#4a2a99]"><SageToken size={16} className="mt-px" />{t('pieceTokenNote')}</p>
         <WeekReward week={week} />
       </> : <>
-        <p className="mt-1 break-keep text-xs leading-5 text-black/45">{week === 2 ? t('piecePeriodEnded') : t(`pieceHallDesc${week}`)}</p>
-        <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#8fa3c4]/50 bg-[#eef3fb] px-3 py-1 text-[11px] font-bold text-[#3c4f6e]"><Crown size={12} />{t('pieceHallCrown')}</p>
+        <p className="mt-1 break-keep text-xs leading-5 text-black/45">{week === 1 ? t('pieceHallDesc1') : t('piecePeriodEnded', { end: kstMonthDay(ends - 1) })}</p>
+        <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#8fa3c4]/50 bg-[#eef3fb] px-3 py-1 text-[11px] font-bold text-[#3c4f6e]"><Crown size={12} />{week === 1 ? t('pieceHallCrown') : t('pieceHallCrownWeek', { n: week, name: champ(week, 1) })}</p>
       </>}
 
       {rows === null ? (
@@ -186,7 +199,7 @@ export default function CompetitionBoard() {
 /** What this week's top three will keep for good: the week's champion stones, shown ahead of time (the podium wears them too). */
 function WeekReward({ week }: { week: number }) {
   const t = useTranslations('Records');
-  if (!CHAMPION_LOOKS[week]) return null;
+  const champ = useChampName();
   const order = [2, 1, 3] as const;
   return (
     <div className="relative mt-4 overflow-hidden rounded-[22px] border border-[#8ec5ff]/40 bg-gradient-to-br from-[#0f1a2e] via-[#16213a] to-[#10291f] p-4 text-white sm:p-5">
@@ -201,9 +214,9 @@ function WeekReward({ week }: { week: number }) {
         <div className="grid grid-cols-3 items-end gap-2">
           {order.map((place) => (
             <div key={place} className="flex flex-col items-center text-center">
-              <Stone name={t(`rewardName${place}`)} size={place === 1 ? 62 : 48} champion={{ week, place }} />
+              <Stone name={champ(week, place)} size={place === 1 ? 62 : 48} champion={{ week, place }} />
               <span className="mt-1.5 text-[11px] font-black">{t('rewardPlace', { n: place })}</span>
-              <span className="text-[10px] font-bold text-white/55">{t(`rewardName${place}`)}</span>
+              <span className="text-[10px] font-bold text-white/55">{champ(week, place)}</span>
             </div>
           ))}
         </div>

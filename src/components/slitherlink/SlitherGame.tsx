@@ -6,6 +6,7 @@ import { Check, ChevronDown, Clock3, Crown, Eraser, Flag, History, Infinity as I
 import AuthButton from '@/components/AuthButton';
 import { useAuth } from '@/components/AuthProvider';
 import { Piece } from '@/components/CompetitionBoard';
+import { SageToken } from '@/components/SageToken';
 import BugReport from '@/components/BugReport';
 import ShareButtons from '@/components/ShareButtons';
 import RankMove from '@/components/RankMove';
@@ -17,7 +18,7 @@ import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, seg } 
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
 import { ResultBannerSlot } from '@/components/ads/HiddenLogAd';
 import { SLITHER_SIZES, type Mark, type SlitherSize, type Puzzle, formatClock, generatePuzzle, hintEdges, isSolved, loopOrder, newSeed } from '@/lib/slitherlink';
-import { type BoardRow, type FinishResult, type RankRow, type RivalRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchPieces, fetchRanking, fetchRivals, finishCleared, finishRun, payHint, startBeat, startNew } from '@/lib/slitherChallenge';
+import { type BoardRow, type FinishResult, type RankRow, type RivalRow, type SlitherRun, boardPath, countPractice, fetchBoard, fetchBoards, fetchMe, fetchRanking, fetchWallet, fetchRivals, finishCleared, finishRun, payHint, startBeat, startNew } from '@/lib/slitherChallenge';
 import { reportGame } from '@/lib/stats';
 import SlitherHistory from './SlitherHistory';
 import ClearRate from '../ClearRate';
@@ -256,13 +257,14 @@ export default function SlitherGame() {
   const hintLimit = mode === 'practice' ? Infinity : CHALLENGE_HINTS;
   // A challenge hint costs one 경쟁전 piece (practice hints stay free): the server takes it before the hint is drawn.
   const [pieces, setPieces] = useState<number | null>(null);
+  const [tokens, setTokens] = useState(0); // 현자의 징표 among them: spent first
   const [hintNote, setHintNote] = useState<string | null>(null);
   const paying = useRef(false);
   const runId = run?.run;
   useEffect(() => {
     if (!runId) return;
     let alive = true;
-    fetchPieces().then(({ data }) => { if (alive) { setPieces(typeof data === 'number' ? data : 0); setHintNote(null); } });
+    fetchWallet().then(({ data }) => { if (alive) { setPieces(data?.pieces ?? 0); setTokens(data?.tokens ?? 0); setHintNote(null); } });
     return () => { alive = false; };
   }, [runId]);
   const takeHint = async (r: number, c: number) => {
@@ -274,7 +276,7 @@ export default function SlitherGame() {
       const { data } = await payHint(paid.run);
       paying.current = false;
       if (runRef.current !== paid || phaseRef.current !== 'play') return;
-      if (data) setPieces(data.pieces);
+      if (data) { setPieces(data.pieces); fetchWallet().then(({ data: w }) => { if (w) { setPieces(w.pieces); setTokens(w.tokens); } }); }
       if (!data?.ok) { setHintNote(t(data?.error === 'nopiece' ? 'hintNoPiece' : 'hintPayError')); setTool('pen'); return; }
       setHintNote(null);
     }
@@ -479,10 +481,10 @@ export default function SlitherGame() {
                     <button type="button" onClick={clearAll} className={`flex flex-col items-center gap-1 py-2.5 ${confirmClear ? 'rounded-md bg-[#e5484d]/20 text-xs font-extrabold text-[#ff8f8f] ring-1 ring-[#e5484d]/50' : seg(false)}`}><Trash2 size={17} />{confirmClear ? t('clearConfirm') : t('toolClear')}</button>
                   </div>
                   <div className="grid grid-cols-2 gap-1.5">
-                    <button type="button" disabled={hintsLeft <= 0 || (mode !== 'practice' && pieces !== null && pieces < 1)} onClick={() => setTool(tool === 'hint' ? 'pen' : 'hint')} className={`py-2.5 ${tool === 'hint' ? BTN_ACCENT : BTN} disabled:opacity-40`}><Lightbulb size={14} />{tool === 'hint' ? t('hintPick') : mode === 'practice' ? t('hint') : <>{t('hintPaid')}<Piece size={12} /></>}</button>
+                    <button type="button" disabled={hintsLeft <= 0 || (mode !== 'practice' && pieces !== null && pieces < 1)} onClick={() => setTool(tool === 'hint' ? 'pen' : 'hint')} className={`py-2.5 ${tool === 'hint' ? BTN_ACCENT : BTN} disabled:opacity-40`}><Lightbulb size={14} />{tool === 'hint' ? t('hintPick') : mode === 'practice' ? t('hint') : tokens > 0 ? <>{t('hintPaidToken')}<SageToken size={14} /></> : <>{t('hintPaid')}<Piece size={12} /></>}</button>
                     <button type="button" onClick={giveUp} className={`py-2.5 ${BTN}`}><Flag size={14} />{t(mode === 'practice' ? 'giveUp' : 'giveUpChallenge')}</button>
                   </div>
-                  <p className="text-center text-[11px] text-white/40">{hintNote ? <b className="text-[#ff8f8f]">{hintNote}</b> : tool === 'hint' ? (mode === 'practice' ? t('hintHelp') : t('hintHelpPaid', { n: pieces ?? 0 })) : mode !== 'practice' && hintsLeft > 0 && pieces !== null && pieces < 1 ? t('hintNoPiece') : t(`help_${tool}`)}</p>
+                  <p className="text-center text-[11px] text-white/40">{hintNote ? <b className="text-[#ff8f8f]">{hintNote}</b> : tool === 'hint' ? (mode === 'practice' ? t('hintHelp') : (tokens > 0 ? t('hintHelpPaidToken', { t: tokens, n: Math.max(0, (pieces ?? 0) - tokens) }) : t('hintHelpPaid', { n: pieces ?? 0 }))) : mode !== 'practice' && hintsLeft > 0 && pieces !== null && pieces < 1 ? t('hintNoPiece') : t(`help_${tool}`)}</p>
                 </div>
               ) : (
                 <div className="mx-auto mt-4 max-w-[440px] text-center">

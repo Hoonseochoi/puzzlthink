@@ -1744,6 +1744,10 @@
     "close": "닫기"
   },
   "Records": {
+    "propRewardRow": "명제 바둑 챌린지",
+    "pieceHallCrownWeek": "TOP 3는 {n}W 보석 바둑알({name} 에디션)을 영구히 달아요",
+    "pieceTokenNote": "순위는 이번 주 피스로만 겨뤄요. 지난 주 남은 피스는 현자의 징표로 바뀌어 힌트·아이템에 먼저 쓰여요.",
+    "piecePeriodLive": "기간 {start}(수)부터 일주일간 · {end}(화) 23:59 마감",
     "blackPieceTab": "블랙피스",
     "chMerge2048": "2048 챌린지 도전",
     "chHiddenWord": "히든 워드 랭킹",
@@ -1829,14 +1833,14 @@
     "stoneEarnedEmpty": "어려움 클리어, 친구·오픈 대전 승리, 플레이 10시간, 2048 달성, 게임 랭킹 1위, 경쟁전 주간 TOP 3로 아이콘을 얻어 여기서 고를 수 있어요.",
     "stoneColor": {"black": "블랙", "white": "화이트", "red": "레드", "blue": "블루"},
     "stoneChampLabel": "{week}W {place}위 · {name}",
-    "stoneChampName": {"w1_1": "플래티넘 골드", "w1_2": "플래티넘 실버", "w1_3": "플래티넘 브론즈", "w2_1": "다이아몬드", "w2_2": "사파이어", "w2_3": "에메랄드"},
+    "stoneChampName": {"w1_1": "플래티넘 골드", "w1_2": "플래티넘 실버", "w1_3": "플래티넘 브론즈", "w2_1": "다이아몬드", "w2_2": "사파이어", "w2_3": "에메랄드", "e0_1": "루비", "e0_2": "자수정", "e0_3": "토파즈", "e1_1": "오팔", "e1_2": "오닉스", "e1_3": "비취", "e2_1": "오로라", "e2_2": "로즈쿼츠", "e2_3": "시트린", "e3_1": "블랙 골드", "e3_2": "아쿠아마린", "e3_3": "가넷"},
     "stoneSaving": "저장 중…",
     "stoneError": "저장하지 못했어요. 다시 눌러 주세요.",
     "stoneSavedNote": "누르면 바로 바뀌어요. 랭킹·라운지 어디서나 이 아이콘으로 보여요.",
     "stoneAutoNote": "아직 고르지 않았어요. 지금은 닉네임에 따라 색이 정해져요.",
     "rewardBadge": "{n}W 보상 미리보기",
     "rewardTitle": "{n}W 명예의 전당 프로필을 획득하세요!",
-    "rewardDesc": "{n}W가 끝날 때 TOP 3에게 이 바둑알 프로필이 영구히 지급돼요. 1W 플래티넘과는 다른 보석 에디션이에요.",
+    "rewardDesc": "{n}W가 끝날 때 TOP 3에게 이 바둑알 프로필이 영구히 지급돼요. 주마다 다른 보석 에디션이에요.",
     "rewardPlace": "{n}위",
     "rewardName1": "다이아몬드",
     "rewardName2": "사파이어",
@@ -1845,10 +1849,9 @@
     "pieceWeekHall": "{n}W 명예의 전당",
     "pieceWeekLive": "{n}W 진행 중",
     "pieceWeekEnded": "{n}W 종료",
-    "piecePeriod2": "기간 11/25(수)부터 일주일간 · 12/1(화) 23:59 마감",
-    "piecePeriodEnded": "12/1(화) 23:59에 마감됐어요. TOP 3에게 보석 아이콘이 지급됐어요.",
+    "piecePeriodEnded": "{end}(화) 23:59에 마감됐어요. TOP 3에게 아이콘이 지급됐고, 남은 피스는 현자의 징표로 교환됐어요.",
     "pieceWeekTabs": "피스 경쟁전 주차",
-    "competitionDesc": "2W는 11/25부터 AI 어려움을 이긴 횟수로 겨뤄요. 한 게임에서 얻을 수 있는 피스는 최대 5개라 여러 게임을 이길수록 위로 올라가요. 운의 비중이 큰 러시안 룰렛·인디언 포커·양면포커는 빠져요. 피스가 같으면 그 개수에 먼저 도달한 사람이 앞서요. 이름을 누르면 게임별 피스가 나와요.",
+    "competitionDesc": "매주 수요일 0시에 새 주가 시작되고, AI 어려움을 이긴 횟수로 겨뤄요. 한 게임에서 한 주에 얻을 수 있는 피스는 최대 5개라 여러 게임을 이길수록 위로 올라가요. 명제 바둑을 5분 안에 풀면 피스 1개, 그날 1·2·3위는 다음 날 5개를 더 받아요. 운의 비중이 큰 러시안 룰렛·인디언 포커·양면포커는 빠져요. 피스가 같으면 먼저 도달한 사람이 앞서요. 이름을 누르면 게임별 피스가 나와요.",
     "pieceRule": "AI 어려움 1승 = 피스 1개 · 게임당 최대 5개",
     "rankChangeHint": "▲▼ 오늘 0시 기준 순위 변동",
     "rankUp": "{n}계단 상승",
@@ -5337,6 +5340,8 @@
     "viewRanking": "🏆 {game} 랭킹 보기"
   },
   "Slitherlink": {
+    "hintHelpPaidToken": "궁금한 곳을 누르면 현자의 징표 1개를 먼저 쓰고 주변 3×3 구역의 정답 선이 그려져요. (징표 {t} · 피스 {n})",
+    "hintPaidToken": "힌트 · 징표 1개",
     "themeButton": "테마",
     "themeTitle": "보드 테마",
     "theme_christmas": "크리스마스",
@@ -6096,6 +6101,16 @@
     "emptySpot": "비어 있어요"
   },
   "PropositionGo": {
+    "podiumRuleYesterday": "어제의 1·2·3위는 피스 {n}개를 받았어요.",
+    "podiumRuleToday": "자정에 확정되는 오늘의 1·2·3위는 내일 피스 {n}개를 더 받아요.",
+    "podiumEmptyYesterday": "어제 기록이 없어요.",
+    "podiumEmptyToday": "아직 오늘 푼 사람이 없어요. 첫 번째 주인공이 되어 보세요.",
+    "podiumYesterday": "어제",
+    "podiumToday": "오늘",
+    "podiumTitle": "명제 바둑 포디움",
+    "rewardMissed": "{m}분 안에 풀면 피스 +1 (힌트 시간 포함)",
+    "rewardEarned": "5분 안 클리어 · 피스 +{n}",
+    "costToken": "징표 1 · +{s}초 · 징표 {n}",
     "metaTitle": "명제 바둑 — 모든 명제를 참으로 만드는 논리 퍼즐 | PUZZLTHINK ORIGINAL",
     "metaDescription": "4×4 바둑판에 색 바둑알을 놓아 모든 명제 카드를 참으로 만드는 PUZZLTHINK 오리지널 논리 퍼즐. 매일 모두 같은 3문제 타임 챌린지, 거짓말 찾기, 피스 힌트, 연습과 튜토리얼. 무료.",
     "keywords": [
@@ -6117,7 +6132,8 @@
       "돌을 모두 놓아 명제 카드를 전부 ✓로 만들면 정답이에요. 정답은 딱 하나.",
       "카드는 말하는 돌이 다 놓이면 켜져요. 카드를 누르면 그 칸과 돌이 판에 표시돼요.",
       "거짓말 단계: 카드 하나는 거짓. 딱 한 장만 ✗인 배치가 정답이에요.",
-      "오늘의 3문제는 시계 하나, 최대 10분. 힌트는 한 판에 3개까지: 피스는 명제 하나 더(문제당 1번, +30초), 블랙피스는 돌 하나의 자리(+40초)."
+      "오늘의 3문제는 시계 하나, 최대 10분. 힌트는 한 판에 3개까지: 피스는 명제 하나 더(문제당 1번, +30초), 블랙피스는 돌 하나의 자리(+40초).",
+      "오늘의 3문제를 5분 안에(힌트 시간 포함) 풀면 피스 1개, 그날 1·2·3위는 다음 날 피스 5개를 더 받아요."
     ],
     "rankingTitle": "오늘의 랭킹",
     "rankingEmpty": "아직 오늘 깬 사람이 없어요. 첫 기록의 주인공이 되어 보세요!",
@@ -9050,6 +9066,9 @@
     "disclaimer": "수식의 탑은 넷플릭스 「데블스 플랜: 데드 어게인」에 등장한 게임의 규칙을 참고한 비공식 팬 게임이며, 넷플릭스 및 제작사와 관련이 없습니다. 블록 구성은 이 사이트에서 정한 것입니다."
   },
   "HomeApp": {
+    "tokens": "징표",
+    "evPieceSub": "{end}(화) 마감 · TOP 3 보석 아이콘",
+    "evPieceTitle": "피스 경쟁전 {n}W",
       "feedTitle": "실시간 소식",
       "recentTitle": "최근 플레이",
       "gamesTitle": "게임",
@@ -9164,5 +9183,24 @@
     "hostInstalled": "이미 설치했다면 PUZZLTHINK 앱에서 히든 워드를 열고 방을 만드세요.",
     "hostMore": "방법 보기",
     "appWelcome": "테스터라서 히든 워드 오픈 대전 방을 열 수 있어요"
+  },
+  "Tokens": {
+    "newsTopDesc": "어제의 1·2·3위는 피스 {n}개를 더 받아요. 이번 주 경쟁전에도 들어가요.",
+    "newsTopTitle": "어제 명제 바둑 {rank}위! 피스 +{n}",
+    "newsTopKicker": "PROPOSITION GO TOP 3",
+    "newsFastDesc": "오늘의 명제 바둑을 5분 안에 풀었어요(힌트 시간 포함). 이 피스는 이번 주 경쟁전에도 들어가요.",
+    "newsFastTitle": "챌린지 달성! 피스 +{n}",
+    "newsFastKicker": "CHALLENGE CLEAR",
+    "newsExchangeWeek": "{n}W 기록이 확정됐어요. 남은 피스는 징표로 바꿔 드렸고, 힌트·아이템에 먼저 쓰여요.",
+    "newsExchangeLine2": "힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요. 1W 기록은 그대로예요.",
+    "newsExchangeLine1": "이제 피스 경쟁전은 매주 수요일에 새로 시작해요. 끝난 주의 남은 피스는 현자의 징표로 바뀌어 계속 남아요.",
+    "newsExchangeTitle": "피스 {n}개를 현자의 징표 {n}개로 교환해 드렸어요",
+    "newsExchangeKicker": "SAGE'S TOKEN",
+    "heldPiece": "피스 {n}",
+    "heldToken": "징표 {n}",
+    "costPiece": "피스 {n}",
+    "costToken": "징표 {n}",
+    "ok": "확인",
+    "close": "닫기"
   }
 }
