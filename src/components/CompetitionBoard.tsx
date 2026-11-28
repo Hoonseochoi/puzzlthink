@@ -11,7 +11,7 @@ import { useAuth } from './AuthProvider';
 import { Stone } from './StoneAvatar';
 import { SageToken } from './SageToken';
 import { useChampName } from './useIconLabel';
-import { kstMonthDay, piecePeriodBounds, piecePeriodCap, piecePeriodOf } from '@/lib/pieceWallet';
+import { kstMonthDay, piecePeriodBounds, piecePeriodCap, piecePeriodOf, tokensBegun } from '@/lib/pieceWallet';
 
 type Row = { rank: number; nickname: string; avatar_url: string | null; pieces: number; per_game: Partial<Record<GameId, number>>; last_win: string; is_me: boolean | null; prev_rank: number | null };
 
@@ -143,7 +143,7 @@ export default function CompetitionBoard() {
           <p className="inline-flex items-center gap-1.5 rounded-full border border-[#e8a33c]/40 bg-[#fff6e2] px-3 py-1 text-[11px] font-bold text-[#8a5a12]"><Piece size={12} />{t('pieceRule')}</p>
         </div>
         <p className="mt-1.5 text-[10px] font-bold text-black/35">{t('rankChangeHint')}</p>
-        <p className="mt-2 flex items-start gap-1.5 break-keep rounded-2xl border border-[#8b5cf6]/25 bg-[#f4efff] px-3 py-2 text-[11px] font-bold leading-4 text-[#4a2a99]"><SageToken size={16} className="mt-px" />{t('pieceTokenNote')}</p>
+        <p className="mt-2 flex items-start gap-1.5 break-keep rounded-2xl border border-[#8b5cf6]/25 bg-[#f4efff] px-3 py-2 text-[11px] font-bold leading-4 text-[#4a2a99]"><SageToken size={16} className="mt-px" />{tokensBegun() ? t('pieceTokenNote') : t('pieceTokenSoon')}</p>
         <WeekReward week={week} />
       </> : <>
         <p className="mt-1 break-keep text-xs leading-5 text-black/45">{week === 1 ? t('pieceHallDesc1') : t('piecePeriodEnded', { end: kstMonthDay(ends - 1) })}</p>

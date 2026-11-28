@@ -35,8 +35,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
       },
       {
         date: '11/28', icon: Coins,
-        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
-        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
+        ko: { title: '12/2부터 남은 피스는 현자의 징표가 돼요', desc: '12/2(수) 3W가 시작될 때 1W·2W에 남은 피스를 현자의 징표로 한꺼번에 교환해 드리고, 그 뒤로도 매주 수요일 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "From 12/2, leftover pieces become Sage's Tokens", desc: "When week 3 starts on Wed 12/2, your leftover week 1 and week 2 pieces are exchanged for Sage's Tokens together, and every Wednesday after that the past week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
       },
       {
         date: '11/28', icon: Sparkles,
@@ -50,8 +50,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: Coins,
-        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
-        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
+        ko: { title: '12/2부터 남은 피스는 현자의 징표가 돼요', desc: '12/2(수) 3W가 시작될 때 1W·2W에 남은 피스를 현자의 징표로 한꺼번에 교환해 드리고, 그 뒤로도 매주 수요일 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "From 12/2, leftover pieces become Sage's Tokens", desc: "When week 3 starts on Wed 12/2, your leftover week 1 and week 2 pieces are exchanged for Sage's Tokens together, and every Wednesday after that the past week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
       },
       {
         date: '11/28', icon: Scale,
@@ -141,8 +141,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: Coins,
-        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
-        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
+        ko: { title: '12/2부터 남은 피스는 현자의 징표가 돼요', desc: '12/2(수) 3W가 시작될 때 1W·2W에 남은 피스를 현자의 징표로 한꺼번에 교환해 드리고, 그 뒤로도 매주 수요일 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "From 12/2, leftover pieces become Sage's Tokens", desc: "When week 3 starts on Wed 12/2, your leftover week 1 and week 2 pieces are exchanged for Sage's Tokens together, and every Wednesday after that the past week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
       },
       {
         date: '11/28', icon: DoorOpen,
@@ -310,8 +310,8 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: Coins,
-        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
-        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
+        ko: { title: '12/2부터 남은 피스는 현자의 징표가 돼요', desc: '12/2(수) 3W가 시작될 때 1W·2W에 남은 피스를 현자의 징표로 한꺼번에 교환해 드리고, 그 뒤로도 매주 수요일 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "From 12/2, leftover pieces become Sage's Tokens", desc: "When week 3 starts on Wed 12/2, your leftover week 1 and week 2 pieces are exchanged for Sage's Tokens together, and every Wednesday after that the past week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
       },
       {
         date: '11/27', icon: Sparkles,

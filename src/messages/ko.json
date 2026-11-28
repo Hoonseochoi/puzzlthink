@@ -1746,6 +1746,7 @@
   "Records": {
     "propRewardRow": "명제 바둑 챌린지",
     "pieceHallCrownWeek": "TOP 3는 {n}W 보석 바둑알({name} 에디션)을 영구히 달아요",
+    "pieceTokenSoon": "순위는 이번 주 피스로만 겨뤄요. 12/2(수) 3W가 시작되면 1W·2W에 남은 피스를 현자의 징표로 교환해 드리고, 그 뒤로 매주 남은 피스가 징표가 돼요. 징표는 힌트·아이템에 먼저 쓰여요.",
     "pieceTokenNote": "순위는 이번 주 피스로만 겨뤄요. 지난 주 남은 피스는 현자의 징표로 바뀌어 힌트·아이템에 먼저 쓰여요.",
     "piecePeriodLive": "기간 {start}(수)부터 일주일간 · {end}(화) 23:59 마감",
     "blackPieceTab": "블랙피스",

@@ -14,6 +14,9 @@ const WEEK = 7 * 86_400_000;
 export const piecePeriodOf = (t = Date.now()) => (t < ZERO ? 1 : 2 + Math.floor((t - ZERO) / WEEK));
 export const piecePeriodBounds = (n: number) => ({ starts: n <= 1 ? -Infinity : ZERO + (n - 2) * WEEK, ends: ZERO + (Math.max(n, 1) - 1) * WEEK });
 export const piecePeriodCap = (n: number) => (n <= 1 ? 30 : 5);
+/** 현자의 징표 begin with this period (3W, 12/02): from then on every finished week's leftover pieces are tokens (piece_tokens_from_period). */
+export const TOKENS_FROM_PERIOD = 3;
+export const tokensBegun = (t = Date.now()) => piecePeriodOf(t) >= TOKENS_FROM_PERIOD;
 /** 'M/D' in KST of a moment (the last day of a period: pass ends − 1). */
 export const kstMonthDay = (t: number) => { const d = new Date(t + 9 * 3_600_000); return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`; };
 
