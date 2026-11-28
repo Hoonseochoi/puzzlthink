@@ -9,8 +9,8 @@ import { getSupabase } from '@/lib/supabase';
 import { fetchHallOfFame, type GameId } from '@/lib/stats';
 
 /** What the number under each name means: AI wins, or a solo challenge's score. */
-export type PodiumKind = 'wins' | 'maps' | 'score' | 'correct';
-export type PodiumEntry = { rank: number; nickname: string; n: number; block?: number | null }; // block: a 2048 ranker's final block
+export type PodiumKind = 'wins' | 'maps' | 'score' | 'correct' | 'time';
+export type PodiumEntry = { rank: number; nickname: string; n: number; block?: number | null; label?: string }; // block: a 2048 ranker's final block; label: shown instead of the number (a time, '2:06')
 export type GamePodium = { kind: PodiumKind; entries: PodiumEntry[] };
 type Podium = Map<string, GamePodium>; // game href → its top three
 
@@ -52,14 +52,31 @@ async function challengePodiums(): Promise<[string, GamePodium][]> {
   return out;
 }
 
+/** 명제 바둑: today's fastest three (yesterday's until someone clears today), shown with their times. */
+async function propositionPodium(): Promise<[string, GamePodium][]> {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+  type Row = { rank: number; nickname: string; total: number };
+  const top = async (day?: string) => {
+    const { data } = await supabase.rpc('prop_ranking', day ? { p_day: day, p_limit: 3 } : { p_limit: 3 });
+    return ((data as Row[] | null) ?? []).filter((r) => r.rank <= 3).slice(0, 3);
+  };
+  let rows = await top();
+  if (!rows.length) rows = await top(new Date(Date.now() + 9 * 3600_000 - 86_400_000).toISOString().slice(0, 10)); // yesterday, KST
+  const clock = (ms: number) => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  const entries = rows.map((r, i) => ({ rank: i + 1, nickname: r.nickname, n: Math.round(r.total / 1000), label: clock(r.total) }));
+  return entries.length ? [['/proposition-go', { kind: 'time', entries }]] : [];
+}
+
 let cache: Promise<Podium> | null = null;
 /** The top three of every game (AI Hall of Fame, or the solo challenge), keyed by the game's page, loaded once per visit. */
 function loadPodiums(): Promise<Podium> {
   cache ??= Promise.all([
     fetchHallOfFame().then(({ entries }) => entries).catch(() => []),
     challengePodiums().catch(() => []),
-  ]).then(([hall, challenges]) => {
-    const map: Podium = new Map(challenges);
+    propositionPodium().catch(() => []),
+  ]).then(([hall, challenges, proposition]) => {
+    const map: Podium = new Map([...challenges, ...proposition]);
     for (const e of hall) {
       const href = CERT_GAMES[e.game as GameId]?.href;
       const cur = href ? map.get(href) : undefined;

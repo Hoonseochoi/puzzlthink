@@ -215,7 +215,7 @@ export function LiveFeed({ items, className = 'mx-4 mt-2.5' }: { items: FeedItem
 }
 
 export const MEDAL = ['#f2c53d', '#b8bfca', '#c98a55'];
-export const PODIUM_STAT = { wins: 'podiumWins', maps: 'podiumMaps', score: 'podiumScore', correct: 'podiumCorrect' } as const;
+export const PODIUM_STAT = { wins: 'podiumWins', maps: 'podiumMaps', score: 'podiumScore', correct: 'podiumCorrect', time: 'podiumScore' } as const; // time entries carry their own label
 
 /** Under a tile: the game's #1 (one stone and the name). */
 export function TopOne({ podium }: { podium?: GamePodium }) {
@@ -227,6 +227,7 @@ export function TopOne({ podium }: { podium?: GamePodium }) {
       <span className="flex h-[13px] shrink-0 items-center rounded-full bg-[#f2c53d] px-1 text-[8.5px] font-black leading-none text-[#3b2604]">{th('first')}</span>
       <span className="shrink-0">{top.block ? <RankBlock block={top.block} name={top.nickname} size={16} /> : <StoneAvatar name={top.nickname} size={15} />}</span>
       <span className="min-w-0 truncate text-[10px] font-black text-black/55">{top.nickname}</span>
+      {top.label && <span className="shrink-0 font-mono text-[10px] font-black text-black/40">{top.label}</span>}
     </span>
   );
 }
@@ -400,7 +401,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
                         <span className="flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full text-[9px] text-black/70" style={{ background: MEDAL[i] }}>{i + 1}</span>
                         <span className="shrink-0">{e.block ? <RankBlock block={e.block} name={e.nickname} size={16} /> : <StoneAvatar name={e.nickname} size={16} />}</span>
                         <span className="min-w-0 max-w-[92px] truncate">{e.nickname}</span>
-                        <span className="shrink-0 font-bold text-white/65">{t(PODIUM_STAT[heroPodium.kind], { n: e.n })}</span>
+                        <span className="shrink-0 font-bold text-white/65">{e.label ?? t(PODIUM_STAT[heroPodium.kind], { n: e.n })}</span>
                       </span>
                     ))}
                   </span>
