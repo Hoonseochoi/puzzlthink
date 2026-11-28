@@ -1,0 +1,68 @@
+{
+ "report": [
+  {
+   "name": "1 loaded (70 lines, capped at 60)",
+   "gap": 0,
+   "lastVisible": true,
+   "last": "지우 하준님 말이 수상해 (70)",
+   "pageY": 0,
+   "focus": "BODY",
+   "pill": false
+  },
+  {
+   "name": "2 three lines by poll (list already capped)",
+   "gap": 72,
+   "lastVisible": false,
+   "last": "도윤 방금 들어온 메시지 C",
+   "pageY": 0,
+   "focus": "BODY",
+   "pill": false
+  },
+  {
+   "name": "3 I sent a line",
+   "gap": 96,
+   "lastVisible": false,
+   "last": "나 저는 진짜 시민입니다",
+   "pageY": 38,
+   "focus": "INPUT[chat]",
+   "pill": false
+  },
+  {
+   "name": "4 keyboard chat mode + poll line",
+   "gap": 3,
+   "lastVisible": true,
+   "last": "서연 키보드 열린 뒤 들어온 말",
+   "pageY": 0,
+   "focus": "INPUT[chat]",
+   "pill": false
+  },
+  {
+   "name": "5 scrolled up by hand + poll line (stays, pill)",
+   "gap": 743,
+   "lastVisible": false,
+   "last": "하준 위로 올려 읽는 중에 온 말",
+   "pageY": 0,
+   "focus": "BODY",
+   "pill": false
+  },
+  {
+   "name": "6 pill tapped",
+   "gap": 743,
+   "lastVisible": false,
+   "last": "하준 위로 올려 읽는 중에 온 말",
+   "pageY": 0,
+   "focus": "BODY",
+   "pill": false
+  },
+  {
+   "name": "7 phase → my clue turn, centre input focused, poll line",
+   "gap": 791,
+   "lastVisible": false,
+   "last": "지우 내 차례에 들어온 채팅",
+   "pageY": 0,
+   "focus": "INPUT[centre]",
+   "pill": false
+  }
+ ],
+ "errors": []
+}
