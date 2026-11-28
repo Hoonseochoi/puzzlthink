@@ -96,6 +96,7 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
   const [finish, setFinish] = useState<Finish>(null);
   const [now, setNow] = useState(() => Date.now());
   const [confirmQuit, setConfirmQuit] = useState(false);
+  const [showRanking, setShowRanking] = useState(false);
   const [rankTick, setRankTick] = useState(0);
   const [origin, setOrigin] = useState(0); // local ms when the run's clock read 0
   const expiring = useRef(false);
@@ -244,10 +245,22 @@ function Daily({ onPractice, onTutorial, onRunning }: { onPractice: () => void; 
       {today?.status === 'running' && <p className="-mt-1 text-center text-[11px] font-bold text-[#ffb3ba]">{t('clockRunning')}</p>}
       {error && <p className="text-center text-[12px] font-bold text-[#ff9aa5]">{error}</p>}
       <div className="grid grid-cols-2 gap-2">
+        <button type="button" onClick={() => setShowRanking(true)} className={`${BTN} col-span-2 min-h-[42px] lg:hidden`}><Trophy size={14} />{t('seeRanking')}</button>
         <button type="button" onClick={onTutorial} className={`${BTN} min-h-[42px]`}><GraduationCap size={14} />{t('mode_tutorial')}</button>
         <button type="button" onClick={onPractice} className={`${BTN} min-h-[42px]`}><RotateCcw size={14} />{t('practiceFree')}</button>
       </div>
       <div className="lg:hidden"><h2 className={`${PANEL_TITLE} mb-1`}>{t('rulesTitle')}</h2><Rules /></div>
+      {showRanking && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 sm:items-center sm:p-6" onClick={() => setShowRanking(false)}>
+          <div role="dialog" aria-label={t('rankingTitle')} className="max-h-[80vh] w-full max-w-sm overflow-y-auto rounded-t-[18px] border border-white/10 bg-[#16141f] p-4 sm:rounded-[18px]" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className={`${PANEL_TITLE} flex items-center gap-1.5`}><Trophy size={11} />{t('rankingTitle')} · {t('playersToday', { n: today?.players ?? 0 })}</h2>
+              <button type="button" onClick={() => setShowRanking(false)} className="text-[12px] font-black text-white/55 hover:text-white">{t('close')}</button>
+            </div>
+            <Ranking />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6043,6 +6043,8 @@
       "Today's three share one clock, 10 minutes at most. Up to 3 hints per run: a piece buys one more proposition (once per puzzle, +30 s), a black piece shows one stone (+40 s).",
       "Solve today's three within 5 minutes (hint time included) for 1 piece; the day's top three get 5 more the next day."
     ],
+    "seeRanking": "Today's ranking",
+    "close": "Close",
     "rankingTitle": "Today's ranking",
     "rankingEmpty": "Nobody has cleared today yet. Set the first time!",
     "tier1": "Basic",
