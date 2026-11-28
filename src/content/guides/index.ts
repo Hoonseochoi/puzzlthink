@@ -22,6 +22,7 @@ import heavy13 from './heavy13';
 import hexagon from './hexagon';
 import hiddenWord from './hidden-word';
 import hiddenWordPlus from './hidden-word-plus';
+import hiddenWordLiar from './hidden-word-liar';
 import hitStay from './hit-stay';
 import timeAuction from './time-auction';
 import mineOblivion from './mine-of-oblivion';
@@ -59,6 +60,7 @@ const REGISTRY: Partial<Record<GameId, GameGuide | null>> = {
   hexagon,
   hiddenWord,
   hiddenWordPlus,
+  hiddenWordLiar,
   hitStay,
   sniperHoldem,
   indianPoker,

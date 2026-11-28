@@ -71,8 +71,9 @@ export default function LiarRoomView({ code }: { code: string }) {
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 lg:px-6">
           <MyWord view={view} t={t} />
+          {view.phase === 'lobby' && <Actions view={view} t={t} en={en} code={code} refresh={refresh} />}
           <Table view={view} t={t} marks={marks} onTap={(seat) => onSeatTap(view, seat, mark, marks, refresh)} />
-          <Actions view={view} t={t} en={en} code={code} refresh={refresh} />
+          {view.phase !== 'lobby' && <Actions view={view} t={t} en={en} code={code} refresh={refresh} />}
           <ClueBoard view={view} t={t} />
           {view.phase === 'lobby' || !me?.playing ? <Rules t={t} /> : null}
         </div>
@@ -136,7 +137,8 @@ function MyWord({ view, t }: { view: LiarView; t: ReturnType<typeof liarCopy> })
 function Table({ view, t, marks, onTap }: { view: LiarView; t: ReturnType<typeof liarCopy>; marks: Record<number, number>; onTap: (seat: number) => void }) {
   const seats = view.phase === 'lobby' ? view.members : view.members.filter((m) => m.playing || RUNNING.includes(view.phase) === false);
   const order = view.order.length && view.phase !== 'lobby' ? view.order.map((s) => seats.find((m) => m.seat === s)).filter(Boolean) as LiarMember[] : seats;
-  const n = order.length;
+  const empty = view.phase === 'lobby' && view.kind === 'friend' ? Math.max(0, Math.max(view.cfg.min, Math.min(6, order.length + 1)) - order.length) : 0;
+  const n = order.length + empty;
   const big = n <= 6;
   const size = big ? 52 : 42;
   const lastClue = (seat: number) => [...view.clues].reverse().find((c) => c.seat === seat);
@@ -153,6 +155,16 @@ function Table({ view, t, marks, onTap }: { view: LiarView; t: ReturnType<typeof
       {/* the table */}
       <div className="absolute inset-[17%_15%] rounded-[50%] border-2 border-[#a98bff]/25 bg-[radial-gradient(ellipse_at_50%_35%,#2a2147,#15111f_72%)] shadow-[inset_0_0_40px_rgba(0,0,0,.6),0_0_40px_rgba(150,110,255,.15)]" />
       <Center view={view} t={t} current={current} />
+      {Array.from({ length: empty }, (_, k) => {
+        const a = -Math.PI / 2 + ((order.length + k) * 2 * Math.PI) / n;
+        const x = 50 + 41 * Math.cos(a), y = 50 + (big ? 40 : 42) * Math.sin(a);
+        return (
+          <span key={`empty-${k}`} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${x}%`, top: `${y}%` }}>
+            <span className="flex items-center justify-center rounded-full border-2 border-dashed border-white/25 text-[20px] font-black text-white/35" style={{ width: size, height: size }}>+</span>
+            <span className="mt-1 text-[10px] font-bold text-white/35">{t.emptySeat}</span>
+          </span>
+        );
+      })}
       {order.map((m, i) => {
         const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
         const x = 50 + 41 * Math.cos(a), y = 50 + (big ? 40 : 42) * Math.sin(a);
@@ -174,9 +186,9 @@ function Table({ view, t, marks, onTap }: { view: LiarView; t: ReturnType<typeof
                 {clue.word && <span className="shrink-0 rounded-full px-1 text-[10px] text-white" style={{ background: clue.hot && clue.score == null ? '#ff5a3d' : clue.score == null ? '#6b6680' : scoreColor(clue.score) }}>{shownScore(clue, t)}</span>}
               </span>
             )}
-            <span className={`relative rounded-full ${isTurn ? 'ring-[3px] ring-[#ffd36e] ring-offset-2 ring-offset-[#15111f] animate-[pulse_1.6s_ease-in-out_infinite]' : ''} ${myVote ? 'ring-[3px] ring-[#ff5a3d] ring-offset-2 ring-offset-[#15111f]' : ''} ${canVote && !myVote ? 'ring-2 ring-white/40 ring-offset-2 ring-offset-[#15111f]' : ''}`}>
+            <span className={`relative rounded-full ${isTurn ? 'hwl-glow ring-[3px] ring-[#ffd36e] ring-offset-2 ring-offset-[#15111f]' : ''} ${liar ? 'ring-[3px] ring-[#ff5a3d] ring-offset-2 ring-offset-[#15111f]' : ''} ${myVote ? 'ring-[3px] ring-[#ff5a3d] ring-offset-2 ring-offset-[#15111f]' : ''} ${canVote && !myVote ? 'ring-2 ring-white/40 ring-offset-2 ring-offset-[#15111f]' : ''}`}>
               <RimStone name={m.name} size={size} />
-              {liar && <span className="absolute -right-2 -top-2 rounded-full bg-[#ff5a3d] px-1.5 text-[10px] font-black text-white shadow">🎭</span>}
+              {liar && <span className="hwl-stamp absolute -right-3 -top-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#ff5a3d] text-[15px] shadow-lg ring-2 ring-white">🎭</span>}
               {accused && !liar && <span className="absolute -right-2 -top-2 rounded-full bg-[#ffd36e] px-1.5 text-[10px] font-black text-[#241457]">?</span>}
               {(suspects[m.seat] ?? 0) > 0 && !over && <span className="absolute -left-2 -top-1.5 flex items-center gap-0.5 rounded-full bg-black/75 px-1 text-[10px] font-black text-[#ffd36e]"><Eye size={10} />{suspects[m.seat]}</span>}
               {(votes[m.seat] ?? 0) > 0 && <span className="absolute -bottom-1.5 -right-2 rounded-full bg-[#ff5a3d] px-1.5 text-[10px] font-black text-white">{votes[m.seat]}</span>}
@@ -184,8 +196,8 @@ function Table({ view, t, marks, onTap }: { view: LiarView; t: ReturnType<typeof
               {view.phase === 'talk' && m.talked && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#7fd0ff] px-1 text-[9px] font-black text-[#082033]">✓</span>}
               {view.host === m.seat && view.kind === 'friend' && <Crown size={13} className="absolute -top-2 left-1/2 -translate-x-1/2 text-[#ffd36e]" />}
             </span>
-            <span className={`mt-1 max-w-full truncate text-[11px] font-black ${mine ? 'text-[#ffe9a8]' : 'text-white/80'}`}>{m.name}{mine ? ` (${t.me})` : ''}</span>
-            {over && m.pieces ? <span className="text-[10px] font-black text-[#ffd36e]">{t.pieces(m.pieces)}</span> : null}
+            <span className={`mt-1 max-w-full truncate text-[11px] font-black ${liar ? 'rounded-full bg-[#ff5a3d] px-1.5 text-white' : mine ? 'text-[#ffe9a8]' : 'text-white/80'}`}>{m.name}{mine ? ` (${t.me})` : ''}</span>
+            {over && m.pieces ? <span className="hwl-pop mt-0.5 rounded-full bg-[#ffd36e] px-1.5 text-[10px] font-black text-[#3a2600]">🧩 {t.pieces(m.pieces)}</span> : null}
             {!m.here && view.phase === 'lobby' && <span className="text-[9px] text-white/40">{t.away}</span>}
           </button>
         );
@@ -206,7 +218,8 @@ function Center({ view, t, current }: { view: LiarView; t: ReturnType<typeof lia
   else if (view.phase === 'guess') body = <><p className="text-[15px] font-black text-[#ffd36e]">{t.guessTitle(liarName)}</p><p className="mt-1 text-[11px] text-white/60">{view.me?.seat === view.liar ? '' : t.guessWait}</p></>;
   else if (view.phase === 'done' && r) body = (
     <>
-      <p className={`text-[19px] font-black ${r.outcome === 'liar' ? 'text-[#ff8a6d]' : r.outcome === 'citizens' ? 'text-[#7fe3a0]' : 'text-white/70'}`}>{r.outcome === 'liar' ? t.resultLiar : r.outcome === 'citizens' ? t.resultCitizens : t.resultVoid}</p>
+      <p className="text-[30px] leading-none">{r.outcome === 'liar' ? '🎭' : r.outcome === 'citizens' ? '🕵️' : '·'}</p>
+      <p className={`mt-1 text-[20px] font-black ${r.outcome === 'liar' ? 'text-[#ff8a6d]' : r.outcome === 'citizens' ? 'text-[#7fe3a0]' : 'text-white/70'}`}>{r.outcome === 'liar' ? t.resultLiar : r.outcome === 'citizens' ? t.resultCitizens : t.resultVoid}</p>
       {t.reason[r.reason] && <p className="mt-0.5 text-[11px] text-white/60">{t.reason[r.reason]}</p>}
       <div className="mt-2 flex items-center justify-center gap-2 text-[12px]">
         <span className="rounded-lg bg-white px-2 py-0.5 font-black text-[#241457]">{r.answer}</span>
@@ -218,7 +231,7 @@ function Center({ view, t, current }: { view: LiarView; t: ReturnType<typeof lia
     </>
   );
   else if (view.phase === 'closed') body = <p className="text-[14px] font-black">{t.closed}</p>;
-  return <div className="absolute inset-[24%_22%] flex flex-col items-center justify-center text-center">{body}</div>;
+  return <div key={`${view.phase}-${view.game}`} className={`absolute inset-[24%_22%] flex flex-col items-center justify-center text-center ${view.phase === 'done' || view.phase === 'guess' ? 'hwl-pop' : ''}`}>{body}</div>;
 }
 
 function Actions({ view, t, en, code, refresh }: { view: LiarView; t: ReturnType<typeof liarCopy>; en: boolean; code: string; refresh: () => Promise<void> }) {
@@ -313,6 +326,7 @@ function Actions({ view, t, en, code, refresh }: { view: LiarView; t: ReturnType
     return (
       <div className={box}>
         {!r.valid && r.outcome !== 'void' && <p className="mb-2 break-keep text-center text-[10px] text-white/40">{t.noReward}</p>}
+        {me?.piecesToday != null && <p className="mb-2 text-center text-[11px] font-black text-[#ffd36e]">🧩 {t.todayLeft(Math.max(0, view.cfg.dailyCap - me.piecesToday), view.cfg.dailyCap)}</p>}
         {view.kind === 'friend'
           ? (isHost
               ? <button type="button" disabled={busy || view.members.length < view.cfg.min} onClick={() => submit(() => startLiar(code), {})} className="w-full rounded-xl py-3 text-[15px] font-black text-[#1a1030] disabled:opacity-40" style={{ background: LIAR_ACCENT }}>{t.againHost}</button>
@@ -387,7 +401,7 @@ function ChatPanel({ chat, t, say, view }: { chat: LiarChat[]; t: ReturnType<typ
     return (seat: number) => palette[seat % palette.length];
   }, []);
   return (
-    <div className="flex h-[36dvh] shrink-0 flex-col border-t border-white/10 bg-black/45 lg:h-auto lg:w-[340px] lg:border-l lg:border-t-0">
+    <div className={`flex shrink-0 flex-col border-t border-white/10 bg-black/45 lg:h-auto lg:w-[340px] lg:border-l lg:border-t-0 ${view.phase === 'lobby' ? 'h-[28dvh]' : 'h-[36dvh]'}`}>
       <div ref={list} className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-2 text-[13px]">
         {chat.map((m) => m.kind === 'system'
           ? <p key={m.key} className="text-[12px] font-bold text-[#c9b6ff]/90">{m.text}</p>

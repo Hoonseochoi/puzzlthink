@@ -55,3 +55,13 @@ begin
   select * into r from hwl_rooms where hwl_rooms.code = rc;
   raise notice 'after 3 leave: phase % outcome % (alive %)', r.phase, r.outcome, array_length(public.hwl_alive(rc), 1);
 end $$;
+
+-- the house games above are what the ranking counts (friend games never do)
+do $$ begin
+  raise notice 'ranking rows % (house wins %)', (select count(*) from public.hwl_rank_rows()),
+    (select count(distinct user_id) from public.game_results where game = 'hidden_word_liar' and result = 'win' and detail ->> 'kind' = 'house');
+  if exists (select 1 from public.hwl_rank_rows() x where not exists (
+      select 1 from public.game_results g where g.user_id = x.user_id and g.game = 'hidden_word_liar' and g.result = 'win' and g.detail ->> 'kind' = 'house')) then
+    raise exception 'a ranked player has no house win';
+  end if;
+end $$;

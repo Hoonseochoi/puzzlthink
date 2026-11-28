@@ -264,3 +264,12 @@ button:disabled { cursor: default; }
   .vs-in, .vs-out, .vs-left, .vs-right, .vs-slam, .vs-rise, .vs-bar { animation: none; }
   .vs-slam { transform: rotate(-8deg); }
 }
+
+/* 히든 워드: 라이어 — the reveal pops in, the liar's mask stamps down, my turn glows */
+@keyframes hwl-pop { 0% { transform: scale(.55); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+.hwl-pop { animation: hwl-pop .55s cubic-bezier(.2,.9,.3,1.3) both; }
+@keyframes hwl-stamp { 0% { transform: scale(2.4) rotate(-18deg); opacity: 0; } 70% { transform: scale(.9) rotate(4deg); opacity: 1; } 100% { transform: scale(1) rotate(0); } }
+.hwl-stamp { animation: hwl-stamp .5s .25s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes hwl-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,211,110,.0); } 50% { box-shadow: 0 0 0 6px rgba(255,211,110,.25); } }
+.hwl-glow { animation: hwl-glow 1.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .hwl-pop, .hwl-stamp, .hwl-glow { animation: none; } }

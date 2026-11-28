@@ -13,7 +13,7 @@ drop function if exists public.hwl_q_answer(uuid, boolean), public.hwl_q_leave()
   public.hwl_talk(text, text, text), public.hwl_clue(text, text, text, boolean), public.hwl_start(text, text), public.hwl_kick(text, text, int),
   public.hwl_leave(text, text), public.hwl_join(text, text, text), public.hwl_create(text, text), public.hwl_nick(text),
   public.hwl_step(text), public.hwl_after_vote(text), public.hwl_after_talk(text), public.hwl_finish(text, text, text),
-  public.hwl_settle(text), public.hwl_settle_turn(text), public.hwl_begin(text, smallint[]), public.hwl_alive(text),
+  public.hwl_settle(text), public.hwl_pieces_today(uuid), public.hwl_settle_turn(text), public.hwl_begin(text, smallint[]), public.hwl_alive(text),
   public.hwl_new_code(), public.hwl_member(text, text), public.hwl_bump(text), public.hwl_norm(text), public.hwl_cfg();
 drop table if exists public.hwl_offer_members, public.hwl_offers, public.hwl_queue, public.hwl_votes, public.hwl_clues,
   public.hwl_members, public.hwl_results, public.hwl_rooms;

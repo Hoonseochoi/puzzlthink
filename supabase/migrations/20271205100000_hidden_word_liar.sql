@@ -10,7 +10,8 @@
 --   house rooms ('house'): made by the matchmaking queue (hwl_q_*), no host, start and continue on their own.
 -- A finished, valid game (4+ signed-in players, spoken clues from at least half the seats, min 4) is settled here: game_results rows
 -- (mode 'friend', detail.role 'liar'|'citizen', detail.open = house), 피스 through piece_grants (liar win 3, citizen
--- win 1, no cap — owner 11/28), the 'lw' icon on a first liar win and the #1 crown 'c-hidden_word_liar'.
+-- win 1, at most 7 a KST day per player — owner 11/28), the 'lw' icon on a first liar win (any game) and the #1 crown
+-- 'c-hidden_word_liar' (ranking of 공개방 games only).
 -- Shared CHECK constraints are extended from their LIVE definitions at apply time (DO blocks), so this file does not
 -- carry copies of shared functions. Deploy the client first (it knows the 'lw' icon), then apply this.
 -- Rollback: scripts/hidden-word-liar/rollback.sql
@@ -125,7 +126,7 @@ create or replace function public.hwl_cfg()
 returns jsonb language sql immutable as $$ select jsonb_build_object(
   'hot', 85,                       -- a clue this close to the answer shows as 85+ (its number hidden)
   'cards', 8, 'turn', 22, 'talk', 45, 'talkBig', 60, 'vote', 20, 'runoff', 15, 'guess', 30, 'again', 25, 'houseLobby', 25,
-  'min', 4, 'max', 10, 'liarWin', 3, 'citizenWin', 1
+  'min', 4, 'max', 10, 'liarWin', 3, 'citizenWin', 1, 'dailyCap', 7   -- 피스 from this game per player per KST day (owner 11/28)
 ) $$;
 
 create or replace function public.hwl_norm(p text)
@@ -220,6 +221,12 @@ begin
   end loop;
 end $$;
 
+-- 피스 this game already paid a player today (KST), liar and citizen wins together.
+create or replace function public.hwl_pieces_today(p_user uuid)
+returns int language sql stable security definer set search_path = public, pg_temp
+as $$ select coalesce(sum(amount), 0)::int from public.piece_grants
+        where user_id = p_user and source in ('liar_win', 'liar_cit') and day = (now() at time zone 'Asia/Seoul')::date $$;
+
 -- Rewards and records for a finished game; called once, from hwl_finish.
 create or replace function public.hwl_settle(p_code text)
 returns void language plpgsql volatile security definer set search_path = public, pg_temp
@@ -242,6 +249,7 @@ begin
   for m in select * from public.hwl_members where code = p_code and playing and not gone and uid is not null loop
     win := (m.seat = r.liar) = (r.outcome = 'liar');
     amt := case when not win then 0 when m.seat = r.liar then (cfg ->> 'liarWin')::int else (cfg ->> 'citizenWin')::int end;
+    amt := least(amt, greatest(0, (cfg ->> 'dailyCap')::int - public.hwl_pieces_today(m.uid)));   -- the daily cap
     insert into public.game_results (id, user_id, game, mode, result, detail)
     values (gen_random_uuid(), m.uid, 'hidden_word_liar', 'friend', case when win then 'win' else 'loss' end,
             jsonb_build_object('role', case when m.seat = r.liar then 'liar' else 'citizen' end, 'kind', r.kind,
@@ -598,6 +606,7 @@ begin
     'accused', r.accused, 'cfg', public.hwl_cfg(),
     'me', case when m.seat is null then null else jsonb_build_object(
       'seat', m.seat, 'playing', m.playing, 'maskUsed', m.mask_used, 'talk', m.talk, 'ready', m.ready,
+      'piecesToday', case when m.uid is not null then public.hwl_pieces_today(m.uid) end,
       'word', case when m.playing and (running or over) then case when m.seat = r.liar then r.decoy else r.answer end end,
       'voted', (select v.target from public.hwl_votes v where v.code = p_code and v.game_no = r.game_no and v.stage = r.phase and v.seat = m.seat)) end,
     'members', (select coalesce(jsonb_agg(jsonb_build_object(
@@ -620,7 +629,7 @@ begin
   );
 end $$;
 
--- ── ranking and the #1 crown ─────────────────────────────────────────────────────────────────────────────────────
+-- ── ranking and the #1 crown (공개방 games only; friend games still pay 피스 and the 라이어 icon) ─────────────────────────────────────────────────────────────────────────────────────
 create or replace function public.hwl_rank_rows()
 returns table (user_id uuid, liar_wins int, citizen_wins int, games int, points int, rnk int)
 language sql stable security definer set search_path = public, pg_temp
@@ -630,7 +639,7 @@ as $$
            count(*) filter (where g.result = 'win' and g.detail ->> 'role' = 'liar')::int as liar_wins,
            count(*) filter (where g.result = 'win' and g.detail ->> 'role' = 'citizen')::int as citizen_wins,
            count(*)::int as games, max(g.played_at) filter (where g.result = 'win') as last_win
-      from public.game_results g where g.game = 'hidden_word_liar' group by g.user_id
+      from public.game_results g where g.game = 'hidden_word_liar' and g.detail ->> 'kind' = 'house' group by g.user_id   -- 공개방 (matched) games only
   )
   select t.user_id, t.liar_wins, t.citizen_wins, t.games, t.liar_wins * 3 + t.citizen_wins,
          (row_number() over (order by t.liar_wins * 3 + t.citizen_wins desc, (t.liar_wins + t.citizen_wins)::numeric / greatest(t.games, 1) desc, t.last_win))::int
@@ -653,10 +662,11 @@ create or replace function public.hwl_my_stats()
 returns jsonb language sql stable security definer set search_path = public, pg_temp
 as $$
   select jsonb_build_object(
-    'liarWins', count(*) filter (where result = 'win' and detail ->> 'role' = 'liar'),
-    'citizenWins', count(*) filter (where result = 'win' and detail ->> 'role' = 'citizen'),
-    'liarGames', count(*) filter (where detail ->> 'role' = 'liar'),
-    'games', count(*))
+    'liarWins', count(*) filter (where result = 'win' and detail ->> 'role' = 'liar' and detail ->> 'kind' = 'house'),
+    'citizenWins', count(*) filter (where result = 'win' and detail ->> 'role' = 'citizen' and detail ->> 'kind' = 'house'),
+    'games', count(*) filter (where detail ->> 'kind' = 'house'),
+    'friendGames', count(*) filter (where detail ->> 'kind' = 'friend'),
+    'piecesToday', public.hwl_pieces_today(auth.uid()), 'dailyCap', (public.hwl_cfg() ->> 'dailyCap')::int)
     from public.game_results where game = 'hidden_word_liar' and user_id = auth.uid()
 $$;
 
@@ -896,7 +906,7 @@ $function$;
 
 -- ── grants ───────────────────────────────────────────────────────────────────────────────────────────────────────
 revoke all on function public.hwl_bump(text), public.hwl_member(text, text), public.hwl_new_code(), public.hwl_alive(text),
-  public.hwl_begin(text, smallint[]), public.hwl_settle_turn(text), public.hwl_settle(text), public.hwl_finish(text, text, text),
+  public.hwl_begin(text, smallint[]), public.hwl_settle_turn(text), public.hwl_settle(text), public.hwl_pieces_today(uuid), public.hwl_finish(text, text, text),
   public.hwl_after_talk(text), public.hwl_after_vote(text), public.hwl_step(text), public.hwl_nick(text), public.hwl_rank_rows(),
   public.hwl_refresh_crown(), public.hwl_q_send(uuid, text, jsonb), public.hwl_q_resolve(uuid), public.hwl_q_match(), public.hwl_cron()
   from public, anon, authenticated;

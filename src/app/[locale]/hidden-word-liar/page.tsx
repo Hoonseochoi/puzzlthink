@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import JsonLd from '@/components/JsonLd';
 import LiarHome from '@/components/hiddenWordLiar/LiarHome';
-import { breadcrumbJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
+import GameArticle, { guideFaq } from '@/components/guide/GameArticle';
+import { breadcrumbJsonLd, faqJsonLd, gameJsonLd, pageMetadata } from '@/lib/seo';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -28,9 +29,10 @@ export default async function HiddenWordLiarPage({ params }: { params: Promise<{
     <>
       <JsonLd data={{ '@context': 'https://schema.org', '@graph': [
         gameJsonLd({ locale, path: '/hidden-word-liar', name, alternateName: ['히든워드 라이어', '라이어 게임', 'Hidden Word Liar'], description: korean ? '같은 제시어로 한 마디씩 말하고, 정답과의 유사도로 단 한 명의 라이어를 찾는 4~10인 파티 게임.' : 'A 4–10 player party game: find the one player with a different word from each clue\'s similarity.', genre: ['Party game', 'Word game', 'Social deduction'], players: { min: 4, max: 10 } }),
+        faqJsonLd(guideFaq('hiddenWordLiar', locale)!),
         breadcrumbJsonLd(locale, [{ name: 'PUZZLTHINK', path: '' }, { name, path: '/hidden-word-liar' }]),
       ] }} />
-      <LiarHome />
+      <LiarHome guide={<GameArticle locale={locale} game="hiddenWordLiar" />} />
     </>
   );
 }

@@ -18,8 +18,8 @@ export type LiarView = {
   code: string; kind: 'friend' | 'house'; v: number; phase: LiarPhase; now: number; deadline: number | null;
   game: number; round: number; roundsMax: number; order: number[]; turn: number | null; host: number | null;
   runoff: number[] | null; accused: number | null; liar: number | null;
-  cfg: { hot: number; min: number; max: number; liarWin: number; citizenWin: number };
-  me: { seat: number; playing: boolean; maskUsed: boolean; talk: 'accuse' | 'more' | null; ready: boolean; word: string | null; voted: number | null } | null;
+  cfg: { hot: number; min: number; max: number; liarWin: number; citizenWin: number; dailyCap: number };
+  me: { seat: number; playing: boolean; maskUsed: boolean; talk: 'accuse' | 'more' | null; ready: boolean; word: string | null; voted: number | null; piecesToday: number | null } | null;
   members: LiarMember[];
   talk: { accuse: number; more: number };
   clues: LiarClue[];
@@ -67,7 +67,7 @@ export const tickLiar = (code: string) => rpc('hwl_tick', { p_code: code });
 
 export type LiarRankRow = { rank: number; nickname: string; avatar_url: string | null; liar_wins: number; citizen_wins: number; games: number; points: number; is_me: boolean };
 export const liarRanking = (limit = 20) => rpc<LiarRankRow[]>('hwl_ranking', { p_limit: limit });
-export const liarMyStats = () => rpc<{ liarWins: number; citizenWins: number; liarGames: number; games: number }>('hwl_my_stats', {});
+export const liarMyStats = () => rpc<{ liarWins: number; citizenWins: number; games: number; friendGames: number; piecesToday: number; dailyCap: number }>('hwl_my_stats', {});
 
 // ── matchmaking queue ──
 export type QueueState = { queued: boolean; ticket: string | null; now: number; waiting: number; offer: { id: string; deadline: number; accept: boolean | null } | null; room: string | null } & Err;

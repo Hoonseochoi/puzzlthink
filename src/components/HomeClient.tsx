@@ -25,6 +25,7 @@ import { HiddenWordTile } from './hiddenWord/HiddenWordPreview';
 import { TimeAuctionTile } from './timeAuction/TimeAuctionPreview';
 import { MineOblivionTile } from './mineOblivion/MineOblivionPreview';
 import { HiddenWordPlusTile } from './hiddenWord/HiddenWordPlusArt';
+import { LiarTile } from './hiddenWordLiar/LiarHero';
 import { CjTile } from './cardJanggi/CjPreview';
 import { GradationTile } from './gradation/GradationPreview';
 import { SignalTile } from './equationSignal/SignalParts';
@@ -249,6 +250,7 @@ export function GamePreview({ id }: { id: GameId }) {
     case 'equationTower': return <TowerTile />;
     case 'hiddenWord': return <HiddenWordTile />;
     case 'hiddenWordPlus': return <HiddenWordPlusTile />;
+    case 'hiddenWordLiar': return <LiarTile />;
     case 'gradation': return <GradationTile />;
     case 'cardJanggi': return <CjTile />;
     case 'colorLinkDuel': return <CldTile />;

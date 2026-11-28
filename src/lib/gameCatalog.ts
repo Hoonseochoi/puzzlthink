@@ -21,10 +21,10 @@ export interface CatalogGame {
 }
 
 export const GAMES: readonly CatalogGame[] = [
-  // Order set by the owner on 11/28: 히든 워드 확장판 (today's pick), then 슬리더링크, 히든 워드, 컬러 링크, 명제 바둑, 뒤집기 오목, 망각의 지뢰;
+  // Order set by the owner on 11/28: 히든 워드: 라이어 (today's pick, in 확장판's place), 히든 워드 확장판, then 슬리더링크, 히든 워드, 컬러 링크, 명제 바둑, 뒤집기 오목, 망각의 지뢰;
   // the rest by plays on 11/27 (game_plays_daily).
+  { id: 'hiddenWordLiar', href: '/hidden-word-liar', color: '#a98bff', hasGuide: true, original: true },
   { id: 'hiddenWordPlus', href: '/hidden-word-plus', color: '#b79cff', hasGuide: true },
-  { id: 'hiddenWordLiar', href: '/hidden-word-liar', color: '#a98bff', hasGuide: false, original: true },
   { id: 'slitherlink', href: '/slitherlink', color: '#8f7cff', hasGuide: true },
   { id: 'hiddenWord', href: '/hidden-word', color: '#a8ef70', hasGuide: true },
   { id: 'colorLinkDuel', href: '/color-link-duel', color: '#7c6cff', hasGuide: true, hell: { live: true } },

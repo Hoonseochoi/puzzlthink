@@ -13,12 +13,13 @@ do $$ begin
 end $$;
 
 -- play one game in a room; p_mode: 'catch-miss' (accuse liar, wrong guess), 'catch-hit' (liar guesses right), 'wrong' (accuse a citizen), 'tie'
-create or replace function pg_temp.play(p_code text, n int, p_mode text) returns jsonb language plpgsql as $$
+create or replace function pg_temp.play(p_code text, n int, p_mode text, p_kind text default 'friend') returns jsonb language plpgsql as $$
 declare r public.hwl_rooms; v jsonb; seat int; w text; res jsonb; guard int := 0; i int; liar int; tgt int; words text[];
 begin
   perform pg_temp.as_user(pg_temp.uid(1));
   res := public.hwl_start(p_code, pg_temp.key(1));
   if res ? 'error' then raise exception 'start %', res; end if;
+  update public.hwl_rooms set kind = p_kind where code = p_code;   -- 'house' plays the game as a matched room
   -- leak checks on the cards
   select * into r from public.hwl_rooms where code = p_code;
   for i in 1..n loop
@@ -73,6 +74,7 @@ begin
       update public.hwl_rooms set deadline = now() where code = p_code; perform public.hwl_tick(p_code);
     end if;
   end loop;
+  update public.hwl_rooms set kind = 'friend' where code = p_code;
   select * into r from public.hwl_rooms where code = p_code;
   perform pg_temp.as_user(pg_temp.uid(1));
   v := public.hwl_view(p_code, pg_temp.key(1));
@@ -96,3 +98,34 @@ select source, user_id, amount from piece_grants order by user_id, source;
 select user_id, icon from profile_icons where icon in ('lw', 'c-hidden_word_liar');
 select * from hwl_ranking(10);
 select outcome, reason, players, valid from hwl_results order by id;
+
+-- ── the daily cap (7 피스 a KST day per player) and the ranking rule (공개방 games only) ──
+do $$
+declare c text; res jsonb; n int := 6; mx int; over int;
+begin
+  -- everything above was a friend room: nobody may be on the ranking
+  if exists (select 1 from public.hwl_rank_rows()) then raise exception 'friend games reached the ranking'; end if;
+  -- but friend wins did pay 피스 and the 라이어 icon
+  if not exists (select 1 from public.piece_grants where source in ('liar_win', 'liar_cit')) then raise exception 'friend games paid nothing'; end if;
+  -- bring everyone to 6 today, then play: the liar (wrong accusation) may take only 1 more
+  delete from public.piece_grants where source in ('liar_win', 'liar_cit');
+  insert into public.piece_grants (user_id, source, day, amount, period, seen_at)
+  select pg_temp.uid(i), 'liar_cit', (now() at time zone 'Asia/Seoul')::date, 6, public.piece_period_of(now()), now() from generate_series(1, n) i;
+  perform pg_temp.as_user(pg_temp.uid(1));
+  c := public.hwl_create(pg_temp.key(1), 'x') ->> 'code';
+  for i in 2..n loop perform pg_temp.as_user(pg_temp.uid(i)); perform public.hwl_join(c, pg_temp.key(i), 'x'); end loop;
+  raise notice 'cap game 1: %', pg_temp.play(c, n, 'wrong') -> 'pieces';
+  raise notice 'cap game 2: %', pg_temp.play(c, n, 'catch-miss') -> 'pieces';
+  select max(t), count(*) filter (where t > 7) into mx, over from (
+    select user_id, sum(amount) t from public.piece_grants where source in ('liar_win', 'liar_cit') and day = (now() at time zone 'Asia/Seoul')::date group by user_id) x;
+  raise notice 'cap: max today % (players over 7: %)', mx, over;
+  if mx <> 7 or over > 0 then raise exception 'daily cap broken'; end if;
+  -- a matched (house) game: its winners, and only they, reach the ranking
+  raise notice 'house game: %', pg_temp.play(c, n, 'catch-miss', 'house') -> 'outcome';
+  if (select count(*) from public.hwl_rank_rows()) = 0 then raise exception 'house game did not rank'; end if;
+  if exists (select 1 from public.hwl_rank_rows() x where not exists (select 1 from public.game_results g
+               where g.user_id = x.user_id and g.game = 'hidden_word_liar' and g.result = 'win' and g.detail ->> 'kind' = 'house')) then
+    raise exception 'a ranked player has no house win';
+  end if;
+  raise notice 'ranking after the house game: %', (select jsonb_agg(jsonb_build_object('rank', rnk, 'liar', liar_wins, 'cit', citizen_wins)) from public.hwl_rank_rows());
+end $$;
