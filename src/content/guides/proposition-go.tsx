@@ -145,10 +145,11 @@ const guide: GameGuide = {
         blocks: [
           { type: 'list', items: [
             '**모두 같은 문제**: 매일 자정(한국 시간)에 기본·심화·거짓말 3문제가 새로 나와요. 오늘 도전하는 모든 사람이 같은 3문제를 풀어요.',
-            '**하루 한 번, 시계 하나**: 회원은 하루 한 번 랭킹에 도전할 수 있어요. 시계는 세 문제 전체에 하나이고, 최대 10분이에요. 시작하면 새로 고침해도 시계는 멈추지 않아요.',
+            '**하루 한 번, 시계 하나**: 회원은 하루 한 번 랭킹에 도전할 수 있어요. 시계는 세 문제 전체에 하나이고, 최대 10분이에요. 시작하면 나가거나 새로 고침해도 시계는 멈추지 않아서, 시작 전에 한 번 더 물어봐요. 연습은 언제든 무제한이에요.',
             '**정답은 서버가**: 문제는 한 번에 하나씩 오고, 정답은 서버만 알아요. 판이 풀리면 서버가 확인하고 다음 문제를 보내요.',
             '**힌트 두 가지 (한 판에 합쳐 3개까지)**: **피스 1개**로 정답에 대한 참 명제 한 장을 더 받아요(문제당 1번, 기록 **+30초**). **블랙피스 1개**로는 아직 제자리가 아닌 돌 하나가 정답 자리에 놓이고 잠겨요(**+40초**). 힌트를 쓴 기록에는 랭킹에 💡 표시가 붙어요. 벌점이 빠른 사람의 풀이 시간보다 커서, 힌트로 1위를 살 수는 없어요.',
             '**연속 기록과 왕관**: 매일 깨면 🔥 연속 기록이 쌓여요. 오늘의 1위는 명제 바둑 왕관 아이콘을 쓰고, 더 빠른 사람이 나오면 넘겨줘요.',
+            '**주간 랭킹**: 매일 순위대로 1위 20점, 2위 19점 … 20위 1점을 받고, 수요일 0시(한국 시간)부터 일주일 동안 더해요. 오늘 점수도 바로 반영돼서 하루 중에도 주간 순위가 움직여요. 동점이면 그 주 최고 순위가, 그래도 같으면 평균 기록이 빠른 쪽이 앞서요.',
             '**공유**: 결과 카드는 정답 없이 시간과 단계별 기록만 보여 줘요. 친구도 같은 3문제를 풀 수 있어요.',
           ] },
           { type: 'callout', tone: 'tip', title: '처음이라면 연습부터', text: '연습 모드는 시간 제한이 없고 힌트도 무료예요. 튜토리얼 3판을 먼저 해 보면 카드 읽는 법이 금방 손에 익어요.' },
@@ -174,6 +175,7 @@ const guide: GameGuide = {
       { q: '찍어야 하는 문제도 있나요?', a: '없어요. 카드를 한 장씩 판에 대 보는 것만으로 풀리거나, 심화·거짓말 단계에서 "이 돌이 여기라면 모순"을 한 번 떠올리면 풀리는 문제만 골라요.' },
       { q: '오늘의 명제는 몇 번 할 수 있나요?', a: '랭킹 도전은 회원당 하루 한 번이에요. 연습 모드는 로그인 없이 몇 번이든 할 수 있어요.' },
       { q: '피스 힌트를 쓰면 1위를 할 수 있나요?', a: '힌트 한 번마다 30초가 더해져요. 문제 하나를 30초 안팎에 푸는 상위권에게는 손해라, 힌트는 막혔을 때 끝까지 가기 위한 구조 장치예요. 힌트를 쓴 기록에는 💡가 붙어요.' },
+      { q: '주간 1위는 어떻게 정해지나요?', a: '매일 랭킹에서 1위 20점, 2위 19점 … 20위 1점을 받아 수요일 0시부터 화요일 밤까지 더해요. 매일 꾸준히 상위권에 들수록 유리하고, 오늘 점수는 바로 반영돼요. 지난주 1위도 화면에 작게 남아요.' },
       { q: '시작하고 창을 닫으면 어떻게 되나요?', a: '시계는 서버에서 흐르기 때문에 멈추지 않아요. 다시 들어오면 하던 문제부터 이어서 풀 수 있고, 10분이 지나면 시간 초과로 끝나요.' },
       { q: '"PUZZLTHINK ORIGINAL"은 무슨 뜻인가요?', a: 'TV 프로그램이나 기존 보드게임에서 가져오지 않고 PUZZLTHINK가 규칙부터 직접 만든 게임이라는 표시예요. 명제 바둑과 뒤집기 오목이 이 시리즈예요.' },
     ],
@@ -258,10 +260,11 @@ const guide: GameGuide = {
         blocks: [
           { type: 'list', items: [
             '**Same puzzles for everyone**: at midnight Korean time a new set of three (basic, advanced, lie) comes out. Everyone plays the same three.',
-            '**One attempt, one clock**: members get one ranked attempt a day. One clock runs over all three puzzles, 10 minutes at most, and it keeps running if you reload.',
+            '**One attempt, one clock**: members get one ranked attempt a day. One clock runs over all three puzzles, 10 minutes at most, and it keeps running if you leave or reload, so the game asks once more before it starts. Practice is unlimited.',
             '**The server keeps the answers**: puzzles come one at a time; the server checks each solved board and sends the next.',
             '**Two hints (3 per run in all)**: **one piece** buys one more true proposition about the answer (once per puzzle, **+30 s**); **one black piece** puts one stone that is not yet right on its answer point and locks it (**+40 s**). Hinted runs carry a 💡 in the ranking; the penalties outweigh what a fast solver saves, so hints never buy first place.',
             '**Streaks and the crown**: clear every day to build a 🔥 streak. Today’s #1 wears the Proposition Go crown until someone beats the time.',
+            '**Weekly ranking**: each day’s ranking gives points, #1 = 20, #2 = 19 … #20 = 1, added up over the week from Wednesday 00:00 Korean time. Today’s points count right away, so the weekly board moves during the day. Ties go to the better best day, then the faster average time.',
             '**Sharing**: the result card shows times, never answers, so friends can play the same three.',
           ] },
         ],
@@ -272,6 +275,8 @@ const guide: GameGuide = {
       { q: 'Do I ever have to guess?', a: 'No. Puzzles are solvable by reading cards one at a time, or on the harder stages with one “if this stone were here, a card breaks”.' },
       { q: 'How often can I play the daily set?', a: 'One ranked attempt per member per day. Practice is unlimited and needs no account.' },
       { q: 'Can hints win the ranking?', a: 'Each hint adds 30 seconds, which costs a top player more than it saves. Hints are there to get you to the end; hinted runs carry a 💡.' },
+      { q: 'How is the weekly #1 decided?', a: 'Each day’s ranking gives #1 20 points, #2 19 … #20 1, added up from Wednesday 00:00 to Tuesday night (Korean time). Steady top finishes win the week; today’s points count right away, and last week’s #1 stays on screen in small print.' },
+      { q: 'What if I close the window after starting?', a: 'The clock runs on the server, so it doesn’t stop. Come back and you pick up the puzzle you were on; after 10 minutes the run ends as a timeout.' },
       { q: 'What does PUZZLTHINK ORIGINAL mean?', a: 'A game whose rules PUZZLTHINK made itself, not taken from a TV show or a classic. Proposition Go and Flip Omok are in the series.' },
     ],
     cta: { title: 'Ready for today’s three?', body: 'If it is your first time, the three tutorial boards are enough. Watch the cards turn green one by one.', button: 'Play Proposition Go' },
