@@ -8,6 +8,7 @@ import { ChevronRight } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { ORIGINALS, type GameId } from '@/lib/gameCatalog';
 import { FitTile } from './OpenMatchCard';
+import { CHANGED_TAG } from './changedTags';
 import { OriginalMark, PgDefs } from './propositionGo/PropParts';
 
 export default function OriginalsRow({ Preview, isNew, onOpen, className = '' }: { Preview: ComponentType<{ id: GameId }>; isNew: (id: GameId) => boolean; onOpen?: (href: string) => void; className?: string }) {
@@ -28,7 +29,7 @@ export default function OriginalsRow({ Preview, isNew, onOpen, className = '' }:
             <Link href={g.href} onClick={() => onOpen?.(g.href)} className="group flex h-full flex-col overflow-hidden rounded-[18px] bg-black/30 ring-1 ring-white/10 transition active:scale-[.98] sm:hover:ring-[#c9b6ff]/50">
               <span className="relative block aspect-[4/3] overflow-hidden bg-[#17201e]">
                 <FitTile title={tc(g.id)} className="h-full w-full"><Preview id={g.id} /></FitTile>
-                {g.id === 'flipOmok' ? <span className="absolute left-2 top-2 rounded-full bg-[#3fb8ff] px-1.5 py-0.5 text-[9px] font-black tracking-[0.02em] text-[#04263a]">{tc('ruleChangeTag')}</span> : isNew(g.id) && <span className="absolute left-2 top-2 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[9px] font-black tracking-[0.08em] text-white">NEW</span>}
+                {CHANGED_TAG[g.id] ? <span className="absolute left-2 top-2 rounded-full bg-[#3fb8ff] px-1.5 py-0.5 text-[9px] font-black tracking-[0.02em] text-[#04263a]">{tc(CHANGED_TAG[g.id]!)}</span> : isNew(g.id) && <span className="absolute left-2 top-2 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[9px] font-black tracking-[0.08em] text-white">NEW</span>}
               </span>
               <span className="flex flex-1 flex-col gap-0.5 p-2.5">
                 <b className="truncate text-[14px] font-black tracking-[-0.03em] sm:text-[16px]">{tc(g.id)}</b>

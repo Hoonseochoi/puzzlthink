@@ -439,6 +439,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '레이저 장기', en: 'Laser Janggi' },
     items: [
       {
+        date: '11/28', icon: Wrench,
+        ko: { title: '시작 판을 방송 판 그대로 바꿨어요', desc: '방송에서 규칙을 설명한 판을 한 칸씩 옮겼어요. 이제 각자 네모기사 2·세모기사 5개로 시작하고, 스플리터는 반대쪽 구석(H1·A8)에 있으며, 두 레이저의 첫 빛은 가운데 나비넥타이를 지나가요. 거울 면은 반사, 다른 면에 맞은 말은 제거, 레이저와 스플리터는 맞아도 남는 규칙은 그대로예요.' },
+        en: { title: 'The starting board now matches the show exactly', desc: "Copied square by square from the board the show used to explain the rules: each side now has two square and five triangle knights, the splitters sit in the far corners (H1, A8) and both opening beams run through the centre bow tie. Mirrors still reflect, other faces still remove the piece, and lasers and splitters are never removed." },
+      },
+      {
+        date: '11/28', icon: Bot,
+        ko: { title: 'AI가 자기 빛으로 자기 말을 맞히지 않아요', desc: '쉬움·보통 AI도 다른 수가 있으면 자기 말을 레이저로 맞히는 수는 두지 않아요.' },
+        en: { title: 'The AI no longer shoots its own pieces', desc: 'Easy and Normal AI too now avoid any move whose beam removes one of their own pieces, as long as another move exists.' },
+      },
+      {
         date: '11/26', icon: Wrench,
         ko: { title: '어려움 AI가 스스로 지는 수를 두던 문제를 고쳤어요', desc: '둘 수 있는 수가 적을 때 어려움 AI가 자기 왕을 맞히는 수를 고르는 일이 있었어요. 이제 다른 수가 있으면 그 수는 두지 않아요.' },
         en: { title: 'Fixed: the Hard AI could shoot its own king', desc: 'With few moves left, the Hard AI sometimes chose a move that hit its own king. It no longer plays such a move while another one exists.' },

@@ -119,6 +119,7 @@
     "propositionGo": "Proposition Go",
     "originals": "PUZZLTHINK ORIGINAL",
     "ruleChangeTag": "NEW RULES",
+    "patchTag": "PATCHED",
     "originalTag": "ORIGINAL",
     "magicswap": "Magic Square Swap"
   },
@@ -3094,13 +3095,13 @@
     "quickRules": "Quick rules",
     "quick1": "Move one piece one square in eight directions, or rotate it 90°.",
     "quick2": "Your laser fires automatically after the action.",
-    "quick3": "Mirrored sides reflect; vulnerable sides are removed when hit.",
+    "quick3": "Mirrored faces reflect; a hit on any other face removes the piece. Lasers and splitters are never removed.",
     "quick4": "Hit the enemy king with a beam first to win.",
     "fairPlay": "If your beam hits your own king, you lose immediately. Trace before firing.",
     "rulesKicker": "LASER JANGGI",
     "rulesTitle": "Bend the light and hunt the king",
     "fullRules": [
-      "Each side starts with one laser, one king, one splitter (the glowing square), one square knight and six triangle knights, set up as on the TV death-match board (180° symmetric).",
+      "Each side starts with one laser, one king, one splitter (the glowing square), two square knights and five triangle knights, placed square by square as on the board the show used to explain the rules (180° symmetric).",
       "On your turn, move one piece one adjacent square in any direction or rotate it 90°. The laser can only rotate and cannot point outside the board.",
       "Your laser fires automatically after the action. A splitter transmits the original beam and creates a reflected beam.",
       "Triangle and square knights reflect on mirrored sides and are removed when struck on vulnerable sides. Lasers and splitters cannot be removed.",
@@ -3191,7 +3192,7 @@
     "s2Title": "Move or rotate — choose one",
     "s2Desc": "Move one piece one square in eight directions or rotate it 90° to finish your action.",
     "s3Title": "Bend the beam with mirrors",
-    "s3Desc": "Mirrored faces reflect. A splitter turns one beam into two paths.",
+    "s3Desc": "Only the mirrored face reflects; a piece hit on any other face is removed. A splitter turns one beam into two, and lasers and splitters are never removed.",
     "s4Title": "Strike the king to win",
     "s4Desc": "Complete a path that sends the automatic end-of-turn beam into the enemy king."
   },

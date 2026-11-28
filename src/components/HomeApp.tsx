@@ -30,6 +30,7 @@ import { FitTile } from './OpenMatchCard';
 import StoneAvatar, { Stone } from './StoneAvatar';
 import { AppTesterStrip } from './AppTesterInvite';
 import OriginalsRow from './OriginalsRow';
+import { CHANGED_TAG } from './changedTags';
 
 // Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
 export const NEW: GameId[] = ['propositionGo', 'mineOblivion', 'hiddenWordPlus', 'sniperHoldem', 'hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'timeAuction', 'gradation', 'pointOmok'];
@@ -37,8 +38,6 @@ const PUZZLE: GameId[] = ['propositionGo', 'slitherlink', 'hiddenWordPlus', 'hid
 /** 오늘의 추천 on the phone home: set by the site owner. */
 /** 슬리더링크's card while its Christmas theme is the default: candy-cane stripes instead of the game's tint. */
 export const XMAS_CARD = { background: 'repeating-linear-gradient(135deg, #e23b4e 0 9px, #fff7f2 9px 18px)', boxShadow: 'inset 0 0 0 1px rgba(226,59,78,.45)' };
-// A game whose rules just changed: its card says so instead of NEW (뒤집기 오목 「전략적 뒤집기」, 11/28).
-export const RULE_CHANGED: GameId = 'flipOmok';
 export const TODAY_PICK: GameId = 'hiddenWordPlus'; // 히든 워드 확장판, the newest release (11/27); was 'slitherlink'
 export const CATS = ['all', 'new', 'original', 'versus', 'puzzle', 'hell'] as const;
 export type Cat = (typeof CATS)[number];
@@ -436,7 +435,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
                   <span className="absolute inset-[9%] overflow-hidden rounded-[14px] bg-[#17201e]/90"><FitTile title={tc(g.id)} className="h-full w-full"><Preview id={g.id} /></FitTile></span>
                   {g.id === 'hiddenWordPlus' ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[linear-gradient(135deg,#ffe9a6,#e0a83a)] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.04em] text-[#2a1a04]">NEW+</span>
                     : g.id === 'slitherlink' ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[#e23b4e] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.04em] text-white shadow-[0_0_10px_rgba(226,59,78,.5)]">🎄 X-MAS</span>
-                          : g.id === RULE_CHANGED ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[#3fb8ff] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.02em] text-[#04263a] shadow-[0_0_10px_rgba(63,184,255,.5)]">{tc('ruleChangeTag')}</span>
+                          : CHANGED_TAG[g.id] ? <span className="absolute left-1.5 top-1.5 rounded-full bg-[#3fb8ff] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.02em] text-[#04263a] shadow-[0_0_10px_rgba(63,184,255,.5)]">{tc(CHANGED_TAG[g.id]!)}</span>
                           : NEW.includes(g.id) && <span className="absolute left-1.5 top-1.5 rounded-full bg-[#ff4d5e] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.08em] text-white">NEW</span>}
                   {g.id === 'hiddenWordPlus' && <span className="absolute bottom-1.5 left-1.5 max-w-[calc(100%-12px)] truncate rounded-full bg-[#7c5cff] px-1.5 py-0.5 text-[8.5px] font-black tracking-[0.02em] text-white shadow-[0_0_10px_rgba(124,92,255,.55)]">{t('partyOpenTag')}</span>}
                   {g.original && <span className="absolute bottom-1.5 left-1.5 rounded-full bg-[linear-gradient(135deg,#2c1470,#5b37c9)] px-1.5 py-0.5 text-[8px] font-black tracking-[0.1em] text-white ring-1 ring-[#c9b6ff]/60">{tc('originalTag')}</span>}
