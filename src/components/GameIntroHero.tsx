@@ -5,6 +5,7 @@ import { Link } from '@/i18n/routing';
 import type { ReplayGame } from '@/lib/logicReplay';
 import LogicReplayButton from '@/components/logic/LogicReplay';
 import GameRankCard from '@/components/GameRankCard';
+import PropRankCard from '@/components/propositionGo/PropRankCard';
 import { GameUpdatesSection } from '@/components/GameUpdates';
 import { hasGameUpdates } from '@/lib/gameUpdates';
 import { hasRankCard } from '@/lib/rankings';
@@ -54,6 +55,7 @@ export default async function GameIntroHero({ locale, id, tone = 'dark', Title =
 
       {/* Who is on top: first thing under the title. */}
       {hasRankCard(id) && <div className="mt-5"><GameRankCard game={id} tone={tone} /></div>}
+      {id === 'propositionGo' && <div className="mt-5"><PropRankCard /></div>}
 
       {/* Key facts: one card, a row each when the column is narrow and three columns from 560px (container width). */}
       <dl className={`mt-3 grid grid-cols-1 divide-y overflow-hidden rounded-2xl border backdrop-blur @min-[560px]:grid-cols-3 @min-[560px]:divide-x @min-[560px]:divide-y-0 ${card} ${line}`}>
