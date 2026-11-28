@@ -1,3 +1,4 @@
+import { thinkLaser } from './laserJanggiAi';
 export const LASER_BOARD_SIZE = 8;
 
 export type LaserOwner = 0 | 1;
@@ -31,6 +32,11 @@ export interface LaserShot {
   segments: LaserSegment[];
   captured: string[];
   kingHits: LaserOwner[];
+  /** The action that led to this shot and the moved piece before it (for the slide / turn animation). */
+  action?: LaserAction;
+  moved?: LaserPiece;
+  /** The pieces this shot removed, as they stood when hit (so they can break apart on screen). */
+  fallen?: LaserPiece[];
 }
 
 export interface LaserTurnResult {
@@ -237,8 +243,12 @@ export function applyLaserAction(pieces: LaserPiece[], owner: LaserOwner, action
     if (action.type === 'move') return { ...item, row: action.row, col: action.col };
     return { ...item, direction: rotateDirection(item.direction, action.delta) };
   });
-  const shot = traceLaser(moved, owner);
+  const shot: LaserShot = {
+    ...traceLaser(moved, owner), action,
+    moved: pieces.find((item) => item.id === action.pieceId),
+  };
   const removed = new Set(shot.captured);
+  shot.fallen = moved.filter((item) => removed.has(item.id));
   const nextPieces = moved.filter((item) => !removed.has(item.id));
   const winner = shot.kingHits.length ? (shot.kingHits.includes(owner) ? (1 - owner) as LaserOwner : owner) : null;
   return { pieces: nextPieces, shot, winner };
@@ -274,7 +284,8 @@ function rankedActions(pieces: LaserPiece[], owner: LaserOwner) {
 const hurtsSelf = (pieces: LaserPiece[], result: LaserTurnResult, owner: LaserOwner) =>
   result.shot.captured.some((id) => pieces.find((item) => item.id === id)?.owner === owner);
 
-export function chooseLaserAiAction(pieces: LaserPiece[], owner: LaserOwner, difficulty: LaserDifficulty): LaserAction | null {
+/** The AI before the search engine (kept for the arena script as a baseline). */
+export function chooseLaserAiActionLegacy(pieces: LaserPiece[], owner: LaserOwner, difficulty: LaserDifficulty): LaserAction | null {
   const all = rankedActions(pieces, owner);
   if (!all.length) return null;
   const win = all.find((item) => item.result.winner === owner);
@@ -305,4 +316,9 @@ export function chooseLaserAiAction(pieces: LaserPiece[], owner: LaserOwner, dif
     if (worst > bestMin) { bestMin = worst; best = candidate; }
   }
   return best.action;
+}
+
+/** The AI's move (src/lib/laserJanggiAi.ts searches; this keeps the old call sites). */
+export function chooseLaserAiAction(pieces: LaserPiece[], owner: LaserOwner, difficulty: LaserDifficulty, budgetMs?: number): LaserAction | null {
+  return thinkLaser(pieces, owner, difficulty, budgetMs)?.action ?? null;
 }

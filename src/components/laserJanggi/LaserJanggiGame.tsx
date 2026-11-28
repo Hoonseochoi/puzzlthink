@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { BookOpen, Bot, ChevronLeft, ChevronRight, Crosshair, RotateCcw, ShieldQuestion, Sparkles } from 'lucide-react';
+import { BookOpen, Bot, Crosshair, History, RotateCcw, ShieldQuestion, Sparkles } from 'lucide-react';
 import BugReport from '@/components/BugReport';
 import { reportGame } from '@/lib/stats';
 import { useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
@@ -13,8 +13,10 @@ import Shards from '@/components/WallGoShards';
 import GameHeader from '@/components/ui/GameHeader';
 import { BTN, BTN_ACCENT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, accentVars, fog, seg } from '@/components/ui/gameUi';
 import HomeButton from '@/components/ui/HomeButton';
-import { applyLaserAction, chooseLaserAiAction, initialLaserPieces, legalActions, type LaserAction, type LaserDifficulty, type LaserOwner, type LaserPiece as Piece, type LaserPieceType, type LaserShot } from '@/lib/laserJanggi';
+import { applyLaserAction, chooseLaserAiAction, initialLaserPieces, type LaserAction, type LaserDifficulty, type LaserOwner, type LaserPiece as Piece, type LaserPieceType, type LaserShot } from '@/lib/laserJanggi';
 import LaserBoard from './LaserBoard';
+import { CapturedTray, DangerNote, LaserActionBar, LaserSoundToggle, MoveLog, TurnBeat, useLaserPlay } from './LaserParts';
+import { shotTimeline } from './laserFx';
 import LaserPiece from './LaserPiece';
 import { LASER_CYAN } from './theme';
 import GameUpdates from '@/components/GameUpdates';
@@ -24,7 +26,6 @@ export default function LaserJanggiGame() {
   const tc = useTranslations('Common');
   const [pieces, setPieces] = useState<Piece[]>(initialLaserPieces);
   const [current, setCurrent] = useState<LaserOwner>(0);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [shot, setShot] = useState<LaserShot | null>(null);
   const [winner, setWinner] = useState<LaserOwner | null>(null);
   const [difficulty, setDifficulty] = useState<LaserDifficulty>('normal');
@@ -35,40 +36,59 @@ export default function LaserJanggiGame() {
   const [guideType, setGuideType] = useState<LaserPieceType | null>(null); // piece guide entry opened by tap
   const [gameNo, setGameNo] = useState(0);
   const [replaying, setReplaying] = useState(false);
+  const [shotKey, setShotKey] = useState(0); // replays the beam animation when it changes
+  const [shots, setShots] = useState<LaserShot[]>([]); // move log
+  const [beat, setBeat] = useState<{ text: string; owner: LaserOwner; key: number } | null>(null);
+  const [thinking, setThinking] = useState(false);
   const gameRef = useRef(0); // bumps on "new game" so a beam timer from the old game can't change turns
 
   const reset = () => {
     gameRef.current += 1; setGameNo((n) => n + 1); setReplaying(false);
-    setPieces(initialLaserPieces()); setCurrent(0); setSelectedId(null); setShot(null);
-    setWinner(null); setBusy(false); setTurn(1); setDraw(false);
+    setPieces(initialLaserPieces()); setCurrent(0); setShot(null); setShots([]); setThinking(false);
+    setWinner(null); setBusy(false); setTurn(1); setDraw(false); setShotKey((k) => k + 1);
+    setBeat({ text: t('beatYou'), owner: 0, key: Date.now() });
   };
 
   const commit = (action: LaserAction, owner: LaserOwner) => {
     const result = applyLaserAction(pieces, owner, action);
     if (!result) return;
-    setPieces(result.pieces); setShot(result.shot); setSelectedId(null); setBusy(true);
+    setPieces(result.pieces); setShot(result.shot); setShots((list) => [...list, result.shot]); setShotKey((k) => k + 1); setBusy(true); setThinking(false);
     const over = result.winner !== null || turn >= LASER_MAX_TURNS;
-    if (result.winner !== null) setWinner(result.winner);
-    else if (over) setDraw(true);
     if (over) {
       reportGame(`laser_janggi-ai-${gameRef.current}-${Date.now()}`, 'laser_janggi', 'ai', result.winner === null ? 'draw' : result.winner === 0 ? 'win' : 'loss',
         { difficulty, turns: turn, pieces: result.pieces.filter((item) => item.owner === 0).length });
     }
     const game = gameRef.current;
+    // The turn passes once the beam and its hits have played out.
     window.setTimeout(() => {
       if (gameRef.current !== game) return;
       setBusy(false);
-      if (!over) { setCurrent((1 - owner) as LaserOwner); setTurn((value) => value + 1); }
-    }, 1050);
+      // the result is announced once the final beam has landed
+      if (result.winner !== null) setWinner(result.winner);
+      else if (over) setDraw(true);
+      if (!over) {
+        setCurrent((1 - owner) as LaserOwner); setTurn((value) => value + 1);
+        setBeat({ text: owner === 0 ? t('beatAi') : t('beatYou'), owner: (1 - owner) as LaserOwner, key: Date.now() });
+      }
+    }, shotTimeline(result.shot).total + 120);
   };
 
+  // PRISM "thinks" for a moment (at least 0.9 s, the search itself takes up to about 0.8 s on 어려움).
   useEffect(() => {
     if (current !== 1 || busy || winner !== null || draw) return;
-    const timer = window.setTimeout(() => {
-      const action = chooseLaserAiAction(pieces, 1, difficulty);
-      if (action) commit(action, 1);
-    }, 650);
-    return () => window.clearTimeout(timer);
+    const started = Date.now();
+    const game = gameRef.current;
+    let wait = 0;
+    const think = window.setTimeout(() => {
+      setThinking(true);
+      // let the "thinking" frame paint before the search blocks the thread
+      wait = window.setTimeout(() => {
+        const action = chooseLaserAiAction(pieces, 1, difficulty);
+        const rest = Math.max(0, 900 - (Date.now() - started));
+        wait = window.setTimeout(() => { if (gameRef.current === game && action) commit(action, 1); }, rest);
+      }, 60);
+    }, 380);
+    return () => { window.clearTimeout(think); window.clearTimeout(wait); };
     // The position is frozen whenever the AI receives its turn.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, busy, winner, draw]);
@@ -84,19 +104,17 @@ export default function LaserJanggiGame() {
     return s.kingHits.length ? t('replayKing', { player }) : s.captured.length ? t('replayCaptured', { player, n: s.captured.length }) : t('replayShot', { player });
   };
 
-  const selected = pieces.find((item) => item.id === selectedId) ?? null;
-  const rotations = selected ? legalActions(pieces, current).filter((action) => action.type === 'rotate' && action.pieceId === selected.id) : [];
-  const rotate = (delta: -1 | 1) => {
-    const action = rotations.find((item) => item.type === 'rotate' && item.delta === delta);
-    if (action && current === 0 && !busy && winner === null) commit(action, 0);
-  };
+  const myTurn = current === 0 && !busy && winner === null && !draw;
+  const play = useLaserPlay(pieces, 0, myTurn, (action) => commit(action, 0));
+  const selected = play.selected;
   const status = draw ? t('draw') : winner !== null ? (winner === 0 ? t('youWin') : t('aiWins')) : busy ? t('laserFiring') : current === 0 ? t('yourTurn') : t('aiThinking');
+  const names: [string, string] = [t('replayYou'), 'PRISM'];
 
   return <div className={SHELL} style={{ ...accentVars(LASER_CYAN, '#041015'), backgroundImage: fog('35, 190, 220') }}>
     <Shards />
     <GameHeader ai backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
       <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
-      <GameUpdates game="laser_janggi" /><BugReport /><LanguageSwitcher compact dark />
+      <GameUpdates game="laser_janggi" /><BugReport /><LaserSoundToggle /><LanguageSwitcher compact dark />
       <button type="button" onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
     </GameHeader>
 
@@ -104,20 +122,26 @@ export default function LaserJanggiGame() {
       <section className={STAGE}>
         <div className="mb-3 flex items-end justify-between gap-3 px-1 sm:mb-4 sm:px-2">
           <div><p className={KICKER}>{winner !== null || draw ? t('result') : t('turn', { turn })}</p><h1 className="mt-1 text-base font-extrabold text-[#eef1f7] sm:text-xl">{status}</h1></div>
-          <span className={`flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-black ${busy ? 'border-[#59e6ff]/60 bg-[#59e6ff]/10 text-[#a8f5ff]' : 'border-white/10 bg-black/40 text-white/45'}`}><Crosshair size={14} />{busy ? t('beamLive') : t('beamReady')}</span>
+          <span className={`flex shrink-0 items-center gap-2 rounded-md border px-3 py-2 text-xs font-black ${busy ? 'border-[#59e6ff]/60 bg-[#59e6ff]/10 text-[#a8f5ff]' : thinking ? 'border-[#ff4d6d]/60 bg-[#ff4d6d]/10 text-[#ffb3c1]' : current === 0 && !over ? 'border-[#59e6ff]/40 bg-black/40 text-[#a8f5ff]' : 'border-white/10 bg-black/40 text-white/45'}`}>{thinking ? <Bot size={14} className="animate-pulse" /> : <Crosshair size={14} />}{busy ? t('beamLive') : thinking ? t('aiThinkingShort') : current === 0 && !over ? t('turnYouShort') : t('beamReady')}</span>
         </div>
+        
         {frame && <ReplayHeader player={replay} caption={replay.at === 0 ? tc('replayStart') : shotCaption(frame.shot)} onClose={() => setReplaying(false)} />}
-        {frame ? <LaserBoard key={`replay-${replay.at}`} pieces={frame.pieces} current={0} interactive={false} selectedId={null} shot={frame.shot} onSelect={() => {}} onMove={() => {}} /> : <LaserBoard pieces={pieces} current={current} interactive={current === 0 && !busy && winner === null && !draw} selectedId={selectedId} shot={shot} onSelect={(id) => setSelectedId((value) => value === id ? null : id)} onMove={(action) => commit(action, 0)} />}
+        <div className="relative">
+          {frame ? <LaserBoard key={`replay-${replay.at}`} pieces={frame.pieces} current={0} interactive={false} selectedId={null} shot={frame.shot} shotKey={`r${replay.at}`} onSelect={() => {}} onMove={() => {}} />
+            : <LaserBoard pieces={pieces} current={current} interactive={myTurn} selectedId={play.selectedId} shot={shot} shotKey={shotKey} preview={play.preview} dangerIds={play.danger} sound onSelect={play.select} onMove={play.choose} />}
+          {!frame && <TurnBeat beat={beat} />}
+        </div>
         {frame && <ReplayControls player={replay} onShowResult={() => setReplaying(false)} />}
-        {over && !frame && <div className="mx-auto mt-4 flex max-w-[440px] flex-col items-center gap-2">{frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} className="!mt-0" />}<div className="flex gap-2"><HomeButton className="!py-2.5" /><button type="button" onClick={reset} className={`${BTN_ACCENT} px-6 py-2.5`}><RotateCcw size={14} />{t('newGame')}</button></div></div>}
-        {selected && current === 0 && !busy && winner === null && <div className="mx-auto mt-3 flex max-w-[700px] items-center justify-between rounded-[10px] border border-[#59e6ff]/20 bg-black/50 px-3 py-2">
-          <div className="flex items-center gap-2"><div className="h-9 w-9"><LaserPiece piece={selected} /></div><span className="min-w-0"><span className="block text-xs font-bold text-white/70">{t(`pieces.${selected.type}.name`)}</span><span className="block text-[10px] leading-4 text-white/45">{t(`pieces.${selected.type}.tip`)}</span></span></div>
-          <div className="flex gap-2"><button type="button" onClick={() => rotate(-1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === -1)} className={BTN}><ChevronLeft size={15} />{t('rotateLeft')}</button><button type="button" onClick={() => rotate(1)} disabled={!rotations.some((a) => a.type === 'rotate' && a.delta === 1)} className={BTN}>{t('rotateRight')}<ChevronRight size={15} /></button></div>
-        </div>}
+        {over && !frame && <div className="mx-auto mt-4 flex max-w-[440px] flex-col items-center gap-2">{shot && <button type="button" onClick={() => setShotKey((k) => k + 1)} className={`${BTN} w-full justify-center py-2.5`}><Sparkles size={14} />{t('replayFinal')}</button>}{frames.length > 1 && <ReplayButton onClick={() => setReplaying(true)} className="!mt-0" />}<div className="flex gap-2"><HomeButton className="!py-2.5" /><button type="button" onClick={reset} className={`${BTN_ACCENT} px-6 py-2.5`}><RotateCcw size={14} />{t('newGame')}</button></div></div>}
+        {myTurn && !frame && <DangerNote play={play} />}
+        {myTurn && !frame && <LaserActionBar play={play} />}
+        {myTurn && !selected && !frame && <p className="mx-auto mt-3 max-w-[700px] text-center text-[11px] text-white/40">{t('selectHint')}</p>}
       </section>
 
       <aside className="flex flex-col gap-4">
         <section className={PANEL}><div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('difficulty')}</p><Bot size={14} className="text-[#59e6ff]" /></div><div className="mt-3 grid grid-cols-3 gap-1.5">{(['easy','normal','hard'] as LaserDifficulty[]).map((level) => <button key={level} type="button" disabled={turn > 1} onClick={() => setDifficulty(level)} className={`py-2.5 ${seg(difficulty === level)} disabled:opacity-40`}>{t(`difficultyLevels.${level}`)}</button>)}</div><p className="mt-2 text-[10px] leading-4 text-white/35">{t(`difficultyTips.${difficulty}`)}</p></section>
+
+        <section className={PANEL}><div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('logTitle')}</p><History size={14} className="text-[#59e6ff]" /></div><div className="mt-3"><CapturedTray pieces={pieces} names={names} /></div><div className="mt-3 border-t border-white/5 pt-3"><MoveLog shots={shots} names={names} /></div></section>
 
         <section className={PANEL}><p className={PANEL_TITLE}>{t('selectedPiece')}</p>{selected ? <div className="mt-3 flex items-center gap-3"><div className="h-14 w-14"><LaserPiece piece={selected} selected /></div><div><p className="font-black">{t(`pieces.${selected.type}.name`)}</p><p className="mt-1 text-xs leading-5 text-white/50">{t(`pieces.${selected.type}.tip`)}</p></div></div> : <p className="mt-3 text-xs leading-5 text-white/45">{t('selectHint')}</p>}</section>
 
