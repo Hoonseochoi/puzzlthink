@@ -16,7 +16,10 @@ export default function GameHeader({ backHref, backLabel, title, titleClass = 'f
   return (
     <>
     <header className={HEADER}>
-      <div className="flex min-w-0 items-center gap-3">
+      {/* On a narrow screen the title gives way first (shrink-[1000]) down to the back arrow, which stays tappable;
+          if the buttons still don't fit, their row scrolls sideways instead of pushing the last ones (new game,
+          undo) off the screen or over the arrow. */}
+      <div className="flex min-w-[17px] shrink-[1000] items-center gap-3 overflow-hidden">
         <GameBackLink href={backHref} className="flex shrink-0 items-center gap-2 text-sm font-bold text-white/70 hover:text-white"><ArrowLeft size={17} /><span className="hidden sm:inline">{backLabel}</span></GameBackLink>
         <span className="h-5 w-px shrink-0 bg-white/15" />
         <div className="min-w-0 truncate">
@@ -25,7 +28,7 @@ export default function GameHeader({ backHref, backLabel, title, titleClass = 'f
         </div>
       </div>
       <PlayerStrip players={players} me={me} ai={ai} place="header" />
-      {children && <div className="flex shrink-0 items-center gap-1.5">{children}</div>}
+      {children && <div className="-my-2 -ml-1.5 -mr-2 flex min-w-0 items-center gap-1 overflow-x-auto py-2 pl-1.5 pr-2 sm:gap-1.5 [&>*]:shrink-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{children}</div>}
     </header>
     <PlayerStrip players={players} me={me} ai={ai} place="mobile" />
     </>

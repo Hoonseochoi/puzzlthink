@@ -6,6 +6,7 @@ import { useAuth } from './AuthProvider';
 import { Stone, useStoneChoice, useStoneChoiceMap } from './StoneAvatar';
 import { parseIcon, type IconRef } from './ProfileIcons';
 import { useSupporter } from './SupporterCover';
+import { useBoardStoneIcons } from './StoneIconToggle';
 
 /**
  * 내 바둑알 on the board: a game's pieces drawn as their player's own profile stone (the colour or earned icon
@@ -22,6 +23,16 @@ import { useSupporter } from './SupporterCover';
  *   AI's black): mine is drawn in my side's colour instead.
  */
 export const PieceOwners = createContext<readonly (string | null | undefined)[]>([]);
+
+const NO_OWNERS: readonly (string | null | undefined)[] = [];
+/**
+ * The seat owners as the board should draw them: none at all when this viewer turned 「아이콘 끄기」 on
+ * (StoneIconToggle), so every seat keeps the game's own plain piece, supporter rim included.
+ */
+function useBoardOwners() {
+  const owners = useContext(PieceOwners);
+  return useBoardStoneIcons() ? owners : NO_OWNERS;
+}
 
 /** A game in this browser against the AI: the signed-in player's stone on `seat`, nothing on the others. */
 export function MyPieces({ seat = 0, children }: { seat?: number; children: ReactNode }) {
@@ -86,7 +97,7 @@ function recolour(color: string) {
  * `colors` are the game's own colours for every seat (holes allowed), so a clash with them can be seen.
  */
 export function usePiece(seat: number | null | undefined, colors: readonly (string | undefined)[]) {
-  const owners = useContext(PieceOwners);
+  const owners = useBoardOwners();
   const choices = useStoneChoiceMap();
   const pick = (i: number) => { const n = owners[i]; return (n && choices.get(n)) || null; };
   const name = (seat != null && owners[seat]) || null;
@@ -107,7 +118,7 @@ export function usePiece(seat: number | null | undefined, colors: readonly (stri
 
 /** The nickname whose stone is drawn for `seat`, or null when that seat keeps the game's own piece. */
 export function usePieceOwner(seat: number | null | undefined) {
-  const owners = useContext(PieceOwners);
+  const owners = useBoardOwners();
   const name = (seat != null && owners[seat]) || '';
   const choice = useStoneChoice(name);
   return name && choice ? name : null;
@@ -169,7 +180,7 @@ function Rainbow({ square }: { square: boolean }) {
 export default function PieceStone({ seat, colors, square = false, className = '', overlay, children }: {
   seat: number | null | undefined; colors: readonly (string | undefined)[]; square?: boolean; className?: string; overlay?: ReactNode; children: ReactNode;
 }) {
-  const owners = useContext(PieceOwners);
+  const owners = useBoardOwners();
   const name = (seat != null && owners[seat]) || '';
   const supporter = useSupporter(name);
   const tiles = useBestTiles(square);

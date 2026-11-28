@@ -8,6 +8,7 @@ import { REVEAL_MS, useEndReveal } from '@/hooks/useEndReveal';
 import { EndRevealBanner } from '@/components/ui/EndReveal';
 import { ReplayButton, ReplayControls, ReplayHeader } from '@/components/ui/ReplayBar';
 import BugReport from '@/components/BugReport';
+import StoneIconToggle from '@/components/StoneIconToggle';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import RoomAlerts from '@/components/RoomAlerts';
 import GameHeader from '@/components/ui/GameHeader';
@@ -138,7 +139,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
       <RoomAlerts alerts={alerts} accent={FLIP_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/flip-omok" backLabel={tf('title')} title={tf('title')} titleClass="font-black" subtitle={<><OriginalMark size="xs" className="mr-1.5 align-middle" />{`ONLINE · 1:1 · ${code.toUpperCase()}`}</>}>
-        <GameUpdates game="flip_omok" /><BugReport /><SoundToggle /><LanguageSwitcher compact dark />
+        <GameUpdates game="flip_omok" /><BugReport /><StoneIconToggle /><SoundToggle /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}

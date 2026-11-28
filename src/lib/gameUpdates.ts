@@ -1,4 +1,4 @@
-import { BellRing, Bot, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Swords, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { BellRing, Bot, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Settings2, Share2, Sparkles, Swords, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -722,6 +722,16 @@ const ROOM_NOTES: GameUpdate[] = [
   },
 ];
 
+// Notes for every board game whose pieces are drawn as players' profile icons (src/components/PieceStone.tsx).
+const STONE_ICON_NOTES: GameUpdate[] = [
+  {
+    date: '11/28', icon: Settings2,
+    ko: { title: '「아이콘 끄기」: 게임판 돌을 기본 돌로', desc: '위쪽 아이콘 버튼(또는 기록실 › 내 프로필 아이콘)으로 끄면 게임판의 돌이 양쪽 모두 기본 돌로 보여요. 이 기기에서만 바뀌고 상대 화면에는 영향이 없어요.' },
+    en: { title: '"Icons off": plain stones on the board', desc: 'Turn it off with the icon button at the top (or in Records › profile icon) and both sides\' pieces on the board are drawn as plain stones. Only on this device; your opponent sees no change.' },
+  },
+];
+const STONE_ICON_GAMES = ['wallgo', 'wallgo2', 'flip_omok', 'blind_gomoku', 'nine_mens_morris', 'four_three', 'point_omok'];
+
 /** Every game with rooms, by update-log id (the name is used if the game has no notes of its own yet). */
 const ROOM_GAMES: Record<string, { ko: string; en: string }> = {
   binairo: { ko: '비나이로', en: 'Binairo' }, black_white: { ko: '흑과 백', en: 'Black & White' }, black_white_2: { ko: '흑과 백 II', en: 'Black & White II' },
@@ -742,6 +752,10 @@ for (const [key, name] of Object.entries(ROOM_GAMES)) {
   const log = (GAME_UPDATES[key] ??= { name, items: [] });
   // 'MM/DD' sorts by date; the sort is stable, so a game's own notes keep their order within a day.
   log.items = [...ROOM_NOTES, ...log.items].sort((a, b) => b.date.localeCompare(a.date));
+}
+for (const key of STONE_ICON_GAMES) {
+  const log = GAME_UPDATES[key];
+  if (log) log.items = [...STONE_ICON_NOTES, ...log.items].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 // Catalog ids are camelCase, update logs are keyed by the records id (snake_case): 'colorLinkDuel' → 'color_link_duel'.

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { BookOpen, Eye, EyeOff, RotateCcw, ShieldQuestion, Sparkles } from 'lucide-react';
 import BugReport from '@/components/BugReport';
+import StoneIconToggle from '@/components/StoneIconToggle';
 import { reportGame } from '@/lib/stats';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Shards from '@/components/WallGoShards';
@@ -140,7 +141,7 @@ export default function BlindGomokuGame() {
       <Shards />
       <GameHeader ai backHref="/" backLabel="PUZZLTHINK" title={t('title')} titleClass="font-black" subtitle={t('subtitle')}>
         <button type="button" onClick={() => setShowRules(true)} className={BTN}><BookOpen size={14} /><span className="hidden sm:inline">{t('rules')}</span></button>
-        <GameUpdates game="blind_gomoku" /><BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="blind_gomoku" /><BugReport /><StoneIconToggle /><LanguageSwitcher compact dark />
         <button type="button" onClick={reset} className={BTN_ACCENT}><RotateCcw size={14} /><span className="hidden sm:inline">{t('newGame')}</span></button>
       </GameHeader>
 
