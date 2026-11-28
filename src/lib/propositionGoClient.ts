@@ -5,15 +5,17 @@ import type { Prop, PublicPuzzle, Tier } from './propositionGo';
 export type PgResult = {
   done: true; run: string; day: string; result: 'clear' | 'giveup' | 'timeout'; ms: number | null; penalty: number; total: number | null;
   splits: number[]; hints: number[]; stoneHints?: number[]; solved: number; flag: string | null; rank: number | null; players: number; streak: number; crown: boolean;
+  /** The day's 5-minute reward (피스 +1), once paid; fastMs is the limit (ranked time: raw + hint penalties). */
+  reward?: { id: number; amount: number; seen: boolean } | null; fastMs?: number;
 };
 export type PgView = {
   done: false; run: string; day: string; stage: number; elapsed: number; limit: number; splits: number[]; hints: number[];
-  puzzle: PublicPuzzle; hint: Prop | null; pieces: number; wrong?: boolean; error?: string;
+  puzzle: PublicPuzzle; hint: Prop | null; pieces: number; tokens?: number; wrong?: boolean; error?: string;
   stoneHints?: number[]; givens?: [number, number][]; hintsLeft?: number; blackPieces?: number;
 };
 export type PgToday = {
   day: string; players: number; ready: boolean; top: { nickname: string; total: number } | null;
-  status: 'guest' | 'none' | 'running' | 'done'; streak?: number; pieces?: number; blackPieces?: number; result?: PgResult | null;
+  status: 'guest' | 'none' | 'running' | 'done'; streak?: number; pieces?: number; tokens?: number; blackPieces?: number; result?: PgResult | null;
 };
 export type PgRankRow = { rank: number; nickname: string; avatar_url: string | null; total: number; hints: number; is_me: boolean };
 
@@ -33,6 +35,14 @@ export const buyHint = (run: string) => call<PgView | PgResult>('prop_hint', { p
 export const buyStoneHint = (run: string, cells: string) => call<PgView | PgResult>('prop_stone_hint', { p_run: run, p_cells: cells });
 export const giveUp = (run: string) => call<PgResult>('prop_giveup', { p_run: run });
 export const fetchRanking = (limit = 20) => call<PgRankRow[]>('prop_ranking', { p_limit: limit });
+export type PgPodiumRow = { rank: number; nickname: string; total: number; hints: number };
+/** A day's top three (anyone may read it). */
+export const fetchPodium = (day: string) => call<PgPodiumRow[]>('prop_podium', { p_day: day });
+/** A clear within this ranked time (raw + hint penalties) earns 피스 1, once a day; the day's 1st–3rd earn 5 more the next day. */
+export const PG_FAST_MS = 300_000;
+export const PG_TOP_PIECES = 5;
+/** 'YYYY-MM-DD' one day before. */
+export const dayBefore = (day: string) => new Date(Date.parse(`${day}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
 
 export type PracticePuzzle = PublicPuzzle & { hint: Prop; answer: number[]; lie: number | null };
 let practice: Promise<Record<Tier, PracticePuzzle[]>> | null = null;

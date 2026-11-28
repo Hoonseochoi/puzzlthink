@@ -1690,6 +1690,10 @@
     "close": "Close"
   },
   "Records": {
+    "propRewardRow": "Proposition Go challenge",
+    "pieceHallCrownWeek": "The top three wear the week {n} jewel stone ({name} edition) for good",
+    "pieceTokenNote": "Only this week's pieces count here. Leftover pieces from past weeks became Sage's Tokens, which hints and items use first.",
+    "piecePeriodLive": "Runs one week from Wed {start} · ends Tue {end} 23:59 (KST)",
     "blackPieceTab": "Black pieces",
     "chMerge2048": "2048 challenge run",
     "chHiddenWord": "Hidden Word ranking",
@@ -1775,14 +1779,14 @@
     "stoneEarnedEmpty": "Clear a game on Hard, win a friend or open match, play 10 hours, reach 2048, take #1 in a game ranking or finish a contest week in the top three to earn icons you can pick here.",
     "stoneColor": {"black": "Black", "white": "White", "red": "Red", "blue": "Blue"},
     "stoneChampLabel": "Week {week} #{place} · {name}",
-    "stoneChampName": {"w1_1": "Platinum gold", "w1_2": "Platinum silver", "w1_3": "Platinum bronze", "w2_1": "Diamond", "w2_2": "Sapphire", "w2_3": "Emerald"},
+    "stoneChampName": {"w1_1": "Platinum gold", "w1_2": "Platinum silver", "w1_3": "Platinum bronze", "w2_1": "Diamond", "w2_2": "Sapphire", "w2_3": "Emerald", "e0_1": "Ruby", "e0_2": "Amethyst", "e0_3": "Topaz", "e1_1": "Opal", "e1_2": "Onyx", "e1_3": "Jade", "e2_1": "Aurora", "e2_2": "Rose Quartz", "e2_3": "Citrine", "e3_1": "Black Gold", "e3_2": "Aquamarine", "e3_3": "Garnet"},
     "stoneSaving": "Saving…",
     "stoneError": "Couldn't save. Tap again.",
     "stoneSavedNote": "Changes at once. Rankings, the lounge and everywhere else show this icon.",
     "stoneAutoNote": "Not picked yet: your colour comes from your nickname for now.",
     "rewardBadge": "Week {n} reward preview",
     "rewardTitle": "Win a Week {n} Hall of Fame profile!",
-    "rewardDesc": "When week {n} ends, the top three keep these stone profiles for good. A jewel edition, unlike week 1's platinum.",
+    "rewardDesc": "When week {n} ends, the top three keep these stone profiles for good. Every week has its own jewel edition.",
     "rewardPlace": "#{n}",
     "rewardName1": "Diamond",
     "rewardName2": "Sapphire",
@@ -1791,10 +1795,9 @@
     "pieceWeekHall": "Week {n} · Hall of Fame",
     "pieceWeekLive": "Week {n} · live",
     "pieceWeekEnded": "Week {n} · ended",
-    "piecePeriod2": "Runs one week from Wed 11/25 · ends Tue 12/1 23:59 (KST)",
-    "piecePeriodEnded": "Ended Tue 12/1 23:59 (KST). The top three got the jewel icons.",
+    "piecePeriodEnded": "Ended Tue {end} 23:59 (KST). The top three got their icons, and leftover pieces became Sage's Tokens.",
     "pieceWeekTabs": "Piece Race weeks",
-    "competitionDesc": "Week 2 runs from 11/25: ranked by wins against the hard AI. Each game gives at most 5 pieces, so the more games you win, the higher you climb. Luck-heavy Russian Roulette, Indian Poker and Two-Sided Poker don't count. On equal pieces, whoever got there first is ahead. Tap a name to see pieces by game.",
+    "competitionDesc": "A new week starts every Wednesday 00:00 (KST), ranked by wins against the hard AI. Each game gives at most 5 pieces a week, so the more games you win, the higher you climb. Solving Proposition Go within 5 minutes gives 1 piece, and the day's top three get 5 more the next day. Luck-heavy Russian Roulette, Indian Poker and Two-Sided Poker don't count. On equal pieces, whoever got there first is ahead. Tap a name to see pieces by game.",
     "pieceRule": "1 hard-AI win = 1 piece · up to 5 per game",
     "rankChangeHint": "▲▼ change since midnight (KST)",
     "rankUp": "Up {n}",
@@ -5254,6 +5257,8 @@
     "viewRanking": "🏆 {game} ranking"
   },
   "Slitherlink": {
+    "hintHelpPaidToken": "Tap a spot: one Sage's Token goes first and the answer lines of the 3×3 around it are drawn. (tokens {t} · pieces {n})",
+    "hintPaidToken": "Hint · 1 token",
     "themeButton": "Theme",
     "themeTitle": "Board theme",
     "theme_christmas": "Christmas",
@@ -6004,6 +6009,16 @@
     "emptySpot": "Open spot"
   },
   "PropositionGo": {
+    "podiumRuleYesterday": "Yesterday's top three got {n} pieces each.",
+    "podiumRuleToday": "Today's top three, final at midnight, get {n} more pieces tomorrow.",
+    "podiumEmptyYesterday": "No records yesterday.",
+    "podiumEmptyToday": "Nobody has solved today's set yet. Be the first.",
+    "podiumYesterday": "Yesterday",
+    "podiumToday": "Today",
+    "podiumTitle": "Proposition Go podium",
+    "rewardMissed": "Solve within {m} min for +1 piece (hint time included)",
+    "rewardEarned": "Cleared within 5 min · +{n} piece",
+    "costToken": "1 token · +{s}s · {n} tokens",
     "metaTitle": "Proposition Go — the logic puzzle where every proposition must be true | PUZZLTHINK ORIGINAL",
     "metaDescription": "A PUZZLTHINK original logic puzzle: place coloured go stones on a 4×4 board so every proposition card is true. The same three timed puzzles for everyone each day, find-the-lie stage, piece hints, practice and a tutorial. Free.",
     "keywords": [
@@ -6024,7 +6039,8 @@
       "Place every stone so all cards turn ✓. There is exactly one answer.",
       "A card lights once the stones it names are down. Tap a card to see its points on the board.",
       "Lie stage: one card is false. The answer leaves exactly one card ✗.",
-      "Today's three share one clock, 10 minutes at most. Up to 3 hints per run: a piece buys one more proposition (once per puzzle, +30 s), a black piece shows one stone (+40 s)."
+      "Today's three share one clock, 10 minutes at most. Up to 3 hints per run: a piece buys one more proposition (once per puzzle, +30 s), a black piece shows one stone (+40 s).",
+      "Solve today's three within 5 minutes (hint time included) for 1 piece; the day's top three get 5 more the next day."
     ],
     "rankingTitle": "Today's ranking",
     "rankingEmpty": "Nobody has cleared today yet. Set the first time!",
@@ -8531,7 +8547,7 @@
       "Hints: the setter gives Korean nouns. Each hint shows its similarity to the hidden word, and a hint at 95% or more ends the hint phase at once.",
       "A stage allows five hints and two minutes. If none reaches 95%, the word closest to the hidden word is revealed instead.",
       "Answers: when the hints end the other side answers. A miss pays the setter and starts the next stage, up to three: 1, 2, then 3 points.",
-      "The guesser earns more the earlier the answer: 6, 3, then 1. Once per word you can spend 1 race piece to give two answers.",
+      "The guesser earns more the earlier the answer: 6, 3, then 1. Once per word you can spend 1 piece to give two answers.",
       "Round 2 doubles every point. The ranking score is your average points per match plus 0.3 per match played (up to 20)."
     ],
     "specialTitle": "Easy to miss",
@@ -8868,6 +8884,9 @@
     "disclaimer": "Tower of Equations is an unofficial fan game based on the rules of a game from Netflix's The Devil's Plan: Dead Again, and is not affiliated with Netflix or the producers. The block set is this site's own choice."
   },
   "HomeApp": {
+    "tokens": "Tokens",
+    "evPieceSub": "Ends {end} · jewel icons for the top 3",
+    "evPieceTitle": "Piece Race {n}W",
       "feedTitle": "Live news",
       "recentTitle": "Recently played",
       "gamesTitle": "Games",
@@ -8982,5 +9001,24 @@
     "hostInstalled": "Already installed? Open Hidden Word in the PUZZLTHINK app and open a room.",
     "hostMore": "How",
     "appWelcome": "As a tester you can host Hidden Word open matches"
+  },
+  "Tokens": {
+    "newsTopDesc": "Yesterday's top three get {n} more pieces each. They count in this week's race too.",
+    "newsTopTitle": "Yesterday's Proposition Go #{rank}! +{n} pieces",
+    "newsTopKicker": "PROPOSITION GO TOP 3",
+    "newsFastDesc": "You solved today's Proposition Go within 5 minutes (hint time included). This piece counts in this week's race too.",
+    "newsFastTitle": "Challenge cleared! +{n} piece",
+    "newsFastKicker": "CHALLENGE CLEAR",
+    "newsExchangeWeek": "Week {n} is final. Your leftover pieces became tokens, which hints and items use first.",
+    "newsExchangeLine2": "Hints and items use tokens first, then this week's pieces. Week 1's standings stay as they are.",
+    "newsExchangeLine1": "The Piece Race now starts over every Wednesday. Pieces left from a finished week become Sage's Tokens and stay for good.",
+    "newsExchangeTitle": "We exchanged your {n} pieces for {n} Sage's Tokens",
+    "newsExchangeKicker": "SAGE'S TOKEN",
+    "heldPiece": "{n} pieces",
+    "heldToken": "{n} tokens",
+    "costPiece": "{n} piece",
+    "costToken": "{n} token",
+    "ok": "OK",
+    "close": "Close"
   }
 }

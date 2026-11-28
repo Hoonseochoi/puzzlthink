@@ -1,5 +1,6 @@
 "use client";
 
+import { SageToken } from '@/components/SageToken';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Loader2, LockKeyhole, X } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
@@ -146,7 +147,8 @@ export function useMoItems(room: MoRoom | null, dispatch: (a: MoSoloAction) => v
             <span className="tracking-[.18em] text-(--accent)">{t.items.title} <span className="font-bold tracking-normal text-white/40">· {t.items.aiOnly}</span></span>
             {signedIn ? (
               <span className="flex items-center gap-2 font-mono text-[11px]" aria-label={t.items.walletLabel}>
-                <span className="flex items-center gap-1 text-white/85"><i className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-white to-[#9aa3ad]" />{t.items.piece} <b>{wallet ? wallet.pieces : '·'}</b></span>
+                {!!wallet?.tokens && <span className="flex items-center gap-1 text-[#d9c4ff]"><SageToken size={12} />{t.items.token} <b>{wallet.tokens}</b></span>}
+                <span className="flex items-center gap-1 text-white/85"><i className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-white to-[#9aa3ad]" />{t.items.piece} <b>{wallet ? Math.max(0, wallet.pieces - wallet.tokens) : '·'}</b></span>
                 <span className="flex items-center gap-1 text-[#ff6b7f]"><i className="h-2.5 w-2.5 rounded-full bg-[#07060a] ring-1 ring-[#ff3355]" />{t.items.black} <b>{wallet ? wallet.black_pieces : '·'}</b></span>
               </span>
             ) : <span className="flex items-center gap-1 text-white/45"><LockKeyhole size={11} />{t.items.membersOnly}</span>}
@@ -166,9 +168,10 @@ export function useMoItems(room: MoRoom | null, dispatch: (a: MoSoloAction) => v
               const on = (item === 'probe' && picking) || (item === 'suit' && !!g.suit?.[mySeat]);
               const disabled = !!reason || !!busy;
               const black = spec.currency === 'black_piece';
+              const tok = !black && (wallet?.tokens ?? 0) > 0; // 현자의 징표 go first
               return (
                 <button key={item} type="button" disabled={disabled && !(item === 'probe' && picking)} onClick={() => tapItem(item)} aria-pressed={on}
-                  aria-label={`${t.items.name[item]} · ${t.items.price(spec.price, black)} · ${t.items.left(left)}${reason ? ` · ${reason}` : ''}`}
+                  aria-label={`${t.items.name[item]} · ${tok ? t.items.priceToken(spec.price) : t.items.price(spec.price, black)} · ${t.items.left(left)}${reason ? ` · ${reason}` : ''}`}
                   className={`relative flex min-h-[78px] flex-col items-center justify-center gap-0.5 rounded-[10px] border px-1 pb-1 pt-1.5 text-center transition active:scale-[.97] sm:min-h-[62px] sm:flex-row sm:gap-1.5 sm:px-1.5 sm:text-left ${on ? 'border-[#5ee0c8] bg-[#5ee0c8]/15 shadow-[0_0_14px_rgba(94,224,200,.35)]' : disabled ? 'border-white/8 bg-white/[0.03]' : 'border-white/15 bg-white/[0.06] hover:border-(--accent)/70'}`}>
                   <span className="relative shrink-0">
                     {ITEM_ICON[item]({ size: 30, dim: disabled && !on })}
@@ -177,7 +180,7 @@ export function useMoItems(room: MoRoom | null, dispatch: (a: MoSoloAction) => v
                   </span>
                   <span className="w-full min-w-0 sm:flex-1">
                     <b className={`block truncate text-[11.5px] tracking-[-.02em] font-black leading-4 ${disabled && !on ? 'text-white/45' : 'text-white'}`}>{t.items.name[item]}</b>
-                    <span className={`block truncate font-mono text-[10px] leading-3 ${black ? 'text-[#ff6b7f]' : 'text-white/60'}`}>{t.items.priceShort(spec.price, black)} · {left}/{spec.cap}</span>
+                    <span className={`block truncate font-mono text-[10px] leading-3 ${black ? 'text-[#ff6b7f]' : 'text-white/60'}`}>{tok ? t.items.priceTokenShort(spec.price) : t.items.priceShort(spec.price, black)} · {left}/{spec.cap}</span>
                     <span className={`block truncate text-[9.5px] leading-3 ${on ? 'text-[#5ee0c8]' : reason ? 'text-white/40' : 'text-white/50'}`}>{on ? (item === 'suit' ? t.items.armed : t.items.picking) : reason ?? t.items.desc[item]}</span>
                   </span>
                 </button>

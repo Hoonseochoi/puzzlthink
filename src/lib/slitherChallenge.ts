@@ -26,6 +26,8 @@ export const startBeat = (id: string) => call<SlitherRun>('slither_start_beat', 
 export const payHint = (run: string) => call<{ ok: boolean; error?: 'nopiece' | 'used'; pieces: number }>('slither_hint', { p_run: run });
 /** My 피스 left in the running 경쟁전 week. */
 export const fetchPieces = () => call<number>('my_pieces');
+/** Spendable pieces (tokens + this week's pieces) and how many of them are tokens (spent first). */
+export const fetchWallet = () => call<{ pieces: number; tokens: number }>('my_wallet');
 /** Ends a run without a clear (give up, time up, leaving). */
 export const finishRun = (run: string, cleared: boolean, hints: number) => call<FinishResult>('slither_finish', { p_run: run, p_cleared: cleared, p_hints: hints });
 /** A clear: the server replays every move on its own copy of the board before it counts. */

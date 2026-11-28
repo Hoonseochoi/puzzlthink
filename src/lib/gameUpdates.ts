@@ -29,6 +29,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '명제 바둑', en: 'Proposition Go' },
     items: [
       {
+        date: '11/28', icon: Trophy,
+        ko: { title: '5분 안에 풀면 피스, 1·2·3위는 피스 5개 더', desc: '오늘의 명제 바둑을 5분 안에(힌트 시간 포함) 풀면 피스 1개를 받아요. 다음 날 새 문제가 열리면 전날 1·2·3위가 피스 5개를 더 받고, 입장·결과 화면에 어제와 오늘의 포디움이 보여요.' },
+        en: { title: 'Pieces for a 5-minute solve, 5 more for the top three', desc: "Solve today's Proposition Go within 5 minutes (hint time included) for 1 piece. When the next day's set opens, yesterday's top three get 5 more pieces, and the entry and result screens show yesterday's and today's podium." },
+      },
+      {
+        date: '11/28', icon: Coins,
+        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
+      },
+      {
         date: '11/28', icon: Sparkles,
         ko: { title: '명제 바둑이 나왔어요 — PUZZLTHINK ORIGINAL 첫 퍼즐', desc: '색 바둑알을 놓아 모든 명제를 참으로 만드는 논리 퍼즐이에요. 매일 모두 같은 3문제를 시계 하나로 풀고(세 번째는 거짓말 찾기), 막히면 피스로 명제를 하나 더(+30초), 블랙피스로 돌 하나의 자리를(+40초) 받을 수 있어요. 힌트는 한 판에 3개까지예요.' },
         en: { title: 'Proposition Go is here — the first PUZZLTHINK ORIGINAL puzzle', desc: 'Place coloured stones so every proposition is true. Everyone plays the same three puzzles each day on one clock (the third hides a lie); stuck, a piece buys one more proposition (+30 s) and a black piece shows one stone (+40 s), up to 3 hints per run.' },
@@ -38,6 +48,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   mine_oblivion: {
     name: { ko: '망각의 지뢰', en: 'Mine of Oblivion' },
     items: [
+      {
+        date: '11/28', icon: Coins,
+        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
+      },
       {
         date: '11/28', icon: Scale,
         ko: { title: '결과 화면에 점수 내역', desc: '보물(몇 번째에 찾았는지)·지뢰 감점·숫자 점수·합계를 두 사람 나란히 보여 주고, 차이가 가장 큰 줄을 승부처로 표시해요. 복기 끝에도 같은 내역이 나와요.' },
@@ -124,6 +139,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
   hidden_word: {
     name: { ko: '히든 워드', en: 'Hidden Word' },
     items: [
+      {
+        date: '11/28', icon: Coins,
+        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
+      },
       {
         date: '11/28', icon: DoorOpen,
         ko: { title: '오픈 대전이 생겼어요 (방은 앱 테스터만 열 수 있어요)', desc: '처음 보는 사람과 붙는 오픈 대전이에요. 방은 Google Play 테스트 앱에서만 열 수 있고, 참가는 웹·아이폰 어디서든 돼요. 봉투와 숨긴 단어는 서버가 맡아서 상대 화면에는 끝날 때까지 보이지 않아요.' },
@@ -288,6 +308,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '슬리더링크', en: 'Slitherlink' },
     note: { ko: '플레이어분이 보내주신 의견을 반영했어요. 고맙습니다!', en: "Made from players' feedback. Thank you!" },
     items: [
+      {
+        date: '11/28', icon: Coins,
+        ko: { title: '지난 주 피스는 현자의 징표가 돼요', desc: '1W에 모은 피스는 현자의 징표로 교환해 드렸고, 앞으로도 한 주가 끝나면 남은 피스가 징표로 바뀌어 계속 남아요. 힌트·아이템에는 징표가 먼저 쓰이고, 다 쓰면 이번 주 피스를 써요.' },
+        en: { title: "Last week's pieces become Sage's Tokens", desc: "Your week 1 pieces were exchanged for Sage's Tokens, and from now on each finished week's leftover pieces become tokens that stay for good. Hints and items use tokens first, then this week's pieces." },
+      },
       {
         date: '11/27', icon: Sparkles,
         ko: { title: '크리스마스 테마가 나왔어요 (기본 적용)', desc: "사탕 지팡이 숫자와 꼬마전구 선, 눈 내리는 밤으로 바뀌었어요. 클리어하면 고리를 따라 불이 켜져요. 위쪽 '테마' 버튼에서 예전 '기본' 보드로 돌아가거나 효과를 끌 수 있어요." },

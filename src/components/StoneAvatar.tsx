@@ -58,7 +58,38 @@ export const CHAMPION_LOOKS: Record<number, Record<1 | 2 | 3, ChampionLook>> = {
     3: { hi: '#d6ffea', mid: '#2fbf7a', lo: '#0d6b3f', rim: '#08432a', eye: '#ffffff', crown: ['#ecfff4', '#52d996', '#16784a'], gem: '#cffff0', halo: ['#7ff0b6'] },
   },
 };
-const lookOf = (c: Champion) => (CHAMPION_LOOKS[c.week] ?? CHAMPION_LOOKS[1])[c.place];
+/**
+ * Weeks after 2W cycle through these editions (3W ruby · amethyst · topaz, 4W opal · onyx · jade, 5W aurora · rose
+ * quartz · citrine, 6W black gold · aquamarine · garnet, then again from 7W), so no code change is needed each week.
+ * The stone's label names the week, so two weeks of the same edition still tell apart.
+ */
+const EDITIONS: Record<1 | 2 | 3, ChampionLook>[] = [
+  {
+    1: { hi: '#ffd6dc', mid: '#e0263f', lo: '#7a0717', rim: '#4a0410', eye: '#ffffff', crown: ['#fff4d6', '#f5c84a', '#a8740c'], gem: '#ff9aa8', halo: ['#ff5c77', '#ffb3c1'] },
+    2: { hi: '#ead9ff', mid: '#8a4fe0', lo: '#3f1a8a', rim: '#271058', eye: '#ffffff', crown: ['#f6eeff', '#c2a2ff', '#53309e'], gem: '#e6d6ff', halo: ['#b48cff'] },
+    3: { hi: '#fff0c8', mid: '#f0a53a', lo: '#94560c', rim: '#5e3406', eye: '#3b2604', crown: ['#fffbe0', '#f6cd45', '#a8740c'], gem: '#ffe08a', halo: ['#ffc95c'] },
+  },
+  {
+    1: { hi: '#ffffff', mid: '#f0eef9', lo: '#b9b3d6', rim: '#6b6496', eye: '#2a2440', crown: ['#ffffff', '#e3defa', '#8f87b8'], gem: '#ffffff', halo: ['#9cf2ea', '#ffb3dc', '#ffe680', '#c9b0ff'] },
+    2: { hi: '#8d929e', mid: '#2b2e36', lo: '#060608', rim: '#000000', eye: '#ffffff', crown: ['#f1f5fb', '#c3cad6', '#5d6573'], gem: '#cfd8e3', halo: ['#7f8ea3'] },
+    3: { hi: '#d6ffe4', mid: '#3ea86a', lo: '#0f5a33', rim: '#083d22', eye: '#ffffff', crown: ['#eafff4', '#5fdca4', '#0f6b45'], gem: '#c4f7dc', halo: ['#5fdca4'] },
+  },
+  {
+    1: { hi: '#e8fff8', mid: '#6fe3c9', lo: '#2a6fb8', rim: '#18406e', eye: '#0f2440', crown: ['#ffffff', '#b8fff0', '#7a9cff'], gem: '#ffffff', halo: ['#7cf3ff', '#8ff5d2', '#c9a2ff', '#ff9ad5'] },
+    2: { hi: '#fff0f5', mid: '#f4a9c4', lo: '#b25c80', rim: '#7a3352', eye: '#3a1022', crown: ['#fff4f8', '#f7b9cf', '#b25c80'], gem: '#ffe0ec', halo: ['#ffb3cf'] },
+    3: { hi: '#fffbd6', mid: '#f2d33a', lo: '#a8860c', rim: '#6e5706', eye: '#3b2e04', crown: ['#fffbe0', '#f6dd45', '#a8860c'], gem: '#fff3a8', halo: ['#ffe680'] },
+  },
+  {
+    1: { hi: '#6f6a5c', mid: '#1f1d18', lo: '#050505', rim: '#000000', eye: '#ffd36b', crown: ['#fffbe0', '#f6cd45', '#a8740c'], gem: '#ffd36b', halo: ['#ffd36b', '#ffb03a'] },
+    2: { hi: '#e0fbff', mid: '#5cc8e0', lo: '#1a6f8c', rim: '#0e4458', eye: '#ffffff', crown: ['#effaff', '#7fd0ff', '#145a9a'], gem: '#cdeeff', halo: ['#7fd0ff'] },
+    3: { hi: '#ffc9cf', mid: '#a3182e', lo: '#4a0612', rim: '#2a030a', eye: '#ffffff', crown: ['#fff0f0', '#ff6f7c', '#8a0f1e'], gem: '#ffc2c8', halo: ['#ff6f7c'] },
+  },
+];
+/** Which edition a week ≥ 3 wears (null for 1W and 2W, which have their own). */
+export const championEdition = (week: number) => (week >= 3 ? (week - 3) % EDITIONS.length : null);
+/** The three looks of any week. */
+export const championLooks = (week: number): Record<1 | 2 | 3, ChampionLook> => CHAMPION_LOOKS[week] ?? (week >= 3 ? EDITIONS[(week - 3) % EDITIONS.length] : CHAMPION_LOOKS[1]);
+const lookOf = (c: Champion) => championLooks(c.week)[c.place];
 
 /** Same nickname → same colour. */
 function toneFor(seed: string): Tone {

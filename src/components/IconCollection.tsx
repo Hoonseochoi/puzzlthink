@@ -12,7 +12,9 @@ import { getSupabase } from '@/lib/supabase';
 import { GAMES } from '@/lib/gameCatalog';
 import { hiddenGameOfPath } from '@/lib/playApp';
 import { useAuth } from './AuthProvider';
-import { CHAMPION_LOOKS, STONE_COLORS, Stone } from './StoneAvatar';
+import { STONE_COLORS, Stone } from './StoneAvatar';
+import { useChampName } from './useIconLabel';
+import { piecePeriodOf } from '@/lib/pieceWallet';
 import { MY_ICON_ANCHOR } from './StonePicker';
 import { M2048_TIERS } from './ProfileIcons';
 import { PLAY_HOURS } from './BadgeIcons';
@@ -33,6 +35,7 @@ export default function IconCollection() {
   const t = useTranslations('IconCollection');
   const ti = useTranslations('Icons');
   const tr = useTranslations('Records');
+  const champ = useChampName();
   const locale = useLocale();
   const { user } = useAuth();
   const [owned, setOwned] = useState<Set<string>>(new Set());
@@ -204,10 +207,10 @@ export default function IconCollection() {
           <ul className={grid}>{STONE_COLORS.map((c) => cell(c, tr(`stoneColor.${c}`), undefined, '__free__'))}</ul>)}
 
         {section('piece', <Crown size={18} className="text-[#e8a33c]" />, t('pieceTitle'), t('pieceRule'),
-          Object.keys(CHAMPION_LOOKS).map(Number).sort((a, b) => b - a).map((week) => (
+          Array.from({ length: piecePeriodOf() }, (_, i) => piecePeriodOf() - i).map((week) => (
             <div key={week} className="mt-4">
               <p className="text-[11px] font-black text-black/45">{t('pieceWeek', { n: week })}</p>
-              <ul className={`${grid} mt-2`}>{([1, 2, 3] as const).map((place) => cell(`w${week}-${place}`, tr(`stoneChampName.w${week}_${place}`), t('place', { n: place })))}</ul>
+              <ul className={`${grid} mt-2`}>{([1, 2, 3] as const).map((place) => cell(`w${week}-${place}`, champ(week, place), t('place', { n: place })))}</ul>
             </div>
           )))}
 
