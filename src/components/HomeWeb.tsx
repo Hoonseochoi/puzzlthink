@@ -174,7 +174,7 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
                         <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9.5px] text-black/70" style={{ background: MEDAL[i] }}>{i + 1}</span>
                         <span className="shrink-0">{e.block ? <RankBlock block={e.block} name={e.nickname} size={18} /> : <StoneAvatar name={e.nickname} size={18} />}</span>
                         <span className="min-w-0 max-w-[130px] truncate">{e.nickname}</span>
-                        <span className="shrink-0 font-bold text-white/65">{t(PODIUM_STAT[pickPodium.kind], { n: e.n })}</span>
+                        <span className="shrink-0 font-bold text-white/65">{e.label ?? t(PODIUM_STAT[pickPodium.kind], { n: e.n })}</span>
                       </span>
                     ))}
                   </span>
