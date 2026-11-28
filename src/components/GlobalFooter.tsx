@@ -18,7 +18,7 @@ export default function GlobalFooter() {
     <footer className="border-t border-black/[0.07] bg-[#f3f0e8]">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 lg:px-8 text-center sm:flex-row sm:text-left">
         <div className="max-w-2xl">
-          <p className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</p>
+          <p className="flex items-center justify-center gap-2 text-sm font-black tracking-[-0.03em] sm:justify-start">{/* eslint-disable-next-line @next/next/no-img-element -- the brand mark */}<img src="/icons/icon-192.png" alt="" width={22} height={22} className="h-[22px] w-[22px]" loading="lazy" decoding="async" />PUZZLTHINK</p>
           <p className="mt-1 text-[11px] text-black/40">{t('tagline')}</p>
           <p className="mt-3 text-[11px] leading-5 text-black/50">{t('operationNotice')}</p>
           <p className="mt-2 max-w-sm text-[10px] leading-4 text-black/35">{t('unofficialNotice')}</p>
