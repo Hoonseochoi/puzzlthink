@@ -384,6 +384,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '뒤집기 오목', en: 'Flip Omok' },
     items: [
       {
+        date: '11/28', icon: Flame,
+        ko: { title: '새 규칙 「전략적 뒤집기」: 뒤집기는 한 판에 3번, 내가 고를 때만', desc: '이제 상대 돌을 끼워도 바로 뒤집히지 않고, ‘놓기’와 ‘놓고 뒤집기’ 중에 골라요. 뒤집기는 한 판에 3번뿐이고 뒤집힌 돌은 🔒 고정돼서 다시 뒤집히지 않아요.' },
+        en: { title: 'New rule, strategic flip: 3 flips a game, only when you choose', desc: 'Sandwiching no longer flips by itself: choose Place or Place & flip. You get 3 flips a game, and flipped stones lock 🔒 so they never flip back.' },
+      },
+      {
         date: '11/28', icon: Sparkles,
         ko: { title: '뒤집기 오목이 PUZZLTHINK ORIGINAL 시리즈가 됐어요', desc: 'PUZZLTHINK가 직접 만든 게임들을 ORIGINAL 시리즈로 묶었어요. 규칙은 그대로이고, 홈의 ORIGINAL 줄에서 새 오리지널 퍼즐 명제 바둑과 함께 찾을 수 있어요.' },
         en: { title: 'Flip Omok joins the PUZZLTHINK ORIGINAL series', desc: 'The games PUZZLTHINK made itself now form the ORIGINAL series. The rules are unchanged; find it in the ORIGINAL row on the home page, next to the new original puzzle Proposition Go.' },

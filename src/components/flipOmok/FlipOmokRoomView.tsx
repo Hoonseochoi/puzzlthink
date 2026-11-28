@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Check, Clock3, Copy, Crown, Eye, Flag, Loader2, Lock, RotateCcw, Share2, Swords, Trophy, Users, WifiOff, X } from 'lucide-react';
 import { useReplayFrames, useReplayPlayer } from '@/hooks/useReplayFrames';
@@ -18,13 +18,15 @@ import { useFlipOmokRoom } from '@/hooks/useFlipOmokRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { reportGame } from '@/lib/stats';
 import { Link } from '@/i18n/routing';
-import { coordinateLabel, emptyBoard, forbiddenPoints, owner, type Player } from '@/lib/flipOmok';
-import { FLIP_TURN_OPTIONS, colorOf, seatToMove } from '@/lib/flipOmokRoom';
-import { Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, MiniBoard, STONE_HEX } from './FlipOmokParts';
-import { FlipLegend, FlipTips, LossTip, SafeGapCallout } from './FlipOmokGame';
+import { FLIP_RULES_VERSION, coordinateLabel, emptyBoard, owner, type Charges, type Player } from '@/lib/flipOmok';
+import { FLIP_TURN_OPTIONS, colorOf, hostIsCurrent, roomCharges, seatToMove } from '@/lib/flipOmokRoom';
+import { ChargeDiamonds, Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, FlipPanel, MiniBoard, STONE_HEX, useFlipMoment, useFlipPicker } from './FlipOmokParts';
+import { FlipLegend, FlipTips, LossTip, RulesCard, SafeGapCallout, SoundToggle } from './FlipOmokGame';
 import GameUpdates from '@/components/GameUpdates';
 import { OriginalMark } from '@/components/propositionGo/PropParts';
 import { PieceOwners, useMyNickname } from '../PieceStone';
+
+const NONE = new Set<number>();
 
 export default function FlipOmokRoomView({ code }: { code: string }) {
   const t = useTranslations('FlipOmokOnline');
@@ -58,22 +60,34 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
   useEffect(() => {
     if (!state || state.phase !== 'finished' || mySeat === null) return;
     reportGame(`flip_omok-friend-${state.sid}`, 'flip_omok', 'friend', state.winner === 'draw' ? 'draw' : state.winner === mySeat ? 'win' : 'loss',
-      { moves: state.moves, reason: state.reason, turnSec: state.turnSec }, { revealDelayMs: REVEAL_MS + 300 });
+      { moves: state.moves, reason: state.reason, turnSec: state.turnSec, rules: hostIsCurrent(state) ? FLIP_RULES_VERSION : 1 }, { revealDelayMs: REVEAL_MS + 300 });
   }, [state, mySeat]);
 
   const playing = state?.phase === 'playing';
   const toMove = state ? seatToMove(state) : 0;
   const myTurn = !!state && playing && mySeat === toMove;
   const board = state?.board ?? emptyBoard();
-  // 복기: positions seen in this browser during the current game.
-  const frames = useReplayFrames(state && state.phase !== 'lobby' ? state.sid : null, state && state.phase !== 'lobby' ? { board: state.board, last: state.last, flipped: state.flipped } : null, String(state?.moves ?? 0));
+  // Rules 2 needs the host's page to run them; with an old host this game goes on the old way (see flipOmokRoom.ts).
+  const current = !!state && hostIsCurrent(state);
+  const charges: Charges = state ? roomCharges(state) : [0, 0, 0];
+  // 복기: positions seen in this browser during the current game (the board carries the locks; charges ride along).
+  const frames = useReplayFrames(state && state.phase !== 'lobby' ? state.sid : null, state && state.phase !== 'lobby' ? { board: state.board, last: state.last, flipped: state.flipped, charges } : null, String(state?.moves ?? 0));
   const finished = state?.phase === 'finished';
   const replay = useReplayPlayer(Math.max(0, frames.length - 1), replaying && finished, 900);
   const frame = replaying && finished ? frames[replay.at] : null;
   // Both players see the final board (the five lined through) a moment before the popup.
   const reveal = useEndReveal(finished && state ? `${state.sid}-${state.moves}` : null);
   const resultOpen = finished && reveal.showResult && hideResult !== state?.sid && !frame;
-  const banned = useMemo(() => new Set(state && myTurn ? forbiddenPoints(state.board, state.turn) : []), [state, myTurn]);
+  const picker = useFlipPicker({ board, turn: state?.turn ?? 1, charges, active: myTurn && current, onMove: ({ at, flip }) => dispatch({ t: 'move', at, flip, rv: FLIP_RULES_VERSION }) });
+  // An old host knows only plain moves: send those (its page checks them).
+  const tapOld = (at: number) => { if (myTurn && !board[at]) dispatch({ t: 'move', at }); };
+  // Tell the host this page is current (drops a refresh tag left from an old page of mine).
+  const myId = me?.id;
+  const tagged = !!state && !!myId && (state.stale ?? []).includes(myId);
+  useEffect(() => { if (tagged) dispatch({ t: 'ver', rv: FLIP_RULES_VERSION }); }, [tagged, dispatch]);
+  const seatColor = (p: Player) => (state ? state.seats[p === colorOf(state, 0) ? 0 : 1]?.name ?? colorName(p) : colorName(p));
+  const shown = frame ?? { board, last: state?.last ?? null, flipped: state?.flipped ?? [], charges };
+  const callout = useFlipMoment({ board: shown.board, last: shown.last, flipped: shown.flipped, moveKey: frame ? `r${replay.at}` : `${state?.sid}-${state?.moves ?? 0}`, name: seatColor, enabled: !!state && state.phase !== 'lobby' });
 
   const seatName = (seat: number) => state?.seats[seat]?.name ?? t('emptySeat');
   const names = [0, 1].map((seat) => (state?.seats[seat]?.id === me?.id ? `${seatName(seat)} (${t('me')})` : seatName(seat)));
@@ -81,7 +95,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
   const online = new Set(peers.map((peer) => peer.id));
   const seconds = state ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : 0;
   const myColor: Player | null = state && mySeat !== null ? colorOf(state, mySeat) : null;
-  const colorName = (p: Player) => (p === 1 ? tf('black') : tf('white'));
+  function colorName(p: Player) { return p === 1 ? tf('black') : tf('white'); }
 
   const copyLink = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* Clipboard may be blocked. */ } };
   const shareLink = async () => {
@@ -99,7 +113,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
     return `${mySeat === null ? t('winner', { player: seatName(state.winner) }) : state.winner === mySeat ? t('youWin') : t('youLose')} · ${reason}`;
   };
   const heading = !state ? '' : state.phase === 'lobby' ? t('lobbyTitle') : state.phase === 'finished' ? resultText()
-    : myTurn ? t('yourTurn') : t('waitingFor', { player: seatName(toMove) });
+    : myTurn ? (picker.held !== null ? tf('choose') : t('yourTurn')) : t('waitingFor', { player: seatName(toMove) });
 
   const result = resultOpen && state && (
     <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[1px]">
@@ -124,7 +138,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
     <div className={SHELL} style={{ ...accentVars(FLIP_ACCENT, FLIP_INK), backgroundImage: fog('63, 184, 255') }}>
       <RoomAlerts alerts={alerts} accent={FLIP_ACCENT} joinText={(name) => t('joined', { name })} leaveText={(name) => t('left', { name })} />
       <GameHeader players={roomPlayers(state)} me={mySeat} backHref="/flip-omok" backLabel={tf('title')} title={tf('title')} titleClass="font-black" subtitle={<><OriginalMark size="xs" className="mr-1.5 align-middle" />{`ONLINE · 1:1 · ${code.toUpperCase()}`}</>}>
-        <GameUpdates game="flip_omok" /><BugReport /><LanguageSwitcher compact dark />
+        <GameUpdates game="flip_omok" /><BugReport /><SoundToggle /><LanguageSwitcher compact dark />
       </GameHeader>
 
       {notice && <div className="relative z-10 mx-auto mt-4 flex max-w-[1180px] items-center gap-2 px-4 text-xs text-[#ffc2b5] lg:px-6"><WifiOff size={14} />{notice}</div>}
@@ -144,10 +158,17 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
               </div>
               {playing && <div className={timer(seconds <= 10 && myTurn)}><Clock3 size={14} />{`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`}</div>}
             </div>
+            {state.phase !== 'lobby' && current && <div className="mb-2.5 flex items-center justify-end gap-1.5 px-1">
+              {([1, 2] as Player[]).map((p) => <span key={p} className={`flex items-center gap-1.5 rounded-md border px-2 py-1.5 text-[10px] font-black ${playing && state.turn === p ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-white/10 bg-black/40'}`}>
+                <Dot p={p} size={10} /><span className="max-w-[72px] truncate text-white/70">{seatColor(p)}</span><ChargeDiamonds left={shown.charges[p]} color={STONE_HEX[p]} />
+              </span>)}
+            </div>}
+            {state.phase !== 'lobby' && !current && <p className="mx-auto mb-3 max-w-[680px] break-keep rounded-[10px] border border-[#ffd166]/40 bg-[#ffd166]/[.07] px-3 py-2 text-[11.5px] leading-5 text-[#ffd166]">{t('oldHost')}</p>}
 
             {state.phase === 'lobby' ? (
               <div className="mx-auto max-w-[460px] space-y-5 py-2">
                 <div className="flex justify-center py-2"><MiniBoard rows={['.....', '.RBR.', '.....']} flip={[[1, 2]]} ring={[1, 3]} /></div>
+                <RulesCard />
                 <div className="rounded-[12px] border border-(--accent)/30 bg-black/50 p-5">
                   <p className={PANEL_TITLE}>{t('inviteTitle')}</p>
                   <p className="mt-2 text-sm text-white/60">{t('inviteDesc')}</p>
@@ -182,10 +203,11 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
               <>
                 {frame && <ReplayHeader player={replay} caption={replay.at === 0 ? tc('replayStart') : t('lastMove', { player: colorName(owner(frame.board[frame.last ?? 0]) as Player), at: coordinateLabel(frame.last ?? 0) })} onClose={() => setReplaying(false)} />}
                 {frame
-                  ? <FlipOmokBoard board={frame.board} last={frame.last} flipped={frame.flipped} flipKey={replay.at} win={replay.at === replay.total ? state.win : null} turn={state.turn} interactive={false} banned={new Set()} onPlace={() => {}} />
-                  : <FlipOmokBoard board={board} last={state.last} flipped={state.flipped} flipKey={state.moves} win={state.win} turn={state.turn}
-                    interactive={myTurn} banned={banned} onPlace={(at) => dispatch({ t: 'move', at })} overlay={result} />}
+                  ? <FlipOmokBoard board={frame.board} last={frame.last} flipped={frame.flipped} flipKey={replay.at} win={replay.at === replay.total ? state.win : null} ghost={state.turn} interactive={false} banned={NONE} onTap={() => {}} callout={callout} />
+                  : <FlipOmokBoard board={board} last={state.last} flipped={state.flipped} flipKey={state.moves} win={state.win} ghost={state.turn} pending={picker.preview}
+                    interactive={myTurn} banned={current ? picker.banned : NONE} onTap={current ? picker.tap : tapOld} overlay={result} callout={callout} />}
                 {frame && <ReplayControls player={replay} onShowResult={() => { setReplaying(false); setHideResult(null); }} />}
+                {playing && current && mySeat !== null && <FlipPanel picker={picker} left={charges[myColor ?? 1]} color={STONE_HEX[myColor ?? 1]} />}
                 <EndRevealBanner show={finished && reveal.revealing && !frame} text={resultText()} color={state.win ? STONE_HEX[state.win.owner] : undefined} onSkip={reveal.skip} />
                 {finished && !frame && !resultOpen && <div className="mx-auto mt-2 flex max-w-[440px] flex-wrap items-center justify-center gap-2">
                   <button type="button" onClick={() => setHideResult(null)} className={`${BTN} py-2.5`}><Trophy size={14} />{tc('replayShowResult')}</button>
@@ -216,7 +238,7 @@ export default function FlipOmokRoomView({ code }: { code: string }) {
                           {occupant && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${online.has(occupant.id) ? 'bg-[#3ddc97]' : 'bg-white/25'}`} />}
                           {inGame && <span className="ml-auto shrink-0 font-mono text-xs font-black text-(--accent)">{state.score[seat]}</span>}
                         </div>
-                        <p className="text-[11px] text-white/45">{inGame ? `${colorName(color)} · ${t('stones', { n: board.filter((c) => owner(c) === color).length })}` : occupant ? t('ready') : t('waiting')}</p>
+                        <p className="flex items-center gap-1.5 text-[11px] text-white/45">{inGame ? <>{`${colorName(color)} · ${t('stones', { n: shown.board.filter((c) => owner(c) === color).length })}`}{current && <ChargeDiamonds left={shown.charges[color]} color={STONE_HEX[color]} size={8} />}</> : occupant ? t('ready') : t('waiting')}</p>
                       </div>
                     </div>
                   );

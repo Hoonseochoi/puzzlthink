@@ -119,6 +119,18 @@ button:disabled { cursor: default; }
 .flip-omok-loop-turn { animation: flip-omok-loop 2.4s ease-in-out infinite alternate; }
 @media (prefers-reduced-motion: reduce) { .flip-omok-loop-turn { animation: none; } }
 
+/* 뒤집기 오목 "전략적 뒤집기" prototype: the board jolts, a gold shockwave, the stones being aimed at pulse, a big call-out. */
+@keyframes flip-next-shake { 0%, 100% { transform: none; } 15% { transform: translate(-1.5%, .6%) rotate(-.4deg); } 30% { transform: translate(1.2%, -.5%) rotate(.3deg); } 45% { transform: translate(-.6%, .3%); } 60% { transform: none; } }
+.flip-next-shake { animation: flip-next-shake .42s .08s ease-out both; }
+@keyframes flip-next-wave { from { opacity: .95; transform: translate(-50%, -50%) scale(.1); } to { opacity: 0; transform: translate(-50%, -50%) scale(1.6); } }
+.flip-next-wave { animation: flip-next-wave .6s ease-out forwards; }
+@keyframes flip-next-pulse { 0%, 100% { opacity: .55; transform: scale(.92); } 50% { opacity: 1; transform: scale(1.06); } }
+.flip-next-ghost { animation: flip-next-pulse 1s ease-in-out infinite; opacity: .75; }
+.flip-next-target { animation: flip-next-pulse .8s ease-in-out infinite; }
+@keyframes flip-next-callout { 0% { opacity: 0; transform: translate(-50%, -50%) scale(2.2) rotate(-6deg); } 14% { opacity: 1; transform: translate(-50%, -50%) scale(.94) rotate(-3deg); } 22% { transform: translate(-50%, -50%) scale(1.04) rotate(-3deg); } 78% { opacity: 1; transform: translate(-50%, -54%) scale(1) rotate(-3deg); } 100% { opacity: 0; transform: translate(-50%, -64%) scale(1) rotate(-3deg); } }
+.flip-next-callout { animation: flip-next-callout 1.5s cubic-bezier(.2,.9,.3,1) forwards; }
+@media (prefers-reduced-motion: reduce) { .flip-next-shake, .flip-next-wave, .flip-next-ghost, .flip-next-target { animation: none; } .flip-next-wave { display: none; } .flip-next-callout { animation: none; transform: translate(-50%, -50%) rotate(-3deg); } }
+
 /* 2048: blocks slide (transform transition), new blocks pop in, merged blocks bounce. */
 .m2-slide { transition: transform 110ms cubic-bezier(.25,.8,.35,1); }
 .m2-spawn { animation: m2Spawn .2s 90ms cubic-bezier(.2,.9,.3,1.3) both; }

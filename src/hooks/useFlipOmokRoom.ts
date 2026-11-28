@@ -1,6 +1,6 @@
 "use client";
 
-import { type FlipRoom, type FlipRoomAction, createFlipRoom, reduceFlipRoom, syncFlipSeats } from '@/lib/flipOmokRoom';
+import { type FlipRoom, type FlipRoomAction, createFlipRoom, flipAutoAction, reduceFlipRoom, syncFlipSeats } from '@/lib/flipOmokRoom';
 import { type RoomEngine, prepareRoom, useRealtimeRoom } from './useRealtimeRoom';
 
 const FLIP_ROOM: RoomEngine<FlipRoom, FlipRoomAction> = {
@@ -12,6 +12,7 @@ const FLIP_ROOM: RoomEngine<FlipRoom, FlipRoomAction> = {
   syncSeats: syncFlipSeats,
   running: (state) => state.phase === 'playing',
   timeoutAction: { t: 'timeout' },
+  autoAction: flipAutoAction, // a room saved or taken over from an old-rules page is upgraded by the (new) host
 };
 
 /** Creates a 1:1 뒤집기 오목 room code and marks this browser as its host. */

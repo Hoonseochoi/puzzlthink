@@ -6,7 +6,7 @@ const article: WikiArticle = {
   category: 'lineage',
   updated: '2026-11-26',
   games: [
-    { game: 'flipOmok', ko: '쌍삼을 양쪽 모두 금지하고 정확히 5목만 인정해요. 여기에 끼워 뒤집기를 더한 창작 오목이에요.', en: 'Double threes are barred for both and only exactly five wins — plus flanking flips.' },
+    { game: 'flipOmok', ko: '쌍삼을 양쪽 모두 금지하고 정확히 5목만 인정해요. 여기에 한 판 3번뿐인 끼워 뒤집기를 더한 창작 오목이에요.', en: 'Double threes are barred for both and only exactly five wins — plus flanking flips, three per game.' },
     { game: 'blindGomoku', ko: '33·44 금수 없이 5목 이상이면 이기는 자유 오목 규칙에, 진영을 숨기는 장치를 더했어요.', en: 'Free-style rules — five or more wins, no 3-3 or 4-4 restrictions — with hidden sides.' },
     { game: 'pointOmok', ko: '정확히 5목만 인정하는 오목에 포인트 입찰을 결합했어요.', en: 'Exactly-five gomoku combined with points bidding.' },
   ],
