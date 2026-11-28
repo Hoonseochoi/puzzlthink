@@ -6091,7 +6091,9 @@
     "tester_tester": "PLAY TESTER · TESTER",
     "tester_14d": "PLAY TESTER · 14 DAYS",
     "tester_founder": "PLAY TESTER · FOUNDER",
-    "popupTitleTester": "테스터 전용 아이콘이에요!"
+    "popupTitleTester": "테스터 전용 아이콘이에요!",
+    "dev_founder": "PUZZLTHINK DEVELOPER",
+    "popupTitleDev": "개발자 전용 아이콘이에요!"
   },
   "PieceRace": {
     "shortTitle": "피스 경쟁전 2W",
@@ -9261,6 +9263,7 @@
     "line_hellClear": "매우 어려움 AI 정복",
     "line_m2048": "2048 고수",
     "line_founder": "창립 테스터",
+    "line_dev": "PUZZLTHINK 개발자",
     "winnerKicker": "WINNER",
     "drawKicker": "DRAW"
   }

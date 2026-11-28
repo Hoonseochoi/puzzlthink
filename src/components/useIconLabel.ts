@@ -33,6 +33,7 @@ export function useIconLabel() {
     if (ref.kind === 'hellClear') return t('hellClear');
     if (ref.kind === 'mission') return t(`mission_${ref.mission}`);
     if (ref.kind === 'tester') return t(`tester_${ref.tier}`);
+    if (ref.kind === 'dev') return t('dev_founder');
     if (ref.kind === 'play') return t('playHours', { n: ref.hours });
     return t('crown', { game: CERT_GAMES[ref.game][locale === 'en' ? 'en' : 'ko'] });
   };

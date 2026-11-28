@@ -5999,7 +5999,9 @@
     "tester_tester": "PLAY TESTER · TESTER",
     "tester_14d": "PLAY TESTER · 14 DAYS",
     "tester_founder": "PLAY TESTER · FOUNDER",
-    "popupTitleTester": "A testers-only icon!"
+    "popupTitleTester": "A testers-only icon!",
+    "dev_founder": "PUZZLTHINK DEVELOPER",
+    "popupTitleDev": "The developer’s own icon!"
   },
   "PieceRace": {
     "shortTitle": "Piece race · Week 2",
@@ -9079,6 +9081,7 @@
     "line_hellClear": "Beat the hardest AI",
     "line_m2048": "2048 master",
     "line_founder": "Founding tester",
+    "line_dev": "PUZZLTHINK developer",
     "winnerKicker": "WINNER",
     "drawKicker": "DRAW"
   }
