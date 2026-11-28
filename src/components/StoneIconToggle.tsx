@@ -32,8 +32,8 @@ export function setBoardStoneIcons(on: boolean) {
 }
 
 const COPY = {
-  ko: { turnOff: '아이콘 끄기', turnOn: '아이콘 켜기', label: '게임 돌에 아이콘 표시', note: '끄면 벽바둑·오목·모리스 등 게임판의 돌이 모두 기본 돌로 보여요. 이 기기에서만 바뀌고, 상대 화면에는 영향이 없어요.' },
-  en: { turnOff: 'Icons off', turnOn: 'Icons on', label: 'Show icons on game stones', note: 'Off, every board (Wallgo, gomoku games, Morris…) draws plain stones for both sides. Only on this device; your opponent sees no change.' },
+  ko: { short: '아이콘', turnOff: '아이콘 끄기', turnOn: '아이콘 켜기', label: '게임 돌에 아이콘 표시', note: '끄면 벽바둑·오목·모리스 등 게임판의 돌이 모두 기본 돌로 보여요. 이 기기에서만 바뀌고, 상대 화면에는 영향이 없어요.' },
+  en: { short: 'Icons', turnOff: 'Icons off', turnOn: 'Icons on', label: 'Show icons on game stones', note: 'Off, every board (Wallgo, gomoku games, Morris…) draws plain stones for both sides. Only on this device; your opponent sees no change.' },
 };
 
 /** Header button for a board game (next to GameUpdates / BugReport): switches icon stones on the board on or off. */
@@ -41,7 +41,7 @@ export default function StoneIconToggle({ dark = true }: { dark?: boolean }) {
   const t = useLocale() === 'en' ? COPY.en : COPY.ko;
   const on = useBoardStoneIcons();
   const label = on ? t.turnOff : t.turnOn;
-  const base = 'inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-xs font-extrabold transition';
+  const base = 'inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md border px-2 py-2 text-[11px] font-extrabold transition sm:gap-1.5 sm:px-2.5 sm:text-xs';
   const tone = dark
     ? on ? 'border-white/15 bg-white/5 text-white/80 hover:bg-white/10' : 'border-white/10 bg-transparent text-white/45 hover:bg-white/5'
     : on ? 'border-black/10 bg-white/70 text-black/70 hover:bg-white' : 'border-black/10 bg-transparent text-black/40 hover:bg-white/60';
@@ -51,6 +51,8 @@ export default function StoneIconToggle({ dark = true }: { dark?: boolean }) {
         {on ? <CircleUserRound size={14} /> : <Circle size={14} />}
         {!on && <span aria-hidden className="absolute left-1/2 top-1/2 h-[1.5px] w-[17px] -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />}
       </span>
+      <span>{t.short}</span>
+      <span className={`rounded px-1 py-px text-[9px] font-black leading-none ${on ? (dark ? 'bg-white/15 text-white' : 'bg-black/10 text-black/70') : (dark ? 'bg-white/5 text-white/40' : 'bg-black/5 text-black/35')}`}>{on ? 'ON' : 'OFF'}</span>
     </button>
   );
 }
