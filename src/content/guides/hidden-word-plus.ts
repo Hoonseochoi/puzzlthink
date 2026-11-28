@@ -12,7 +12,7 @@ const guide: GameGuide = {
   game: 'hiddenWordPlus',
   origin: { kind: 'show', show: 'dp3' },
   updated: '2026-11-27',
-  related: ['hiddenWord', 'equationSignal', 'gradation', 'equationTower'],
+  related: ['hiddenWord', 'hiddenWordLiar', 'equationSignal', 'gradation'],
   ko: {
     meta: {
       title: '히든 워드 확장판 공략 — 닮은 단어 186개, 묶음 안에서 정답 좁히기 | PUZZLTHINK',

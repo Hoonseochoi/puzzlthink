@@ -42,13 +42,24 @@ export const SHOWS = {
 } as const;
 export type ShowId = keyof typeof SHOWS;
 
+/**
+ * Many game pages pass their whole <title> as the game's name ("슬리더링크 — 데블스플랜3 …", "Masyu Online Free | …").
+ * Structured data wants the name alone: the part before " — " or " | ", without a leading/trailing "online / free" word.
+ */
+export function gameName(title: string) {
+  return title.split(/ — | \| /)[0]
+    .replace(/^(free online|온라인)\s+/i, '')
+    .replace(/\s+(online free|online|무료 온라인|온라인)$/i, '')
+    .trim();
+}
+
 /** VideoGame structured data shared by every game page. */
 export function gameJsonLd({ locale, path, name, alternateName, description, genre, players, show }: {
   locale: string; path: string; name: string; alternateName: string[]; description: string; genre: string[];
   players: { min: number; max: number }; show?: ShowId;
 }) {
   return {
-    '@type': 'VideoGame', name, alternateName, description, url: `${SITE_URL}/${locale}${path}`, inLanguage: locale,
+    '@type': 'VideoGame', name: gameName(name), alternateName, description, url: `${SITE_URL}/${locale}${path}`, inLanguage: locale,
     genre, gamePlatform: ['Web browser', 'PC', 'Mobile'], applicationCategory: 'GameApplication', operatingSystem: 'Any',
     playMode: players.max > 1 ? ['SinglePlayer', 'MultiPlayer'] : ['SinglePlayer'],
     numberOfPlayers: { '@type': 'QuantitativeValue', minValue: players.min, maxValue: players.max },

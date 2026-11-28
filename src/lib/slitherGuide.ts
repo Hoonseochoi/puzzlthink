@@ -72,9 +72,9 @@ type Section = { id: string; title: string; intro?: string; techs: Tech[] };
 
 export const GUIDE_COPY = {
   ko: {
-    metaTitle: '슬리더링크 공략 — 처음 하는 사람을 위한 풀이법 총정리 (예제 단계별 풀이)',
-    metaDescription: '슬리더링크 처음이라면 여기서 시작! 0·3·모서리 숫자 시작 패턴, 점 규칙으로 길 찾기, 작은 고리 금지, 안·밖 칠하기까지 그림으로 정리하고 5×5 예제를 처음부터 끝까지 따라 풀어 봐요.',
-    keywords: ['슬리더링크 공략', '슬리더링크 푸는 법', '슬리더링크 풀이', '슬리더링크 규칙', '슬리더링크 팁', '슬리더링크 패턴', '유배지 퍼즐 공략', 'Slitherlink 공략'],
+    metaTitle: '슬리더링크 공략 — 규칙·풀이법·시작 공식 총정리, 예제 단계별 풀이',
+    metaDescription: '슬리더링크 처음이라면 여기서 시작! 규칙 30초 정리, 0·귀퉁이 1과 3·붙은 3-3 같은 시작 공식, 점 규칙으로 길 찾기, 작은 고리 금지, 안·밖 칠하기까지 그림으로 정리하고 5×5 예제를 끝까지 따라 풀어 봐요.',
+    keywords: ['슬리더링크 공략', '슬리더링크 공식', '슬리더링크 푸는 법', '슬리더링크 풀이', '슬리더링크 규칙', '슬리더링크 팁', '슬리더링크 패턴', '유배지 퍼즐 공략', 'Slitherlink 공략'],
     eyebrow: 'SLITHERLINK GUIDE',
     title: '슬리더링크 공략',
     lead: '처음 하는 사람을 위한 풀이법 총정리',
@@ -165,9 +165,9 @@ export const GUIDE_COPY = {
     back: '슬리더링크로 돌아가기',
   },
   en: {
-    metaTitle: 'Slitherlink strategy — how to solve it, step by step for beginners',
+    metaTitle: 'How to solve Slitherlink — rules, patterns and a step-by-step example',
     metaDescription: 'New to Slitherlink? Start here: the opening patterns for 0, 3 and corners, the dot rule that finds the path, no small loops, inside/outside colouring, and a 5×5 puzzle solved from start to finish.',
-    keywords: ['slitherlink strategy', 'how to solve slitherlink', 'slitherlink tips', 'slitherlink patterns', 'slitherlink rules'],
+    keywords: ['how to solve slitherlink', 'slitherlink rules', 'slitherlink strategy', 'slitherlink tips', 'slitherlink patterns'],
     eyebrow: 'SLITHERLINK GUIDE',
     title: 'Slitherlink strategy',
     lead: 'Every technique a beginner needs',

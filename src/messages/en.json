@@ -540,8 +540,8 @@
     "logCoWinners": "{players} share the win!",
     "coWin": "{players} share the win",
     "breakWallLabel": "break wall",
-    "v2MetaTitle": "Wallgo II — The Devil's Plan 3 prison match rules + play vs AI or friends",
-    "v2MetaDescription": "The game from prison match episode 10! Square pieces go straight, round pieces turn — build walls and claim the most ground. Learn Wallgo II in a minute and play free vs AI or friends.",
+    "v2MetaTitle": "Wall Go 2 (Wallgo II) — The Devil's Plan 3 game, rules + play free",
+    "v2MetaDescription": "Play Wall Go 2 from The Devil's Plan 3 prison match (episode 10) free online. Square pieces go straight, round pieces turn; move, build a wall and claim the biggest area. Rules in a minute, then play the AI or friends.",
     "v2Keywords": [
       "wallgo 2",
       "wallgo II",
@@ -549,7 +549,9 @@
       "devil's plan wallgo 2",
       "prison match",
       "wallgo 2 rules",
-      "wallgo 2 online"
+      "wallgo 2 online",
+      "wall go ii",
+      "the devil's plan wall go 2"
     ],
     "v2Square": "Square piece",
     "v2Circle": "Round piece",
@@ -1985,15 +1987,16 @@
     "winInstall": "Add to home screen"
   },
   "GameList": {
-    "metaTitle": "All games — PUZZLTHINK brain games and logic puzzles",
-    "metaDescription": "All {count} PUZZLTHINK brain games and logic puzzles in pictures: Hidden Word, Equation Signal, Gradation, Card Janggi, Wall Go, Monorail, Slitherlink, Nonogram, 2048 and more. No sign-up or install, tap one to start.",
-    "keywords": ["brain games list", "The Devil's Plan games", "The Genius games", "logic puzzles", "free web games", "Hidden Word", "Equation Signal", "Gradation", "Wall Go", "Slitherlink"],
+    "metaTitle": "Play The Devil's Plan games online — all {count} free games",
+    "metaDescription": "Every PUZZLTHINK game in one grid: {count} brain games from The Devil's Plan and The Genius plus logic puzzles. Hidden Word, Color Link Duel, Wall Go, Heavy 13, Nemo Count, Slitherlink and more. Free, no sign-up: tap one to play.",
+    "keywords": ["play The Devil's Plan games", "Devil's Plan games online", "The Genius games", "brain games list", "logic puzzles", "free web games", "Hidden Word", "Color Link Duel", "Wall Go", "Slitherlink"],
+    "rulesLink": "Rules, players and the show for every game",
     "title": "All games",
     "intro": "Tap a game to start."
   },
   "Games": {
-    "metaTitle": "All games — The Devil's Plan & The Genius games and logic puzzles",
-    "metaDescription": "From Hidden Word, Equation Signal, Tower of Equations, Gradation, Card Janggi and Hit,Stay to Monorail, Wall Go, Two-Sided Poker, Heavy 13, Slitherlink, Nonogram, Star Battle and Masyu: compare all {count} PUZZLTHINK games by players, pace, modes, core rules and the show they come from.",
+    "metaTitle": "The Devil's Plan & The Genius game rules — all {count} games explained",
+    "metaDescription": "Rules for every PUZZLTHINK game on one page: Hidden Word, Color Link Duel, Wall Go, Heavy 13 and Nemo Count from The Devil's Plan, Monorail and Two-Sided Poker from The Genius, plus Slitherlink and Nonogram. Players, pace, modes and the show each comes from.",
     "eyebrow": "GAME GUIDE",
     "title": "About the games",
     "intro": "Every PUZZLTHINK game on one page. See how many players it takes, how a game runs and what you need to know, then jump right in. All games are free with no sign-up.",
@@ -2515,8 +2518,10 @@
         "origin": "Magic squares go back to the Lo Shu legend and appear in Joseon mathematician Choi Seok-jeong's Gusuryak. PUZZLTHINK turned them into a puzzle of swapping scrambled tiles back."
       }
     },
+    "listLink": "Pick from pictures and play",
     "keywords": [
       "Devil's Plan game rules",
+      "The Devil's Plan games explained",
       "The Genius game rules",
       "brain games collection",
       "logic puzzle collection",
@@ -5339,11 +5344,14 @@
     "hintHelpPaid": "Tap a spot: 1 piece is spent and the 3×3 area around it is filled in. (You have {n})",
     "hintNoPiece": "A challenge hint costs 1 piece. Beat a hard AI to earn pieces.",
     "hintPayError": "The hint could not be used. Try again in a moment.",
-    "metaTitle": "Slitherlink — draw the loop the numbers ask for",
-    "metaDescription": "Join the dots into one loop that matches every number. Endless boards from 9×9 to 11×11 with hints, answer reveal and replay. Free.",
+    "metaTitle": "Slitherlink online free — the loop puzzle from The Devil's Plan 3",
+    "metaDescription": "Play Slitherlink free in your browser: join the dots into one loop so every number shows how many of its sides the loop uses. Endless boards from 9×9 to 11×11, a map ranking, races with 2–4 friends, hints and solve replays.",
     "keywords": [
       "slitherlink",
       "slitherlink online",
+      "play slitherlink",
+      "slitherlink free",
+      "devil's plan slitherlink",
       "loop puzzle",
       "logic puzzle",
       "brain puzzle"
@@ -7097,8 +7105,8 @@
     "disclaimer": "A free web puzzle made by PUZZLTHINK. Star Battle is the common name of a puzzle genre; this page is not affiliated with any company's game."
   },
   "ColorLinkGuide": {
-    "metaTitle": "Color Link Online Free — Connect Colour Pairs (Numberlink) | Map Ranking",
-    "metaDescription": "Join each pair of same-coloured stones and fill the board, no crossings. A colourful 1–3 minute Numberlink puzzle: random boards with one answer, claim and steal maps for the ranking, race 2–4 friends. Free.",
+    "metaTitle": "Color Link (Numberlink) — connect the colour pairs, free online",
+    "metaDescription": "Join each pair of same-coloured stones and fill the board, no crossings: a solo 1–3 minute Numberlink (Arukone) puzzle. Random boards with one answer, a map-stealing ranking and races with 2–4 friends. The Devil's Plan 3 final is Color Link Duel.",
     "keywords": [
       "Color Link",
       "Numberlink",
