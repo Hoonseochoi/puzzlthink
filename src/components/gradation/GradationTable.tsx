@@ -433,7 +433,7 @@ function Dock({ g, me, t, myTurn, seconds, placing, cubes, pick, onSubmitRow, on
     text = <span className="flex items-center gap-1.5 text-white/65">{aiWaiting && <Bot size={14} />}{g.phase === 'lead' ? t.waitLead(waitingName) : t.waitFollow(waitingName)}<Loader2 size={13} className="animate-spin" /></span>;
   }
   return (
-    <div className="fixed inset-x-0 bottom-0 border-t border-white/10 bg-[#0d0b12]/95 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5 backdrop-blur-md">
+    <div data-focus-dock className="fixed inset-x-0 bottom-0 border-t border-white/10 bg-[#0d0b12]/95 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5 backdrop-blur-md">
       <div className="mx-auto flex max-w-[760px] items-center gap-2.5">
         <div className="min-w-0 flex-1 text-[12.5px] leading-snug break-keep">{text}</div>
         {clock}

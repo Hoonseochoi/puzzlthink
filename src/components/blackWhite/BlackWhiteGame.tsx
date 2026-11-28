@@ -14,6 +14,7 @@ import { type PersonaId, drawPersonas, newPersonaSeed, personaMatch, personaName
 import { PersonaReveal, PersonaRoster, PersonaTag, usePersonaSay } from '@/components/ui/AiPersona';
 import { Hand, MemoPad, OpponentTrack, Replay, RoundLog, Scoreboard, Table } from './BWParts';
 import GameUpdates from '@/components/GameUpdates';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 const ACCENT = '#e9c46a';
 const FLASH_MS = 1700;
@@ -39,6 +40,8 @@ export default function BlackWhiteGame() {
 
   const over = isOver(rounds);
   const finished = over && !flash;
+  // 전체 모드 from the start; after the first round, leaving loses the match (src/components/focus).
+  useFocusPlay(!finished, !finished && rounds.length > 0 ? 'game' : false);
   const leader = nextLeader(rounds, first);
   const myTurn = !over && !flash && (leader === 0 ? lead === null : lead?.side === 1);
   const aiTurn = !over && !flash && (leader === 1 ? lead === null : lead?.side === 0);
@@ -152,7 +155,7 @@ export default function BlackWhiteGame() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <section className={PANEL}>
+          <section data-focus-hide={rounds.length > 0 && !finished ? '' : undefined} className={PANEL}>
             <p className={PANEL_TITLE}>{t('difficulty')}</p>
             <div className="mt-3 grid grid-cols-3 gap-1.5">
               {(['easy', 'normal', 'hard'] as BWDifficulty[]).map((level) => (
@@ -165,7 +168,7 @@ export default function BlackWhiteGame() {
           </section>
           {!finished && <MemoPad resetKey={`ai-${gameNo}`} />}
           {!finished && <RoundLog rounds={rounds} me={0} />}
-          <section className={PANEL}>
+          <section data-focus-hide className={PANEL}>
             <p className={PANEL_TITLE}>{t('quickRules')}</p>
             <ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/55">
               {(t.raw('quick') as string[]).map((rule) => <li key={rule} className="flex gap-2.5"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-(--accent)" /><span className="break-keep">{rule}</span></li>)}

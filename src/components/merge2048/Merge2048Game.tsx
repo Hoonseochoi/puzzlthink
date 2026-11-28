@@ -20,6 +20,7 @@ import EndlessTop from './EndlessTop';
 import Merge2048Result, { type M2Place } from './Merge2048Result';
 import { getSupabase } from '@/lib/supabase';
 import { useM2Game } from './useM2Game';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 type Mode = 'free' | 'endless';
 const SAVE_KEY = 'puzzlthink_2048_free'; // the free game in progress
@@ -64,6 +65,8 @@ export default function Merge2048Game() {
   const [hasRun, setHasRun] = useState(false); // a 챌린지 도전 run is waiting to be continued
   const [top, setTop] = useState(0);
   const [undo, setUndo] = useState<M2State | null>(null);
+  // 전체 모드 while a board is in play. No exit guard: both boards are saved in this browser and pick up again.
+  useFocusPlay(phase === 'playing', false);
   const [toast, setToast] = useState<{ v: number; at: number } | null>(null);
   const [won, setWon] = useState(false); // 2048 made this game: the celebration card
   const ti = useTranslations('Icons');
@@ -287,7 +290,7 @@ export default function Merge2048Game() {
           </div>
         </section>
 
-        <aside className="flex flex-col gap-4">
+        <aside data-focus-hide={phase === 'playing' ? '' : undefined} className="flex flex-col gap-4">
           {mode === 'endless' && <EndlessTop refresh={topKey} />}
           <BlockCollection best={Math.max(top, max)} title={t('collection')} hint={t('collectionHint')} />
           <section className="rounded-[14px] border border-(--accent)/25 bg-(--accent)/[.05] p-4">

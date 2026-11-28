@@ -30,6 +30,7 @@ import PropPlayfield, { type Finish, type TraceInput } from './PropPlayfield';
 import { OriginalMark, PG_ACCENT, PG_INK, PgDefs, PgStone } from './PropParts';
 import { KakaoPlayButton } from '@/components/ui/KakaoShareButton';
 import { BoardTabs, PG_RANKED_EVENT, WeekRanking, WeekRule, WeekTopBlock, useRankedTick, useWeek, useWeekRows } from './PropWeekly';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 type Mode = 'daily' | 'practice' | 'tutorial';
 const readMode = (): Mode => {
@@ -45,6 +46,8 @@ export default function PropositionGoGame() {
   // The game mounts only once the player starts it (GameGate), on the client: the URL can be read at once.
   const [mode, setModeState] = useState<Mode>(readMode);
   const [running, setRunning] = useState(false); // a daily run on the clock: the mode tabs step aside
+  // 전체 모드 during a daily run and in practice. No exit guard: a run picks up where it was (its clock never stops).
+  useFocusPlay(running || mode === 'practice', false);
   const setMode = (m: Mode) => {
     setModeState(m);
     const url = new URL(window.location.href); url.searchParams.set('mode', m); window.history.replaceState(window.history.state, '', url);

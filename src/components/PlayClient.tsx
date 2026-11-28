@@ -15,6 +15,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import AdSlot from './AdSlot';
 import PlayerStrip from './ui/PlayerStrip';
 import HomeButton from './ui/HomeButton';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 const difficulties: Difficulty[] = ['easy', 'medium', 'hard'];
 
@@ -26,6 +27,9 @@ export default function PlayClient() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [showTips, setShowTips] = useState(false);
   const savedResult = useRef(false);
+  // 전체 모드 while a puzzle is on; leaving loses the board being solved (src/components/focus).
+  const sudokuOn = game.status === 'playing' || game.status === 'paused';
+  useFocusPlay(sudokuOn, sudokuOn ? 'puzzle' : false);
 
   const formatTime = (value: number) => `${Math.floor(value / 60).toString().padStart(2, '0')}:${(value % 60).toString().padStart(2, '0')}`;
 
@@ -126,7 +130,7 @@ export default function PlayClient() {
           <button onClick={game.hint} disabled={!game.hintsRemaining} className="flex items-center gap-2 rounded-xl bg-white p-3 text-xs font-bold disabled:opacity-35"><Lightbulb size={16} /> {t('hint')} {game.hintsRemaining}/1</button>
           <button onClick={game.status === 'paused' ? game.resumeGame : game.pauseGame} className="flex items-center gap-2 rounded-xl bg-white p-3 text-xs font-bold">{game.status === 'paused' ? <Play size={16} /> : <Pause size={16} />} {t(game.status === 'paused' ? 'resume' : 'pause')}</button>
         </div><button onClick={() => game.startGame(game.difficulty)} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#17201e] p-3 text-xs font-extrabold text-white"><RotateCcw size={15} /> {t('newGame')}</button></section>
-        <section className="rounded-[24px] bg-[#17201e] p-5 text-white"><div className="flex items-center justify-between"><h2 className="text-xs font-black tracking-[0.14em] text-white/55">{t('tips')}</h2><button onClick={() => setShowTips((value) => !value)} className="text-xs font-bold text-[#f2c14e]">{showTips ? t('closeTips') : t('tip')}</button></div>{showTips && <div className="mt-4 space-y-3">{[1,2,3,4].map((number) => <div key={number}><p className="text-xs font-bold">{t(`tip${number}Title`)}</p><p className="mt-1 text-[11px] leading-5 text-white/55">{t(`tip${number}Desc`)}</p></div>)}</div>}</section>
+        <section data-focus-hide className="rounded-[24px] bg-[#17201e] p-5 text-white"><div className="flex items-center justify-between"><h2 className="text-xs font-black tracking-[0.14em] text-white/55">{t('tips')}</h2><button onClick={() => setShowTips((value) => !value)} className="text-xs font-bold text-[#f2c14e]">{showTips ? t('closeTips') : t('tip')}</button></div>{showTips && <div className="mt-4 space-y-3">{[1,2,3,4].map((number) => <div key={number}><p className="text-xs font-bold">{t(`tip${number}Title`)}</p><p className="mt-1 text-[11px] leading-5 text-white/55">{t(`tip${number}Desc`)}</p></div>)}</div>}</section>
       </aside>
     </main>
   </div>;

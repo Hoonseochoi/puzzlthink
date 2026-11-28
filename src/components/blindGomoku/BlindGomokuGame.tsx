@@ -17,6 +17,7 @@ import { ColorPicker, ReplayBar, useReplay } from './BlindParts';
 import { askHellMove, hellThinkMs } from './hellAi';
 import GameUpdates from '@/components/GameUpdates';
 import { MyPieces } from '../PieceStone';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 type Phase = 'human' | 'ai' | 'finished';
 const ACCENT = '#ffd166';
@@ -49,6 +50,8 @@ export default function BlindGomokuGame() {
   const [showRules, setShowRules] = useState(false);
   const [gameNo, setGameNo] = useState(0);
   const replay = useReplay(moves, phase === 'finished', `${gameNo}-${phase}`);
+  // 전체 모드 from the start; after the first stone, leaving loses the game (src/components/focus).
+  useFocusPlay(phase !== 'finished', phase !== 'finished' && moves.length > 0 ? 'game' : false);
 
   const finish = (nextMoves: GomokuMove[], result: StoneOwner | 'draw', line: WinningLine | null) => {
     // One record per game (the key holds the game number and length, so a rerender can't count it twice).
@@ -170,7 +173,7 @@ export default function BlindGomokuGame() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <section className={PANEL}>
+          <section data-focus-hide={moves.length > 0 && phase !== 'finished' ? '' : undefined} className={PANEL}>
             <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('difficulty')}</p><span className={`text-[10px] font-bold ${difficulty === 'hell' ? 'text-[#ff5c7a]/80' : 'text-white/35'}`}>{t(`memory.${difficulty}`)}</span></div>
             <div className="mt-3 grid grid-cols-3 gap-1.5">
               {(['easy', 'normal', 'hard'] as GomokuDifficulty[]).map((level) => <button key={level} type="button" disabled={moves.length > 0} onClick={() => setDifficulty(level)} className={`rounded-md px-2 py-2.5 text-xs font-black transition ${difficulty === level ? 'bg-[#ffd166] text-[#17120a] shadow-[0_0_14px_rgba(255,209,102,.32)]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{t(`difficultyLevels.${level}`)}</button>)}
@@ -182,7 +185,7 @@ export default function BlindGomokuGame() {
             {moves.length > 0 && <p className="mt-2 text-[10px] leading-4 text-white/35">{t('difficultyLocked')}</p>}
           </section>
 
-          <section className={PANEL}>
+          <section data-focus-hide={moves.length > 0 && phase !== 'finished' ? '' : undefined} className={PANEL}>
             <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('colorRule')}</p><span className="text-[10px] font-bold text-white/35">{t('colorCountValue', { count: colorCount })}</span></div>
             <div className="mt-3 grid grid-cols-6 gap-1.5">
               {[2, 3, 4, 5, 6, 7].map((n) => <button key={n} type="button" disabled={moves.length > 0 || difficulty === 'hell'} aria-pressed={colorCount === n} onClick={() => setColorCount(n)} className={`rounded-md py-2 font-mono text-xs font-black transition ${colorCount === n ? 'bg-[#ffd166] text-[#17120a]' : 'border border-white/10 bg-white/[.03] text-white/45 hover:text-white disabled:opacity-35'}`}>{n}</button>)}
@@ -214,7 +217,7 @@ export default function BlindGomokuGame() {
             <button type="button" onClick={useReveal} disabled={phase !== 'human' || revealUses <= 0 || revealSeconds > 0 || moves.length === 0} className={`${BTN_ACCENT} mt-3 w-full py-3`}><Eye size={15} />{revealSeconds > 0 ? t('revealingButton', { seconds: revealSeconds }) : t('revealButton')}</button>
           </section>
 
-          <section className={PANEL}>
+          <section data-focus-hide className={PANEL}>
             <p className={PANEL_TITLE}>{t('quickRules')}</p>
             <ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/55">
               {[t('ruleOne'), t('ruleTwo'), t('ruleThree')].map((rule) => <li key={rule} className="flex gap-2.5"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-[#ffd166]" />{rule}</li>)}

@@ -43,7 +43,7 @@ export default function RJTable({ game, viewer, canAct, onAction, names }: {
   return (
     <div className="space-y-3">
       <Hand side={other(viewer)} game={game} label={names[other(viewer)]} selectable={false} selected={null} onPick={() => {}} active={game.turn === other(viewer)} />
-      <div className="relative mx-auto w-full max-w-[440px] rounded-[12px] bg-gradient-to-br from-[#f2b84b]/50 via-white/10 to-[#f2b84b]/40 p-[1.5px] shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+      <div data-focus-board style={{ '--focus-reserve': '340px' } as React.CSSProperties} className="relative mx-auto w-full max-w-[440px] rounded-[12px] bg-gradient-to-br from-[#f2b84b]/50 via-white/10 to-[#f2b84b]/40 p-[1.5px] shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
         {['-left-1.5 -top-1.5', '-right-1.5 -top-1.5', '-bottom-1.5 -left-1.5', '-bottom-1.5 -right-1.5'].map((corner) => <span key={corner} aria-hidden className={`absolute z-30 h-3 w-3 rotate-45 border border-[#b9c1d3] bg-[#0b0b0e] ${corner}`} />)}
         <div className="rounded-[10.5px] bg-[linear-gradient(135deg,#2a1d14,#1a120c)] p-3 sm:p-4">
           <div className="relative grid grid-cols-3 gap-2 sm:gap-2.5">

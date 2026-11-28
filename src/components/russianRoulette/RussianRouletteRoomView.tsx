@@ -95,7 +95,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
             <p className={`${PANEL_TITLE} mt-5`}>{t('aiLevel')}</p>
             <div className="mt-3 grid grid-cols-3 gap-2">{LEVELS.map((level) => <button key={level} disabled={!me?.isHost} onClick={() => dispatch({ t: 'config', aiLevel: level })} className={`py-2 ${seg(state.aiLevel === level)}`}>{t(`level_${level}`)}</button>)}</div>
           </section>
-          <section className={NOTE}><p className={PANEL_TITLE}>{t('quickRules')}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{[1, 2, 3, 4].map((n) => <li key={n} className="flex gap-3"><span className="font-mono text-(--accent)">0{n}</span><span>{t(`quick${n}`)}</span></li>)}</ol></section>
+          <section data-focus-hide className={NOTE}><p className={PANEL_TITLE}>{t('quickRules')}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{[1, 2, 3, 4].map((n) => <li key={n} className="flex gap-3"><span className="font-mono text-(--accent)">0{n}</span><span>{t(`quick${n}`)}</span></li>)}</ol></section>
         </aside>
       </main>
         : <main className="relative z-10 mx-auto w-full max-w-[1240px] px-3 py-4 sm:px-5 lg:py-7">{showReplay && <RouletteReplay game={state.game} name={(seat) => state.seats[seat]?.name ?? `P${seat + 1}`} open={showReplay} onClose={() => setReplaying(false)} />}<div className={showReplay ? 'hidden' : ''}><RussianRouletteTable room={state} mySeat={mySeat} onAction={dispatch} online /></div></main>}

@@ -55,7 +55,8 @@ export default function WallGoBoard({
   const tints = v2 ? V2_TERRITORY_TINTS : TERRITORY_TINTS;
 
   return (
-    <div className={`relative mx-auto aspect-square w-full max-w-[680px] rounded-[8px] p-[2px] shadow-[0_20px_50px_rgba(0,0,0,0.7)] ${v2 ? 'bg-gradient-to-br from-[#9a9da4] via-[#5d6068] to-[#9a9da4]' : 'bg-gradient-to-br from-[#8d95a8] via-[#24252d] to-[#8d95a8]'}`}>
+    // 전체 모드: no taller than the screen leaves room for (data-focus-board, globals.css).
+    <div data-focus-board style={{ '--focus-reserve': '300px' } as React.CSSProperties} className={`relative mx-auto aspect-square w-full max-w-[680px] rounded-[8px] p-[2px] shadow-[0_20px_50px_rgba(0,0,0,0.7)] ${v2 ? 'bg-gradient-to-br from-[#9a9da4] via-[#5d6068] to-[#9a9da4]' : 'bg-gradient-to-br from-[#8d95a8] via-[#24252d] to-[#8d95a8]'}`}>
       {['-left-1.5 -top-1.5', '-right-1.5 -top-1.5', '-bottom-1.5 -left-1.5', '-bottom-1.5 -right-1.5'].map((corner) => <span key={corner} aria-hidden className={`absolute z-30 h-3 w-3 rotate-45 border border-[#b9c1d3] bg-[#0b0b0e] ${corner}`} />)}
       <div className={`h-full w-full rounded-[6px] p-2 sm:p-3 ${v2 ? 'bg-[#6e7179] bg-[repeating-linear-gradient(90deg,rgba(255,255,255,.04)_0_2px,transparent_2px_7px)]' : 'bg-[#0e0e12]'}`}>
         <div className={`relative grid h-full w-full grid-cols-7 grid-rows-7 overflow-hidden rounded-[3px] ${v2 ? 'bg-[#e79b8a] ring-2 ring-[#f3c6ba]' : 'bg-[#17181e]'}`}>

@@ -17,6 +17,7 @@ import { EndRevealBanner } from '@/components/ui/EndReveal';
 import { answerChallenge, chooseMonorailAction, declareImpossible, giveUpChallenge, inChallenge, moveText, newMonorail, playMonorail, proveCompletion, type MonorailLevel, type MonorailState, type RailTile } from '@/lib/monorail';
 import { ChallengeBanner, MONORAIL_ACCENT, MONORAIL_INK, MonorailBoard, MonorailTurnDock, ResultExtras, TileDeck, TurnControls, monorailFrames, useFrameCaption, useMonorailDraft } from './MonorailParts';
 import GameUpdates from '@/components/GameUpdates';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 const AI_NAME = 'VICKY';
 
@@ -86,6 +87,8 @@ export default function MonorailGame() {
   const giveUp = () => { if (!window.confirm(t('giveUpConfirm'))) return; const next = giveUpChallenge(game); if (next) { setGame(next); draft.clear(); } };
   const challenge = inChallenge(game);
   const over = game.winner !== null;
+  // 전체 모드 from the start; after the first move, leaving loses the game (src/components/focus).
+  useFocusPlay(!over, !over && game.moveNo > 0 ? 'game' : false);
   const frames = useMemo(() => monorailFrames(game), [game]);
   const replay = useReplayPlayer(frames.length - 1, replaying && over, 1100);
   const frame = replaying && over ? frames[replay.at] : null;
@@ -145,7 +148,7 @@ export default function MonorailGame() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <section className={PANEL}>
+          <section data-focus-hide={!over && game.moveNo > 0 ? '' : undefined} className={PANEL}>
             <div className="flex items-center justify-between"><h2 className={PANEL_TITLE}>{t('difficulty')}</h2><span className="text-[10px] font-bold text-white/35">{t('targetWin', { n: confidence })}</span></div>
             <div className="mt-3 grid grid-cols-2 gap-2">{LEVELS.map((item) => <button key={item} type="button" onClick={() => restart(item)} className={`py-2.5 ${seg(level === item)}`}>{t(`level.${item}`)}</button>)}</div>
             <p className="mt-2 break-keep text-[10px] leading-4 text-white/35">{t(`levelDesc.${level}`)}</p>
@@ -161,7 +164,7 @@ export default function MonorailGame() {
           <section className={`${PANEL} hidden lg:block`}>
             <TurnControls state={game} draft={draft} disabled={!myTurn} onCommit={commit} onImpossible={impossible} onProve={prove} onGiveUp={giveUp} />
           </section>
-          <section className={NOTE}>
+          <section data-focus-hide className={NOTE}>
             <h2 className="flex items-center gap-2 text-xs font-black"><BrainCircuit size={14} className="text-[#f3b64a]" />{t('strategyTitle')}</h2>
             <p className="mt-2 break-keep text-xs leading-5 text-white/55">{t('strategy')}</p>
           </section>

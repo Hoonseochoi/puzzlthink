@@ -244,7 +244,7 @@ function Dock({ room, g, t, seat, seconds, myTurn, arranging, moving, thinking, 
   else line = <span className="flex items-center gap-1.5 text-white/55">{thinking ? <><Bot size={13} className="text-(--accent)" />{t.aiThinking}…</> : <>{t.theirMove} · {cardName}</>}</span>;
 
   return (
-    <div ref={ref} className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0b0b0e]/92 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5 backdrop-blur-md">
+    <div data-focus-dock ref={ref} className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0b0b0e]/92 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5 backdrop-blur-md">
       <div className="mx-auto max-w-[520px]">
         {arranging && (
           <div className="mb-2">

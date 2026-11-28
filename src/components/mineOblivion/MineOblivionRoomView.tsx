@@ -136,7 +136,7 @@ function Lobby({ state, code, me, mySeat, online, humans, t, copied, onCopy, onS
           <p className={`${PANEL_TITLE} flex items-center gap-1.5`}><Scale size={11} />{t.fairTitle}</p>
           <ul className="mt-2 space-y-1.5 text-xs leading-5 text-white/60">{t.fair.map((line) => <li key={line} className="break-keep">· {line}</li>)}</ul>
         </section>
-        <section className={NOTE}><p className={PANEL_TITLE}>{t.rules}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol></section>
+        <section data-focus-hide className={NOTE}><p className={PANEL_TITLE}>{t.rules}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol></section>
       </aside>
     </main>
   );

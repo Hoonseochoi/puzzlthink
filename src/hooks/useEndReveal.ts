@@ -1,5 +1,6 @@
 "use client";
 
+import { useFocusResult } from '@/components/focus/focusStore';
 import { useCallback, useEffect, useState } from 'react';
 
 /** How long the final position stays on screen before the result popup opens. */
@@ -28,6 +29,7 @@ const SKIP_ARM_MS = 300;
  */
 export function useEndReveal(endKey: string | null | false, ms = REVEAL_MS, until = 0) {
   const key = endKey || null;
+  useFocusResult(!!key); // the game is over: nothing is at stake any more (src/components/focus)
   const [done, setDone] = useState<string | null>(null);
 
   const skip = useCallback(() => { if (key) setDone(key); }, [key]);

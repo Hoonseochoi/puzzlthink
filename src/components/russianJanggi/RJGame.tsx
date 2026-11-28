@@ -22,6 +22,7 @@ import { describeAction } from './describe';
 import { RJ_PANEL, RJ_ROOT, RJ_SHARD, RJ_TITLE, SIDE_COLORS } from './theme';
 import { HELL_HINT, hellSeg } from '../janggi/hellStyle';
 import GameUpdates from '@/components/GameUpdates';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 const RECORD_KEY = 'puzzlthink_rjanggi_records';
 const TIMED_KEY = 'puzzlthink_rjanggi_timed';
@@ -52,6 +53,8 @@ export default function RJGame() {
   const [replaying, setReplaying] = useState(false);
   const names: [string, string] = [t('you'), 'AI'];
   const over = isOver(game);
+  // 전체 모드 from the start; after the first move, leaving loses the game (src/components/focus).
+  useFocusPlay(!over, !over && game.ply > 0 ? 'game' : false);
 
   const newGame = (choice: FirstChoice = firstChoice, level: Difficulty = difficulty) => {
     const first: Side = choice === 'me' ? 0 : choice === 'ai' ? 1 : Math.random() < 0.5 ? 0 : 1;
@@ -163,7 +166,7 @@ export default function RJGame() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <section className={RJ_PANEL}>
+          <section data-focus-hide={!over && game.ply > 0 ? '' : undefined} className={RJ_PANEL}>
             <h2 className={RJ_TITLE}>{t('difficulty')}</h2>
             <div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => newGame(firstChoice, level)} className={`p-2.5 ${seg(difficulty === level)}`}>{t(`difficulty_${level}`)}</button>)}
               <button onClick={() => newGame(firstChoice, 'hell')} className={`col-span-3 p-2.5 ${hellSeg(difficulty === 'hell')}`}><Flame size={13} />{t('difficulty_hell')}</button>
@@ -174,8 +177,8 @@ export default function RJGame() {
             <h2 className={`${RJ_TITLE} mt-4`}>{t('timeLimit')}</h2>
             <div className="mt-3 grid grid-cols-2 gap-2">{[true, false].map((on) => <button key={String(on)} onClick={() => toggleTimed(on)} className={`flex items-center justify-center gap-1.5 p-2.5 ${seg(timed === on)}`}>{on ? <Clock3 size={13} /> : <Infinity size={13} />}{t(on ? 'timeLimit_on' : 'timeLimit_off')}</button>)}</div>
           </section>
-          <RulesPanel />
-          <section className={`grid grid-cols-3 gap-2 ${RJ_PANEL}`}>
+          <div data-focus-hide className="contents"><RulesPanel /></div>
+          <section data-focus-hide className={`grid grid-cols-3 gap-2 ${RJ_PANEL}`}>
             <h2 className={`col-span-3 ${RJ_TITLE}`}>{t('record')}</h2>
             {records.length ? <>
               <div><p className="text-[10px] text-white/35">{t('games')}</p><p className="text-xl font-black">{records.length}</p></div>
@@ -204,7 +207,7 @@ export default function RJGame() {
 export function RulesPanel({ extra }: { extra?: string }) {
   const t = useTranslations('RussianJanggi');
   return (
-    <section className={NOTE}>
+    <section data-focus-hide className={NOTE}>
       <div className="mb-3 flex items-center gap-2"><Sparkles size={15} className="text-(--accent)" /><h2 className={RJ_TITLE}>{t('quickRules')}</h2></div>
       <div className={`mb-4 flex items-end justify-center gap-3 py-3 ${WELL}`}>
         {([0, 1, 2] as const).map((size) => (

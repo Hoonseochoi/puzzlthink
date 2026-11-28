@@ -16,6 +16,7 @@ import { type Duel, QUICK_DUEL_COUNT, beats, createDuel, duelImagePath, duelPath
 import { reportGame } from '@/lib/stats';
 import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
 import { AnswerInput, NEMO_ACCENT, NEMO_INK, NemoBoardView, SolutionReplay, TargetPlate } from './NemoParts';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 type Mode = 'challenge' | 'practice' | 'tutorial';
 type Attempt = { problem: NemoProblem; given: number | null; correct: boolean; ms: number };
@@ -59,6 +60,8 @@ export default function NemoGame({ duel: initialDuel = null }: { duel?: Duel | n
   const [showSolution, setShowSolution] = useState(false);
   const [flash, setFlash] = useState<'right' | 'wrong' | null>(null);
   const [summary, setSummary] = useState<Attempt[] | null>(null);
+  // 전체 모드 while the clock runs (and in practice); leaving the challenge drops it unrecorded (src/components/focus).
+  useFocusPlay(challengeEnd > 0 || (mode === 'practice' && !summary), challengeEnd > 0 ? 'run' : false);
   const [best, setBest] = useState(readBest);
   const [now, setNow] = useState(() => Date.now());
   const runRef = useRef(0); // bumps on every restart so stale timers do nothing

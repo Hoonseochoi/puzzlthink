@@ -13,6 +13,7 @@ import { CHALLENGE_MS, IDLE_MS, MEMORIZE_MS, ROUNDS, type HexRound, broadcastRou
 import { reportGame } from '@/lib/stats';
 import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
 import { HEX_ACCENT, HEX_INK, HexBoardView, type TileMark, TargetPlate, TimeBar, revealMarks, togglePick, useLetterKeys } from './HexParts';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 type Mode = 'solo' | 'challenge';
 type Source = 'random' | 'broadcast';
@@ -39,6 +40,9 @@ export default function HexagonGame() {
   const [pick, setPick] = useState('');
   const [played, setPlayed] = useState<Played[]>([]);
   const [challengeEnd, setChallengeEnd] = useState(0);
+  // 전체 모드 from the first board to the summary; leaving a game drops it unrecorded (src/components/focus).
+  const hexOn = phase !== 'intro' && phase !== 'summary';
+  useFocusPlay(hexOn, hexOn ? 'run' : false);
   const [voided, setVoided] = useState(false); // left the board too often: this challenge isn't ranked
   const { exits: exitCount, warn: exitWarn } = useBoardExits(mode === 'challenge' && challengeEnd > 0);
   const [flash, setFlash] = useState<Flash>(null);
@@ -273,7 +277,7 @@ export default function HexagonGame() {
               ))}</ul>
             )}
           </section>
-          <section className="rounded-[14px] border border-(--accent)/25 bg-(--accent)/[.05] p-4">
+          <section data-focus-hide className="rounded-[14px] border border-(--accent)/25 bg-(--accent)/[.05] p-4">
             <p className={PANEL_TITLE}>{t('quickRules')}</p>
             <ol className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">{(['quick1', 'quick2', 'quick3', 'quick4'] as const).map((key, i) => <li key={key} className="flex gap-2.5"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{t(key)}</span></li>)}</ol>
           </section>

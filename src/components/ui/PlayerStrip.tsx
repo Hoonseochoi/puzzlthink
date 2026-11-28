@@ -33,7 +33,8 @@ export default function PlayerStrip({ players, me = null, ai, tone = 'dark', pla
     ? players.map((p) => ({ ...p, mine: p.seat === me, name: (p.seat === me && self) || p.name || t('guest') }))
     : [{ seat: 0, name: self ?? t('guest'), mine: true }, ...(ai ? [{ seat: 1, name: typeof ai === 'string' ? ai : t('ai'), ai: true, mine: false }] : [])];
   return (
-    <div aria-label={t('label')} className={place === 'header'
+    // A solo game's strip only names me: off in 전체 모드, where every line of height goes to the board.
+    <div aria-label={t('label')} data-focus-hide={list.length < 2 ? '' : undefined} className={place === 'header'
       ? 'hidden min-w-0 flex-1 overflow-x-auto px-2 [scrollbar-width:none] lg:block'
       : `relative z-10 overflow-x-auto border-b px-3 py-1 backdrop-blur [scrollbar-width:none] ${place === 'mobile' ? 'lg:hidden' : ''} ${light ? 'border-black/[.06] bg-white/60' : 'border-white/[.06] bg-black/35'}`}>
       {/* w-max + mx-auto: centred when it fits, scrolls from the first player when it does not. */}

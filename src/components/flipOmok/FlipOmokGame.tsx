@@ -19,6 +19,7 @@ import { ChargeDiamonds, Dot, FLIP_ACCENT, FLIP_INK, FlipOmokBoard, FlipPanel, S
 import GameUpdates from '@/components/GameUpdates';
 import { OriginalMark } from '@/components/propositionGo/PropParts';
 import { MyPieces } from '../PieceStone';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 type Mode = 'ai' | 'local';
 const NONE = new Set<number>();
@@ -109,6 +110,8 @@ export default function FlipOmokGame() {
   const over = !!win || draw || resigned;
   const aiTurn = mode === 'ai' && turn === 2 && !over;
   const started = history.length > 0;
+  // 전체 모드 from the start; after the first stone, leaving loses the game (src/components/focus).
+  useFocusPlay(!over, !over && started ? 'game' : false);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- the card shows until it is dismissed once in this browser
   useEffect(() => { try { setRulesCard(localStorage.getItem(RULES_SEEN_KEY) !== '1'); } catch { /* optional */ } }, []);
@@ -240,7 +243,7 @@ export default function FlipOmokGame() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <section className={PANEL}>
+          <section data-focus-hide={started && !over ? '' : undefined} className={PANEL}>
             <p className={PANEL_TITLE}>{t('mode')}</p>
             <div className="mt-3 grid grid-cols-2 gap-1.5">
               {(['ai', 'local'] as Mode[]).map((m) => <button key={m} type="button" title={t(`modeTips.${m}`)} onClick={() => reset(m)} className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2.5 text-xs font-black transition ${mode === m ? 'bg-(--accent) text-(--accent-ink)' : 'border border-white/10 bg-white/[.03] text-white/50 hover:text-white'}`}>{m === 'ai' ? <Bot size={14} /> : <Users size={14} />}{t(`modes.${m}`)}</button>)}
@@ -255,7 +258,7 @@ export default function FlipOmokGame() {
           </section>
 
           <SafeGapCallout />
-          <section className={PANEL}>
+          <section data-focus-hide className={PANEL}>
             <p className={PANEL_TITLE}>{t('rulesTitle')}</p>
             <ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">
               {(t.raw('rules') as string[]).map((rule) => <li key={rule} className="flex gap-2.5 break-keep"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-(--accent)" />{rule}</li>)}

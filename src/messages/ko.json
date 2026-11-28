@@ -9342,5 +9342,19 @@
     "line_dev": "PUZZLTHINK 개발자",
     "winnerKicker": "WINNER",
     "drawKicker": "DRAW"
+  },
+  "FocusMode": {
+    "shrink": "축소",
+    "shrinkLabel": "전체 모드 끄기 (일반 화면으로)",
+    "full": "전체 모드",
+    "fullLabel": "게임만 크게 보기 (전체 모드)",
+    "title": "게임을 나갈까요?",
+    "body_game": "게임을 나가면 저장되지 않아요. 나갈까요?",
+    "body_challenge": "나가면 이번 도전은 실패로 처리돼요. 나갈까요?",
+    "body_room": "나가면 이번 판에서 빠져요. 나갈까요?",
+    "body_run": "나가면 이번 도전은 기록되지 않아요. 나갈까요?",
+    "body_puzzle": "나가면 지금 풀던 퍼즐은 저장되지 않아요. 나갈까요?",
+    "stay": "계속하기",
+    "leave": "나가기"
   }
 }

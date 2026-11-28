@@ -15,6 +15,7 @@ import { MORRIS_MAX_ROUNDS, MORRIS_WINS } from '@/lib/morrisRoom';
 import { HandRow, MORRIS_ACCENT, MORRIS_INK, MorrisBoard, MorrisStone, useMorrisPicker } from './MorrisParts';
 import GameUpdates from '@/components/GameUpdates';
 import { PieceOwners, useMyNickname } from '../PieceStone';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 type Round = { human: Player; winner: 'you' | 'ai' | 'draw' };
 const LEVELS: MorrisLevel[] = ['easy', 'normal', 'hard'];
@@ -36,6 +37,8 @@ export default function MorrisGame() {
   const aiColor = (1 - human) as Player;
   const myTurn = !roundOver && game.turn === human;
   const started = rounds.length > 0 || game.last !== null;
+  // 전체 모드 for the whole match; once a stone is down, leaving loses it (src/components/focus).
+  useFocusPlay(!matchOver, !matchOver && started ? 'game' : false);
 
   const finishRound = (state: MorrisState) => {
     const winner: Round['winner'] = state.winner === 'draw' ? 'draw' : state.winner === human ? 'you' : 'ai';
@@ -130,7 +133,7 @@ export default function MorrisGame() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <section className={PANEL}>
+          <section data-focus-hide={!matchOver && started ? '' : undefined} className={PANEL}>
             <div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('difficulty')}</p><span className="text-[10px] font-bold text-white/35">{t(`levelDesc.${level}`)}</span></div>
             <div className="mt-3 grid grid-cols-3 gap-1.5">
               {LEVELS.map((l) => <button key={l} type="button" disabled={started && !matchOver} onClick={() => setLevel(l)} className={`py-2.5 ${seg(level === l)} disabled:opacity-40`}>{t(`level.${l}`)}</button>)}
@@ -162,7 +165,7 @@ export default function MorrisGame() {
             )}
           </section>
 
-          <section className={NOTE}>
+          <section data-focus-hide className={NOTE}>
             <h2 className={PANEL_TITLE}>{t('quickRules')}</h2>
             <ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{t(key)}</span></li>)}</ol>
           </section>

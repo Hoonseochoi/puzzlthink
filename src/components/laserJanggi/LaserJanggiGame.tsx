@@ -20,6 +20,7 @@ import { shotTimeline } from './laserFx';
 import LaserPiece from './LaserPiece';
 import { LASER_CYAN } from './theme';
 import GameUpdates from '@/components/GameUpdates';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 export default function LaserJanggiGame() {
   const t = useTranslations('LaserJanggi');
@@ -96,6 +97,8 @@ export default function LaserJanggiGame() {
   // 복기: the position and beam after every move or turn.
   const frames = useReplayFrames(`${gameNo}`, { pieces, shot }, pieces.map((p) => `${p.id}${p.row}${p.col}${p.direction}`).join());
   const over = winner !== null || draw;
+  // 전체 모드 from the start; after the first turn, leaving loses the game (src/components/focus).
+  useFocusPlay(!over, !over && turn > 1 ? 'game' : false);
   const replay = useReplayPlayer(Math.max(0, frames.length - 1), replaying && over, 1300);
   const frame = replaying && over ? frames[replay.at] : null;
   const shotCaption = (s: LaserShot | null) => {
@@ -139,16 +142,16 @@ export default function LaserJanggiGame() {
       </section>
 
       <aside className="flex flex-col gap-4">
-        <section className={PANEL}><div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('difficulty')}</p><Bot size={14} className="text-[#59e6ff]" /></div><div className="mt-3 grid grid-cols-3 gap-1.5">{(['easy','normal','hard'] as LaserDifficulty[]).map((level) => <button key={level} type="button" disabled={turn > 1} onClick={() => setDifficulty(level)} className={`py-2.5 ${seg(difficulty === level)} disabled:opacity-40`}>{t(`difficultyLevels.${level}`)}</button>)}</div><p className="mt-2 text-[10px] leading-4 text-white/35">{t(`difficultyTips.${difficulty}`)}</p></section>
+        <section data-focus-hide={!over && turn > 1 ? '' : undefined} className={PANEL}><div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('difficulty')}</p><Bot size={14} className="text-[#59e6ff]" /></div><div className="mt-3 grid grid-cols-3 gap-1.5">{(['easy','normal','hard'] as LaserDifficulty[]).map((level) => <button key={level} type="button" disabled={turn > 1} onClick={() => setDifficulty(level)} className={`py-2.5 ${seg(difficulty === level)} disabled:opacity-40`}>{t(`difficultyLevels.${level}`)}</button>)}</div><p className="mt-2 text-[10px] leading-4 text-white/35">{t(`difficultyTips.${difficulty}`)}</p></section>
 
         <section className={PANEL}><div className="flex items-center justify-between"><p className={PANEL_TITLE}>{t('logTitle')}</p><History size={14} className="text-[#59e6ff]" /></div><div className="mt-3"><CapturedTray pieces={pieces} names={names} /></div><div className="mt-3 border-t border-white/5 pt-3"><MoveLog shots={shots} names={names} /></div></section>
 
         <section className={PANEL}><p className={PANEL_TITLE}>{t('selectedPiece')}</p>{selected ? <div className="mt-3 flex items-center gap-3"><div className="h-14 w-14"><LaserPiece piece={selected} selected /></div><div><p className="font-black">{t(`pieces.${selected.type}.name`)}</p><p className="mt-1 text-xs leading-5 text-white/50">{t(`pieces.${selected.type}.tip`)}</p></div></div> : <p className="mt-3 text-xs leading-5 text-white/45">{t('selectHint')}</p>}</section>
 
-        <section className={PANEL}><p className={PANEL_TITLE}>{t('pieceGuide')}</p><div className="mt-3 grid grid-cols-5 gap-1">{(['laser','splitter','king','triangle','square'] as const).map((type) => { const example = pieces.find((item) => item.type === type) ?? { id: `guide-${type}`, owner: 0 as const, type, row: 0, col: 0, direction: 0 as const }; return <button key={type} type="button" aria-pressed={guideType === type} onClick={() => setGuideType((value) => value === type ? null : type)} className={`rounded-md border p-1 transition ${guideType === type ? 'border-[#59e6ff]/70 bg-[#59e6ff]/10' : 'border-white/5 bg-black/25 hover:border-white/20'}`}><LaserPiece piece={example} label={t(`pieces.${type}.name`)} /></button>; })}</div>{guideType ? <p className="mt-2 rounded-md border border-white/10 bg-black/40 p-2 text-[11px] leading-5 text-white/65"><b className="block text-white">{t(`pieces.${guideType}.name`)}</b>{t(`pieces.${guideType}.tip`)}</p> : <p className="mt-2 text-[10px] text-white/35">{t('tooltipHint')}</p>}</section>
+        <section data-focus-hide className={PANEL}><p className={PANEL_TITLE}>{t('pieceGuide')}</p><div className="mt-3 grid grid-cols-5 gap-1">{(['laser','splitter','king','triangle','square'] as const).map((type) => { const example = pieces.find((item) => item.type === type) ?? { id: `guide-${type}`, owner: 0 as const, type, row: 0, col: 0, direction: 0 as const }; return <button key={type} type="button" aria-pressed={guideType === type} onClick={() => setGuideType((value) => value === type ? null : type)} className={`rounded-md border p-1 transition ${guideType === type ? 'border-[#59e6ff]/70 bg-[#59e6ff]/10' : 'border-white/5 bg-black/25 hover:border-white/20'}`}><LaserPiece piece={example} label={t(`pieces.${type}.name`)} /></button>; })}</div>{guideType ? <p className="mt-2 rounded-md border border-white/10 bg-black/40 p-2 text-[11px] leading-5 text-white/65"><b className="block text-white">{t(`pieces.${guideType}.name`)}</b>{t(`pieces.${guideType}.tip`)}</p> : <p className="mt-2 text-[10px] text-white/35">{t('tooltipHint')}</p>}</section>
 
         <section className="rounded-[14px] border border-[#59e6ff]/25 bg-[#59e6ff]/[.05] p-4"><p className={PANEL_TITLE}>{t('quickRules')}</p><ol className="mt-3 space-y-2.5 text-xs leading-5 text-white/55">{(['quick1','quick2','quick3','quick4'] as const).map((key, i) => <li key={key} className="flex gap-2.5"><span className="font-mono text-[#59e6ff]">0{i + 1}</span><span>{t(key)}</span></li>)}</ol></section>
-        <section className={PANEL}><div className="flex items-center gap-2 text-xs text-white/55"><Sparkles size={14} className="text-[#ffd166]" />{t('fairPlay')}</div></section>
+        <section data-focus-hide className={PANEL}><div className="flex items-center gap-2 text-xs text-white/55"><Sparkles size={14} className="text-[#ffd166]" />{t('fairPlay')}</div></section>
       </aside>
     </main>
 

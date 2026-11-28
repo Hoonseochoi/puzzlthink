@@ -186,7 +186,7 @@ export function PiggyTable({ s, me: seat, onAct, onAgain, seatIds }: { s: PbStat
 
       {/* Doubt window: after each answer, everyone else chooses "doubt" or "no doubt" within 10 seconds. */}
       {canDoubt && !revealing && s.answer && (
-        <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center p-3 sm:inset-0 sm:items-center sm:bg-black/40">
+        <div data-focus-dock className="fixed inset-x-0 bottom-0 z-40 flex justify-center p-3 sm:inset-0 sm:items-center sm:bg-black/40">
           <div className="hall-pop w-full max-w-sm rounded-[22px] border border-[#ff4d6d]/40 bg-[#1b1e33]/97 p-5 text-center shadow-[0_0_60px_rgba(255,77,109,.3)]">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-black tracking-[0.3em] text-[#ff8b96]">DOUBT?</p>

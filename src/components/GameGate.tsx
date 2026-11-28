@@ -17,6 +17,8 @@ import { useAuth } from './AuthProvider';
 import { GAME_MODES, openVariants } from './gameModes';
 import { accentVars } from './ui/gameUi';
 import { GameExitContext } from './ui/GameBackLink';
+import { leaveGame, requestGameFullscreen, useFocusSession } from './focus/focusStore';
+import { focusKindFor, focusFullscreen } from './focus/focusGames';
 
 const PLAY_HASH = '#play';
 
@@ -97,7 +99,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
    * Opened straight into #play (a reload, a shared or saved link, the app resuming): there is nothing to pop, so swap the
    * entry for the entry screen instead of pushing another one.
    */
-  const exit = useCallback(() => {
+  const exit = useCallback(() => leaveGame(() => {
     if (pushed.current) { window.history.back(); return; }
     const params = new URLSearchParams(window.location.search);
     params.delete('open'); params.delete('v');
@@ -105,7 +107,13 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
     setStarted(false); setOpenRoom(null);
     window.scrollTo({ top: 0 });
-  }, []);
+  }), []);
+
+  // 전체 모드 and the exit guard while the game is open (src/components/focus). What leaving would cost depends on how
+  // it was started: a 기록 도전 run, a puzzle, a match against the AI; nothing while practising in an open room's wait.
+  const [focusQuery, setFocusQuery] = useState('');
+  useEffect(() => { if (started) setFocusQuery(window.location.search); }, [started]); // eslint-disable-line react-hooks/set-state-in-effect -- read from the URL once the game opens
+  useFocusSession(game, started, openRoom ? false : focusKindFor(game, focusQuery), focusFullscreen(game));
 
   /** Solo play query for an open room's variant (e.g. WallGo 1:1 vs 1:1:1). */
   const playQuery = (variant: number) => modes.rooms[variant]?.play ?? modes.ai[0]?.query;
@@ -130,6 +138,7 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     // The tutorial was just shown on this page, so the game should not pop it up again.
     if (tutorialKey) { try { localStorage.setItem(tutorialKey, '1'); } catch { /* Optional. */ } }
     const search = query ? `?${query}` : window.location.search;
+    requestGameFullscreen(focusFullscreen(game)); // the start tap: Android may go real fullscreen with 전체 모드
     window.history.pushState(null, '', `${window.location.pathname}${search}${PLAY_HASH}`);
     pushed.current = true;
     setStarted(true);

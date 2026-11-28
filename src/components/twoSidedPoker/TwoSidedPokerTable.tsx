@@ -251,7 +251,7 @@ export function TspHistoryPanel({ t, state }: { t: TspCopy; state: TspState }) {
 
 export function TspRulesPanel({ t }: { t: TspCopy }) {
   return (
-    <section className={NOTE}>
+    <section data-focus-hide className={NOTE}>
       <p className={PANEL_TITLE}>{t.rules}</p>
       <ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{t.ruleLines.map((line) => <li key={line} className="flex gap-2.5"><i className={DIAMOND} /><span className="break-keep">{line}</span></li>)}</ul>
     </section>

@@ -73,7 +73,7 @@ export default function Heavy13Game() {
             <div className="mt-3 grid grid-cols-3 gap-2">{LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} className={`p-2.5 ${seg(level === l)}`}>{t(`level_${l}`)}</button>)}</div>
             <p className="mt-2 text-[10px] text-white/35">{t('levelHint')}</p>
           </section>
-          <section className={NOTE}>
+          <section data-focus-hide className={NOTE}>
             <div className="mb-3 flex items-center gap-2"><Sparkles size={15} className="text-(--accent)" /><h2 className={PANEL_TITLE}>{t('quickRules')}</h2></div>
             <ol className="space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4', 'quick5'].map((k, i) => <li key={k} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{t(k)}</span></li>)}</ol>
           </section>

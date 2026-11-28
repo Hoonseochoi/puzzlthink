@@ -13,6 +13,7 @@ import AdSlot from './AdSlot';
 import { AppTesterCard } from './AppTesterInvite';
 import MatchWinner from './match/MatchWinner';
 import { KakaoPlayButton } from './ui/KakaoShareButton';
+import { useFocusResult } from './focus/focusStore';
 
 /** "Keep this on record?" card with Google sign-in, shown on result screens to signed-out players. */
 function RecordPrompt() {
@@ -63,6 +64,7 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, primary
   const locale = useLocale();
   const [copied, setCopied] = useState(false);
   const practice = usePractice();
+  useFocusResult(); // a result is showing: the game is over, leaving it costs nothing
 
   const share = async () => {
     const url = `${window.location.origin}/${locale}${gamePath}`;

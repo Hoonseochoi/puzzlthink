@@ -373,7 +373,7 @@ function Dock({ g, room, seat, myTurn, seconds, t, act, waiting, nameOf, onHisto
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0b0b0e]/92 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5 backdrop-blur-md">
+      <div data-focus-dock className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0b0b0e]/92 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5 backdrop-blur-md">
         <div className="mx-auto max-w-[760px]">
           <AnimatePresence>{warning && <IdleWarning key="warn" seconds={seconds!} t={t} />}</AnimatePresence>
           {betting ? (

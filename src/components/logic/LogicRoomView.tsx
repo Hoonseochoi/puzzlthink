@@ -203,7 +203,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
           <p className={PANEL_TITLE}>{t('boardSize')}</p>
           <div className="mt-3 grid grid-cols-3 gap-1.5">{spec.roomSizes.map((s) => <button key={s} onClick={() => dispatch({ t: 'config', size: s })} className={`py-2 ${seg(state.size === s)}`}>{s}×{s}</button>)}</div>
         </section>}
-        <section className={NOTE}>
+        <section data-focus-hide className={NOTE}>
           <p className={PANEL_TITLE}>{t('rulesTitle')}</p>
           <ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(t.raw('rules') as string[]).map((rule) => <li key={rule}>· {rule.replace('{game}', name)}</li>)}</ul>
         </section>

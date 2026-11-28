@@ -13,6 +13,7 @@ import { PersonaReveal, PersonaRoster, PersonaTag, usePersonaSay } from '@/compo
 import { TSP_ACCENT, TSP_GLOW_RGB, TSP_INK, tspCopy } from './copy';
 import { TspCountingPanel, TspHistoryPanel, TspRulesPanel, TspStage } from './TwoSidedPokerTable';
 import { TspReplay, TspResultModal } from './TwoSidedPokerResult';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 /** 양면포커 against the AI (seat 1), in this browser. */
 export default function TwoSidedPokerGame({ locale }: { locale: string }) {
@@ -78,6 +79,9 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
     setState(newTspGame(level));
   };
   const finished = state.phase === 'finished';
+  // 전체 모드 for the whole match; after the first bet, leaving loses it (src/components/focus).
+  const tspBegun = !finished && (state.rounds.length > 0 || state.log.length > 0);
+  useFocusPlay(!finished, tspBegun ? 'game' : false);
   const won = state.winner === 0;
   const footer = state.phase === 'reveal'
     ? <NextDealBar key={state.rounds.length} ms={tspRevealMs(state)} label={t.room.nextSoon} />
@@ -102,7 +106,7 @@ export default function TwoSidedPokerGame({ locale }: { locale: string }) {
         </section>
         <aside className="flex flex-col gap-4">
           <TspCountingPanel t={t} state={state} />
-          <section className={PANEL}>
+          <section data-focus-hide={tspBegun ? '' : undefined} className={PANEL}>
             <p className={PANEL_TITLE}>{t.difficulty}</p>
             <div className="mt-3 grid grid-cols-3 gap-1.5">{(['easy', 'normal', 'hard'] as TspLevel[]).map((l) => <button key={l} type="button" onClick={() => setLevel(l)} className={`py-2.5 ${seg(level === l)}`}>{t.levels[l]}<span className="mt-0.5 block text-[9px] opacity-55">~{TSP_AI_TARGET[l]}%</span></button>)}</div>
             <p className="mt-2 text-[10px] leading-4 text-white/40">{level !== state.level ? `${t.levelLocked} · ` : ''}{t.targetNote}</p>

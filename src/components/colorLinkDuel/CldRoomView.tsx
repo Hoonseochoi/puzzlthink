@@ -133,7 +133,7 @@ function Lobby({ state, code, me, mySeat, online, t, copied, onCopy, onShare, na
             {t.clockRules(CLD_TURN_SEC / 60, CLD_PROOF_SEC / 60).map((line) => <li key={line} className="flex gap-2"><Timer size={14} className="mt-0.5 shrink-0 text-(--accent)" /><span className="break-keep">{line}</span></li>)}
           </ul>
         </section>
-        <section className={NOTE}><p className={PANEL_TITLE}>{t.rules}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol></section>
+        <section data-focus-hide className={NOTE}><p className={PANEL_TITLE}>{t.rules}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol></section>
       </aside>
     </main>
   );
