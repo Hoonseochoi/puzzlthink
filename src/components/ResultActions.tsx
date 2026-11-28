@@ -12,6 +12,7 @@ import { ResultBannerSlot } from './ads/HiddenLogAd';
 import AdSlot from './AdSlot';
 import { AppTesterCard } from './AppTesterInvite';
 import MatchWinner from './match/MatchWinner';
+import { KakaoPlayButton } from './ui/KakaoShareButton';
 
 /** "Keep this on record?" card with Google sign-in, shown on result screens to signed-out players. */
 function RecordPrompt() {
@@ -108,6 +109,7 @@ export default function ResultActions({ onAgain, waitingLabel, gamePath, primary
             {copied ? <Check size={14} /> : <Share2 size={14} />}{copied ? t('linkCopied') : t('share')}
           </button>
         </div>
+        <KakaoPlayButton url={`/${locale}${gamePath}`} className="w-full rounded-[12px] py-3" />
       </div>
       {/* Below the buttons (it loads the member's status first), so it never shifts them under the player's finger. */}
       <AppTesterCard className="mt-5" />

@@ -6,6 +6,7 @@ import { Check, Download, ImageIcon, Link2, Loader2 } from 'lucide-react';
 import { type Puzzle, formatClock } from '@/lib/slitherlink';
 import type { SlitherTheme } from '@/lib/slitherTheme';
 import { type ShareCardText, renderShareCard } from '@/lib/slitherShareImage';
+import { KakaoPlayButton } from '@/components/ui/KakaoShareButton';
 
 /**
  * After a clear: a picture of the solved board in the current theme (time, size, PUZZLTHINK and the link), shared as
@@ -69,6 +70,7 @@ export default function SlitherShareCard({ puzzle, theme, ms, detail, extra, pat
         <button type="button" onClick={share} disabled={!image || busy} className="col-span-3 flex items-center justify-center gap-2 rounded-[12px] bg-(--accent) py-3 text-sm font-black text-(--accent-ink) transition hover:brightness-110 disabled:opacity-50"><ImageIcon size={15} />{t('shareImage')}</button>
         <button type="button" onClick={save} disabled={!image} className="col-span-1 flex items-center justify-center gap-1.5 rounded-[12px] border border-white/15 bg-white/5 py-2.5 text-xs font-bold text-white/80 hover:bg-white/10 disabled:opacity-50"><Download size={14} />{t('shareSave')}</button>
         <button type="button" onClick={copy} className="col-span-2 flex items-center justify-center gap-1.5 rounded-[12px] border border-white/15 bg-white/5 py-2.5 text-xs font-bold text-white/80 hover:bg-white/10">{copied ? <Check size={14} /> : <Link2 size={14} />}{copied ? t('shareCopied') : t('shareCopy')}</button>
+        <KakaoPlayButton url={path} text={shareText} className="col-span-3 rounded-[12px] py-2.5" />
       </div>
     </div>
   );

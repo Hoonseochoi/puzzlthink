@@ -22,6 +22,7 @@ import RouletteReplay from './RouletteReplay';
 import RussianRouletteTutorial from './RussianRouletteTutorial';
 import { RR_ACCENT, RR_ROOT_STYLE, RR_SHARD_TINT } from './theme';
 import GameUpdates from '@/components/GameUpdates';
+import { KakaoInviteButton } from '@/components/ui/KakaoShareButton';
 
 const LEVELS: RRLevel[] = ['easy', 'normal', 'hard'];
 
@@ -81,6 +82,7 @@ export default function RussianRouletteRoomView({ code }: { code: string }) {
             <p className="mt-2 text-xs leading-5 text-white/50">{to('inviteDesc')}</p>
             <div className="mt-3 rounded-md border border-white/10 bg-[#0b0b0e] p-3"><p className="text-[9px] font-black tracking-widest text-white/25">INVITE CODE</p><p className="mt-1 font-mono text-3xl font-black uppercase tracking-[.25em] text-(--accent)">{code}</p></div>
             <div className="mt-2 grid grid-cols-2 gap-2"><button onClick={copyLink} className={`py-2.5 ${BTN}`}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? to('copied') : to('copy')}</button><button onClick={shareLink} className={`py-2.5 ${BTN_ACCENT}`}><Share2 size={14} />{to('share')}</button></div>
+            <KakaoInviteButton code={code} host={me?.name} />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{state.seats.map((seat, i) => <div key={i} data-chat-seat={seat?.id} className={`flex min-w-0 items-center gap-2 rounded-[10px] border px-3 py-2.5 ${seat ? 'border-white/15 bg-white/[.04]' : 'border-dashed border-white/10 text-white/30'}`}>{seat ? <UserRound size={13} /> : <Bot size={13} />}<span className="min-w-0 flex-1 truncate text-[11px] font-bold">{seat ? seat.id === me?.id ? `${seat.name} (${t('you')})` : seat.name : to('aiSeat')}</span>{i === 0 && <Crown size={10} className="text-[#f2c14e]" />}{seat && <i className={`h-1.5 w-1.5 rounded-full ${online.has(seat.id) ? 'bg-[#3ddc97]' : 'bg-white/20'}`} />}</div>)}</div>
           <form onSubmit={(event) => { event.preventDefault(); rename(nameDraft); setNameDraft(''); }} className="mt-4 flex gap-2"><input value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} maxLength={16} placeholder={me?.name ?? ''} aria-label={to('nickname')} className={INPUT} /><button className={`px-4 ${BTN}`}>{to('rename')}</button></form>
