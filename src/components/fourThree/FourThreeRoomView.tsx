@@ -123,7 +123,7 @@ export default function FourThreeRoomView({ code }: { code: string }) {
               <div className="mt-3 grid grid-cols-3 gap-2">{FT_TURN_OPTIONS.map((sec) => <button key={sec} type="button" disabled={!me?.isHost} onClick={() => dispatch({ t: 'config', turnSec: sec })} className={`py-2 disabled:cursor-default ${seg(state.turnSec === sec)}`}>{to('seconds', { n: sec })}</button>)}</div>
               {!me?.isHost && <p className="mt-2 text-[10px] text-white/40">{to('hostSets')}</p>}
             </section>
-            <section className={NOTE}>
+            <section data-focus-hide className={NOTE}>
               <h2 className={PANEL_TITLE}>{t('quickRules')}</h2>
               <ol className="mt-3 space-y-2.5 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4'].map((k, i) => <li key={k} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{t(k)}</span></li>)}</ol>
             </section>

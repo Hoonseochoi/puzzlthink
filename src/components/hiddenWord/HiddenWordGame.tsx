@@ -21,6 +21,7 @@ import HomeButton from '../ui/HomeButton';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL_TITLE, SHELL, STAGE } from '../ui/gameUi';
 import { HW_GOLD, HWP_GOLD, type HwCopy, hwCopy, hwRootStyle } from './copy';
 import { EditionMark, Envelope, MoraFace, RichText, SecretCard, SimRow, StageTrack, TimerRing, WordCard } from './HiddenWordParts';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 /** The match to resume, per game (히든 워드 / 확장판). */
 const GAME_KEY: Record<HwLevel, string> = { basic: 'puzzlthink_hw_game', plus: 'puzzlthink_hwp_game' };
@@ -57,6 +58,8 @@ export default function HiddenWordGame({ level = 'basic' }: { level?: HwLevel })
   const [rankOpen, setRankOpen] = useState(false);
   const loading = useRef(false);
   const timedOut = useRef(0);
+  // 전체 모드 while a match is on. No exit guard: the match is kept on the server and picks up again on return.
+  useFocusPlay(!!view && view.phase !== 'over', false);
 
   useEffect(() => { setRoomPlaying(true); return () => setRoomPlaying(false); }, []);
 

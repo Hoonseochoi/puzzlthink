@@ -18,6 +18,7 @@ import {
 import { type PersonaId, drawPersonas, newPersonaSeed, personaMatch, personaName, personaTalk, shouldTalk } from '@/lib/aiPersona';
 import { PersonaReveal, PersonaRoster, PersonaTag, usePersonaSay } from '@/components/ui/AiPersona';
 import { BW2GaugePanel, type BW2LeadView, BW2Replay, BW2RoundLog, BW2Scoreboard, BW2Table, BidControl } from './BW2Parts';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 const ACCENT = '#ef3340';
 const FLASH_MS = 1900;
@@ -59,6 +60,8 @@ export default function BlackWhite2Game() {
 
   const over = bw2IsOver(rounds);
   const finished = over && !flash;
+  // 전체 모드 from the start; after the first round, leaving loses the match (src/components/focus).
+  useFocusPlay(!finished, !finished && rounds.length > 0 ? 'game' : false);
   const leader = bw2NextLeader(rounds, first);
   const myTurn = !over && !flash && (leader === 0 ? lead === null : lead?.side === 1);
   const aiTurn = !over && !flash && (leader === 1 ? lead === null : lead?.side === 0);
@@ -164,11 +167,11 @@ export default function BlackWhite2Game() {
           )}
         </section>
         <aside className="flex flex-col gap-4">
-          <section className={PANEL}><p className={PANEL_TITLE}>{t('difficulty')}</p><div className="mt-3 grid grid-cols-3 gap-1.5">{(['easy', 'normal', 'hard'] as BW2Difficulty[]).map((level) => <button key={level} type="button" disabled={(rounds.length > 0 || !!lead) && !finished} onClick={() => setDifficulty(level)} className={`py-2.5 ${seg(difficulty === level)} disabled:opacity-40`}>{t(`levels.${level}`)}</button>)}</div><p className="mt-2 break-keep text-[10px] leading-4 text-white/40">{t(`levelDesc.${difficulty}`)}</p><p className={`${PANEL_TITLE} mt-4`}>{t('personaTitle')}</p><div className="mt-2"><PersonaRoster en={en} note={t('personaNote')} /></div></section>
+          <section data-focus-hide={rounds.length > 0 && !finished ? '' : undefined} className={PANEL}><p className={PANEL_TITLE}>{t('difficulty')}</p><div className="mt-3 grid grid-cols-3 gap-1.5">{(['easy', 'normal', 'hard'] as BW2Difficulty[]).map((level) => <button key={level} type="button" disabled={(rounds.length > 0 || !!lead) && !finished} onClick={() => setDifficulty(level)} className={`py-2.5 ${seg(difficulty === level)} disabled:opacity-40`}>{t(`levels.${level}`)}</button>)}</div><p className="mt-2 break-keep text-[10px] leading-4 text-white/40">{t(`levelDesc.${difficulty}`)}</p><p className={`${PANEL_TITLE} mt-4`}>{t('personaTitle')}</p><div className="mt-2"><PersonaRoster en={en} note={t('personaNote')} /></div></section>
           {!finished && <section className={PANEL}><p className={PANEL_TITLE}>{t('firstPlayer')}</p><div className="mt-3 grid grid-cols-3 gap-1.5">{(['me', 'random', 'ai'] as FirstChoice[]).map((choice) => <button key={choice} type="button" disabled={rounds.length > 0 || !!lead} onClick={() => chooseFirst(choice)} className={`py-2.5 ${seg(firstChoice === choice)} disabled:opacity-40`}>{t(`firstChoice.${choice}`)}</button>)}</div><p className="mt-2 text-[10px] leading-4 text-white/40">{t('firstHint')}</p></section>}
           {!finished && <BW2GaugePanel names={names} me={0} bank={bank} gauges={gauges} />}
           {!finished && <BW2RoundLog rounds={rounds} me={0} />}
-          <section className={NOTE}><p className={PANEL_TITLE}>{t('quickRules')}</p><ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">{(t.raw('quick') as string[]).map((rule) => <li key={rule} className="flex gap-2.5"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-[#ef3340]" /><span className="break-keep">{rule}</span></li>)}</ul></section>
+          <section data-focus-hide className={NOTE}><p className={PANEL_TITLE}>{t('quickRules')}</p><ul className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">{(t.raw('quick') as string[]).map((rule) => <li key={rule} className="flex gap-2.5"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-[#ef3340]" /><span className="break-keep">{rule}</span></li>)}</ul></section>
           {!finished && score[1] === 4 && score[0] < 4 && <section className="rounded-[12px] border border-[#ef3340]/30 bg-[#ef3340]/10 p-4"><p className={PANEL_TITLE}>{t('matchPointTitle')}</p><p className="mt-2 break-keep text-xs leading-5 text-white/60">{t('matchPointHint', { gap: (4 - score[0]) * 10 })}</p></section>}
         </aside>
       </main>

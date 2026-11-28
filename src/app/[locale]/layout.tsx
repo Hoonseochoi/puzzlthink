@@ -25,6 +25,7 @@ import InstallBanner from '@/components/InstallBanner';
 import OnlineCount from '@/components/OnlineCount';
 import LiveIsland from '@/components/LiveIsland';
 import RoomChat from '@/components/RoomChat';
+import FocusLayer from '@/components/focus/FocusLayer';
 import LoungeChat from '@/components/LoungeChat';
 import RoomHostNotice from '@/components/RoomHostNotice';
 import LiarQueueListener from '@/components/hiddenWordLiar/LiarQueue';
@@ -133,6 +134,7 @@ export default async function LocaleLayout({
           <OnlineCount />
           <LiveIsland />
           <RoomChat />
+          <FocusLayer />
           <LoungeChat />
           <RoomHostNotice />
           <LiarQueueListener />

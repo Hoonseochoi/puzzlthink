@@ -20,6 +20,7 @@ import { BTN, BTN_ACCENT, CHIP, DIAMOND, HEADING, KICKER, MAIN, NOTE, PANEL, PAN
 import { GOLD, JANGGI_FOG, SIDE_COLORS, hanjaFont } from './theme';
 import { HELL_HINT, hellSeg } from './hellStyle';
 import GameUpdates from '@/components/GameUpdates';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 const RECORD_KEY = 'puzzlthink_janggi_records';
 const TUTORIAL_KEY = 'puzzlthink_janggi_tutorial_seen';
@@ -65,6 +66,8 @@ export default function JanggiGame() {
   const [replaying, setReplaying] = useState(false);
   const names = [t('you'), 'AI'];
   const over = game.winner !== null || game.reason !== null;
+  // 전체 모드 from the start; after the first move, leaving loses the game (src/components/focus).
+  useFocusPlay(!over, !over && game.ply > 0 ? 'game' : false);
 
   // Latest values for the clock tick (filled in after each render, below).
   const latest = useRef<ClockView | null>(null);
@@ -192,7 +195,7 @@ export default function JanggiGame() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <section className={PANEL}>
+          <section data-focus-hide={!over && game.ply > 0 ? '' : undefined} className={PANEL}>
             <h2 className={PANEL_TITLE}>{t('difficulty')}</h2>
             <div className="mt-3 grid grid-cols-3 gap-2">{DIFFICULTIES.map((level) => <button key={level} onClick={() => newGame(firstChoice, level)} className={`p-2.5 ${seg(difficulty === level)}`}>{t(`difficulty_${level}`)}</button>)}
               <button onClick={() => newGame(firstChoice, 'hell')} className={`col-span-3 p-2.5 ${hellSeg(difficulty === 'hell')}`}><Flame size={13} />{t('difficulty_hell')}</button>
@@ -204,11 +207,11 @@ export default function JanggiGame() {
             <div className="mt-3 grid grid-cols-4 gap-2">{TURN_CHOICES.map((sec) => <button key={sec} onClick={() => chooseTurnSec(sec)} className={`flex items-center justify-center gap-1 p-2.5 ${seg(turnSec === sec)}`}>{sec === 0 ? <><Infinity size={13} />{t('turnTime_off')}</> : t('turnSeconds', { n: sec })}</button>)}</div>
             {turnSec > 0 && <p className="mt-2 text-[10px] leading-4 text-white/35">{t('turnTimeHint')}</p>}
           </section>
-          <section className={NOTE}>
+          <section data-focus-hide className={NOTE}>
             <div className="mb-4 flex items-center gap-2"><Sparkles size={15} className="text-(--accent)" /><h2 className={PANEL_TITLE}>{t('quickRules')}</h2></div>
             <ol className="space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4', 'quick5'].map((key, i) => <li key={key} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{t(key)}</span></li>)}</ol>
           </section>
-          <section className={`grid grid-cols-3 gap-2 ${PANEL}`}>
+          <section data-focus-hide className={`grid grid-cols-3 gap-2 ${PANEL}`}>
             <h2 className={`col-span-3 ${PANEL_TITLE}`}>{t('record')}</h2>
             {records.length ? <>
               <div><p className="text-[10px] text-white/35">{t('games')}</p><p className="text-xl font-black">{records.length}</p></div>

@@ -41,7 +41,7 @@ export default function AdSlot({ placement, tone = 'light', compact = false, cla
   if (!ADSENSE_CLIENT || !slot) {
     if (process.env.NODE_ENV !== 'development') return null;
     return (
-      <div className={className} data-play-hide="ads">
+      <div className={className} data-play-hide="ads" data-focus-hide>
         <p className={labelClass}>{label}</p>
         <div className={`flex ${height} items-center justify-center rounded-[12px] border border-dashed text-[10px] font-bold ${tone === 'dark' ? 'border-white/20 text-white/30' : 'border-black/20 text-black/30'}`}>
           AD · {placement}
@@ -51,7 +51,7 @@ export default function AdSlot({ placement, tone = 'light', compact = false, cla
   }
 
   return (
-    <div className={`ad-slot ${className}`} data-play-hide="ads">
+    <div className={`ad-slot ${className}`} data-play-hide="ads" data-focus-hide>
       <p className={labelClass}>{label}</p>
       <ins
         key={`${slot}-${pathname}`}

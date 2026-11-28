@@ -129,7 +129,7 @@ function Lobby({ state, code, me, mySeat, online, t, copied, onCopy, onShare, na
             <li className="flex gap-2"><Timer size={14} className="mt-0.5 shrink-0 text-[#ffb547]" /><span className="break-keep">{t.turnRule(GR_TURN_SEC, GR_MAX_MISSES)}</span></li>
           </ul>
         </section>
-        <section className={NOTE}><p className={PANEL_TITLE}>{t.rules}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol></section>
+        <section data-focus-hide className={NOTE}><p className={PANEL_TITLE}>{t.rules}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol></section>
       </aside>
     </main>
   );

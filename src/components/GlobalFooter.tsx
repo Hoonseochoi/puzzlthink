@@ -15,7 +15,7 @@ export default function GlobalFooter() {
   if (!pathname.endsWith('/guide') && !pathname.startsWith('/survival-games') && HIDE_ON.some((segment) => pathname.includes(segment))) return null;
 
   return (
-    <footer className="border-t border-black/[0.07] bg-[#f3f0e8]">
+    <footer data-focus-hide className="border-t border-black/[0.07] bg-[#f3f0e8]">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 lg:px-8 text-center sm:flex-row sm:text-left">
         <div className="max-w-2xl">
           <p className="flex items-center justify-center gap-2 text-sm font-black tracking-[-0.03em] sm:justify-start">{/* eslint-disable-next-line @next/next/no-img-element -- the brand mark */}<img src="/icons/icon-192.png" alt="" width={22} height={22} className="h-[22px] w-[22px]" loading="lazy" decoding="async" />PUZZLTHINK</p>

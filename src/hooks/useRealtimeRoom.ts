@@ -1,5 +1,6 @@
 "use client";
 
+import { useFocusPlay } from '@/components/focus/focusStore';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { getSupabase } from '@/lib/supabase';
@@ -121,6 +122,9 @@ export async function prepareRoom(channelPrefix: string, storage: string, hostVa
   return code;
 }
 
+
+/** A match is under way: past the lobby and not over (every engine names its last phase 'finished' or 'over'). */
+export const matchIsOn = (state: BaseRoom | null) => !!state && state.phase !== 'lobby' && state.phase !== 'finished' && state.phase !== 'over';
 
 export type RoomStatus = 'connecting' | 'online' | 'unconfigured' | 'error';
 
@@ -517,6 +521,9 @@ export function useRealtimeRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>,
   }, [live, openRoom, engine.channel, code]);
 
   const mySeat = state && me ? seatOf(state, me.id) : null;
+  // 전체 모드 and the exit guard (src/components/focus): a match that is on; leaving it with a seat drops me out.
+  const matchOn = matchIsOn(state);
+  useFocusPlay(matchOn, matchOn && mySeat !== null ? 'room' : false);
   return { status, state, peers, hostOnline, me, mySeat, dispatch, rename, emote };
 }
 
@@ -553,5 +560,8 @@ export function useLocalRoom<S extends BaseRoom, A>(engine: RoomEngine<S, A>, cr
     return () => window.clearInterval(timer);
   }, [engine, apply]);
   const dispatch = useCallback((action: A) => apply(action, 0), [apply]);
+  // 전체 모드 and the exit guard (src/components/focus): a game against the AI that is on is lost by leaving.
+  const gameOn = matchIsOn(state);
+  useFocusPlay(gameOn, gameOn ? 'game' : false);
   return { state, dispatch, reset, mySeat: 0 };
 }

@@ -190,7 +190,7 @@ export default function CldTable({ room, mySeat, dispatch, names, t, thinking = 
       <Layer>
         <AnimatePresence>{coinShowing && <CoinToss key="coin" opener={nameOf(room.first)} t={t} />}</AnimatePresence>
         {dockOpen && (
-          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0b0b10]/94 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5 backdrop-blur-md">
+          <div data-focus-dock className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0b0b10]/94 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5 backdrop-blur-md">
             <div className="mx-auto w-full max-w-[600px]">
               {room.phase === 'place' && myTurn && !coinShowing && (confirm === turnKey ? (
                 <div className="flex flex-col gap-2">

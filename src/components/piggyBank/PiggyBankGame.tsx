@@ -8,6 +8,7 @@ import { reportGame } from '@/lib/stats';
 import { type PbAction, type PbLevel, type PbState, act, autoAdvance, createPiggyBank, ranking } from '@/lib/piggyBank';
 import { GoldPig } from './PiggyParts';
 import { PiggyAside, PiggyTable } from './PiggyTable';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 // 돼지 저금통 against three AI players; the engine drives the AI and the time limits.
 const ME = 0;
@@ -18,6 +19,9 @@ export default function PiggyBankGame() {
   const [level, setLevel] = useState<PbLevel>('normal');
   const [state, setState] = useState<PbState | null>(null);
   const stateRef = useRef<PbState | null>(null);
+  // 전체 모드 while a game is on; leaving it loses the game (src/components/focus).
+  const pbOn = !!state && state.phase !== 'finished';
+  useFocusPlay(pbOn, pbOn ? 'game' : false);
 
   const start = () => {
     const s = createPiggyBank(NAMES, [false, true, true, true], level);

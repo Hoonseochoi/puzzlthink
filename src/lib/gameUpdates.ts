@@ -1,4 +1,4 @@
-import { BellRing, Bot, MessageCircle, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Settings2, Share2, Sparkles, Swords, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { BellRing, Maximize2, Bot, MessageCircle, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Settings2, Share2, Sparkles, Swords, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -847,6 +847,16 @@ for (const key of STONE_ICON_GAMES) {
   const log = GAME_UPDATES[key];
   if (log) log.items = [...STONE_ICON_NOTES, ...log.items].sort((a, b) => b.date.localeCompare(a.date));
 }
+
+// Notes for every game at once: 전체 모드 and the exit guard (src/components/focus). Added to every game that has a log.
+const FOCUS_NOTES: GameUpdate[] = [
+  {
+    date: '11/29', icon: Maximize2,
+    ko: { title: '게임을 시작하면 전체 모드 · 실수로 나가기 방지', desc: '게임이 시작되면 게임판만 크게 보이는 전체 모드가 돼요(아래 「축소」로 일반 화면, 왼쪽 「전체 모드」로 다시). 뒤로 가기는 먼저 전체 모드를 끄고, 진행 중인 게임은 나가기 전에 한 번 물어봐요.' },
+    en: { title: 'Full mode when a game starts · no accidental exits', desc: 'A game now opens in full mode with just the board (Shrink at the bottom for the normal page, Full mode on the left edge to go back). Back leaves full mode first, and leaving a game in progress asks first.' },
+  },
+];
+for (const log of Object.values(GAME_UPDATES)) log.items = [...FOCUS_NOTES, ...log.items].sort((a, b) => b.date.localeCompare(a.date));
 
 // Catalog ids are camelCase, update logs are keyed by the records id (snake_case): 'colorLinkDuel' → 'color_link_duel'.
 const LOG_KEY: Record<string, string> = { blackWhite2: 'black_white_2', nineMensMorris: 'nine_mens_morris' };

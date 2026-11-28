@@ -30,6 +30,7 @@ import LogicReplayButton from './LogicReplay';
 import LogicHistory from './LogicHistory';
 import ClearRate from '../ClearRate';
 import { useUndoKey } from '@/components/slitherlink/SlitherBoard';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 type Mode = 'challenge' | 'beat' | 'practice';
 type Phase = 'lobby' | 'starting' | 'play' | 'solved' | 'gaveUp' | 'failed';
@@ -264,6 +265,8 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
   const signedIn = !!user;
   const playing = phase !== 'lobby' && phase !== 'starting';
   const done = phase === 'solved' || phase === 'gaveUp' || phase === 'failed';
+  // 전체 모드 from the first move of a board; leaving a 기록 도전 run counts as failed, practice loses nothing.
+  useFocusPlay(phase === 'play', phase === 'play' && mode !== 'practice' && !!run ? 'challenge' : false);
   const answerLines = useMemo(() => (board?.kind === 'masyu' && phase === 'gaveUp' ? board.answer.flatMap((v, e) => (v ? [e] : [])) : null), [board, phase]);
 
   const boardView = board && (board.kind === 'masyu'
@@ -312,7 +315,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
 
       <main className={MAIN}>
         <section className={STAGE}>
-          <div className="mb-3 grid grid-cols-3 gap-1.5">
+          <div className="mb-3 grid grid-cols-3 gap-1.5" data-focus-hide={phase === 'play' ? '' : undefined}>
             {MODES.map((m) => (
               <button key={m} type="button" onClick={() => switchMode(m)} aria-pressed={mode === m} className={`flex items-center justify-center gap-1.5 py-2.5 ${seg(mode === m)}`}>
                 {m === 'challenge' ? <Sparkles size={14} /> : m === 'beat' ? <Swords size={14} /> : <RotateCcw size={14} />}{t(`mode_${m}`)}
@@ -396,7 +399,7 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
               {awayWarn !== null && <div className="pointer-events-none fixed left-1/2 top-20 z-50 -translate-x-1/2 rounded-full border border-[#ff8f8f]/50 bg-black/85 px-4 py-2 text-xs font-black text-[#ffb3b3] shadow-2xl">{awayWarn >= AWAY_LIMIT ? t('awayVoid') : t('awayWarn', { n: awayWarn, max: AWAY_LIMIT })}</div>}
 
               {game === 'magicswap' && mode === 'practice' && phase === 'play' && <MagicReplayTip />}
-              <div className={phase === 'solved' ? 'animate-[logic-pop_.6s_ease]' : ''}>{boardView}</div>
+              <div data-focus-board style={{ '--focus-reserve': '300px' } as React.CSSProperties} className={phase === 'solved' ? 'animate-[logic-pop_.6s_ease]' : ''}>{boardView}</div>
 
               {phase === 'play' ? (
                 <div className="mx-auto mt-3 max-w-[560px] space-y-2">
@@ -442,9 +445,10 @@ export default function LogicGame({ game }: { game: LogicGameId }) {
           )}
         </section>
 
-        <aside className="flex flex-col gap-4">
+        {/* Rankings, history and rules: off in 전체 모드 while a board is being solved. */}
+        <aside className="flex flex-col gap-4" data-focus-hide={phase === 'play' ? '' : undefined}>
           {mode !== 'practice' && rankingPanel}
-          <section className={NOTE}>
+          <section data-focus-hide className={NOTE}>
             <p className={PANEL_TITLE}>{t('rulesTitle')}</p>
             <ul className="mt-3 space-y-2 text-xs leading-5 text-white/65">{(t.raw(`rules_${game}`) as string[]).map((rule) => <li key={rule} className="flex gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-(--accent)" /><span className="break-keep">{rule}</span></li>)}</ul>
           </section>

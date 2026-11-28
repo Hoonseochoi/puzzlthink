@@ -161,7 +161,7 @@ function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy,
           <p className={`${PANEL_TITLE} mt-5`}>{t.aiPersonas}</p>
           <div className="mt-3 flex flex-wrap gap-1.5">{TA_STYLES.map((style) => { const p = TA_PERSONA[style]; return <span key={style} title={en ? p.blurb.en : p.blurb.ko} className="flex items-center gap-1.5 rounded-full border border-white/10 py-0.5 pl-0.5 pr-2.5 text-[11px] font-bold"><Stone name={p.name} size={20} icon={p.face} cover={false} />{en ? p.nameEn : p.name}</span>; })}</div>
         </section>
-        <section className={NOTE}><p className={PANEL_TITLE}>{t.rules}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol></section>
+        <section data-focus-hide className={NOTE}><p className={PANEL_TITLE}>{t.rules}</p><ol className="mt-3 space-y-3 text-xs leading-relaxed text-white/65">{t.quick.map((line, i) => <li key={i} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol></section>
       </aside>
     </main>
   );

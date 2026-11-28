@@ -29,7 +29,7 @@ export default function JanggiBoard({ game, viewer, selection, targets, onCell, 
   const arrow = winner !== null && game.reason === 'capture' && last?.kind === 'move' ? { from: posOf(last.from), to: posOf(last.to) } : null;
 
   return (
-    <div className="relative mx-auto w-full max-w-[440px] rounded-[8px] bg-gradient-to-br from-[#8d95a8] via-[#24252d] to-[#8d95a8] p-[2px] shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+    <div data-focus-board style={{ '--focus-reserve': '330px', '--focus-aspect': '.75' } as React.CSSProperties} className="relative mx-auto w-full max-w-[440px] rounded-[8px] bg-gradient-to-br from-[#8d95a8] via-[#24252d] to-[#8d95a8] p-[2px] shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
       {['-left-1.5 -top-1.5', '-right-1.5 -top-1.5', '-bottom-1.5 -left-1.5', '-bottom-1.5 -right-1.5'].map((corner) => <span key={corner} aria-hidden className={`absolute z-30 h-3 w-3 rotate-45 border border-[#b9c1d3] bg-[#0b0b0e] ${corner}`} />)}
       <div className="rounded-[6px] bg-[#0e0e12] p-3 sm:p-4">
         <div className="relative grid gap-2 sm:gap-2.5" style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}>

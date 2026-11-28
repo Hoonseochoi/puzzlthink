@@ -23,6 +23,7 @@ import { reportGame } from '@/lib/stats';
 import SlitherHistory from './SlitherHistory';
 import ClearRate from '../ClearRate';
 import SlitherBoard, { type Tool, undoOf, useUndoKey } from './SlitherBoard';
+import { useFocusPlay } from '@/components/focus/focusStore';
 import SlitherThemePicker from './SlitherThemePicker';
 import SlitherSnow from './SlitherSnow';
 import SlitherShareCard from './SlitherShareCard';
@@ -109,6 +110,8 @@ export default function SlitherGame() {
   const [undoCount, setUndoCount] = useState(0);
   const setBoard = (next: Mark[]) => { marksRef.current = next; setMarks(next); };
   const setPhaseNow = (next: Phase) => { phaseRef.current = next; setPhase(next); };
+  // 전체 모드 from the first move of a board; leaving a 기록 도전 run counts as given up, practice loses nothing.
+  useFocusPlay(phase === 'play', phase === 'play' && !!run ? 'challenge' : false);
 
   const clearTimers = () => { timers.current.forEach((id) => window.clearTimeout(id)); timers.current = []; };
 
@@ -360,7 +363,7 @@ export default function SlitherGame() {
 
       <main className={MAIN}>
         <section className={STAGE}>
-          <div className="mb-4 grid grid-cols-3 gap-1.5">
+          <div className="mb-4 grid grid-cols-3 gap-1.5" data-focus-hide={phase === 'play' ? '' : undefined}>
             {MODES.map((m) => {
               const Icon = m === 'challenge' ? Timer : m === 'beat' ? Swords : InfinityIcon;
               return <button key={m} type="button" onClick={() => switchMode(m)} className={`flex items-center justify-center gap-1.5 py-2.5 ${seg(mode === m)}`}><Icon size={14} />{t(`mode_${m}`)}</button>;
@@ -456,6 +459,7 @@ export default function SlitherGame() {
               {awayWarn !== null && <div className="pointer-events-none fixed left-1/2 top-20 z-50 -translate-x-1/2 rounded-full border border-[#ff8f8f]/50 bg-black/85 px-4 py-2 text-xs font-black text-[#ffb3b3] shadow-2xl">
                 {awayWarn >= AWAY_LIMIT ? t('awayVoid') : t('awayWarn', { n: awayWarn, max: AWAY_LIMIT })}
               </div>}
+              <div data-focus-board style={{ '--focus-reserve': '330px' } as React.CSSProperties}>
               <SlitherBoard
                 puzzle={puzzle}
                 marks={frame ? frame.marks : marks}
@@ -470,6 +474,7 @@ export default function SlitherGame() {
                 answerTrack={replaying && answerKnown && replayAnswer}
                 theme={theme} motion={motion} celebrate={phase === 'solved' && !replaying}
               />
+              </div>
 
               {replaying ? <ReplayControls player={player} onShowResult={() => setReplaying(false)} /> : phase === 'play' ? (
                 <div className="mx-auto mt-3 max-w-[560px] space-y-2">
@@ -533,7 +538,8 @@ export default function SlitherGame() {
           )}
         </section>
 
-        <aside className="flex flex-col gap-4">
+        {/* Rankings, rivals and rules: off in 전체 모드 while a board is being solved. */}
+        <aside className="flex flex-col gap-4" data-focus-hide={phase === 'play' ? '' : undefined}>
           {mode !== 'practice' && rankingPanel}
           {mode !== 'practice' && rivals.length > 0 && (
             <section className={PANEL}>

@@ -14,6 +14,7 @@ import { CHALLENGE_MS, LEVELS, type Level, asLevel, type Block, type Stacks, typ
 import { reportGame } from '@/lib/stats';
 import { type Held, TargetCard, TowerStacks, moveOf } from './TowerParts';
 import { EQT_ROOT_STYLE, eqtCopy } from './copy';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 type Mode = 'practice' | 'challenge';
 type Phase = 'intro' | 'play' | 'done' | 'summary';
@@ -42,6 +43,8 @@ export default function EquationTowerGame() {
   const [played, setPlayed] = useState<Played[]>([]);
   const [challengeEnd, setChallengeEnd] = useState(0);
   const [voided, setVoided] = useState(false);
+  // 전체 모드 while a round or the 10-minute challenge is on; leaving the challenge drops it unrecorded (src/components/focus).
+  useFocusPlay(phase === 'play' || challengeEnd > 0, challengeEnd > 0 ? 'run' : false);
   const [best, setBest] = useState(readBest);
   const active: Level = mode === 'challenge' ? 'hard' : level;
   const [now, setNow] = useState(() => Date.now());
@@ -233,7 +236,7 @@ export default function EquationTowerGame() {
               ))}</ul>
             )}
           </section>
-          <section className="rounded-[14px] border border-(--accent)/25 bg-(--accent)/[.05] p-4">
+          <section data-focus-hide className="rounded-[14px] border border-(--accent)/25 bg-(--accent)/[.05] p-4">
             <p className={PANEL_TITLE}>{c.quickTitle}</p>
             <ol className="mt-3 space-y-2.5 text-xs leading-5 text-white/60">{c.quick.map((line, i) => <li key={line} className="flex gap-2.5"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{line}</span></li>)}</ol>
           </section>

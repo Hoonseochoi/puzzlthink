@@ -349,3 +349,24 @@ button:disabled { cursor: default; }
 /* Room chat open (src/components/RoomChat.tsx): the page makes room for it, so nothing of the game is stuck under it. */
 html[data-room-chat="sheet"] body { padding-bottom: var(--room-chat-h, 0px); }
 html[data-room-chat="side"] body { padding-right: var(--room-chat-w, 0px); }
+
+/* ---- 전체 모드 (game focus mode): src/components/focus ----
+ * <html data-focus> while a game is in 전체 모드. Hidden: anything marked data-focus-hide (site header and footer,
+ * banners, ads, rules and tips panels, update / bug buttons). A slim 축소 bar sits at the bottom: the page leaves
+ * room for it, and bars docked to the bottom of the screen (data-focus-dock) sit on top of it.
+ * data-focus-board: a board that should fit the screen's height too: --focus-reserve is the room the rest of the game needs
+ * above and below it, --focus-aspect its width / height. */
+:root { --focus-bar: 20px; }
+html[data-focus] [data-focus-hide] { display: none !important; }
+html[data-focus] body { padding-bottom: calc(var(--focus-bar) + env(safe-area-inset-bottom)); }
+html[data-focus] [data-focus-dock] { bottom: calc(var(--focus-bar) + env(safe-area-inset-bottom)) !important; padding-bottom: .5rem !important; }
+html[data-focus] [data-focus-board] { width: 100%; max-width: max(300px, calc((100svh - var(--focus-reserve, 300px)) * var(--focus-aspect, 1))); margin-inline: auto; }
+/* The room chat's bottom sheet (RoomChat) takes the bottom instead: no 축소 bar under it, its own padding. */
+html[data-focus][data-room-chat="sheet"] body { padding-bottom: var(--room-chat-h, 0px); }
+html[data-room-chat="sheet"] .focus-bar { display: none; }
+@keyframes focus-fade { from { opacity: .35; } to { opacity: 1; } }
+html[data-focus] body > * { animation: focus-fade .22s ease-out; }
+.focus-bar { animation: focus-fade .22s ease-out; }
+@keyframes focus-pop { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
+.focus-pop { animation: focus-pop .18s ease-out; }
+@media (prefers-reduced-motion: reduce) { html[data-focus] body > *, .focus-bar, .focus-pop { animation: none; } }

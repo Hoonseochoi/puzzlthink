@@ -130,7 +130,7 @@ function BugReportButton({ game, dark }: { game: (typeof GAMES)[number]; dark: b
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} aria-label={t('button')} title={t('button')}
+      <button type="button" data-focus-hide onClick={() => setOpen(true)} aria-label={t('button')} title={t('button')}
         className={dark
           ? 'inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-xs font-extrabold text-white/80 transition hover:bg-white/10'
           : 'inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white/70 px-3 py-2 text-xs font-extrabold text-black/70 transition hover:bg-white'}>

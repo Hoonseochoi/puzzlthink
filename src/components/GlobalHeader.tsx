@@ -39,7 +39,7 @@ export default function GlobalHeader() {
   const closeMenu = () => setOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/[0.07] bg-[#f3f0e8]/90 backdrop-blur-xl">
+    <header data-focus-hide className="sticky top-0 z-50 border-b border-black/[0.07] bg-[#f3f0e8]/90 backdrop-blur-xl">
       <TopBannerSlot />
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5" onClick={closeMenu}>

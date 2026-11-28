@@ -65,7 +65,7 @@ export default function LiveIsland() {
   const open = stage === 'open';
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-2 z-[120] flex justify-center px-3" aria-live="polite">
+    <div data-focus-hide className="pointer-events-none fixed inset-x-0 top-2 z-[120] flex justify-center px-3" aria-live="polite">
       <Link
         href={href}
         onClick={() => setStage('closing')}

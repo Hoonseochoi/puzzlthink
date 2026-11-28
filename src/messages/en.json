@@ -9161,5 +9161,19 @@
     "line_dev": "PUZZLTHINK developer",
     "winnerKicker": "WINNER",
     "drawKicker": "DRAW"
+  },
+  "FocusMode": {
+    "shrink": "Shrink",
+    "shrinkLabel": "Leave full mode (back to the page)",
+    "full": "Full mode",
+    "fullLabel": "Show only the game (full mode)",
+    "title": "Leave the game?",
+    "body_game": "If you leave, this game is not saved. Leave anyway?",
+    "body_challenge": "If you leave, this challenge counts as failed. Leave anyway?",
+    "body_room": "If you leave, you drop out of this match. Leave anyway?",
+    "body_run": "If you leave, this run is not recorded. Leave anyway?",
+    "body_puzzle": "If you leave, the puzzle you are solving is not saved. Leave anyway?",
+    "stay": "Keep playing",
+    "leave": "Leave"
   }
 }

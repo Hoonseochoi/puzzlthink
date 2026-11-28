@@ -196,7 +196,7 @@ export default function SlitherRoomView({ code }: { code: string }) {
           <div className="mt-3 grid grid-cols-3 gap-1.5">{ROOM_SIZES.map((d) => <button key={d} onClick={() => dispatch({ t: 'config', dots: d })} className={`py-2 ${seg(state.dots === d)}`}>{d}×{d}</button>)}</div>
           <p className="mt-2 text-[11px] text-white/40">{t('boardSizeHint')}</p>
         </section>}
-        <section className={NOTE}>
+        <section data-focus-hide className={NOTE}>
           <p className={PANEL_TITLE}>{t('rulesTitle')}</p>
           <ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(t.raw('rules') as string[]).map((rule) => <li key={rule}>· {rule}</li>)}</ul>
         </section>

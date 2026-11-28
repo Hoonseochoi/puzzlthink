@@ -141,7 +141,7 @@ export default function InstallBanner() {
 
   if (spot === 'game') {
     return (
-      <div data-play-hide="install" className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-[18px] border border-white/10 bg-[#17201e]/95 p-3.5 text-white shadow-[0_18px_50px_rgba(0,0,0,.45)] backdrop-blur" role="dialog" aria-label={t('title')}>
+      <div data-play-hide="install" data-focus-hide className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-[18px] border border-white/10 bg-[#17201e]/95 p-3.5 text-white shadow-[0_18px_50px_rgba(0,0,0,.45)] backdrop-blur" role="dialog" aria-label={t('title')}>
         <div className="flex items-start gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icons/icon-192.png" alt="" width={40} height={40} className="h-10 w-10 shrink-0 rounded-[11px] bg-white/10 p-1" />
@@ -170,7 +170,7 @@ export default function InstallBanner() {
   }
 
   return (
-    <div data-play-hide="install" className="relative z-40 border-b border-black/[0.07] bg-[#17201e] text-white">
+    <div data-play-hide="install" data-focus-hide className="relative z-40 border-b border-black/[0.07] bg-[#17201e] text-white">
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/icons/icon-192.png" alt="" width={36} height={36} className="h-9 w-9 shrink-0 rounded-[10px] bg-white/10 p-1" />

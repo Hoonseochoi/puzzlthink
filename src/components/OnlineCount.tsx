@@ -50,7 +50,7 @@ export default function OnlineCount() {
 
   if (count === null) return null;
   return (
-    <div className="online-pill pointer-events-none fixed max-lg:hidden bottom-[calc(0.75rem+env(safe-area-inset-bottom))] right-3 z-20 [body:has([data-gate-bar])_&]:bottom-[calc(4.75rem+env(safe-area-inset-bottom))] flex items-center gap-1.5 rounded-full border border-white/10 bg-black/55 px-2.5 py-1 text-[10px] font-bold text-white/75 shadow-sm backdrop-blur-md" aria-live="polite">
+    <div data-focus-hide className="online-pill pointer-events-none fixed max-lg:hidden bottom-[calc(0.75rem+env(safe-area-inset-bottom))] right-3 z-20 [body:has([data-gate-bar])_&]:bottom-[calc(4.75rem+env(safe-area-inset-bottom))] flex items-center gap-1.5 rounded-full border border-white/10 bg-black/55 px-2.5 py-1 text-[10px] font-bold text-white/75 shadow-sm backdrop-blur-md" aria-live="polite">
       <span className="relative flex h-1.5 w-1.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34c47c] opacity-70" /><span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#34c47c]" /></span>
       {t('onlineNow', { count: count.toLocaleString() })}
     </div>

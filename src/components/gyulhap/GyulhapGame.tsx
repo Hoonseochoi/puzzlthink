@@ -12,6 +12,7 @@ import { type GyulCard, type Hap, allHaps, dealGyulCards, hapKey, isHap, remaini
 import { reportGame } from '@/lib/stats';
 import { BoardExitRule, BoardExitToast, exitDetail, useBoardExits } from '@/hooks/useBoardExits';
 import { GyulBoard, GyulFound, GyulScore } from './GyulhapParts';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 const ACCENT = '#ffcf3f';
 type Mode = 'challenge10' | 'challenge5' | 'practice';
@@ -39,6 +40,8 @@ export default function GyulhapGame() {
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [endsAt, setEndsAt] = useState(() => DURATION[readMode()] ? Date.now() + DURATION[readMode()] : 0);
   const [finished, setFinished] = useState(false);
+  // 전체 모드 while a game is on; leaving a timed challenge drops it unrecorded (src/components/focus).
+  useFocusPlay(!finished, !finished && mode !== 'practice' ? 'run' : false);
   const [now, setNow] = useState(() => Date.now());
   const reported = useRef(false);
   const [voided, setVoided] = useState(false); // left the board too often: this run isn't ranked
@@ -133,7 +136,7 @@ export default function GyulhapGame() {
           {!finished && <GyulFound cards={cards} found={found} title={t('foundTitle')} empty={t('foundEmpty')} className="hidden lg:block" />}
           <section className={PANEL}><p className={PANEL_TITLE}>{t('session')}</p><div className="mt-3 grid grid-cols-3 gap-2 text-center"><div><p className="text-[10px] text-white/40">{t('score')}</p><b className="font-mono text-xl text-(--accent)">{score}</b></div><div><p className="text-[10px] text-white/40">{t('boards')}</p><b className="font-mono text-xl">{round}</b></div><div><p className="text-[10px] text-white/40">{t('foundLabel')}</p><b className="font-mono text-xl">{found.length}</b></div></div></section>
           <section className={PANEL}><p className="flex items-center gap-1.5 text-[10px] font-black tracking-[.16em] text-white/35"><Info size={12} />{t('tooltipsTitle')}</p><ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(t.raw('tips') as string[]).map((tip) => <li key={tip} className="flex gap-2"><Sparkles size={12} className="mt-1 shrink-0 text-(--accent)" /><span>{tip}</span></li>)}</ul></section>
-          <section className={NOTE}><p className={PANEL_TITLE}>{t('quickRules')}</p><ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(t.raw('quickSolo') as string[]).map((rule) => <li key={rule}>· {rule}</li>)}</ul></section>
+          <section data-focus-hide className={NOTE}><p className={PANEL_TITLE}>{t('quickRules')}</p><ul className="mt-3 space-y-2 text-xs leading-5 text-white/60">{(t.raw('quickSolo') as string[]).map((rule) => <li key={rule}>· {rule}</li>)}</ul></section>
         </aside>
       </main>
     </div>

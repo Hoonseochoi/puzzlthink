@@ -19,6 +19,7 @@ import { LiarStone } from './LiarArt';
 import { liarCopy } from './copy';
 import LiarShare from './LiarShare';
 import { type LiarChat, useLiarRoom } from './useLiarRoom';
+import { useFocusPlay } from '@/components/focus/focusStore';
 
 const RUNNING = ['cards', 'clue', 'talk', 'vote', 'runoff', 'last', 'decide', 'guess'];
 type T = ReturnType<typeof liarCopy>;
@@ -75,6 +76,9 @@ export default function LiarRoomView({ code }: { code: string }) {
   const [guest] = useState(() => `${en ? 'Guest' : '손님'} ${Math.floor(1000 + Math.random() * 9000)}`);
   const name = (nickname || myName(guest)).slice(0, 16);
   const { view, status, chat, marks, skew, typing, refresh, say, mark, pushSystem, typingNow, clearTyping } = useLiarRoom(code, name);
+  // 전체 모드 while a game is on; a seat in it is lost by leaving (src/components/focus).
+  const liarOn = !!view && !['lobby', 'done', 'closed'].includes(view.phase);
+  useFocusPlay(liarOn, liarOn && !!view?.me ? 'room' : false);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 200); return () => window.clearInterval(id); }, []);
   const [skippedGame, setSkippedGame] = useState<number | null>(null);

@@ -140,7 +140,7 @@ export default function Heavy13RoomView({ code }: { code: string }) {
               <div className="mt-3 grid grid-cols-3 gap-2">{LEVELS.map((l) => <button key={l} disabled={!me?.isHost} onClick={() => dispatch({ t: 'config', aiLevel: l })} className={`py-2 disabled:cursor-default ${seg(view.aiLevel === l)}`}>{t(`level_${l}`)}</button>)}</div>
               {!me?.isHost && <p className="mt-2 text-[10px] text-white/40">{to('hostSets')}</p>}
             </section>
-            <section className={NOTE}>
+            <section data-focus-hide className={NOTE}>
               <div className="mb-3 flex items-center gap-2"><Sparkles size={15} className="text-(--accent)" /><h2 className={PANEL_TITLE}>{t('quickRules')}</h2></div>
               <ol className="space-y-3 text-xs leading-relaxed text-white/65">{['quick1', 'quick2', 'quick3', 'quick4', 'quick5'].map((k, i) => <li key={k} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span>{t(k)}</span></li>)}</ol>
             </section>

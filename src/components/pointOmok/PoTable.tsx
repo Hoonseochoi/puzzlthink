@@ -254,7 +254,7 @@ function PoTableInner({ state, mySeat, dispatch, names, resultActions, asideExtr
             {finished && <p className="mt-2 text-[10px] leading-4 text-white/35">{t('historyShown')}</p>}
           </section>
         )}
-        <section className={NOTE}>
+        <section data-focus-hide className={NOTE}>
           <h2 className={PANEL_TITLE}>{t('quickRules')}</h2>
           <ol className="mt-3 space-y-2.5 text-xs leading-relaxed text-white/65">{(t.raw('quick') as string[]).map((rule, i) => <li key={rule} className="flex gap-3"><span className="font-mono text-(--accent)">0{i + 1}</span><span className="break-keep">{rule}</span></li>)}</ol>
         </section>
