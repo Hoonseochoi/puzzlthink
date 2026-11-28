@@ -6,7 +6,7 @@ const article: WikiArticle = {
   category: 'genre',
   updated: '2026-11-26',
   games: [
-    { game: 'flipOmok', ko: '상대 돌을 끼워 뒤집는 오목. 정확히 5목만 인정하고, 방금 뒤집은 돌이 든 5목은 무효예요.', en: 'Gomoku with flanking flips. Only exactly five counts, and not a five that uses a stone you just flipped.' },
+    { game: 'flipOmok', ko: '상대 돌을 끼워 뒤집는 오목. 뒤집기는 한 판에 3번, 고를 때만 쓰고 뒤집힌 돌은 고정돼요. 정확히 5목만 인정하고, 방금 뒤집은 돌이 든 5목은 무효예요.', en: 'Gomoku with flanking flips — 3 per game, used only when you choose, and flipped stones lock. Only exactly five counts, and not a five that uses a stone you just flipped.' },
     { game: 'pointOmok', ko: '돌을 포인트로 사는 오목. 줄을 만드는 감각에 입찰 심리가 더해져요.', en: 'Gomoku where stones are bought with points: line-making plus bidding psychology.' },
     { game: 'blindGomoku', ko: '돌의 진영이 보이지 않는 오목. 누가 어디에 뒀는지 기억해야 줄을 볼 수 있어요.', en: 'Gomoku where you cannot see whose stone is whose — you have to remember to see the lines.' },
     { game: 'fourThree', ko: '4×4 판에 3층까지 쌓는 4인 3목. 위에서 봤을 때의 줄만 인정돼요.', en: 'Four-player three in a row on a 4×4 board with stacks up to three high; only what shows from above counts.' },
@@ -80,7 +80,7 @@ const article: WikiArticle = {
         p('규칙 설명 없이 바로 시작하고 싶은 사람, 짧은 시간에 날카로운 수싸움을 원하는 사람에게 좋아요. 위협을 놓치면 한 수에 끝나기 때문에 집중력이 많이 필요하지만, 그만큼 한 판이 짧고 승부가 분명해요. 바둑이나 장기처럼 긴 공부 없이도 “위협 두 개 만들기” 하나만 익히면 실력이 확 늘어요.'),
       ]),
       sec('puzzlthink', 'PUZZLTHINK에서는', [
-        p('PUZZLTHINK에는 오목 뼈대에 다른 장치를 하나씩 얹은 게임이 많아요. **뒤집기 오목**은 상대 돌을 끼우면 내 색으로 뒤집혀서 줄이 한 수에 생기고 사라져요. 정확히 5목만 인정하고, 쌍삼은 양쪽 모두 금지예요. **포인트 오목**은 돌을 놓을 자리를 포인트 입찰로 정하고, **블라인드 오목**은 돌의 진영이 안 보여서 기억력이 곧 실력이 돼요.'),
+        p('PUZZLTHINK에는 오목 뼈대에 다른 장치를 하나씩 얹은 게임이 많아요. **뒤집기 오목**은 상대 돌을 끼워 내 색으로 뒤집을 수 있는데, 한 판에 3번뿐이고 뒤집힌 돌은 고정돼서 그 한 방을 언제 쓰느냐가 승부예요. 정확히 5목만 인정하고, 쌍삼은 양쪽 모두 금지예요. **포인트 오목**은 돌을 놓을 자리를 포인트 입찰로 정하고, **블라인드 오목**은 돌의 진영이 안 보여서 기억력이 곧 실력이 돼요.'),
         p('3목 쪽으로는 4×4 판에 쌓아 올리는 4인용 **4인 3목**, 큰 말이 작은 말을 덮는 **러시아장기**, 줄을 만들면 상대 말을 잡는 **나인 멘스 모리스**가 있어요.'),
         tip('어떤 n목이든 통하는 한 가지', '내 차례마다 “상대가 다음 수에 사나 열린 삼을 만들 수 있는 곳”을 먼저 확인하세요. 공격보다 이 확인을 먼저 하는 습관만으로도 승률이 눈에 띄게 올라가요.'),
       ]),
@@ -143,7 +143,7 @@ const article: WikiArticle = {
         p('Anyone who wants to start without a rules lecture and enjoys short, sharp fights. Miss one threat and the game ends in a move, so focus matters, but games are short and decisive. Unlike go or chess, you do not need long study: learn to make two threats at once and you improve fast.'),
       ]),
       sec('puzzlthink', 'On PUZZLTHINK', [
-        p('PUZZLTHINK has many games that put one extra mechanic on a gomoku skeleton. In **Flip Omok**, flanked stones flip to your colour, so lines appear and vanish in a move; only exactly five wins and double threes are barred for both. **Point Omok** decides who gets each spot by a points bid, and in **Blind Gomoku** you cannot see whose stone is whose, so memory becomes skill.'),
+        p('PUZZLTHINK has many games that put one extra mechanic on a gomoku skeleton. In **Flip Omok** you may flip flanked stones to your colour — only 3 times a game, and flipped stones lock — so the timing of each flip decides games; only exactly five wins and double threes are barred for both. **Point Omok** decides who gets each spot by a points bid, and in **Blind Gomoku** you cannot see whose stone is whose, so memory becomes skill.'),
         p('For three in a row there is **4 Player 3 In a Row**, stacking on a 4×4 board; **Russian Janggi**, where big pieces cover small ones; and **Nine Men’s Morris**, where a line captures.'),
         tip('One habit for every n-in-a-row game', 'Each turn, first check where your opponent could make a four or an open three next move. Doing that check before attacking raises your win rate noticeably.'),
       ]),

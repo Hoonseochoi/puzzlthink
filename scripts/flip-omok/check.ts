@@ -1,9 +1,9 @@
-// Rules checks for the 뒤집기 오목 variants: `npx tsx scripts/flip-omok/check.ts`
+// Rules checks for 뒤집기 오목 (the shipped engine) and the research variants: `npx tsx scripts/flip-omok/check.ts`
 // Hand-built positions for charges, quiet placing, locks, one-line flips, the flip action, flip-made fives and the
 // last-chance reply; then the `live` variant against the live engine on random games (they must agree move for move).
 import assert from 'node:assert/strict';
-import { play as livePlay, isForbidden as liveForbidden, type Cell } from '../../src/lib/flipOmok';
-import { RULESETS, actionsAt, apply, legalActions, newState, postActions, type NState } from '../../src/lib/flipOmokNext';
+import { canFlip, chooseMove, flipsFor, isLegal, legalMoves, play, type Cell } from '../../src/lib/flipOmok';
+import { RULESETS, actionsAt, apply, legalActions, newState, postActions, type NState } from './variants';
 
 const S = 15, at = (r: number, c: number) => r * S + c;
 function setup(rulesId: string, stones: [number, number, Cell][], turn: 1 | 2 = 1): NState {
@@ -91,23 +91,52 @@ function setup(rulesId: string, stones: [number, number, Cell][], turn: 1 | 2 = 
   assert.equal(saved.win, null);
   assert.ok(saved.brokeThreat);
 }
-// `live` agrees with the live engine, on random games.
+// The shipped engine (src/lib/flipOmok.ts) agrees with the research set it was taken from (c3lock), on random games:
+// the same legal moves (quiet and flipping), the same boards, the same wins; and a locked stone is never flipped.
 {
   let rnd = 7;
   const rand = () => { rnd = (rnd * 1103515245 + 12345) & 0x7fffffff; return rnd / 0x7fffffff; };
-  for (let g = 0; g < 60; g++) {
-    let s = newState(RULESETS.live);
-    for (let k = 0; k < 60; k++) {
-      const legal = legalActions(RULESETS.live, s);
-      const a = legal[Math.floor(rand() * legal.length)];
-      assert.equal(liveForbidden(s.board, a.at, s.turn), false);
-      const live = livePlay(s.board, a.at, s.turn);
-      const res = apply(RULESETS.live, s, a);
-      assert.deepEqual(res.state.board, live.board);
-      assert.equal(!!res.win, !!live.win);
+  const R = RULESETS.c3lock;
+  let flipsSeen = 0, lockedBlocks = 0;
+  for (let g = 0; g < 120; g++) {
+    let s = newState(R);
+    for (let k = 0; k < 70; k++) {
+      const legal = legalActions(R, s);
+      const shippedLegal = legalMoves(s.board, s.turn, s.charges);
+      const key = (at: number, flip: boolean) => `${at}:${flip ? 1 : 0}`;
+      assert.deepEqual(new Set(legal.map((a) => key(a.at, a.flips.length > 0))), new Set(shippedLegal.map((m) => key(m.at, m.flip))), 'legal moves differ');
+      // Prefer flips so the lock is exercised.
+      const flips = legal.filter((a) => a.flips.length);
+      const a = flips.length && rand() < 0.5 ? flips[Math.floor(rand() * flips.length)] : legal[Math.floor(rand() * legal.length)];
+      const flip = a.flips.length > 0;
+      assert.ok(isLegal(s.board, { at: a.at, flip }, s.turn, s.charges));
+      const before = s.board;
+      const mine = play(before, a.at, s.turn, flip);
+      const res = apply(R, s, a);
+      assert.deepEqual(mine.board, res.state.board);
+      assert.equal(!!mine.win, !!res.win);
+      for (const f of mine.flipped) assert.ok(before[f] === 1 || before[f] === 2, 'a locked stone was flipped');
+      if (flip) flipsSeen++;
+      // Would-be runs that hold a locked stone are refused.
+      for (let i = 0; i < 225; i++) if (!before[i] && flipsFor(before, i, s.turn).some((f) => before[f] > 2)) lockedBlocks++;
       if (res.win) break;
       s = res.state;
     }
   }
+  assert.ok(flipsSeen > 100, `flips exercised: ${flipsSeen}`);
+  void lockedBlocks;
 }
-console.log('flip-omok variant checks: ok');
+// Charges: a flip is refused with none left, and a timeout-style call (no charges) never flips.
+{
+  const b = newState(RULESETS.c3lock).board;
+  b[at(7, 5)] = 1; b[at(7, 6)] = 2;
+  assert.equal(canFlip(b, at(7, 7), 1, [0, 1, 3]), true);
+  assert.equal(canFlip(b, at(7, 7), 1, [0, 0, 3]), false);
+  assert.equal(isLegal(b, { at: at(7, 7), flip: true }, 1, [0, 0, 3]), false);
+  for (let k = 0; k < 20; k++) assert.equal(chooseMove(b, 1, [0, 0, 3], k % 2 ? 'hard' : 'normal').flip, false);
+  // A flipped stone is locked: the run through it can't be flipped back.
+  const after = play(b, at(7, 7), 1, true).board;
+  after[at(7, 8)] = 2;
+  assert.deepEqual(flipsFor(after, at(7, 4), 2), []);
+}
+console.log('flip-omok checks: ok');

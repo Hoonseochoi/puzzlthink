@@ -1,14 +1,15 @@
 // AI vs AI for 뒤집기 오목 rule variants:
 //   npx tsx scripts/flip-omok/sim.ts <rules> <red> <blue> <games> [seed=20261128] [workers=6]
-// <rules>: an id from RULESETS in src/lib/flipOmokNext.ts, or `liveai` (the live engine and the live AI, untouched).
+// <rules>: an id from RULESETS in ./variants.ts (the research engine; `live` there is the old automatic-flip rules), or
+// `shipped`: the game's own engine and AI (src/lib/flipOmok.ts, 「전략적 뒤집기」 = c3lock).
 // <red>/<blue>: normal | hard. Game g uses seed+g, so a run is repeatable. Prints one JSON summary line.
 // CHARGE_VALUE=<n> sets what the AI thinks an unused charge is worth (default 420).
 import { fork } from 'node:child_process';
-import { chooseMove, play as livePlay, type Board, type Player } from '../../src/lib/flipOmok';
+import { chooseMove, flipsFor, type Board, type Player } from '../../src/lib/flipOmok';
 import {
   RULESETS, apply, chooseAction, isFullBoard, legalActions, lineCells, neutralValue, newState, openThreeDirs, setChargeValue,
   type FlipRules, type NAction, type NState, type NextLevel,
-} from '../../src/lib/flipOmokNext';
+} from './variants';
 
 const SIZE = 15;
 const own = (v: number) => (v === 0 ? 0 : v === 1 || v === 3 ? 1 : 2);
@@ -52,8 +53,8 @@ export interface GameStat {
 
 function playGame(rulesId: string, levels: [NextLevel, NextLevel], seed: number): GameStat {
   Math.random = mulberry32(seed);
-  const live = rulesId === 'liveai';
-  const rules: FlipRules = live ? RULESETS.live : RULESETS[rulesId];
+  const shipped = rulesId === 'shipped';
+  const rules: FlipRules = shipped ? RULESETS.c3lock : RULESETS[rulesId];
   let s: NState = newState(rules);
   const changes = new Array(SIZE * SIZE).fill(0), ever = new Set<number>();
   const flipPlies: { ply: number; p: Player }[] = [];
@@ -65,9 +66,9 @@ function playGame(rulesId: string, levels: [NextLevel, NextLevel], seed: number)
   for (;;) {
     const p = s.turn, foe = (3 - p) as Player;
     let act: NAction;
-    if (live) {
-      const at = chooseMove(s.board, p, levels[p - 1]);
-      act = { at, flips: livePlay(s.board, at, p).flipped, spend: false, post: false };
+    if (shipped) {
+      const mv = chooseMove(s.board, p, s.charges, levels[p - 1]);
+      act = { at: mv.at, flips: mv.flip ? flipsFor(s.board, mv.at, p) : [], spend: mv.flip, post: false };
     } else act = chooseAction(rules, s, levels[p - 1]);
     // Stats before the move.
     if (act.flips.length) {
@@ -173,9 +174,9 @@ export function summarize(rulesId: string, red: string, blue: string, games: Gam
 }
 
 // ---- entry: a parent forks workers, each plays a slice of the seeds and sends back its games ----
-const [rulesId = 'liveai', red = 'normal', blue = 'normal', gamesArg = '200', seedArg = '20261128', workersArg = '6'] = process.argv.slice(2);
+const [rulesId = 'shipped', red = 'normal', blue = 'normal', gamesArg = '200', seedArg = '20261128', workersArg = '6'] = process.argv.slice(2);
 if (process.env.CHARGE_VALUE) setChargeValue(Number(process.env.CHARGE_VALUE));
-if (!(rulesId === 'liveai' || RULESETS[rulesId])) throw new Error(`unknown rules ${rulesId}`);
+if (!(rulesId === 'shipped' || RULESETS[rulesId])) throw new Error(`unknown rules ${rulesId}`);
 const total = Number(gamesArg), seed = Number(seedArg);
 if (process.env.FLIP_SIM_SLICE) {
   const [k, of] = process.env.FLIP_SIM_SLICE.split('/').map(Number);

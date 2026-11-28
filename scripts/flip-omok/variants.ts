@@ -7,7 +7,7 @@
 // - 'free'   : the player may flip (one line at most, when `oneLine`) on any move, unlimited.
 // plus modifiers: one line only, flipped stones locked, a cap on run length, a separate "flip instead of placing"
 // action, whether a five completed by a flip counts, and a "last chance" reply that may break a five with a flip.
-import { SIZE, other, owner, type Board, type Cell, type Line, type Player } from './flipOmok';
+import { SIZE, other, owner, type Board, type Cell, type Line, type Player } from '../../src/lib/flipOmok';
 
 export interface FlipRules {
   id: string;
