@@ -51,6 +51,14 @@ export const PLAY_APP_FINGERPRINTS = {
  */
 export const PLAY_TESTER_OPT_IN_URL = 'https://play.google.com/apps/testing/com.puzzlthink.app';
 
+/**
+ * Whether new members can still sign up as testers. false (2026-11-28, the owner closed it at 237 testers): the recruit
+ * popup, cards and strip are gone for everyone who has not joined, and app_tester_join refuses new sign-ups
+ * (supabase/migrations/20271202200000_app_testers_closed.sql). Members who already joined keep everything: the install
+ * button and popup, their records row and the withdraw control.
+ */
+export const PLAY_TESTER_RECRUIT_OPEN: boolean = false;
+
 /** Query parameter on the app's start URL: /?app=play */
 export const PLAY_APP_PARAM = 'app';
 export const PLAY_APP_VALUE = 'play';

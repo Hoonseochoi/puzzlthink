@@ -11,7 +11,7 @@ import { checkNewIcons } from './IconUnlock';
 import { refreshStoneChoices } from './StoneAvatar';
 import { usePathname } from '@/i18n/routing';
 import { GAMES } from '@/lib/gameCatalog';
-import { PLAY_TESTER_OPT_IN_URL } from '@/lib/playApp';
+import { PLAY_TESTER_OPT_IN_URL, PLAY_TESTER_RECRUIT_OPEN } from '@/lib/playApp';
 import { type SignupSource, markSignupSource } from '@/lib/signupSource';
 import {
   EMAIL_RE, TESTER_INSTALL_OPEN_EVENT, type TesterStatus, dismissPopup, installPopupDue, inviteEmail, isAndroid, isIOS,
@@ -189,6 +189,7 @@ function Compact({ tone, source, slim, className = '' }: { tone: Tone; source: S
     return <div className={`${box(tone)} ${className}`}><Joined tone={tone} email={status.email} listed={status.listed} /></div>;
   }
   if (user && status.kind !== 'not') return null; // loading, or the feature is not live yet
+  if (!PLAY_TESTER_RECRUIT_OPEN) return null; // recruitment is closed: nothing for members who have not joined
   if (slim) {
     const head = (
       <span className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -233,7 +234,7 @@ export function AppTesterPopup() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
 
-  const eligible = !!user && !app && !isIOS() && status.kind === 'not' && nicknameSet !== false
+  const eligible = PLAY_TESTER_RECRUIT_OPEN && !!user && !app && !isIOS() && status.kind === 'not' && nicknameSet !== false
     && (pendingAfterSignIn() || (popupDue() && !onGamePage(path)));
   useEffect(() => {
     if (!eligible || open) return;
@@ -381,6 +382,8 @@ export function AppOnlyOpenCard({ tone = 'dark', compact = false, className = ''
   const android = useAndroid();
   if (app) return null;
   if (compact && (!ready || !user)) return null; // result screens: members only
+  // Recruitment closed: on result screens only members who already joined get the card.
+  if (compact && !PLAY_TESTER_RECRUIT_OPEN && status.kind !== 'joined') return null;
   const dark = tone === 'dark';
   const muted = dark ? 'text-white/60' : 'text-black/55';
   const joined = status.kind === 'joined';
@@ -393,7 +396,8 @@ export function AppOnlyOpenCard({ tone = 'dark', compact = false, className = ''
             <button type="button" onClick={openInstall} className="inline-flex items-center gap-1.5 rounded-full bg-[#5b45c9] px-4 py-2.5 text-[13px] font-black text-white shadow-[0_6px_18px_rgba(91,69,201,.35)] transition active:scale-[.98]"><Download size={14} />{t('headerInstall')}</button>
             {markedInstalled() && <p className={`mt-2 break-keep text-[11px] leading-4 ${muted}`}>{t('hostInstalled')}</p>}
           </div>
-        ) : <>{line(t('hostHow'))}<Consent tone={tone} source={compact ? 'result' : 'other'} /></>;
+        ) : !PLAY_TESTER_RECRUIT_OPEN ? line(t('hostClosed'))
+          : <>{line(t('hostHow'))}<Consent tone={tone} source={compact ? 'result' : 'other'} /></>;
   return (
     <div id={id} data-app-only-open className={`${box(tone)} scroll-mt-24 ${className}`}>
       <HostTag tone={tone} />
@@ -422,7 +426,10 @@ export function AppHostBanner({ tone = 'dark', target, className = '' }: { tone?
       setWelcome(true);
     } catch { /* storage is optional: no welcome */ }
   }, [app]);
+  const { status } = useTester();
   const dark = tone === 'dark';
+  // Recruitment closed: the website banner is for members who already joined (they can install and host).
+  if (!app && !PLAY_TESTER_RECRUIT_OPEN && status.kind !== 'joined') return null;
   if (app) {
     if (!welcome) return null;
     return <p data-host-welcome className={`flex items-center gap-1.5 break-keep rounded-full px-3 py-2 text-[12px] font-black ${dark ? 'bg-[#7c5cff]/20 text-[#e1d8ff]' : 'bg-[#5b45c9]/10 text-[#4a39a8]'} ${className}`}><DoorOpen size={14} className="shrink-0" />{t('appWelcome')}</p>;
