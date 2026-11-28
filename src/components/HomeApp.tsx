@@ -36,6 +36,8 @@ const PUZZLE: GameId[] = ['propositionGo', 'slitherlink', 'hiddenWordPlus', 'hid
 /** 슬리더링크's card while its Christmas theme is the default: candy-cane stripes instead of the game's tint. */
 export const XMAS_CARD = { background: 'repeating-linear-gradient(135deg, #e23b4e 0 9px, #fff7f2 9px 18px)', boxShadow: 'inset 0 0 0 1px rgba(226,59,78,.45)' };
 export const TODAY_PICK: GameId = 'hiddenWordPlus'; // 히든 워드 확장판, the newest release (11/27); was 'slitherlink'
+/** The ORIGINAL row comes after this many tiles of the full list (four rows of three). */
+const ORIGINALS_AFTER = 12;
 export const CATS = ['all', 'new', 'original', 'versus', 'puzzle', 'hell'] as const;
 export type Cat = (typeof CATS)[number];
 export const inCat = (g: CatalogGame, cat: Cat) =>
@@ -369,9 +371,6 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
         <AppTesterStrip className="mx-4 mt-3" />
       </section>
 
-      {/* PUZZLTHINK ORIGINAL: the site's own games */}
-      <div className="px-4 pt-3"><OriginalsRow Preview={Preview} isNew={(id) => NEW.includes(id)} onOpen={pushRecent} /></div>
-
       {/* category chips (stick while scrolling) */}
       <nav className="sticky top-0 z-10 mt-2 flex gap-1.5 overflow-x-auto bg-[#f3f0e8]/90 px-4 py-2.5 backdrop-blur [scrollbar-width:none]">
         {CATS.map((c) => (
@@ -421,7 +420,9 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
 
         {/* every other game: picture tiles, three across */}
         <ul className="mt-2.5 grid grid-cols-3 gap-x-2.5 gap-y-3">
-          {rest.map((g) => (
+          {rest.flatMap((g, i) => [
+            // PUZZLTHINK ORIGINAL sits in the middle of the full list, not above everything.
+            cat === 'all' && i === ORIGINALS_AFTER ? <li key="originals" className="col-span-full py-1"><OriginalsRow Preview={Preview} isNew={(id) => NEW.includes(id)} onOpen={pushRecent} /></li> : null,
             <li key={g.id}>
               <Link href={g.href} onClick={() => pushRecent(g.href)} className="block active:scale-95">
                 <span className="relative block aspect-square overflow-hidden rounded-[20px]" style={g.id === 'slitherlink' ? XMAS_CARD : { background: `linear-gradient(160deg, ${tint(g.color, 0.3)} 0%, ${tint(g.color, 0.12)} 100%)`, boxShadow: `inset 0 0 0 1px ${tint(g.color, 0.28)}` }}>
@@ -437,8 +438,8 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
                 <span className="mt-1.5 block truncate text-center text-[12px] font-black tracking-[-0.02em]">{tc(g.id)}</span>
                 <TopOne podium={podiums?.get(g.href)} />
               </Link>
-            </li>
-          ))}
+            </li>,
+          ])}
         </ul>
 
         <div id="open-match" className="mt-6 scroll-mt-16">{openMatch}</div>

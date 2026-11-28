@@ -77,6 +77,9 @@ function FeedList({ items }: { items: FeedItem[] }) {
   );
 }
 
+/** The ORIGINAL row comes after this many tiles of the full list (two rows of five on a wide screen). */
+const ORIGINALS_AFTER = 10;
+
 export default function HomeWeb({ Preview, openMatch, className = '' }: { Preview: ComponentType<{ id: GameId }>; openMatch: ReactNode; className?: string }) {
   const t = useTranslations('Home');
   const th = useTranslations('HomeApp');
@@ -207,8 +210,6 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
 
         <div className="mt-6 grid gap-6 lg:mt-9 lg:grid-cols-[minmax(0,1fr)_316px] lg:gap-7">
           <div className="min-w-0">
-            {/* PUZZLTHINK ORIGINAL: the site's own games */}
-            <OriginalsRow Preview={Preview} isNew={(id) => NEW.includes(id)} onOpen={pushRecent} className="mb-6" />
             {/* categories */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-[20px] font-black tracking-[-0.04em] lg:text-[24px]">{th('gamesTitle')}</h2>
@@ -224,9 +225,11 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
 
             {/* every game */}
             <ul className="mt-4 grid grid-cols-4 gap-2.5 md:grid-cols-5 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
-              {list.map((g) => {
+              {list.flatMap((g, i) => {
                 const rate = rates?.get(g.href);
-                return (
+                return [
+                  // PUZZLTHINK ORIGINAL sits in the middle of the full list, not above everything.
+                  cat === 'all' && i === ORIGINALS_AFTER ? <li key="originals" className="col-span-full py-2"><OriginalsRow Preview={Preview} isNew={(id) => NEW.includes(id)} onOpen={pushRecent} /></li> : null,
                   <li key={g.id}>
                     <Link href={g.href} onClick={() => pushRecent(g.href)} className={`group block h-full p-2 transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-[0_20px_44px_rgba(30,38,36,.13)] active:scale-[.98] md:p-2.5 ${CARD}`}>
                       <span className="relative block aspect-square overflow-hidden rounded-[18px]" style={g.id === 'slitherlink' ? XMAS_CARD : { background: `linear-gradient(160deg, ${tint(g.color, 0.32)} 0%, ${tint(g.color, 0.12)} 100%)`, boxShadow: `inset 0 0 0 1px ${tint(g.color, 0.28)}` }}>
@@ -244,8 +247,8 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
                       <span className="mt-0.5 line-clamp-2 min-h-[30px] break-keep px-0.5 text-[11px] leading-[15px] text-black/45 max-lg:hidden">{desc(g)}</span>
                       <span className="mt-1 block border-t border-black/[0.06] pt-1.5 [&>span]:justify-start"><TopOne podium={podiums?.get(g.href)} /></span>
                     </Link>
-                  </li>
-                );
+                  </li>,
+                ];
               })}
             </ul>
 
