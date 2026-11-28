@@ -1,5 +1,6 @@
 "use client";
 
+import { OPEN_DIALOG_EVENT } from './OpenBar';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { DoorOpen, Loader2, Lock, LogIn, MessageCircle, Plus, RefreshCw, Sparkles, Swords, UsersRound, X } from 'lucide-react';
@@ -66,6 +67,13 @@ export default function OpenMatchCard({ previews }: { previews: Partial<Record<G
   const [creating, setCreating] = useState<string | null>(null);
   const [title, setTitle] = useState(''); // room title, set before picking the game
   const [tick, setTick] = useState(0);
+
+  // The home's thin 오픈 대전 bar (OpenBar) opens these dialogs.
+  useEffect(() => {
+    const on = (e: Event) => { const d = (e as CustomEvent).detail; if (d === 'create' || d === 'join') setDialog(d); };
+    window.addEventListener(OPEN_DIALOG_EVENT, on);
+    return () => window.removeEventListener(OPEN_DIALOG_EVENT, on);
+  }, []);
 
   useEffect(() => {
     let alive = true;

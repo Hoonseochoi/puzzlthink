@@ -14,7 +14,6 @@ import { GAMES, type CatalogGame, type GameId } from '@/lib/gameCatalog';
 import { useAppGames, usePlayApp } from '@/components/playApp/usePlayApp';
 import { hiddenGameOfPath } from '@/lib/playApp';
 import { CERT_GAMES } from '@/lib/hardClear';
-import { listAllOpenRooms, listLiveRooms } from '@/lib/openRooms';
 import { getSupabase } from '@/lib/supabase';
 import type { GameId as StatsGameId } from '@/lib/stats';
 import { useAuth } from './AuthProvider';
@@ -30,6 +29,7 @@ import { FitTile } from './OpenMatchCard';
 import StoneAvatar, { Stone } from './StoneAvatar';
 import { AppTesterStrip } from './AppTesterInvite';
 import OriginalsRow from './OriginalsRow';
+import OpenBar from './OpenBar';
 import { CHANGED_TAG } from './changedTags';
 
 // Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
@@ -248,29 +248,14 @@ export function MyRank({ rank, name }: { rank?: number; name: string }) {
   );
 }
 
-/** The home's event banners: AI 헬모드, 피스 경쟁전 (while it runs) and 오픈 대전 with the matches on right now. */
+/** The home's event banners: AI 헬모드 and 피스 경쟁전. 오픈 대전 has its own thin bar under them (OpenBar). */
 export function useHomeEvents(races: Races) {
   const th = useTranslations('HomeApp');
   const [week] = useState(() => piecePeriodOf()); // 피스 경쟁전 runs every week now
-  const [rooms, setRooms] = useState<number | null>(null);
-  const [live, setLive] = useState<{ open: number; friend: number } | null>(null); // matches being played right now
-  useEffect(() => {
-    let alive = true;
-    const load = () => {
-      listAllOpenRooms().then((list) => { if (alive && list) setRooms(list.length); });
-      listLiveRooms().then((list) => { if (alive && list) setLive({ open: list.reduce((n, r) => n + r.open, 0), friend: list.reduce((n, r) => n + r.friend, 0) }); });
-    };
-    load();
-    const timer = window.setInterval(() => { if (document.visibilityState === 'visible') load(); }, 60_000);
-    return () => { alive = false; window.clearInterval(timer); };
-  }, []);
-
-  const openSide = <RacePodium rows={races.open} icon={(p) => `o-${p}`} accent="#b9c1ff" count={(n) => th('winsN', { n })} />;
 
   const events = [
     { key: 'hell', icon: <Skull size={15} />, eyebrow: 'AI HELL MODE', title: th('evHellTitle'), sub: th('evHellSub'), cta: th('evHellCta'), bg: 'linear-gradient(135deg, #2a0812 0%, #07060a 70%)', accent: '#ff3355', href: '/hell' as const, hash: undefined, side: <RacePodium rows={races.black} icon={(p) => `h1-${p}`} accent="#ff8ea0" /> },
     { key: 'piece', icon: <Puzzle size={15} />, eyebrow: `PIECE RACE · ${week}W`, title: th('evPieceTitle', { n: week }), sub: th('evPieceSub', { end: kstMonthDay(piecePeriodBounds(week).ends - 1) }), cta: th('evPieceCta'), bg: 'linear-gradient(135deg, #2c2a14 0%, #17201e 70%)', accent: '#ffd36e', href: '/records' as const, hash: 'competition', side: <RacePodium rows={races.piece} icon={(p) => `w${week}-${p}`} accent="#ffd36e" /> },
-    { key: 'open', icon: <Swords size={15} />, eyebrow: 'OPEN MATCH', title: th('evOpenTitle'), sub: live ? th('evOpenLive', { open: live.open, friend: live.friend }) + (rooms ? ` · ${th('evOpenWaiting', { n: rooms })}` : '') : rooms ? th('evOpenRooms', { n: rooms }) : th('evOpenSub'), cta: th('evOpenCta'), bg: 'linear-gradient(135deg, #1b1f4a 0%, #0e1020 70%)', accent: '#8f9bff', href: '/' as const, hash: 'open-match', side: openSide },
   ];
   return events;
 }
@@ -376,6 +361,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
           ))}
         </div>
         <div className="mt-2 flex justify-center gap-1.5">{events.map((e, i) => <i key={e.key} className={`h-1.5 rounded-full transition-all ${i === ev ? 'w-4 bg-[#17201e]' : 'w-1.5 bg-black/20'}`} />)}</div>
+        <div className="px-4"><OpenBar className="mt-2" /></div>
         <LiveFeed items={feed} />
       </section>
 
