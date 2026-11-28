@@ -6195,8 +6195,8 @@
       "local": "Two players taking turns on one device"
     },
     "levelTips": {
-      "normal": "Looks one move ahead. Sometimes saves its flips too long.",
-      "hard": "Reads several moves, your flips included."
+      "normal": "Always blocks your fours and open threes, but misses longer sequences.",
+      "hard": "Reads winning runs of fours several moves deep, flips included."
     },
     "movesPlayed": "{n} moves",
     "legendTitle": "Reading the board",

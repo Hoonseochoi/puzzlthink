@@ -2,7 +2,8 @@
 // per player; flipsFor: any length, 8 directions, only the mover flips, only when they spend a 뒤집기, runs holding a
 // flipped (locked) stone never flip; play/fiveThrough: exactly five through the placed stone, none of this move's flips in
 // it; isForbidden: 쌍삼 for both sides unless the move makes five, quiet and flipping moves judged apart; chooseMove:
-// 중간 = casualMove, 어려움 = readerMove, both valuing a 뒤집기 at 420 window points), src/lib/flipOmokRoom.ts
+// both levels: five → stop every five → (어려움: VCF) → stop an open three → best move after the opponent's best reply,
+// a 뒤집기 only to win, stop a loss or make a four/open three with one kept), src/lib/flipOmokRoom.ts
 // (15/30/60-second turns, default 30, a timeout plays the 중간 AI's move without a 뒤집기, three in a row lose, red drawn
 // at random then swapped on rematch, full board → draw), FlipOmokGame.tsx (vs COCO you are red and move first, undo takes back the AI's
 // reply too, a one-device mode) and the FlipOmokGuide / FlipOmok messages.
@@ -231,8 +232,8 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['모드', '알아 둘 점'], rows: [
             ['AI 대국 (COCO)', '나는 레드(선공)예요. 무르기를 쓰면 AI의 응수까지 함께 되돌려요. 기권은 패배로 기록돼요. 난이도는 첫 수 전에만 바꿀 수 있어요.'],
-            ['중간', '자기 수만 보고 둬요. 5목은 반드시 만들고 상대 5목 자리는 막아요(필요하면 뒤집기로 상대 4를 끊어요). 뒤집기 한 번을 돌 서너 개만큼 귀하게 여겨서 이득이 클 때만 쓰지만, 판단에 흔들림이 커서 열린 3을 놓치거나 뒤집기를 쓸 때를 놓치기도 해요.'],
-            ['어려움', '자기 수와 상대의 가장 좋아 보이는 응수까지 읽어요. 내 뒤집기와 상대의 뒤집기를 모두 계산해서, 상대의 열린 3은 반드시 풀고 막는 돌이 뒤집히는 함정도 봐요. COCO가 뒤집기를 쓸 때는 노리는 돌을 금색 표적으로 잠깐 먼저 보여 줘요. 한 수 앞 읽기라 더 긴 수순에는 약해요.'],
+            ['중간', '5목은 반드시 만들고, 상대가 다음 수에 5목을 만들 자리는 모두 막아요(놓을 곳이 없으면 뒤집기로 상대 4의 돌을 뒤집어 끊어요). 상대 열린 3도 반드시 막고, 상대의 가장 좋은 응수(뒤집기 포함)를 한 번 보고 둬요. 대신 넓게 읽지 않고 판단에 흔들림이 있어서 더 긴 수순이나 미묘한 수는 놓쳐요. 뒤집기는 이기거나 지는 걸 막을 때, 또는 4·열린 3을 만들 때만 써요.'],
+            ['어려움', '중간이 하는 수비를 모두 하고, 4를 연달아 두어 이기는 수순(뒤집기 포함)을 여러 수 앞까지 찾아요. 상대의 응수도 더 넓게 읽어요. 6목이 될 줄은 쓸모없다는 것도 알아서 그런 줄을 늘리지 않아요. COCO가 뒤집기를 쓸 때는 노리는 돌을 금색 표적으로 잠깐 먼저 보여 줘요.'],
             ['한 기기 대국', '한 화면에서 두 사람이 번갈아 둬요.'],
             ['친구 방', '링크나 4자리 코드로 방을 만들어요. 첫 판의 레드는 무작위이고 재대결마다 바뀌어요. 한 수 15·30·60초(기본 30초), 시간이 지나면 중간 AI가 대신 한 수를 두고(뒤집기는 쓰지 않아요), 세 번 연속이면 패배예요.'],
           ] },
@@ -436,8 +437,8 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['Mode', 'Worth knowing'], rows: [
             ['AI games (COCO)', 'You are red and move first. Undo takes back the AI’s reply too. Resigning counts as a loss. The level can only be changed before the first move.'],
-            ['Medium', 'Looks only at its own move. It always makes a five and blocks one (with a flip that cuts your four if needed). It values a flip like three or four stones and spends one only for a real gain, but its judgement is loose: open threes get past it, and it sometimes saves a flip too long.'],
-            ['Hard', 'Reads its move and your best-looking reply, counting both sides’ flips. It always defuses your open three and sees the trap of a blocker that gets flipped. Before COCO flips it shows its targets in gold for a moment. It still reads only one reply deep, so longer sequences beat it.'],
+            ['Medium', 'Always makes a five, and stops every five you could make next move (with a flip that cuts your four when no placement can). It always answers an open three and checks your best reply, flips included, before moving. It reads less widely and has some noise, so longer sequences and subtle moves get past it. It flips only to win, to stop a loss, or to make a four or open three.'],
+            ['Hard', 'Everything Medium defends, plus a search for wins by consecutive fours several moves deep (flips included) and a wider look at your replies. It knows a line that can only become six is worthless and never builds one. Before COCO flips it shows its targets in gold for a moment.'],
             ['One device', 'Two people take turns on one screen.'],
             ['Friend rooms', 'Create a room with a link or 4-digit code. Red is drawn at random for the first game and swaps on every rematch. Moves are 15, 30 or 60 seconds (30 by default); on a timeout the Medium AI plays for you without spending a flip, and three in a row lose.'],
           ] },

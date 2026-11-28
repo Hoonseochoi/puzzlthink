@@ -50,7 +50,8 @@ for (let m = 0; m < matches; m++) {
     // Charges: one per flip, none on a timeout.
     const spent = chargesBefore - roomCharges(next)[p];
     assert.equal(spent, flipped ? 1 : 0, `charges went ${chargesBefore} → ${roomCharges(next)[p]}`);
-    if (timedOut) assert.equal(next.flipped.length, 0, 'a timed-out move flipped');
+    // (A third timeout ends the game without a move; the finished state keeps the last real move's flips.)
+    if (timedOut && next.moves > s.moves) assert.equal(next.flipped.length, 0, 'a timed-out move flipped');
     if (flipped) { flipsTotal++; assert.ok(next.flipped.length > 0); }
     // Locked stones never change.
     for (const l of locked) { const [i, c] = l.split(':').map(Number); assert.equal(next.board[i], c, 'a locked stone changed'); }
