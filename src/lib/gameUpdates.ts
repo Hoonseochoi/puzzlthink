@@ -385,7 +385,7 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     items: [
       {
         date: '11/28', icon: Bot,
-        ko: { title: 'COCO가 제대로 막고 읽어요', desc: '이제 COCO는 중간·어려움 모두 상대의 4와 열린 3을 꼭 막고, 6목이 될 쓸모없는 줄을 늘리거나 그런 데 뒤집기를 쓰지 않아요. 어려움은 4를 연달아 두는 승리 수순까지 읽어요.' },
+        ko: { title: 'COCO가 제대로 막고 읽어요', desc: '이제 COCO는 보통·어려움 모두 상대의 4와 열린 3을 꼭 막고, 6목이 될 쓸모없는 줄을 늘리거나 그런 데 뒤집기를 쓰지 않아요. 어려움은 4를 연달아 두는 승리 수순까지 읽어요.' },
         en: { title: 'COCO now blocks and reads properly', desc: 'At both levels COCO now always blocks your fours and open threes, and never grows a line that can only become six or spends a flip on one. Hard also reads winning runs of fours.' },
       },
       {
