@@ -13,19 +13,18 @@ import { useBackClose } from '@/hooks/useBackClose';
 import InviteCode from '@/components/ui/InviteCode';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import { BTN, BTN_ACCENT, INPUT, MODAL, MODAL_BACKDROP, MODAL_CLOSE, PANEL, PANEL_TITLE, SHELL, STAGE } from '@/components/ui/gameUi';
-import { useHiddenWordParty } from '@/hooks/useHiddenWordParty';
+import { startPartyMatch, useHiddenWordParty } from '@/hooks/useHiddenWordParty';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
 import { hwClean, isHwWord } from '@/lib/hiddenWord';
-import { hwrReveal, hwrScore } from '@/lib/hiddenWordRoom';
-import { HWP_CFG, type HwpRoom, type HwpTurn, hwpAnswered, hwpClaim, hwpDeal, hwpGuessers, hwpHintsThisStage, hwpLock, hwpMine, hwpSaveMine, hwpTaken, hwpUsed } from '@/lib/hiddenWordParty';
+import { HWP_CFG, HWP_MAX, type HwpRoom, type HwpTurn, hwpAnswer, hwpAnswered, hwpClaim, hwpGuessers, hwpHint, hwpHintsThisStage, hwpLock, hwpMine, hwpReveal, hwpSaveMine, hwpTaken, hwpUsed } from '@/lib/hiddenWordParty';
 import { reportGame } from '@/lib/stats';
 import { HWP_ACCENT, HWP_GOLD, type HwCopy, hwCopy, hwRootStyle } from './copy';
 import { EditionMark, Envelope, SimRow, WordCard } from './HiddenWordParts';
 
 type Party = HwCopy['party'];
 
-/** 히든 워드 확장판 party room: 2–5 friends, one setter at a time, everyone else answers (rules: src/lib/hiddenWordParty.ts). */
+/** 히든 워드 확장판 party room: 2–6 players (friends or an open room), one setter at a time, everyone else answers (rules: src/lib/hiddenWordParty.ts). */
 export default function HiddenWordPartyView({ code }: { code: string }) {
   const locale = useLocale();
   const t = hwCopy(locale, 'plus');
@@ -56,14 +55,14 @@ export default function HiddenWordPartyView({ code }: { code: string }) {
   const seconds = state?.deadline ? Math.max(0, Math.ceil((state.deadline - now) / 1000)) : null;
   const name = (seat: number) => state?.seats[seat]?.name ?? t.room.guest;
 
-  // Host: out of time below the cut, the closest list word goes on the board.
-  const revealKey = state && turn && phase === 'reveal' && me?.isHost ? `${state.sid}-${state.round}-${state.turnIdx}-${turn.stage}` : '';
+  // Setter: out of time below the cut, the closest list word goes on the board (only the setter's browser may ask).
+  const revealKey = state && turn && phase === 'reveal' && mySeat === turn.setter ? `${state.sid}-${state.round}-${state.turnIdx}-${turn.stage}` : '';
   const revealed = useRef('');
   useEffect(() => {
     if (!revealKey || revealed.current === revealKey || !turn) return;
     revealed.current = revealKey;
-    void hwrReveal(turn.lock, hwpUsed(turn)).then((rev) => dispatch({ t: 'reveal', rev: rev ?? null }));
-  }, [revealKey, turn, dispatch]);
+    void hwpReveal(state!.deal, turn.lock, hwpUsed(turn)).then((rev) => dispatch({ t: 'reveal', rev: rev ?? null }));
+  }, [revealKey, turn, state, dispatch]);
 
   // Setter: when the turn ends, show everyone the word (only this browser knows it).
   useEffect(() => {
@@ -84,10 +83,9 @@ export default function HiddenWordPartyView({ code }: { code: string }) {
   const start = async () => {
     if (!state || starting) return;
     setStarting(true); setError('');
-    const seated = state.seats.filter((s, i) => s && i < state.capacity).length;
-    const deal = await hwpDeal(seated);
+    const deal = await startPartyMatch(state, dispatch);
     setStarting(false);
-    if (deal?.deal) dispatch({ t: 'start', deal: deal.deal }); else setError(deal?.error === 'login' ? p.needLogin : t.room.errorServer);
+    if (!deal?.deal || deal.error) setError(deal?.error === 'login' ? p.needLogin : t.room.errorServer);
   };
   const copyLink = async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* blocked */ } };
   const shareLink = async () => { if (navigator.share) { try { await navigator.share({ title: t.title, text: p.shareText, url: shareUrl }); return; } catch { /* cancelled */ } } void copyLink(); };
@@ -125,7 +123,7 @@ export default function HiddenWordPartyView({ code }: { code: string }) {
               <div className="flex items-center justify-between gap-2">
                 <p className={PANEL_TITLE}>{p.seats}</p>
                 <div className="flex gap-1" role="radiogroup" aria-label={p.seats}>
-                  {[2, 3, 4, 5].map((n) => (
+                  {Array.from({ length: HWP_MAX - 1 }, (_, i) => i + 2).map((n) => (
                     <button key={n} type="button" role="radio" aria-checked={state.capacity === n} disabled={!me?.isHost} onClick={() => dispatch({ t: 'capacity', n })}
                       className={`h-8 w-8 rounded-md text-xs font-black transition ${state.capacity === n ? 'bg-(--accent) text-(--accent-ink)' : 'border border-white/15 text-white/60 disabled:opacity-40'}`}>{n}</button>
                   ))}
@@ -185,10 +183,10 @@ function Scoreboard({ state, mySeat, name, p }: { state: HwpRoom; mySeat: number
   return (
     <div className="rounded-[14px] border border-white/10 bg-[#121217]/85 px-3 py-2.5 backdrop-blur">
       <div className="flex items-center justify-between text-[10px] font-black tracking-[0.16em] text-white/45">
-        <span>ROUND {state.round}{state.round === 2 && <span className="ml-1.5 rounded-sm px-1 tracking-normal" style={{ background: `${HWP_GOLD}26`, color: HWP_GOLD }}>×2</span>}</span>
-        {turn && <span>{p.turnOf(name(turn.setter))} · {state.turnIdx + 1}/{state.order.length}</span>}
+        <span>TURN {Math.min(state.turnIdx + 1, state.order.length)}/{state.order.length}</span>
+        {turn && <span className="truncate pl-2">{p.turnOf(name(turn.setter))}</span>}
       </div>
-      <ul className="mt-2 grid grid-cols-2 gap-1.5 min-[420px]:grid-cols-3">
+      <ul className={`mt-2 grid gap-1.5 ${state.players.length > 4 ? 'grid-cols-3' : 'grid-cols-2 min-[420px]:grid-cols-3'}`}>
         {state.players.map((seat) => (
           <li key={seat} className={`flex items-center justify-between gap-1.5 rounded-[9px] border px-2 py-1.5 ${turn?.setter === seat ? 'border-[#ffd66b]/60 bg-[#ffd66b]/10' : seat === mySeat ? 'border-(--accent)/50 bg-(--accent)/10' : 'border-white/10 bg-black/25'}`}>
             <span className="flex min-w-0 items-center gap-1 text-[12px] font-black">{turn?.setter === seat && <KeyRound size={11} className="shrink-0 text-[#ffd66b]" />}<span className="truncate">{name(seat)}</span>{answered.includes(seat) && <Check size={11} className="shrink-0 text-(--accent)" />}</span>
@@ -302,9 +300,9 @@ function TurnStage({ state, turn, mySeat, name, t, p, seconds, onHint, onAnswer,
       </ul>
 
       {state.phase === 'reveal' && <p className="mt-3 flex items-center gap-2 text-[13px] text-white/55"><Loader2 size={14} className="animate-spin" />{t.room.revealing}</p>}
-      {state.phase === 'hint' && (setting ? <HintDock turn={turn} t={t} onHint={onHint} /> : <p className="mt-3 text-[13px] text-white/55">{t.room.hintWait(name(turn.setter))}</p>)}
+      {state.phase === 'hint' && (setting ? <HintDock deal={state.deal} turn={turn} t={t} onHint={onHint} /> : <p className="mt-3 text-[13px] text-white/55">{t.room.hintWait(name(turn.setter))}</p>)}
       {state.phase === 'answer' && (guessing && !answeredNow.includes(mySeat!)
-        ? <AnswerDock turn={turn} mySeat={mySeat!} t={t} p={p} onAnswer={onAnswer} />
+        ? <AnswerDock deal={state.deal} turn={turn} mySeat={mySeat!} t={t} p={p} onAnswer={onAnswer} />
         : <p className="mt-3 flex items-center gap-2 text-[13px] text-white/55"><Users size={14} />{p.answered(answeredNow.length, hwpGuessers(state, turn).length)}</p>)}
       {ended && (
         <div className="mt-4 rounded-[14px] border border-(--accent)/40 bg-(--accent)/[0.08] p-4 text-center">
@@ -317,7 +315,7 @@ function TurnStage({ state, turn, mySeat, name, t, p, seconds, onHint, onAnswer,
   );
 }
 
-function HintDock({ turn, t, onHint }: { turn: HwpTurn; t: HwCopy; onHint: (word: string, s: number, rev?: { w: string; s: number } | null) => void }) {
+function HintDock({ deal, turn, t, onHint }: { deal: string; turn: HwpTurn; t: HwCopy; onHint: (word: string, s: number, rev?: { w: string; s: number } | null) => void }) {
   const [word, setWord] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -329,11 +327,11 @@ function HintDock({ turn, t, onHint }: { turn: HwpTurn; t: HwCopy; onHint: (word
     if (!isHwWord(clean)) { setError(t.errors.invalid); return; }
     if (hwpUsed(turn).includes(clean)) { setError(t.errors.duplicate); return; }
     setBusy(true); setError('');
-    const scores = await hwrScore(turn.lock, [clean], 'hint');
+    const scores = await hwpHint(deal, turn.lock, clean);
     const s = scores?.[0];
     if (s === undefined || s === null) { setBusy(false); setError(scores ? t.errors.unknown : t.room.errorServer); return; }
     if (s >= 100) { setBusy(false); setError(t.errors.secret); return; }
-    const rev = left === 1 && s < HWP_CFG.cut ? await hwrReveal(turn.lock, [...hwpUsed(turn), clean]) : null;
+    const rev = left === 1 && s < HWP_CFG.cut ? await hwpReveal(deal, turn.lock, [...hwpUsed(turn), clean]) : null;
     setBusy(false); setWord('');
     onHint(clean, s, rev);
   };
@@ -349,7 +347,7 @@ function HintDock({ turn, t, onHint }: { turn: HwpTurn; t: HwCopy; onHint: (word
   );
 }
 
-function AnswerDock({ turn, mySeat, t, p, onAnswer }: { turn: HwpTurn; mySeat: number; t: HwCopy; p: Party; onAnswer: (words: string[], s: number[]) => void }) {
+function AnswerDock({ deal, turn, mySeat, t, p, onAnswer }: { deal: string; turn: HwpTurn; mySeat: number; t: HwCopy; p: Party; onAnswer: (words: string[], s: number[]) => void }) {
   const [word, setWord] = useState('');
   const [second, setSecond] = useState('');
   const [two, setTwo] = useState(false);
@@ -363,9 +361,10 @@ function AnswerDock({ turn, mySeat, t, p, onAnswer }: { turn: HwpTurn; mySeat: n
     if (!words.every(isHwWord)) { setError(t.errors.invalid); return; }
     if (new Set(words).size !== words.length || words.some((w) => hwpTaken(turn).includes(w))) { setError(t.errors.duplicate); return; }
     setBusy(true); setError('');
-    const scores = await hwrScore(turn.lock, words, 'answer');
+    const res = await hwpAnswer(deal, turn.lock, words);
     setBusy(false);
-    if (!scores || scores.some((s) => s === null)) { setError(scores ? t.errors.unknown : t.room.errorServer); return; }
+    const scores = res?.s;
+    if (!res || res.error || !scores || scores.some((s) => s === null)) { setError(res?.error === 'unknown' || scores ? t.errors.unknown : t.room.errorServer); return; }
     onAnswer(words, scores as number[]);
   };
   return (
@@ -399,7 +398,7 @@ function FinalStage({ state, mySeat, name, t, p, isHost, starting, onAgain }: { 
       <ul className="mt-4 space-y-1 text-left">
         {state.history.map((h, i) => (
           <li key={i} className="flex items-center justify-between gap-2 rounded-md bg-black/25 px-3 py-1.5 text-[12px]">
-            <span className="text-white/55">R{h.round} · {t.room.turnOf(name(h.setter))}</span><strong lang="ko" className="text-white/85">{h.word ?? '—'}</strong>
+            <span className="text-white/55">{i + 1} · {t.room.turnOf(name(h.setter))}</span><strong lang="ko" className="text-white/85">{h.word ?? '—'}</strong>
             <span className="font-mono text-white/60">{h.solved === -1 ? p.skipped : h.solved ? t.histSolved(h.solved) : t.histHeld}</span>
           </li>
         ))}

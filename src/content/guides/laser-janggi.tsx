@@ -1,7 +1,7 @@
 // 레이저 장기 guide. Rules and numbers follow src/lib/laserJanggi.ts (initialLaserPieces, legalActions: one step in 8
 // directions or a 90° turn, the laser only turns and never off the board; triangleReflection, splitterReflection,
 // the square's single mirror face; traceLaser hits both sides' pieces; applyLaserAction: only the mover's laser
-// fires, hitting your own king loses; chooseLaserAiAction levels), src/lib/laserJanggiRoom.ts (60/30/90-second turns,
+// fires, hitting your own king loses; laserJanggiAi.ts thinkLaser levels), src/lib/laserJanggiRoom.ts (60/30/90-second turns,
 // a timed-out turn is played by the easy AI, the third timeout in a row loses, LASER_MAX_TURNS 200 → draw, random
 // first player) and LaserJanggiGame.tsx (vs AI you are blue/cyan and move first, no clock), plus the LaserJanggiGuide
 // and LaserJanggi messages in ko.json.
@@ -64,7 +64,7 @@ const fig = (f: Fig) => <LaserFigure {...f} />;
 const guide: GameGuide = {
   game: 'laserJanggi',
   origin: { kind: 'show', show: 'genius2' },
-  updated: '2026-11-28',
+  updated: '2026-11-29',
   related: ['janggi', 'cardJanggi', 'russianJanggi', 'wallgo'],
   ko: {
     meta: {
@@ -175,7 +175,7 @@ const guide: GameGuide = {
             '**네모기사는 방패이자 되돌리개**: 거울 면을 상대 빛 쪽으로 향하게 두면 그 방향의 공격을 통째로 돌려보내요. 단 나머지 세 면은 약하니, 상대 빛이 옆에서 들어올 수 있는 자리에는 두지 마세요.',
             '**세모기사의 두 얼굴**: 같은 세모기사가 돌린 방향에 따라 내 빛을 꺾는 거울도 되고, 상대 빛을 막는 벽(짧은 면은 사라지지만 그 뒤를 가려 줘요)도 돼요. 왕 앞의 세모기사는 "맞아서 사라지더라도 그 수에는 왕을 지켜 주는" 마지막 방패예요.',
           ] },
-          { type: 'callout', tone: 'tip', title: '말 가치를 대략 알아 두기', text: '이 게임의 AI는 스플리터를 7, 네모기사를 5, 세모기사를 3 정도로 보고 형세를 판단해요. 스플리터와 레이저는 사라지지 않으니, 실제로 잃을 수 있는 건 기사들이에요. 세모기사 하나를 내주고 상대 네모기사를 없애는 교환은 대개 이득이에요.' },
+          { type: 'callout', tone: 'tip', title: '말 가치를 대략 알아 두기', text: '이 게임의 AI는 네모기사를 5, 세모기사를 3 정도로 보고, 여기에 왕 주변을 가린 거울과 상대 빛이 왕 곁을 지나는지를 더해 형세를 판단해요. 스플리터와 레이저는 사라지지 않으니, 실제로 잃을 수 있는 건 기사들이에요. 세모기사 하나를 내주고 상대 네모기사를 없애는 교환은 대개 이득이에요.' },
         ],
       },
       {
@@ -209,10 +209,10 @@ const guide: GameGuide = {
         title: '모드별 메모 — AI 난이도와 친구 방',
         blocks: [
           { type: 'table', head: ['모드', '알아 둘 점'], rows: [
-            ['AI 대국', '나는 청록 진영이고 항상 먼저 둬요. 시간 제한은 없어요. 난이도는 첫 수 전에만 바꿀 수 있어요.'],
-            ['쉬움', '왕을 바로 맞힐 수 있으면 놓치지 않지만, 그 밖에는 괜찮은 수 열두 개 중 아무거나 골라 실수가 많아요. 다만 자기 빛으로 자기 말을 맞히는 수는 (다른 수가 있는 한) 어느 난이도든 두지 않아요.'],
-            ['보통', '바로 이기는 수를 먼저 보고, 그 밖에는 형세 점수가 높은 네 수 가운데 대부분 가장 좋은 수를 둬요.'],
-            ['어려움', '좋은 후보 24수마다 내 강한 응수 24수까지 읽고, 가장 덜 손해 보는 수를 골라요. 자기 왕을 맞히는 수는 절대 두지 않아요.'],
+            ['AI 대국', '나는 청록 진영이고 항상 먼저 둬요. 시간 제한은 없어요. 난이도는 첫 수 전에만 바꿀 수 있어요. 말을 고르고 칸이나 회전을 누르면 예상 광선이 점선으로 보이고, 한 번 더 눌러야 발사돼요. 상대가 다음 수에 내 왕을 맞힐 수 있으면 왕에 빨간 경고가 떠요.'],
+            ['쉬움', '내 수와 상대의 바로 다음 수까지만 봐요. 왕을 맞힐 수 있으면 놓치지 않고, 다음 수에 왕이 맞는 수는 피하지만, 그 밖에는 괜찮은 수 열두 개 중 아무거나 골라 실수가 많아요.'],
+            ['보통', '세 수 앞(내 수 → 상대 응수 → 내 다음 수)까지 읽고, 그 끝에서 양쪽이 왕을 노리는 길이 몇 개인지 세어 판단해요. 비슷하게 좋은 수 가운데서 골라 매판 조금씩 달라요.'],
+            ['어려움', '정해진 시간(약 0.8초) 안에서 두 수, 세 수, 네 수, 다섯 수 앞까지 차례로 깊게 읽어요. 왕을 노리는 두 갈래 위협을 미리 만들고, 내 위협은 빠짐없이 막아요. 기기 성능이 좋을수록 더 깊이 읽어요.'],
             ['친구 방', '링크나 4자리 코드로 방을 만들어요. 한 수 시간은 60·30·90초 중에서 방장이 정하고, 선공은 무작위예요. 시간이 지나면 쉬움 AI가 대신 한 수를 두고, 세 번 연속 시간이 지나면 패배예요. 오픈 대전에 방을 열 수도 있어요.'],
             ['복기', '끝난 판은 한 수씩 광선과 함께 다시 볼 수 있어요.'],
           ] },
@@ -354,7 +354,7 @@ const guide: GameGuide = {
             '**The square is shield and reflector**: with its mirror facing the enemy beam it sends that whole line of attack back. Its other three faces are weak, so keep it out of places where a beam can arrive from the side.',
             '**The two faces of a triangle**: depending on how it is turned, the same triangle is a mirror for your beam or a wall against theirs (hit on a short side it is destroyed, but it shields what lies behind it that turn). A triangle in front of your king is your last shield.',
           ] },
-          { type: 'callout', tone: 'tip', title: 'Rough piece values', text: 'The AI judges positions with the splitter at about 7, the square knight 5 and a triangle 3. The splitter and the laser can never be destroyed, so the pieces you can actually lose are the knights. Giving a triangle to remove their square knight is usually a good trade.' },
+          { type: 'callout', tone: 'tip', title: 'Rough piece values', text: 'The AI counts a square knight as about 5 and a triangle 3, then adds how well each king is covered by mirrors and whether the enemy beam passes close to it. The splitter and the laser can never be destroyed, so the pieces you can actually lose are the knights. Giving a triangle to remove their square knight is usually a good trade.' },
         ],
       },
       {
@@ -388,10 +388,10 @@ const guide: GameGuide = {
         title: 'Mode notes — AI levels and friend rooms',
         blocks: [
           { type: 'table', head: ['Mode', 'Worth knowing'], rows: [
-            ['AI games', 'You play cyan and always move first. There is no clock. The level can be changed only before the first move.'],
-            ['Easy', 'Never misses a direct king hit, but otherwise picks any of its twelve best-looking moves, so it errs often. At every level, though, it never fires into its own pieces while it has another move.'],
-            ['Normal', 'Looks for an immediate win first; otherwise it usually plays the best of its top four moves by evaluation.'],
-            ['Hard', 'For each of its 24 best candidates it reads your 24 strongest replies and plays the move that loses least. It never plays a move that hits its own king.'],
+            ['AI games', 'You play cyan and always move first. There is no clock. The level can be changed only before the first move. Choosing a square or a turn shows the predicted beam dashed; tap again to fire. A red warning rings your king when the opponent could hit it next turn.'],
+            ['Easy', 'Looks only at its move and your reply. It never misses a direct king hit and avoids moves that let you hit its king next turn, but otherwise picks any of its twelve best-looking moves, so it errs often.'],
+            ['Normal', 'Reads three moves ahead (its move, your reply, its next move) and judges the end positions by how many ways each side has to hit the other king. It picks among near-equal moves, so games vary.'],
+            ['Hard', 'Within a time budget (about 0.8 s) it reads two, three, four and then five moves ahead. It sets up double threats on your king and answers every one of yours. Faster devices let it read deeper.'],
             ['Friend rooms', 'Create a room with a link or 4-digit code. The host sets 60, 30 or 90 seconds per move and the first player is random. On a timeout the easy AI plays a move for you, and three timeouts in a row lose. You can also open the room in Open match.'],
             ['Replay', 'Finished games can be stepped through move by move, beams included.'],
           ] },

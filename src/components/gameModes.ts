@@ -42,7 +42,7 @@ import { prepareColorLinkDuelRoom, useColorLinkDuelRoom } from '@/hooks/useColor
 import { prepareEquationSignalDuelRoom, prepareEquationSignalRoom, useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
 import { prepareEquationTowerRoom, useEquationTowerRoom } from '@/hooks/useEquationTowerRoom';
 import { prepareHiddenWordPlusRoom, prepareHiddenWordRoom, useHiddenWordOpenRoom, useHiddenWordPlusOpenRoom } from '@/hooks/useHiddenWordRoom';
-import { prepareHiddenWordPartyRoom } from '@/hooks/useHiddenWordParty';
+import { prepareHiddenWordPartyRoom, useHiddenWordPartyOpenRoom } from '@/hooks/useHiddenWordParty';
 import { prepareTimeAuctionRoom, useTimeAuctionRoom } from '@/hooks/useTimeAuctionRoom';
 import { prepareMineOblivionRoom, useMineOblivionRoom } from '@/hooks/useMineOblivionRoom';
 
@@ -54,8 +54,9 @@ export type PlayOption = { label: string; query?: string };
  * `fillAi`: whether the start button should describe empty seats as AI seats.
  */
 /** `path`: where this kind of room lives, when it is not `${game path}/room` (히든 워드 확장판's party room).
+ * `useRoom`: the open-room panel's hook for this kind, when it is not the game's (the party room has its own channel).
  * `open: false`: a friend-only kind, left out of the open rooms (its variant index is kept). */
-export type RoomOption = { label: string; create: () => Promise<string>; openMin?: number; play?: string; fillAi?: boolean; path?: string; open?: false };
+export type RoomOption = { label: string; create: () => Promise<string>; openMin?: number; play?: string; fillAi?: boolean; path?: string; useRoom?: RoomHook; open?: false };
 
 /** The room kinds a game offers as open rooms, with their variant numbers. */
 export const openVariants = (game: GameId) => GAME_MODES[game].rooms.flatMap((room, variant) => (room.open === false ? [] : [{ room, variant }]));
@@ -85,7 +86,7 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
   // in src/lib/openRooms.ts) and joined by anyone; the website's "방 만들기" is the tester invitation.
   hiddenWord: { path: '/hidden-word', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordRoom }], useRoom: useHiddenWordOpenRoom },
   // 확장판: the same match on the 확장 words; its rooms are its own (channel hidden-word-plus-room). Open rooms: 1:1 only.
-  hiddenWordPlus: { path: '/hidden-word-plus', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordPlusRoom }, { label: 'hwParty', create: prepareHiddenWordPartyRoom, path: '/hidden-word-plus/party', open: false }], useRoom: useHiddenWordPlusOpenRoom },
+  hiddenWordPlus: { path: '/hidden-word-plus', ai: [{ label: 'hwAi' }], rooms: [{ label: 'roomTwo', create: prepareHiddenWordPlusRoom }, { label: 'hwParty', create: prepareHiddenWordPartyRoom, path: '/hidden-word-plus/party', useRoom: useHiddenWordPartyOpenRoom, openMin: 2, fillAi: false }], useRoom: useHiddenWordPlusOpenRoom },
   pointOmok: {
     path: '/point-omok', ai: [{ label: 'poNormal', query: 'difficulty=normal' }, { label: 'poHard', query: 'difficulty=hard' }],
     rooms: [{ label: 'roomTwo', create: preparePointOmokRoom }], useRoom: usePointOmokRoom,
@@ -204,6 +205,9 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
 };
 
 /** Where an open room is played from: the game page in solo play with the waiting room open. */
+/** The room page of a room kind: `${game path}/room/${code}` unless the kind has its own path. */
+export const roomHref = (game: GameId, variant: number, code: string) => `${GAME_MODES[game].rooms[variant]?.path ?? `${GAME_MODES[game].path}/room`}/${code}`;
+
 export function openRoomHref(game: GameId, code: string, variant: number) {
   const modes = GAME_MODES[game];
   const play = modes.rooms[variant]?.play ?? modes.ai[0]?.query;

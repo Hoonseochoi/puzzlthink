@@ -1,5 +1,6 @@
 // Rule checks and AI-vs-AI games for 레이저 장기: `npx tsx scripts/laser-janggi/check.ts [games]`
 // Hand-made positions cover every hit rule from the show; then AI games must finish without errors.
+import { kingShots } from '../../src/lib/laserJanggiAi';
 import {
   applyLaserAction, chooseLaserAiAction, initialLaserPieces, legalActions, traceLaser,
   type Direction, type LaserDifficulty, type LaserOwner, type LaserPiece, type LaserPieceType,
@@ -90,18 +91,32 @@ check('own triangle on a short side: removed', traceLaser([p('L0', 0, 'laser', 4
   const self = [p('L0', 0, 'laser', 4, 0, 1), p('K0', 0, 'king', 4, 6, 0), p('Q', 0, 'square', 4, 3, 0)];
   check('own king hit: shooter loses', applyLaserAction(self, 0, { type: 'move', pieceId: 'Q', row: 3, col: 3 })!.winner === 1);
 }
-// 8. AI never fires into its own pieces when it has another move.
+// 8. Hand positions for the AI (every level, several tries since the lower levels are partly random).
 {
-  let selfHits = 0, chances = 0;
-  for (let i = 0; i < 40; i += 1) {
-    for (const level of ['easy', 'normal', 'hard'] as LaserDifficulty[]) {
-      const action = chooseLaserAiAction(start, 0, level)!;
-      const r = applyLaserAction(start, 0, action)!;
-      chances += 1;
-      if (r.shot.captured.some((id) => start.find((x) => x.id === id)?.owner === 0)) selfHits += 1;
+  // Take the win: blue's square on D1 turns the beam back; stepping it off rank 1 lets the beam reach red's king on F1.
+  const win = [p('L0', 0, 'laser', 7, 0, 1), p('Q0', 0, 'square', 7, 3, 3), p('K1', 1, 'king', 7, 5, 0), p('K0', 0, 'king', 3, 0, 0),
+    p('T1', 1, 'triangle', 2, 5, 2), p('L1', 1, 'laser', 0, 7, 2)];
+  // Must block: red's square on E8 turns red's beam back; if it steps away the beam runs along rank 8 into blue's king on C8.
+  const block = [p('L1', 1, 'laser', 0, 7, 3), p('Q1', 1, 'square', 0, 4, 1), p('K0', 0, 'king', 0, 2, 0), p('L0', 0, 'laser', 7, 0, 0),
+    p('T0', 0, 'triangle', 4, 4, 0), p('K1', 1, 'king', 5, 7, 0), p('T1', 1, 'triangle', 3, 6, 1)];
+  check('setup: red really threatens the king in the block position', kingShots(block, 1).length > 0);
+  check('setup: blue really has a winning shot in the win position', kingShots(win, 0).length > 0);
+  check('setup: blue has no winning shot in the block position', kingShots(block, 0).length === 0);
+  for (const level of ['easy', 'normal', 'hard'] as LaserDifficulty[]) {
+    let tookWin = 0, blocked = 0;
+    for (let i = 0; i < 6; i += 1) {
+      const w = applyLaserAction(win, 0, chooseLaserAiAction(win, 0, level)!)!;
+      if (w.winner === 0) tookWin += 1;
+      const bl = applyLaserAction(block, 0, chooseLaserAiAction(block, 0, level)!)!;
+      if (bl.winner === null && kingShots(bl.pieces, 1).length === 0) blocked += 1;
     }
+    check(`AI ${level}: takes the win`, tookWin === 6, `${tookWin}/6`);
+    check(`AI ${level}: blocks the king shot`, blocked === 6, `${blocked}/6`);
   }
-  check('AI opening move never removes its own piece', selfHits === 0, `${selfHits}/${chances}`);
+  // A two-way threat the hard AI must see coming: in the start position it never hands red a king shot.
+  let safe = 0;
+  for (let i = 0; i < 4; i += 1) { const r = applyLaserAction(start, 0, chooseLaserAiAction(start, 0, 'hard')!)!; if (kingShots(r.pieces, 1).length === 0) safe += 1; }
+  check('AI hard: opening move leaves no king shot', safe === 4);
 }
 
 // 9. AI vs AI games run to the end without errors.
@@ -122,7 +137,9 @@ for (let g = 0; g < games; g += 1) {
       const r = applyLaserAction(pieces, current, action);
       if (!r) throw new Error(`illegal AI action ${JSON.stringify(action)}`);
       moves += 1;
-      const hurts = (res: NonNullable<ReturnType<typeof applyLaserAction>>) => res.winner !== null ? res.winner !== current : res.shot.captured.some((id) => pieces.find((x) => x.id === id)?.owner === current);
+      // Shooting your own king when another move exists is the one blunder no level may make. (Giving up an own
+      // knight can be a fair price in the search, so that is no longer counted.)
+      const hurts = (res: NonNullable<ReturnType<typeof applyLaserAction>>) => res.winner !== null && res.winner !== current;
       if (hurts(r) && legalActions(pieces, current).some((a) => !hurts(applyLaserAction(pieces, current, a)!))) selfHarm += 1;
       for (const keep of ['laser', 'splitter'] as const) {
         if (pieces.filter((x) => x.type === keep).length !== r.pieces.filter((x) => x.type === keep).length) throw new Error(`${keep} removed`);
@@ -135,9 +152,9 @@ for (let g = 0; g < games; g += 1) {
   tally[end.replace(/ on turn \d+/, '')] = (tally[end.replace(/ on turn \d+/, '')] ?? 0) + 1;
   console.log(`game ${g + 1}: ${level[0]} vs ${level[1]} → ${end}`);
 }
-console.log(tally, `${moves} moves, ${selfHarm} avoidable self-hits, ${((Date.now() - t0) / Math.max(1, moves)).toFixed(1)} ms/move`);
+console.log(tally, `${moves} moves, ${selfHarm} avoidable own-king shots, ${((Date.now() - t0) / Math.max(1, moves)).toFixed(1)} ms/move`);
 check('AI games: no errors', errors === 0);
-check('AI games: never hits its own pieces when a safe move exists', selfHarm === 0, `${selfHarm}`);
+check('AI games: never shoots its own king when another move exists', selfHarm === 0, `${selfHarm}`);
 
 console.log(failed ? `\n${failed} FAILED` : '\nall passed');
 process.exit(failed ? 1 : 0);

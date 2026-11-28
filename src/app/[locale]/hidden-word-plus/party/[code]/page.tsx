@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const korean = locale !== 'en';
   return {
     title: korean ? '히든 워드 확장판 파티방 — PUZZLTHINK' : 'Hidden Word: Expansion party room — PUZZLTHINK',
-    description: korean ? '링크만 누르면 바로 입장. 히든 워드 확장판을 친구 2~5명과 방송 메인매치 방식으로!' : 'Open the link to join. Hidden Word: Expansion with 2–5 friends, played like the show\'s main match.',
+    description: korean ? '링크만 누르면 바로 입장. 히든 워드 확장판을 2~6명이 방송 메인매치 방식으로!' : 'Open the link to join. Hidden Word: Expansion for 2–6 players, played like the show\'s main match.',
     robots: { index: false, follow: false },
   };
 }
