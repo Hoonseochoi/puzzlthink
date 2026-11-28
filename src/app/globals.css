@@ -329,7 +329,14 @@ button:disabled { cursor: default; }
 .hwl-turn { animation: hwl-turn .6s .2s ease-in-out both; }
 @keyframes hwl-verdict { 0% { transform: scale(2.6) rotate(-12deg); opacity: 0; } 60% { transform: scale(.94) rotate(-3deg); opacity: 1; } 100% { transform: scale(1) rotate(-4deg); } }
 .hwl-verdict { animation: hwl-verdict .55s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes hwl-next { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,211,110,.7); transform: scale(1); } 50% { box-shadow: 0 0 0 7px rgba(255,211,110,0); transform: scale(1.05); } }
+.hwl-next { animation: hwl-next 1.4s ease-in-out infinite; }
+@keyframes hwl-dust { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .7; } 100% { transform: translateY(-60px) translateX(14px); opacity: 0; } }
+.hwl-dust { animation: hwl-dust 7s linear infinite; }
+@keyframes hwl-tip { 0% { opacity: 0; translate: 0 6px; } 100% { opacity: 1; translate: 0 0; } }
+.hwl-tip { animation: hwl-tip .35s .4s ease-out both; }
 @media (prefers-reduced-motion: reduce) {
+  .hwl-next, .hwl-dust, .hwl-tip { animation: none; }
   .hwl-pop, .hwl-stamp, .hwl-glow, .hwl-dots > i, .hwl-urgent, .hwl-hot, .hwl-enter, .hwl-flip, .hwl-turn, .hwl-verdict { animation: none; }
   .hwl-fly, .hwl-fly-vote, .hwl-banner, .hwl-maskoff { display: none; }
 }

@@ -11,7 +11,7 @@ const ko = {
   myWord: '내 제시어', holdToSee: '꾹 눌러서 보기', wordNote: '한 명은 다른 단어를 받았어요. 그게 나일 수도 있어요.',
   cards: '제시어를 확인하세요', round: (r: number, m: number) => `${r}/${m} 바퀴`, turnOf: (name: string) => `${name}의 차례`, myTurn: '내 차례! 떠오르는 명사 하나', next: '다음',
   cluePh: '명사 한 단어', say: '제시어 내기', mask: '🎭 가면', maskOn: '🎭 숫자 숨김', maskUsed: '가면 사용함', maskTip: '이번 단서의 숫자를 끝날 때까지 숨겨요 (한 판에 1번)',
-  clueErr: { turn: '지금은 내 차례가 아니에요.', empty: '단어를 입력해 주세요.', vocab: '사전에 없는 말이에요. 명사 한 단어로 말해 주세요.', dup: '이미 나온 단어예요.', own: '내 제시어나 그 일부는 말할 수 없어요.' } as Record<string, string>,
+  clueErr: { turn: '지금은 내 차례가 아니에요.', empty: '단어를 입력해 주세요.', vocab: '사전에 없는 말이에요. 명사 한 단어로 말해 주세요.', dup: '이미 나온 단어예요. 다른 단어를 적어 주세요.', own: '내 제시어나 그 일부는 말할 수 없어요.' } as Record<string, string>,
   silent: '⏰ 시간 초과', timeoutSys: '⏰ 시간 초과', typingClue: '제시어 고민 중', typingChat: '채팅 입력 중', hot: '🔥85+', masked: '??',
   talkTitle: '토론 시간', talkLast: '마지막 바퀴가 끝났어요. 곧 지목 투표!', accuse: '🗳 지목하자', more: '🔄 한 바퀴 더', ready: '투표 준비 완료',
   voteTitle: '라이어를 지목하세요', voteHint: '의심 가는 사람의 아이콘을 누르세요 (다시 누르면 바꿀 수 있어요)', runoffTitle: '동점! 결선 투표', voted: '투표함',
@@ -36,6 +36,21 @@ const ko = {
   revealTitle: '🃏 제시어 공개', guessRight: '정답!', guessWrong: '땡!', liarGuess: '라이어의 답',
   verdictCaught: '라이어 검거 성공!', verdictFailed: '라이어 검거 실패…', verdictLiar: '라이어 승리!', liarIs: (n: string) => `라이어는 ${n}`,
   skip: '탭해서 건너뛰기', showing: '결과 공개 중…', hiddenLine: '🤐 제시어가 들어간 말이라 가려졌어요', lastChat: '⚖️ 최후의 발언 중: 지목된 사람의 말이 강조돼요',
+
+  help: '도움말', sound: '소리', close: '닫기', tutorial: '튜토리얼 보기', tipsAgain: '도움말 말풍선 다시 보기', sfx: '효과음 · 진동', bgm: '배경음',
+  nextMe: '나 · 준비하세요!', topSuspect: '의심 1위', suspectedMe: '👁 의심받고 있어요! 채팅으로 해명해 보세요', suspectSays: '👁 의심 1위의 해명',
+  repeatWarn: (w: string) => `‘${w}’는 이미 나왔어요. 다른 단어를 적어 주세요.`,
+  tips: {
+    myTurn: '제시어에서 떠오르는 단어(명사)를 하나 적어 주세요. 너무 가까우면 라이어가 정답을 눈치채요!',
+    numbers: '숫자 = 시민 제시어와 얼마나 비슷한지. 🔥85+는 아주 가까워요. 혼자 낮은 사람이 수상해요',
+    talk: '라이어 같은 사람이 있으면 지목, 아직 모르겠으면 한 바퀴 더',
+    vote: '라이어라고 생각하는 사람 아이콘을 누르세요',
+    last: '지목된 사람의 변론을 듣고 검거할지 정해요',
+    lastMine: '20초! 채팅으로 라이어가 아니라고 설득해 보세요',
+    decide: '검거가 많으면 검거, 확신이 없으면 다시 투표 (한 판에 한 번)',
+    guess: '단서판의 높은 숫자 단서를 보고 시민 제시어를 맞혀 보세요. 맞히면 역전승!',
+    suspected: '의심을 많이 받고 있어요. 채팅으로 해명해 보세요!',
+  },
 };
 export type LiarCopy = typeof ko;
 const en: LiarCopy = {
@@ -51,7 +66,7 @@ const en: LiarCopy = {
   myWord: 'My word', holdToSee: 'Hold to see', wordNote: 'One player got a different word. It might be you.',
   cards: 'Check your word', round: (r, m) => `Round ${r}/${m}`, turnOf: (name) => `${name}'s turn`, myTurn: 'Your turn! One noun that comes to mind', next: 'Next',
   cluePh: 'One noun', say: 'Submit', mask: '🎭 Mask', maskOn: '🎭 Hidden', maskUsed: 'Mask used', maskTip: 'Hide this clue\'s number until the end (once a game)',
-  clueErr: { turn: 'Not your turn.', empty: 'Type a word.', vocab: 'Not in the dictionary. Use one Korean noun.', dup: 'Already said.', own: 'You can\'t say your word or part of it.' },
+  clueErr: { turn: 'Not your turn.', empty: 'Type a word.', vocab: 'Not in the dictionary. Use one Korean noun.', dup: 'Already said. Try another word.', own: 'You can\'t say your word or part of it.' },
   talkTitle: 'Discussion', talkLast: 'Last round done. The vote is next!', accuse: '🗳 Accuse', more: '🔄 One more round', ready: 'Ready to vote',
   voteTitle: 'Accuse the liar', voteHint: 'Tap a player (tap again to change)', runoffTitle: 'Tie! Runoff', voted: 'Voted',
   markHint: 'Tap a player to mark 👁 suspicion (everyone sees it)', markOn: (name) => `👁 Suspecting ${name}`, markShort: 'Tap an icon to 👁 mark',
@@ -76,5 +91,20 @@ const en: LiarCopy = {
   revealTitle: '🃏 The words', guessRight: 'Correct!', guessWrong: 'Wrong!', liarGuess: 'Liar\'s guess',
   verdictCaught: 'Liar caught!', verdictFailed: 'The liar got away…', verdictLiar: 'The liar wins!', liarIs: (n) => `The liar was ${n}`,
   skip: 'Tap to skip', showing: 'Revealing…', hiddenLine: '🤐 Hidden: it had a game word in it', lastChat: '⚖️ Last words: the accused\'s lines are highlighted',
+
+  help: 'Help', sound: 'Sound', close: 'Close', tutorial: 'Tutorial', tipsAgain: 'Show tips again', sfx: 'Effects · vibration', bgm: 'Music',
+  nextMe: 'Me · get ready!', topSuspect: 'Most suspected', suspectedMe: '👁 You\'re under suspicion! Explain yourself in chat', suspectSays: '👁 The top suspect says',
+  repeatWarn: (w) => `‘${w}’ was already said. Try another word.`,
+  tips: {
+    myTurn: 'Type one noun the word brings to mind. Too close and the liar will guess it!',
+    numbers: 'Number = how close to the citizens\' word. 🔥85+ is very close. Low numbers look suspicious',
+    talk: 'Accuse if someone looks like the liar; not sure yet? One more round',
+    vote: 'Tap the player you think is the liar',
+    last: 'Hear their defence, then decide whether to arrest',
+    lastMine: '20 seconds! Convince them in chat that you are not the liar',
+    decide: 'More arrests = arrested. Not sure? Vote again (once a game)',
+    guess: 'Use the high-number clues on the board to guess the citizens\' word. Right = you win!',
+    suspected: 'You\'re the most suspected. Explain yourself in chat!',
+  },
 };
 export const liarCopy = (locale: string) => (locale === 'en' ? en : ko);

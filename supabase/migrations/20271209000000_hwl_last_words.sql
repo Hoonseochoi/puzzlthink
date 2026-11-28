@@ -13,6 +13,8 @@
 --      punctuation, particles (사과를) and typing in loose jamo (ㅅㅏㄱㅘ) are all caught (hwl_chat_hits).
 --   4. The end of a game is a show: hwl_finish sets reveal_at / reveal_until (4 s + 0.8 s a player + 2 s if the liar
 --      guessed); a friend host cannot start, and a 공개방 cannot restart, before reveal_until.
+--   5. A clue is read through hwl_clue_word (spaces, case, a particle stuck on: 사과를 → 사과), so a word already said
+--      this game cannot come back dressed up ('dup').
 -- Test: scripts/hidden-word-liar/test_last_words.sql (scratch DB) and test_timeout.sql (begin … rollback anywhere).
 
 -- ── settings ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -426,8 +428,55 @@ begin
   );
 end $$;
 
+-- A clue as typed → the dictionary noun it means: spaces gone, Latin lower-cased, and a particle stuck on the end
+-- (사과를, 바다에서) dropped when the word itself is not a noun but what is left is. 고양이 stays 고양이.
+create or replace function public.hwl_clue_word(p text)
+returns text language plpgsql stable security definer set search_path = public, pg_temp
+as $$
+declare w text := lower(public.hwl_norm(p)); suf text; base text;
+begin
+  if w = '' or exists (select 1 from public.hw_vocab where word = w) then return w; end if;
+  foreach suf in array array['에서는', '으로는', '이라는', '에서', '에게', '까지', '부터', '으로', '이랑', '처럼', '보다', '라는',
+                             '을', '를', '이', '가', '은', '는', '도', '의', '에', '로', '와', '과', '랑', '만', '요'] loop
+    if length(w) > length(suf) and right(w, length(suf)) = suf then
+      base := left(w, length(w) - length(suf));
+      if exists (select 1 from public.hw_vocab where word = base) then return base; end if;
+    end if;
+  end loop;
+  return w;
+end $$;
+
+-- hwl_clue (from 20271205100000) with the word read through hwl_clue_word, so '사과를' after '사과' is a repeat.
+create or replace function public.hwl_clue(p_code text, p_key text, p_word text, p_mask boolean default false)
+returns jsonb language plpgsql volatile security definer set search_path = public, pg_temp
+as $$
+declare r public.hwl_rooms; m public.hwl_members; w text := public.hwl_clue_word(p_word); own text; sc numeric; masked boolean;
+begin
+  select * into r from public.hwl_rooms where code = p_code for update;
+  if not found then return jsonb_build_object('error', 'missing'); end if;
+  perform public.hwl_step(p_code);   -- a clock that already ran out comes first
+  select * into r from public.hwl_rooms where code = p_code;
+  m := public.hwl_member(p_code, p_key);
+  if m.seat is null or r.phase <> 'clue' or r.turn_order[r.pos + 1] <> m.seat then return jsonb_build_object('error', 'turn'); end if;
+  if w = '' or length(w) > 12 then return jsonb_build_object('error', 'empty'); end if;
+  if not exists (select 1 from public.hw_vocab where word = w) then return jsonb_build_object('error', 'vocab'); end if;
+  if exists (select 1 from public.hwl_clues where code = p_code and game_no = r.game_no and word = w) then return jsonb_build_object('error', 'dup'); end if;
+  own := case when m.seat = r.liar then r.decoy else r.answer end;   -- the same rule for everyone, on their own word
+  if position(own in w) > 0 or position(w in own) > 0 then return jsonb_build_object('error', 'own'); end if;
+  sc := coalesce(public.hw_score(r.answer, w), 0);
+  masked := coalesce(p_mask, false) and not m.mask_used;
+  insert into public.hwl_clues (code, game_no, n, seat, round, word, score, hot, masked)
+  values (p_code, r.game_no, (select count(*) from public.hwl_clues where code = p_code and game_no = r.game_no), m.seat, r.round, w,
+          sc, sc >= (public.hwl_cfg() ->> 'hot')::numeric, masked);
+  if masked then update public.hwl_members set mask_used = true where code = p_code and seat = m.seat; end if;
+  update public.hwl_rooms set pos = pos + 1 where code = p_code;
+  perform public.hwl_settle_turn(p_code);
+  perform public.hwl_bump(p_code);
+  return jsonb_build_object('ok', true);
+end $$;
+
 -- ── grants ───────────────────────────────────────────────────────────────────────────────────────────────────────
-revoke all on function public.hwl_after_decide(text), public.hwl_jamo(text), public.hwl_chat_hits(text, text) from public, anon, authenticated;
+revoke all on function public.hwl_after_decide(text), public.hwl_clue_word(text), public.hwl_jamo(text), public.hwl_chat_hits(text, text) from public, anon, authenticated;
 revoke all on function public.hwl_decide(text, text, text), public.hwl_chat(text, text, text), public.hwl_chat_since(text, text, bigint) from public;
 grant execute on function public.hwl_decide(text, text, text), public.hwl_chat(text, text, text), public.hwl_chat_since(text, text, bigint) to anon, authenticated;
 

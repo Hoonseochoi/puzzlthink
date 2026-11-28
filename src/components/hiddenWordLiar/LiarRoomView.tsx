@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocale } from 'next-intl';
-import { ArrowLeft, Crown, Eye, Loader2, LogOut, MessageCircle, Send, Timer, UserX, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, Crown, Eye, HelpCircle, Lightbulb, Loader2, LogOut, MessageCircle, Music, Send, Timer, UserX, Volume2, VolumeX, X } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '@/components/AuthProvider';
 import { RimStone } from '@/components/match/PlayerPlate';
@@ -12,7 +12,9 @@ import {
   LIAR_ACCENT, REVEAL, type LiarClue, type LiarMember, type LiarView, decideLiar, guessLiar, kickLiar, leaveLiar, myName, readyLiar,
   revealFlip, sayClue, phaseSecs, scoreColor, secondsLeft, startLiar, talkLiar, voteLiar,
 } from '@/lib/hiddenWordLiar';
-import { playLiarReveal, playLiarTick, unlockGameAudio } from '@/lib/gameAudio';
+import { bgmOn, buzz, onSoundChange, setBgm, setMood, setSfx, sfx, sfxOn, unlock } from './liarSound';
+import LiarTutorial, { TipBubble, openLiarTutorial, resetLiarTips, useTip } from './LiarTutorial';
+import { LiarStone } from './LiarArt';
 import { liarCopy } from './copy';
 import LiarShare from './LiarShare';
 import { type LiarChat, useLiarRoom } from './useLiarRoom';
@@ -28,6 +30,24 @@ const isWord = (s: string) => /^[가-힣]{1,12}$/.test(s.trim());
 const seatPos = (i: number, n: number, big: boolean) => {
   const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
   return { a, x: 50 + 41 * Math.cos(a), y: 50 + (big ? 40 : 42) * Math.sin(a) };
+};
+
+/** The room's light and music follow the phase: calm while clues go round, warm and tense from the vote on. */
+type Mood = 'none' | 'calm' | 'tense';
+const moodOf = (phase: string | undefined): Mood => !phase ? 'none' : ['vote', 'runoff', 'last', 'decide', 'guess'].includes(phase) ? 'tense' : ['cards', 'clue', 'talk'].includes(phase) ? 'calm' : 'none';
+const PARTICLES = ['', 'ㄹ', '를', '을', '이', '가', '은', '는', '도', '의', '에', '로', '와', '과', '랑', '만', '요', '으로', '에서', '이랑', '처럼'];
+/** The clue already said this game that `typed` would repeat (spaces, case and a particle stuck on are ignored). */
+const repeatOf = (view: LiarView, typed: string) => {
+  const w = typed.replace(/\s+/g, '').toLowerCase();
+  if (!w) return null;
+  return view.clues.find((c) => c.word && w.startsWith(c.word) && PARTICLES.includes(w.slice(c.word.length)))?.word ?? null;
+};
+/** Who has the most 👁 marks right now (all of them on a tie), from two marks up. */
+const topSuspects = (marks: Record<number, number>) => {
+  const n: Record<number, number> = {};
+  Object.values(marks).forEach((s) => { n[s] = (n[s] ?? 0) + 1; });
+  const top = Math.max(0, ...Object.values(n));
+  return top >= 2 ? Object.keys(n).map(Number).filter((s) => n[s] === top) : [];
 };
 
 /** Where the end-of-game show is (seconds since the server's reveal.at; everyone sees the same moment). */
@@ -72,8 +92,18 @@ export default function LiarRoomView({ code }: { code: string }) {
       pushSystem(t.clueSys(who, c.word ?? silentOf(view, c, t), c.word ? shownScore(c, t) : ''), c.seat);
     }
     const last = fresh[fresh.length - 1];
-    if (last?.word) window.setTimeout(() => playLiarReveal(last.hot && last.score == null), 550);   // as the flying clue lands
+    if (last?.word) window.setTimeout(() => sfx.clue(last.hot && last.score == null), 550);   // as the flying clue lands
   }, [view, pushSystem, clearTyping, t]);
+
+  // sound waits for the first touch; the music follows the phase
+  useEffect(() => {
+    const go = () => unlock();
+    document.addEventListener('pointerdown', go, { once: true });
+    return () => { document.removeEventListener('pointerdown', go); setMood('none'); };
+  }, []);
+  useEffect(() => { setMood(moodOf(view?.phase)); }, [view?.phase]);
+  const myTurnNow = !!view?.me && view.phase === 'clue' && view.turn === view.me.seat;
+  useEffect(() => { if (myTurnNow) sfx.myTurn(); }, [myTurnNow]);
 
   // a finished game may have paid an icon: ask the icon popup to look (after the show)
   const phase = view?.phase;
@@ -86,8 +116,7 @@ export default function LiarRoomView({ code }: { code: string }) {
   useEffect(() => {
     if (!mine || left == null || left > 5 || left < 1 || ticked.current === left) return;
     ticked.current = left;
-    playLiarTick(left <= 2);
-    try { navigator.vibrate?.(left <= 2 ? 40 : 15); } catch { /* optional */ }
+    sfx.tick(left <= 2);
   }, [mine, left]);
 
   const router = useRouter();
@@ -120,7 +149,7 @@ export default function LiarRoomView({ code }: { code: string }) {
   return (
     <Shell t={t} code={code} onLeave={leave} timer={show && !show.over ? null : left} view={view}>
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 lg:px-6">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 [scrollbar-color:rgba(255,255,255,.18)_transparent] lg:px-6">
           <MyWord view={view} t={t} />
           {view.phase === 'lobby' && <Actions view={view} t={t} en={en} code={code} refresh={refresh} show={show} />}
           <Table view={view} t={t} marks={marks} typing={typing} now={now} frac={frac} left={left} show={show}
@@ -132,8 +161,9 @@ export default function LiarRoomView({ code }: { code: string }) {
           <ClueBoard view={view} t={t} />
           {view.phase === 'lobby' || !me?.playing ? <Rules t={t} /> : null}
         </div>
-        <ChatPanel chat={chat} t={t} say={say} view={view} myTurn={myTurn} submitClue={submitClue} typingNow={typingNow} />
+        <ChatPanel chat={chat} t={t} say={say} view={view} myTurn={myTurn} submitClue={submitClue} typingNow={typingNow} marks={marks} now={now} />
       </div>
+      <LiarTutorial auto pause={mine} />
     </Shell>
   );
 }
@@ -152,21 +182,68 @@ function onSeatTap(view: LiarView, seat: number, mark: (s: number | null) => voi
 
 function Shell({ t, code, onLeave, timer, view, children }: { t: T; code: string; onLeave: () => void; timer?: number | null; view?: LiarView; children: React.ReactNode }) {
   const urgent = timer != null && timer <= 5 && view && RUNNING.includes(view.phase);
+  const tense = moodOf(view?.phase) === 'tense';
   return (
-    <div className="flex h-[100dvh] flex-col bg-[#0d0b14] text-[#ece8f7]" style={{ backgroundImage: 'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(150,110,255,.22), transparent 70%)' }}>
-      <header className="flex h-12 shrink-0 items-center gap-2 border-b border-white/10 bg-black/40 px-3 backdrop-blur">
+    <div className="relative isolate flex h-[100dvh] flex-col overflow-hidden bg-[#08060e] text-[#ece8f7]">
+      <RoomBackdrop tense={tense} />
+      <header className="flex h-12 shrink-0 items-center gap-1.5 border-b border-white/10 bg-black/40 px-2.5 backdrop-blur">
         <button type="button" onClick={onLeave} aria-label={t.leave} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:bg-white/10"><ArrowLeft size={18} /></button>
         <strong className="min-w-0 truncate text-[15px] font-black tracking-tight">{t.title}</strong>
         <span className="rounded-md bg-white/10 px-1.5 py-0.5 font-mono text-[11px] font-bold tracking-widest text-white/60">{code.toUpperCase()}</span>
         {view && RUNNING.includes(view.phase) && view.round > 0 && <span className="shrink-0 whitespace-nowrap text-[11px] font-bold text-white/50">{t.round(view.round, view.roundsMax)}</span>}
         <span className="flex-1" />
-        {(!view || view.phase === 'lobby' || view.phase === 'done') && <GameUpdates game="hidden_word_liar" />}
+        {(!view || view.phase === 'lobby' || view.phase === 'done') && <span className="hidden shrink-0 whitespace-nowrap min-[400px]:block"><GameUpdates game="hidden_word_liar" /></span>}
         {timer != null && view && view.phase !== 'lobby' && (
-          <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[13px] font-black ${urgent ? 'animate-pulse bg-[#ff5a3d] text-white' : 'bg-white/10 text-white/80'}`}><Timer size={13} />{timer}</span>
+          <span className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[13px] font-black ${urgent ? 'animate-pulse bg-[#ff5a3d] text-white' : 'bg-white/10 text-white/80'}`}><Timer size={13} />{timer}</span>
         )}
+        <HeaderMenu t={t} />
         <button type="button" onClick={onLeave} aria-label={t.leave} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:bg-white/10"><LogOut size={16} /></button>
       </header>
       {children}
+    </div>
+  );
+}
+
+/** The room behind the table: a dark velvet hall, curtain folds, one lamp over the table and a little dust in its light. */
+const DUST = [[8, 62, 0], [17, 34, 3.1], [26, 71, 1.4], [33, 48, 5.2], [41, 24, 2.3], [49, 66, 4.4], [57, 38, 0.7], [64, 58, 3.8], [72, 28, 2.9], [79, 70, 1.1], [86, 44, 4.9], [92, 30, 2.0]];
+function RoomBackdrop({ tense }: { tense: boolean }) {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 120% 75% at 50% 8%, #2b1c52 0%, #140e27 52%, #07050c 100%)' }} />
+      <div className="absolute inset-x-0 top-0 h-[62%] opacity-70 [mask-image:linear-gradient(#000,transparent)]"
+        style={{ background: 'repeating-linear-gradient(90deg, rgba(0,0,0,.28) 0 3px, rgba(255,255,255,.028) 3px 9px, rgba(0,0,0,0) 9px 34px)' }} />
+      <div className="absolute left-1/2 top-0 h-[78%] w-[150%] -translate-x-1/2 transition-[background] duration-1000"
+        style={{ background: `radial-gradient(ellipse 30% 100% at 50% 0%, ${tense ? 'rgba(255,150,110,.20)' : 'rgba(196,170,255,.17)'}, transparent 72%)` }} />
+      <div className="absolute inset-x-0 bottom-0 h-[30%]" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,.55))' }} />
+      {DUST.map(([x, y, d], i) => (
+        <span key={i} className="hwl-dust absolute h-[3px] w-[3px] rounded-full bg-white/50" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${d}s` }} />
+      ))}
+    </div>
+  );
+}
+
+/** The header's two small menus: help (tutorial, tips again) and sound (effects, music). */
+function HeaderMenu({ t }: { t: T }) {
+  const [open, setOpen] = useState<'help' | 'sound' | null>(null);
+  const on = useSyncExternalStore(onSoundChange, sfxOn, () => true);
+  const music = useSyncExternalStore(onSoundChange, bgmOn, () => false);
+  const item = 'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[12.5px] font-bold hover:bg-white/10';
+  return (
+    <div className="relative flex items-center">
+      <button type="button" aria-label={t.help} onClick={() => setOpen(open === 'help' ? null : 'help')} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:bg-white/10"><HelpCircle size={17} /></button>
+      <button type="button" aria-label={t.sound} onClick={() => setOpen(open === 'sound' ? null : 'sound')} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:bg-white/10">{on ? <Volume2 size={16} /> : <VolumeX size={16} />}</button>
+      {open && <>
+        <button type="button" aria-label={t.close} className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(null)} />
+        <div className="hwl-pop absolute right-0 top-10 z-50 w-[190px] rounded-xl border border-white/10 bg-[#1b1530] p-1.5 shadow-2xl">
+          {open === 'help' ? <>
+            <button type="button" className={item} onClick={() => { setOpen(null); openLiarTutorial(); }}><BookOpen size={15} />{t.tutorial}</button>
+            <button type="button" className={item} onClick={() => { setOpen(null); resetLiarTips(); }}><Lightbulb size={15} />{t.tipsAgain}</button>
+          </> : <>
+            <button type="button" className={item} onClick={() => { unlock(); setSfx(!on); }}>{on ? <Volume2 size={15} /> : <VolumeX size={15} />}{t.sfx}<span className={`ml-auto text-[11px] font-black ${on ? 'text-[#7fe3a0]' : 'text-white/40'}`}>{on ? 'ON' : 'OFF'}</span></button>
+            <button type="button" className={item} onClick={() => { unlock(); setBgm(!music); }}><Music size={15} />{t.bgm}<span className={`ml-auto text-[11px] font-black ${music ? 'text-[#7fe3a0]' : 'text-white/40'}`}>{music ? 'ON' : 'OFF'}</span></button>
+          </>}
+        </div>
+      </>}
     </div>
   );
 }
@@ -248,11 +325,37 @@ function useBanner(view: LiarView, t: T) {
     const wasPhase = was.split(':')[1];
     const text = myTurn ? t.banner.mine : wasPhase !== view.phase ? t.banner[view.phase] : null;
     if (!text) return;
-    const show = window.setTimeout(() => setBanner({ key, text }), 0);
+    const show = window.setTimeout(() => { setBanner({ key, text }); sfx.banner(); }, 0);
     const hide = window.setTimeout(() => setBanner((b) => (b?.key === key ? null : b)), 1700);
     return () => { window.clearTimeout(show); window.clearTimeout(hide); };
   }, [key, myTurn, view.phase, t]);
   return banner;
+}
+
+// warmer the more 👁 a seat has
+const HEAT = ['0 0 0 3px rgba(255,180,80,.55), 0 0 14px rgba(255,160,60,.45)', '0 0 0 3px rgba(255,130,60,.75), 0 0 20px rgba(255,110,50,.6)', '0 0 0 4px rgba(255,70,50,.9), 0 0 26px rgba(255,60,40,.75)'];
+// felt grain: a tiny SVG noise tile
+const FELT = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
+/** The one tip that fits this moment (shown the first few times; tap to dismiss). */
+function TableTip({ view, t, pos, top }: { view: LiarView; t: T; pos: Record<number, { x: number; y: number }>; top: number[] }) {
+  const me = view.me;
+  const myTurn = view.phase === 'clue' && view.turn === me?.seat;
+  const numbered = [...view.clues].reverse().find((c) => c.word && (c.score != null || c.hot));
+  let id: string | null = null; let text = ''; let at: { x: number; y: number } = { x: 50, y: 13 };
+  if (!me?.playing) id = null;
+  else if (myTurn) { id = 'myturn'; text = t.tips.myTurn; }
+  else if (view.phase === 'guess' && view.liar === me.seat) { id = 'guess'; text = t.tips.guess; }
+  else if (top.includes(me.seat)) { id = 'suspected'; text = t.tips.suspected; }
+  else if (view.phase === 'clue' && numbered && pos[numbered.seat]) { id = 'numbers'; text = t.tips.numbers; at = { x: Math.max(26, Math.min(74, pos[numbered.seat].x)), y: pos[numbered.seat].y < 30 ? pos[numbered.seat].y + 16 : pos[numbered.seat].y - 20 }; }
+  else if (view.phase === 'talk') { id = 'talk'; text = t.tips.talk; }
+  else if (view.phase === 'vote' || view.phase === 'runoff') { id = me.voted == null ? 'vote' : null; text = t.tips.vote; }
+  else if (view.phase === 'last') { id = view.accused === me.seat ? 'lastMine' : 'last'; text = view.accused === me.seat ? t.tips.lastMine : t.tips.last; }
+  else if (view.phase === 'decide' && view.accused !== me.seat) { id = 'decide'; text = t.tips.decide; }
+  const tip = useTip(id);
+  if (!id || !tip.show) return null;
+  const below = id === 'numbers' && at.y > (pos[numbered!.seat]?.y ?? 0);   // under a top seat: point up at it
+  return <TipBubble key={id} text={text} onClose={tip.dismiss} arrow={below ? 'up' : 'down'} style={{ left: `${at.x}%`, top: `${at.y}%`, transform: below ? 'translate(-50%, 0)' : 'translate(-50%, -100%)' }} />;
 }
 
 /** Seats around an oval table, icons first; the table's centre (children) is where the current phase is played. */
@@ -316,23 +419,80 @@ function Table({ view, t, marks, typing, now, frac, left, show, onTap, children 
     const was = prevPhase.current;
     prevPhase.current = phaseKey;
     if (was == null || was === phaseKey || view.phase !== 'last') return;
-    const s = window.setTimeout(() => setVoteFly(phaseKey), 0);
+    const s = window.setTimeout(() => { setVoteFly(phaseKey); sfx.tally((view.votes ?? []).length); }, 0);
     const h = window.setTimeout(() => setVoteFly((v) => (v === phaseKey ? null : v)), 1900);
     return () => { window.clearTimeout(s); window.clearTimeout(h); };
-  }, [phaseKey, view.phase]);
+  }, [phaseKey, view.phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 👁 marks: an eye flies from the one who marked to the one they suspect
+  const prevMarks = useRef<Record<number, number>>({});
+  const [eyes, setEyes] = useState<{ key: string; from: number; to: number }[]>([]);
+  useEffect(() => {
+    const was = prevMarks.current;
+    prevMarks.current = marks;
+    const fresh = Object.entries(marks).filter(([k, v]) => was[Number(k)] !== v).map(([k, v]) => ({ key: `${k}-${v}-${Date.now()}`, from: Number(k), to: v }));
+    if (!fresh.length) return;
+    const s = window.setTimeout(() => { setEyes((e) => [...e, ...fresh]); sfx.mark(); }, 0);
+    const h = window.setTimeout(() => setEyes((e) => e.filter((x) => !fresh.some((f) => f.key === x.key))), 1000);
+    return () => { window.clearTimeout(s); window.clearTimeout(h); };
+  }, [marks]);
+  const top = RUNNING.includes(view.phase) ? topSuspects(marks) : [];
+
+  // the show's sounds: a card per flip (the liar's heavier), then the stamp
+  const flips = show ? show.order.filter((seat) => show.t >= show.flipAt(seat)).length : 0;
+  const verdict = !!show && show.t >= show.verdictAt;
+  const heard = useRef({ flips: 0, verdict: false, game: -1 });
+  useEffect(() => {
+    const h = heard.current;
+    if (h.game !== view.game) { heard.current = { flips, verdict, game: view.game }; return; }   // nothing for a show already under way
+    if (flips > h.flips && show && Number.isFinite(show.t)) sfx.flip(flips === show.order.length);
+    if (verdict && !h.verdict && show && Number.isFinite(show.t)) (view.result?.outcome === 'citizens' ? sfx.caught : sfx.failed)();
+    heard.current = { flips, verdict, game: view.game };
+  }, [flips, verdict, view.game]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // NEXT: who speaks after this turn, so they can get ready (a tap on the phone when it is me)
+  const nextMember = next != null ? view.members.find((m) => m.seat === next) : null;
+  const meNext = next != null && next === view.me?.seat;
+  useEffect(() => { if (meNext) buzz(25); }, [meNext]);
 
   const px = (dx: number, dy: number) => `${(dx / 100) * box.w}px, ${(dy / 100) * box.h}px`;
   return (
     <div ref={ref} className="relative mx-auto mb-10 mt-10 w-full max-w-[520px]" style={{ aspectRatio: big ? '1 / 0.86' : '1 / 1.02' }}>
-      {/* the table */}
-      <div className={`absolute inset-[17%_15%] overflow-hidden rounded-[50%] border-2 bg-[radial-gradient(ellipse_at_50%_35%,#2a2147,#15111f_72%)] shadow-[inset_0_0_40px_rgba(0,0,0,.6),0_0_40px_rgba(150,110,255,.15)] transition-colors duration-500 ${view.phase === 'clue' && turn === view.me?.seat ? 'border-[#ffd36e]/60' : ['last', 'decide'].includes(view.phase) ? 'border-[#ff8a6d]/45' : 'border-[#a98bff]/25'}`}>
-        {/* the beam: a soft light from the centre toward the spotlit seat */}
-        <span className="pointer-events-none absolute inset-0 transition-[transform,opacity] duration-700 ease-[cubic-bezier(.3,.8,.3,1)] motion-reduce:transition-none"
-          style={{ transform: `rotate(${angle ?? target ?? 0}deg)`, opacity: focus != null ? 1 : 0 }}>
-          <span className="absolute left-1/2 top-[-12%] h-[70%] w-[70%] -translate-x-1/2"
-            style={{ background: `radial-gradient(ellipse 50% 60% at 50% 30%, ${view.phase === 'clue' ? 'rgba(255,211,110,.22)' : 'rgba(255,120,90,.24)'}, transparent 70%)` }} />
-        </span>
+      {/* the table: a shadow on the floor, a polished rim, a velvet top with a lamp's light on it */}
+      <div aria-hidden className="pointer-events-none absolute inset-[26%_9%_4%] rounded-[50%] bg-black/70 blur-2xl" />
+      <div aria-hidden className={`absolute inset-[15.5%_13.5%] rounded-[50%] p-[5px] transition-shadow duration-700 ${view.phase === 'clue' && turn === view.me?.seat ? 'shadow-[0_0_0_2px_rgba(255,211,110,.55),0_18px_40px_rgba(0,0,0,.6)]' : 'shadow-[0_18px_40px_rgba(0,0,0,.6)]'}`}
+        style={{ background: 'conic-gradient(from 210deg, #4b3898, #e8dcff 9%, #8f74f2 20%, #34237c 36%, #b7a2ff 52%, #fbf6ff 58%, #7a5fe0 70%, #2a1b66 86%, #4b3898)' }}>
+        <div className="relative h-full w-full overflow-hidden rounded-[50%] transition-[background] duration-1000"
+          style={{ background: `radial-gradient(ellipse 75% 65% at 50% 38%, ${['vote', 'runoff', 'last', 'decide', 'guess'].includes(view.phase) ? '#5a2a52' : '#3e2b80'} 0%, ${['vote', 'runoff', 'last', 'decide', 'guess'].includes(view.phase) ? '#2a1330' : '#1f1648'} 62%, #0f0a22 100%)`, boxShadow: 'inset 0 0 0 2px rgba(15,8,40,.8), inset 0 12px 34px rgba(0,0,0,.6), inset 0 -10px 26px rgba(0,0,0,.45)' }}>
+          {/* felt grain, a thin gold inlay, the masked seal in the middle */}
+          <span className="absolute inset-0 opacity-[.22] mix-blend-overlay" style={{ backgroundImage: FELT, backgroundSize: '140px 140px' }} />
+          <span className="absolute inset-[7%] rounded-[50%] border border-[#ffd36e]/15" />
+          <span className="absolute inset-[9.5%] rounded-[50%] border border-[#ffd36e]/[.07]" />
+          <span className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-700 ${['lobby', 'cards', 'closed'].includes(view.phase) ? 'opacity-30' : 'opacity-[.07]'}`}><LiarStone id="table-seal" name="" size={Math.round(box.w * 0.24)} /></span>
+          <span className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 45% at 50% 18%, rgba(255,255,255,.13), transparent 70%)' }} />
+          {/* the beam: a soft light from the centre toward the spotlit seat */}
+          <span className="pointer-events-none absolute inset-0 transition-[transform,opacity] duration-700 ease-[cubic-bezier(.3,.8,.3,1)] motion-reduce:transition-none"
+            style={{ transform: `rotate(${angle ?? target ?? 0}deg)`, opacity: focus != null ? 1 : 0 }}>
+            <span className="absolute left-1/2 top-[-12%] h-[70%] w-[70%] -translate-x-1/2"
+              style={{ background: `radial-gradient(ellipse 50% 60% at 50% 30%, ${view.phase === 'clue' ? 'rgba(255,211,110,.24)' : 'rgba(255,120,90,.26)'}, transparent 70%)` }} />
+          </span>
+        </div>
       </div>
+      {/* a little brass place for every seat on the rim */}
+      {order.map((m) => {
+        const { a } = pos[m.seat];
+        const lit = focus === m.seat;
+        return <span key={`place-${m.seat}`} aria-hidden className={`absolute h-[6px] w-[22px] -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-500 ${lit ? 'bg-[#ffd36e] shadow-[0_0_10px_rgba(255,211,110,.8)]' : 'bg-[#e8dcff]/30'}`}
+          style={{ left: `${50 + 36.5 * Math.cos(a)}%`, top: `${50 + 34.5 * Math.sin(a)}%`, rotate: `${(a * 180) / Math.PI + 90}deg` }} />;
+      })}
+      {/* NEXT: the next speaker, so they can get ready */}
+      {view.phase === 'clue' && nextMember && (
+        <span className={`absolute -top-9 right-0 z-30 flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2.5 text-[11px] font-black shadow-lg ${meNext ? 'hwl-next bg-[#ffd36e] text-[#241457]' : 'bg-black/55 text-white/85 ring-1 ring-white/15'}`}>
+          <RimStone name={nextMember.name} size={20} rim={1} />
+          <span className="text-[9px] tracking-[0.14em] opacity-70">NEXT</span>
+          <span className="max-w-[92px] truncate">{meNext ? t.nextMe : nextMember.name}</span>
+        </span>
+      )}
       {Array.from({ length: empty }, (_, k) => {
         const { x, y } = seatPos(order.length + k, n, big);
         return (
@@ -378,7 +538,8 @@ function Table({ view, t, marks, typing, now, frac, left, show, onTap, children 
                 </span>}
               </span>
             )}
-            <span key={liar ? 'liar' : 'seat'} className={`relative rounded-full ${isTurn ? 'hwl-glow' : ''} ${liar ? 'hwl-turn ring-[3px] ring-[#ff5a3d] ring-offset-2 ring-offset-[#15111f]' : ''} ${lit && !isTurn ? 'ring-[3px] ring-[#ff8a6d] ring-offset-2 ring-offset-[#15111f]' : ''} ${myVote ? 'ring-[3px] ring-[#ff5a3d] ring-offset-2 ring-offset-[#15111f]' : ''} ${canVote && !myVote ? 'ring-2 ring-white/40 ring-offset-2 ring-offset-[#15111f]' : ''}`}>
+            <span key={liar ? 'liar' : 'seat'} style={!over && (suspects[m.seat] ?? 0) > 0 ? { boxShadow: HEAT[Math.min(3, suspects[m.seat]) - 1], transition: 'box-shadow .5s' } : undefined}
+              className={`relative rounded-full ${isTurn ? 'hwl-glow' : ''} ${liar ? 'hwl-turn ring-[3px] ring-[#ff5a3d] ring-offset-2 ring-offset-[#15111f]' : ''} ${lit && !isTurn ? 'ring-[3px] ring-[#ff8a6d] ring-offset-2 ring-offset-[#15111f]' : ''} ${myVote ? 'ring-[3px] ring-[#ff5a3d] ring-offset-2 ring-offset-[#15111f]' : ''} ${canVote && !myVote ? 'ring-2 ring-white/40 ring-offset-2 ring-offset-[#15111f]' : ''}`}>
               <RimStone name={m.name} size={size} />
               {isTurn && <span className="pointer-events-none absolute -inset-[6px]"><Ring frac={frac} left={left} size={size + 12}><span /></Ring></span>}
               {isTurn && left != null && <span className={`absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full px-1.5 font-mono text-[10px] font-black ${left <= 5 ? 'bg-[#ff5a3d] text-white' : 'bg-[#ffd36e] text-[#241457]'}`}>{left}</span>}
@@ -386,7 +547,7 @@ function Table({ view, t, marks, typing, now, frac, left, show, onTap, children 
               {liar && <span className="hwl-stamp absolute -right-3 -top-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#ff5a3d] text-[15px] shadow-lg ring-2 ring-white">🎭</span>}
               {accused && !liar && <span className="absolute -right-2 -top-2 rounded-full bg-[#ffd36e] px-1.5 text-[10px] font-black text-[#241457]">?</span>}
               {view.excluded.includes(m.seat) && !over && <span className="absolute -right-2 -top-2 rounded-full bg-black/70 px-1 text-[9px] font-black text-white/70">⚖️</span>}
-              {(suspects[m.seat] ?? 0) > 0 && !over && <span className="absolute -left-2 -top-1.5 flex items-center gap-0.5 rounded-full bg-black/75 px-1 text-[10px] font-black text-[#ffd36e]"><Eye size={10} />{suspects[m.seat]}</span>}
+              {(suspects[m.seat] ?? 0) > 0 && !over && <span key={`s${suspects[m.seat]}`} className={`hwl-pop absolute -left-2 -top-1.5 flex items-center gap-0.5 rounded-full px-1 font-black ${suspects[m.seat] >= 3 ? 'bg-[#ff5a3d] text-[12px] text-white' : suspects[m.seat] === 2 ? 'bg-[#ff9a3d] text-[11px] text-[#2a0d05]' : 'bg-black/75 text-[10px] text-[#ffd36e]'}`}><Eye size={suspects[m.seat] >= 2 ? 12 : 10} />{suspects[m.seat]}</span>}
               {(votes[m.seat] ?? 0) > 0 && !over && <span key={`v${voteFly}`} className="hwl-pop absolute -bottom-1.5 -right-2 rounded-full bg-[#ff5a3d] px-1.5 text-[10px] font-black text-white" style={voteFly ? { animationDelay: '1.1s' } : undefined}>{votes[m.seat]}</span>}
               {voting && m.voted && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#3fd67a] px-1 text-[9px] font-black text-[#0b2b16]">✓</span>}
               {view.phase === 'talk' && m.talked && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#7fd0ff] px-1 text-[9px] font-black text-[#082033]">✓</span>}
@@ -394,7 +555,8 @@ function Table({ view, t, marks, typing, now, frac, left, show, onTap, children 
               {view.host === m.seat && view.kind === 'friend' && <Crown size={13} className="absolute -top-2 left-1/2 -translate-x-1/2 text-[#ffd36e]" />}
             </span>
             <span className={`mt-1 max-w-full truncate text-[11px] font-black ${liar ? 'rounded-full bg-[#ff5a3d] px-1.5 text-white' : mine ? 'text-[#ffe9a8]' : 'text-white/80'} ${isTurn ? 'mt-2' : ''}`}>{m.name}{mine ? ` (${t.me})` : ''}</span>
-            {view.phase === 'clue' && next === m.seat && <span className="mt-0.5 rounded-full border border-[#ffd36e]/50 px-1.5 text-[9px] font-black text-[#ffd36e]/90">{t.next}</span>}
+            {top.includes(m.seat) && !over ? <span className="hwl-pop mt-0.5 rounded-full bg-[#ff5a3d] px-1.5 text-[9px] font-black text-white shadow-[0_0_10px_rgba(255,90,61,.6)]">👁 {t.topSuspect}</span>
+              : view.phase === 'clue' && next === m.seat && <span className="mt-0.5 rounded-full border border-[#ffd36e]/50 px-1.5 text-[9px] font-black text-[#ffd36e]/90">{t.next}</span>}
             {over && m.pieces && (!show || show.over) ? <span className="hwl-pop mt-0.5 rounded-full bg-[#ffd36e] px-1.5 text-[10px] font-black text-[#3a2600]">🧩 {t.pieces(m.pieces)}</span> : null}
             {!m.here && view.phase === 'lobby' && <span className="text-[9px] text-white/40">{t.away}</span>}
           </button>
@@ -413,6 +575,13 @@ function Table({ view, t, marks, typing, now, frac, left, show, onTap, children 
           style={{ left: `${pos[v.seat].x}%`, top: `${pos[v.seat].y}%`, animationDelay: `${k * 90}ms`,
             ['--dx' as string]: `${((pos[v.target].x - pos[v.seat].x) / 100) * box.w}px`, ['--dy' as string]: `${((pos[v.target].y - pos[v.seat].y) / 100) * box.h}px` }}>🗳</span>
       ))}
+      {/* 👁 on its way to the suspect */}
+      {eyes.map((e) => pos[e.from] && pos[e.to] && (
+        <span key={e.key} className="hwl-fly-vote pointer-events-none absolute z-30 -translate-x-1/2 -translate-y-1/2 text-[20px]"
+          style={{ left: `${pos[e.from].x}%`, top: `${pos[e.from].y}%`,
+            ['--dx' as string]: `${((pos[e.to].x - pos[e.from].x) / 100) * box.w}px`, ['--dy' as string]: `${((pos[e.to].y - pos[e.from].y) / 100) * box.h}px` }}>👁</span>
+      ))}
+      <TableTip view={view} t={t} pos={pos} top={top} />
       {/* the centre sits above the seats' wide buttons, but lets taps through where it is empty */}
       <div className="pointer-events-none absolute inset-[19%_20%_27%] z-10 flex items-center justify-center">{children}</div>
       {banner && (
@@ -469,9 +638,10 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
     const e = await fn(); setBusy(false);
     if (e) setErr(e); else { setWord(''); setMask(false); }
   };
+  const repeat = myTurn ? repeatOf(view, word) : null;
   const field = (ph: string, kind: 'clue' | 'guess') => (
     <input autoFocus value={word} maxLength={12} placeholder={ph} enterKeyHint="send"
-      onChange={(e) => { setWord(e.target.value); setErr(null); unlockGameAudio(); if (kind === 'clue') typingNow('clue'); }}
+      onChange={(e) => { setWord(e.target.value); setErr(null); unlock(); if (kind === 'clue') typingNow('clue'); }}
       className="w-0 min-w-0 flex-1 rounded-xl border-2 border-[#ffd36e] bg-black/60 px-2 py-2 text-center text-[16px] font-black text-white outline-none placeholder:text-[11px] placeholder:font-bold placeholder:text-white/35" />
   );
 
@@ -480,7 +650,7 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
   else if (view.phase === 'cards') body = <><p className="text-[15px] font-black">{t.cards}</p><p className="mt-1 break-keep text-[11px] text-white/55">{t.wordNote}</p></>;
   else if (myTurn) body = (
     <form className={`${live} hwl-enter w-full rounded-2xl border border-[#ffd36e]/60 bg-[#1b1530]/95 p-2 shadow-[0_0_30px_rgba(255,211,110,.25)]`}
-      onSubmit={(e) => { e.preventDefault(); if (word.trim()) void send(() => submitClue(word, mask)); }}>
+      onSubmit={(e) => { e.preventDefault(); if (word.trim() && !repeat) void send(() => submitClue(word, mask)); }}>
       <div className="flex items-center gap-1.5">
         {ring}
         <p className="min-w-0 flex-1 break-keep text-left text-[12px] font-black leading-tight text-[#ffd36e]">{t.myTurn}</p>
@@ -489,9 +659,9 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
       </div>
       <div className="mt-1.5 flex gap-1">
         {field(t.cluePh, 'clue')}
-        <button type="submit" disabled={busy || !word.trim()} className="shrink-0 rounded-xl bg-[#ffd36e] px-2.5 text-[12px] font-black text-[#241457] disabled:opacity-40">{busy ? <Loader2 size={14} className="animate-spin" /> : t.say}</button>
+        <button type="submit" disabled={busy || !word.trim() || !!repeat} className="shrink-0 rounded-xl bg-[#ffd36e] px-2.5 text-[12px] font-black text-[#241457] disabled:opacity-40">{busy ? <Loader2 size={14} className="animate-spin" /> : t.say}</button>
       </div>
-      {err && <p className="mt-1 break-keep text-[11px] font-bold text-[#ff8a6d]">{err}</p>}
+      {repeat ? <p className="mt-1 break-keep text-[11px] font-bold text-[#ff8a6d]">{t.repeatWarn(repeat)}</p> : err && <p className="mt-1 break-keep text-[11px] font-bold text-[#ff8a6d]">{err}</p>}
     </form>
   );
   else if (view.phase === 'clue') {
@@ -711,9 +881,10 @@ function Rules({ t }: { t: T }) {
   );
 }
 
-function ChatPanel({ chat, t, say, view, myTurn, submitClue, typingNow }: {
+function ChatPanel({ chat, t, say, view, myTurn, submitClue, typingNow, marks, now }: {
   chat: LiarChat[]; t: T; say: (text: string, emote?: boolean) => Promise<string | null>; view: LiarView; myTurn: boolean;
   submitClue: (word: string, mask: boolean) => Promise<string | null>; typingNow: (kind: 'clue' | 'chat', stop?: boolean) => void;
+  marks: Record<number, number>; now: number;
 }) {
   const [text, setText] = useState('');
   const [err, setErr] = useState<string | null>(null);
@@ -724,6 +895,10 @@ function ChatPanel({ chat, t, say, view, myTurn, submitClue, typingNow }: {
   const word = view.me?.word;
   const inGame = RUNNING.includes(view.phase);
   const lastWords = view.phase === 'last' ? view.accused : null;
+  const top = inGame ? topSuspects(marks) : [];
+  const meTop = view.me != null && top.includes(view.me.seat);
+  // the top suspect's newest line stays pinned above the chat for a few seconds, so everyone reads their defence
+  const pinned = [...chat].reverse().find((m) => m.kind === 'chat' && top.includes(m.seat) && now - m.at < 8000);
   const send = async (raw: string, emote = false, force = false) => {
     const flat = raw.replace(/\s+/g, '');
     if (word && inGame && flat.includes(word)) { setErr(t.chatBlocked.word); return; }   // the server checks too (and more)
@@ -750,11 +925,18 @@ function ChatPanel({ chat, t, say, view, myTurn, submitClue, typingNow }: {
           <MessageCircle size={11} />{myTurn ? t.chatNote : lastWords != null ? t.lastChat : t.chat}
         </p>
       )}
+      {meTop && !myTurn && <p className="hwl-pop mx-2 mt-1 rounded-lg bg-[#ff5a3d]/20 px-2.5 py-1 text-[11.5px] font-black text-[#ffb09c] ring-1 ring-[#ff5a3d]/50">{t.suspectedMe}</p>}
+      {pinned && !meTop && (
+        <div key={pinned.key} className="hwl-pop mx-2 mt-1 rounded-lg border-l-[3px] border-[#ff5a3d] bg-[#ff5a3d]/15 px-2.5 py-1">
+          <p className="text-[9.5px] font-black text-[#ff8a6d]">{t.suspectSays}</p>
+          <p className="break-words text-[14px] font-bold leading-snug"><b className="text-[#ffb09c]">{pinned.name}</b> {pinned.text}</p>
+        </div>
+      )}
       <div ref={list} className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-2 text-[13px]">
         {chat.map((m) => m.kind === 'system'
           ? <p key={m.key} className="text-[12px] font-bold text-[#c9b6ff]/90">{m.text}</p>
           : (
-            <p key={m.key} className={`break-words leading-snug ${lastWords === m.seat ? 'rounded-lg border-l-[3px] border-[#ff8a6d] bg-[#ff8a6d]/12 px-2 py-1 text-[14px]' : ''}`}>
+            <p key={m.key} className={`break-words leading-snug ${lastWords === m.seat ? 'rounded-lg border-l-[3px] border-[#ff8a6d] bg-[#ff8a6d]/12 px-2 py-1 text-[14px]' : top.includes(m.seat) ? 'rounded-lg border-l-[3px] border-[#ff5a3d] bg-[#ff5a3d]/10 px-2 py-0.5 text-[13.5px]' : ''}`}>
               <b style={{ color: colorOf(m.seat) }}>{m.name}</b>{' '}
               {m.kind === 'hidden'
                 ? <span className="text-[12px] italic text-white/40">{t.hiddenLine}</span>
@@ -772,7 +954,7 @@ function ChatPanel({ chat, t, say, view, myTurn, submitClue, typingNow }: {
           </div>
         </div>
       ) : (
-        <div className="flex gap-1 overflow-x-auto px-2 pb-1">
+        <div className="flex gap-1 overflow-x-auto px-2 pb-1 [scrollbar-width:none]">
           {t.quick.map((q) => <button key={q} type="button" onClick={() => { void send(q, true); }} className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-bold text-white/80 active:bg-white/20">{q}</button>)}
         </div>
       )}

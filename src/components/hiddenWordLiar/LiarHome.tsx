@@ -12,6 +12,7 @@ import { type LiarRankRow, LIAR_ACCENT, createLiarRoom, isLiarCode, liarMyStats,
 import { CrownStone } from '@/components/CrownIcons';
 import { LiarStone } from './LiarArt';
 import { useLiarQueue } from './LiarQueue';
+import LiarTutorial, { TutorialButton } from './LiarTutorial';
 import { liarCopy } from './copy';
 
 const T = {
@@ -170,7 +171,10 @@ export default function LiarHome({ guide }: { guide?: ReactNode }) {
                 </li>
               ))}
             </ol>
-            <a href="#guide" className="mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-white/5 py-2.5 text-[12px] font-bold text-white/75"><BookOpen size={14} />{t.guide}</a>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <TutorialButton className="rounded-xl bg-[#a98bff]/20 py-2.5 text-[12px] font-black text-[#d9ccff] ring-1 ring-[#a98bff]/40" />
+              <a href="#guide" className="flex items-center justify-center gap-1.5 rounded-xl bg-white/5 py-2.5 text-[12px] font-bold text-white/75"><BookOpen size={14} />{t.guide}</a>
+            </div>
           </div>
         </section>
 
@@ -209,6 +213,7 @@ export default function LiarHome({ guide }: { guide?: ReactNode }) {
         </aside>
       </main>
       {guide}
+      <LiarTutorial />
     </div>
   );
 }

@@ -22,7 +22,8 @@ begin
   for s in 0..4 loop
     perform pg_temp.as_user(pg_temp.uid(s + 1));
     if s <> target then perform public.hwl_vote(c, pg_temp.seat_key(c, s), target);
-    else perform public.hwl_vote(c, pg_temp.seat_key(c, s), case when target = 0 then 1 else 0 end); end if;
+    else perform public.hwl_vote(c, pg_temp.seat_key(c, s), (select x from generate_series(0, 4) x
+                   where x <> s and not (x::smallint = any ((select excluded from public.hwl_rooms where code = c)::smallint[])) order by x limit 1)); end if;   -- the target votes someone still allowed
   end loop;
 end $$;
 create or replace function pg_temp.all_decide(c text, choice text) returns void language plpgsql as $$
@@ -109,5 +110,16 @@ begin
   if v -> 0 ->> 'text' <> '수상한데' then raise exception 'C: plain line %', v -> 0; end if;
   res := public.hwl_chat(c, pg_temp.seat_key(c, cit), '수상한데');
   if res ->> 'error' <> 'fast' then raise exception 'C: flood %', res; end if;
+  -- D. no repeated clue, even with a particle or spaces
+  update public.hwl_rooms set phase = 'clue', pos = 0, deadline = now() + interval '20 seconds' where code = c;
+  select * into r from public.hwl_rooms where code = c;
+  perform pg_temp.as_user(pg_temp.uid(r.turn_order[1] + 1));
+  res := public.hwl_clue(c, pg_temp.seat_key(c, r.turn_order[1]), '사람', false);
+  if (res ->> 'ok') is null then raise exception 'D: first clue %', res; end if;
+  perform pg_temp.as_user(pg_temp.uid(r.turn_order[2] + 1));
+  res := public.hwl_clue(c, pg_temp.seat_key(c, r.turn_order[2]), ' 사 람을 ', false);
+  if res ->> 'error' <> 'dup' then raise exception 'D: repeat with a particle %', res; end if;
+  if public.hwl_clue_word('고양이') <> '고양이' or public.hwl_clue_word('바다에서') <> '바다' then raise exception 'D: particles % %', public.hwl_clue_word('고양이'), public.hwl_clue_word('바다에서'); end if;
+  raise notice 'D ok: 사람 then " 사 람을 " → dup; 고양이 kept, 바다에서 → 바다';
   raise notice 'C ok: own word refused (particle, spaces), other word hidden from others only, flood held';
 end $$;
