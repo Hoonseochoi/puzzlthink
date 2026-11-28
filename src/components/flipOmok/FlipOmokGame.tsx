@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Bot, Eye, Flag, Info, Lightbulb, RotateCcw, ShieldCheck, Trophy, Undo2, Users, X } from 'lucide-react';
 import { useReplayPlayer } from '@/hooks/useReplayFrames';
@@ -62,7 +63,17 @@ export function FlipLegend() {
   </section>;
 }
 
+// The "전략적 뒤집기" rules prototype, only with `?rules=next` (loaded on demand; the live game below is unchanged).
+const FlipOmokNextGame = dynamic(() => import('./FlipOmokNext'), { ssr: false });
+
 export default function FlipOmokGame() {
+  const [next, setNext] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- the switch lives in the address, read once on mount
+  useEffect(() => { setNext(new URLSearchParams(window.location.search).get('rules') === 'next'); }, []);
+  return next ? <FlipOmokNextGame /> : <LiveFlipOmokGame />;
+}
+
+function LiveFlipOmokGame() {
   const t = useTranslations('FlipOmok');
   const tc = useTranslations('Common');
   const [mode, setMode] = useState<Mode>('ai');

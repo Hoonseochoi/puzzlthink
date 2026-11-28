@@ -6287,6 +6287,41 @@
     "resign": "Resign",
     "resignConfirm": "Resign this game?"
   },
+  "FlipOmokNext": {
+    "badge": "New rules preview",
+    "callout": "FLIP!",
+    "calloutSub": "{name} · {n} turned",
+    "aiAiming": "COCO is lining up a flip…",
+    "choose": "Place, or flip?",
+    "chooseHint": "Here you can flip {n}",
+    "quiet": "Place",
+    "quietSub": "Save your flip (default)",
+    "flip": "Place & flip {n}",
+    "flipSub": "Uses 1 flip",
+    "panelTitle": "Strategic flip",
+    "panelHint": "{n} left. Tap a point that sandwiches enemy stones to choose whether to flip.",
+    "panelEmpty": "No flips left: from now on you can only place.",
+    "usedSummary": "Flips used: you {you} · COCO {coco}",
+    "sound": "Sound on/off",
+    "close": "Close",
+    "tutorialTitle": "New rule: strategic flip",
+    "tutorial": [
+      "Only 3 flips a game. When you sandwich stones, you choose whether to flip.",
+      "Flipped stones are 🔒 locked: they never flip again.",
+      "Placing is the default. Save the flip for the move that matters!"
+    ],
+    "rulesTitle": "Strategic flip rules",
+    "rules": [
+      "15×15 board, red first, one stone a turn. Exactly five in a row wins; six or more doesn't.",
+      "Each player has 3 flips per game, usable only when the stone sandwiches enemy stones.",
+      "Tap such a point to choose: Place (keep the flip) or Place & flip (every sandwiched stone turns to your colour). Tapping the same point again places.",
+      "Flipped stones are locked (🔒): nobody can flip them again.",
+      "A five that needs stones flipped by that same move doesn't count. Double threes are forbidden for both (✕).",
+      "Both players' remaining flips are shown (◆)."
+    ],
+    "prototypeNote": "A preview: games here are not recorded.",
+    "liveLink": "Play the current rules"
+  },
   "FlipOmokTutorial": {
     "s1Title": "One stone each turn",
     "s1Desc": "Red first, players take turns placing a stone on an empty point. The stone just placed gets a gold ring.",
