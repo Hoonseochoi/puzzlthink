@@ -19,7 +19,7 @@ export type LiarView = {
   game: number; round: number; roundsMax: number; order: number[]; turn: number | null; host: number | null;
   runoff: number[] | null; accused: number | null; liar: number | null; excluded: number[]; revotes: number;
   reveal: { at: number; until: number } | null;
-  cfg: { hot: number; min: number; max: number; liarWin: number; citizenWin: number; dailyCap: number };
+  cfg: { hot: number; min: number; max: number; liarWin: number; citizenWin: number; dailyCap: number; again?: number; readyWait?: number };
   me: { seat: number; playing: boolean; maskUsed: boolean; extended: boolean; talk: 'accuse' | 'more' | null; decide: 'arrest' | 'revote' | null; ready: boolean; word: string | null; voted: number | null; piecesToday: number | null } | null;
   members: LiarMember[];
   talk: { accuse: number; more: number };
@@ -76,7 +76,10 @@ export const tickLiar = (code: string) => rpc('hwl_tick', { p_code: code });
 export type LiarRankRow = { rank: number; nickname: string; avatar_url: string | null; liar_wins: number; citizen_wins: number; games: number; points: number; is_me: boolean };
 export const liarRanking = (limit = 20) => rpc<LiarRankRow[]>('hwl_ranking', { p_limit: limit });
 /** 공개방 queue size and 공개방 games being played now (home card). */
-export const liarLobbyStats = () => rpc<{ waiting: number; rooms: number }>('hwl_lobby_stats', {});
+export type LiarOpenRoom = { code: string; kind: 'friend' | 'house'; players: number; seats: number };
+export const liarLobbyStats = () => rpc<{ waiting: number; rooms: number; open?: LiarOpenRoom[] }>('hwl_lobby_stats', {});
+/** 초대하기: open the empty seats for 5 minutes, list the table on the home card, ping the 공개방 queue (once a minute). */
+export const inviteLiar = (code: string) => rpc<{ ok?: boolean; sent?: number; seats?: number; wait?: number } & Err>('hwl_invite', { p_code: code, p_key: seatKey(code) });
 export const liarMyStats = () => rpc<{ liarWins: number; citizenWins: number; games: number; friendGames: number; piecesToday: number; dailyCap: number }>('hwl_my_stats', {});
 
 // ── matchmaking queue ──

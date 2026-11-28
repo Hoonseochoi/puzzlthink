@@ -9,7 +9,7 @@ import { RimStone } from '@/components/match/PlayerPlate';
 import { checkNewIcons } from '@/components/IconUnlock';
 import GameUpdates from '@/components/GameUpdates';
 import {
-  LIAR_ACCENT, REVEAL, type LiarClue, type LiarMember, type LiarView, decideLiar, extendLiar, guessLiar, kickLiar, leaveLiar, myName, readyLiar,
+  LIAR_ACCENT, REVEAL, type LiarClue, type LiarMember, type LiarView, decideLiar, extendLiar, guessLiar, inviteLiar, kickLiar, leaveLiar, myName, readyLiar,
   revealFlip, sayClue, phaseSecs, scoreColor, secondsLeft, startLiar, talkLiar, voteLiar,
 } from '@/lib/hiddenWordLiar';
 import { bgmOn, buzz, onSoundChange, setBgm, setMood, setSfx, sfx, sfxOn, unlock } from './liarSound';
@@ -120,6 +120,16 @@ export default function LiarRoomView({ code }: { code: string }) {
     const h = window.setTimeout(() => setExtToast((x) => (x?.key === extKey ? null : x)), 2600);
     return () => { window.clearTimeout(s); window.clearTimeout(h); };
   }, [extKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  // 다시 하기: a pop when someone readies, a fanfare when the next game starts
+  const readyN = view && (view.phase === 'done' || view.phase === 'closed') ? view.members.filter((m) => m.ready && !m.gone).length : 0;
+  const lastReady = useRef(0);
+  useEffect(() => { if (readyN > lastReady.current) { sfx.mark(); buzz(15); } lastReady.current = readyN; }, [readyN]);
+  const gameNo = view?.game ?? 0;
+  const lastGame = useRef<number | null>(null);
+  useEffect(() => {
+    if (lastGame.current != null && gameNo > lastGame.current) { sfx.banner(); buzz([30, 40, 30]); }
+    lastGame.current = gameNo;
+  }, [gameNo]);
   const myTurnNow = !!view?.me && view.phase === 'clue' && view.turn === view.me.seat;
   useEffect(() => { if (myTurnNow) sfx.myTurn(); }, [myTurnNow]);
 
@@ -167,6 +177,7 @@ export default function LiarRoomView({ code }: { code: string }) {
   return (
     <Shell t={t} code={code} onLeave={leave} timer={show && !show.over ? null : left} view={view}>
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 [scrollbar-color:rgba(255,255,255,.18)_transparent] lg:px-6">
           <MyWord view={view} t={t} />
           {view.phase === 'lobby' && <Actions view={view} t={t} en={en} code={code} refresh={refresh} show={show} />}
@@ -178,6 +189,8 @@ export default function LiarRoomView({ code }: { code: string }) {
           {view.phase !== 'lobby' && (!show || show.over) && <Actions view={view} t={t} en={en} code={code} refresh={refresh} show={show} />}
           <ClueBoard view={view} t={t} />
           {view.phase === 'lobby' || !me?.playing ? <Rules t={t} /> : null}
+        </div>
+        <PinnedAgain view={view} t={t} code={code} refresh={refresh} show={show} now={now} skew={skew} />
         </div>
         <ChatPanel chat={chat} t={t} say={say} view={view} myTurn={myTurn} submitClue={submitClue} typingNow={typingNow} marks={marks} now={now} />
       </div>
@@ -569,6 +582,7 @@ function Table({ view, t, marks, typing, now, frac, left, show, toast, onTap, ch
               {(suspects[m.seat] ?? 0) > 0 && !over && <span key={`s${suspects[m.seat]}`} className={`hwl-pop absolute -left-2 -top-1.5 flex items-center gap-0.5 rounded-full px-1 font-black ${suspects[m.seat] >= 3 ? 'bg-[#ff5a3d] text-[12px] text-white' : suspects[m.seat] === 2 ? 'bg-[#ff9a3d] text-[11px] text-[#2a0d05]' : 'bg-black/75 text-[10px] text-[#ffd36e]'}`}><Eye size={suspects[m.seat] >= 2 ? 12 : 10} />{suspects[m.seat]}</span>}
               {(votes[m.seat] ?? 0) > 0 && !over && <span key={`v${voteFly}`} className="hwl-pop absolute -bottom-1.5 -right-2 rounded-full bg-[#ff5a3d] px-1.5 text-[10px] font-black text-white" style={voteFly ? { animationDelay: '1.1s' } : undefined}>{votes[m.seat]}</span>}
               {voting && m.voted && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#3fd67a] px-1 text-[9px] font-black text-[#0b2b16]">✓</span>}
+              {(view.phase === 'done' || view.phase === 'closed') && m.ready && <span key="rdy" className="hwl-pop absolute -bottom-1 -left-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#3fd67a] text-[11px] font-black text-[#0b2b16] shadow-[0_0_10px_rgba(63,214,122,.7)] ring-2 ring-[#120d22]">✓</span>}
               {view.phase === 'talk' && m.talked && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#7fd0ff] px-1 text-[9px] font-black text-[#082033]">✓</span>}
               {view.phase === 'decide' && m.decided && <span className="absolute -bottom-1 -left-1.5 rounded-full bg-[#7fd0ff] px-1 text-[9px] font-black text-[#082033]">✓</span>}
               {m.extended && RUNNING.includes(view.phase) && <span title={t.extendUsed} className="absolute -right-2.5 top-[38%] rounded-full bg-[#7fd0ff] px-[3px] text-[9px] leading-[14px] shadow">⏱</span>}
@@ -812,12 +826,12 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
         );
     }
   }
-  else if (view.phase === 'closed') body = <p className="text-[14px] font-black">{t.closed}</p>;
+  else if (view.phase === 'closed') body = <><p className="text-[14px] font-black">{t.closed}</p><p className="mt-1 break-keep text-[11px] text-white/55">{t.closedNote}</p></>;
   const pop = ['talk', 'vote', 'runoff', 'decide'].includes(view.phase);
   return <div className={`flex w-full flex-col items-center justify-center text-center ${pop ? 'hwl-pop' : ''}`}>{body}</div>;
 }
 
-function Actions({ view, t, en, code, refresh, show }: { view: LiarView; t: T; en: boolean; code: string; refresh: () => Promise<void>; show: Show | null }) {
+function Actions({ view, t, en, code, refresh }: { view: LiarView; t: T; en: boolean; code: string; refresh: () => Promise<void>; show?: Show | null }) {
   const me = view.me;
   const [busy, setBusy] = useState(false);
   const [url, setUrl] = useState('');
@@ -838,6 +852,7 @@ function Actions({ view, t, en, code, refresh, show }: { view: LiarView; t: T; e
           <p className="break-keep text-center text-[12px] font-bold text-white/70">{t.lobbyHint(n, view.cfg.min)}</p>
           <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.invite}</p>
           <LiarShare url={url} title={t.title} text={t.inviteText(code.toUpperCase())} button={t.inviteButton} en={en} />
+          <CallIn code={code} t={t} />
           {isHost
             ? <button type="button" disabled={n < view.cfg.min || busy} onClick={() => submit(() => startLiar(code))} className="mt-3 w-full rounded-xl py-3 text-[15px] font-black text-[#1a1030] disabled:opacity-40" style={{ background: LIAR_ACCENT }}>{t.start} ({n}/10)</button>
             : <p className="mt-3 text-center text-[12px] text-white/50">{t.waitHost}</p>}
@@ -856,29 +871,89 @@ function Actions({ view, t, en, code, refresh, show }: { view: LiarView; t: T; e
   if (view.phase === 'done' && view.result) {
     const r = view.result;
     const iWasLiar = me?.seat === r.liar;
-    const ready = view.members.filter((m) => m.ready && !m.gone).length;
-    const wait = !!show?.serverWait;   // skipped the show: the server still waits for everyone else to see it
     return (
       <div className={`${box} hwl-pop`}>
         {!r.valid && r.outcome !== 'void' && <p className="mb-2 break-keep text-center text-[10px] text-white/40">{t.noReward}</p>}
         {me?.piecesToday != null && <p className="mb-2 text-center text-[11px] font-black text-[#ffd36e]">🧩 {t.todayLeft(Math.max(0, view.cfg.dailyCap - me.piecesToday), view.cfg.dailyCap)}</p>}
-        {view.kind === 'friend'
-          ? (isHost
-              ? <button type="button" disabled={busy || wait || view.members.length < view.cfg.min} onClick={() => submit(() => startLiar(code))} className="w-full rounded-xl py-3 text-[15px] font-black text-[#1a1030] disabled:opacity-40" style={{ background: LIAR_ACCENT }}>{wait ? t.showing : t.againHost}</button>
-              : <p className="text-center text-[12px] text-white/50">{t.waitHost}</p>)
-          : <button type="button" disabled={!me || me.ready} onClick={() => { void readyLiar(code, true).then(refresh); }} className="w-full rounded-xl py-3 text-[15px] font-black text-[#1a1030] disabled:opacity-60" style={{ background: LIAR_ACCENT }}>{me?.ready ? `✓ ${t.readyOn}` : t.again} · {t.againWait(ready)}</button>}
         {me?.playing && r.outcome !== 'void' && <>
           <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.share}</p>
           <LiarShare compact url={`${url.replace(/\/room\/.*$/, '')}`} title={t.title} text={`${t.shareResult(iWasLiar, r.outcome)} · ${r.answer} vs ${r.decoy}`} button={en ? 'Play' : '플레이하기'} en={en} />
         </>}
-        {view.kind === 'friend' && <>
-          <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.invite}</p>
-          <LiarShare compact url={url} title={t.title} text={t.inviteText(code.toUpperCase())} button={t.inviteButton} en={en} />
-        </>}
+        <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.invite}</p>
+        <LiarShare compact url={url} title={t.title} text={t.inviteText(code.toUpperCase())} button={t.inviteButton} en={en} />
+        <CallIn code={code} t={t} />
       </div>
     );
   }
   return null;
+}
+
+/**
+ * 다시 하기, pinned above the chat once the show is over (it stays when the result card is scrolled away):
+ * ready count n/4, a countdown ring, a gentle pulse until I am ready. Friend rooms: the host gets 「다시 시작」,
+ * everyone else 「준비」. A closed room that still has people: 「한 판 더 (방 다시 열기)」.
+ */
+function PinnedAgain({ view, t, code, refresh, show, now, skew }: { view: LiarView; t: T; code: string; refresh: () => Promise<void>; show: Show | null; now: number; skew: number }) {
+  const me = view.me;
+  const [busy, setBusy] = useState(false);
+  if (!me) return null;
+  const closed = view.phase === 'closed';
+  if (!closed && !(view.phase === 'done' && view.result && (!show || show.over))) return null;
+  const present = view.members.filter((m) => !m.gone);
+  const ready = present.filter((m) => m.ready).length;
+  const min = view.cfg.min;
+  const host = view.kind === 'friend' && view.host === me.seat;
+  const wait = !!show?.serverWait;
+  const left = !closed && view.deadline ? Math.max(0, Math.ceil((view.deadline - (now + skew)) / 1000)) : null;
+  const total = ready >= min ? view.cfg.readyWait ?? 10 : view.cfg.again ?? 25;
+  const frac = left != null ? Math.max(0, Math.min(1, left / total)) : null;
+  const act = async (fn: () => Promise<unknown>) => { if (busy) return; setBusy(true); unlock(); await fn(); setBusy(false); void refresh(); };
+  const label = closed ? t.reopen
+    : host ? t.restart
+    : me.ready ? `✓ ${t.readyOn} · ${ready}/${min}`
+    : view.kind === 'friend' ? `${t.readyBtn} · ${ready}/${min}` : `${t.againBig} ${ready}/${min}${left != null ? ` · ${left}${t.sec}` : ''}`;
+  const primary = !me.ready || host || closed;
+  return (
+    <div className="shrink-0 border-t border-white/10 bg-[#120d22]/95 px-3 py-2 backdrop-blur lg:px-6">
+      <div className="mx-auto flex max-w-[520px] items-center gap-2.5">
+        {frac != null && <Ring frac={frac} left={left} size={42} />}
+        <button type="button" disabled={busy || (host && (wait || present.length < min)) || (!host && !closed && me.ready)}
+          onClick={() => { void act(() => (host ? startLiar(code) : readyLiar(code, true))); }}
+          className={`relative flex-1 overflow-hidden rounded-2xl py-3.5 text-[17px] font-black disabled:cursor-default ${primary ? `text-[#1a1030] shadow-[0_8px_30px_rgba(169,139,255,.45)] ${me.ready && !host ? '' : 'hwl-again'}` : 'bg-[#3fd67a]/20 text-[#7fe3a0] ring-1 ring-[#3fd67a]/50'}`}
+          style={primary ? { background: 'linear-gradient(90deg,#c4b0ff,#a98bff 55%,#8d6cf0)' } : undefined}>
+          {!closed && <span className="absolute inset-y-0 left-0 bg-white/25 transition-all duration-500" style={{ width: `${Math.min(100, (ready / min) * 100)}%` }} />}
+          <span className="relative">{host && wait ? t.showing : label}</span>
+        </button>
+        {host && !closed && (
+          <button type="button" disabled={busy || me.ready} onClick={() => { void act(() => readyLiar(code, true)); }}
+            className="shrink-0 rounded-2xl bg-white/10 px-3 py-3.5 text-[13px] font-black text-white disabled:text-[#7fe3a0]">{me.ready ? '✓' : t.readyBtn} {ready}/{min}</button>
+        )}
+      </div>
+      <p className="mx-auto mt-1 max-w-[520px] text-center text-[10.5px] font-bold text-white/50">{closed ? t.closedNote : ready >= min && left != null ? <span className="text-[#ffd36e]">⏱ {t.againSoon(left)}</span> : t.againNote(min)}</p>
+    </div>
+  );
+}
+
+/** 📣 call players from the home card and the 공개방 queue (the server allows it once a minute). */
+function CallIn({ code, t }: { code: string; t: T }) {
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const call = async () => {
+    setBusy(true);
+    const res = await inviteLiar(code);
+    setBusy(false);
+    if (!res) return setMsg(t.error);
+    if (res.error === 'wait') return setMsg(t.callInWait(res.wait ?? 60));
+    if (res.error === 'full') return setMsg(t.callInFull);
+    if (res.error) return setMsg(t.error);
+    setMsg(t.callInDone(res.sent ?? 0, res.seats ?? 0));
+  };
+  return (
+    <div className="mt-2">
+      <button type="button" disabled={busy} onClick={() => { void call(); }} className="w-full rounded-xl bg-[#ffd36e]/15 py-2.5 text-[13px] font-black text-[#ffd36e] ring-1 ring-[#ffd36e]/40 disabled:opacity-50">{t.callIn}</button>
+      <p className="mt-1 break-keep text-center text-[10.5px] font-bold text-white/50">{msg ?? t.callInNote}</p>
+    </div>
+  );
 }
 
 function ClueBoard({ view, t }: { view: LiarView; t: T }) {
