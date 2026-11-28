@@ -39,6 +39,10 @@ button:disabled { cursor: default; }
 @keyframes iconChip { from { opacity: 0; transform: translateY(10px) scale(.9); } to { opacity: 1; transform: none; } }
 .icon-chip { animation: iconChip .45s ease-out both; }
 @media (prefers-reduced-motion: reduce) { .icon-rays, .icon-ring, .icon-rise, .icon-chip { animation: none; } }
+/* Open-room invite card (OpenInvite.tsx): drops in from the top. */
+@keyframes invitePop { 0% { opacity: 0; transform: translateY(-120%) scale(.96); } 70% { opacity: 1; transform: translateY(4px); } 100% { transform: none; } }
+.invite-pop { animation: invitePop .45s cubic-bezier(.2,.9,.3,1.2) both; }
+@media (prefers-reduced-motion: reduce) { .invite-pop { animation: none; } }
 @keyframes blindWinLine { from { stroke-dashoffset: 140; } to { stroke-dashoffset: 0; } }
 .blind-gomoku-win-line { stroke-dasharray: 140; animation: blindWinLine .8s .15s cubic-bezier(.2,.8,.2,1) both; filter: drop-shadow(0 0 3px rgba(255,51,77,.9)); }
 /* 포인트 오목: stones of a round drop together, a flash ring marks each point, the chosen points breathe. */
@@ -50,10 +54,39 @@ button:disabled { cursor: default; }
 .po-flash { animation: poFlash .8s ease-out both; }
 .po-breathe { animation: poBreathe 1.6s ease-in-out infinite; }
 .po-card-in { animation: poCardIn .5s cubic-bezier(.2,.9,.3,1.1) both; }
-@keyframes laserBeam { from { stroke-dasharray: 130; stroke-dashoffset: 130; opacity: 0; } 20% { opacity: 1; } to { stroke-dasharray: 130; stroke-dashoffset: 0; opacity: 1; } }
-@keyframes laserHit { 0% { opacity: 0; transform: scale(.2); } 45% { opacity: 1; } 100% { opacity: 0; transform: scale(2.4); } }
-.laser-janggi-beam { animation: laserBeam .42s cubic-bezier(.2,.8,.2,1) both; }
-.laser-janggi-hit { transform-box: fill-box; transform-origin: center; animation: laserHit .72s .25s ease-out both; }
+/* 레이저 장기 (LaserBoard, laserFx.ts): every effect waits for its moment through --t (delay) and --d (duration). */
+.lj-beam { fill: none; stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: lj-draw var(--d) linear var(--t) forwards; }
+@keyframes lj-draw { to { stroke-dashoffset: 0; } }
+.lj-flash { opacity: 0; transform-box: fill-box; transform-origin: center; animation: lj-flash .42s ease-out var(--t) forwards; }
+@keyframes lj-flash { 0% { opacity: 0; transform: scale(.3); } 25% { opacity: 1; } 100% { opacity: 0; transform: scale(2.3); } }
+.lj-shard { opacity: 0; transform-box: fill-box; transform-origin: center; animation: lj-shard .62s cubic-bezier(.15,.7,.3,1) var(--t) forwards; }
+@keyframes lj-shard { 0% { opacity: 1; translate: 0 0; rotate: 0deg; } 100% { opacity: 0; translate: var(--dx) var(--dy); rotate: var(--r); } }
+.lj-charge { opacity: 0; transform-box: fill-box; transform-origin: center; animation: lj-charge var(--d) ease-in var(--t) forwards; }
+@keyframes lj-charge { 0% { opacity: 0; transform: scale(1.8); } 80% { opacity: 1; transform: scale(.45); } 100% { opacity: 0; transform: scale(.3); } }
+.lj-shake { animation: lj-shake .34s ease-out var(--t); }
+.lj-shake-big { animation: lj-shake-big .7s ease-out var(--t); }
+@keyframes lj-shake { 0%, 100% { transform: none; } 20% { transform: translate(-3px, 2px); } 40% { transform: translate(3px, -2px); } 60% { transform: translate(-2px, -1px); } 80% { transform: translate(1px, 1px); } }
+@keyframes lj-shake-big { 0%, 100% { transform: none; } 10% { transform: translate(-7px, 4px) scale(1.015); } 25% { transform: translate(6px, -5px) scale(1.02); } 40% { transform: translate(-5px, -3px) scale(1.01); } 60% { transform: translate(3px, 3px); } 80% { transform: translate(-1px, 1px); } }
+.lj-break { animation: .5s cubic-bezier(.4,0,.8,.6) var(--t) forwards; }
+.lj-break-a { clip-path: polygon(0 0, 100% 0, 0 100%); animation-name: lj-break-a; }
+.lj-break-b { clip-path: polygon(100% 0, 100% 100%, 0 100%); animation-name: lj-break-b; }
+@keyframes lj-break-a { 0% { filter: brightness(3); } 100% { transform: translate(-22%, -14%) rotate(-28deg); opacity: 0; } }
+@keyframes lj-break-b { 0% { filter: brightness(3); } 100% { transform: translate(20%, 22%) rotate(24deg); opacity: 0; } }
+.lj-slide { animation: lj-slide var(--d) cubic-bezier(.2,.8,.2,1) both; }
+@keyframes lj-slide { from { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); } to { transform: none; } }
+.lj-march { animation: lj-march .9s linear infinite; }
+@keyframes lj-march { to { stroke-dashoffset: -3.8; } }
+.lj-pulse { animation: lj-pulse 1s ease-in-out infinite; }
+@keyframes lj-pulse { 0%, 100% { opacity: .45; transform: scale(.94); } 50% { opacity: 1; transform: scale(1.04); } }
+.lj-doomed { animation: lj-doomed .5s ease-in-out infinite alternate; }
+@keyframes lj-doomed { to { filter: drop-shadow(0 0 6px #ff4d6d) brightness(1.25); } }
+.lj-king-flash { opacity: 0; background: radial-gradient(circle, rgba(255,255,255,.9), rgba(255,209,102,.35) 40%, transparent 70%); animation: lj-king-flash 1.3s ease-out var(--t) forwards; }
+@keyframes lj-king-flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+.lj-king-text { opacity: 0; animation: lj-king-text 1.4s cubic-bezier(.2,1.4,.4,1) var(--t) forwards; }
+@keyframes lj-king-text { 0% { opacity: 0; transform: scale(2.6) rotate(-6deg); } 25% { opacity: 1; transform: scale(1) rotate(-3deg); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1.06) rotate(-3deg); } }
+.lj-beat { animation: lj-beat .95s ease-out both; }
+@keyframes lj-beat { 0% { opacity: 0; transform: scale(.8); } 18% { opacity: 1; transform: scale(1.05); } 30% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes lj-fade-out { to { opacity: 0; } }
 @keyframes nemoHighlight { from { opacity: 0; transform: scale(1.08); } to { opacity: 1; transform: scale(1); } }
 @keyframes logic-pop { 0% { transform: scale(1); } 35% { transform: scale(1.035); } 100% { transform: scale(1); } }
 .nemo-highlight { animation: nemoHighlight .22s ease-out both; }
@@ -87,7 +120,12 @@ button:disabled { cursor: default; }
 @media (prefers-reduced-motion: reduce) {
   .blind-gomoku-win-line { animation: none; stroke-dashoffset: 0; }
   .po-drop, .po-flash, .po-breathe, .po-card-in { animation: none; }
-  .laser-janggi-beam, .laser-janggi-hit { animation: none; }
+  .lj-shake, .lj-shake-big, .lj-shard, .lj-slide, .lj-march, .lj-pulse, .lj-doomed, .lj-charge, .lj-flash { animation: none; }
+  .lj-beam { animation: none; stroke-dashoffset: 0; }
+  .lj-break { display: none; }
+  .lj-king-flash { animation: none; opacity: 0; }
+  .lj-king-text { animation: lj-fade-out 1.6s step-end forwards; opacity: 1; }
+  .lj-beat { animation: lj-fade-out .95s step-end forwards; }
   .nemo-highlight { animation: none; }
   .bw-lay, .bw-flip, .bw-result { animation: none; }
   .hype-tag::after, .hype-flame { animation: none; }
