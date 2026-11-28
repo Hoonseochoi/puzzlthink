@@ -24,6 +24,7 @@ import { ShAvatar } from './SniperHoldemParts';
 import SniperHoldemResult, { shMyPlace, shNamer, useResultDelay, useSniperHoldemReport } from './SniperHoldemResult';
 import { SniperHoldemReplay, useShReplayRecorder } from './SniperHoldemReplay';
 import SniperHoldemTable from './SniperHoldemTable';
+import { KakaoInviteButton } from '@/components/ui/KakaoShareButton';
 
 /** A 5-seat 스나이퍼 홀덤 table with friends (or an open room); seats nobody takes are played by the AI unless the host turns that off. */
 export default function SniperHoldemRoomView({ code }: { code: string }) {
@@ -117,6 +118,7 @@ function Lobby({ state, code, me, mySeat, online, humans, t, en, copied, onCopy,
           <p className="mt-2 text-xs leading-5 text-white/50">{t.inviteDesc}</p>
           <div className="mt-3 rounded-md border border-white/10 bg-[#0b0b0e] p-3"><p className="text-[9px] font-black tracking-widest text-white/25">INVITE CODE</p><p className="mt-1 font-mono text-3xl font-black tracking-[.25em] text-(--accent)">{code}</p></div>
           <div className="mt-2 grid grid-cols-2 gap-2"><button type="button" onClick={onCopy} className={`py-2.5 ${BTN}`}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t.copied : t.copy}</button><button type="button" onClick={onShare} className={`py-2.5 ${BTN_ACCENT}`}><Share2 size={14} />{t.share}</button></div>
+          <KakaoInviteButton code={code} host={me?.name} />
         </div>
         <ul className="mt-4 grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:grid-cols-3">
           {state.seats.map((seat, i) => (

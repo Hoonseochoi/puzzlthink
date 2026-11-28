@@ -125,7 +125,7 @@ export default function JanggiRoomView({ code }: { code: string }) {
                 <div className="rounded-[12px] border border-(--accent)/30 bg-black/50 p-5">
                   <p className={PANEL_TITLE}>{t('inviteTitle')}</p>
                   <p className="mt-2 text-sm text-white/60">{t('inviteDesc')}</p>
-                  <InviteCode code={code} />
+                  <InviteCode code={code} host={me?.name} url={shareUrl} />
                   <div className="mt-4 flex items-center gap-2 rounded-md border border-white/10 bg-[#0b0b0e] p-2">
                     <span className="min-w-0 flex-1 truncate px-2 font-mono text-xs text-white/70">{shareUrl}</span>
                     <button onClick={copyLink} className={`shrink-0 ${BTN}`}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t('copied') : t('copy')}</button>

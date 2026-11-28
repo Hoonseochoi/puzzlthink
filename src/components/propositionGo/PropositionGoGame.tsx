@@ -28,6 +28,7 @@ import { type LogicTraceRecorder, startLogicTrace } from '@/lib/logicTrace';
 import { reportGame } from '@/lib/stats';
 import PropPlayfield, { type Finish, type TraceInput } from './PropPlayfield';
 import { OriginalMark, PG_ACCENT, PG_INK, PgDefs, PgStone } from './PropParts';
+import { KakaoPlayButton } from '@/components/ui/KakaoShareButton';
 
 type Mode = 'daily' | 'practice' | 'tutorial';
 const readMode = (): Mode => {
@@ -427,6 +428,7 @@ function DailyResult({ result, today, onPractice, rankTick }: { result: PgResult
         <button type="button" onClick={share} className="flex min-h-[48px] items-center justify-center gap-2 rounded-[12px] bg-(--accent) text-[14px] font-black text-(--accent-ink) shadow-[0_0_20px_var(--accent-glow)] active:scale-[.98]"><Share2 size={16} />{copied ? t('copied') : t('share')}</button>
         <button type="button" onClick={onPractice} className={`${BTN} min-h-[48px] text-[13px]`}><RotateCcw size={15} />{t('practiceMore')}</button>
       </div>
+      <KakaoPlayButton url={`/${locale}/proposition-go`} text={t('shareHead', { day })} className="w-full min-h-[44px] rounded-[12px]" />
       <p className="text-center text-[11.5px] font-bold text-white/50">{t('nextSet', { t: `${hh}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}` })}</p>
       <div className="rounded-[14px] border border-white/10 bg-black/30 p-3 lg:hidden">
         <h2 className={`${PANEL_TITLE} mb-2 flex items-center gap-1.5`}><Trophy size={11} />{t('rankingTitle')} · {t('playersToday', { n: today?.players ?? result.players })}</h2>

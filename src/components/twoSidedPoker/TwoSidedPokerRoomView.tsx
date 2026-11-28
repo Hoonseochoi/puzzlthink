@@ -87,7 +87,7 @@ export default function TwoSidedPokerRoomView({ code }: { code: string }) {
               <div className="px-1"><p className="font-mono text-[10px] font-bold tracking-[0.25em] text-(--accent)">{r.lobby}</p><h1 className="mt-1 text-xl font-extrabold">{r.lobbyTitle}</h1></div>
               <section className={PANEL}>
                 <p className={PANEL_TITLE}>{r.invite}</p>
-                <InviteCode code={code} />
+                <InviteCode code={code} host={me?.name} url={shareUrl} />
                 <div className="mt-3 flex gap-2"><button type="button" onClick={copy} className={`${BTN} flex-1`}><Copy size={14} />{copied ? r.copied : r.copy}</button><button type="button" onClick={share} className={`${BTN_ACCENT} flex-1`}><Share2 size={14} />{r.share}</button></div>
               </section>
               <form onSubmit={(e) => { e.preventDefault(); rename(name); setName(''); }} className="flex gap-2"><input className={INPUT} value={name} onChange={(e) => setName(e.target.value)} placeholder={me?.name ?? ''} maxLength={16} /><button type="submit" className={BTN}>{r.rename}</button></form>
