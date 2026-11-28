@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { ChevronRight, Loader2, Users } from 'lucide-react';
+import { Check, ChevronRight, Loader2, Users } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '@/components/AuthProvider';
 import StoneAvatar from '@/components/StoneAvatar';
@@ -58,7 +58,7 @@ export default function LiarHero({ web = false, todayLabel, onOpen }: { web?: bo
   const queued = !!q.state?.queued;
   const login = () => { markSignupSource('hidden_word_liar'); void signIn(); };
 
-  const joinQueue = () => { if (!user) return login(); void (queued ? q.leave() : q.join(name)); };
+  const joinQueue = () => { if (!user) return login(); if (!queued) void q.join(name); };
   const playFriends = async () => {
     if (!user) return login();
     setBusy(true);
@@ -119,14 +119,20 @@ export default function LiarHero({ web = false, todayLabel, onOpen }: { web?: bo
         <div className={`mt-3 grid gap-2 ${web ? 'max-w-[440px] grid-cols-2' : 'grid-cols-2'}`}>
           <button type="button" disabled={q.busy} onClick={joinQueue}
             className={`flex items-center justify-center gap-1.5 rounded-2xl px-2 py-3 text-[13px] font-black active:scale-[.98] disabled:opacity-60 ${queued ? 'bg-white/15 text-white ring-1 ring-white/40' : 'bg-white text-[#2a1a5e]'}`}>
-            {queued ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
-            <span className="truncate">{queued ? (en ? `Waiting ${q.state?.waiting ?? 1} · cancel` : `대기 ${q.state?.waiting ?? 1}명 · 취소`) : (en ? 'Join open room' : '오픈방 참가 신청')}</span>
+            {queued ? <Check size={15} strokeWidth={3} className="text-[#3fd67a]" /> : <Users size={14} />}
+            <span className="truncate">{queued ? (en ? 'Signed up' : '참가 신청 완료') : (en ? 'Join open room' : '오픈방 참가 신청')}</span>
           </button>
           <button type="button" disabled={busy} onClick={playFriends}
             className="flex items-center justify-center gap-1.5 rounded-2xl bg-[#FEE500] px-2 py-3 text-[13px] font-black text-[#191600] active:scale-[.98] disabled:opacity-60">
             {busy ? <Loader2 size={14} className="animate-spin" /> : KAKAO_ICON}<span className="truncate">{en ? 'Play with friends' : '친구랑 하기'}</span>
           </button>
         </div>
+        {queued && (
+          <p className="mt-1.5 break-keep text-[10.5px] font-bold leading-[14px] text-white/80">
+            {en ? 'Play anything meanwhile: a popup calls you when enough players gather. ' : '다른 게임 하고 있어도 돼요. 인원이 모이면 팝업으로 알려 드려요. '}
+            <button type="button" onClick={() => void q.leave()} disabled={q.busy} className="font-black text-white/55 underline underline-offset-2">{en ? 'Cancel' : '신청 취소'}</button>
+          </p>
+        )}
         {!user && <p className="mt-1.5 text-[10px] font-bold text-white/60">{en ? 'Sign in with Google to play.' : '구글 로그인 후 바로 시작해요.'}</p>}
       </div>
       {web && <span className="home-float relative shrink-0 rotate-[4deg]"><LiarStone id="hero-web" name="" size={230} /></span>}

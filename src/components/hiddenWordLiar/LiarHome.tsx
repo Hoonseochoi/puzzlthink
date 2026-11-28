@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { ArrowLeft, BookOpen, Crown, Loader2, Trophy, Users } from 'lucide-react';
+import { ArrowLeft, BookOpen, Check, Crown, Loader2, Trophy, Users } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '@/components/AuthProvider';
 import StoneAvatar from '@/components/StoneAvatar';
@@ -18,7 +18,7 @@ const T = {
     back: '홈', tag: '한 명만 다른 단어를 받았어요. 본인도 몰라요.',
     sub: '돌아가며 명사 하나씩. 단서 옆에 정답과의 유사도가 떠요. 숫자와 말솜씨로 단 한 명의 라이어를 찾으세요.',
     players: '4~10명', minutes: '한 판 4~8분', open: '공개방 · 친구방',
-    queueBtn: '오픈방 참가 신청', queueing: (n: number) => `대기 ${n}명 · 취소`, friendBtn: '친구랑 하기',
+    queueBtn: '오픈방 참가 신청', queueing: '참가 신청 완료', queuedNote: '다른 게임 하고 있어도 돼요. 인원이 모이면 팝업으로 알려 드려요.', cancel: '신청 취소', friendBtn: '친구랑 하기',
     queueNote: '신청해 두고 다른 게임을 해도 돼요. 사람이 모이면 어디서든 팝업으로 불러요.',
     loginNote: '구글 로그인 후 바로 시작해요.', joinPh: '방 코드 5자리', join: '입장',
     today: (left: number, cap: number) => `오늘 남은 피스 ${left}/${cap}`,
@@ -37,7 +37,7 @@ const T = {
     back: 'Home', tag: 'One player got a different word, and doesn\'t know it.',
     sub: 'One noun each, in turn. Each clue shows its similarity to the answer. Read the numbers and the talk to find the one liar.',
     players: '4–10 players', minutes: '4–8 min', open: 'Matchmaking · friends',
-    queueBtn: 'Join open room', queueing: (n: number) => `${n} waiting · cancel`, friendBtn: 'Play with friends',
+    queueBtn: 'Join open room', queueing: 'Signed up', queuedNote: 'Play anything meanwhile: a popup calls you when enough players gather.', cancel: 'Cancel', friendBtn: 'Play with friends',
     queueNote: 'Sign up and keep playing other games; a popup calls you in from any page.',
     loginNote: 'Sign in with Google to start.', joinPh: '5-letter code', join: 'Join',
     today: (left: number, cap: number) => `Pieces left today ${left}/${cap}`,
@@ -131,9 +131,9 @@ export default function LiarHome({ guide }: { guide?: ReactNode }) {
               {[t.players, t.minutes, t.open].map((x) => <span key={x} className="rounded-full bg-black/25 px-2 py-0.5">{x}</span>)}
             </div>
             <div className="relative mt-4 grid grid-cols-2 gap-2">
-              <button type="button" disabled={!ready || q.busy} onClick={() => { if (!user) return login(); void (queued ? q.leave() : q.join(name)); }}
+              <button type="button" disabled={!ready || q.busy} onClick={() => { if (!user) return login(); if (!queued) void q.join(name); }}
                 className={`flex items-center justify-center gap-1.5 rounded-2xl px-2 py-3.5 text-[14px] font-black shadow-lg active:scale-[.98] disabled:opacity-60 ${queued ? 'bg-white/15 text-white ring-1 ring-white/40' : 'bg-white text-[#2a1a5e]'}`}>
-                {queued ? <Loader2 size={15} className="animate-spin" /> : <Users size={15} />}<span className="truncate">{queued ? t.queueing(q.state?.waiting ?? 1) : t.queueBtn}</span>
+                {queued ? <Check size={16} strokeWidth={3} className="text-[#3fd67a]" /> : <Users size={15} />}<span className="truncate">{queued ? t.queueing : t.queueBtn}</span>
               </button>
               <button type="button" disabled={!ready || busy} onClick={friends}
                 className="flex items-center justify-center gap-1.5 rounded-2xl bg-[#FEE500] px-2 py-3.5 text-[14px] font-black text-[#191600] shadow-lg active:scale-[.98] disabled:opacity-60">
@@ -141,7 +141,7 @@ export default function LiarHome({ guide }: { guide?: ReactNode }) {
                 <span className="truncate">{t.friendBtn}</span>
               </button>
             </div>
-            <p className="relative mt-2 break-keep text-[10.5px] font-bold text-white/70">{ready && !user ? t.loginNote : t.queueNote}</p>
+            <p className="relative mt-2 break-keep text-[10.5px] font-bold text-white/70">{ready && !user ? t.loginNote : queued ? <>{t.queuedNote} <button type="button" onClick={() => void q.leave()} disabled={q.busy} className="font-black text-white/55 underline underline-offset-2">{t.cancel}</button></> : t.queueNote}</p>
             {stats && <p className="relative mt-2 w-fit rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-black text-[#ffd36e]">🧩 {t.today(Math.max(0, stats.dailyCap - stats.piecesToday), stats.dailyCap)}</p>}
           </div>
 
