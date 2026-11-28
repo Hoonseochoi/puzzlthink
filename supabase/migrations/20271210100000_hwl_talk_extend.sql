@@ -2,7 +2,7 @@
 -- all of a game's extensions together add at most 90 s ('talkExtendCap'). Separate from the clue-turn ⏱ (hwl_extend).
 -- Per-game stamps (talk_ext_game) instead of resets, so hwl_begin is untouched. hwl_view is redefined from
 -- 20271210000000_hwl_liar_knows.sql (adds talkExtended per member / me and the room's talkExt seconds); hwl_cfg from
--- 20271209200000_hwl_rematch_invite.sql (adds talkExtend / talkExtendCap). Needs both of those first.
+-- 20271209300000_hwl_rematch_invite.sql (adds talkExtend / talkExtendCap). Needs both of those first.
 -- Test: scripts/hidden-word-liar/test_talk_extend.sql (scratch DB).
 
 alter table public.hwl_members add column if not exists talk_ext_game int;   -- the game in which this seat used 토론 ⏱

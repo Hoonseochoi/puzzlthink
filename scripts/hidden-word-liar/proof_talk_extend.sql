@@ -1,5 +1,5 @@
 -- Live-schema proof for 20271210100000_hwl_talk_extend.sql on top of the two pending migrations (#307, #305), all in begin … rollback:
---   docker cp each of 20271209200000_hwl_rematch_invite.sql / 20271210000000_hwl_liar_knows.sql / 20271210100000_hwl_talk_extend.sql to supabase-db:/m1.sql /m2.sql /m3.sql
+--   docker cp each of 20271209300000_hwl_rematch_invite.sql / 20271210000000_hwl_liar_knows.sql / 20271210100000_hwl_talk_extend.sql to supabase-db:/m1.sql /m2.sql /m3.sql
 --   docker exec -i supabase-db psql -U postgres -q < scripts/hidden-word-liar/proof_talk_extend.sql
 \set ON_ERROR_STOP 1
 begin;

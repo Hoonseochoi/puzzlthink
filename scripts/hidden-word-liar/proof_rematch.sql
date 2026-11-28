@@ -1,5 +1,5 @@
--- Live-schema proof for 20271209200000_hwl_rematch_invite.sql, all inside begin … rollback (made-up user ids):
---   docker cp supabase/migrations/20271209200000_hwl_rematch_invite.sql supabase-db:/mig.sql
+-- Live-schema proof for 20271209300000_hwl_rematch_invite.sql, all inside begin … rollback (made-up user ids):
+--   docker cp supabase/migrations/20271209300000_hwl_rematch_invite.sql supabase-db:/mig.sql
 --   docker exec -i supabase-db psql -U postgres -q < scripts/hidden-word-liar/proof_rematch.sql; docker exec supabase-db rm /mig.sql
 \set ON_ERROR_STOP 1
 begin;

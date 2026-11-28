@@ -1,5 +1,5 @@
 -- SCRATCH DATABASE ONLY (hwl_dev, bot users from test_games.sql): 한 판 더 in house and friend rooms, a closed room
--- reopening, host migration, and 초대하기 → queue push + open seats. After 20271209100000 and 20271209200000:
+-- reopening, host migration, and 초대하기 → queue push + open seats. After 20271209100000 and 20271209300000:
 --   docker exec -i supabase-db psql -U postgres -d hwl_dev -q < scripts/hidden-word-liar/test_rematch.sql
 \set ON_ERROR_STOP 1
 create or replace function pg_temp.as_user(u uuid) returns void language sql as $$ select set_config('request.jwt.claims', json_build_object('sub', u, 'role', 'authenticated')::text, false) $$;
