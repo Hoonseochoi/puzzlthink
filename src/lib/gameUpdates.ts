@@ -29,6 +29,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드: 라이어', en: 'Hidden Word: Liar' },
     items: [
       {
+        date: '11/28', icon: Wrench,
+        ko: { title: '채팅이 항상 최신 메시지에 머물러요', desc: '새 메시지가 오거나, 내가 보내거나, 키보드를 열거나, 단계가 바뀌어도 채팅이 맨 아래 최신 메시지를 보여줘요. 위로 올려 지난 말을 읽는 중엔 그대로 두고 「새 메시지 ↓」를 누르면 바로 내려가요.' },
+        en: { title: 'The chat stays on the newest message', desc: 'New lines, your own lines, opening the keyboard and phase changes all keep the chat at the bottom. Scroll up to read and it stays put; tap "New messages ↓" to jump back down.' },
+      },
+      {
         date: '11/28', icon: MousePointerClick,
         ko: { title: '채팅 칠 때도 게임이 보여요 · 토론 +30초', desc: '키보드가 올라오면 채팅 위에 현재 상황(누구 차례·남은 시간·NEXT·내 제시어)과 모든 자리의 마지막 단서가 한 줄로 떠요. 채팅창에도 단서·투표·의심이 중계되고, 내 차례나 투표가 오면 큰 버튼으로 바로 돌아가요. 토론 시간은 한 사람당 한 번 「⏱ 토론 +30초」(모두 합쳐 최대 +90초).' },
         en: { title: 'See the game while you chat · talk +30 s', desc: 'With the keyboard up, a strip above the chat shows whose turn it is, the clock, NEXT, your word and every seat\'s last clue. The chat also narrates clues, votes and suspicion, and a big button takes you back when it is your turn or the vote. Talk time: ⏱ +30 s once each (+90 s at most in all).' },

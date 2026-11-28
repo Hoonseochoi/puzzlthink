@@ -47,7 +47,7 @@ const ko = {
   alert: { clue: '🔔 내 차례! 탭해서 제시어 쓰기', vote: '🗳 투표할 차례! 탭해서 테이블로', last: '🎤 최후의 발언! 탭해서 테이블로', decide: '🚔 검거할까요? 탭해서 고르기', guess: '🎭 정답을 맞힐 차례! 탭해서 쓰기', again: '🔁 다시 하기 준비하기' } as Record<string, string>,
   extend: '⏱ +30초', extendUsed: '⏱ 사용함', extendHint: '생각이 안 나면 연장!', extendToast: (n: string) => `⏱ ${n}님이 시간을 연장했어요 (+30초)`, extendTip: '시간 연장은 한 판에 한 번, 내 차례에 +30초',
   help: '도움말', sound: '소리', close: '닫기', tutorial: '튜토리얼 보기', tipsAgain: '도움말 말풍선 다시 보기', sfx: '효과음 · 진동', bgm: '배경음',
-  nextMe: '나 · 준비하세요!', topSuspect: '의심 1위', suspectedMe: '👁 의심받고 있어요! 채팅으로 해명해 보세요', suspectSays: '👁 의심 1위의 해명',
+  nextMe: '나 · 준비하세요!', topSuspect: '의심 1위', suspectedMe: '👁 의심받고 있어요! 채팅으로 해명해 보세요', suspectSays: '👁 의심 1위의 해명', newLines: '새 메시지 ↓',
   repeatWarn: (w: string) => `‘${w}’는 이미 나왔어요. 다른 단어를 적어 주세요.`,
   tips: {
     myTurnLiar: '라이어 차례! 지금까지 나온 단어와 숫자를 보고, 정답과 가까워 보이는 명사로 섞여 드세요. 막히면 ⏱ +30초',
@@ -113,7 +113,7 @@ const en: LiarCopy = {
   alert: { clue: '🔔 Your turn! Tap to write your clue', vote: '🗳 Time to vote! Tap for the table', last: '🎤 Your last words! Tap for the table', decide: '🚔 Arrest? Tap to choose', guess: '🎭 Your guess! Tap to write it', again: '🔁 Get ready for the next game' },
   extend: '⏱ +30 s', extendUsed: '⏱ Used', extendHint: 'Stuck? Extend!', extendToast: (n) => `⏱ ${n} took 30 more seconds`, extendTip: 'Once a game, on your turn: +30 s',
   help: 'Help', sound: 'Sound', close: 'Close', tutorial: 'Tutorial', tipsAgain: 'Show tips again', sfx: 'Effects · vibration', bgm: 'Music',
-  nextMe: 'Me · get ready!', topSuspect: 'Most suspected', suspectedMe: '👁 You\'re under suspicion! Explain yourself in chat', suspectSays: '👁 The top suspect says',
+  nextMe: 'Me · get ready!', topSuspect: 'Most suspected', suspectedMe: '👁 You\'re under suspicion! Explain yourself in chat', suspectSays: '👁 The top suspect says', newLines: 'New messages ↓',
   repeatWarn: (w) => `‘${w}’ was already said. Try another word.`,
   tips: {
     myTurnLiar: 'Your turn, liar! Use the words and numbers so far to pick a noun that blends in. Stuck? ⏱ +30 s',
