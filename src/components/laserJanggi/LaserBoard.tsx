@@ -53,7 +53,9 @@ export default function LaserBoard({ pieces, current, interactive, selectedId, s
         </div>
 
         {shot && <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-[4.4%] z-30 h-[91.2%] w-[91.2%] overflow-visible" aria-hidden>
-          <defs><filter id="laser-beam-glow"><feGaussianBlur stdDeviation="1.35" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
+          {/* User-space filter region: every beam segment is horizontal or vertical, so its bounding box has zero height or
+              width and a default (bounding-box) filter region would hide it entirely. */}
+          <defs><filter id="laser-beam-glow" filterUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><feGaussianBlur stdDeviation="1.35" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
           {shot.segments.map((segment, index) => <line
             key={`${index}-${segment.branch}`} x1={cellCenter(segment.from.col)} y1={cellCenter(segment.from.row)} x2={cellCenter(segment.to.col)} y2={cellCenter(segment.to.row)}
             stroke={beamColor} strokeWidth=".75" strokeLinecap="round" filter="url(#laser-beam-glow)"

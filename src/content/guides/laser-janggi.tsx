@@ -15,15 +15,20 @@ const N = LASER_BOARD_SIZE;
 const sq = (name: string) => ({ row: N - Number(name.slice(1)), col: name.charCodeAt(0) - 65 });
 const idAt = (pieces: Piece[], name: string) => { const { row, col } = sq(name); return pieces.find((p) => p.row === row && p.col === col)!.id; };
 const rotate = (pieces: Piece[], name: string, delta: -1 | 1): LaserAction => ({ type: 'rotate', pieceId: idAt(pieces, name), delta });
+const step = (pieces: Piece[], from: string, to: string): LaserAction => ({ type: 'move', pieceId: idAt(pieces, from), ...sq(to) });
 const play = (pieces: Piece[], owner: LaserOwner, action: (p: Piece[]) => LaserAction) => applyLaserAction(pieces, owner, action(pieces))!;
+/** The position as it was fired on: the pieces after the move plus the ones the shot removed. */
+const asFired = (before: Piece[], result: ReturnType<typeof play>) => result.pieces.concat(before.filter((p) => result.shot.captured.includes(p.id)));
 
 const START = initialLaserPieces();
-// 1. Blue turns E1 clockwise: the beam goes up the E file and hits red's E4 triangle on a short side.
-const M1 = play(START, 0, (p) => rotate(p, 'E1', 1));
-// 2. Red answers in kind: D8 turned, the beam comes down the D file and destroys blue's D5 triangle.
-const M2 = play(M1.pieces, 1, (p) => rotate(p, 'D8', 1));
-// Alternative first move: E1 steps to E2 (row 6). Blue's beam now runs H1 → H3 → A3 (splitter) and destroys blue's own A2.
-const ALT = START.map((p) => (p.id === 'b-triangle-4' ? { ...p, row: 6 } : p));
+// Trap 1: D4 steps to D3. Blue's beam (E1 up, E4 left) no longer turns down at D4 and runs along rank 4 into blue's own king on A4.
+const TRAP_KING = play(START, 0, (p) => step(p, 'D4', 'D3'));
+// Trap 2: D5 steps to C6. Red's beam (D8 down) no longer turns at D5 and hits blue's D4 triangle on its top (short) side.
+const OPEN_D = play(START, 0, (p) => step(p, 'D5', 'C6'));
+// Splitter: E1 steps to F2, then the H1 splitter turns clockwise. The beam splits at H1; the branch going up turns at H3
+// (red triangle), crosses rank 3, comes back off blue's A3 square, splits again at H1 and its left branch stops at blue's laser.
+const SPLIT_1 = play(START, 0, (p) => step(p, 'E1', 'F2'));
+const SPLIT = play(SPLIT_1.pieces, 0, (p) => rotate(p, 'H1', 1));
 
 type Fig = { pieces: Piece[]; owner: LaserOwner; danger?: string[]; label: string };
 function LaserFigure({ pieces, owner, danger = [], label }: Fig) {
@@ -59,7 +64,7 @@ const fig = (f: Fig) => <LaserFigure {...f} />;
 const guide: GameGuide = {
   game: 'laserJanggi',
   origin: { kind: 'show', show: 'genius2' },
-  updated: '2026-11-26',
+  updated: '2026-11-28',
   related: ['janggi', 'cardJanggi', 'russianJanggi', 'wallgo'],
   ko: {
     meta: {
@@ -81,9 +86,9 @@ const guide: GameGuide = {
         onGamePage: true,
         title: '레이저 장기는 어떤 게임인가요',
         blocks: [
-          { type: 'p', text: '레이저 장기는 「더 지니어스: 룰 브레이커」의 데스매치로 나온 게임이에요. 레이저와 거울로 상대 왕을 맞히는 이런 방식의 보드게임은 흔히 "레이저 체스"라고 불려요. PUZZLTHINK는 방송 화면의 판을 읽어 시작 배치를 옮겼어요.' },
-          { type: 'p', text: '각자 레이저 1, 왕 1, 스플리터 1, 네모기사 1, 세모기사 6, 모두 10개의 말로 시작해요. 내 말은 왼쪽 A열에 늘어서고 레이저는 A1 구석에서 오른쪽을 향해요. 상대는 같은 배치를 180도 돌린 모양이라, 상대 레이저는 H8에서 왼쪽을 향해요. 가운데 D4·D5(나)와 E4·E5(상대)의 세모기사 네 개는 거울이 모두 가운데를 보는 "나비넥타이" 모양이에요.' },
-          { type: 'figure', node: fig({ pieces: START, owner: 0, label: '레이저 장기 시작 배치와 내 첫 광선' }), caption: '시작 배치. 내 레이저(A1)의 빛은 E1 세모기사의 거울에 꺾여 판 밖으로 나가요. 처음에는 양쪽 모두 아무것도 맞히지 않아요.' },
+          { type: 'p', text: '레이저 장기는 「더 지니어스: 룰 브레이커」의 데스매치로 나온 게임이에요. 레이저와 거울로 상대 왕을 맞히는 이런 방식의 보드게임은 흔히 "레이저 체스"라고 불려요. PUZZLTHINK는 방송에서 규칙을 설명할 때 보여 준 판을 한 칸씩 읽어 시작 배치를 그대로 옮겼어요.' },
+          { type: 'p', text: '각자 레이저 1, 왕 1, 스플리터 1, 네모기사 2, 세모기사 5, 모두 10개의 말로 시작해요. 내 레이저는 A1 구석에서 오른쪽을 향하고, 왕(A4)과 네모기사 둘(A3·A5), 세모기사(A6)가 A열에 서요. 스플리터는 반대쪽 구석 H1에, 세모기사 하나는 상대 진영 쪽 H7에 있어요. 상대는 같은 배치를 180도 돌린 모양이라 상대 레이저는 H8에서 왼쪽을 향하고 상대 스플리터는 A8에 있어요. 가운데 D4·D5(나)와 E4·E5(상대) 네 세모기사는 "나비넥타이"를 이뤄요.' },
+          { type: 'figure', node: fig({ pieces: START, owner: 0, label: '레이저 장기 시작 배치와 내 첫 광선' }), caption: '시작 배치. 내 빛은 E1에서 위로 꺾여 E4(상대)에서 왼쪽, D4(나)에서 아래로 꺾여 D1 밖으로 나가요. 상대 빛도 똑같이 D8·D5·E5를 거쳐 나가서, 처음에는 양쪽 모두 아무것도 맞히지 않아요.' },
         ],
       },
       {
@@ -101,8 +106,8 @@ const guide: GameGuide = {
           ] },
           { type: 'h3', text: '말마다 빛을 다루는 방식' },
           { type: 'table', head: ['말', '거울', '맞으면'], rows: [
-            ['세모기사 (6개)', '빗변 하나. 빗변이 바라보는 두 방향', '빗변으로 들어온 빛은 90도 꺾여요. 직각을 이루는 짧은 두 면에 맞으면 사라져요.'],
-            ['네모기사 (1개)', '빛나는 막대가 있는 한 면', '그 면에 정면으로 들어온 빛은 온 길로 그대로 되돌아가요. 나머지 세 면에 맞으면 사라져요.'],
+            ['세모기사 (5개)', '빗변 하나. 빗변이 바라보는 두 방향', '빗변으로 들어온 빛은 90도 꺾여요. 직각을 이루는 짧은 두 면에 맞으면 사라져요.'],
+            ['네모기사 (2개)', '빛나는 막대가 있는 한 면', '그 면에 정면으로 들어온 빛은 온 길로 그대로 되돌아가요. 나머지 세 면에 맞으면 사라져요.'],
             ['스플리터 (1개)', '대각선 거울', '빛을 그대로 통과시키면서, 거울 방향으로 꺾인 빛을 하나 더 만들어요. 절대 사라지지 않아요.'],
             ['왕 (1개)', '없음', '어느 면이든 맞으면 그 자리에서 승부가 나요.'],
             ['레이저 (1개)', '없음', '빛을 막을 뿐 사라지지 않아요.'],
@@ -115,7 +120,7 @@ const guide: GameGuide = {
         title: '헷갈리는 장면 — 이럴 땐 어떻게 되나요',
         blocks: [
           { type: 'cards', columns: 1, items: [
-            { tag: '스플리터 · 자기 피격', title: '거울 하나를 비켰더니 내 말이 사라졌어요', body: '첫 수로 E1 세모기사를 E2로 한 칸 올려 보면, 빛은 E1을 지나 H1(내 세모기사)에서 위로, H3(상대 세모기사)에서 왼쪽으로 꺾여 3줄을 가로질러 A3의 내 스플리터에 닿아요. 스플리터는 빛을 그대로 판 밖으로 통과시키면서 아래로 하나를 더 꺾는데, 그 빛이 **A2의 내 세모기사**의 짧은 면을 때려 내 말이 사라져요. 내 레이저는 내 진영 바로 옆을 지나간다는 걸 잊으면 이런 일이 생겨요.', figure: fig({ pieces: ALT, owner: 0, label: 'E1을 E2로 옮겼을 때의 광선' }) },
+            { tag: '스플리터 · 네모기사 · 레이저', title: '빛이 갈라지고, 되돌아오고, 내 레이저에 막혀요', body: 'E1 세모기사를 F2로 비키고 다음 수에 H1 스플리터를 시계 방향으로 돌려 보면, 1줄을 달려온 빛이 H1에서 **두 갈래**로 나뉘어요. 하나는 그대로 판 밖으로, 하나는 위로 올라가 H3(상대 세모기사)의 거울에서 왼쪽으로 꺾여 3줄을 가로지르고, **A3의 내 네모기사 거울**에 맞아 온 길로 되돌아가요. 다시 H3에서 아래로 꺾여 H1 스플리터에서 또 갈라지고, 왼쪽 갈래는 1줄을 거슬러 **내 레이저(A1)에 막혀** 끝나요. 레이저와 스플리터는 맞아도 사라지지 않아서, 이 수로는 아무 말도 사라지지 않아요.', figure: fig({ pieces: SPLIT.pieces, owner: 0, label: 'E1을 F2로 옮기고 H1 스플리터를 돌렸을 때의 광선' }) },
           ] },
           { type: 'cards', items: [
             { title: '상대 말이 있는 칸으로 가서 잡을 수 있나요?', body: '아니요. 이동은 빈칸으로만 해요. 말을 없애는 방법은 빛뿐이에요.' },
@@ -148,15 +153,14 @@ const guide: GameGuide = {
       },
       {
         id: 'walkthrough',
-        title: '따라 두기 — 첫 두 수와 그 뒤의 함정',
-        lead: '내가 선공이에요(AI 대국에서는 항상 내가 먼저 둬요). 첫 수로 바로 상대 말을 잡을 수 있는 길이 있어요.',
+        title: '따라 두기 — 첫 수의 두 함정',
+        lead: '내가 선공이에요(AI 대국에서는 항상 내가 먼저 둬요). 시작 판에서 두 빛은 모두 가운데 나비넥타이를 지나가요. 그래서 나비넥타이의 내 세모기사 두 개(D4·D5)는 함부로 움직이면 안 돼요.',
         blocks: [
           { type: 'steps', items: [
-            { title: '1수: E1 세모기사를 시계 방향으로', body: '시작할 때 E1의 거울은 빛을 아래(판 밖)로 보내요. 이 세모기사를 오른쪽으로 90도 돌리면 거울이 왼쪽·위를 보게 되어, 빛이 E열을 따라 위로 올라가요. E2·E3을 지나 **E4의 상대 세모기사 짧은 면**에 맞아 상대 말이 사라져요.', figure: fig({ pieces: M1.pieces.concat(START.filter((p) => M1.shot.captured.includes(p.id))), owner: 0, label: '1수 E1 돌리기' }) },
-            { title: '2수: 상대도 똑같이 갚아요', body: '배치가 180도 대칭이라 상대는 D8 세모기사를 돌려 빛을 D열 아래로 보내요. 이번엔 **D5의 내 세모기사**가 짧은 면을 맞아 사라져요. 서로 기사 하나씩 주고받았어요.', figure: fig({ pieces: M2.pieces.concat(M1.pieces.filter((p) => M2.shot.captured.includes(p.id))), owner: 1, label: '2수 D8 돌리기' }) },
-            { title: '3수 전에: 지금 내 빛은 어디로 가나', body: '지금 아무것도 하지 않은 채 쏜다고 생각하고 빛을 따라가 봐요. E1에서 위로, E5(상대 세모기사)에서 왼쪽으로 꺾여 5줄을 가로질러 A5의 내 네모기사 거울에 맞고 되돌아가요. 다시 E5·E1을 거쳐 내 레이저에 막혀요. 즉 **B5·C5·D5는 내 빛이 지나가는 칸**이에요(빨간 칸). 여기서 왕을 A4→B5로 올리면 내 빛에 내 왕이 맞아 그대로 져요. A5 네모기사를 돌려도 거울이 아닌 면이 빛을 받아 내 말이 사라지고요.', figure: fig({ pieces: M2.pieces, owner: 0, danger: ['B5', 'C5', 'D5'], label: '3수 전 내 광선이 지나는 칸' }) },
+            { title: 'D4를 비키면 내 빛이 내 왕에', body: '내 빛은 E4(상대 세모기사)에서 왼쪽으로 꺾인 뒤 **D4의 내 세모기사**에서 아래로 꺾여 판 밖으로 나가요. D4를 D3·C3·C5로 옮기면 꺾어 줄 거울이 사라져, 빛이 4줄을 따라 그대로 **A4의 내 왕**에 닿아요. 첫 수에 바로 지는 수예요.', figure: fig({ pieces: asFired(START, TRAP_KING), owner: 0, danger: ['A4'], label: 'D4를 D3으로 옮겼을 때 내 광선' }) },
+            { title: 'D5를 비키면 상대 빛이 D4를', body: '상대 빛은 D8에서 아래로 내려와 **D5의 내 세모기사**에서 오른쪽으로 꺾여요. D5를 C6 같은 곳으로 옮기면 상대 빛이 D열을 계속 내려와 D4 세모기사의 짧은 위쪽 면을 때려요. 상대는 아무 수나 두기만 해도 내 세모기사를 하나 잡아요.', figure: fig({ pieces: OPEN_D.pieces, owner: 1, label: 'D5를 C6으로 옮긴 뒤 상대 광선' }) },
           ] },
-          { type: 'callout', tone: 'note', title: '이 장면에서 상대 말을 잡는 수는 없어요', text: '2수 뒤 국면에서 내 수 중 무언가를 맞히는 수는 모두 내 말을 맞혀요(E1을 비키면 A2, D4를 E4나 E3으로 옮기면 그 말, 왕을 B5로 올리면 왕). 그래서 3수는 잡기보다 다음 공격 길을 준비하거나 내 왕 주변을 가리는 수가 좋아요.' },
+          { type: 'callout', tone: 'note', title: '시작 판은 단단해요', text: '상대가 아무것도 바꾸지 않는다고 해도, 내 수 세 번 안에 상대 말을 잡는 길은 없어요(게임 계산으로 모두 확인했어요). 첫 몇 수는 잡기보다 E1·H1 쪽 길을 열어 다음 공격을 준비하고, 상대가 나비넥타이를 잘못 건드리기를 기다리는 싸움이에요.' },
         ],
       },
       {
@@ -206,7 +210,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['모드', '알아 둘 점'], rows: [
             ['AI 대국', '나는 청록 진영이고 항상 먼저 둬요. 시간 제한은 없어요. 난이도는 첫 수 전에만 바꿀 수 있어요.'],
-            ['쉬움', '왕을 바로 맞힐 수 있으면 놓치지 않지만, 그 밖에는 괜찮은 수 열두 개 중 아무거나 골라 실수가 많아요.'],
+            ['쉬움', '왕을 바로 맞힐 수 있으면 놓치지 않지만, 그 밖에는 괜찮은 수 열두 개 중 아무거나 골라 실수가 많아요. 다만 자기 빛으로 자기 말을 맞히는 수는 (다른 수가 있는 한) 어느 난이도든 두지 않아요.'],
             ['보통', '바로 이기는 수를 먼저 보고, 그 밖에는 형세 점수가 높은 네 수 가운데 대부분 가장 좋은 수를 둬요.'],
             ['어려움', '좋은 후보 24수마다 내 강한 응수 24수까지 읽고, 가장 덜 손해 보는 수를 골라요. 자기 왕을 맞히는 수는 절대 두지 않아요.'],
             ['친구 방', '링크나 4자리 코드로 방을 만들어요. 한 수 시간은 60·30·90초 중에서 방장이 정하고, 선공은 무작위예요. 시간이 지나면 쉬움 AI가 대신 한 수를 두고, 세 번 연속 시간이 지나면 패배예요. 오픈 대전에 방을 열 수도 있어요.'],
@@ -238,7 +242,7 @@ const guide: GameGuide = {
       { q: '게임이 끝나지 않으면 어떻게 되나요?', a: '양쪽 합쳐 200수가 지나면 무승부예요.' },
       { q: '친구와 어떻게 하나요?', a: '친구와 하기에서 방을 만들고 초대 링크나 4자리 코드를 보내면 돼요. 한 수 시간은 60·30·90초 중에서 고를 수 있어요.' },
     ],
-    cta: { title: '빛의 길을 그려 볼까요?', body: '첫 수로 E1을 돌려 보세요. 내 빛이 어디까지 가는지 따라가는 습관이 곧 실력이에요.', button: '레이저 장기 하러 가기' },
+    cta: { title: '빛의 길을 그려 볼까요?', body: '첫 수 전에 내 빛이 E1·E4·D4를 지나는 길부터 따라가 보세요. 빛이 어디까지 가는지 끝까지 따라가는 습관이 곧 실력이에요.', button: '레이저 장기 하러 가기' },
     disclaimer: '레이저 장기는 방송에 소개된 규칙을 바탕으로 PUZZLTHINK가 웹용으로 재구성한 비공식 팬 프로젝트이며, 방송사·제작사와 관련이 없어요.',
   },
   en: {
@@ -261,9 +265,9 @@ const guide: GameGuide = {
         onGamePage: true,
         title: 'What kind of game is Laser Janggi?',
         blocks: [
-          { type: 'p', text: 'Laser Janggi appeared as a death match in The Genius: Rule Breaker. Board games where you hit the enemy king with a laser and mirrors are commonly called “laser chess”. PUZZLTHINK’s starting setup was read off the board shown on the broadcast.' },
-          { type: 'p', text: 'Each side starts with ten pieces: a laser, a king, a splitter, a square knight and six triangle knights. Yours line the left-hand A file, with the laser in the A1 corner pointing right. The opponent has the same setup turned 180°, so their laser sits on H8 pointing left. The four triangles in the centre — D4 and D5 (yours), E4 and E5 (theirs) — form a “bow tie” with every mirror facing the middle.' },
-          { type: 'figure', node: fig({ pieces: START, owner: 0, label: 'Starting position and your first beam' }), caption: 'The start. The beam from your laser (A1) is bent by the triangle on E1 and leaves the board. At first, neither side hits anything.' },
+          { type: 'p', text: 'Laser Janggi appeared as a death match in The Genius: Rule Breaker. Board games where you hit the enemy king with a laser and mirrors are commonly called “laser chess”. PUZZLTHINK’s starting setup was read square by square off the board the show used to explain the rules.' },
+          { type: 'p', text: 'Each side starts with ten pieces: a laser, a king, a splitter, two square knights and five triangle knights. Your laser sits in the A1 corner pointing right, with the king (A4), both squares (A3, A5) and a triangle (A6) on the A file. The splitter is in the far corner on H1 and one triangle stands on H7, by the enemy camp. The opponent has the same setup turned 180°: their laser on H8 points left and their splitter is on A8. The four triangles in the centre — D4 and D5 (yours), E4 and E5 (theirs) — form a “bow tie”.' },
+          { type: 'figure', node: fig({ pieces: START, owner: 0, label: 'Starting position and your first beam' }), caption: 'The start. Your beam turns up at E1, left at E4 (theirs) and down at D4 (yours), leaving the board at D1. Theirs runs D8, D5, E5 and out the same way, so at first neither side hits anything.' },
         ],
       },
       {
@@ -281,8 +285,8 @@ const guide: GameGuide = {
           ] },
           { type: 'h3', text: 'How each piece handles the beam' },
           { type: 'table', head: ['Piece', 'Mirror', 'When hit'], rows: [
-            ['Triangle knight (6)', 'its long side, facing two directions', 'A beam entering through the long side turns 90°. Hit on either short side, it is destroyed.'],
-            ['Square knight (1)', 'the one face with the bright bar', 'A beam hitting that face head-on goes straight back the way it came. Hit on any other face, it is destroyed.'],
+            ['Triangle knight (5)', 'its long side, facing two directions', 'A beam entering through the long side turns 90°. Hit on either short side, it is destroyed.'],
+            ['Square knight (2)', 'the one face with the bright bar', 'A beam hitting that face head-on goes straight back the way it came. Hit on any other face, it is destroyed.'],
             ['Splitter (1)', 'a diagonal mirror', 'Lets the beam straight through and also sends a second beam off the mirror. Never destroyed.'],
             ['King (1)', 'none', 'Hit on any face, the game is over.'],
             ['Laser (1)', 'none', 'Blocks the beam and is never destroyed.'],
@@ -295,7 +299,7 @@ const guide: GameGuide = {
         title: 'Tricky situations — what happens if…',
         blocks: [
           { type: 'cards', columns: 1, items: [
-            { tag: 'SPLITTER · SELF-HIT', title: 'I moved one mirror and lost my own piece', body: 'Try stepping the E1 triangle up to E2 as your first move. The beam now passes E1, turns up at H1 (your triangle), turns left at H3 (theirs), crosses rank 3 and reaches your own splitter on A3. The splitter lets it through and off the board, and also bends one beam downwards — which strikes **your triangle on A2** on a short side and destroys it. Forget that your beam runs right past your own pieces and this is what happens.', figure: fig({ pieces: ALT, owner: 0, label: 'The beam after E1 moves to E2' }) },
+            { tag: 'SPLITTER · SQUARE · LASER', title: 'The beam splits, comes back and stops at your laser', body: 'Step the E1 triangle to F2, then turn the H1 splitter clockwise. The beam running along rank 1 **splits in two** at H1: one branch goes straight off the board, the other goes up, turns left off the mirror of their H3 triangle, crosses rank 3 and hits **the mirror of your square on A3**, which sends it straight back. It turns down at H3 again, splits again at H1, and the left branch runs back along rank 1 until **your own laser on A1 stops it**. Lasers and splitters are never destroyed, so nothing is removed by this shot.', figure: fig({ pieces: SPLIT.pieces, owner: 0, label: 'The beam after E1 moves to F2 and the H1 splitter turns' }) },
           ] },
           { type: 'cards', items: [
             { title: 'Can I capture by moving onto an enemy piece?', body: 'No. Pieces move only into empty squares; the beam is the only way to remove a piece.' },
@@ -328,15 +332,14 @@ const guide: GameGuide = {
       },
       {
         id: 'walkthrough',
-        title: 'Play along — the first two moves and the trap after them',
-        lead: 'You move first (against the AI you always do). There is a way to take an enemy piece on move one.',
+        title: 'Play along — two traps on move one',
+        lead: 'You move first (against the AI you always do). At the start both beams run through the bow tie in the centre, so your two bow-tie triangles (D4 and D5) must not be moved lightly.',
         blocks: [
           { type: 'steps', items: [
-            { title: 'Move 1: turn the E1 triangle clockwise', body: 'At the start the mirror on E1 sends your beam down and off the board. Turn that triangle 90° clockwise and its mirror faces left and up, so the beam runs up the E file, past E2 and E3, and strikes **the short side of the enemy triangle on E4**, destroying it.', figure: fig({ pieces: M1.pieces.concat(START.filter((p) => M1.shot.captured.includes(p.id))), owner: 0, label: 'Move 1, turning E1' }) },
-            { title: 'Move 2: they pay you back in kind', body: 'The setup is symmetric, so the opponent turns the D8 triangle and sends their beam down the D file. This time **your triangle on D5** is hit on a short side and destroyed. One knight each.', figure: fig({ pieces: M2.pieces.concat(M1.pieces.filter((p) => M2.shot.captured.includes(p.id))), owner: 1, label: 'Move 2, turning D8' }) },
-            { title: 'Before move 3: where does your beam go now?', body: 'Imagine firing without changing anything and follow the light. Up from E1, left at E5 (their triangle), across rank 5 to the mirror of your square knight on A5, which sends it straight back — through E5 and E1 again until your laser stops it. So **B5, C5 and D5 are on your own beam** (red). Step your king from A4 to B5 and your own beam hits it: game over. Turn the A5 square and a non-mirror face takes the beam, destroying your own piece.', figure: fig({ pieces: M2.pieces, owner: 0, danger: ['B5', 'C5', 'D5'], label: 'Squares on your beam before move 3' }) },
+            { title: 'Move D4 and your beam hits your king', body: 'Your beam turns left at E4 (their triangle) and then down at **your D4 triangle**, off the board. Move D4 to D3, C3 or C5 and nothing turns it: the beam runs along rank 4 straight into **your king on A4**. You lose on move one.', figure: fig({ pieces: asFired(START, TRAP_KING), owner: 0, danger: ['A4'], label: 'Your beam after D4 moves to D3' }) },
+            { title: 'Move D5 and their beam takes D4', body: 'Their beam comes down from D8 and turns right at **your D5 triangle**. Move D5 away (to C6, say) and their beam carries on down the D file into the short top side of your D4 triangle. Whatever they play next, they take a triangle.', figure: fig({ pieces: OPEN_D.pieces, owner: 1, label: 'Their beam after D5 moves to C6' }) },
           ] },
-          { type: 'callout', tone: 'note', title: 'No move here takes an enemy piece', text: 'In the position after move 2, every move of yours that hits anything hits your own piece (move E1 aside and A2 goes, move D4 to E4 or E3 and that triangle goes, step the king to B5 and the king goes). So move 3 is about preparing the next attack or covering your king, not capturing.' },
+          { type: 'callout', tone: 'note', title: 'The opening is solid', text: 'Even if the opponent changes nothing, no sequence of three of your moves takes an enemy piece (checked with the game’s own calculation). The first moves are about opening lines around E1 and H1 for later and waiting for the opponent to disturb the bow tie.' },
         ],
       },
       {
@@ -386,7 +389,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'table', head: ['Mode', 'Worth knowing'], rows: [
             ['AI games', 'You play cyan and always move first. There is no clock. The level can be changed only before the first move.'],
-            ['Easy', 'Never misses a direct king hit, but otherwise picks any of its twelve best-looking moves, so it errs often.'],
+            ['Easy', 'Never misses a direct king hit, but otherwise picks any of its twelve best-looking moves, so it errs often. At every level, though, it never fires into its own pieces while it has another move.'],
             ['Normal', 'Looks for an immediate win first; otherwise it usually plays the best of its top four moves by evaluation.'],
             ['Hard', 'For each of its 24 best candidates it reads your 24 strongest replies and plays the move that loses least. It never plays a move that hits its own king.'],
             ['Friend rooms', 'Create a room with a link or 4-digit code. The host sets 60, 30 or 90 seconds per move and the first player is random. On a timeout the easy AI plays a move for you, and three timeouts in a row lose. You can also open the room in Open match.'],
@@ -418,7 +421,7 @@ const guide: GameGuide = {
       { q: 'What if the game never ends?', a: 'After 200 moves (both sides together) it is a draw.' },
       { q: 'How do I play with a friend?', a: 'Create a room under Play with friends and send the invite link or 4-digit code. Moves can be timed at 60, 30 or 90 seconds.' },
     ],
-    cta: { title: 'Ready to draw some light?', body: 'Try turning E1 on your first move. Following your beam to the end is the whole skill.', button: 'Play Laser Janggi' },
+    cta: { title: 'Ready to draw some light?', body: 'Before your first move, trace your beam through E1, E4 and D4. Following your beam to the end is the whole skill.', button: 'Play Laser Janggi' },
     disclaimer: 'Laser Janggi is an unofficial fan project by PUZZLTHINK, rebuilt for the web from the rules shown on the programme; it is not affiliated with the broadcaster or producers.',
   },
 };

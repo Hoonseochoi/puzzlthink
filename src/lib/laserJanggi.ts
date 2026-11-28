@@ -43,8 +43,8 @@ export const PIECE_COUNTS: Record<LaserPieceType, number> = {
   laser: 1,
   splitter: 1,
   king: 1,
-  triangle: 6,
-  square: 1,
+  triangle: 5,
+  square: 2,
 };
 
 export const PIECE_VALUES: Record<LaserPieceType, number> = {
@@ -71,24 +71,26 @@ function piece(id: string, owner: LaserOwner, type: LaserPieceType, row: number,
 }
 
 /**
- * The setup from the TV death match (「더 지니어스: 룰 브레이커」), read off the broadcast board.
- * Blue holds the left column with its laser in the bottom-left corner firing right; red is the same
- * turned 180°. Each side: laser, king, splitter, one square knight and six triangles, two of them in the
- * centre "bow tie", whose mirrors all face the middle. Each opening beam is turned off the board by
- * the triangle in front of its laser, so nothing is hit before the first move.
+ * The setup from the TV death match (「더 지니어스: 룰 브레이커」), read square by square off the show's
+ * explanation board. Blue is the show's dark side: its laser sits in the bottom-left corner (A1) firing
+ * right and its splitter in the opposite corner (H1); red (the cream side) is the same turned 180°.
+ * Each side: laser, king, splitter, two square knights and five triangles. A triangle's mirror faces
+ * the empty half of its square, so `direction` names the first of the two faces it reflects on.
+ * Each opening beam is bent up through the centre bow tie and back out at the bottom (D1 for blue,
+ * E8 for red), so nothing is hit before the first move.
  */
 export function initialLaserPieces(): LaserPiece[] {
   const blue: LaserPiece[] = [
-    piece('b-laser', 0, 'laser', 7, 0, 1),
-    piece('b-triangle-0', 0, 'triangle', 6, 0, 1),
-    piece('b-splitter', 0, 'splitter', 5, 0, 0),
-    piece('b-king', 0, 'king', 4, 0, 0),
-    piece('b-square-0', 0, 'square', 3, 0, 1),
-    piece('b-triangle-1', 0, 'triangle', 2, 0, 0),
-    piece('b-triangle-2', 0, 'triangle', 3, 3, 1), // centre bow tie: mirrors face the centre
-    piece('b-triangle-3', 0, 'triangle', 4, 3, 0), // centre bow tie: mirrors face the centre
-    piece('b-triangle-4', 0, 'triangle', 7, 4, 2),
-    piece('b-triangle-5', 0, 'triangle', 7, 7, 3), // corner (H1; red's is A8)
+    piece('b-laser', 0, 'laser', 7, 0, 1), // A1, fires right
+    piece('b-splitter', 0, 'splitter', 7, 7, 1), // H1, "\" diagonal
+    piece('b-king', 0, 'king', 4, 0, 0), // A4
+    piece('b-square-0', 0, 'square', 3, 0, 1), // A5, mirror on the right
+    piece('b-square-1', 0, 'square', 5, 0, 1), // A3, mirror on the right
+    piece('b-triangle-0', 0, 'triangle', 2, 0, 0), // A6, mirror faces up and right
+    piece('b-triangle-1', 0, 'triangle', 1, 7, 3), // H7, mirror faces left and up
+    piece('b-triangle-2', 0, 'triangle', 3, 3, 0), // D5, centre bow tie
+    piece('b-triangle-3', 0, 'triangle', 4, 3, 1), // D4, centre bow tie
+    piece('b-triangle-4', 0, 'triangle', 7, 4, 3), // E1, turns the opening beam up
   ];
   const red = blue.map((item): LaserPiece => ({
     ...item,
@@ -268,11 +270,18 @@ function rankedActions(pieces: LaserPiece[], owner: LaserOwner) {
   }).sort((a, b) => b.score - a.score);
 }
 
+/** True when the mover's own beam would remove one of its own pieces (a king hit is already a loss). */
+const hurtsSelf = (pieces: LaserPiece[], result: LaserTurnResult, owner: LaserOwner) =>
+  result.shot.captured.some((id) => pieces.find((item) => item.id === id)?.owner === owner);
+
 export function chooseLaserAiAction(pieces: LaserPiece[], owner: LaserOwner, difficulty: LaserDifficulty): LaserAction | null {
-  const ranked = rankedActions(pieces, owner);
-  if (!ranked.length) return null;
-  const win = ranked.find((item) => item.result.winner === owner);
+  const all = rankedActions(pieces, owner);
+  if (!all.length) return null;
+  const win = all.find((item) => item.result.winner === owner);
   if (win) return win.action;
+  // Never fire into its own pieces when any other move exists, even on easy.
+  const safe = all.filter((item) => item.result.winner === null && !hurtsSelf(pieces, item.result, owner));
+  const ranked = safe.length ? safe : all;
   if (difficulty === 'easy') {
     const pool = ranked.slice(0, Math.min(12, ranked.length));
     return pool[Math.floor(Math.random() * pool.length)].action;
