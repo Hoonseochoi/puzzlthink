@@ -261,9 +261,9 @@ const guide: GameGuide = {
   },
   en: {
     meta: {
-      title: 'Wallgo II strategy guide — square and round pieces, ties and 1:1 setup | PUZZLTHINK',
+      title: 'Wall Go 2 (Wallgo II) strategy — square and round pieces, ties, 1:1 setup | PUZZLTHINK',
       description: 'A guide to Wallgo II from The Devil’s Plan 3 prison match, episode 10: where square and round pieces can go, what happens with no staying put, the wall break on the path, the biggest-room tiebreak, 1:1 setup and closing gates, and the Very Hard AI.',
-      keywords: ['Wallgo II strategy', 'Wallgo 2 rules', 'Wallgo 2 guide', 'Devil’s Plan 3 Wallgo 2', 'Wallgo round piece', 'Wallgo square piece', 'how to win Wallgo 2'],
+      keywords: ['Wall Go 2 strategy', 'Wall Go 2 rules', 'Wallgo II strategy', 'Wallgo 2 rules', 'Wallgo 2 guide', 'Devil’s Plan 3 Wallgo 2', 'Wallgo round piece', 'Wallgo square piece', 'how to win Wallgo 2'],
     },
     title: 'Wallgo II strategy guide',
     lead: 'Square pieces run straight, round pieces turn corners — and nobody gets to stand still.',

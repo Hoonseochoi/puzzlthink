@@ -11,7 +11,7 @@ const BASE_URL = 'https://www.puzzlthink.com';
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Games' });
-  return pageMetadata({ locale, path: '/games', title: t('metaTitle'), description: t('metaDescription', { count: GAMES.length }), keywords: t.raw('keywords') as string[] });
+  return pageMetadata({ locale, path: '/games', title: t('metaTitle', { count: GAMES.length }), description: t('metaDescription', { count: GAMES.length }), keywords: t.raw('keywords') as string[] });
 }
 
 function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
@@ -43,6 +43,7 @@ export default async function GamesPage({ params }: { params: Promise<{ locale: 
           <p className="text-[10px] font-black tracking-[0.2em] text-black/45">{t('eyebrow')}</p>
           <h1 className="mt-3 text-4xl font-black tracking-[-0.05em] sm:text-5xl">{t('title')}</h1>
           <p className="mt-4 break-keep text-sm leading-7 text-black/55 sm:text-base">{t('intro')}</p>
+          <Link href="/game-list" className="mt-3 inline-flex items-center gap-1 text-sm font-extrabold text-black/60 underline-offset-2 hover:text-black hover:underline">{t('listLink')}<ArrowRight size={14} /></Link>
         </header>
 
         <nav aria-label={t('jump')} className="mt-8 flex flex-wrap justify-center gap-2">

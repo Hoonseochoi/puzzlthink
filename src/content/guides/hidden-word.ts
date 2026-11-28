@@ -15,11 +15,11 @@ const guide: GameGuide = {
   game: 'hiddenWord',
   origin: { kind: 'show', show: 'dp3' },
   updated: '2026-11-26',
-  related: ['hiddenWordPlus', 'equationSignal', 'colorLinkDuel', 'gradation'],
+  related: ['hiddenWordPlus', 'hiddenWordLiar', 'equationSignal', 'colorLinkDuel'],
   inlineNamespace: 'HiddenWordGuide',
   ko: {
     meta: {
-      title: '히든 워드 공략 — 데블스플랜3 5화 유사도 단어 게임, 힌트 고르기와 정답 좁히기 | PUZZLTHINK',
+      title: '히든 워드 공략 — 데블스플랜3 히든워드 규칙, 힌트 고르기와 정답 좁히기 | PUZZLTHINK',
       description: '데블스 플랜 3 5화 메인매치 히든 워드, 어떤 힌트를 내야 안 들키고 어떻게 정답을 좁힐까요? 승점표, 95% 힌트 한 번에 끝내기, 낮은 유사도 읽는 법, 실제 유사도로 따라 푸는 예시, 모라 AI가 추리하는 방식까지 정리했어요.',
       keywords: ['히든 워드 공략', '히든워드 공략', '히든 워드 규칙', '데블스플랜3 히든워드', '데블스 플랜 3 5화', '유사도 단어 게임', '히든 워드 힌트', '꼬맨틀', '단어 유사도 게임'],
     },
