@@ -43,7 +43,8 @@ export default function GlobalHeader() {
       <TopBannerSlot />
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5" onClick={closeMenu}>
-          <span className="grid h-8 w-8 grid-cols-2 gap-0.5 rounded-[10px] bg-[#17201e] p-2"><i className="rounded-sm bg-[#ff6b4a]" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-white/85" /><i className="rounded-sm bg-[#f2c14e]" /></span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- the brand mark, a fixed small PNG */}
+          <img src="/icons/icon-192.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" decoding="async" />
           <span className="text-sm font-black tracking-[-0.03em]">PUZZLTHINK</span>
         </Link>
 
