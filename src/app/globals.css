@@ -39,6 +39,10 @@ button:disabled { cursor: default; }
 @keyframes iconChip { from { opacity: 0; transform: translateY(10px) scale(.9); } to { opacity: 1; transform: none; } }
 .icon-chip { animation: iconChip .45s ease-out both; }
 @media (prefers-reduced-motion: reduce) { .icon-rays, .icon-ring, .icon-rise, .icon-chip { animation: none; } }
+/* Open-room invite card (OpenInvite.tsx): drops in from the top. */
+@keyframes invitePop { 0% { opacity: 0; transform: translateY(-120%) scale(.96); } 70% { opacity: 1; transform: translateY(4px); } 100% { transform: none; } }
+.invite-pop { animation: invitePop .45s cubic-bezier(.2,.9,.3,1.2) both; }
+@media (prefers-reduced-motion: reduce) { .invite-pop { animation: none; } }
 @keyframes blindWinLine { from { stroke-dashoffset: 140; } to { stroke-dashoffset: 0; } }
 .blind-gomoku-win-line { stroke-dasharray: 140; animation: blindWinLine .8s .15s cubic-bezier(.2,.8,.2,1) both; filter: drop-shadow(0 0 3px rgba(255,51,77,.9)); }
 /* 포인트 오목: stones of a round drop together, a flash ring marks each point, the chosen points breathe. */

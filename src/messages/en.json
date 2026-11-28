@@ -4214,6 +4214,21 @@
     "block_link": "Links to other sites can't be sent.",
     "block_error": "Couldn't send. Please try again shortly."
   },
+  "OpenInvite": {
+    "send": "Invite {n} playing the AI",
+    "nobody": "Nobody is playing this game's AI right now",
+    "counting": "Counting AI players…",
+    "sendWait": "Invite sent · send again in {s}s",
+    "sendDone": "All invites for this room are sent",
+    "sendHint": "One invite a minute, {max} per room ({n} left)",
+    "title": "{name} invited you to a {game} open match",
+    "left": "{n, plural, one {# seat} other {# seats}} left",
+    "join": "Join",
+    "close": "Close",
+    "offToday": "No invites for today",
+    "gone": "The room is gone",
+    "full": "The room is full"
+  },
   "OpenRoom": {
     "guest": "Guest",
     "close": "Close",

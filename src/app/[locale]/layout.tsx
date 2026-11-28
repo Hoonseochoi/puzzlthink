@@ -16,6 +16,7 @@ import CrownLost from '@/components/CrownLost';
 import PlayTimeTracker from '@/components/PlayTimeTracker';
 import OpenResultCelebration from '@/components/OpenResultCelebration';
 import VsIntro from '@/components/match/VsIntro';
+import OpenInvitePopup from '@/components/OpenInvite';
 import NicknamePrompt from '@/components/NicknamePrompt';
 import { AppTesterInstallPopup, AppTesterPopup } from '@/components/AppTesterInvite';
 import GlobalFooter from '@/components/GlobalFooter';
@@ -125,6 +126,7 @@ export default async function LocaleLayout({
           <PlayTimeTracker />
           <OpenResultCelebration />
           <VsIntro />
+          <OpenInvitePopup />
           <NicknamePrompt />
           <AppTesterPopup />
           <AppTesterInstallPopup />
