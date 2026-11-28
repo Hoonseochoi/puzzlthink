@@ -9,7 +9,7 @@ import { RimStone } from '@/components/match/PlayerPlate';
 import { checkNewIcons } from '@/components/IconUnlock';
 import GameUpdates from '@/components/GameUpdates';
 import {
-  LIAR_ACCENT, REVEAL, type LiarClue, type LiarMember, type LiarView, decideLiar, extendLiar, guessLiar, kickLiar, leaveLiar, myName, readyLiar,
+  LIAR_ACCENT, REVEAL, type LiarClue, type LiarMember, type LiarView, decideLiar, extendLiar, guessLiar, inviteLiar, kickLiar, leaveLiar, myName, readyLiar,
   revealFlip, sayClue, phaseSecs, scoreColor, secondsLeft, startLiar, talkLiar, voteLiar,
 } from '@/lib/hiddenWordLiar';
 import { bgmOn, buzz, onSoundChange, setBgm, setMood, setSfx, sfx, sfxOn, unlock } from './liarSound';
@@ -812,7 +812,7 @@ function Center({ view, t, left, frac, marks, mark, refresh, submitClue, typingN
         );
     }
   }
-  else if (view.phase === 'closed') body = <p className="text-[14px] font-black">{t.closed}</p>;
+  else if (view.phase === 'closed') body = <><p className="text-[14px] font-black">{t.closed}</p><p className="mt-1 break-keep text-[11px] text-white/55">{t.closedNote}</p></>;
   const pop = ['talk', 'vote', 'runoff', 'decide'].includes(view.phase);
   return <div className={`flex w-full flex-col items-center justify-center text-center ${pop ? 'hwl-pop' : ''}`}>{body}</div>;
 }
@@ -838,6 +838,7 @@ function Actions({ view, t, en, code, refresh, show }: { view: LiarView; t: T; e
           <p className="break-keep text-center text-[12px] font-bold text-white/70">{t.lobbyHint(n, view.cfg.min)}</p>
           <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.invite}</p>
           <LiarShare url={url} title={t.title} text={t.inviteText(code.toUpperCase())} button={t.inviteButton} en={en} />
+          <CallIn code={code} t={t} />
           {isHost
             ? <button type="button" disabled={n < view.cfg.min || busy} onClick={() => submit(() => startLiar(code))} className="mt-3 w-full rounded-xl py-3 text-[15px] font-black text-[#1a1030] disabled:opacity-40" style={{ background: LIAR_ACCENT }}>{t.start} ({n}/10)</button>
             : <p className="mt-3 text-center text-[12px] text-white/50">{t.waitHost}</p>}
@@ -856,29 +857,78 @@ function Actions({ view, t, en, code, refresh, show }: { view: LiarView; t: T; e
   if (view.phase === 'done' && view.result) {
     const r = view.result;
     const iWasLiar = me?.seat === r.liar;
-    const ready = view.members.filter((m) => m.ready && !m.gone).length;
     const wait = !!show?.serverWait;   // skipped the show: the server still waits for everyone else to see it
     return (
       <div className={`${box} hwl-pop`}>
         {!r.valid && r.outcome !== 'void' && <p className="mb-2 break-keep text-center text-[10px] text-white/40">{t.noReward}</p>}
         {me?.piecesToday != null && <p className="mb-2 text-center text-[11px] font-black text-[#ffd36e]">🧩 {t.todayLeft(Math.max(0, view.cfg.dailyCap - me.piecesToday), view.cfg.dailyCap)}</p>}
-        {view.kind === 'friend'
-          ? (isHost
-              ? <button type="button" disabled={busy || wait || view.members.length < view.cfg.min} onClick={() => submit(() => startLiar(code))} className="w-full rounded-xl py-3 text-[15px] font-black text-[#1a1030] disabled:opacity-40" style={{ background: LIAR_ACCENT }}>{wait ? t.showing : t.againHost}</button>
-              : <p className="text-center text-[12px] text-white/50">{t.waitHost}</p>)
-          : <button type="button" disabled={!me || me.ready} onClick={() => { void readyLiar(code, true).then(refresh); }} className="w-full rounded-xl py-3 text-[15px] font-black text-[#1a1030] disabled:opacity-60" style={{ background: LIAR_ACCENT }}>{me?.ready ? `✓ ${t.readyOn}` : t.again} · {t.againWait(ready)}</button>}
+        <Again view={view} t={t} code={code} refresh={refresh} wait={wait} busy={busy} onStart={() => submit(() => startLiar(code))} />
         {me?.playing && r.outcome !== 'void' && <>
           <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.share}</p>
           <LiarShare compact url={`${url.replace(/\/room\/.*$/, '')}`} title={t.title} text={`${t.shareResult(iWasLiar, r.outcome)} · ${r.answer} vs ${r.decoy}`} button={en ? 'Play' : '플레이하기'} en={en} />
         </>}
-        {view.kind === 'friend' && <>
-          <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.invite}</p>
-          <LiarShare compact url={url} title={t.title} text={t.inviteText(code.toUpperCase())} button={t.inviteButton} en={en} />
-        </>}
+        <p className="mt-3 mb-1.5 text-[11px] font-black text-[#c9b6ff]">{t.invite}</p>
+        <LiarShare compact url={url} title={t.title} text={t.inviteText(code.toUpperCase())} button={t.inviteButton} en={en} />
+        <CallIn code={code} t={t} />
+      </div>
+    );
+  }
+  if (view.phase === 'closed' && me) {
+    return (
+      <div className={`${box} hwl-pop`}>
+        <p className="mb-2 break-keep text-center text-[12px] font-bold text-white/70">{t.closedNote}</p>
+        <button type="button" disabled={busy} onClick={() => submit(() => readyLiar(code, true))} className="w-full rounded-xl py-3 text-[15px] font-black text-[#1a1030] disabled:opacity-50" style={{ background: LIAR_ACCENT }}>{t.reopen}</button>
       </div>
     );
   }
   return null;
+}
+
+/** 한 판 더: everyone can ready up (n/4); 4 ready start soon, all ready at once. A friend room's host can also start now. */
+function Again({ view, t, code, refresh, wait, busy, onStart }: { view: LiarView; t: T; code: string; refresh: () => Promise<void>; wait: boolean; busy: boolean; onStart: () => void }) {
+  const me = view.me;
+  const present = view.members.filter((m) => !m.gone);
+  const ready = present.filter((m) => m.ready).length;
+  const min = view.cfg.min;
+  const isHost = view.kind === 'friend' && view.host === me?.seat;
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 500); return () => window.clearInterval(id); }, []);
+  const soon = ready >= min && view.deadline ? Math.max(0, Math.ceil((view.deadline - now) / 1000)) : null;
+  return (
+    <>
+      <div className={`grid gap-2 ${isHost ? 'grid-cols-[1fr_auto]' : ''}`}>
+        <button type="button" disabled={!me || me.ready} onClick={() => { void readyLiar(code, true).then(refresh); }}
+          className={`relative w-full overflow-hidden rounded-xl py-3 text-[15px] font-black disabled:opacity-100 ${me?.ready ? 'bg-[#3fd67a]/20 text-[#7fe3a0] ring-1 ring-[#3fd67a]/50' : 'text-[#1a1030]'}`} style={me?.ready ? undefined : { background: LIAR_ACCENT }}>
+          <span className="absolute inset-y-0 left-0 bg-white/15 transition-all" style={{ width: `${Math.min(100, (ready / min) * 100)}%` }} />
+          <span className="relative">{me?.ready ? `✓ ${t.readyOn}` : t.again} · {t.againWait(ready, min)}</span>
+        </button>
+        {isHost && <button type="button" disabled={busy || wait || present.length < min} onClick={onStart} className="rounded-xl bg-white/10 px-3 text-[13px] font-black text-white disabled:opacity-40">{wait ? t.showing : t.againHost}</button>}
+      </div>
+      <p className="mt-1.5 text-center text-[11px] font-bold text-white/55">{soon != null ? <span className="text-[#ffd36e]">⏱ {t.againSoon(soon)}</span> : t.againNote(min)}</p>
+    </>
+  );
+}
+
+/** 📣 call players from the home card and the 공개방 queue (the server allows it once a minute). */
+function CallIn({ code, t }: { code: string; t: T }) {
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const call = async () => {
+    setBusy(true);
+    const res = await inviteLiar(code);
+    setBusy(false);
+    if (!res) return setMsg(t.error);
+    if (res.error === 'wait') return setMsg(t.callInWait(res.wait ?? 60));
+    if (res.error === 'full') return setMsg(t.callInFull);
+    if (res.error) return setMsg(t.error);
+    setMsg(t.callInDone(res.sent ?? 0, res.seats ?? 0));
+  };
+  return (
+    <div className="mt-2">
+      <button type="button" disabled={busy} onClick={() => { void call(); }} className="w-full rounded-xl bg-[#ffd36e]/15 py-2.5 text-[13px] font-black text-[#ffd36e] ring-1 ring-[#ffd36e]/40 disabled:opacity-50">{t.callIn}</button>
+      <p className="mt-1 break-keep text-center text-[10.5px] font-bold text-white/50">{msg ?? t.callInNote}</p>
+    </div>
+  );
 }
 
 function ClueBoard({ view, t }: { view: LiarView; t: T }) {
