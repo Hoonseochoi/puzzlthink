@@ -30,15 +30,17 @@ import StoneAvatar, { Stone } from './StoneAvatar';
 import { AppTesterStrip } from './AppTesterInvite';
 import OriginalsRow from './OriginalsRow';
 import OpenBar from './OpenBar';
+import LiarBar from './hiddenWordLiar/LiarBar';
+import LiarHero from './hiddenWordLiar/LiarHero';
 import { CHANGED_TAG } from './changedTags';
 
 // Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
-export const NEW: GameId[] = ['propositionGo', 'mineOblivion', 'hiddenWordPlus', 'sniperHoldem', 'hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'timeAuction', 'gradation', 'pointOmok'];
+export const NEW: GameId[] = ['hiddenWordLiar', 'propositionGo', 'mineOblivion', 'hiddenWordPlus', 'sniperHoldem', 'hiddenWord', 'cardJanggi', 'colorLinkDuel', 'equationSignal', 'equationTower', 'hitStay', 'timeAuction', 'gradation', 'pointOmok'];
 const PUZZLE: GameId[] = ['propositionGo', 'slitherlink', 'hiddenWordPlus', 'hiddenWord', 'equationSignal', 'equationTower', 'magicswap', 'colorlink', 'merge2048', 'onestroke', 'starbattle', 'nonogram', 'binairo', 'masyu', 'sudoku', 'nemoCount', 'gyulhap', 'hexagon'];
 /** 오늘의 추천 on the phone home: set by the site owner. */
 /** 슬리더링크's card while its Christmas theme is the default: candy-cane stripes instead of the game's tint. */
 export const XMAS_CARD = { background: 'repeating-linear-gradient(135deg, #e23b4e 0 9px, #fff7f2 9px 18px)', boxShadow: 'inset 0 0 0 1px rgba(226,59,78,.45)' };
-export const TODAY_PICK: GameId = 'hiddenWordPlus'; // 히든 워드 확장판, the newest release (11/27); was 'slitherlink'
+export const TODAY_PICK: GameId = 'hiddenWordLiar'; // 히든 워드: 라이어 (owner 11/28: takes 확장판's place); was 'hiddenWordPlus'
 export const CATS = ['all', 'new', 'original', 'versus', 'puzzle', 'hell'] as const;
 export type Cat = (typeof CATS)[number];
 export const inCat = (g: CatalogGame, cat: Cat) =>
@@ -361,7 +363,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
           ))}
         </div>
         <div className="mt-2 flex justify-center gap-1.5">{events.map((e, i) => <i key={e.key} className={`h-1.5 rounded-full transition-all ${i === ev ? 'w-4 bg-[#17201e]' : 'w-1.5 bg-black/20'}`} />)}</div>
-        <div className="px-4"><OpenBar className="mt-2" /></div>
+        <div className="px-4"><OpenBar className="mt-2" /><LiarBar className="mt-2" /></div>
         <LiveFeed items={feed} />
       </section>
 
@@ -377,7 +379,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
 
       <section className="px-4">
         {/* today's pick */}
-        {hero && (
+        {hero && (hero.id === 'hiddenWordLiar' ? <LiarHero todayLabel={th('todayPick')} onOpen={() => pushRecent(hero.href)} /> : (
           <Link href={hero.href} onClick={() => pushRecent(hero.href)} className="relative flex min-h-[232px] items-center gap-3 overflow-hidden rounded-[26px] p-4 active:scale-[.985]"
             style={{ background: `radial-gradient(120% 90% at 0% 0%, ${shade(hero.color, 0.28, '#ffffff')} 0%, transparent 55%), radial-gradient(90% 80% at 100% 100%, ${shade(hero.color, 0.55, '#12062e')} 0%, transparent 60%), linear-gradient(135deg, ${hero.color} 0%, ${shade(hero.color, 0.35, '#12062e')} 100%)` }}>
             <span className="pointer-events-none absolute inset-0 opacity-50 [background-image:radial-gradient(rgba(255,255,255,.55)_1px,transparent_1.4px)] [background-size:14px_14px] [mask-image:linear-gradient(115deg,transparent_25%,#000_95%)]" />
@@ -410,7 +412,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
             </span>
             <span className="home-float relative h-[136px] w-[136px] shrink-0 rotate-[4deg] overflow-hidden rounded-[22px] bg-[#17201e]/90 shadow-[0_18px_36px_rgba(0,0,0,.35)] ring-2 ring-white/40"><FitTile title={tc(hero.id)} className="h-full w-full"><Preview id={hero.id} /></FitTile></span>
           </Link>
-        )}
+        ))}
 
         {/* every other game: picture tiles, three across */}
         <ul className="mt-2.5 grid grid-cols-3 gap-x-2.5 gap-y-3">

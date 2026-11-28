@@ -27,6 +27,7 @@ import LiveIsland from '@/components/LiveIsland';
 import RoomChat from '@/components/RoomChat';
 import LoungeChat from '@/components/LoungeChat';
 import RoomHostNotice from '@/components/RoomHostNotice';
+import LiarQueueListener from '@/components/hiddenWordLiar/LiarQueue';
 import { routing } from '@/i18n/routing';
 import { GA_ID } from '@/lib/analytics';
 import '../globals.css';
@@ -134,6 +135,7 @@ export default async function LocaleLayout({
           <RoomChat />
           <LoungeChat />
           <RoomHostNotice />
+          <LiarQueueListener />
           <PlayAppGuard />
           </AuthProvider>
         </NextIntlClientProvider>

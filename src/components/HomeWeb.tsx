@@ -35,6 +35,8 @@ import StoneAvatar, { Stone } from './StoneAvatar';
 import { AppTesterStrip } from './AppTesterInvite';
 import OriginalsRow from './OriginalsRow';
 import OpenBar from './OpenBar';
+import LiarBar from './hiddenWordLiar/LiarBar';
+import LiarHero from './hiddenWordLiar/LiarHero';
 
 // Home description keys that do not follow `${id}Description`.
 const DESC_KEY: Partial<Record<GameId, string>> = { russianJanggi: 'rjanggiDescription', russianRoulette: 'rouletteDescription' };
@@ -160,6 +162,7 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
 
         {/* today's pick + the event banners */}
         <section className="mt-3 grid grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-3 lg:mt-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] lg:gap-4">
+          {pick.id === 'hiddenWordLiar' ? <LiarHero web todayLabel={th('todayPick')} onOpen={() => pushRecent(pick.href)} /> : (
           <Link href={pick.href} onClick={() => pushRecent(pick.href)} className="group relative flex min-h-[318px] items-center gap-4 overflow-hidden rounded-[28px] p-5 transition hover:shadow-[0_24px_60px_rgba(30,38,36,.22)] lg:min-h-[384px] lg:gap-8 lg:rounded-[32px] lg:p-9"
             style={{ background: `radial-gradient(120% 90% at 0% 0%, ${shade(pick.color, 0.28, '#ffffff')} 0%, transparent 55%), radial-gradient(90% 80% at 100% 100%, ${shade(pick.color, 0.55, '#12062e')} 0%, transparent 60%), linear-gradient(135deg, ${pick.color} 0%, ${shade(pick.color, 0.35, '#12062e')} 100%)` }}>
             <span className="pointer-events-none absolute inset-0 opacity-50 [background-image:radial-gradient(rgba(255,255,255,.55)_1px,transparent_1.4px)] [background-size:16px_16px] [mask-image:linear-gradient(115deg,transparent_25%,#000_95%)]" />
@@ -189,6 +192,7 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
             </span>
             <span className="home-float relative h-[150px] w-[150px] shrink-0 rotate-[4deg] overflow-hidden rounded-[24px] bg-[#17201e]/90 shadow-[0_18px_36px_rgba(0,0,0,.35)] ring-2 ring-white/40 lg:h-[250px] lg:w-[250px] lg:rounded-[32px]"><FitTile title={tc(pick.id)} className="h-full w-full"><Preview id={pick.id} /></FitTile></span>
           </Link>
+          )}
 
           <div className="flex min-w-0 flex-col gap-3 lg:gap-4">
             {events.map((e) => (
@@ -205,6 +209,7 @@ export default function HomeWeb({ Preview, openMatch, className = '' }: { Previe
           </div>
         </section>
         <OpenBar className="mt-3 lg:mt-4" />
+        <LiarBar className="mt-2" />
         <LiveFeed items={feed} className="mt-3 lg:hidden" />
 
         <div className="mt-6 grid gap-6 lg:mt-9 lg:grid-cols-[minmax(0,1fr)_316px] lg:gap-7">

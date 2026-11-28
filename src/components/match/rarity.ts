@@ -21,7 +21,7 @@ export function rarityOf(stone: string | null | undefined): Rarity | null {
     case 'crown': case 'piece': case 'hell': case 'open': return 'legend';
     case 'm2048': return ref.tier >= 8192 ? 'epic' : 'rare';
     case 'tester': return ref.tier === 'founder' ? 'epic' : 'rare';
-    case 'hard': case 'hellClear': return 'rare';
+    case 'hard': case 'hellClear': case 'liar': return 'rare';
     default: return null;
   }
 }
@@ -39,6 +39,7 @@ export function rareLineKey(stone: string | null | undefined): string | null {
     case 'open': return 'line_open';
     case 'hard': return 'line_hard';
     case 'hellClear': return 'line_hellClear';
+    case 'liar': return 'line_liar';
     case 'm2048': return ref.tier >= 8192 ? 'line_m2048' : null;
     case 'tester': return ref.tier === 'founder' ? 'line_founder' : null;
     default: return null;
