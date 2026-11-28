@@ -8,6 +8,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { RimStone } from '@/components/match/PlayerPlate';
 import { checkNewIcons } from '@/components/IconUnlock';
 import GameUpdates from '@/components/GameUpdates';
+import { useChatBottom } from '@/hooks/useChatBottom';
 import {
   LIAR_ACCENT, REVEAL, type LiarClue, type LiarMember, type LiarView, decideLiar, extendLiar, guessLiar, inviteLiar, talkExtendLiar, kickLiar, leaveLiar, myName, readyLiar,
   revealFlip, sayClue, phaseSecs, scoreColor, secondsLeft, startLiar, talkLiar, voteLiar,
@@ -1215,8 +1216,9 @@ function ChatPanel({ chat, t, say, view, myTurn, submitClue, typingNow, marks, n
   const [text, setText] = useState('');
   const [err, setErr] = useState<string | null>(null);
   const [offer, setOffer] = useState<string | null>(null); // a lone noun typed here on my turn: "submit it as my clue?"
-  const list = useRef<HTMLDivElement>(null);
-  useEffect(() => { list.current?.scrollTo({ top: list.current.scrollHeight }); }, [chat.length]);
+  const [sent, setSent] = useState(0); // my own lines: always back to the bottom
+  // the newest line stays in view: new lines (also once the list is capped), keyboard / chat mode, phase changes, resizes
+  const { list, unread, jump } = useChatBottom(chat[chat.length - 1]?.key, `${chatMode}|${view.game}|${view.phase}|${sent}`);
   useEffect(() => { if (!myTurn) { const id = window.setTimeout(() => setOffer(null), 0); return () => window.clearTimeout(id); } }, [myTurn]);
   const word = view.me?.word;
   const inGame = RUNNING.includes(view.phase);
@@ -1230,6 +1232,7 @@ function ChatPanel({ chat, t, say, view, myTurn, submitClue, typingNow, marks, n
     if (word && inGame && flat.includes(word)) { setErr(t.chatBlocked.word); return; }   // the server checks too (and more)
     if (myTurn && !emote && !force && isWord(raw)) { setOffer(raw.trim()); return; }
     if (!emote) setText('');
+    setSent((n) => n + 1);
     const block = await say(raw, emote);
     if (block) { setErr(t.chatBlocked[block] ?? t.chatBlocked.error); if (!emote) setText(raw); return; }
     setErr(null); setOffer(null);
@@ -1259,7 +1262,9 @@ function ChatPanel({ chat, t, say, view, myTurn, submitClue, typingNow, marks, n
           <p className="break-words text-[14px] font-bold leading-snug"><b className="text-[#ffb09c]">{pinned.name}</b> {pinned.text}</p>
         </div>
       )}
-      <div ref={list} className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-2 text-[14.5px] lg:text-[13.5px]">
+      <div className="relative flex min-h-0 flex-1 flex-col">
+      <div ref={list} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-2 text-[14.5px] lg:text-[13.5px]">
+        <div className="space-y-1">
         {chat.map((m) => m.kind === 'event'
           ? <p key={m.key} className="my-0.5 flex justify-center"><span className="rounded-full bg-white/[.07] px-2.5 py-0.5 text-[11.5px] font-black text-[#ffd36e]/90 ring-1 ring-white/10">{m.text}</span></p>
           : m.kind === 'system'
@@ -1272,6 +1277,11 @@ function ChatPanel({ chat, t, say, view, myTurn, submitClue, typingNow, marks, n
                 : <span className={m.kind === 'emote' ? 'rounded bg-white/10 px-1 font-bold' : 'text-white/90'}>{m.text}</span>}
             </p>
           ))}
+        </div>
+      </div>
+      {unread && (
+        <button type="button" onClick={jump} className="hwl-pop absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#a98bff] px-3 py-1 text-[12px] font-black text-[#1a1030] shadow-lg shadow-black/40">{t.newLines}</button>
+      )}
       </div>
       {offer ? (
         <div className="mx-2 mb-1 rounded-xl border border-[#ffd36e]/60 bg-[#1b1530] p-2">
