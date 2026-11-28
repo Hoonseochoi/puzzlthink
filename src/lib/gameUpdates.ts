@@ -29,6 +29,16 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드: 라이어', en: 'Hidden Word: Liar' },
     items: [
       {
+        date: '11/28', icon: MousePointerClick,
+        ko: { title: '채팅 칠 때도 게임이 보여요 · 토론 +30초', desc: '키보드가 올라오면 채팅 위에 현재 상황(누구 차례·남은 시간·NEXT·내 제시어)과 모든 자리의 마지막 단서가 한 줄로 떠요. 채팅창에도 단서·투표·의심이 중계되고, 내 차례나 투표가 오면 큰 버튼으로 바로 돌아가요. 토론 시간은 한 사람당 한 번 「⏱ 토론 +30초」(모두 합쳐 최대 +90초).' },
+        en: { title: 'See the game while you chat · talk +30 s', desc: 'With the keyboard up, a strip above the chat shows whose turn it is, the clock, NEXT, your word and every seat\'s last clue. The chat also narrates clues, votes and suspicion, and a big button takes you back when it is your turn or the vote. Talk time: ⏱ +30 s once each (+90 s at most in all).' },
+      },
+      {
+        date: '11/28', icon: Scale,
+        ko: { title: '라이어는 자기가 라이어인 걸 알아요', desc: '라이어는 제시어 없이 "당신은 라이어입니다" 카드만 받아요. 다른 사람들의 단어와 유사도를 보고 정체를 숨기며 정답을 추리하세요. 라이어는 첫 번째로 말하지 않아요.' },
+        en: { title: 'The liar knows they are the liar', desc: 'The liar gets no word, just a "You are the liar" card. Read the others\' words and numbers to hide and work out the answer. The liar never speaks first.' },
+      },
+      {
         date: '11/28', icon: Users,
         ko: { title: '한 판 더 · 방 다시 열기 · 홈에서 사람 부르기', desc: '판이 끝나면 화면 아래에 큰 「다시 하기 n/4」 버튼이 고정돼요(준비한 자리엔 ✓). 4명이 준비하면 10초 뒤(모두 준비하면 바로) 같은 방에서 새 판이 시작돼요. 닫힌 방도 사람이 있으면 다시 열 수 있고, 방장이 나가면 다른 사람이 이어받아요. 「홈·대기열에 알리기」를 누르면 오픈방 신청자에게 팝업이 가고 홈 카드에 "지금 바로 참가"로 떠요.' },
         en: { title: 'One more, reopen, call players from home', desc: 'After a game a big Play again n/4 button stays pinned at the bottom (✓ on ready seats). With 4 ready a new game starts in 10 s (at once if everyone is), same room. A closed room with people still in it reopens, and a new host takes over if the host left. "Call players from home" pings everyone waiting for matchmaking and shows the table as "Join now" on the home card.' },

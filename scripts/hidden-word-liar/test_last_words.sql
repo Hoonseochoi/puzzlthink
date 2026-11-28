@@ -51,7 +51,7 @@ begin
   perform pg_temp.all_decide(c, 'arrest');
   select * into r from public.hwl_rooms where code = c; if r.phase <> 'guess' then raise exception 'A: not guess %', r.phase; end if;
   perform pg_temp.as_user(pg_temp.uid(liar + 1));
-  res := public.hwl_guess(c, pg_temp.seat_key(c, liar), r.decoy);
+  res := public.hwl_guess(c, pg_temp.seat_key(c, liar), '사람');
   select * into r from public.hwl_rooms where code = c;
   if r.phase <> 'done' or r.outcome <> 'citizens' or r.reason <> 'missed' then raise exception 'A: result % % %', r.phase, r.outcome, r.reason; end if;
   secs := extract(epoch from r.reveal_until - r.reveal_at); if secs <> 4 + 0.8 * 5 + 2 then raise exception 'A: reveal %', secs; end if;

@@ -12,17 +12,17 @@ const guide: GameGuide = {
   ko: {
     meta: {
       title: '히든 워드: 라이어 — 라이어 게임 온라인 규칙·공략, 4~10명 친구·공개방 | PUZZLTHINK',
-      description: '한 명만 다른 단어를 받은 라이어 게임을 히든 워드의 유사도로. 단서마다 정답과의 유사도가 떠요. 규칙, 🔥85+의 뜻, 시민과 라이어의 전략, 공개방 매칭과 피스 보상까지 정리했어요.',
+      description: '제시어 없는 라이어 한 명을 찾는 라이어 게임을 히든 워드의 유사도로. 단서마다 정답과의 유사도가 떠요. 규칙, 🔥85+의 뜻, 시민과 라이어의 전략, 공개방 매칭과 피스 보상까지 정리했어요.',
       keywords: ['라이어 게임', '라이어게임 규칙', '라이어 게임 온라인', '히든 워드 라이어', '히든워드 라이어', '라이어 게임 제시어', '파티 게임', '단어 게임', '친구랑 할 게임', '카톡 게임'],
     },
     title: '히든 워드: 라이어 규칙과 공략',
     lead: '숫자는 정직해요. 거짓말은 사람이 하죠.',
     intro: [
       '히든 워드: 라이어는 모두 같은 제시어를 받고 한 마디씩 말하는 **라이어 게임**에, 히든 워드의 **유사도 숫자**를 더한 PUZZLTHINK 오리지널 파티 게임이에요. 4~10명이 하고, 친구방이나 공개방(자동 매칭)에서 해요.',
-      '다른 점이 하나 있어요. 라이어는 **자기가 라이어인 줄 몰라요**. 같은 묶음의 닮은 단어(냉면 대신 김밥처럼)를 받고, 다른 사람과 똑같이 말해요. 단서 옆에 뜨는 숫자는 모두 **시민들의 제시어와의 유사도**라서, 라이어의 숫자는 어딘가 미묘하게 어긋나요.',
+      '라이어 한 명은 **제시어를 받지 못해요**. 자기가 라이어인 건 알지만 단어는 몰라요. 그래서 남들의 단어와 옆에 뜨는 **유사도 숫자**(모두 시민 제시어와의 유사도)를 보고 정답 근처의 말로 섞여 들어가야 해요. 라이어는 첫 번째로 말하지 않아요.',
     ],
     gamePageTitle: '히든 워드: 라이어 — 유사도로 찾는 라이어 게임, 4~10명',
-    summary: '라이어는 자기가 라이어인 줄 모른다. 유사도 숫자로 찾는 4~10인 라이어 게임.',
+    summary: '라이어는 제시어를 모른다. 유사도 숫자로 섞여 드는 4~10인 라이어 게임.',
     sections: [
       {
         id: 'rules',
@@ -31,7 +31,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'glossary', items: [
             { term: '인원', def: '4~10명 (공개방은 매칭 5명 이상)' },
-            { term: '제시어', def: '시민은 모두 같은 단어, 라이어 1명은 같은 묶음의 닮은 단어. 라이어도 자기가 라이어인 줄 몰라요' },
+            { term: '제시어', def: '시민은 모두 같은 단어, 라이어 1명은 제시어 없음(자기가 라이어인 건 알아요). 라이어는 첫 차례가 아니에요' },
             { term: '단서', def: '차례대로 명사 하나, 20초. 내 차례엔 테이블 가운데 칸에 적어요. 막히면 ⏱ +30초 연장을 한 판에 한 번(모두에게 보여요). 시간이 지나면 ⏰ 시간 초과로 넘어가요' },
             { term: '🔥85+', def: '유사도 85 이상은 숫자 대신 🔥85+로만 보여요' },
             { term: '바퀴', def: '6명 이하 최대 3바퀴, 7명 이상 최대 2바퀴' },
@@ -53,7 +53,7 @@ const guide: GameGuide = {
             { title: '토론', body: '45초(7명 이상 60초). 채팅과 빠른 반응으로 몰아가고, 아이콘을 눌러 👁 의심 표시를 붙여요. "지목하자"와 "한 바퀴 더" 중 하나를 골라요.' },
             { title: '지목 투표', body: '의심 가는 사람 아이콘을 눌러요(다시 누르면 바꿀 수 있어요). 최다 득표가 동점이면 그 사람들끼리 결선을 한 번 해요.' },
             { title: '최후의 발언 → 검거 결정', body: '가장 많이 뽑힌 사람이 테이블 가운데로 불려 나와 20초 동안 채팅으로 변론해요(그 사람의 말이 강조돼요). 그다음 나머지가 15초 안에 「검거하기」나 「다시 투표하기」를 골라요. 검거가 더 많으면 검거, 동점이거나 아무도 안 고르면 다시 투표예요. 다시 투표는 한 판에 한 번, 방금 지목된 사람은 빼고 뽑아요. 두 번째 결정에선 「풀어 주기」가 되고, 풀어 주면 라이어 승리예요.' },
-            { title: '라이어의 마지막 기회', body: '검거된 사람이 라이어면 그때 처음 "당신이 라이어였어요!"가 떠요. 지금까지의 단서와 숫자를 보고 시민 제시어를 30초 안에 한 번 맞혀요.' },
+            { title: '라이어의 마지막 기회', body: '검거된 사람이 라이어면 지금까지의 단서와 숫자를 보고 시민 제시어를 30초 안에 한 번 맞혀요. 맞히면 라이어 역전승.' },
             { title: '공개', body: '두 제시어, 라이어, 가면으로 숨긴 숫자까지 모두 공개돼요. 단서판에는 단서마다 라이어 제시어 기준 숫자도 함께 보여요.' },
           ] },
         ],
@@ -63,7 +63,7 @@ const guide: GameGuide = {
         onGamePage: true,
         title: '숫자 읽는 법',
         blocks: [
-          { type: 'p', text: '모든 숫자는 **시민 제시어**와의 유사도예요(히든 워드와 같은 0~100). 시민이 자기 단어로 말하면 보통 50~84가 나오고, 라이어가 자기 단어(닮은 단어)로 말하면 그보다 조금 낮거나 들쭉날쭉해요. 그래도 묶음이 같아서 크게 겹쳐요.' },
+          { type: 'p', text: '모든 숫자는 **시민 제시어**와의 유사도예요(히든 워드와 같은 0~100). 시민이 자기 단어로 말하면 보통 50~84가 나와요. 라이어는 단어를 모르니 처음엔 숫자가 낮거나 들쭉날쭉하기 쉽지만, 남의 단서를 보고 점점 정답에 다가와요.' },
           { type: 'table', caption: '예: 시민 냉면, 라이어 김밥 (실제 유사도)', head: ['단서', '누가', '냉면 기준 (화면 숫자)', '김밥 기준 (공개 때)'], rows: [
             ['얼음물', '시민', '65', '—'],
             ['겨자', '시민', '🔥85+', '—'],
@@ -96,17 +96,17 @@ const guide: GameGuide = {
             '**처음엔 묶음 전체에 어울리는 말**(음식, 계절, 탈것)로 시작하세요. 라이어도 따라올 수 있어 숫자만으론 안 갈려요. 두 번째 바퀴에 정답만의 특징을 조금씩 넣어요.',
             '**숫자보다 단어를 보세요.** 라이어의 단어는 묶음은 맞는데 방향이 미묘하게 달라요(냉면 판의 "소풍"처럼). 숫자가 낮아도 시민이 일부러 흐리게 말했을 수 있어요.',
             '**🔥는 아껴요.** 내가 🔥를 내면 지목된 라이어에게 정답을 주는 셈이에요.',
-            '**내 숫자가 이상하게 낮다면?** 시민인데 운이 나빴을 수도, 내가 라이어일 수도 있어요. 공개 전엔 아무도 몰라요.',
+            '**라이어가 따라오는 걸 경계하세요.** 라이어는 여러분의 단어와 숫자로 정답을 맞혀 가요. 너무 친절한 단서는 라이어에게도 친절해요.',
           ] },
         ],
       },
       {
         id: 'liar',
         level: 'intermediate',
-        title: '라이어 공략 (자기가 라이어인 걸 눈치챘다면)',
+        title: '라이어 공략',
         blocks: [
           { type: 'list', items: [
-            '**내 단서 숫자가 계속 남들보다 낮다면** 라이어일 가능성이 커요. 이때부터는 남의 단서에서 정답을 역추적하세요. 높은 숫자(특히 🔥) 단서를 모으면 정답이 보여요.',
+            '**높은 숫자 단서부터 모으세요.** 🔥85+나 80대 단서들의 공통점이 정답이에요. 내 차례(첫 번째는 아니에요) 전에 후보를 좁혀 두세요.',
             '**🎭 가면은 지금.** 낮은 숫자를 숨기면 의심이 덜해요. 다만 가면 쓰는 것 자체가 눈에 띄어요.',
             '**"한 바퀴 더"에 표를 던지세요.** 단서가 늘수록 마지막 정답 맞히기가 쉬워져요.',
             '**지목돼도 끝이 아니에요.** 30초 안에 정답을 맞히면 역전승. 단서판의 높은 숫자 단서들을 보고 묶음 안에서 하나를 고르세요.',
@@ -137,7 +137,7 @@ const guide: GameGuide = {
       },
     ],
     faq: [
-      { q: '라이어는 자기가 라이어인 걸 아나요?', a: '아니요. 라이어도 평범한 제시어 카드를 받아요. 숫자가 남들과 어긋나는 걸 보고 스스로 눈치채야 해요. 지목되면 그때 처음 알려 줘요.' },
+      { q: '라이어는 자기가 라이어인 걸 아나요?', a: '네. 카드를 받을 때 "당신은 라이어입니다"가 뜨고, 제시어는 받지 못해요. 남들의 단어와 숫자를 보고 정체를 숨기며 정답을 추리해요. 라이어는 첫 번째로 말하지 않아요.' },
       { q: '숫자는 누구 기준인가요?', a: '모든 단서가 시민 제시어와의 유사도예요. 라이어가 말한 단서도 시민 제시어 기준으로 떠요.' },
       { q: '🔥85+는 뭔가요?', a: '정답과 유사도 85 이상인 단서예요. 숫자를 가려서 라이어가 정답을 바로 알아채지 못하게 해요. 끝나면 실제 숫자가 공개돼요.' },
       { q: '피스는 몇 개까지 받나요?', a: '라이어로 이기면 3개, 시민으로 이기면 1개, 한국 시간 하루에 이 게임에서 7개까지예요. 로그인 회원 4명 이상, 절반 이상이 단서를 말한 판만 보상이 나가요.' },
@@ -147,6 +147,7 @@ const guide: GameGuide = {
       { q: '같은 단어를 다시 써도 되나요?', a: '안 돼요. 그 판에 한 번 나온 단어는 누가 냈든 다시 못 써요. 띄어쓰기나 조사(사과를)를 붙여도 같은 단어로 봐요.' },
       { q: '소리를 끄거나 켜려면요?', a: '방 위쪽 스피커 버튼에서 효과음·진동과 배경음을 따로 켜고 끌 수 있어요. 배경음은 처음엔 꺼져 있어요. 튜토리얼과 도움말 말풍선은 ? 버튼에서 다시 볼 수 있어요.' },
       { q: '한 판 더는 어떻게 해요?', a: '판이 끝나면 누구나 「한 판 더」를 눌러요. 4명이 준비하면 10초 뒤, 모두 준비하면 바로 같은 방에서 새 판이 시작돼요. 사람이 모자라면 「홈·대기열에 알리기」로 오픈방 신청자와 홈에 있는 사람을 부를 수 있어요(1분에 한 번).' },
+      { q: '토론 시간이 모자라면요?', a: '토론 중에 「⏱ 토론 +30초」를 한 판에 한 사람당 한 번 누를 수 있어요. 여러 명이 누르면 그만큼 늘지만 한 판에 모두 합쳐 최대 +90초예요.' },
       { q: '몇 명이 있어야 하나요?', a: '4명부터 10명까지요. 공개방은 매칭에서 5명 이상 승낙해야 열려요.' },
     ],
     cta: { title: '오늘의 라이어는 누구?', body: '공개방 신청을 걸어 두거나, 카카오톡으로 친구를 불러 보세요.', button: '라이어 게임 하러 가기' },
@@ -154,17 +155,17 @@ const guide: GameGuide = {
   en: {
     meta: {
       title: 'Hidden Word: Liar — online liar game rules and tips, 4–10 players | PUZZLTHINK',
-      description: 'A liar game on Hidden Word\'s similarity scores: one player got a different word without knowing it, and every clue shows its similarity to the answer. Rules, what 🔥85+ means, tips for citizens and the liar, matchmaking and rewards.',
+      description: 'A liar game on Hidden Word\'s similarity scores: one liar gets no word and bluffs from the numbers, and every clue shows its similarity to the answer. Rules, what 🔥85+ means, tips for citizens and the liar, matchmaking and rewards.',
       keywords: ['liar game', 'online liar game', 'Hidden Word Liar', 'party word game', 'social deduction word game'],
     },
     title: 'Hidden Word: Liar — rules and tips',
     lead: 'The numbers are honest. People are not.',
     intro: [
       'Hidden Word: Liar is a PUZZLTHINK original party game: the classic liar game, where everyone says one word about a shared secret word, plus Hidden Word\'s **similarity numbers**. 4–10 players, in friend rooms or matchmaking.',
-      'One twist: the liar **doesn\'t know they are the liar**. They get a look-alike word from the same group and play like everyone else. Every number is similarity to the **citizens\' word**, so the liar\'s numbers come out subtly off.',
+      'One twist: the liar **gets no word**. They know they are the liar but not the word, so they read everyone\'s clues and the **similarity numbers** (all against the citizens\' word) to blend in. The liar never speaks first.',
     ],
     gamePageTitle: 'Hidden Word: Liar — a liar game read by similarity, 4–10 players',
-    summary: 'The liar doesn\'t know it. A 4–10 player liar game read through similarity numbers.',
+    summary: 'The liar doesn\'t know the word. A 4–10 player liar game read through similarity numbers.',
     sections: [
       {
         id: 'rules',
@@ -173,7 +174,7 @@ const guide: GameGuide = {
         blocks: [
           { type: 'glossary', items: [
             { term: 'Players', def: '4–10 (matchmaking needs 5 accepts)' },
-            { term: 'Words', def: 'Citizens share one word; the liar gets a look-alike from the same group and doesn\'t know it' },
+            { term: 'Words', def: 'Citizens share one word; the one liar gets none and knows it. The liar never goes first' },
             { term: 'Clues', def: 'One noun each in turn, 20 s, typed in the box in the middle of the table. Its similarity to the citizens\' word appears next to it; Stuck? ⏱ +30 s once a game (everyone sees it); no clue in time shows ⏰ Time out' },
             { term: '🔥85+', def: 'Similarity 85 or more shows only as 🔥85+' },
             { term: 'Rounds', def: 'Up to 3 for ≤6 players, 2 for 7+' },
@@ -195,7 +196,7 @@ const guide: GameGuide = {
             { title: 'Talk', body: '45 s (60 s for 7+). Chat, quick reactions and 👁 marks. Pick "accuse" or "one more round".' },
             { title: 'Vote', body: 'Tap a player (tap again to change). A tie for most votes goes to one runoff.' },
             { title: 'Last words, then the decision', body: 'The player with the most votes is pulled to the centre for 20 s of last words in chat (their lines are highlighted). Then everyone else has 15 s: Arrest or Vote again. More arrests = arrested; a tie or no choices = vote again. Vote again happens once a game and leaves the accused out; the second time the choice is Let go, which means the liar wins.' },
-            { title: 'The liar\'s last chance', body: 'If the arrested player is the liar, they learn it now and get one 30 s guess at the citizens\' word.' },
+            { title: 'The liar\'s last chance', body: 'If the arrested player is the liar, they get one 30 s guess at the citizens\' word. Right, and the liar wins.' },
             { title: 'Reveal', body: 'Both words, the liar and the masked numbers are shown, with each clue\'s similarity to the liar\'s word too.' },
           ] },
         ],
@@ -205,7 +206,7 @@ const guide: GameGuide = {
         onGamePage: true,
         title: 'Reading the numbers',
         blocks: [
-          { type: 'p', text: 'Every number is similarity to the **citizens\' word** (0–100, as in Hidden Word). Citizens\' clues usually land 50–84; the liar\'s land a bit lower or uneven, but the groups overlap a lot.' },
+          { type: 'p', text: 'Every number is similarity to the **citizens\' word** (0–100, as in Hidden Word). Citizens\' clues usually land 50–84. The liar doesn\'t know the word, so their first clues often land lower, but they close in by reading everyone else\'s.' },
           { type: 'callout', tone: 'tip', title: '🔥85+ cuts both ways', text: 'A very close clue hides its number. It tells citizens "this one knows", but it is also the best hint for an accused liar\'s final guess. As a citizen, vague clues in the 60s–80s are safest.' },
         ],
       },
@@ -238,13 +239,14 @@ const guide: GameGuide = {
       },
     ],
     faq: [
-      { q: 'Does the liar know?', a: 'No. They get an ordinary word card and have to notice from the numbers. They are told only when accused.' },
+      { q: 'Does the liar know?', a: 'Yes. Their card says "You are the liar" and they get no word. They read the others\' words and numbers to hide and work out the answer. The liar never speaks first.' },
       { q: 'Whose word are the numbers against?', a: 'Always the citizens\' word, the liar\'s clues included.' },
       { q: 'How many pieces can I earn?', a: '3 for a liar win, 1 for a citizen win, up to 7 a day from this game.' },
       { q: 'What if someone writes a game word in chat?', a: 'The server stops it. A line with your own word is refused, even with spaces, dots, particles or loose jamo. A line with the other game word shows as written only on the sender\'s screen and is hidden for everyone else, so the sender learns nothing.' },
       { q: 'Can a word be used twice?', a: 'No. A word said once in a game can\'t be said again by anyone, even with spaces or a particle stuck on.' },
       { q: 'How do I turn sound on or off?', a: 'The speaker button at the top of the room switches effects (with vibration) and music separately. Music starts off. The ? button reopens the tutorial and the tips.' },
       { q: 'How do we play again?', a: 'After a game anyone presses One more. With 4 ready a new game starts in 10 s, at once if everyone is ready. Short of players? "Call players from home" pings the matchmaking queue and lists the table on the home card (once a minute).' },
+      { q: 'Talk time ran short?', a: 'During the talk, anyone may press ⏱ Talk +30 s once a game. Several players can add time, up to +90 s in all per game.' },
       { q: 'Do friend games count for the ranking?', a: 'No, only matchmaking games. Friend wins still earn pieces and the liar icon.' },
     ],
     cta: { title: 'Who is the liar today?', body: 'Join matchmaking or invite friends on KakaoTalk.', button: 'Play Hidden Word: Liar' },

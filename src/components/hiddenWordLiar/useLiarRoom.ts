@@ -7,7 +7,7 @@ import { CHAT_KEEP, cleanChat, floodCheck, setRoomPlaying } from '@/lib/roomChat
 import { type LiarView, chatLiar, chatSince, joinLiar, tickLiar, viewLiar } from '@/lib/hiddenWordLiar';
 import { liarCopy } from './copy';
 
-export type LiarChat = { key: string; seat: number; name: string; text: string; at: number; mine: boolean; kind: 'chat' | 'emote' | 'system' | 'hidden' };
+export type LiarChat = { key: string; seat: number; name: string; text: string; at: number; mine: boolean; kind: 'chat' | 'emote' | 'system' | 'hidden' | 'event' };
 // quick reactions still go browser to browser, but only these fixed lines are shown (a modified client cannot smuggle text)
 const EMOTES = new Set([...liarCopy('ko').quick, ...liarCopy('en').quick]);
 type Status = 'connecting' | 'online' | 'missing' | 'full' | 'started' | 'login' | 'error' | 'unconfigured';
@@ -166,8 +166,8 @@ export function useLiarRoom(code: string, name: string) {
   const clearTyping = useCallback((seat: number) => {
     setTyping((m) => { if (!m[seat]) return m; const n = { ...m }; delete n[seat]; return n; });
   }, []);
-  const pushSystem = useCallback((text: string, seat = -1) => {
-    setChat((c) => [...c, { key: `${Date.now()}-${Math.random()}`, seat, name: '', text, at: Date.now(), mine: false, kind: 'system' as const }].slice(-CHAT_KEEP));
+  const pushSystem = useCallback((text: string, seat = -1, kind: 'system' | 'event' = 'system') => {
+    setChat((c) => [...c, { key: `${Date.now()}-${Math.random()}`, seat, name: '', text, at: Date.now(), mine: false, kind }].slice(-CHAT_KEEP));
   }, []);
 
   return { view, status, chat, marks, skew, typing, refresh, say, mark, pushSystem, typingNow, clearTyping };
