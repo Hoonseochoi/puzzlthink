@@ -4287,6 +4287,21 @@
     "block_link": "다른 사이트 링크는 보낼 수 없어요.",
     "block_error": "보내지 못했어요. 잠시 뒤에 다시 시도해 주세요."
   },
+  "OpenInvite": {
+    "send": "AI전 중인 {n}명에게 초대 보내기",
+    "nobody": "지금 이 게임 AI전 중인 사람이 없어요",
+    "counting": "AI전 중인 사람 세는 중…",
+    "sendWait": "초대 보냄 · {s}초 뒤 다시 보낼 수 있어요",
+    "sendDone": "이 방의 초대를 모두 보냈어요",
+    "sendHint": "초대는 1분에 한 번, 방마다 {max}번까지 (남은 {n}번)",
+    "title": "{name}님이 {game} 오픈 대전에 초대했어요",
+    "left": "남은 자리 {n}",
+    "join": "참가",
+    "close": "닫기",
+    "offToday": "오늘은 초대 받지 않기",
+    "gone": "방이 사라졌어요",
+    "full": "자리가 다 찼어요"
+  },
   "OpenRoom": {
     "guest": "게스트",
     "close": "닫기",

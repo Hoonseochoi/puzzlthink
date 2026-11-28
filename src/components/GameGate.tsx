@@ -7,6 +7,7 @@ import { Link, useRouter } from '@/i18n/routing';
 import { GAMES, type GameId } from '@/lib/gameCatalog';
 import { isRoomCode } from '@/lib/room';
 import { type OpenRoomRow, isAppOnlyOpen, listOpenRooms, saveTitle } from '@/lib/openRooms';
+import { joinAiLobby } from '@/lib/aiLobby';
 import { AppHostBanner, AppOnlyOpenCard } from './AppTesterInvite';
 import { usePlayApp } from './playApp/usePlayApp';
 import OpenRoomPanel from './OpenRoomPanel';
@@ -68,6 +69,11 @@ export default function GameGate({ game, hero, tutorial, guide, children, accent
     const timer = window.setInterval(load, 10_000);
     return () => { alive = false; window.clearInterval(timer); };
   }, [started, game, modes.useRoom, listTick]);
+
+  // Playing the AI (or solo) in a game with open rooms: count me in that game's lobby, so an open room's host can
+  // invite me (OpenInvitePopup shows it). Not while I am in an open room's waiting room.
+  const inAiGame = started && !openRoom && !!modes.useRoom;
+  useEffect(() => (inAiGame ? joinAiLobby(game) : undefined), [inAiGame, game]);
 
   // True while the #play entry on top of the history is one this page pushed, so leaving the game can pop it.
   const pushed = useRef(false);

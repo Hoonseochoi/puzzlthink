@@ -1,4 +1,4 @@
-import { Bot, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Swords, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
+import { BellRing, Bot, Coins, DoorOpen, Crosshair, Crown, Flame, History, MousePointerClick, PenLine, Scale, Share2, Sparkles, Swords, Timer, Trophy, Undo2, Users, Wrench, type LucideIcon } from 'lucide-react';
 
 // Update notes for players: the "업데이트" badge in a game's header opens these (src/components/GameUpdates.tsx).
 //
@@ -690,6 +690,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
 // ---------------------------------------------------------------------------------------------
 // Notes for every game with friend and open rooms (changes to the shared room code). Newest first.
 const ROOM_NOTES: GameUpdate[] = [
+  {
+    date: '11/28', icon: BellRing,
+    ko: { title: '오픈 대전: AI전 중인 사람에게 초대 보내기', desc: '오픈 대전 방장은 대기실에서 지금 그 게임 AI전을 하고 있는 사람들에게 초대를 보낼 수 있어요(1분에 한 번, 방마다 5번까지). 초대받은 사람 화면 위쪽에 작은 알림이 뜨고 「참가」로 바로 들어와요. 1분이 지나거나 방이 차면 사라지고, 「오늘은 초대 받지 않기」로 끌 수 있어요.' },
+    en: { title: 'Open matches: invite people playing the AI', desc: "An open room's host can invite everyone playing that game's AI right now from the waiting room (once a minute, 5 times per room). They get a small card at the top of the screen and join with one tap. It goes away after a minute or when the room fills, and \"No invites for today\" turns it off." },
+  },
   {
     date: '11/28', icon: Sparkles,
     ko: { title: '친구·오픈 대전: 시작할 때 VS 화면, 결과에 승자 아이콘', desc: '대전이 시작되면 2초쯤 내 아이콘과 상대 아이콘이 크게 맞붙고(탭하면 바로 넘어가요), 상대의 대전 전적과 1위·히든 미션 같은 칭호가 보여요. 위쪽 이름표는 아이콘이 먼저 보이고, 희귀 아이콘은 테두리가 빛나요.' },

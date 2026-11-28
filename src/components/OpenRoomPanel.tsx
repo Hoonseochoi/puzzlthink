@@ -10,6 +10,7 @@ import { type GameResult, type Tally, fetchHeadToHeadAll, fetchVersusRecord, las
 import AuthButton from './AuthButton';
 import { useAuth } from './AuthProvider';
 import type { Peer } from '@/lib/room';
+import { AiInviteButton } from './OpenInvite';
 import { GAME_MODES, type RoomHook, openVariants } from './gameModes';
 import { usePlayApp } from './playApp/usePlayApp';
 
@@ -242,6 +243,8 @@ function Panel({ game, code, variant, useRoom, hostLocked = false }: { game: Gam
                   <Play size={15} fill="currentColor" />{startLabel}
                 </button>
                 <p className="break-keep text-center text-[10px] leading-4 text-white/40">{canStart ? t('startHint') : t('needMore', { n: need })}</p>
+                {/* Invite the people playing this game's AI right now (a popup on their screen). */}
+                {state.phase === 'lobby' && capacity > 0 && <AiInviteButton game={game} code={code} left={capacity - humans} />}
               </>
             ) : <p className="break-keep text-center text-[11px] leading-5 text-white/50">{t('waitHost')}</p>}
             <p className="break-keep text-center text-[10px] leading-4 text-white/35">{t('soloHint')}</p>
