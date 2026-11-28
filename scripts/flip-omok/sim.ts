@@ -49,6 +49,7 @@ export interface GameStat {
   lead15: number; // neutral value from red's side after 15 plies
   leadMid: number; // red-side value averaged over plies 12–18, fours counted as threes (steadier than one ply)
   lastChances: number; lastChanceSaved: number;
+  slowestMs: number; // the slowest single AI move (shipped engine only)
 }
 
 function playGame(rulesId: string, levels: [NextLevel, NextLevel], seed: number): GameStat {
@@ -61,13 +62,15 @@ function playGame(rulesId: string, levels: [NextLevel, NextLevel], seed: number)
   const st: GameStat = {
     plies: 0, winner: 0, flipMoves: 0, flipped: 0, placed: 0, changes: [], everFlipped: 0, stonesEnd: 0, fourBroken: 0, threeBroken: 0,
     winUsesFlipped: false, winByFlipMove: false, voidFives: 0, chargesLeft: null, spent: [0, 0], swings: [], quietGains: [], flipLast3: false, winnerFlipLast3: false, lead15: 0, leadMid: 0,
-    lastChances: 0, lastChanceSaved: 0,
+    lastChances: 0, lastChanceSaved: 0, slowestMs: 0,
   };
   for (;;) {
     const p = s.turn, foe = (3 - p) as Player;
     let act: NAction;
     if (shipped) {
+      const t0 = Date.now();
       const mv = chooseMove(s.board, p, s.charges, levels[p - 1]);
+      st.slowestMs = Math.max(st.slowestMs, Date.now() - t0);
       act = { at: mv.at, flips: mv.flip ? flipsFor(s.board, mv.at, p) : [], spend: mv.flip, post: false };
     } else act = chooseAction(rules, s, levels[p - 1]);
     // Stats before the move.
@@ -169,6 +172,7 @@ export function summarize(rulesId: string, red: string, blue: string, games: Gam
     winnerFlipInLast3: r(decisive.filter((g) => g.winnerFlipLast3).length / Math.max(1, decisive.length), 3),
     comeback: r(comebacks / Math.max(1, led.length), 3), comebackBase: led.length,
     comebackMid: r(comebacksMid / Math.max(1, ledMid.length), 3), comebackMidBase: ledMid.length,
+    slowestMoveMs: Math.max(0, ...games.map((g) => g.slowestMs)),
     lastChancesPerGame: r(mean(games.map((g) => g.lastChances)), 3), lastChanceSavedPerGame: r(mean(games.map((g) => g.lastChanceSaved)), 3),
   };
 }

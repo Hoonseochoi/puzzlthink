@@ -21,8 +21,8 @@ const check = (ok: boolean, what: string) => { log.push(`${ok ? 'PASS' : 'FAIL'}
 const shot = async (page, caption: string) => { const f = `${OUT}/${caption}.png`; await page.screenshot({ path: f }); log.push(`shot ${f}`); };
 
 // ── realtime relay ──────────────────────────────────────────────────────────────────────────────────────────────
-type Conn = { ws: any; joins: Map<string, { joinRef: string; key: string }> };
-const topics = new Map<string, Map<Conn, { key: string; meta: any; ref: string }>>();
+type Conn = { ws: { send: (data: string) => void }; joins: Map<string, { joinRef: string; key: string }> };
+const topics = new Map<string, Map<Conn, { key: string; meta: Record<string, unknown>; ref: string }>>();
 let oldHostMode = false; // strip the rules fields from states on their way to guests: what an old host would send
 let refSeq = 0;
 const send = (c: Conn, arr: unknown[]) => { try { c.ws.send(JSON.stringify(arr)); } catch { /* closed */ } };

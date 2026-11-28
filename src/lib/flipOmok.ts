@@ -165,28 +165,43 @@ export function isLegal(board: Board, move: FlipMove, p: Player, charges: Charge
 export const isFull = (board: Board) => board.every((c) => c !== 0);
 
 // ---- AI (COCO) ----
+//
+// Every level plays the tactics a person expects, in this order, and never skips them:
+//   1. make five now;  2. stop every five the opponent could make next move (a block, or a 뒤집기 that turns a stone of
+//   their four — it then locks);  3. 어려움: a forced win by fours (VCF), flips included;  4. stop an open three / any move
+//   of theirs that would leave two fives at once (their flips included);  5. otherwise the best-looking move after the
+//   opponent's best reply (their flips included). Lines are scored only while they can still become EXACTLY five, so a
+//   line heading for six is worth nothing. A 뒤집기 is spent only to win, to stop a loss, or (keeping one in reserve) to
+//   make a four / open three; never for a small positional gain.
 
-// Every five-cell window on the board, built once.
-const WINDOWS: number[][] = [];
+// Every five-cell window on the board, with the cells just outside each end (-1 off the board).
+const WINDOWS: { cells: number[]; before: number; after: number }[] = [];
 for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) for (const [dr, dc] of LINE_DIRS) {
   if (!inside(r + dr * 4, c + dc * 4)) continue;
-  WINDOWS.push([0, 1, 2, 3, 4].map((k) => idx(r + dr * k, c + dc * k)));
+  WINDOWS.push({
+    cells: [0, 1, 2, 3, 4].map((k) => idx(r + dr * k, c + dc * k)),
+    before: inside(r - dr, c - dc) ? idx(r - dr, c - dc) : -1,
+    after: inside(r + dr * 5, c + dc * 5) ? idx(r + dr * 5, c + dc * 5) : -1,
+  });
 }
-// A full window that didn't win (a dead five, made by a flip) is worth nothing.
-const WINDOW_SCORE = [0, 1, 12, 120, 2600, 0];
-/** What an unused 뒤집기 is worth to COCO, in window points: it spends one when the flip gains more than that. */
-const CHARGE_VALUE = 420;
+// By stones in a window that can still become exactly five (no enemy stone in it, none of mine just outside it).
+const LIVE_SCORE = [0, 1, 10, 90, 900, 0];
+const CHARGE_VALUE = 160;
 
-/** Position value for `p`: windows only one side holds, weighted by how full they are, plus the 뒤집기 each side keeps. */
+/** Position value for `p`: live windows only (a line that can only grow into six counts nothing), plus 뒤집기 kept. */
 function evaluate(board: Board, p: Player, charges: Charges): number {
+  const foe = other(p);
   let score = 0;
   for (const w of WINDOWS) {
     let mine = 0, theirs = 0;
-    for (const i of w) { const o = owner(board[i]); if (o === p) mine++; else if (o) theirs++; }
-    if (mine && !theirs) score += WINDOW_SCORE[mine];
-    else if (theirs && !mine) score -= WINDOW_SCORE[theirs] * 1.15; // the side to move next is the opponent
+    for (const i of w.cells) { const o = owner(board[i]); if (o === p) mine++; else if (o) theirs++; }
+    if (mine && !theirs) {
+      if (!(w.before >= 0 && owner(board[w.before]) === p) && !(w.after >= 0 && owner(board[w.after]) === p)) score += LIVE_SCORE[mine];
+    } else if (theirs && !mine) {
+      if (!(w.before >= 0 && owner(board[w.before]) === foe) && !(w.after >= 0 && owner(board[w.after]) === foe)) score -= LIVE_SCORE[theirs] * 1.1;
+    }
   }
-  return score + CHARGE_VALUE * (charges[p] - charges[other(p)]);
+  return score + CHARGE_VALUE * (charges[p] - charges[foe]);
 }
 
 /** Empty points within two of any stone (the centre on an empty board). */
@@ -224,92 +239,220 @@ export function legalMoves(board: Board, p: Player, charges: Charges): FlipMove[
   return candidates(board).flatMap((m) => movesAt(board, m, p, charges).filter((mv) => !isForbidden(board, m, p, mv.flip)));
 }
 
-/** A move of `p` that makes five at once (quiet or with a 뒤집기), if any. */
-function winningMove(board: Board, p: Player, charges: Charges): FlipMove | null {
-  for (const m of candidates(board)) for (const mv of movesAt(board, m, p, charges)) if (play(board, m, p, mv.flip).win) return mv;
+/**
+ * The points where one stone of `p` makes exactly five. A five needs no flip (a five that uses this move's flips is
+ * void), so these are the quiet fives; a 5-window with one empty point is only a five point if no stone of `p` sits
+ * just outside it (else it would be six).
+ */
+function fivePoints(board: Board, p: Player): number[] {
+  const out = new Set<number>();
+  for (const w of WINDOWS) {
+    let mine = 0, empty = -1, ok = true;
+    for (const i of w.cells) { const o = owner(board[i]); if (o === p) mine++; else if (!o && empty < 0) empty = i; else { ok = false; break; } }
+    if (!ok || mine !== 4 || empty < 0) continue;
+    if ((w.before >= 0 && owner(board[w.before]) === p) || (w.after >= 0 && owner(board[w.after]) === p)) continue;
+    out.add(empty);
+  }
+  return [...out];
+}
+
+// The windows each point belongs to, so a move only re-checks the lines it touches.
+const WINDOWS_OF: number[][] = Array.from({ length: SIZE * SIZE }, () => []);
+WINDOWS.forEach((w, k) => { for (const i of w.cells) WINDOWS_OF[i].push(k); });
+
+/** Five points of `p` in the windows through `cells` only (enough when `p` had none before the move at `cells`). */
+function fivePointsNear(board: Board, p: Player, cells: number[]): number {
+  const seen = new Set<number>(), out = new Set<number>();
+  for (const c of cells) for (const k of WINDOWS_OF[c]) {
+    if (seen.has(k)) continue;
+    seen.add(k);
+    const w = WINDOWS[k];
+    let mine = 0, empty = -1, ok = true;
+    for (const i of w.cells) { const o = owner(board[i]); if (o === p) mine++; else if (!o && empty < 0) empty = i; else { ok = false; break; } }
+    if (!ok || mine !== 4 || empty < 0) continue;
+    if ((w.before >= 0 && owner(board[w.before]) === p) || (w.after >= 0 && owner(board[w.after]) === p)) continue;
+    out.add(empty);
+  }
+  return out.size;
+}
+
+/** A move of `p` (to move) that leaves them two or more five points — an open four or a double four — if any. */
+function doubleFourMove(board: Board, p: Player, charges: Charges): FlipMove | null {
+  const base = fivePoints(board, p).length;
+  for (const m of candidates(board)) for (const mv of movesAt(board, m, p, charges)) {
+    const next = play(board, m, p, mv.flip);
+    if (next.win) return mv;
+    const n = base ? fivePoints(next.board, p).length : fivePointsNear(next.board, p, [m, ...next.flipped]);
+    if (n >= 2 && !isForbidden(board, m, p, mv.flip)) return mv;
+  }
   return null;
 }
 
-/** Whether `p` has a move that leaves two or more winning points (an open four or a double four): an unstoppable threat. */
-function hasOpenFourMove(board: Board, p: Player, charges: Charges): boolean {
-  for (const m of candidates(board)) for (const mv of movesAt(board, m, p, charges)) {
-    if (isForbidden(board, m, p, mv.flip)) continue;
-    const next = play(board, m, p, mv.flip).board;
-    let wins = 0;
-    for (const r of candidates(next)) {
-      next[r] = p;
-      const f = fiveThrough(next, r, p);
-      next[r] = 0;
-      if (f && ++wins >= 2) return true;
-    }
-  }
-  return false;
+interface Option { mv: FlipMove; board: Board; charges: Charges; fours: number; win: boolean }
+function option(board: Board, me: Player, charges: Charges, mv: FlipMove): Option {
+  const res = play(board, mv.at, me, mv.flip);
+  return { mv, board: res.board, charges: spend(charges, me, mv), fours: res.win ? 9 : fivePoints(res.board, me).length, win: !!res.win };
 }
 
-interface Scored { mv: FlipMove; board: Board; charges: Charges; score: number }
-function scored(board: Board, me: Player, charges: Charges, mv: FlipMove, noise: number): Scored {
-  const res = play(board, mv.at, me, mv.flip);
-  const after = spend(charges, me, mv);
-  return { mv, board: res.board, charges: after, score: evaluate(res.board, me, after) + Math.random() * noise };
+/** The opponent's best reply value (from `me`'s side): every move of theirs, flips included, the worst for me. */
+function worstReply(board: Board, me: Player, charges: Charges): number {
+  const foe = other(me);
+  let worst = Infinity;
+  for (const r of candidates(board)) for (const rm of movesAt(board, r, foe, charges)) {
+    const reply = play(board, r, foe, rm.flip);
+    if (reply.win) return -1e9;
+    const v = evaluate(reply.board, me, spend(charges, foe, rm));
+    if (v < worst) worst = v;
+  }
+  return worst === Infinity ? evaluate(board, me, charges) : worst;
 }
 
 /**
- * 보통: looks at its own move only. It always takes a five and blocks one (with a 뒤집기 when that is the only answer),
- * usually avoids a move that hands over a win, but its judgement is loose (wide noise). A 뒤집기 costs it CHARGE_VALUE,
- * so it spends one for a real gain.
+ * VCF: a forced win by fours. `me` makes a four (a move leaving a five point; a 뒤집기 allowed), every way the opponent
+ * can stop it (a block, or a 뒤집기 on a stone of the four) is tried, and so on, up to `depth` fours. Returns the first
+ * move of a win, or null.
  */
-function casualMove(board: Board, me: Player, charges: Charges, moves: FlipMove[]): FlipMove {
+function vcf(board: Board, me: Player, charges: Charges, depth: number, deadline: number): FlipMove | null {
   const foe = other(me);
-  const threat = winningMove(board, foe, charges);
-  if (threat) {
-    const block = moves.filter((m) => m.at === threat.at).map((m) => scored(board, me, charges, m, 0)).sort((a, b) => b.score - a.score);
-    for (const b of block) if (!winningMove(b.board, foe, b.charges)) return b.mv;
+  if (fivePoints(board, foe).length) return null; // they would make five first
+  const opts: Option[] = [];
+  for (const m of candidates(board)) for (const mv of movesAt(board, m, me, charges)) {
+    const o = option(board, me, charges, mv);
+    if (o.win) return mv;
+    if (o.fours && !isForbidden(board, m, me, mv.flip)) opts.push(o);
   }
-  const ranked = moves.map((m) => scored(board, me, charges, m, 350)).sort((a, b) => b.score - a.score);
-  const careful = Math.random() < 0.9;
-  // With a five standing against it, it looks through every move (a 뒤집기 elsewhere may break the four).
-  for (const r of threat ? ranked : ranked.slice(0, 10)) if (!careful || !winningMove(r.board, foe, r.charges)) return r.mv;
-  return ranked[0].mv;
+  if (depth <= 0) return null;
+  // Most fives first (an open four needs no reading).
+  opts.sort((a, b) => b.fours - a.fours);
+  for (const o of opts) {
+    if (Date.now() > deadline) return null;
+    let refuted = false;
+    for (const r of candidates(o.board)) {
+      for (const rm of movesAt(o.board, r, foe, o.charges)) {
+        const reply = play(o.board, r, foe, rm.flip);
+        if (reply.win) { refuted = true; break; }
+        if (fivePoints(reply.board, me).length) continue; // leaves my five: not an answer
+        if (isForbidden(o.board, r, foe, rm.flip)) continue;
+        if (!vcf(reply.board, me, spend(o.charges, foe, rm), depth - 1, deadline)) { refuted = true; break; }
+      }
+      if (refuted) break;
+    }
+    if (!refuted) return o.mv;
+  }
+  return null;
 }
 
-/** 어려움: reads its move and the opponent's best-looking reply (their 뒤집기 included), with a little randomness. */
-function readerMove(board: Board, me: Player, charges: Charges, moves: FlipMove[]): FlipMove {
+/**
+ * 어려움 only: a forced win by threes and fours (VCT). `me` plays a move that leaves an open three (a move of mine that
+ * would make two fives) or a four; every opponent reply that stops it (no five point and no such move left for me) is
+ * tried, flips included; an opponent four in reply counts as a refutation (kept simple). `depth` threes deep, then VCF.
+ */
+function vct(board: Board, me: Player, charges: Charges, depth: number, deadline: number): FlipMove | null {
   const foe = other(me);
-  // The opponent's open three (one move from an unstoppable four) must be answered: keep to moves that defuse it.
-  if (hasOpenFourMove(board, foe, charges)) {
-    const safe = moves.map((m) => scored(board, me, charges, m, 60))
-      .filter((x) => !winningMove(x.board, foe, x.charges) && !hasOpenFourMove(x.board, foe, x.charges))
-      .sort((a, b) => b.score - a.score);
-    if (safe.length) return safe[0].mv;
+  if (depth <= 0 || Date.now() > deadline || fivePoints(board, foe).length || doubleFourMove(board, foe, charges)) return null;
+  const threats: { o: Option; v: number }[] = [];
+  for (const m of candidates(board)) for (const mv of movesAt(board, m, me, charges)) {
+    if (mv.flip && charges[me] < 2) continue; // keep one 뒤집기 for defence
+    if (isForbidden(board, m, me, mv.flip)) continue;
+    const o = option(board, me, charges, mv);
+    if (o.fours || doubleFourMove(o.board, me, [0, 0, 0])) threats.push({ o, v: evaluate(o.board, me, o.charges) });
   }
-  const ranked = moves.map((m) => scored(board, me, charges, m, 60)).sort((a, b) => b.score - a.score);
-  let best = ranked[0].mv, bestScore = -Infinity, checked = 0;
-  for (const x of ranked) {
-    // Look at the best eight; past that keep looking only until one safe move turns up.
-    if (checked >= 8 && bestScore > -Infinity) break;
-    checked++;
-    if (winningMove(x.board, foe, x.charges)) continue;
-    // Assume the opponent answers with their best-looking move (this spots a block that would just get flipped).
-    let worst = Infinity;
-    for (const r of candidates(x.board)) for (const rm of movesAt(x.board, r, foe, x.charges)) {
-      const reply = play(x.board, r, foe, rm.flip);
-      const v = evaluate(reply.board, me, spend(x.charges, foe, rm));
-      if (v < worst) worst = v;
+  threats.sort((a, b) => b.v - a.v);
+  for (const { o } of threats.slice(0, 6)) {
+    if (Date.now() > deadline) return null;
+    let refuted = false, answers = 0;
+    for (const r of candidates(o.board)) {
+      for (const rm of movesAt(o.board, r, foe, o.charges)) {
+        if (isForbidden(o.board, r, foe, rm.flip)) continue;
+        const reply = play(o.board, r, foe, rm.flip);
+        if (reply.win || fivePoints(reply.board, foe).length) { refuted = true; break; } // they counter with a five or a four
+        if (fivePoints(reply.board, me).length || doubleFourMove(reply.board, me, [0, 0, 0])) continue; // doesn't stop it
+        answers++;
+        const after = spend(o.charges, foe, rm);
+        if (!vcf(reply.board, me, after, 4, deadline) && !vct(reply.board, me, after, depth - 1, deadline)) { refuted = true; break; }
+      }
+      if (refuted || Date.now() > deadline) break;
     }
-    if (worst > bestScore) { bestScore = worst; best = x.mv; }
+    if (!refuted && Date.now() <= deadline && answers >= 0) return o.mv;
   }
-  return best;
+  return null;
 }
 
 /** COCO's move for `me` with `charges` left (pass zero charges for `me` to forbid a 뒤집기, e.g. a timed-out turn). */
 export function chooseMove(board: Board, me: Player, charges: Charges, difficulty: FlipDifficulty = 'normal'): FlipMove {
+  const foe = other(me);
   const moves = legalMoves(board, me, charges);
   if (!moves.length) {
     const at = board.findIndex((v, i) => !v && !isForbidden(board, i, me));
     return { at: at >= 0 ? at : board.findIndex((v) => !v), flip: false };
   }
-  for (const m of moves) if (play(board, m.at, me, m.flip).win) return m;
-  return difficulty === 'hard' ? readerMove(board, me, charges, moves) : casualMove(board, me, charges, moves);
+  const hard = difficulty === 'hard';
+  const deadline = Date.now() + (hard ? 600 : 250);
+  const noise = hard ? 30 : 520; // 보통's positional judgement is loose; its tactics above and below are not
+  const opts = moves.map((mv) => option(board, me, charges, mv));
+  const quietFirst = (list: Option[]) => { const q = list.filter((o) => !o.mv.flip); return q.length ? q : list; };
+  const pick = (list: Option[], extra: (o: Option) => number = () => 0) => list
+    .map((o) => ({ o, v: evaluate(o.board, me, o.charges) + o.fours * 400 + extra(o) + Math.random() * noise }))
+    .sort((a, b) => b.v - a.v)[0].o.mv;
+
+  // 1. Five now.
+  const win = opts.find((o) => o.win);
+  if (win) return { at: win.mv.at, flip: false };
+
+  // 2. Their five next move: every one of them must be gone after my move.
+  if (fivePoints(board, foe).length) {
+    const safe = opts.filter((o) => !fivePoints(o.board, foe).length);
+    if (safe.length) return pick(quietFirst(safe));
+    return pick(opts.filter((o) => !o.mv.flip).length ? opts.filter((o) => !o.mv.flip) : opts); // lost anyway
+  }
+
+  // 3. 어려움: a forced win by fours. Both: a move leaving two five points they can't both stop.
+  if (hard) {
+    const v = vcf(board, me, charges, 6, deadline) ?? vct(board, me, charges, 2, deadline);
+    if (v) return v;
+  }
+  for (const o of quietFirst(opts.filter((o) => o.fours >= 2))) {
+    // Make sure no single reply (a block or a flip) takes both away.
+    if (!refutable(o, me)) return o.mv;
+  }
+
+  // 4. Their open three (or any move leaving them two fives): stop it, quietly if possible; a counter-four also works
+  //    only if it doesn't leave them the double after my four is blocked (keep it simple: block).
+  if (doubleFourMove(board, foe, charges)) {
+    const safe = opts.filter((o) => !doubleFourMove(o.board, foe, o.charges));
+    if (safe.length) {
+      const quiet = safe.filter((o) => !o.mv.flip);
+      return pick(quiet.length ? quiet : safe, (o) => (o.fours ? 300 : 0));
+    }
+  }
+
+  // 5. Positional: quiet moves, plus a 뒤집기 only when it makes a four or an open three and one stays in reserve.
+  const reserve = charges[me] >= 2;
+  const pool = opts.filter((o) => !o.mv.flip || (reserve && (o.fours >= 1 || !!doubleFourMove(o.board, me, [0, 0, 0]))));
+  // Never hand them a five or an unanswerable double.
+  const sound = pool.filter((o) => !fivePoints(o.board, foe).length && !doubleFourMove(o.board, foe, o.charges));
+  const list = sound.length ? sound : pool.length ? pool : opts;
+  const ranked = list.map((o) => ({ o, v: evaluate(o.board, me, o.charges) + o.fours * 400 + Math.random() * noise })).sort((a, b) => b.v - a.v);
+  // Both levels look at the opponent's best reply (flips included) among their top choices; 어려움 looks wider.
+  const width = hard ? 10 : 3;
+  let best = ranked[0].o.mv, bestScore = -Infinity;
+  for (const { o, v } of ranked.slice(0, width)) {
+    if (Date.now() > deadline && bestScore > -Infinity) break;
+    const score = worstReply(o.board, me, o.charges) + (v - evaluate(o.board, me, o.charges)) + o.fours * 200;
+    if (score > bestScore) { bestScore = score; best = o.mv; }
+  }
+  return best;
+}
+
+/** Whether one opponent reply (a block or a flip) leaves `me` with no five point after `o`. */
+function refutable(o: Option, me: Player): boolean {
+  const foe = other(me);
+  if (fivePoints(o.board, foe).length) return true; // they make five first
+  for (const r of candidates(o.board)) for (const rm of movesAt(o.board, r, foe, o.charges)) {
+    const reply = play(o.board, r, foe, rm.flip);
+    if (reply.win || !fivePoints(reply.board, me).length) return true;
+  }
+  return false;
 }
 
 export function coordinateLabel(at: number) {

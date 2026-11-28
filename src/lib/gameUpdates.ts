@@ -384,6 +384,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '뒤집기 오목', en: 'Flip Omok' },
     items: [
       {
+        date: '11/28', icon: Bot,
+        ko: { title: 'COCO가 제대로 막고 읽어요', desc: '이제 COCO는 보통·어려움 모두 상대의 4와 열린 3을 꼭 막고, 6목이 될 쓸모없는 줄을 늘리거나 그런 데 뒤집기를 쓰지 않아요. 어려움은 4를 연달아 두는 승리 수순까지 읽어요.' },
+        en: { title: 'COCO now blocks and reads properly', desc: 'At both levels COCO now always blocks your fours and open threes, and never grows a line that can only become six or spends a flip on one. Hard also reads winning runs of fours.' },
+      },
+      {
         date: '11/28', icon: Flame,
         ko: { title: '새 규칙 「전략적 뒤집기」: 뒤집기는 한 판에 3번, 내가 고를 때만', desc: '이제 상대 돌을 끼워도 바로 뒤집히지 않고, ‘놓기’와 ‘놓고 뒤집기’ 중에 골라요. 뒤집기는 한 판에 3번뿐이고 뒤집힌 돌은 🔒 고정돼서 다시 뒤집히지 않아요.' },
         en: { title: 'New rule, strategic flip: 3 flips a game, only when you choose', desc: 'Sandwiching no longer flips by itself: choose Place or Place & flip. You get 3 flips a game, and flipped stones lock 🔒 so they never flip back.' },
