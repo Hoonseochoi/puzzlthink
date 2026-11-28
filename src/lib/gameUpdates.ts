@@ -439,6 +439,21 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '레이저 장기', en: 'Laser Janggi' },
     items: [
       {
+        date: '11/29', icon: Bot,
+        ko: { title: 'AI가 훨씬 강해졌어요 — 어려움은 다섯 수 앞까지', desc: '어려움은 시간 안에서 최대 다섯 수 앞까지 읽고 두 갈래 위협을 만들어요. 보통은 세 수 앞까지 읽고 왕을 지켜요. 모든 난이도가 왕을 맞힐 기회는 놓치지 않고, 다음 수에 왕이 맞는 수는 막아요.' },
+        en: { title: 'A much stronger AI — Hard reads five moves ahead', desc: 'Hard now reads up to five moves ahead within its time and builds double threats; Normal reads three and guards its king. Every level takes a king shot when it has one and blocks one aimed at its king.' },
+      },
+      {
+        date: '11/29', icon: Sparkles,
+        ko: { title: '쏘는 맛: 광선이 길을 따라 그려지고, 맞은 말은 부서져요', desc: '말이 미끄러지고 레이저가 충전된 뒤 발사돼요. 광선은 거울마다 번쩍이며 꺾이고, 스플리터에서 갈라지고, 맞은 말은 파편을 튀기며 깨져요. 왕을 맞히면 느린 화면으로 크게 끝나요. 헤더에서 소리를 끌 수 있어요.' },
+        en: { title: 'Impact: the beam draws its path and hit pieces shatter', desc: 'The piece slides, the laser charges and fires; the beam flashes at every mirror, splits at splitters, and a hit piece cracks apart in shards. A king hit ends in slow motion. Sound can be muted in the header.' },
+      },
+      {
+        date: '11/29', icon: MousePointerClick,
+        ko: { title: '예상 경로 미리 보기와 왕 위험 경고', desc: '칸이나 회전을 누르면 그 수의 광선이 점선으로 보이고, 부서질 말과 「내 왕을 맞혀요」 같은 경고가 떠요. 한 번 더 누르거나 「발사」를 눌러야 실제로 쏴요(취소 가능). 상대가 다음 수에 내 왕을 맞힐 수 있으면 왕에 빨간 표시가 뜨고, 전황 칸에 잃은 말과 지난 수가 보여요.' },
+        en: { title: 'Beam preview and a king-danger warning', desc: 'Tapping a square or a turn shows that move’s beam dashed, marks every piece it would destroy and warns you about your king; tap again or press Fire to shoot (or cancel). Your king is ringed red when the opponent could hit it next turn, and a battle log lists lost pieces and recent moves.' },
+      },
+      {
         date: '11/28', icon: Wrench,
         ko: { title: '시작 판을 방송 판 그대로 바꿨어요', desc: '방송에서 규칙을 설명한 판을 한 칸씩 옮겼어요. 이제 각자 네모기사 2·세모기사 5개로 시작하고, 스플리터는 반대쪽 구석(H1·A8)에 있으며, 두 레이저의 첫 빛은 가운데 나비넥타이를 지나가요. 거울 면은 반사, 다른 면에 맞은 말은 제거, 레이저와 스플리터는 맞아도 남는 규칙은 그대로예요.' },
         en: { title: 'The starting board now matches the show exactly', desc: "Copied square by square from the board the show used to explain the rules: each side now has two square and five triangle knights, the splitters sit in the far corners (H1, A8) and both opening beams run through the centre bow tie. Mirrors still reflect, other faces still remove the piece, and lasers and splitters are never removed." },
