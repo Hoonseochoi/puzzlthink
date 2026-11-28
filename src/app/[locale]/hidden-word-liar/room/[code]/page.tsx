@@ -1,8 +1,12 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import LiarRoomView from '@/components/hiddenWordLiar/LiarRoomView';
 import { isLiarCode } from '@/lib/hiddenWordLiar';
+
+// Room pages only: the on-screen keyboard resizes the page (Android Chrome / the Play app) instead of pushing it up,
+// so the chat mode can fit the visible part exactly. Other pages keep the default.
+export const viewport: Viewport = { themeColor: '#08060e', interactiveWidget: 'resizes-content' };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const korean = (await params).locale !== 'en';
