@@ -1,6 +1,6 @@
--- Turn timer check, safe on the live DB: it loads the 20 s migration and plays one timed-out turn inside begin … rollback,
+-- Turn timer check, safe on the live DB: it loads the 20271209 migration and plays one timed-out turn inside begin … rollback,
 -- with made-up user ids (hwl_members.uid has no foreign key, so no auth.users rows are needed). Run:
---   docker cp supabase/migrations/20271209000000_hwl_turn_20.sql supabase-db:/mig.sql
+--   docker cp supabase/migrations/20271209000000_hwl_last_words.sql supabase-db:/mig.sql
 --   docker exec -i supabase-db psql -U postgres -q < scripts/hidden-word-liar/test_timeout.sql; docker exec supabase-db rm /mig.sql
 \set ON_ERROR_STOP 1
 begin;

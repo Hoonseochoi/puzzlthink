@@ -4,15 +4,19 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { getSupabase } from '@/lib/supabase';
 import { CHAT_KEEP, cleanChat, floodCheck, setRoomPlaying } from '@/lib/roomChat';
-import { type LiarView, joinLiar, tickLiar, viewLiar } from '@/lib/hiddenWordLiar';
+import { type LiarView, chatLiar, chatSince, joinLiar, tickLiar, viewLiar } from '@/lib/hiddenWordLiar';
+import { liarCopy } from './copy';
 
-export type LiarChat = { key: string; seat: number; name: string; text: string; at: number; mine: boolean; kind: 'chat' | 'emote' | 'system' };
+export type LiarChat = { key: string; seat: number; name: string; text: string; at: number; mine: boolean; kind: 'chat' | 'emote' | 'system' | 'hidden' };
+// quick reactions still go browser to browser, but only these fixed lines are shown (a modified client cannot smuggle text)
+const EMOTES = new Set([...liarCopy('ko').quick, ...liarCopy('en').quick]);
 type Status = 'connecting' | 'online' | 'missing' | 'full' | 'started' | 'login' | 'error' | 'unconfigured';
 
 /**
  * One 히든 워드: 라이어 room: joins (or re-joins) this browser's seat, keeps `view` fresh from the database's pushes
  * (topic hwl-<code>, event 'v') with a slow poll as a safety net, nudges the server when a clock runs out, and carries
- * chat, 👁 marks and quick reactions between the browsers in the room (broadcast only, nothing stored).
+ * 👁 marks, typing dots and quick reactions between the browsers (broadcast only, nothing stored). Chat lines go through the
+ * server (hwl_chat filters them); its push 'c' only says "there is a new line", which every browser then reads back.
  */
 export function useLiarRoom(code: string, name: string) {
   const [view, setView] = useState<LiarView | null>(null);
@@ -27,7 +31,27 @@ export function useLiarRoom(code: string, name: string) {
   const loading = useRef(false);
   const again = useRef(false);
   const sentLog = useRef<{ at: number; text: string }[]>([]);
-  const recvLog = useRef<Record<number, { at: number; text: string }[]>>({});
+  const lastLine = useRef(0);
+  const lineLoading = useRef(false);
+  const mySeatRef = useRef<number | null>(null);
+
+  // the server's chat lines after the last one this browser has
+  const pullChat = useCallback(async () => {
+    if (lineLoading.current) return;
+    lineLoading.current = true;
+    try {
+      const lines = await chatSince(code, lastLine.current);
+      if (!lines?.length) return;
+      const fresh = lines.filter((l) => l.id > lastLine.current);
+      if (!fresh.length) return;
+      lastLine.current = fresh[fresh.length - 1].id;
+      setChat((c) => [...c, ...fresh.map((l) => ({
+        key: `l${l.id}`, seat: l.seat, name: l.name, text: l.text ?? '', at: l.at, mine: l.seat === mySeatRef.current,
+        kind: l.text == null ? 'hidden' as const : 'chat' as const,
+      }))].slice(-CHAT_KEEP));
+      setTyping((m) => { const n = { ...m }; let changed = false; for (const l of fresh) if (n[l.seat]) { delete n[l.seat]; changed = true; } return changed ? n : m; });
+    } finally { lineLoading.current = false; }
+  }, [code]);
 
   const refresh = useCallback(async () => {
     if (loading.current) { again.current = true; return; }
@@ -58,19 +82,15 @@ export function useLiarRoom(code: string, name: string) {
       if (!res) { setStatus('error'); return; }
       if (res.error) { setStatus((['missing', 'full', 'started', 'login'].includes(res.error) ? res.error : 'error') as Status); return; }
       await refresh();
+      void pullChat();
     })();
     const ch = supabase.channel(`hwl-${code}`, { config: { broadcast: { self: false } } });
     ch.on('broadcast', { event: 'v' }, () => { void refresh(); })
-      .on('broadcast', { event: 'chat' }, ({ payload }) => {
+      .on('broadcast', { event: 'c' }, () => { void pullChat(); })
+      .on('broadcast', { event: 'chat' }, ({ payload }) => {   // quick reactions only
         const p = payload as { seat: number; name: string; text: string; emote?: boolean };
-        if (typeof p?.seat !== 'number' || typeof p.text !== 'string') return;
-        const text = cleanChat(p.text);
-        if (!text) return;
-        const log = (recvLog.current[p.seat] ??= []);
-        if (!p.emote && floodCheck(log, Date.now(), text, true)) return; // a modified client is held back too
-        log.push({ at: Date.now(), text }); if (log.length > 20) log.shift();
-        setChat((c) => [...c, { key: `${Date.now()}-${Math.random()}`, seat: p.seat, name: String(p.name ?? '').slice(0, 16), text, at: Date.now(), mine: false, kind: p.emote ? 'emote' as const : 'chat' as const }].slice(-CHAT_KEEP));
-        setTyping((m) => { if (!m[p.seat]) return m; const n = { ...m }; delete n[p.seat]; return n; });
+        if (typeof p?.seat !== 'number' || typeof p.text !== 'string' || !p.emote || !EMOTES.has(p.text)) return;
+        setChat((c) => [...c, { key: `${Date.now()}-${Math.random()}`, seat: p.seat, name: String(p.name ?? '').slice(0, 16), text: p.text, at: Date.now(), mine: false, kind: 'emote' as const }].slice(-CHAT_KEEP));
       })
       .on('broadcast', { event: 'typing' }, ({ payload }) => {
         const p = payload as { seat: number; kind?: string; stop?: boolean };
@@ -90,7 +110,7 @@ export function useLiarRoom(code: string, name: string) {
     channel.current = ch;
     setRoomPlaying(true); // the lounge chat stays out of the way
     return () => { alive = false; channel.current = null; void supabase.removeChannel(ch); setRoomPlaying(false); };
-  }, [code, name, refresh]);
+  }, [code, name, refresh, pullChat]);
 
   // clocks: nudge the server just after a deadline (it checks its own time), and poll slowly as a safety net
   useEffect(() => {
@@ -100,29 +120,36 @@ export function useLiarRoom(code: string, name: string) {
     return () => window.clearTimeout(t);
   }, [view?.deadline, view?.v, skew, code, refresh]);
   useEffect(() => {
-    const t = window.setInterval(() => { if (document.visibilityState === 'visible') void refresh(); }, 5000);
+    const t = window.setInterval(() => { if (document.visibilityState === 'visible') { void refresh(); void pullChat(); } }, 5000);
     const onVisible = () => { if (document.visibilityState === 'visible') void refresh(); };
     document.addEventListener('visibilitychange', onVisible);
     return () => { window.clearInterval(t); document.removeEventListener('visibilitychange', onVisible); };
-  }, [refresh]);
+  }, [refresh, pullChat]);
 
   // a new game clears the marks
   const game = view?.game;
   useEffect(() => { const t = window.setTimeout(() => setMarks({}), 0); return () => window.clearTimeout(t); }, [game]);
 
   const mySeat = view?.me?.seat ?? null;
-  const say = useCallback((raw: string, emote = false): string | null => {
+  useEffect(() => { mySeatRef.current = mySeat; }, [mySeat]);
+  /** Sends a chat line (through the server) or a quick reaction; resolves to a block reason, or null when sent. */
+  const say = useCallback(async (raw: string, emote = false): Promise<string | null> => {
     const text = cleanChat(raw);
     if (!text || mySeat == null || !channel.current) return null;
-    if (!emote) {
-      const block = floodCheck(sentLog.current, Date.now(), text);
-      if (block) return block;
-      sentLog.current = [...sentLog.current, { at: Date.now(), text }].slice(-20);
+    if (emote) {
+      void channel.current.send({ type: 'broadcast', event: 'chat', payload: { seat: mySeat, name, text, emote: true } });
+      setChat((c) => [...c, { key: `${Date.now()}-me`, seat: mySeat, name, text, at: Date.now(), mine: true, kind: 'emote' as const }].slice(-CHAT_KEEP));
+      return null;
     }
-    void channel.current.send({ type: 'broadcast', event: 'chat', payload: { seat: mySeat, name, text, emote } });
-    setChat((c) => [...c, { key: `${Date.now()}-me`, seat: mySeat, name, text, at: Date.now(), mine: true, kind: emote ? 'emote' as const : 'chat' as const }].slice(-CHAT_KEEP));
+    const block = floodCheck(sentLog.current, Date.now(), text);
+    if (block) return block;
+    sentLog.current = [...sentLog.current, { at: Date.now(), text }].slice(-20);
+    const res = await chatLiar(code, text);
+    if (!res) return 'error';
+    if (res.error) return res.error;
+    void pullChat();
     return null;
-  }, [mySeat, name]);
+  }, [mySeat, name, code, pullChat]);
   const mark = useCallback((target: number | null) => {
     if (mySeat == null || !channel.current) return;
     setMarks((m) => { const n = { ...m }; if (target == null) delete n[mySeat]; else n[mySeat] = target; return n; });

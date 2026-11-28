@@ -29,6 +29,21 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
     name: { ko: '히든 워드: 라이어', en: 'Hidden Word: Liar' },
     items: [
       {
+        date: '11/28', icon: Scale,
+        ko: { title: '최후의 발언 → 검거하기 / 다시 투표하기', desc: '지목된 사람은 20초 동안 변론하고, 나머지가 검거할지 다시 투표할지 정해요. 다시 투표는 한 판에 한 번(방금 지목된 사람 제외), 두 번째엔 풀어 주면 라이어 승리예요.' },
+        en: { title: 'Last words → Arrest / Vote again', desc: 'The accused gets 20 s to defend themselves, then the others decide to arrest or vote again. Vote again happens once a game (without the accused); the second time, letting them go means the liar wins.' },
+      },
+      {
+        date: '11/28', icon: Sparkles,
+        ko: { title: '제시어 공개 쇼와 검거 판정', desc: '끝나면 한 명씩 카드를 뒤집어 제시어를 보여 주고, 라이어는 마지막에 가면을 벗어요. 이어서 「라이어 검거 성공!」 또는 「검거 실패…」 도장이 찍혀요. 차례가 된 사람은 테이블 위로 떠오르고 단서는 가운데에서 날아가요.' },
+        en: { title: 'A word reveal and the verdict', desc: 'At the end each card flips in turn, the liar\'s last with the mask coming off, then a "Liar caught!" or "The liar got away…" stamp. The speaker now rises onto the table and each clue flies out from the centre.' },
+      },
+      {
+        date: '11/28', icon: Wrench,
+        ko: { title: '채팅에 제시어·정답 금지', desc: '띄어쓰기나 조사, 자모로 바꿔 써도 서버가 막아요. 상대 쪽 단어는 다른 사람 화면에서 가려져요.' },
+        en: { title: 'No game words in chat', desc: 'The server stops them even with spaces, particles or loose jamo. A line with the other game word is hidden for everyone else.' },
+      },
+      {
         date: '11/28', icon: Timer,
         ko: { title: '제시어는 테이블 가운데에서 · 20초 타이머', desc: '내 차례가 되면 테이블 가운데에 제시어 칸이 열리고 20초가 줄어들어요. 시간이 다 되면 ⏰ 시간 초과로 다음 사람에게 넘어가요. 지목/한 바퀴 더, 투표, 정답 맞히기도 모두 가운데에서 해요.' },
         en: { title: 'Clues go in the middle of the table · 20 s timer', desc: 'On your turn a clue box opens in the middle of the table with a 20-second countdown. When time runs out it shows ⏰ Time out and passes on. Accuse / one more round, the vote and the liar\'s guess all happen in the middle too.' },

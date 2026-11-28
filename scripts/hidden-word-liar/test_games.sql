@@ -17,6 +17,7 @@ create or replace function pg_temp.play(p_code text, n int, p_mode text, p_kind 
 declare r public.hwl_rooms; v jsonb; seat int; w text; res jsonb; guard int := 0; i int; liar int; tgt int; words text[];
 begin
   perform pg_temp.as_user(pg_temp.uid(1));
+  update public.hwl_rooms set reveal_until = now() where code = p_code;   -- skip the last game's end-of-game show
   res := public.hwl_start(p_code, pg_temp.key(1));
   if res ? 'error' then raise exception 'start %', res; end if;
   update public.hwl_rooms set kind = p_kind where code = p_code;   -- 'house' plays the game as a matched room
@@ -67,6 +68,8 @@ begin
       end loop;
       select * into r from public.hwl_rooms where code = p_code;
       if r.phase in ('vote', 'runoff') then update public.hwl_rooms set deadline = now() where code = p_code; perform public.hwl_tick(p_code); end if;
+    elsif r.phase = 'decide' then   -- everyone but the accused: 검거
+      for i in 1..n loop perform pg_temp.as_user(pg_temp.uid(i)); perform public.hwl_decide(p_code, pg_temp.key(i), 'arrest'); end loop;
     elsif r.phase = 'guess' then
       perform pg_temp.as_user(pg_temp.uid(r.liar + 1));
       res := public.hwl_guess(p_code, pg_temp.key(r.liar + 1), case when p_mode = 'catch-hit' then r.answer else r.decoy end);

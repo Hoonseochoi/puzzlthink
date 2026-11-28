@@ -313,4 +313,23 @@ button:disabled { cursor: default; }
 .hwl-urgent { animation: hwl-urgent .5s ease-in-out infinite; }
 @keyframes hwl-hot { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-6deg) scale(1.1); } 75% { transform: rotate(6deg) scale(1.1); } }
 .hwl-hot { animation: hwl-hot .45s ease-in-out 2; }
-@media (prefers-reduced-motion: reduce) { .hwl-pop, .hwl-stamp, .hwl-glow, .hwl-dots > i, .hwl-urgent, .hwl-hot { animation: none; } }
+@keyframes hwl-enter { 0% { transform: scale(.7) translateY(10px); opacity: 0; filter: blur(6px); } 65% { transform: scale(1.04); opacity: 1; filter: blur(0); } 100% { transform: scale(1); } }
+.hwl-enter { animation: hwl-enter .5s .25s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes hwl-fly { 0% { transform: translate(-50%, -50%) scale(1.35); opacity: 0; } 18% { opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.7); opacity: .2; } }
+.hwl-fly { animation: hwl-fly .6s cubic-bezier(.5,0,.4,1) both; }
+@keyframes hwl-fly-vote { 0% { transform: translate(-50%, -50%) scale(.4); opacity: 0; } 20% { transform: translate(-50%, -60%) scale(1.1); opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.6); opacity: 0; } }
+.hwl-fly-vote { animation: hwl-fly-vote .9s cubic-bezier(.45,0,.35,1) both; }
+@keyframes hwl-banner { 0% { transform: translateX(-120%) skewX(-14deg); opacity: 0; } 18% { transform: translateX(0) skewX(-6deg); opacity: 1; } 80% { transform: translateX(0) skewX(-6deg); opacity: 1; } 100% { transform: translateX(120%) skewX(-14deg); opacity: 0; } }
+.hwl-banner { animation: hwl-banner 1.6s cubic-bezier(.3,.8,.3,1) both; }
+@keyframes hwl-flip { 0% { transform: perspective(300px) rotateY(90deg); } 100% { transform: perspective(300px) rotateY(0); } }
+.hwl-flip { animation: hwl-flip .35s ease-out both; }
+@keyframes hwl-maskoff { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(-34px) rotate(-28deg) scale(.8); opacity: 0; } }
+.hwl-maskoff { animation: hwl-maskoff .8s .1s cubic-bezier(.3,.6,.3,1) both; }
+@keyframes hwl-turn { 0% { transform: perspective(400px) rotateY(0); } 50% { transform: perspective(400px) rotateY(90deg); } 100% { transform: perspective(400px) rotateY(0); } }
+.hwl-turn { animation: hwl-turn .6s .2s ease-in-out both; }
+@keyframes hwl-verdict { 0% { transform: scale(2.6) rotate(-12deg); opacity: 0; } 60% { transform: scale(.94) rotate(-3deg); opacity: 1; } 100% { transform: scale(1) rotate(-4deg); } }
+.hwl-verdict { animation: hwl-verdict .55s cubic-bezier(.2,.9,.3,1.2) both; }
+@media (prefers-reduced-motion: reduce) {
+  .hwl-pop, .hwl-stamp, .hwl-glow, .hwl-dots > i, .hwl-urgent, .hwl-hot, .hwl-enter, .hwl-flip, .hwl-turn, .hwl-verdict { animation: none; }
+  .hwl-fly, .hwl-fly-vote, .hwl-banner, .hwl-maskoff { display: none; }
+}

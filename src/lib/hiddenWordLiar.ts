@@ -8,20 +8,22 @@ export const LIAR_PATH = '/hidden-word-liar';
 export const LIAR_ACCENT = '#a98bff';
 export const isLiarCode = (code: string) => /^[a-z0-9]{5}$/.test(code);
 
-export type LiarPhase = 'lobby' | 'cards' | 'clue' | 'talk' | 'vote' | 'runoff' | 'guess' | 'done' | 'closed';
+export type LiarPhase = 'lobby' | 'cards' | 'clue' | 'talk' | 'vote' | 'runoff' | 'last' | 'decide' | 'guess' | 'done' | 'closed';
 export type LiarMember = {
   seat: number; name: string; playing: boolean; gone: boolean; ready: boolean; here: boolean; member: boolean;
-  talked: boolean; mask: boolean; voted: boolean; pieces: number | null;
+  talked: boolean; decided: boolean; mask: boolean; voted: boolean; pieces: number | null;
 };
 export type LiarClue = { n: number; seat: number; round: number; word: string | null; hot: boolean; masked: boolean; score: number | null; decoyScore: number | null };
 export type LiarView = {
   code: string; kind: 'friend' | 'house'; v: number; phase: LiarPhase; now: number; deadline: number | null;
   game: number; round: number; roundsMax: number; order: number[]; turn: number | null; host: number | null;
-  runoff: number[] | null; accused: number | null; liar: number | null;
+  runoff: number[] | null; accused: number | null; liar: number | null; excluded: number[]; revotes: number;
+  reveal: { at: number; until: number } | null;
   cfg: { hot: number; min: number; max: number; liarWin: number; citizenWin: number; dailyCap: number };
-  me: { seat: number; playing: boolean; maskUsed: boolean; talk: 'accuse' | 'more' | null; ready: boolean; word: string | null; voted: number | null; piecesToday: number | null } | null;
+  me: { seat: number; playing: boolean; maskUsed: boolean; talk: 'accuse' | 'more' | null; decide: 'arrest' | 'revote' | null; ready: boolean; word: string | null; voted: number | null; piecesToday: number | null } | null;
   members: LiarMember[];
   talk: { accuse: number; more: number };
+  decide: { arrest: number; revote: number };
   clues: LiarClue[];
   votes: { stage: 'vote' | 'runoff'; seat: number; target: number }[] | null;
   result: { outcome: 'liar' | 'citizens' | 'void'; reason: string; answer: string; decoy: string; liar: number; guess: string | null; valid: boolean } | null;
@@ -62,6 +64,11 @@ export const sayClue = (code: string, word: string, mask: boolean) => rpc<{ ok?:
 export const talkLiar = (code: string, choice: 'accuse' | 'more') => rpc('hwl_talk', { p_code: code, p_key: seatKey(code), p_choice: choice });
 export const voteLiar = (code: string, target: number) => rpc('hwl_vote', { p_code: code, p_key: seatKey(code), p_target: target });
 export const guessLiar = (code: string, word: string) => rpc<{ ok?: boolean } & Err>('hwl_guess', { p_code: code, p_key: seatKey(code), p_word: word });
+export const decideLiar = (code: string, choice: 'arrest' | 'revote') => rpc('hwl_decide', { p_code: code, p_key: seatKey(code), p_choice: choice });
+export type LiarLine = { id: number; seat: number; name: string; at: number; text: string | null };
+/** Chat goes through the server (it refuses or hides lines with a game word); the push carries only the new id. */
+export const chatLiar = (code: string, text: string) => rpc<{ ok?: boolean; id?: number } & Err>('hwl_chat', { p_code: code, p_key: seatKey(code), p_text: text });
+export const chatSince = (code: string, after: number) => rpc<LiarLine[]>('hwl_chat_since', { p_code: code, p_key: seatKey(code), p_after: after });
 export const readyLiar = (code: string, ready: boolean) => rpc('hwl_ready', { p_code: code, p_key: seatKey(code), p_ready: ready });
 export const tickLiar = (code: string) => rpc('hwl_tick', { p_code: code });
 
@@ -96,11 +103,18 @@ export const phaseSecs = (view: LiarView) => {
     case 'talk': return view.order.length > 6 ? 60 : 45;
     case 'vote': return 20;
     case 'runoff': return 15;
+    case 'last': return 20;
+    case 'decide': return 15;
     case 'guess': return 30;
     case 'cards': return 8;
     default: return null;
   }
 };
+
+/** The end-of-game show, in seconds from reveal.at (mirrors hwl_finish: 4 s + 0.8 s a player + 2 s for a guess).
+ *  Seat i's card flips at flip(i); the liar's card is the last one. */
+export const REVEAL = { first: 0.6, seat: 0.8, guess: 2 };
+export const revealFlip = (i: number) => REVEAL.first + REVEAL.seat * i;
 
 /** Seconds left on the server's clock, corrected for this browser's clock skew. */
 export const secondsLeft = (view: LiarView | null, skew: number, now: number) =>

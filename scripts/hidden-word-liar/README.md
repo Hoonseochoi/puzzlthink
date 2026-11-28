@@ -19,12 +19,22 @@ docker exec supabase-db sh -c "pg_dump -U postgres -a -t public.hw_targets -t pu
 docker exec -i supabase-db psql -U postgres -d hwl_dev -1 -v ON_ERROR_STOP=1 < supabase/migrations/20271205100000_hidden_word_liar.sql
 docker exec -i supabase-db psql -U postgres -d hwl_dev -q < scripts/hidden-word-liar/test_games.sql
 docker exec -i supabase-db psql -U postgres -d hwl_dev -q < scripts/hidden-word-liar/test_queue.sql
+docker exec -i supabase-db psql -U postgres -d hwl_dev -q < scripts/hidden-word-liar/test_last_words.sql   # 최후의 발언, 다시 투표, chat filter
 ```
 
 ## Numbers (hwl_cfg)
 🔥 cap 85 (a clue at or above shows as 85+, from the play log: players' own-word hints have median 80, and a liar's
 strong decoy hints score median 68 on the real answer, so the two overlap). Turn 20 s (no clue in time = a silent "⏰ 시간 초과" row that does not count as spoken), talk 45 s (60 s for 7+), vote
-20 s, runoff 15 s, liar's guess 30 s, rounds 3 (≤6 players) / 2. Rewards: liar win 3 피스, citizen win 1, at most 7 a KST day per player (owner 11/28), only in a valid game (4+ signed-in players; spoken clues from at least half the seats, min 4 — a game of silence pays nothing).
+20 s, runoff 15 s, last words 20 s, decide 15 s (one 다시 투표 a game, without the accused; the second time 풀어 주기 = the liar
+wins), liar's guess 30 s, end-of-game show 4 s + 0.8 s a player (+2 s for a guess; no restart before it ends), rounds 3 (≤6 players) / 2. Rewards: liar win 3 피스, citizen win 1, at most 7 a KST day per player (owner 11/28), only in a valid game (4+ signed-in players; spoken clues from at least half the seats, min 4 — a game of silence pays nothing).
+
+## Chat (anti-trolling)
+Chat lines go through `hwl_chat` and live in `hwl_chat` (last 80 a room); the Realtime push 'c' carries only the new id and
+every browser reads the text back with `hwl_chat_since`, so a modified client cannot get a line past the filter. While a
+game runs: a line with the sender's own word is refused (`word`); a line with the other game word is stored `hidden` and
+shown hidden to everyone but the sender (so the server's answer never tells the sender a word they did not know).
+`hwl_chat_hits` squeezes out spaces, dots and anything not Hangul (catches 사.과 and 사과를) and, when the line has loose
+jamo, compares jamo spellings (ㅅㅏㄱㅘ). Quick reactions stay browser-to-browser, but only the fixed list is shown.
 
 ## What counts where
 | | 공개방 (matched, `detail.kind = 'house'`) | 친구방 (`'friend'`) |
