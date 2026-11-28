@@ -8,7 +8,7 @@
 -- browsers re-read hwl_view. Nobody's browser ever holds another player's word or the liar's seat.
 --   friend rooms ('friend'): a signed-in host opens one, anyone with the link joins (4–10), the host starts.
 --   house rooms ('house'): made by the matchmaking queue (hwl_q_*), no host, start and continue on their own.
--- A finished, valid game (4+ signed-in players, at least one full round) is settled here: game_results rows
+-- A finished, valid game (4+ signed-in players, spoken clues from at least half the seats, min 4) is settled here: game_results rows
 -- (mode 'friend', detail.role 'liar'|'citizen', detail.open = house), 피스 through piece_grants (liar win 3, citizen
 -- win 1, no cap — owner 11/28), the 'lw' icon on a first liar win and the #1 crown 'c-hidden_word_liar'.
 -- Shared CHECK constraints are extended from their LIVE definitions at apply time (DO blocks), so this file does not
@@ -230,7 +230,7 @@ begin
   select count(distinct uid) into members from public.hwl_members where code = p_code and playing and uid is not null;
   select uid into liar_uid from public.hwl_members where code = p_code and seat = r.liar;
   update public.hwl_rooms set valid = r.outcome <> 'void' and members >= (cfg ->> 'min')::int
-     and (select count(*) from public.hwl_clues c where c.code = p_code and c.game_no = r.game_no and c.word is not null) >= array_length(r.turn_order, 1)
+     and (select count(*) from public.hwl_clues c where c.code = p_code and c.game_no = r.game_no and c.word is not null) >= greatest(4, ceil(array_length(r.turn_order, 1) / 2.0))
    where code = p_code returning * into r;
   insert into public.hwl_results (code, game_no, kind, answer, decoy, liar_uid, outcome, reason, players, valid)
   values (p_code, r.game_no, r.kind, r.answer, r.decoy, liar_uid, r.outcome, r.reason, array_length(r.turn_order, 1), r.valid);
@@ -855,6 +855,44 @@ begin
     perform cron.schedule('hwl-tick', '* * * * *', 'select public.hwl_cron()');
   end if;
 end $$;
+
+-- ── 피스 경쟁전 breakdown: each grant under its own game ─────────────────────────────────────────────────────────
+-- piece_race_rows (LIVE definition of 2026-11-28) put every piece_grants row under 'proposition_go'; 라이어 rewards
+-- belong to 'hidden_word_liar'. Only the per_game key of liar_win / liar_cit rows changes: totals, last_win and the
+-- existing (명제 바둑) rows are identical. If piece_race_rows was redefined since, apply the same `case g.source` change to it.
+CREATE OR REPLACE FUNCTION public.piece_race_rows(p_period integer, p_cut timestamp with time zone DEFAULT 'infinity'::timestamp with time zone)
+ RETURNS TABLE(user_id uuid, pieces bigint, per_game jsonb, last_win timestamp with time zone)
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  with b as (
+    select bb.starts, least(bb.ends, p_cut) as cut from public.piece_period_bounds(p_period) bb
+  ), hard as (
+    select r.user_id, r.game, r.played_at, row_number() over (partition by r.user_id, r.game order by r.played_at) as nth
+      from public.game_results r, b
+     where r.mode = 'ai' and r.result = 'win'
+       and coalesce(r.detail ->> 'difficulty', r.detail ->> 'level', '') = 'hard' and not (r.detail ? 'items')
+       and r.game not in ('russian_roulette', 'indian_poker', 'two_sided_poker')
+       and r.played_at >= b.starts and r.played_at < b.cut
+  ), per as (
+    select h.user_id, h.game, count(*)::bigint as n, max(h.played_at) as last_at
+      from hard h where h.nth <= public.piece_period_cap(p_period) group by h.user_id, h.game
+    union all
+    select g.user_id, case when g.source in ('liar_win', 'liar_cit') then 'hidden_word_liar' else 'proposition_go' end, sum(g.amount)::bigint, max(g.created_at)
+      from public.piece_grants g, b where g.period = p_period and g.created_at < b.cut
+     group by g.user_id, case when g.source in ('liar_win', 'liar_cit') then 'hidden_word_liar' else 'proposition_go' end
+  ), earned as (
+    select p.user_id, sum(p.n)::bigint as n, jsonb_object_agg(p.game, p.n) as per_game, max(p.last_at) as last_at
+      from (select q.user_id, q.game, sum(q.n)::bigint as n, max(q.last_at) as last_at from per q group by q.user_id, q.game) p
+     group by p.user_id
+  ), spent as (
+    select x.user_id, sum(x.amount - x.from_tokens)::bigint as n
+      from public.piece_spends x, b where x.spent_at >= b.starts and x.spent_at < b.cut group by x.user_id
+  )
+  select e.user_id, e.n - coalesce(s.n, 0), e.per_game, e.last_at
+    from earned e left join spent s on s.user_id = e.user_id;
+$function$;
 
 -- ── grants ───────────────────────────────────────────────────────────────────────────────────────────────────────
 revoke all on function public.hwl_bump(text), public.hwl_member(text, text), public.hwl_new_code(), public.hwl_alive(text),

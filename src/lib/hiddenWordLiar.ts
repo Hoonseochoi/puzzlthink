@@ -1,4 +1,4 @@
-// 히든 워드: 라이어 — the browser side. The game itself runs in Postgres (supabase/migrations/20271205000000_hidden_word_liar.sql):
+// 히든 워드: 라이어 — the browser side. The game itself runs in Postgres (supabase/migrations/20271205100000_hidden_word_liar.sql):
 // this file only calls its RPCs, keeps this browser's secret seat key, and listens for the database's "changed" pushes
 // on topic `hwl-<code>`. Chat, 👁 의심 표시 and quick reactions travel between browsers on the same channel (broadcast,
 // nothing stored).

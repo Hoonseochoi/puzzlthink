@@ -1,5 +1,5 @@
 -- SCRATCH DATABASE ONLY (e.g. hwl_dev): inserts fake auth.users / profiles and plays 5 whole 6-player games,
--- raising on any leak (liar seat, other players' words). Run after applying 20271205000000_hidden_word_liar.sql there:
+-- raising on any leak (liar seat, other players' words). Run after applying 20271205100000_hidden_word_liar.sql there:
 --   docker exec -i supabase-db psql -U postgres -d hwl_dev -q < scripts/hidden-word-liar/test_games.sql
 \set ON_ERROR_STOP 1
 create or replace function pg_temp.as_user(u uuid) returns void language sql as $$ select set_config('request.jwt.claims', json_build_object('sub', u, 'role', 'authenticated')::text, false), set_config('request.jwt.claim.sub', u::text, false) $$;

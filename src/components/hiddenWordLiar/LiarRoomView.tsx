@@ -166,10 +166,10 @@ function Table({ view, t, marks, onTap }: { view: LiarView; t: ReturnType<typeof
         return (
           <button key={m.seat} type="button" onClick={() => onTap(m.seat)}
             className={`absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center ${m.gone ? 'opacity-35' : ''} ${canVote ? 'cursor-pointer' : ''}`}
-            style={{ left: `${x}%`, top: `${y}%`, width: big ? 92 : 74 }}>
+            style={{ left: `${x}%`, top: `${y}%`, width: big ? 92 : 86 }}>
             {/* last clue bubble */}
             {clue && (
-              <span className={`mb-1 flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-black shadow ${clue.word ? 'bg-white text-[#241457]' : 'bg-white/15 text-white/60'}`}>
+              <span className={`mb-1 flex items-center rounded-full py-0.5 font-black shadow ${big ? 'max-w-full gap-1 px-2 text-[11px]' : 'max-w-[86px] gap-0.5 px-1.5 text-[10px] tracking-tight'} ${clue.word ? 'bg-white text-[#241457]' : 'bg-white/15 text-white/60'}`}>
                 <span className="truncate">{clue.word ?? t.silent}</span>
                 {clue.word && <span className="shrink-0 rounded-full px-1 text-[10px] text-white" style={{ background: clue.hot && clue.score == null ? '#ff5a3d' : clue.score == null ? '#6b6680' : scoreColor(clue.score) }}>{shownScore(clue, t)}</span>}
               </span>

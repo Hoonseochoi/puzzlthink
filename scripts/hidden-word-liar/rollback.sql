@@ -1,4 +1,4 @@
--- Roll back 20271205000000_hidden_word_liar.sql. Results already written stay in game_results / piece_grants /
+-- Roll back 20271205100000_hidden_word_liar.sql. Results already written stay in game_results / piece_grants /
 -- profile_icons (delete them by hand if wanted: game = 'hidden_word_liar', source in ('liar_win','liar_cit'),
 -- icon in ('lw','c-hidden_word_liar')); the extended CHECK constraints are left as they are (a superset is harmless).
 do $$ begin
@@ -18,4 +18,39 @@ drop function if exists public.hwl_q_answer(uuid, boolean), public.hwl_q_leave()
 drop table if exists public.hwl_offer_members, public.hwl_offers, public.hwl_queue, public.hwl_votes, public.hwl_clues,
   public.hwl_members, public.hwl_results, public.hwl_rooms;
 delete from public.game_crowns where game = 'hidden_word_liar';
+
+-- piece_race_rows back to its definition before this migration (every grant under 'proposition_go').
+CREATE OR REPLACE FUNCTION public.piece_race_rows(p_period integer, p_cut timestamp with time zone DEFAULT 'infinity'::timestamp with time zone)
+ RETURNS TABLE(user_id uuid, pieces bigint, per_game jsonb, last_win timestamp with time zone)
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  with b as (
+    select bb.starts, least(bb.ends, p_cut) as cut from public.piece_period_bounds(p_period) bb
+  ), hard as (
+    select r.user_id, r.game, r.played_at, row_number() over (partition by r.user_id, r.game order by r.played_at) as nth
+      from public.game_results r, b
+     where r.mode = 'ai' and r.result = 'win'
+       and coalesce(r.detail ->> 'difficulty', r.detail ->> 'level', '') = 'hard' and not (r.detail ? 'items')
+       and r.game not in ('russian_roulette', 'indian_poker', 'two_sided_poker')
+       and r.played_at >= b.starts and r.played_at < b.cut
+  ), per as (
+    select h.user_id, h.game, count(*)::bigint as n, max(h.played_at) as last_at
+      from hard h where h.nth <= public.piece_period_cap(p_period) group by h.user_id, h.game
+    union all
+    select g.user_id, 'proposition_go', sum(g.amount)::bigint, max(g.created_at)
+      from public.piece_grants g, b where g.period = p_period and g.created_at < b.cut group by g.user_id
+  ), earned as (
+    select p.user_id, sum(p.n)::bigint as n, jsonb_object_agg(p.game, p.n) as per_game, max(p.last_at) as last_at
+      from (select q.user_id, q.game, sum(q.n)::bigint as n, max(q.last_at) as last_at from per q group by q.user_id, q.game) p
+     group by p.user_id
+  ), spent as (
+    select x.user_id, sum(x.amount - x.from_tokens)::bigint as n
+      from public.piece_spends x, b where x.spent_at >= b.starts and x.spent_at < b.cut group by x.user_id
+  )
+  select e.user_id, e.n - coalesce(s.n, 0), e.per_game, e.last_at
+    from earned e left join spent s on s.user_id = e.user_id;
+$function$;
+
 notify pgrst, 'reload schema';

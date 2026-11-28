@@ -73,10 +73,11 @@ export default function LiarQueueListener() {
     const ping = () => {
       if (document.visibilityState !== 'visible') return;
       void queuePing().then((s) => {
-        const was = !!store.state?.queued;
+        const was = !!store.state?.queued, accepted = store.state?.offer?.accept === true;
         apply(s);
         if (s?.room) go(s.room);
         else if (s && !s.error && was && !s.queued && !s.offer) set({ notice: 'drop' });
+        else if (s && !s.error && accepted && s.queued && !s.offer) set({ notice: 'retry' }); // the push was missed
       });
     };
     const id = window.setInterval(ping, 10_000);
@@ -90,7 +91,10 @@ export default function LiarQueueListener() {
     if (!offer) return;
     const id = window.setInterval(() => setNow(Date.now()), 250);
     const wait = Math.max(500, offer.deadline - (Date.now() + store.skew) + 800);
-    const t = window.setTimeout(() => { void queuePing().then((s) => { apply(s); if (s?.room) go(s.room); }); }, wait);
+    const t = window.setTimeout(() => {
+      const accepted = store.state?.offer?.accept === true;
+      void queuePing().then((s) => { apply(s); if (s?.room) go(s.room); else if (s && !s.error && accepted && s.queued && !s.offer) set({ notice: 'retry' }); });
+    }, wait);
     return () => { window.clearInterval(id); window.clearTimeout(t); };
   }, [offer, go]);
 
