@@ -7,7 +7,7 @@ import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '@/components/AuthProvider';
 import StoneAvatar from '@/components/StoneAvatar';
 import { markSignupSource } from '@/lib/signupSource';
-import { type LiarRankRow, createLiarRoom, liarRanking, myName } from '@/lib/hiddenWordLiar';
+import { type LiarRankRow, createLiarRoom, liarLobbyStats, liarRanking, myName } from '@/lib/hiddenWordLiar';
 import { LiarStone } from './LiarArt';
 import { useLiarQueue } from './LiarQueue';
 import { liarCopy } from './copy';
@@ -44,6 +44,15 @@ export default function LiarHero({ web = false, todayLabel, onOpen }: { web?: bo
   const [rows, setRows] = useState<LiarRankRow[] | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => { void liarRanking(3).then((r) => setRows(r ?? [])); }, []);
+  // 공개방: people waiting in the queue and games being played now, refreshed while the page is visible.
+  const [stats, setStats] = useState<{ waiting: number; rooms: number } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const load = () => { if (document.visibilityState === 'visible') void liarLobbyStats().then((s) => { if (alive && s) setStats(s); }); };
+    load();
+    const id = window.setInterval(load, 20_000);
+    return () => { alive = false; window.clearInterval(id); };
+  }, [q.state?.queued]);
   useEffect(() => { if (user) void q.refresh(); }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
   const name = (nickname || myName(en ? 'Player' : '플레이어')).slice(0, 16);
   const queued = !!q.state?.queued;
@@ -66,8 +75,19 @@ export default function LiarHero({ web = false, todayLabel, onOpen }: { web?: bo
       style={{ background: 'radial-gradient(120% 90% at 0% 0%, #d9c8ff 0%, transparent 50%), radial-gradient(90% 80% at 100% 100%, #241457 0%, transparent 60%), linear-gradient(135deg, #8d6cf0 0%, #2a1a5e 100%)' }}>
       <span className="pointer-events-none absolute inset-0 opacity-40 [background-image:radial-gradient(rgba(255,255,255,.55)_1px,transparent_1.4px)] [background-size:14px_14px] [mask-image:linear-gradient(115deg,transparent_25%,#000_95%)]" />
       <span className="home-sweep pointer-events-none absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+      {stats && (
+        <div className={`absolute z-[1] flex flex-col items-end gap-1 ${web ? 'right-5 top-5 lg:right-7 lg:top-7' : 'right-3 top-3'}`}>
+          <span className="flex items-center gap-1 rounded-full bg-black/35 px-2 py-1 text-[10px] font-black backdrop-blur-sm">
+            <Users size={11} className="text-[#d9c8ff]" />{en ? `${stats.waiting} waiting` : `신청 ${stats.waiting}명`}
+          </span>
+          <span className="flex items-center gap-1 rounded-full bg-black/35 px-2 py-1 text-[10px] font-black backdrop-blur-sm">
+            <span className="relative flex h-1.5 w-1.5">{stats.rooms > 0 && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#3fd67a] opacity-70" />}<span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${stats.rooms > 0 ? 'bg-[#3fd67a]' : 'bg-white/40'}`} /></span>
+            {en ? `${stats.rooms} games live` : `진행 중 ${stats.rooms}방`}
+          </span>
+        </div>
+      )}
       <div className="relative min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className={`flex flex-wrap items-center gap-1.5 ${web ? '' : 'pr-[92px]'}`}>
           <span className="rounded-full bg-black/25 px-2.5 py-1 text-[10px] font-black tracking-[0.12em]">🔥 {todayLabel}</span>
           <span className="rounded-full bg-[#ff4d5e] px-2 py-1 text-[10px] font-black tracking-[0.08em]">NEW</span>
           <span className="rounded-full bg-[#17201e] px-2 py-1 text-[9.5px] font-black tracking-[0.14em] text-[#ffd36e]">PUZZLTHINK ORIGINAL</span>
