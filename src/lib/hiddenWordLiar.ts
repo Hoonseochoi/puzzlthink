@@ -67,6 +67,8 @@ export const tickLiar = (code: string) => rpc('hwl_tick', { p_code: code });
 
 export type LiarRankRow = { rank: number; nickname: string; avatar_url: string | null; liar_wins: number; citizen_wins: number; games: number; points: number; is_me: boolean };
 export const liarRanking = (limit = 20) => rpc<LiarRankRow[]>('hwl_ranking', { p_limit: limit });
+/** 공개방 queue size and 공개방 games being played now (home card). */
+export const liarLobbyStats = () => rpc<{ waiting: number; rooms: number }>('hwl_lobby_stats', {});
 export const liarMyStats = () => rpc<{ liarWins: number; citizenWins: number; games: number; friendGames: number; piecesToday: number; dailyCap: number }>('hwl_my_stats', {});
 
 // ── matchmaking queue ──
