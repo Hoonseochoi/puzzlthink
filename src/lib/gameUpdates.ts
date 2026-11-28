@@ -34,6 +34,11 @@ export const GAME_UPDATES: Record<string, GameUpdateLog> = {
         en: { title: 'The liar knows they are the liar', desc: 'The liar gets no word, just a "You are the liar" card. Read the others\' words and numbers to hide and work out the answer. The liar never speaks first.' },
       },
       {
+        date: '11/28', icon: Users,
+        ko: { title: '한 판 더 · 방 다시 열기 · 홈에서 사람 부르기', desc: '판이 끝나면 화면 아래에 큰 「다시 하기 n/4」 버튼이 고정돼요(준비한 자리엔 ✓). 4명이 준비하면 10초 뒤(모두 준비하면 바로) 같은 방에서 새 판이 시작돼요. 닫힌 방도 사람이 있으면 다시 열 수 있고, 방장이 나가면 다른 사람이 이어받아요. 「홈·대기열에 알리기」를 누르면 오픈방 신청자에게 팝업이 가고 홈 카드에 "지금 바로 참가"로 떠요.' },
+        en: { title: 'One more, reopen, call players from home', desc: 'After a game a big Play again n/4 button stays pinned at the bottom (✓ on ready seats). With 4 ready a new game starts in 10 s (at once if everyone is), same room. A closed room with people still in it reopens, and a new host takes over if the host left. "Call players from home" pings everyone waiting for matchmaking and shows the table as "Join now" on the home card.' },
+      },
+      {
         date: '11/28', icon: Timer,
         ko: { title: '⏱ 시간 연장 +30초', desc: '단어가 안 떠오르면 내 차례에 「⏱ +30초」를 한 판에 한 번 누를 수 있어요. 누르면 모두에게 알림이 뜨고 그 자리에 ⏱ 표시가 남아요.' },
         en: { title: '⏱ +30 s time extension', desc: 'Stuck for a word? Press ⏱ +30 s on your turn, once a game. Everyone is told, and a ⏱ mark stays on your seat.' },

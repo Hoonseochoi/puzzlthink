@@ -12,9 +12,10 @@ import { LiarStone } from './LiarArt';
 // The 라이어 게임 matchmaking queue, shared by the 신청 button (useLiarQueue) and the popup that follows the player
 // across the whole site (LiarQueueListener, in the locale layout). The database pushes offer / go / retry / drop to
 // the player's own ticket topic `hwlq-<ticket>`; a ping every 10 s keeps the place and catches anything the push missed.
+// 'seat' is a table that called for players (초대하기): a popup offers its free seats right away.
 const FLAG = 'hwl_queued';
-type Store = { state: QueueState | null; notice: 'retry' | 'drop' | null; busy: boolean; skew: number };
-let store: Store = { state: null, notice: null, busy: false, skew: 0 };
+type Store = { state: QueueState | null; notice: 'retry' | 'drop' | null; busy: boolean; skew: number; seat: { room: string; seats: number } | null };
+let store: Store = { state: null, notice: null, busy: false, skew: 0, seat: null };
 const subs = new Set<() => void>();
 const set = (patch: Partial<Store>) => { store = { ...store, ...patch }; subs.forEach((f) => f()); };
 const flag = (on: boolean) => { try { if (on) localStorage.setItem(FLAG, '1'); else localStorage.removeItem(FLAG); } catch { /* optional */ } };
@@ -31,7 +32,7 @@ export function useLiarQueue() {
 
 export default function LiarQueueListener() {
   const { user } = useAuth();
-  const { state, notice, skew } = useLiarQueue();
+  const { state, notice, skew, seat } = useLiarQueue();
   const router = useRouter();
   const locale = useLocale();
   const en = locale === 'en';
@@ -62,6 +63,10 @@ export default function LiarQueueListener() {
       .on('broadcast', { event: 'offer' }, () => { void queueState().then(apply); })
       .on('broadcast', { event: 'go' }, ({ payload }) => { const room = (payload as { room?: string })?.room; if (room) go(room); })
       .on('broadcast', { event: 'retry' }, () => { set({ notice: 'retry' }); void queueState().then(apply); })
+      .on('broadcast', { event: 'seat' }, ({ payload }) => {
+        const p = payload as { room?: string; seats?: number };
+        if (p?.room && /^[a-z0-9]{5}$/.test(p.room)) set({ seat: { room: p.room, seats: Number(p.seats) || 1 } });
+      })
       .on('broadcast', { event: 'drop' }, () => { flag(false); set({ notice: 'drop', state: store.state ? { ...store.state, queued: false, offer: null } : null }); })
       .subscribe();
     return () => { void supabase.removeChannel(ch); };
@@ -124,6 +129,23 @@ export default function LiarQueueListener() {
                 <button type="button" autoFocus onClick={() => answer(true)} className="rounded-xl bg-[#a98bff] py-3 text-[15px] font-black text-[#1a1030]">{en ? 'Accept' : '승낙'}</button>
               </div>}
           <p className="mt-3 text-[10px] text-white/40">{en ? 'If you are in another game, you will leave it.' : '다른 게임 중이라면 그 판은 나가게 돼요.'}</p>
+        </div>
+      </div>
+    );
+  }
+  if (seat) {
+    const join = async () => { set({ seat: null }); await queueLeave(); flag(false); set({ state: store.state ? { ...store.state, queued: false, offer: null } : null }); go(seat.room); };
+    return (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/65 p-5 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="hwl-seat-title">
+        <div className="w-full max-w-[340px] rounded-3xl border border-[#ffd36e]/50 bg-[#17122a] p-5 text-center text-white shadow-[0_0_60px_rgba(255,211,110,.25)]">
+          <div className="mx-auto w-fit"><LiarStone id="hwl-seat" name="" size={84} /></div>
+          <h2 id="hwl-seat-title" className="mt-2 text-[20px] font-black">{en ? `A table has ${seat.seats} free seat${seat.seats > 1 ? 's' : ''}!` : `자리 있어요! ${seat.seats}석`}</h2>
+          <p className="mt-1 break-keep text-[13px] text-white/65">{en ? 'A liar game table is calling for players. Join now?' : '라이어 게임 테이블에서 사람을 찾고 있어요. 지금 참가할까요?'}</p>
+          <div className="mt-4 grid grid-cols-[1fr_2fr] gap-2">
+            <button type="button" onClick={() => set({ seat: null })} className="rounded-xl bg-white/10 py-3 text-[14px] font-bold text-white/75">{en ? 'Later' : '나중에'}</button>
+            <button type="button" autoFocus onClick={() => { void join(); }} className="rounded-xl bg-[#ffd36e] py-3 text-[15px] font-black text-[#241457]">{en ? 'Join now' : '지금 참가'}</button>
+          </div>
+          <p className="mt-3 text-[10px] text-white/40">{en ? 'Joining takes you out of the matchmaking queue.' : '참가하면 매칭 대기에서는 빠져요.'}</p>
         </div>
       </div>
     );

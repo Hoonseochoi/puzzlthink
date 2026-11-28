@@ -7,7 +7,7 @@ import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '@/components/AuthProvider';
 import StoneAvatar from '@/components/StoneAvatar';
 import { markSignupSource } from '@/lib/signupSource';
-import { type LiarRankRow, createLiarRoom, liarLobbyStats, liarRanking, myName } from '@/lib/hiddenWordLiar';
+import { type LiarOpenRoom, type LiarRankRow, createLiarRoom, liarLobbyStats, liarRanking, myName } from '@/lib/hiddenWordLiar';
 import { LiarStone } from './LiarArt';
 import { useLiarQueue } from './LiarQueue';
 import { liarCopy } from './copy';
@@ -45,7 +45,7 @@ export default function LiarHero({ web = false, todayLabel, onOpen }: { web?: bo
   const [busy, setBusy] = useState(false);
   useEffect(() => { void liarRanking(3).then((r) => setRows(r ?? [])); }, []);
   // 공개방: people waiting in the queue and games being played now, refreshed while the page is visible.
-  const [stats, setStats] = useState<{ waiting: number; rooms: number } | null>(null);
+  const [stats, setStats] = useState<{ waiting: number; rooms: number; open?: LiarOpenRoom[] } | null>(null);
   useEffect(() => {
     let alive = true;
     const load = () => { if (document.visibilityState === 'visible') void liarLobbyStats().then((s) => { if (alive && s) setStats(s); }); };
@@ -132,6 +132,19 @@ export default function LiarHero({ web = false, todayLabel, onOpen }: { web?: bo
             {en ? 'Play anything meanwhile: a popup calls you when enough players gather. ' : '다른 게임 하고 있어도 돼요. 인원이 모이면 팝업으로 알려 드려요. '}
             <button type="button" onClick={() => void q.leave()} disabled={q.busy} className="font-black text-white/55 underline underline-offset-2">{en ? 'Cancel' : '신청 취소'}</button>
           </p>
+        )}
+        {/* tables that called for players (초대하기): straight in */}
+        {!!stats?.open?.length && (
+          <div className={`mt-2 flex flex-col gap-1.5 ${web ? 'max-w-[440px]' : ''}`}>
+            {stats.open.slice(0, 2).map((o) => (
+              <button key={o.code} type="button" onClick={() => { if (!user) return login(); onOpen?.(); router.push(`/hidden-word-liar/room/${o.code}`); }}
+                className="flex items-center gap-2 rounded-xl bg-[#ffd36e] px-3 py-2 text-left text-[12.5px] font-black text-[#241457] shadow-[0_6px_20px_rgba(255,211,110,.35)] active:scale-[.98]">
+                <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ff5a3d] opacity-70" /><span className="relative inline-flex h-2 w-2 rounded-full bg-[#ff5a3d]" /></span>
+                <span className="flex-1">{en ? `Join now · ${o.seats} seat${o.seats > 1 ? 's' : ''} free (${o.players} playing)` : `지금 바로 참가 · ${o.seats}석 남음 (${o.players}명 참가 중)`}</span>
+                <ChevronRight size={15} />
+              </button>
+            ))}
+          </div>
         )}
         {!user && <p className="mt-1.5 text-[10px] font-bold text-white/60">{en ? 'Sign in with Google to play.' : '구글 로그인 후 바로 시작해요.'}</p>}
       </div>
