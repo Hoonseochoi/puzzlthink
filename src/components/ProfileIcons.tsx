@@ -8,6 +8,7 @@
  */
 import type { GameId } from '@/lib/stats';
 import { CERT_GAMES } from '@/lib/hardClear';
+import { liarEmblem } from './hiddenWordLiar/LiarArt';
 
 export { CrownStone } from './CrownIcons';
 
@@ -23,7 +24,8 @@ export type IconRef =
   | { kind: 'hellClear' } // hc: cleared any game on 매우 어려움
   | { kind: 'play'; hours: number } // t10 … t100
   | { kind: 'mission'; mission: 'hard' | 'hell' | 'rank' } // hm-*: HIDDEN MISSION
-  | { kind: 'tester'; tier: 'tester' | '14d' | 'founder' }; // pt-*: Google Play app testers
+  | { kind: 'tester'; tier: 'tester' | '14d' | 'founder' } // pt-*: Google Play app testers
+  | { kind: 'liar' }; // lw: won 히든 워드: 라이어 as the liar
 
 /** The 2048 block icons, smallest first: one per block from 2048 up to the biggest a 4×4 board can hold. */
 export const M2048_TIERS = [2048, 4096, 8192, 16384, 32768, 65536, 131072] as const;
@@ -42,6 +44,7 @@ export function parseIcon(stone: string | null | undefined): IconRef | null {
   if (stone === 'fw') return { kind: 'friendWin' };
   if (stone === 'ow') return { kind: 'openWin' };
   if (stone === 'hc') return { kind: 'hellClear' };
+  if (stone === 'lw') return { kind: 'liar' };
   const hm = /^hm-(hard|hell|rank)$/.exec(stone);
   if (hm) return { kind: 'mission', mission: hm[1] as 'hard' | 'hell' | 'rank' };
   const pt = /^pt-(tester|14d|founder)$/.exec(stone);
@@ -246,6 +249,8 @@ const txt = (x: number, y: number, s: string, size: number, fill: string) => (
 
 /** Each game's emblem in a 24×24 box; `c` is the game's colour. */
 export const EMBLEMS: Record<GameId, (c: string) => React.ReactNode> = {
+  // 히든 워드: 라이어: a little masked face with a "?" bubble.
+  hidden_word_liar: liarEmblem,
   // 명제 바둑: a 4×4 board with two coloured stones and a ✓ proposition chip above it.
   proposition_go: (c) => <><rect x="3" y="8" width="18" height="14" rx="2" fill="#2c1470" stroke={K} strokeWidth="1" /><path d="M7.5 8v14M12 8v14M16.5 8v14M3 11.5h18M3 15h18M3 18.5h18" stroke={W} strokeOpacity=".35" strokeWidth=".6" /><circle cx="9.75" cy="13.25" r="2" fill="#ff4d5e" stroke={K} strokeWidth=".6" /><circle cx="14.25" cy="16.75" r="2" fill="#3f8cff" stroke={K} strokeWidth=".6" /><rect x="5" y="1.5" width="14" height="5" rx="2" fill={c} stroke={K} strokeWidth=".8" /><path d="M9 4l1.6 1.4L14 2.6" fill="none" stroke={K} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></>,
   // 확장판: the sealed card stacked on a second one, a gold "+" seal on its corner.

@@ -71,6 +71,9 @@ export type RoomHook = (code: string, defaultName: string) => RoomView;
 
 /** What each game's entry screen offers. Rooms live at `${path}/room/${code}`. */
 export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: PlayOption[]; rooms: RoomOption[]; useRoom?: RoomHook }> = {
+  // 히든 워드: 라이어 runs entirely on the server (hwl_*, src/lib/hiddenWordLiar.ts) with its own lobby, rooms and
+  // matchmaking queue, so it offers nothing through the shared AI/room panels.
+  hiddenWordLiar: { path: '/hidden-word-liar', ai: [], rooms: [] },
   propositionGo: {
     path: '/proposition-go', solo: true,
     ai: [{ label: 'pgDaily', query: 'mode=daily' }, { label: 'pgPractice', query: 'mode=practice' }, { label: 'pgTutorial', query: 'mode=tutorial' }],

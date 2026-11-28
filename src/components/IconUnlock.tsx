@@ -24,6 +24,7 @@ function weight(ref: IconRef | null): number {
     case 'tester': return ref.tier === 'founder' ? 960 : ref.tier === '14d' ? 955 : 950;
     case 'piece': case 'hell': case 'open': return 900 - ref.place;
     case 'crown': return 850;
+    case 'liar': return 800;
     case 'm2048': return 700 + Math.log2(ref.tier);
     case 'play': return 500 + ref.hours;
     case 'hellClear': return 400;

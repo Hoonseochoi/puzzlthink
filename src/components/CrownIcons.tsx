@@ -7,6 +7,7 @@
  */
 import type { ReactNode } from 'react';
 import type { GameId } from '@/lib/stats';
+import { LiarMask } from './hiddenWordLiar/LiarArt';
 
 const CX = 50, CY = 57, R = 36;
 
@@ -80,6 +81,12 @@ const card = (x: number, y: number, w: number, h: number, rot: number, fill: str
 // ─── each game's stone ──────────────────────────────────────────────────────────────────────────────────────
 
 const LOOKS: Record<GameId, Look> = {
+  // 히든 워드: 라이어: a lavender stone with speech bubbles and similarity numbers, a bandit mask over the eyes.
+  hidden_word_liar: {
+    body: ['#f3ecff', '#b89cff', '#4b2fa8'], metal: 'violet', gem: '#ff6b8a', glow: '#c9b2ff',
+    pat: () => <><rect x="17" y="66" width="22" height="12" rx="6" fill="#ffffff" fillOpacity=".55" />{T(28, 75, '72', 8, '#4b2fa8')}<rect x="44" y="72" width="22" height="12" rx="6" fill="#ffffff" fillOpacity=".55" />{T(55, 81, '41', 8, '#4b2fa8')}<rect x="62" y="64" width="22" height="12" rx="6" fill="#ff8a3d" fillOpacity=".85" />{T(73, 73, '85+', 7.4, '#ffffff')}</>,
+    over: () => <><LiarMask cy={CY - 5.6} eyeGap={15.4} holeRx={5.4} holeRy={8.4} /><path d={`M51 ${CY + 8} q.6 5.4 4 5 q3 -.6 1.8 -6.2`} fill="#ff6b8a" stroke="#241457" strokeWidth="1.3" strokeLinejoin="round" /></>,
+  },
   // The wallgo board: a grid of cells, cream walls standing on its lines.
   wallgo: {
     body: ['#ffb596', '#ff6b4a', '#9c2c15'], metal: 'gold', gem: '#ff3b30', glow: '#ff8a5c',

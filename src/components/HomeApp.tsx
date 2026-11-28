@@ -30,6 +30,7 @@ import StoneAvatar, { Stone } from './StoneAvatar';
 import { AppTesterStrip } from './AppTesterInvite';
 import OriginalsRow from './OriginalsRow';
 import OpenBar from './OpenBar';
+import LiarBar from './hiddenWordLiar/LiarBar';
 import { CHANGED_TAG } from './changedTags';
 
 // Games still marked NEW on the home (kept in step with the `new` flags of the classic home cards).
@@ -361,7 +362,7 @@ export default function HomeApp({ Preview, openMatch, Heading = 'h1' }: { Previe
           ))}
         </div>
         <div className="mt-2 flex justify-center gap-1.5">{events.map((e, i) => <i key={e.key} className={`h-1.5 rounded-full transition-all ${i === ev ? 'w-4 bg-[#17201e]' : 'w-1.5 bg-black/20'}`} />)}</div>
-        <div className="px-4"><OpenBar className="mt-2" /></div>
+        <div className="px-4"><OpenBar className="mt-2" /><LiarBar className="mt-2" /></div>
         <LiveFeed items={feed} />
       </section>
 

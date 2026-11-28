@@ -53,7 +53,7 @@ export function useMyNickname() {
  */
 const ICON_BODY: Record<IconRef['kind'], [number, number] | null> = {
   piece: [58, 40], hell: [58, 39], open: [54, 34], m2048: null, crown: [56, 38], hard: [61, 33], friendWin: [60, 32],
-  openWin: [54, 34], hellClear: [58, 34], play: [58, 33], mission: [56, 36], tester: [56, 36],
+  openWin: [54, 34], hellClear: [58, 34], play: [58, 33], mission: [56, 36], tester: [56, 36], liar: [56, 35],
 };
 const BODY_R = 48;
 function bodyFit(choice: string | null | undefined) {
