@@ -121,6 +121,7 @@
     "originals": "PUZZLTHINK ORIGINAL",
     "ruleChangeTag": "NEW RULES",
     "patchTag": "PATCHED",
+    "duelModeTag": "1:1 MODE",
     "originalTag": "ORIGINAL",
     "magicswap": "Magic Square Swap"
   },
@@ -2579,6 +2580,7 @@
     "eqtChallenge": "10-minute challenge (ranked)",
     "eqtPractice": "Practice",
     "eqRoom": "Create a friend room (2–4)",
+    "eqDuel": "Create a 1:1 puzzle duel room",
     "startGame": "Start",
     "short_m2Room": "2–4",
     "m2Room": "Create a friend room (2–4)",
@@ -2665,6 +2667,8 @@
     "short_logicRoom": "2–4",
     "slitherRoom": "Create a room (2–4)",
     "short_slitherRoom": "2–4",
+    "short_eqRoom": "2–4",
+    "short_eqDuel": "1:1 duel",
     "magicswapPractice": "Practice (5×5 · 6×6 · 7×7)",
     "openAppBadge": "App only",
     "openCreateLocked": "Hosting is for app testers"
@@ -6000,7 +6004,9 @@
     "tester_14d": "PLAY TESTER · 14 DAYS",
     "tester_founder": "PLAY TESTER · FOUNDER",
     "liarWin": "Won as the liar",
-    "popupTitleTester": "A testers-only icon!"
+    "popupTitleTester": "A testers-only icon!",
+    "dev_founder": "PUZZLTHINK DEVELOPER",
+    "popupTitleDev": "The developer’s own icon!"
   },
   "PieceRace": {
     "shortTitle": "Piece race · Week 2",
@@ -8740,7 +8746,7 @@
   "EquationSignalGuide": {
     "eyebrow": "EQUATION SIGNAL GUIDE",
     "title": "Equation Signal online — the Devil's Plan 3 final game, rules and tips",
-    "intro": "Equation Signal is the third game of the final of Netflix's The Devil's Plan: Dead Again. A 9-cell equation is hidden, and the green, yellow and red signal on each cell of your guess narrows it down. It plays like Nerdle, the equation version of Wordle, with powers (^) added. On PUZZLTHINK you can practise alone, take the 10-minute challenge, or race 2–4 friends in friend and open rooms.",
+    "intro": "Equation Signal is the third game of the final of Netflix's The Devil's Plan: Dead Again. A 9-cell equation is hidden, and the green, yellow and red signal on each cell of your guess narrows it down. It plays like Nerdle, the equation version of Wordle, with powers (^) added. On PUZZLTHINK you can practise alone, take the 10-minute challenge, race 2–4 friends in friend and open rooms, or write puzzles for each other in a 1:1 duel.",
     "rulesTitle": "Rules",
     "rules": [
       "The answer has 9 cells. It may use digits 0–9 and the signs +, −, ×, ÷, = and ^ (power), any of them more than once.",
@@ -9081,6 +9087,7 @@
     "line_liar": "Won in disguise",
     "line_m2048": "2048 master",
     "line_founder": "Founding tester",
+    "line_dev": "PUZZLTHINK developer",
     "winnerKicker": "WINNER",
     "drawKicker": "DRAW"
   }

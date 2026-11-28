@@ -39,7 +39,7 @@ import { prepareSniperHoldemRoom, useSniperHoldemRoom } from '@/hooks/useSniperH
 import { prepareCardJanggiRoom, useCardJanggiRoom } from '@/hooks/useCardJanggiRoom';
 import { prepareGradationRoom, useGradationRoom } from '@/hooks/useGradationRoom';
 import { prepareColorLinkDuelRoom, useColorLinkDuelRoom } from '@/hooks/useColorLinkDuelRoom';
-import { prepareEquationSignalRoom, useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
+import { prepareEquationSignalDuelRoom, prepareEquationSignalRoom, useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
 import { prepareEquationTowerRoom, useEquationTowerRoom } from '@/hooks/useEquationTowerRoom';
 import { prepareHiddenWordPlusRoom, prepareHiddenWordRoom, useHiddenWordOpenRoom, useHiddenWordPlusOpenRoom } from '@/hooks/useHiddenWordRoom';
 import { prepareHiddenWordPartyRoom } from '@/hooks/useHiddenWordParty';
@@ -93,7 +93,8 @@ export const GAME_MODES: Record<GameId, { path: string; solo?: boolean; ai: Play
   equationSignal: {
     path: '/equation-signal', solo: true,
     ai: [{ label: 'eqsChallenge', query: 'mode=challenge' }, { label: 'eqsPractice', query: 'mode=practice' }],
-    rooms: [{ label: 'eqRoom', create: prepareEquationSignalRoom, openMin: 2, play: 'mode=practice', fillAi: false }], useRoom: useEquationSignalRoom,
+    // 1:1 출제 대결 shares the room channel and page; its state says `mode: 'duel'` (src/lib/equationSignalDuel.ts).
+    rooms: [{ label: 'eqRoom', create: prepareEquationSignalRoom, openMin: 2, play: 'mode=practice', fillAi: false }, { label: 'eqDuel', create: prepareEquationSignalDuelRoom, play: 'mode=practice', fillAi: false }], useRoom: useEquationSignalRoom,
   },
   equationTower: {
     path: '/equation-tower', solo: true,

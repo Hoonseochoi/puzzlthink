@@ -142,7 +142,7 @@ export default function LogicRoomView({ game, code }: { game: LogicGameId; code:
         </div>
 
         {state.phase === 'lobby' ? <div className="mx-auto max-w-md space-y-4">
-          <section className={PANEL}><p className={PANEL_TITLE}>{t('inviteTitle')}</p><InviteCode code={code} /><div className="mt-3 flex gap-2"><button onClick={copy} className={`${BTN} flex-1`}><Copy size={14} />{copied ? t('copied') : t('copy')}</button><button onClick={share} className={`${BTN_ACCENT} flex-1`}><Share2 size={14} />{t('share')}</button></div></section>
+          <section className={PANEL}><p className={PANEL_TITLE}>{t('inviteTitle')}</p><InviteCode code={code} host={me?.name} url={shareUrl} /><div className="mt-3 flex gap-2"><button onClick={copy} className={`${BTN} flex-1`}><Copy size={14} />{copied ? t('copied') : t('copy')}</button><button onClick={share} className={`${BTN_ACCENT} flex-1`}><Share2 size={14} />{t('share')}</button></div></section>
           <form onSubmit={(e) => { e.preventDefault(); rename(nick); setNick(''); }} className="flex gap-2"><input className={INPUT} value={nick} onChange={(e) => setNick(e.target.value)} placeholder={me?.name ?? ''} maxLength={16} /><button className={BTN}>{t('rename')}</button></form>
           {me?.isHost
             ? <><button disabled={activeCount < 2} onClick={() => dispatch({ t: 'start' })} className={`${BTN_ACCENT} w-full py-3 disabled:opacity-35`}><Swords size={15} />{activeCount >= 2 ? t('startCount', { n: activeCount }) : t('startLocked')}</button><p className="text-center text-[11px] text-white/40">{t('startHint')}</p></>

@@ -20,6 +20,7 @@ export const checkNewIcons = (delayMs = 0) => window.dispatchEvent(new CustomEve
 function weight(ref: IconRef | null): number {
   if (!ref) return 0;
   switch (ref.kind) {
+    case 'dev': return 2000;
     case 'mission': return 1000 + (ref.mission === 'rank' ? 3 : ref.mission === 'hell' ? 2 : 1);
     case 'tester': return ref.tier === 'founder' ? 960 : ref.tier === '14d' ? 955 : 950;
     case 'piece': case 'hell': case 'open': return 900 - ref.place;
@@ -44,6 +45,12 @@ const MISSION: Theme = {
   kicker: 'HIDDEN MISSION CLEAR', card: 'from-[#2a1670] via-[#150b44] to-[#08041f]', glow: 'rgba(169,139,255,.45)',
   rays: 'conic-gradient(from 0deg, transparent 0 8deg, rgba(124,243,255,.5) 10deg 13deg, transparent 15deg 22deg, rgba(255,107,196,.45) 24deg 27deg, transparent 29deg 36deg)',
   ring: '#a98bff', accent: '#ffd36b', ink: '#1a0a4a', label: '#ffe08a',
+};
+
+const DEV: Theme = {
+  kicker: 'DEVELOPER ONLY', card: 'from-[#3a0a14] via-[#121528] to-[#07080f]', glow: 'rgba(255,90,74,.45)',
+  rays: 'conic-gradient(from 0deg, transparent 0 8deg, rgba(255,216,107,.55) 10deg 13deg, transparent 15deg 22deg, rgba(255,107,74,.5) 24deg 27deg, transparent 29deg 36deg)',
+  ring: '#ffd86b', accent: '#ffd86b', ink: '#3a0a14', label: '#ffe08a',
 };
 
 const TESTER: Theme = {
@@ -96,7 +103,7 @@ export function UnlockCard({ icons, equipped, name, onClose: close }: { icons: s
   const label = useIconLabel();
   const [hero, ...rest] = icons;
   const heroRef = parseIcon(hero);
-  const theme = heroRef?.kind === 'mission' ? MISSION : heroRef?.kind === 'tester' ? TESTER : GOLD;
+  const theme = heroRef?.kind === 'dev' ? DEV : heroRef?.kind === 'mission' ? MISSION : heroRef?.kind === 'tester' ? TESTER : GOLD;
   const crown = icons.some((i) => parseIcon(i)?.kind === 'crown');
 
   return (
@@ -108,7 +115,7 @@ export function UnlockCard({ icons, equipped, name, onClose: close }: { icons: s
         <button type="button" onClick={close} aria-label={t('close')} className="absolute right-4 top-4 z-10 text-white/40 hover:text-white"><X size={18} /></button>
 
         <span className="relative inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] font-black tracking-[0.22em]" style={{ background: theme.accent, color: theme.ink }}><Sparkles size={11} />{theme.kicker}</span>
-        <h2 id="icon-unlock-title" className="relative mt-3 break-keep text-[26px] font-black leading-tight tracking-[-0.03em]">{heroRef?.kind === 'mission' ? t('popupTitleMission') : heroRef?.kind === 'tester' ? t('popupTitleTester') : icons.length > 1 ? t('popupTitleN', { n: icons.length }) : t('popupTitle')}</h2>
+        <h2 id="icon-unlock-title" className="relative mt-3 break-keep text-[26px] font-black leading-tight tracking-[-0.03em]">{heroRef?.kind === 'dev' ? t('popupTitleDev') : heroRef?.kind === 'mission' ? t('popupTitleMission') : heroRef?.kind === 'tester' ? t('popupTitleTester') : icons.length > 1 ? t('popupTitleN', { n: icons.length }) : t('popupTitle')}</h2>
 
         {/* the stage: turning rays, a pulsing ring, the icon rising in */}
         <div className="relative mx-auto mt-4 flex h-[200px] w-[200px] items-center justify-center">

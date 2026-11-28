@@ -121,6 +121,7 @@
     "originals": "PUZZLTHINK ORIGINAL",
     "ruleChangeTag": "룰 변경",
     "patchTag": "패치",
+    "duelModeTag": "1:1 모드 추가",
     "originalTag": "ORIGINAL",
     "magicswap": "마방진 스왑"
   },
@@ -2640,6 +2641,7 @@
     "eqtChallenge": "10분 챌린지 (기록)",
     "eqtPractice": "연습하기",
     "eqRoom": "친구 방 만들기 (2~4명)",
+    "eqDuel": "1:1 출제 대결 방 만들기",
     "startGame": "게임 시작",
     "short_m2Room": "2~4명",
     "m2Room": "친구 방 만들기 (2~4명)",
@@ -2726,6 +2728,8 @@
     "short_logicRoom": "2~4명",
     "slitherRoom": "친구 방 만들기 (2~4명)",
     "short_slitherRoom": "2~4명",
+    "short_eqRoom": "2~4명",
+    "short_eqDuel": "1:1 출제 대결",
     "magicswapPractice": "연습하기 (5×5 · 6×6 · 7×7)",
     "openAppBadge": "앱 전용",
     "openCreateLocked": "방 만들기는 앱 테스터만"
@@ -6092,7 +6096,9 @@
     "tester_14d": "PLAY TESTER · 14 DAYS",
     "tester_founder": "PLAY TESTER · FOUNDER",
     "liarWin": "라이어로 승리",
-    "popupTitleTester": "테스터 전용 아이콘이에요!"
+    "popupTitleTester": "테스터 전용 아이콘이에요!",
+    "dev_founder": "PUZZLTHINK DEVELOPER",
+    "popupTitleDev": "개발자 전용 아이콘이에요!"
   },
   "PieceRace": {
     "shortTitle": "피스 경쟁전 2W",
@@ -8922,7 +8928,7 @@
   "EquationSignalGuide": {
     "eyebrow": "EQUATION SIGNAL GUIDE",
     "title": "수식 신호등 온라인 — 데블스 플랜 3 결승 게임, 규칙과 공략",
-    "intro": "수식 신호등은 넷플릭스 「데블스 플랜: 데드 어게인」 결승전 3회전에 나온 추리 게임입니다. 9칸짜리 숨은 수식을 두고, 내가 낸 수식의 칸마다 켜지는 초록·노랑·빨강 신호를 단서로 정답을 좁혀 갑니다. Wordle의 수식판인 Nerdle에 제곱(^)을 더한 규칙으로, PUZZLTHINK에서는 혼자 연습, 10분 챌린지, 친구·공개방 2~4명 대결로 즐길 수 있습니다.",
+    "intro": "수식 신호등은 넷플릭스 「데블스 플랜: 데드 어게인」 결승전 3회전에 나온 추리 게임입니다. 9칸짜리 숨은 수식을 두고, 내가 낸 수식의 칸마다 켜지는 초록·노랑·빨강 신호를 단서로 정답을 좁혀 갑니다. Wordle의 수식판인 Nerdle에 제곱(^)을 더한 규칙으로, PUZZLTHINK에서는 혼자 연습, 10분 챌린지, 친구·공개방 2~4명 대결, 서로 문제를 내는 1:1 출제 대결로 즐길 수 있습니다.",
     "rulesTitle": "기본 규칙",
     "rules": [
       "정답 수식은 9칸입니다. 숫자 0~9와 기호 +, −, ×, ÷, =, ^(제곱)을 쓸 수 있고, 같은 글자를 여러 번 써도 됩니다.",
@@ -9263,6 +9269,7 @@
     "line_liar": "정체를 숨기고 승리",
     "line_m2048": "2048 고수",
     "line_founder": "창립 테스터",
+    "line_dev": "PUZZLTHINK 개발자",
     "winnerKicker": "WINNER",
     "drawKicker": "DRAW"
   }

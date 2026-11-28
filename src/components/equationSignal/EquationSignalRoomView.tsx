@@ -12,11 +12,13 @@ import GameHeader from '@/components/ui/GameHeader';
 import { roomPlayers } from '@/components/ui/PlayerStrip';
 import InviteCode from '@/components/ui/InviteCode';
 import { BTN, BTN_ACCENT, CHIP, HEADING, INPUT, KICKER, MAIN, PANEL, PANEL_TITLE, SHELL, STAGE, playerRow, seg } from '@/components/ui/gameUi';
-import { useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
+import { type EqsRoomHook, useEquationSignalRoom } from '@/hooks/useEquationSignalRoom';
 import { usePresenceAlerts } from '@/hooks/usePresenceAlerts';
 import { Link } from '@/i18n/routing';
 import { glyph, keyMarks, type Mark } from '@/lib/equationSignal';
-import { EQS_MAX_GUESSES, EQS_MAX_PLAYERS, EQS_MIN_PLAYERS, EQS_ROUND_OPTIONS, EQS_TIME_OPTIONS, canGuess, eqsRanking, placePoints } from '@/lib/equationSignalRoom';
+import { EQS_MAX_GUESSES, EQS_MAX_PLAYERS, EQS_MIN_PLAYERS, EQS_ROUND_OPTIONS, EQS_TIME_OPTIONS, type EqsRoom, canGuess, eqsRanking, placePoints } from '@/lib/equationSignalRoom';
+import { isDuel } from '@/lib/equationSignalDuel';
+import EquationSignalDuelView from './EquationSignalDuelView';
 import { reportGame } from '@/lib/stats';
 import { SignalKeypad, SignalLegend, SignalRow, useDraft, useSignalKeys } from './SignalParts';
 import { EQS_ACCENT, EQS_ROOT_STYLE, eqsCopy } from './copy';
@@ -24,11 +26,19 @@ import { EQS_ACCENT, EQS_ROOT_STYLE, eqsCopy } from './copy';
 const clock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
 const pretty = (text: string) => [...text].map(glyph).join(' ');
 
+/** One room page for both kinds: the 2–4 player race, or the 1:1 출제 대결 (a duel room's state says `mode: 'duel'`). */
 export default function EquationSignalRoomView({ code }: { code: string }) {
+  const c = eqsCopy(useLocale());
+  const [defaultName] = useState(() => `${c.guest} ${Math.floor(1000 + Math.random() * 9000)}`);
+  const room = useEquationSignalRoom(code, defaultName);
+  return isDuel(room.state) ? <EquationSignalDuelView code={code} room={room} /> : <RaceRoomView code={code} room={room} />;
+}
+
+function RaceRoomView({ code, room }: { code: string; room: EqsRoomHook }) {
   const locale = useLocale();
   const c = eqsCopy(locale);
-  const [defaultName] = useState(() => `${c.guest} ${Math.floor(1000 + Math.random() * 9000)}`);
-  const { status, state, peers, hostOnline, me, mySeat, dispatch, rename } = useEquationSignalRoom(code, defaultName);
+  const { status, peers, hostOnline, me, mySeat, dispatch, rename } = room;
+  const state = room.state as EqsRoom | null;
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
@@ -128,7 +138,7 @@ export default function EquationSignalRoomView({ code }: { code: string }) {
                 <div className={PANEL}>
                   <p className={PANEL_TITLE}>{c.inviteTitle}</p>
                   <p className="mt-2 text-sm text-white/55">{c.inviteDesc}</p>
-                  <InviteCode code={code} />
+                  <InviteCode code={code} host={me?.name} url={shareUrl} />
                   <div className="mt-4 flex items-center gap-2 rounded-md border border-white/10 bg-[#0b0b0e] p-2">
                     <span className="min-w-0 flex-1 truncate px-2 font-mono text-xs text-white/70">{shareUrl}</span>
                     <button onClick={copyLink} className={`shrink-0 ${BTN}`}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? c.copied : c.copy}</button>

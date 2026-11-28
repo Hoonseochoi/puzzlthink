@@ -25,7 +25,8 @@ export type IconRef =
   | { kind: 'play'; hours: number } // t10 … t100
   | { kind: 'mission'; mission: 'hard' | 'hell' | 'rank' } // hm-*: HIDDEN MISSION
   | { kind: 'tester'; tier: 'tester' | '14d' | 'founder' } // pt-*: Google Play app testers
-  | { kind: 'liar' }; // lw: won 히든 워드: 라이어 as the liar
+  | { kind: 'liar' } // lw: won 히든 워드: 라이어 as the liar
+  | { kind: 'dev'; tier: 'founder' }; // dev-founder: the site's maker only, never listed (DevIcons)
 
 /** The 2048 block icons, smallest first: one per block from 2048 up to the biggest a 4×4 board can hold. */
 export const M2048_TIERS = [2048, 4096, 8192, 16384, 32768, 65536, 131072] as const;
@@ -49,6 +50,7 @@ export function parseIcon(stone: string | null | undefined): IconRef | null {
   if (hm) return { kind: 'mission', mission: hm[1] as 'hard' | 'hell' | 'rank' };
   const pt = /^pt-(tester|14d|founder)$/.exec(stone);
   if (pt) return { kind: 'tester', tier: pt[1] as 'tester' | '14d' | 'founder' };
+  if (stone === 'dev-founder') return { kind: 'dev', tier: 'founder' };
   const t = /^t(\d{2,3})$/.exec(stone);
   if (t && Number(t[1]) % 10 === 0 && Number(t[1]) >= 10 && Number(t[1]) <= 100) return { kind: 'play', hours: Number(t[1]) };
   return null;

@@ -3,6 +3,7 @@
 // left to right while copies remain; generateEquation: 1–3 operators, at most one ^ with exponent 2–3 on a base of
 // 2–12, × and ÷ operands 2+, a whole value of 1–99,999, sometimes an expression on both sides; CHALLENGE_MS 10 min),
 // src/lib/equationSignalRoom.ts (2–4 players, 3 or 5 rounds, 120/180/300 s, 12 guesses a round, placePoints),
+// src/lib/equationSignalDuel.ts (1:1 출제 대결: 3 min to write, 8 min to solve, 12 guesses, duelResult),
 // src/components/equationSignal/EquationSignalGame.tsx (practice give-up, challenge skip), src/hooks/useBoardExits.tsx
 // (3 tab switches void a challenge) and the EquationSignalGuide messages.
 // The worked example's colours were computed with markGuess, and a search over every 9-cell string with the known
@@ -57,7 +58,7 @@ const guide: GameGuide = {
         onGamePage: true,
         title: '어떤 게임인가요',
         blocks: [
-          { type: 'p', text: '수식 신호등은 넷플릭스 「데블스 플랜: 데드 어게인」(시즌 3) 결승전 3회전에 나온 게임이에요. 단어를 맞히는 워들(Wordle)을 수식으로 바꾼 너들(Nerdle)과 비슷한데, 기호에 **제곱(^)**이 하나 더 있어요. 방송에서는 두 결승 진출자가 서로 상대가 맞힐 수식을 만들었고, PUZZLTHINK에서는 수식을 자동으로 만들어 혼자서도, 2~4명이 같은 수식을 두고도 겨룰 수 있게 했어요.' },
+          { type: 'p', text: '수식 신호등은 넷플릭스 「데블스 플랜: 데드 어게인」(시즌 3) 결승전 3회전에 나온 게임이에요. 단어를 맞히는 워들(Wordle)을 수식으로 바꾼 너들(Nerdle)과 비슷한데, 기호에 **제곱(^)**이 하나 더 있어요. 방송에서는 두 결승 진출자가 서로 상대가 맞힐 수식을 만들었고, PUZZLTHINK에서는 수식을 자동으로 만들어 혼자서도, 2~4명이 같은 수식을 두고도 겨룰 수 있게 했어요. 방송처럼 서로 문제를 내는 **1:1 출제 대결** 방도 있어요.' },
         ],
       },
       {
@@ -180,6 +181,7 @@ const guide: GameGuide = {
             ['10분 챌린지', '10분 동안 맞힌 수식의 개수가 점수예요. 막히면 넘기기로 다음 수식으로 가요. 로그인하면 랭킹에 오르고 1위에게 수식 신호등 아이콘이 주어져요. 도중에 다른 탭이나 앱으로 3번 이상 넘어가면 그 기록은 순위에 들어가지 않아요.'],
             ['친구·공개방', '2~4명이 같은 수식을 동시에 풀어요. 라운드는 3판 또는 5판, 라운드 시간은 2분·3분·5분 중에서 고르고, 한 라운드에 12번까지 낼 수 있어요.'],
             ['대결 점수', '먼저 맞힌 순서대로 점수를 받아요. 4명이면 4·3·2·1점, 3명이면 3·2·1점, 2명이면 2·1점. 다른 사람의 신호 색은 보이지만 글자는 라운드가 끝나야 보여요.'],
+            ['1:1 출제 대결', '둘이 3분 동안 상대가 풀 9칸 수식을 내요(계산이 맞아야 제출돼요. 시간이 지나면 무작위 수식). 그다음 8분 동안 동시에 상대의 수식을 맞히고, 한 사람당 12번까지 낼 수 있어요. 맞힌 쪽이 이기고, 둘 다 맞히면 제출이 적은 쪽, 같으면 더 빨리 맞힌 쪽이 이겨요. 내 수식은 끝날 때까지 내 기기에만 있고, 끝나면 서로 공개해 신호가 맞았는지 확인해요.'],
           ] },
           { type: 'p', text: '챌린지와 대결은 속도가 점수예요. 완벽하게 하나로 좁힐 때까지 기다리기보다, 후보가 둘셋일 때 가장 그럴듯한 것을 내서 신호를 한 번 더 받는 편이 대개 빨라요. 챌린지에서 한 수식에 2분 넘게 묶여 있다면 넘기는 게 이득이에요.' },
         ],
@@ -205,6 +207,7 @@ const guide: GameGuide = {
       { q: '계산이 안 맞는 수식도 낼 수 있나요?', a: '네. 제출하는 수식은 성립하지 않아도 되고 기호를 연달아 써도 돼요. 정답 수식만 올바른 등식이에요. 그래서 처음 한두 번은 새 글자를 모으는 탐색 줄로 쓰는 게 좋아요.' },
       { q: '몇 번 만에 맞힐 수 있나요?', a: '글자를 고르게 모으면 세 번째나 네 번째에 맞히는 경우가 많아요. 두 줄로 서로 다른 글자 9개를 다 찾으면 남은 건 순서뿐이라, 문법과 계산으로 답이 하나로 정해지기도 해요.' },
       { q: '무료인가요? 가입해야 하나요?', a: '무료이고 가입 없이 바로 할 수 있어요. 로그인하면 10분 챌린지 기록이 랭킹에 올라가고, 1위에게는 수식 신호등 아이콘이 주어져요.' },
+      { q: '친구와 서로 문제를 내고 맞힐 수 있나요?', a: '네. 친구 방이나 공개방에서 「1:1 출제 대결」을 고르면 돼요. 둘이 3분 동안 상대가 풀 수식을 내고, 동시에 상대의 수식을 맞혀요. 맞힌 쪽이 이기고, 둘 다 맞히면 제출이 적은 쪽, 같으면 더 빨리 맞힌 쪽이 이겨요.' },
     ],
     cta: { title: '첫 신호를 켜 볼까요?', body: '혼자 연습으로 두 줄 탐색을 익힌 뒤 10분 챌린지에 도전해 보세요.', button: '수식 신호등 하러 가기' },
     disclaimer: '수식 신호등은 넷플릭스 「데블스 플랜: 데드 어게인」에 등장한 게임의 규칙을 참고한 비공식 팬 게임이며, 넷플릭스 및 제작사와 관련이 없습니다.',
@@ -229,7 +232,7 @@ const guide: GameGuide = {
         onGamePage: true,
         title: 'What kind of game is it?',
         blocks: [
-          { type: 'p', text: "Equation Signal was the third game of the final of Netflix's The Devil's Plan: Dead Again (season 3). It is close to Nerdle, the equation version of Wordle, with one extra symbol: **the power sign (^)**. On the show each finalist wrote the equation the other had to find; PUZZLTHINK generates the equations, so you can play alone or race 2–4 players on the same one." },
+          { type: 'p', text: "Equation Signal was the third game of the final of Netflix's The Devil's Plan: Dead Again (season 3). It is close to Nerdle, the equation version of Wordle, with one extra symbol: **the power sign (^)**. On the show each finalist wrote the equation the other had to find; PUZZLTHINK generates the equations, so you can play alone or race 2–4 players on the same one. A **1:1 puzzle duel** room plays it the show's way: each of you writes the other's equation." },
         ],
       },
       {
@@ -352,6 +355,7 @@ const guide: GameGuide = {
             ['10-minute challenge', 'Your score is the number of equations solved in 10 minutes; skip to move on. Signed in, you are ranked and first place gets the Equation Signal icon. Switching to another tab or app 3 times or more voids the run for the ranking.'],
             ['Friend and open rooms', '2–4 players solve the same equation at once: 3 or 5 rounds, 2, 3 or 5 minutes a round, up to 12 guesses a round.'],
             ['Room scoring', 'Points by finishing order: 4-3-2-1 with four players, 3-2-1 with three, 2-1 with two. You see everyone’s colours, but their symbols only after the round.'],
+            ['1:1 puzzle duel', 'Each of you has 3 minutes to write a true 9-cell equation for the other (a random one if time runs out). Then you both find the other’s at once: 8 minutes, up to 12 guesses each. Solving wins; if both solve, fewer guesses wins, then the faster solve. Your equation stays on your device until the end, when both are revealed and checked against the signals.'],
           ] },
           { type: 'p', text: 'In the challenge and in rooms, speed is the score. Rather than waiting until only one candidate remains, play the likeliest of two or three and get another row of signals. In the challenge, if one equation has held you for over 2 minutes, skipping usually pays.' },
         ],
@@ -377,6 +381,7 @@ const guide: GameGuide = {
       { q: 'Can I submit an equation that is not true?', a: 'Yes. Guesses need not be true and may even have operators side by side; only the answer is a proper equation. That is why your first one or two rows are best used as probes for new symbols.' },
       { q: 'How many guesses does it take?', a: 'Collecting symbols evenly, three or four guesses is common. If two rows reveal all nine different symbols, only their order is left, and grammar and arithmetic can pin the answer down.' },
       { q: 'Is it free? Do I need an account?', a: 'It is free and needs no account. Sign in and your 10-minute challenge results go on the ranking, where first place earns the Equation Signal icon.' },
+      { q: 'Can I write a puzzle for a friend?', a: 'Yes: open a 1:1 puzzle duel, as a friend room or an open room. Each of you writes an equation for the other in 3 minutes, then you both solve at once. Solving wins; if both solve, fewer guesses wins, then the faster solve.' },
     ],
     cta: { title: 'Ready for the first signal?', body: 'Practise the two-row probe alone, then take on the 10-minute challenge.', button: 'Play Equation Signal' },
     disclaimer: "Equation Signal is an unofficial fan game based on a game from Netflix's The Devil's Plan: Dead Again and is not affiliated with Netflix or the producers.",

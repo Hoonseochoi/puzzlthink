@@ -2,52 +2,18 @@
 
 import { useState } from 'react';
 import { Check, Link2, Share2 } from 'lucide-react';
+import { shareFallback, shareKakao } from '@/lib/kakaoShare';
 
-// KakaoTalk share. The JavaScript key is the public one (it ships in every page that uses the SDK); the domains it
-// may run on are set on the key in Kakao Developers. The SDK loads only when someone taps the button.
-const KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY || '9febe935e7b9067b4aa2a11e993fa412';
-const KAKAO_SDK = 'https://t1.kakaocdn.net/kakao_js_sdk/2.8.2/kakao.min.js';
-const KAKAO_SRI = 'sha384-zt/G7/KfaRQ9dT/QIkS0ujMtzouJqzuSJcXVQu50x0rl/+mD1dc70AeOejVbMD9E';
-
-type KakaoShare = { sendDefault: (o: Record<string, unknown>) => void };
-type KakaoSdk = { isInitialized: () => boolean; init: (key: string) => void; Share: KakaoShare };
-declare global { interface Window { Kakao?: KakaoSdk } }
-
-let loading: Promise<KakaoSdk | null> | null = null;
-function loadKakao(): Promise<KakaoSdk | null> {
-  if (window.Kakao) return Promise.resolve(window.Kakao);
-  loading ??= new Promise((resolve) => {
-    const s = document.createElement('script');
-    s.src = KAKAO_SDK; s.integrity = KAKAO_SRI; s.crossOrigin = 'anonymous'; s.async = true;
-    s.onload = () => resolve(window.Kakao ?? null);
-    s.onerror = () => { loading = null; resolve(null); };
-    document.head.appendChild(s);
-  });
-  return loading;
-}
-
-/** Sends a feed card to KakaoTalk; false when the SDK could not be used (the caller then falls back). */
-export async function kakaoShare({ title, description, url, imageUrl, button }: { title: string; description: string; url: string; imageUrl: string; button: string }) {
-  try {
-    const k = await loadKakao();
-    if (!k) return false;
-    if (!k.isInitialized()) k.init(KAKAO_JS_KEY);
-    k.Share.sendDefault({
-      objectType: 'feed',
-      content: { title, description, imageUrl, link: { mobileWebUrl: url, webUrl: url } },
-      buttons: [{ title: button, link: { mobileWebUrl: url, webUrl: url } }],
-    });
-    return true;
-  } catch { return false; }
-}
+// KakaoTalk goes through the site's shared helper (src/lib/kakaoShare.ts: one SDK loader, falls back to the share
+// sheet, then copy link). The card image is this game's own cached OG card.
 
 /** The invite / result share row: KakaoTalk (yellow), the system share sheet, copy link. */
 export default function LiarShare({ url, title, text, button, en, compact = false }: { url: string; title: string; text: string; button: string; en: boolean; compact?: boolean }) {
   const [copied, setCopied] = useState(false);
-  const image = () => `${window.location.origin}/${en ? 'en' : 'ko'}/hidden-word-liar/opengraph-image`;
+  const image = () => `/${en ? 'en' : 'ko'}/hidden-word-liar/opengraph-image`;
   const copy = async () => { try { await navigator.clipboard.writeText(`${text} ${url}`); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* blocked */ } };
-  const sheet = async () => { if (navigator.share) { try { await navigator.share({ title, text, url }); return; } catch { return; } } void copy(); };
-  const kakao = async () => { if (!(await kakaoShare({ title, description: text, url, imageUrl: image(), button }))) void sheet(); };
+  const sheet = async () => { if ((await shareFallback({ title, description: text, url })) === 'copied') { setCopied(true); window.setTimeout(() => setCopied(false), 1800); } };
+  const kakao = async () => { if ((await shareKakao({ title, description: text, url, imageUrl: image(), buttonTitle: button })) === 'copied') { setCopied(true); window.setTimeout(() => setCopied(false), 1800); } };
   const small = compact ? 'py-2 text-[12px]' : 'py-2.5 text-[13px]';
   return (
     <div className="grid grid-cols-[1.4fr_1fr_1fr] gap-1.5">

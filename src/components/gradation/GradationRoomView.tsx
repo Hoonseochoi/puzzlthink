@@ -20,6 +20,7 @@ import { GradationRules } from './GradationGame';
 import { GradationCrown } from './GradationParts';
 import GradationResult, { useGradationReport } from './GradationResult';
 import GradationTable from './GradationTable';
+import { KakaoInviteButton } from '@/components/ui/KakaoShareButton';
 
 const TITLE_CLASS = 'font-black [font-family:Georgia,serif] !text-[14px] !tracking-normal min-[400px]:!text-lg sm:!text-xl sm:!tracking-[0.08em]';
 
@@ -102,6 +103,7 @@ function Lobby({ state, code, me, mySeat, online, t, copied, onCopy, onShare, na
           <p className="mt-2 text-xs leading-5 text-white/50">{t.inviteDesc}</p>
           <div className="mt-3 rounded-md border border-white/10 bg-[#0b0b0e] p-3"><p className="text-[9px] font-black tracking-widest text-white/25">INVITE CODE</p><p className="mt-1 font-mono text-3xl font-black tracking-[.25em] text-(--accent)">{code}</p></div>
           <div className="mt-2 grid grid-cols-2 gap-2"><button type="button" onClick={onCopy} className={`py-2.5 ${BTN}`}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t.copied : t.copy}</button><button type="button" onClick={onShare} className={`py-2.5 ${BTN_ACCENT}`}><Share2 size={14} />{t.share}</button></div>
+          <KakaoInviteButton code={code} host={me?.name} />
         </div>
         <ul className="mt-4 grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
           {state.seats.map((seat, i) => (
